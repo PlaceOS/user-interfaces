@@ -30,7 +30,7 @@ export enum ZoomDirection {
     selector: 'camera-tooltip',
     template: `
         @if (camera_list()?.length) {
-            <div class="my-2 flex flex-col rounded-sm bg-base-100 shadow-sm">
+            <div class="bg-base-100 my-2 flex flex-col rounded-sm shadow-sm">
                 <mat-form-field appearance="outline" class="no-subscript m-2">
                     <mat-select
                         [ngModel]="active_camera()"
@@ -45,10 +45,10 @@ export enum ZoomDirection {
                     </mat-select>
                 </mat-form-field>
                 <div
-                    class="relative mt-1 flex flex-col border-t border-base-200 sm:flex-row"
+                    class="border-base-200 relative mt-1 flex flex-col border-t sm:flex-row"
                 >
                     <div
-                        class="relative flex flex-col items-center space-y-2 border-b border-base-200 p-4 sm:border-b-0 sm:border-r"
+                        class="border-base-200 relative flex flex-col items-center space-y-2 border-b p-4 sm:border-r sm:border-b-0"
                     >
                         <h3 class="mb-2 w-full pr-12 text-xl font-medium">
                             {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
@@ -70,7 +70,7 @@ export enum ZoomDirection {
                                         <button
                                             icon
                                             matRipple
-                                            class="h-12 w-12 rounded-sm border border-error bg-base-100 text-error"
+                                            class="border-error bg-base-100 text-error h-12 w-12 rounded-sm border"
                                             (click)="removePreset(name)"
                                         >
                                             <icon>delete</icon>
@@ -80,7 +80,7 @@ export enum ZoomDirection {
                             }
                         } @else {
                             <p
-                                class="w-full rounded-sm bg-base-300 p-8 opacity-30"
+                                class="bg-base-300 w-full rounded-sm p-8 opacity-30"
                             >
                                 {{
                                     'APP.CONTROL.CAMERA_PRESETS_EMPTY'
@@ -91,7 +91,7 @@ export enum ZoomDirection {
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-1"
+                            class="absolute top-1 right-4"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>add</icon>
@@ -146,7 +146,7 @@ export enum ZoomDirection {
                             ></joystick>
                             <div
                                 zoom
-                                class="flex flex-col items-center rounded-sm border border-base-200"
+                                class="border-base-200 flex flex-col items-center rounded-sm border"
                             >
                                 <button
                                     zoom-in
@@ -161,7 +161,7 @@ export enum ZoomDirection {
                                     <icon>add</icon>
                                 </button>
                                 <div
-                                    class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
+                                    class="border-base-200 flex h-10 w-10 items-center justify-center border-t border-b text-xs"
                                 >
                                     {{ 'APP.CONTROL.ZOOM' | translate }}
                                 </div>
@@ -182,7 +182,7 @@ export enum ZoomDirection {
                     </div>
                     @if (!active_camera()) {
                         <div
-                            class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
+                            class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
                         >
                             <p>
                                 {{
@@ -195,7 +195,7 @@ export enum ZoomDirection {
             </div>
         } @else {
             <div
-                class="my-2 flex flex-col rounded-sm bg-base-100 p-8 text-center shadow-sm"
+                class="bg-base-100 my-2 flex flex-col rounded-sm p-8 text-center shadow-sm"
             >
                 <p>{{ 'APP.CONTROL.CAMERAS_EMPTY' | translate }}</p>
             </div>

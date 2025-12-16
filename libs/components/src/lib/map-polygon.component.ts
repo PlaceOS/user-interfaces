@@ -26,11 +26,11 @@ export interface MapPolygonData {
     template: `
         <div
             polygon
-            class="absolute -left-1 -top-1 h-full w-full -translate-x-1/2 -translate-y-1/2 transform"
+            class="absolute -top-1 -left-1 h-full w-full -translate-x-1/2 -translate-y-1/2 transform"
             [style.transform]="'scale(' + scale * zoom + ')'"
         >
             <div
-                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform"
                 [style.width]="width + '%'"
                 [style.height]="height + '%'"
             >
@@ -62,7 +62,7 @@ export interface MapPolygonData {
         </div>
         <div
             text
-            class="text-shadow absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform whitespace-pre-line text-center text-xl text-white"
+            class="text-shadow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center text-xl whitespace-pre-line text-white"
         >
             {{ name }}
         </div>

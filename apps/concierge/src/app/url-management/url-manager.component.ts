@@ -16,7 +16,7 @@ import { UrlManagementService } from './url-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
-                    class="mb-2 flex items-center justify-between px-8 pb-2 pt-4"
+                    class="mb-2 flex items-center justify-between px-8 pt-4 pb-2"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.URLS_HEADER' | translate }}

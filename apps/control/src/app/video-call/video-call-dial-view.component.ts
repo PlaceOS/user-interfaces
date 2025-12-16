@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -85,6 +86,7 @@ import { VideoCallStateService } from './video-call-state.service';
     `,
     styles: [``],
     imports: [
+        CommonModule,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,

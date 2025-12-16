@@ -138,10 +138,10 @@ interface PositionedBooking {
                                             : '') +
                                         '
 ' +
-                                        (item.booking.user_name ||
-                                            (item.booking.host | user | async)
+                                        ($any(item.booking).user_name ||
+                                            ($any(item.booking).host | user | async)
                                                 ?.name ||
-                                            item.booking.host) +
+                                            $any(item.booking).host) +
                                         '
 ' +
                                         (item.booking.date
@@ -187,41 +187,41 @@ interface PositionedBooking {
                                             {{ location(item.booking) }}
                                         </div>
                                     }
-                                    @if (item.height > 7 && item.booking.host) {
+                                    @if (item.height > 7 && $any(item.booking).host) {
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
                                             {{
                                                 (
-                                                    item.booking.host
+                                                    $any(item.booking).host
                                                     | user
                                                     | async
                                                 )?.name ||
-                                                    item.booking.organiser
+                                                    $any(item.booking).organiser
                                                         ?.name ||
-                                                    item.booking.host
+                                                    $any(item.booking).host
                                             }}
                                         </div>
                                     }
                                     @if (
                                         item.height > 7 &&
-                                        !item.booking.host &&
-                                        item.booking.user_email !==
-                                            item.booking.booked_by_email
+                                        !$any(item.booking).host &&
+                                        $any(item.booking).user_email !==
+                                            $any(item.booking).booked_by_email
                                     ) {
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
                                             Booked by
                                             {{
-                                                item.booking.booked_by_name ||
+                                                $any(item.booking).booked_by_name ||
                                                     (
-                                                        item.booking
+                                                        $any(item.booking)
                                                             .booked_by_email
                                                         | user
                                                         | async
                                                     )?.name ||
-                                                    item.booking.booked_by_email
+                                                    $any(item.booking).booked_by_email
                                             }}
                                         </div>
                                     }

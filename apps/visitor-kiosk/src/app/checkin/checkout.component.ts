@@ -12,12 +12,12 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading) {
             <div
-                class="relative flex w-md flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-md flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
                 </h3>
-                <div class="mb-4 mt-2 w-full">
+                <div class="mt-2 mb-4 w-full">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
                 </div>
                 <div class="flex w-full items-center justify-end">
@@ -28,7 +28,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <a
                     icon
                     matRipple
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -36,7 +36,7 @@ import { CheckinStateService } from './checkin-state.service';
             </div>
         } @else {
             <div
-                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
+                class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>

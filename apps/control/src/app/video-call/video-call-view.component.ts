@@ -20,7 +20,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
                     <topbar-header></topbar-header>
                     <div class="h-1/2 flex-1">
                         <div
-                            class="absolute inset-4 flex flex-col rounded-sm bg-base-100 shadow-sm"
+                            class="bg-base-100 absolute inset-4 flex flex-col rounded-sm shadow-sm"
                             video-call-page
                         ></div>
                     </div>
@@ -42,7 +42,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
         } @else {
             <div
                 name="loader"
-                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-black"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center text-black"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="my-4 text-2xl">

@@ -62,12 +62,6 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            <div filter-item count>
-                {{
-                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (options | async)?.capcaity || 2 }
-                }}
-            </div>
             @for (feat of (options | async)?.features; track feat) {
                 <div filter-item>
                     <p>{{ feat }}</p>

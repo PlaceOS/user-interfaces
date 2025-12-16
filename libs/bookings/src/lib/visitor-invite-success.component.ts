@@ -33,7 +33,7 @@ import { BookingFormService } from './booking-form.service';
     template: `
         <div
             sent
-            class="flex h-full w-full flex-col items-center justify-center bg-base-100 text-center"
+            class="bg-base-100 flex h-full w-full flex-col items-center justify-center text-center"
         >
             <div
                 class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
@@ -108,7 +108,7 @@ import { BookingFormService } from './booking-form.service';
                             matRipple
                             name="desk-ical-link"
                             class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                            [href]="ical_link() | safe: 'url'"
+                            [href]="ical_link() | sanitize: 'url'"
                             target="_blank"
                             rel="noopener noreferer"
                         >
@@ -118,7 +118,7 @@ import { BookingFormService } from './booking-form.service';
                     </div>
                 }
             </div>
-            <div class="z-10 w-full border-t border-base-200 bg-base-100 p-2">
+            <div class="border-base-200 bg-base-100 z-10 w-full border-t p-2">
                 <div
                     class="mx-auto flex w-full max-w-lg items-center space-x-2"
                 >

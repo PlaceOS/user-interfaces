@@ -6,7 +6,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-error',
     template: `
         <div
-            class="mx-auto my-4 w-lg max-w-[calc(100vw-2rem)] rounded-sm border border-base-200 bg-warning p-4 shadow-sm"
+            class="border-base-200 bg-warning mx-auto my-4 w-lg max-w-[calc(100vw-2rem)] rounded-sm border p-4 shadow-sm"
         >
             <h3 class="mb-4 text-center text-xl font-medium">
                 Unable to continue

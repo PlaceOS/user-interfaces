@@ -17,7 +17,7 @@ import {
 @Component({
     selector: 'app-topbar',
     template: `
-        <div class="flex items-center border-b border-base-200 p-2">
+        <div class="border-base-200 flex items-center border-b p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
                     <img auth class="h-12" [source]="logo?.src || logo" />
@@ -43,7 +43,7 @@ import {
                     matRipple
                     avatar
                     name="user-controls"
-                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                    class="bg-base-200 mr-2 flex h-10 w-10 items-center justify-center rounded-full"
                     customTooltip
                     [content]="user_controls"
                 >

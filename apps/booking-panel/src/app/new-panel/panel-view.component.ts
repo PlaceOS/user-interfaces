@@ -25,7 +25,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                     "
                 >
                     <div
-                        class="absolute left-4 top-4 flex w-1/2 items-center justify-center rounded-sm bg-warning p-4 text-5xl font-medium text-white shadow-sm"
+                        class="bg-warning absolute top-4 left-4 flex w-1/2 items-center justify-center rounded-sm p-4 text-5xl font-medium text-white shadow-sm"
                     >
                         {{
                             name ||
@@ -35,7 +35,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                         }}
                     </div>
                     <div
-                        class="absolute bottom-4 right-4 flex max-w-[25%] flex-col items-center text-center"
+                        class="absolute right-4 bottom-4 flex max-w-[25%] flex-col items-center text-center"
                     >
                         <div class="text-8xl">{{ capacity }}</div>
                         <div class="text-3xl">
@@ -44,7 +44,7 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                     </div>
                 </div>
             }
-            <div class="absolute bottom-0 right-0 p-2">
+            <div class="absolute right-0 bottom-0 p-2">
                 <div class="w-full text-xs opacity-40">
                     <ng-container
                         >{{ 'COMMON.CONTROLS_VERSION' | translate }}:

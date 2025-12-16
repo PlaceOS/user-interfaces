@@ -29,7 +29,7 @@ import { IconComponent } from '@placeos/components';
                 [class.opacity-0]="mobile_menu() || checking()"
                 [class.h-0!]="mobile_menu()"
                 (window:resize)="checkMenu()"
-                class="flex h-full w-full min-w-full items-center justify-center overflow-hidden text-base-content"
+                class="text-base-content flex h-full w-full min-w-full items-center justify-center overflow-hidden"
             >
                 @for (route of routes; track route) {
                     @if (features().includes(route.id) || route.id === 'home') {
@@ -42,10 +42,16 @@ import { IconComponent } from '@placeos/components';
                             [matTooltip]="route.name"
                             matTooltipPosition="below"
                         >
-                            <icon filled class="text-xl">{{ route.icon }}</icon>
+                            <icon
+                                filled
+                                class="text-xl"
+                                [class.mx-auto]="hide_text()"
+                                >{{ route.icon }}</icon
+                            >
                             <icon
                                 outline
                                 className="material-symbols-outlined"
+                                [class.mx-auto]="hide_text()"
                                 class="m-0! text-xl"
                             >
                                 {{ route.icon }}
@@ -55,7 +61,7 @@ import { IconComponent } from '@placeos/components';
                             }
                             <div
                                 bar
-                                class="absolute inset-x-0 bottom-0 h-0.5 bg-secondary"
+                                class="bg-secondary absolute inset-x-0 bottom-0 h-0.5"
                             ></div>
                         </a>
                     }

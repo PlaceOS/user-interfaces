@@ -41,14 +41,14 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
     selector: `signage-item-playlists`,
     template: `
         <div
-            class="flex items-center justify-center space-x-2 rounded-xl bg-base-100 p-2"
+            class="bg-base-100 flex items-center justify-center space-x-2 rounded-xl p-2"
         >
             <h3 class="text-xl font-medium">
                 {{ item()?.display_name || item()?.name }}
             </h3>
             @if (extra()) {
                 <div
-                    class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
+                    class="bg-base-200 rounded-lg px-2 py-1 font-mono text-xs uppercase"
                 >
                     {{ extra() }}
                 </div>
@@ -79,16 +79,16 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                 @for (item of active_playlists(); track item?.id) {
                     <div
                         cdkDrag
-                        class="flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
+                        class="border-base-300 bg-base-100 flex h-20 w-full items-center space-x-2 rounded-lg border p-2"
                     >
                         <div
-                            class="h-20 w-full rounded-xl border-4 border-dashed border-base-400 bg-base-300"
+                            class="border-base-400 bg-base-300 h-20 w-full rounded-xl border-4 border-dashed"
                             *cdkDragPlaceholder
                         ></div>
                         <button
                             matRipple
                             cdkDragHandle
-                            class="m-0! flex h-full w-6 items-center justify-center rounded-sm hover:bg-base-200"
+                            class="hover:bg-base-200 m-0! flex h-full w-6 items-center justify-center rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
                                     | translate
@@ -101,7 +101,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                             matRipple
                             [routerLink]="['/signage', 'media']"
                             [queryParams]="{ playlist: item.id }"
-                            class="h-14 w-14 overflow-hidden rounded-sm border border-base-200 bg-base-200"
+                            class="border-base-200 bg-base-200 h-14 w-14 overflow-hidden rounded-sm border"
                         >
                             @for (
                                 media of playlist_thumbnail_media()[item.id] ||
@@ -118,7 +118,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                                 />
                             }
                         </a>
-                        <div class="w-1/2 flex-1 text-base-content">
+                        <div class="text-base-content w-1/2 flex-1">
                             <div class="truncate">
                                 {{ item.name }}
                             </div>
@@ -138,7 +138,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                         </div>
                         @if (isScheduled(item)) {
                             <div
-                                class="rounded-sm border border-info bg-info-light p-1 text-lg"
+                                class="border-info bg-info-light rounded-sm border p-1 text-lg"
                                 [matTooltip]="'COMMON.SCHEDULED' | translate"
                             >
                                 <icon>event</icon>
@@ -172,7 +172,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                             </a>
                             <button mat-menu-item (click)="remove.emit(item)">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error">
+                                    <icon class="text-error text-2xl">
                                         delete
                                     </icon>
                                     <div class="pr-2">

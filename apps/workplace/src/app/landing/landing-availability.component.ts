@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { settingSignal, Space } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     BuildingPipe,
     IconComponent,
     LevelPipe,
@@ -40,12 +41,12 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             name="landing-view-space"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 flex w-64 snap-start items-center space-x-2 rounded-sm border p-2 shadow-sm"
                             [routerLink]="['/explore']"
                             [queryParams]="{ level: lvl.id }"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                                class="bg-base-200 flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (lvl?.images?.length) {
                                     <img
@@ -69,7 +70,7 @@ import { LandingStateService } from './landing-state.service';
                                 <div
                                     class="flex max-w-full items-center truncate text-sm opacity-60"
                                 >
-                                    <icon class="text-blue-500 text-lg"
+                                    <icon class="text-lg text-blue-500"
                                         >place</icon
                                     >
                                     @let building = lvl.parent_id | building;
@@ -116,11 +117,11 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             name="landing-book-room"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 flex w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                             (click)="book(space)"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                                class="bg-base-200 flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (
                                     (space.id | space | async)?.images?.length
@@ -149,7 +150,7 @@ import { LandingStateService } from './landing-state.service';
                                 <div
                                     class="flex max-w-full items-center truncate text-sm opacity-60"
                                 >
-                                    <icon class="text-blue-500 text-lg"
+                                    <icon class="text-lg text-blue-500"
                                         >place</icon
                                     >
                                     @let level = space.zones | level;
@@ -189,6 +190,7 @@ import { LandingStateService } from './landing-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         IconComponent,
+        AuthenticatedImageDirective,
     ],
 })
 export class LandingAvailabilityComponent {

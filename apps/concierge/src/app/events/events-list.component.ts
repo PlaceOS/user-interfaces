@@ -69,7 +69,7 @@ import { EventStateService } from './event-state.service';
                     </div>
                 </button>
                 <div class="h-full px-2">
-                    <div class="h-full w-px bg-base-300"></div>
+                    <div class="bg-base-300 h-full w-px"></div>
                 </div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
@@ -104,13 +104,13 @@ import { EventStateService } from './event-state.service';
                     </div>
                 }
                 @if (view === 'calendar') {
-                    <event-calendar [period]="period | async"></event-calendar>
+                    <event-calendar></event-calendar>
                 }
             </div>
         </div>
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
-                <div class="absolute inset-0 bg-base-100 opacity-80"></div>
+                <div class="bg-base-100 absolute inset-0 opacity-80"></div>
                 <p class="max-w-lg text-lg opacity-60">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>

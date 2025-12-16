@@ -117,8 +117,8 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         }
         @if (features().length > 1) {
             <div
-                class="relative z-40 flex h-16 w-full items-center justify-center border-t border-base-200 bg-base-100 shadow-sm sm:hidden"
-                [attr.dark]="dark_mode"
+                class="border-base-200 bg-base-100 relative z-40 flex h-16 w-full items-center justify-center border-t shadow-sm sm:hidden"
+                [attr.dark]="dark_mode()"
             >
                 <a
                     matRipple
@@ -173,10 +173,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     }}</span>
                 </a>
                 <div
-                    class="absolute left-1/2 top-0 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
+                    class="absolute top-0 left-1/2 h-2 w-24 -translate-x-1/2 -translate-y-full overflow-hidden"
                 >
                     <div
-                        class="mx-auto h-16 w-16 rounded-full border-t border-base-200 bg-base-100 shadow-sm"
+                        class="border-base-200 bg-base-100 mx-auto h-16 w-16 rounded-full border-t shadow-sm"
                     ></div>
                 </div>
             </div>

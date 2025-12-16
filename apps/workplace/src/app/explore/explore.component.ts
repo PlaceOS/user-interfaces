@@ -17,7 +17,7 @@ import { EventPinComponent } from './event-pin.component';
         @if (!hide_nav) {
             <topbar />
         }
-        <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
+        <div class="bg-base-200 flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <main
                 class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >

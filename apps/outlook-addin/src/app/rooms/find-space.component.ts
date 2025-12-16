@@ -35,13 +35,13 @@ import { RoomConfirmService } from './room-confirm.service';
 @Component({
     selector: 'find-space',
     template: `
-        <div class="fixed inset-0 z-10 flex flex-col bg-base-200">
+        <div class="bg-base-200 fixed inset-0 z-10 flex flex-col">
             <div
-                class="mx-auto flex h-full w-lg max-w-full flex-col border-x border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 mx-auto flex h-full w-lg max-w-full flex-col border-x"
             >
                 <header class="space-y-2 p-2">
                     <div
-                        class="flex items-center justify-between rounded-sm bg-base-200 p-2"
+                        class="bg-base-200 flex items-center justify-between rounded-sm p-2"
                     >
                         <h2 class="px-2 text-xl font-medium">Find Space</h2>
                         <button icon matRipple (click)="closeModal()">
@@ -49,7 +49,7 @@ import { RoomConfirmService } from './room-confirm.service';
                         </button>
                     </div>
                     <div
-                        class="flex items-center justify-between rounded-lg border border-base-200 p-1"
+                        class="border-base-200 flex items-center justify-between rounded-lg border p-1"
                     >
                         <button
                             btn
@@ -66,7 +66,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             }
                         </button>
                         <div
-                            class="mx-1 flex divide-x divide-secondary rounded-sm border border-secondary"
+                            class="divide-secondary border-secondary mx-1 flex divide-x rounded-sm border"
                         >
                             <button
                                 icon
@@ -121,7 +121,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             } @else {
                                 <mat-form-field
                                     appearance="outline"
-                                    class="ml-auto mr-2 flex text-sm"
+                                    class="mr-2 ml-auto flex text-sm"
                                 >
                                     <mat-select
                                         [(ngModel)]="selected_level"
@@ -148,7 +148,7 @@ import { RoomConfirmService } from './room-confirm.service';
                         } @else {
                             <div class="h-1/2 w-full flex-1 px-2 pb-2">
                                 <div
-                                    class="flex h-full w-full items-center justify-center rounded-sm bg-base-200 opacity-30"
+                                    class="bg-base-200 flex h-full w-full items-center justify-center rounded-sm opacity-30"
                                 >
                                     <p class="">No spaces</p>
                                 </div>
@@ -167,14 +167,14 @@ import { RoomConfirmService } from './room-confirm.service';
         </div>
 
         <div
-            class="z-0 flex h-full w-full flex-1 flex-col overflow-auto bg-base-200"
+            class="bg-base-200 z-0 flex h-full w-full flex-1 flex-col overflow-auto"
         >
             <section class="flex flex-col py-5">
                 <div class="mx-auto w-[calc(100%-2rem)] max-w-[375px]">
                     <div class="flex flex-row items-center">
                         <button (click)="closeModal()">
                             <icon
-                                class="flex items-center justify-center text-3xl text-base-400"
+                                class="text-base-400 flex items-center justify-center text-3xl"
                                 >close</icon
                             >
                         </button>
@@ -192,7 +192,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                 btn
                                 matRipple
                                 (click)="openFilter()"
-                                class="filter-button h-9 w-full bg-base-200 text-sm"
+                                class="filter-button bg-base-200 h-9 w-full text-sm"
                             >
                                 <span>Filter</span>
 
@@ -207,7 +207,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             </button>
                         </div>
                         <div
-                            class="flex divide-x divide-secondary rounded-sm border border-secondary"
+                            class="divide-secondary border-secondary flex divide-x rounded-sm border"
                         >
                             <button
                                 icon
@@ -264,14 +264,14 @@ import { RoomConfirmService } from './room-confirm.service';
                     <section class="my-2 flex flex-row border-t">
                         <div class="flex flex-col">
                             <span class="mt-3 text-lg font-bold"> Results</span>
-                            <span class="text-gray-500 mt-1 text-xs">
+                            <span class="mt-1 text-xs text-gray-500">
                                 {{ (spaces$ | async)?.length || 0 }} results
                                 found</span
                             >
                         </div>
                     </section>
 
-                    <div class="w-full flex-1 bg-base-200">
+                    <div class="bg-base-200 w-full flex-1">
                         @if (!(loading | async)) {
                             @if ((spaces$ | async)?.length > 0) {
                                 @if (view() == 'list') {
@@ -347,7 +347,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                         }
                                         @if (selected_level) {
                                             <div
-                                                class="max-w-screen relative m-6"
+                                                class="relative m-6 max-w-screen"
                                             >
                                                 <!-- If 'All Levels' option is selected -->
                                                 @if (selected_level?.length) {
@@ -357,7 +357,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                             track map
                                                         ) {
                                                             <div
-                                                                class="max-w-screen relative m-3 h-48"
+                                                                class="relative m-3 h-48 max-w-screen"
                                                             >
                                                                 <interactive-map
                                                                     [src]="
@@ -375,7 +375,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                                         map_actions$
                                                                             | async
                                                                     "
-                                                                    class="max-w-screen m-1 p-1"
+                                                                    class="m-1 max-w-screen p-1"
                                                                 >
                                                                 </interactive-map>
                                                             </div>
@@ -385,7 +385,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                 <!-- If an individual level is selected -->
                                                 @if (!selected_level?.length) {
                                                     <div
-                                                        class="max-w-screen relative m-3 h-96"
+                                                        class="relative m-3 h-96 max-w-screen"
                                                     >
                                                         <interactive-map
                                                             [src]="
@@ -403,7 +403,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                                 map_actions$
                                                                     | async
                                                             "
-                                                            class="max-w-screen m-1 p-1"
+                                                            class="m-1 max-w-screen p-1"
                                                         >
                                                         </interactive-map>
                                                     </div>
@@ -436,7 +436,7 @@ import { RoomConfirmService } from './room-confirm.service';
                     </div>
                 </div>
                 <section
-                    class="top-box-shadow flex flex-col items-center justify-center border-t border-base-200 py-1"
+                    class="top-box-shadow border-base-200 flex flex-col items-center justify-center border-t py-1"
                 >
                     @if (show_room_details$ | async) {
                         <div>
@@ -444,7 +444,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                 matRipple
                                 type="submit"
                                 (click)="openRoomDetails()"
-                                class="open-details-button my-1 w-[300px] border-secondary bg-secondary"
+                                class="open-details-button border-secondary bg-secondary my-1 w-[300px]"
                             >
                                 <span class="">View Room</span>
                             </button>
@@ -518,7 +518,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         ViewerFeature[]
     >(null);
     map_actions$: Observable<ViewAction[]> = null;
-    map_styles$: Observable<ViewerStyles[]> = null;
+    map_styles$: Observable<ViewerStyles> = null;
     bottomSheetRef: any;
 
     public selected_level: any;
@@ -668,7 +668,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     processStyles() {
-        this.map_styles$ = of([this._mapService.style_map]);
+        this.map_styles$ = of(this._mapService.style_map);
     }
 
     closeModal() {

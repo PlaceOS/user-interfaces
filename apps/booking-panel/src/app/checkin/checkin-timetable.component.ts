@@ -40,7 +40,7 @@ interface EventBlock {
                 >
                     @if (blk.minutes % 60 === 0) {
                         <div
-                            class="absolute left-0 top-1 whitespace-nowrap text-xs"
+                            class="absolute top-1 left-0 text-xs whitespace-nowrap"
                         >
                             {{ blk.hour }}
                             <span class="text-[0.75em]">{{ blk.period }}</span>
@@ -48,7 +48,7 @@ interface EventBlock {
                     }
                     @if (blk.minutes % 15 === 0) {
                         <div
-                            class="absolute bottom-0 left-0 w-px bg-neutral"
+                            class="bg-neutral absolute bottom-0 left-0 w-px"
                             [style.height]="height(blk.minutes)"
                         ></div>
                     }
@@ -58,7 +58,7 @@ interface EventBlock {
                 @if (blk.start + blk.length >= 0 && blk.start < 24 * 60) {
                     <div
                         event
-                        class="absolute bottom-0 h-12 bg-base-200 opacity-40"
+                        class="bg-base-200 absolute bottom-0 h-12 opacity-40"
                         [style.left]="8 + blk.start + 'px'"
                         [style.width]="blk.length + 'px'"
                     ></div>
@@ -66,11 +66,11 @@ interface EventBlock {
             }
             <div
                 current
-                class="pointer-events-none absolute bottom-0 h-12 w-0.5 bg-primary"
+                class="bg-primary pointer-events-none absolute bottom-0 h-12 w-0.5"
                 [style.left]="8 + current_time + 'px'"
             >
                 <div
-                    class="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
+                    class="bg-primary absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                 ></div>
             </div>
         </div>

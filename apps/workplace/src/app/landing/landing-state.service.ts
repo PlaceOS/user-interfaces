@@ -63,7 +63,7 @@ export class LandingStateService extends AsyncHandler {
     private _loading = new BehaviorSubject<string>('');
     private _loading_spaces = new BehaviorSubject<boolean>(false);
     /**  */
-    private _contacts = new BehaviorSubject<User[]>([]);
+    private _contacts = new BehaviorSubject<StaffUser[]>([]);
     /**  */
     private _level_occupancy = new BehaviorSubject<BuildingLevel[]>([]);
     /**  */
@@ -234,7 +234,7 @@ export class LandingStateService extends AsyncHandler {
         this._contacts.next(users.map((i) => new StaffUser(i as any)));
     }
 
-    public async addContact(user: User) {
+    public async addContact(user: StaffUser) {
         let users = [...this._contacts.getValue()];
         users.push(user);
         users = unique(users, 'email');

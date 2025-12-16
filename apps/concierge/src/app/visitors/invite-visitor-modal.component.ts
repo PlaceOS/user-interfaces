@@ -18,7 +18,7 @@ import {
             [heading]="'BOOKINGS.VISITOR_INVITE_TITLE' | translate"
             [loading]="loading | async"
             [confirm_text]="'BOOKINGS.VISITOR_SEND' | translate"
-            [hide_confirm]="done()"
+            [hide_confirm]="!!done()"
             (confirm)="post()"
         >
             @if (!done()) {

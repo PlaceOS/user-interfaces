@@ -29,7 +29,7 @@ const DEFAULT_KEYS = [
         <ng-template cdk-portal>
             <div
                 keyboard-view
-                class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
+                class="border-base-200 bg-base-200 flex w-screen flex-col space-y-4 border-t p-2"
             >
                 @for (row of keyset(); track row[0]) {
                     <div row class="flex items-center justify-center space-x-2">
@@ -38,7 +38,7 @@ const DEFAULT_KEYS = [
                                 matRipple
                                 [attr.key]="key"
                                 tabindex="0"
-                                class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
+                                class="border-base-200 bg-base-100 relative cursor-pointer rounded-xl border p-2"
                                 [class.special]="
                                     key[0] === '{' && key.length > 1
                                 "
@@ -58,7 +58,7 @@ const DEFAULT_KEYS = [
                                 @if (key === '{caps}') {
                                     <div
                                         dot
-                                        class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
+                                        class="bg-base-200 absolute top-2 right-2 h-2 w-2 rounded-full"
                                         [class.bg-success]="state === 'shift'"
                                     ></div>
                                 }
@@ -127,7 +127,7 @@ export class VirtualKeyboardComponent
         this.open();
         this.clearTimeout('blur-sm');
     };
-    @HostListener('blur-sm') public onBlur = () =>
+    @HostListener('blur') public onBlur = () =>
         this.timeout('blur-sm', () => this.close());
 
     constructor() {

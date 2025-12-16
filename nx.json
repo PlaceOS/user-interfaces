@@ -2,7 +2,7 @@
     "defaultProject": "workplace",
     "generators": {
         "@nx/angular:application": {
-            "e2eTestRunner": "cypress",
+            "e2eTestRunner": "playwright",
             "linter": "eslint",
             "style": "css",
             "unitTestRunner": "jest"
@@ -86,6 +86,7 @@
             "cache": true
         },
         "e2e": {
+            "dependsOn": [],
             "inputs": ["default", "^production"],
             "cache": true
         },
@@ -114,9 +115,6 @@
             "cache": true,
             "dependsOn": ["^build"],
             "inputs": ["production", "^production"]
-        },
-        "e2e-ci--**/*": {
-            "dependsOn": ["concierge:build", "workplace:build"]
         },
         "@angular-devkit/build-angular:application": {
             "cache": true,
@@ -151,8 +149,10 @@
         {
             "plugin": "@nx/playwright/plugin",
             "options": {
-                "targetName": "e2e"
-            }
+                "targetName": "e2e",
+                "ciTargetName": "e2e-ci"
+            },
+            "exclude": ["apps/*-e2e/**"]
         }
     ],
     "defaultBase": "develop"

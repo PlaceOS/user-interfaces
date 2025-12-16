@@ -54,8 +54,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
-                                                    item.company
-                                                        ? '| ' + item.company
+                                                    item.organisation
+                                                        ? '| ' + item.organisation
                                                         : ''
                                                 }}
                                             </div>
@@ -97,8 +97,8 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
-                                                    item.company
-                                                        ? '| ' + item.company
+                                                    item.organisation
+                                                        ? '| ' + item.organisation
                                                         : ''
                                                 }}
                                             </div>

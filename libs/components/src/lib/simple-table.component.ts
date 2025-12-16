@@ -32,7 +32,7 @@ export interface TableColumn {
     template: `
         <div
             role="table"
-            class="grid border border-base-300"
+            class="border-base-300 grid border"
             [style.gridTemplateColumns]="column_template()"
             (click)="active_row() >= 0 ? rowClicked.emit(active_row()) : null"
             (touchend)="active_row.set(-1)"
@@ -42,7 +42,7 @@ export interface TableColumn {
                 @if (selectable()) {
                     <div
                         id="column-selector"
-                        class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-r border-base-200 bg-base-300 px-2"
+                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-r border-b px-2"
                         [style.gridColumn]="'1 / 2'"
                     >
                         <mat-checkbox
@@ -64,7 +64,7 @@ export interface TableColumn {
                         header
                         matRipple
                         [id]="'column-' + column.key"
-                        class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-base-200 bg-base-300 p-4"
+                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-b p-4"
                         [style.gridColumn]="
                             1 +
                             i +
@@ -98,13 +98,13 @@ export interface TableColumn {
             }
             @for (
                 row of paginated_data();
-                track row.id || row;
+                track row['id'] || row;
                 let i = $index
             ) {
                 @if (selectable()) {
                     <div
                         id="column-selector"
-                        class="z-10 flex min-h-full items-center justify-between border-r border-base-200 px-2"
+                        class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
                         [style.gridColumn]="'1 / 2'"
                         [class.border-b]="i !== paginated_data().length - 1"
                         (mouseenter)="active_row.set(i)"
@@ -122,7 +122,7 @@ export interface TableColumn {
                     let j = $index
                 ) {
                     <div
-                        class="z-10 flex min-h-full items-center justify-between border-base-200"
+                        class="border-base-200 z-10 flex min-h-full items-center justify-between"
                         [style.gridColumn]="
                             1 +
                             j +
@@ -148,7 +148,8 @@ export interface TableColumn {
                                                 : row[column.key])
                                     }}
                                     @if (
-                                        (row[column.key] == null ||
+                                        (row[column.key] === null ||
+                                            row[column.key] === undefined ||
                                             row[column.key] === '') &&
                                         column.key !== '_index'
                                     ) {
@@ -164,7 +165,7 @@ export interface TableColumn {
                             @case ('template') {
                                 <ng-container
                                     *ngTemplateOutlet="
-                                        column.content;
+                                        template(column);
                                         context: {
                                             first: i === 0,
                                             last:
@@ -183,11 +184,11 @@ export interface TableColumn {
                         }
                     </div>
                 }
-                @if (show_children()[row.id] && child_template()) {
+                @if (show_children()[row['id']] && child_template()) {
                     <div
                         child-node
                         [style.gridColumn]="'span ' + active_columns().length"
-                        class="relative border-b border-base-200 last:border-b-0 last:border-t"
+                        class="border-base-200 relative border-b last:border-t last:border-b-0"
                     >
                         <ng-container
                             *ngTemplateOutlet="
@@ -214,7 +215,7 @@ export interface TableColumn {
         </div>
         @if (page_size()) {
             <div
-                class="sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 bg-base-200 p-2"
+                class="bg-base-200 sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 p-2"
             >
                 <div class="px-4 py-2">
                     {{ page() * (page_size() || 9999) + 1 }} &ndash;
@@ -445,6 +446,14 @@ export class SimpleTableComponent<T extends object = any> {
             },
             { allowSignalWrites: true },
         );
+    }
+
+    public template(column: TableColumn) {
+        return column.content as TemplateRef<any>;
+    }
+
+    public html(column: TableColumn) {
+        return column.content as string;
     }
 
     public column(key: string) {

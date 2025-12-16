@@ -36,6 +36,7 @@ describe('TopbarHeaderComponent', () => {
                 lights: new BehaviorSubject([]),
                 blinds: new BehaviorSubject([]),
                 lighting_scenes: new BehaviorSubject([]),
+                lighting_levels: new BehaviorSubject([]),
                 joined: new BehaviorSubject([]),
                 join_modes: new BehaviorSubject([]),
                 join_status: new BehaviorSubject([false, false]),

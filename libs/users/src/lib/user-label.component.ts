@@ -6,6 +6,7 @@ import {
     input,
     ViewEncapsulation,
 } from '@angular/core';
+import { User } from '@placeos/common';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -13,12 +14,13 @@ import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 
-export interface UserDetails {
+export interface UserDetails extends User {
     name: string;
     email: string;
     photo: string;
     description: string;
     host: string;
+    title?: string;
     extra_details: string;
     qr_code?: string;
     date: number;
@@ -30,13 +32,13 @@ export interface UserDetails {
     selector: `user-label`,
     template: `
         <div
-            class="user-label relative m-[0.5em] rounded-[0.75em] border border-neutral bg-base-100 p-[1em]"
+            class="user-label border-neutral bg-base-100 relative m-[0.5em] rounded-[0.75em] border p-[1em]"
             [style.width]="width() + 'em'"
             [style.height]="height() + 'em'"
         >
             <div class="flex h-full flex-col leading-tight">
                 <div
-                    class="mb-[0.25em] flex h-[5em] w-[5em] items-center justify-center overflow-hidden rounded-full border border-base-400 bg-base-200"
+                    class="border-base-400 bg-base-200 mb-[0.25em] flex h-[5em] w-[5em] items-center justify-center overflow-hidden rounded-full border"
                 >
                     <a-user-avatar
                         class="text-[2.25em]"
@@ -61,12 +63,12 @@ export interface UserDetails {
                 </div>
             </div>
             <div
-                class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium uppercase text-black"
+                class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium text-black uppercase"
             >
                 {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
             </div>
             <div
-                class="absolute right-[1em] top-[1em] flex flex-col items-end space-y-[0.5em]"
+                class="absolute top-[1em] right-[1em] flex flex-col items-end space-y-[0.5em]"
             >
                 <img
                     auth
@@ -96,12 +98,12 @@ export interface UserDetails {
                 }
             </div>
             <div
-                class="absolute bottom-[1em] right-[1em] flex items-end"
-                [class.space-x-[0.5em]]="!landscape"
-                [class.space-y-[0.5em]]="landscape"
-                [class.flex-col]="landscape"
+                class="absolute right-[1em] bottom-[1em] flex items-end"
+                [class.space-x-[0.5em]]="!landscape()"
+                [class.space-y-[0.5em]]="landscape()"
+                [class.flex-col]="landscape()"
             >
-                <div class="text-right font-medium leading-tight">
+                <div class="text-right leading-tight font-medium">
                     <div>
                         {{ user().date | date: 'shortTime' }}
                     </div>
@@ -110,7 +112,7 @@ export interface UserDetails {
                     </div>
                 </div>
                 <div
-                    class="relative flex h-[4em] w-[4em] items-center justify-center rounded-[0.5em] border border-base-200"
+                    class="border-base-200 relative flex h-[4em] w-[4em] items-center justify-center rounded-[0.5em] border"
                 >
                     @if (user().qr_code) {
                         <img

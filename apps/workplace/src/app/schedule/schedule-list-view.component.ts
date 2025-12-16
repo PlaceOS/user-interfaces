@@ -73,7 +73,7 @@ export class ScheduleListViewComponent {
     public readonly date = input(Date.now());
     public readonly end_date = input<number | null>(null);
     public readonly bookings = input<any[]>([]);
-    public readonly loading = input<any[]>([]);
+    public readonly loading = input(false);
     public readonly isEvent = (i) => i instanceof CalendarEvent;
     public readonly isSameDayCheck = (a: number, b: number) => isSameDay(a, b);
 

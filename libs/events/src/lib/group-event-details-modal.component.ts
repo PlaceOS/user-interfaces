@@ -51,20 +51,20 @@ import {
             class="relative max-h-[80vh] w-3xl max-w-[calc(100vw-1rem)] overflow-hidden"
         >
             <div
-                class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
+                class="bg-base-200 relative flex h-52 w-full items-center justify-between overflow-hidden"
             >
                 @if (event().extension_data?.images?.length) {
                     <img
                         auth
                         [source]="event().extension_data?.images[0]"
-                        class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                        class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                     />
                 }
             </div>
 
             @if (featured()) {
                 <div
-                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
+                    class="bg-info text-info-content absolute top-0 left-0 flex items-center space-x-2 rounded-br py-2 pr-4 pl-2 text-sm"
                 >
                     <icon class="text-base">star</icon>
                     <div class="uppercase">
@@ -76,16 +76,16 @@ import {
                 <button
                     icon
                     mat-dialog-close
-                    class="absolute right-1 top-1 overflow-hidden"
+                    class="absolute top-1 right-1 overflow-hidden"
                 >
                     <div
-                        class="absolute inset-0 z-0 bg-base-100 opacity-30"
+                        class="bg-base-100 absolute inset-0 z-0 opacity-30"
                     ></div>
                     <icon class="z-10">close</icon>
                 </button>
             }
             <div
-                class="flex items-center justify-between border-b border-base-200 px-8 py-4"
+                class="border-base-200 flex items-center justify-between border-b px-8 py-4"
             >
                 <h3 class="text-left text-xl">
                     {{ event().title }}
@@ -136,7 +136,7 @@ import {
                     <button
                         btn
                         matRipple
-                        class="clear w-11 bg-base-200 text-base-content"
+                        class="clear bg-base-200 text-base-content w-11"
                         [disabled]="event().state === 'done'"
                         [matMenuTriggerFor]="
                             concierge() ? concierge_menu : menu
@@ -188,7 +188,7 @@ import {
                             (click)="remove ? remove(event(), false) : ''"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon class="text-2xl text-error">
+                                <icon class="text-error text-2xl">
                                     delete
                                 </icon>
                                 <div class="mr-2">
@@ -239,12 +239,12 @@ import {
                 </div>
             </div>
             <div
-                class="flex max-h-[calc(80vh-18rem)] flex-1 space-x-6 overflow-y-auto overflow-x-hidden p-8"
+                class="flex max-h-[calc(80vh-18rem)] flex-1 space-x-6 overflow-x-hidden overflow-y-auto p-8"
             >
                 <div class="flex w-1/3 flex-1 flex-col space-y-2">
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>person</icon>
                         </div>
@@ -265,7 +265,7 @@ import {
                     </h3>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>calendar_today</icon>
                         </div>
@@ -287,7 +287,7 @@ import {
                     </div>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>place</icon>
                         </div>
@@ -323,7 +323,7 @@ import {
                         class="flex min-h-12 items-center space-x-4 rounded-sm"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>person</icon>
                         </div>
@@ -359,10 +359,10 @@ import {
                 <div>
                     @if (level()) {
                         <div class="flex w-[20rem]">
-                            <div class="w-full border border-base-300">
+                            <div class="border-base-300 w-full border">
                                 <button
                                     matRipple
-                                    class="relative h-40 w-full bg-base-200"
+                                    class="bg-base-200 relative h-40 w-full"
                                     (click)="viewLocation()"
                                 >
                                     @if (!showing_map()) {
@@ -437,7 +437,7 @@ import {
         @if (show_attendees()) {
             <div class="absolute inset-0 z-50">
                 <button
-                    class="absolute inset-0 bg-base-content opacity-60"
+                    class="bg-base-content absolute inset-0 opacity-60"
                     (click)="show_attendees.set(false)"
                 ></button>
                 <div

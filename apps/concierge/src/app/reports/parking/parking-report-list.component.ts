@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
 import {
     IconComponent,
@@ -15,9 +17,9 @@ import { ParkingReportService } from './parking-report.service';
     selector: 'parking-report-list',
     template: `
         <div
-            class="m-4 overflow-hidden rounded-sm border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
         >
-            <div class="flex items-center border-b border-base-200 px-4 py-2">
+            <div class="border-base-200 flex items-center border-b px-4 py-2">
                 <h3 class="flex-1 text-xl font-bold">
                     {{
                         'APP.CONCIERGE.REPORTS_PARKING_UTIL_HEADER' | translate
@@ -92,6 +94,8 @@ import { ParkingReportService } from './parking-report.service';
         DurationPipe,
         TranslatePipe,
         IconComponent,
+        MatRippleModule,
+        MatTooltipModule,
     ],
 })
 export class ParkingReportListComponent {

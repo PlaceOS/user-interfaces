@@ -54,7 +54,7 @@ import {
                 <span>{{ 'BOOKING.LINK_ICAL' | translate }}</span>
             </a>
         </div>
-        <button icon matRipple mat-dialog-close class="absolute right-0 top-2">
+        <button icon matRipple mat-dialog-close class="absolute top-2 right-0">
             <icon>close</icon>
         </button>
     `,

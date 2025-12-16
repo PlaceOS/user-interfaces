@@ -19,7 +19,7 @@ export function currentPeriod(
     bookings: CalendarEvent[],
     current: CalendarEvent,
     next: CalendarEvent,
-) {
+): [boolean, number, number] | [] {
     const slot = getNextFreeTimeSlot(bookings);
     const next_diff = Math.ceil(
         differenceInSeconds(next?.date, Date.now()) / 60,

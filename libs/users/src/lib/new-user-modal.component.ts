@@ -3,6 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler, DialogEvent, User } from '@placeos/common';
 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserFormComponent } from './user-form.component';
@@ -12,7 +13,7 @@ import { generateUserForm } from './user.utilities';
     selector: 'new-user-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -38,7 +39,7 @@ import { generateUserForm } from './user.utilities';
         }
         @if (!loading) {
             <footer
-                class="flex w-full items-center justify-end space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 flex w-full items-center justify-end space-x-2 border-t p-2"
             >
                 <button btn matRipple class="inverse" mat-dialog-close>
                     {{ 'COMMON.CANCEL' | translate }}
@@ -67,6 +68,7 @@ import { generateUserForm } from './user.utilities';
         UserFormComponent,
         MatDialogModule,
         IconComponent,
+        MatProgressSpinnerModule,
     ],
 })
 export class NewUserModalComponent extends AsyncHandler implements OnInit {

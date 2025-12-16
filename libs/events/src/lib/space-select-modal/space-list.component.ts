@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Space } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
@@ -24,7 +25,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                         <li
                             space
                             [class.border-info!]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
                             [class.bg-error-light!]="
                                 (room_alerts | async)[space.id]
                                     ? (room_alerts | async)[space.id][0] ===
@@ -45,11 +46,11 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 "
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                                    class="bg-base-200 relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl"
                                 >
                                     @if (selected().includes(space.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -136,9 +137,8 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                         <icon class="text-info">place</icon>
                                         <p class="truncate">
                                             {{
-                                                space.location ||
-                                                    level(space.zones)
-                                                        ?.display_name ||
+                                                level(space.zones)
+                                                    ?.display_name ||
                                                     level(space.zones)?.name
                                             }}
                                         </p>
@@ -167,7 +167,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 icon
                                 matRipple
                                 name="toggle-space-favourite"
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="isFavourite(space.id)"
                                 (click)="toggleFav.emit(space)"
                             >
@@ -179,7 +179,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="absolute bottom-1 right-1 rounded-sm bg-warning px-2 py-1 text-[0.625rem] font-medium text-warning-content"
+                                    class="bg-warning text-warning-content absolute right-1 bottom-1 rounded-sm px-2 py-1 text-[0.625rem] font-medium"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>
@@ -228,6 +228,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
         IconComponent,
         MatProgressSpinnerModule,
         AuthenticatedImageDirective,
+        MatTooltipModule,
     ],
 })
 export class SpaceListComponent {

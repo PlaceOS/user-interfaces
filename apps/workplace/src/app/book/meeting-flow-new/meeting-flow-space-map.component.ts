@@ -77,9 +77,7 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
                         <p class="truncate">
                             @let lvl = selected_space().zones | level;
                             {{
-                                selected_space().location ||
-                                    lvl?.display_name ||
-                                    lvl?.name
+                                lvl?.display_name || lvl?.name
                             }}
                         </p>
                     </div>

@@ -56,7 +56,7 @@ import { ParkingService } from './parking.service';
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
+                    class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <div
                         class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
@@ -120,7 +120,7 @@ import { ParkingService } from './parking.service';
                         }
                     </div>
                     <icon
-                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
+                        class="absolute top-1/2 right-1 -translate-y-1/2 text-4xl"
                     >
                         chevron_right
                     </icon>

@@ -18,7 +18,7 @@ import { DurationPipe } from './ui/duration.pipe';
         @if (capture_mod()) {
             <div
                 recording
-                class="flex items-center divide-x divide-base-200 text-xs text-white"
+                class="divide-base-200 flex items-center divide-x text-xs text-white"
             >
                 <div hidden>
                     <i
@@ -118,7 +118,7 @@ import { DurationPipe } from './ui/duration.pipe';
         <div class="flex-1"></div>
         @if (has_master_audio() !== false) {
             <div
-                class="flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2 text-base-content"
+                class="text-base-content flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2"
             >
                 <button icon matRipple (click)="toggleMute()">
                     <icon>{{ volume_icon() }}</icon>

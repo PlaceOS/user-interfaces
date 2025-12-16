@@ -63,7 +63,7 @@ import {
                     >
                         @if (day.is_today) {
                             <div
-                                class="absolute -inset-0.5 rounded-full border border-primary"
+                                class="border-primary absolute -inset-0.5 rounded-full border"
                             ></div>
                         }
                         {{ day.id | date: 'd' }}

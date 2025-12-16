@@ -24,8 +24,8 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
     template: `
         <reports-options
             (printing)="printing = $event"
-            [loading]="loading | async"
-            [has_data]="total_count | async"
+            [loading]="!!(loading | async)"
+            [has_data]="!!(total_count | async)"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -33,7 +33,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
-                <div class="m-4 flex items-center rounded-sm bg-base-200 p-4">
+                <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
                     <img
                         auth
                         class="h-12"
@@ -48,7 +48,7 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
             @if (!(loading | async)) {
                 @if (total_count | async) {
                     <div
-                        class="m-4 flex items-center justify-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-4"
+                        class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
                     >
                         <div class="flex flex-1 flex-col items-center">
                             <h3>

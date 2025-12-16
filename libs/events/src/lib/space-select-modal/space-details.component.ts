@@ -23,7 +23,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         @if (space()) {
             <section
                 image
-                class="relative w-full bg-neutral"
+                class="bg-neutral relative w-full"
                 [class.sm:h-64]="space().images?.length"
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
@@ -41,7 +41,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-neutral text-white sm:hidden"
+                    class="bg-neutral absolute top-2 left-2 text-white sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -52,14 +52,14 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     [class.text-white]="!fav()"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-neutral"
+                    class="bg-neutral absolute top-2 right-2"
                 >
                     <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0">
-                    <h2 class="mb-2 mt-4 text-xl font-medium">
+                    <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
                     </h2>
                 </section>
@@ -124,7 +124,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
+                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -140,7 +140,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 }
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
+                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
             >
                 <button
                     btn
@@ -148,7 +148,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     name="toggle-space-details"
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="activeChange.emit(!active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{

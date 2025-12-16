@@ -51,11 +51,11 @@ import { SignageStateService } from './signage-state.service';
             @let playlist = selected_playlist();
             <div class="space-y-2 p-2">
                 <h3
-                    class="flex items-center justify-center space-x-2 rounded-xl bg-base-100 p-2"
+                    class="bg-base-100 flex items-center justify-center space-x-2 rounded-xl p-2"
                 >
                     <div class="text-xl font-medium">Playlist</div>
                     <div
-                        class="rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
+                        class="bg-base-200 rounded-sm px-2 py-1 font-mono text-xs"
                     >
                         {{ playlist?.name }}
                     </div>
@@ -64,7 +64,7 @@ import { SignageStateService } from './signage-state.service';
                     icon
                     matRipple
                     [matMenuTriggerFor]="menu"
-                    class="absolute right-2.5 top-2.5 m-0!"
+                    class="absolute top-2.5 right-2.5 m-0!"
                 >
                     <icon>more_vert</icon>
                 </button>
@@ -108,7 +108,7 @@ import { SignageStateService } from './signage-state.service';
                     </button>
                     <button mat-menu-item (click)="removePlaylist()">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-2xl text-error">delete</icon>
+                            <icon class="text-error text-2xl">delete</icon>
                             <div class="pr-2">
                                 {{
                                     'APP.CONCIERGE.SIGNAGE_PLAYLISTS_REMOVE'
@@ -120,7 +120,7 @@ import { SignageStateService } from './signage-state.service';
                 </mat-menu>
                 <div
                     details
-                    class="flex flex-wrap items-center rounded-xl bg-base-100 p-1"
+                    class="bg-base-100 flex flex-wrap items-center rounded-xl p-1"
                 >
                     <div
                         class="m-1 ml-2 rounded-sm px-2 py-1 text-xs"
@@ -142,18 +142,18 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                     @if (selected_playlist()?.random) {
                         <div
-                            class="m-1 ml-2 rounded-sm bg-secondary px-2 py-1 text-xs text-secondary-content"
+                            class="bg-secondary text-secondary-content m-1 ml-2 rounded-sm px-2 py-1 text-xs"
                         >
                             {{ 'APP.CONCIERGE.SIGNAGE_SHUFFLE' | translate }}
                         </div>
                     }
                     <div
-                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
+                        class="bg-base-200 m-1 rounded-sm px-2 py-2 text-xs"
                         matTooltip="Default Transition Animation"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}
                         <span
-                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 uppercase"
+                            class="bg-base-300 ml-1 rounded-sm px-2 py-1 uppercase"
                             >{{
                                 animation_name(
                                     selected_playlist()?.default_animation
@@ -162,12 +162,12 @@ import { SignageStateService } from './signage-state.service';
                         >
                     </div>
                     <div
-                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
+                        class="bg-base-200 m-1 rounded-sm px-2 py-2 text-xs"
                         matTooltip="Default Playback Duration"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_DURATION' | translate }}
                         <span
-                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 font-mono"
+                            class="bg-base-300 ml-1 rounded-sm px-2 py-1 font-mono"
                             >{{
                                 selected_playlist()?.default_duration / 1000
                                     | mediaDuration
@@ -175,18 +175,18 @@ import { SignageStateService } from './signage-state.service';
                         >
                     </div>
                     <div
-                        class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs"
+                        class="bg-base-200 m-1 rounded-sm px-2 py-2 text-xs"
                         matTooltip="Prefered Orientation"
                     >
                         {{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}
                         <span
-                            class="ml-1 rounded-sm bg-base-300 px-2 py-1 uppercase"
+                            class="bg-base-300 ml-1 rounded-sm px-2 py-1 uppercase"
                             >{{ selected_playlist()?.orientation }}</span
                         >
                     </div>
                     @if (isScheduled(selected_playlist())) {
                         <div
-                            class="m-1 rounded-sm bg-base-200 px-2 py-2 text-xs uppercase"
+                            class="bg-base-200 m-1 rounded-sm px-2 py-2 text-xs uppercase"
                         >
                             {{ 'COMMON.SCHEDULED' | translate }}
                         </div>
@@ -195,12 +195,12 @@ import { SignageStateService } from './signage-state.service';
                 @if (!approved()) {
                     <button
                         matRipple
-                        class="flex w-full items-center space-x-2 rounded-sm border-warning bg-warning p-1 text-xs text-warning-content shadow-sm"
+                        class="border-warning bg-warning text-warning-content flex w-full items-center space-x-2 rounded-sm p-1 text-xs shadow-sm"
                         [disabled]="!is_admin"
                         [matTooltip]=""
                         (click)="approvePlaylist(playlist)"
                     >
-                        <icon class="ml-1 text-xl text-warning-content"
+                        <icon class="text-warning-content ml-1 text-xl"
                             >warning</icon
                         >
                         <div>
@@ -232,31 +232,31 @@ import { SignageStateService } from './signage-state.service';
                     @for (item of media(); track item) {
                         <div
                             cdkDrag
-                            class="relative flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 relative flex h-20 w-full items-center space-x-2 rounded-lg border p-2"
                         >
                             @if (item.valid_from && now < item.valid_from) {
                                 <div
-                                    class="absolute inset-0 z-0 rounded-lg bg-warning opacity-10"
+                                    class="bg-warning absolute inset-0 z-0 rounded-lg opacity-10"
                                 ></div>
                             } @else if (
                                 item.valid_until && now > item.valid_until
                             ) {
                                 <div
-                                    class="absolute inset-0 z-0 rounded-lg bg-error opacity-10"
+                                    class="bg-error absolute inset-0 z-0 rounded-lg opacity-10"
                                 ></div>
                             }
                             <div
-                                class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300"
+                                class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed"
                                 *cdkDragPlaceholder
                             >
-                                <icon class="text-2xl text-base-100">
+                                <icon class="text-base-100 text-2xl">
                                     add
                                 </icon>
                             </div>
                             <button
                                 matRipple
                                 cdkDragHandle
-                                class="m-0! flex h-full w-6 items-center justify-center rounded-sm hover:bg-base-200"
+                                class="hover:bg-base-200 m-0! flex h-full w-6 items-center justify-center rounded-sm"
                                 matTooltip="Drag to reorder"
                             >
                                 <icon>drag_handle</icon>
@@ -264,7 +264,7 @@ import { SignageStateService } from './signage-state.service';
                             <button
                                 preview
                                 matRipple
-                                class="relative h-16 w-18 overflow-hidden rounded-lg bg-base-200"
+                                class="bg-base-200 relative h-16 w-18 overflow-hidden rounded-lg"
                                 (click)="previewItem(item)"
                             >
                                 <img
@@ -279,7 +279,7 @@ import { SignageStateService } from './signage-state.service';
                                 </div>
                             </button>
                             <div
-                                class="w-1/2 flex-1 truncate text-base-content"
+                                class="text-base-content w-1/2 flex-1 truncate"
                             >
                                 {{ item.name }}
                             </div>
@@ -324,7 +324,7 @@ import { SignageStateService } from './signage-state.service';
                                     (click)="removeItem(item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl text-error">
+                                        <icon class="text-error text-2xl">
                                             delete
                                         </icon>
                                         <div class="pr-2">

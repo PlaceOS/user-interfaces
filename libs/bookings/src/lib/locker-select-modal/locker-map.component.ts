@@ -27,7 +27,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
 @Component({
     selector: 'locker-map',
     template: `
-        <div class="w-full border-b border-base-200 bg-base-100 p-2">
+        <div class="border-base-200 bg-base-100 w-full border-b p-2">
             <mat-form-field
                 levels
                 appearance="outline"

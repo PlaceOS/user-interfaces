@@ -2,10 +2,12 @@ import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
@@ -20,7 +22,7 @@ const EMPTY_FAVS: string[] = [];
             @for (item of items(); track item) {
                 <div
                     desk
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
+                    class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
                 >
                     @if (features()?.length) {
                         <div class="flex flex-col">
@@ -37,7 +39,7 @@ const EMPTY_FAVS: string[] = [];
                                             ).includes(opt)
                                         "
                                         (ngModelChange)="
-                                            setFeature(opt, $event)
+                                            setFeatures(opt, $event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
                                     >
@@ -48,7 +50,7 @@ const EMPTY_FAVS: string[] = [];
                         </div>
                     }
                     <div
-                        class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                        class="bg-base-200 mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl"
                     >
                         @if (item.images?.length) {
                             <img
@@ -74,14 +76,14 @@ const EMPTY_FAVS: string[] = [];
                             </p>
                         </div>
                         <div
-                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                            class="absolute right-0 bottom-0 flex items-center justify-end text-xs"
                         >
                             <button
                                 btn
                                 matRipple
                                 name="edit-desk"
                                 class="clear"
-                                (click)="changeResources(item)"
+                                (click)="changeResources()"
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon>edit</icon>
@@ -106,7 +108,7 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         name="toggle-desk-favourite"
-                        class="absolute right-1 top-1"
+                        class="absolute top-1 right-1"
                         [class.text-info]="favorites.includes(item?.id)"
                         (click)="toggleFavourite(item)"
                     >
@@ -146,7 +148,14 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    imports: [IconComponent, TranslatePipe, MatRippleModule, MatCheckboxModule],
+    imports: [
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatCheckboxModule,
+        FormsModule,
+        AuthenticatedImageDirective,
+    ],
 })
 export class DeskListFieldComponent implements ControlValueAccessor {
     private _settings = inject(SettingsService);
@@ -213,6 +222,15 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
+
+    public setFeatures(opt: string, value: boolean) {
+        const features = this.selected_features() || [];
+        if (value) {
+            this.selected_features.set([...features, opt]);
+        } else {
+            this.selected_features.set(features.filter((f) => f !== opt));
+        }
+    }
 
     public toggleFavourite(space: BookingAsset) {
         if (!space?.id) return;

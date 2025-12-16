@@ -16,7 +16,7 @@ export class SourceSelectModalData {
     selector: 'source-select-modal',
     template: `
         <div
-            class="flex flex-col items-center overflow-auto bg-base-100 px-8 py-16"
+            class="bg-base-100 flex flex-col items-center overflow-auto px-8 py-16"
             [style.max-height]="simple ? '80vh' : ''"
             [class.fixed]="!simple"
             [class.inset-0]="!simple"

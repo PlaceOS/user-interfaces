@@ -186,7 +186,7 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
                 Date.now(),
                 this._settings.get('app.parking.available_period') || 7,
             ),
-        );
+        ).valueOf();
     }
 
     public get max_duration() {

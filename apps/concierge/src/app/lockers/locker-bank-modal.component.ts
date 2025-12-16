@@ -26,7 +26,11 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     addChipItem,
     CounterComponent,
@@ -39,7 +43,7 @@ import { map } from 'rxjs/operators';
     template: `
         <div class="w-lg">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -185,7 +189,7 @@ import { map } from 'rxjs/operators';
                 </main>
             }
             <footer
-                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
+                class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -208,6 +212,7 @@ import { map } from 'rxjs/operators';
         CounterComponent,
         FormsModule,
         ReactiveFormsModule,
+        BuildingPipe,
     ],
 })
 export class LockerBankModalComponent {
@@ -219,6 +224,10 @@ export class LockerBankModalComponent {
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
     public loading: boolean;
+
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
+    }
     public readonly render_fn = (v) => `${v}u`;
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];

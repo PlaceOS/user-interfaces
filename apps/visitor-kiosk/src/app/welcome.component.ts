@@ -25,7 +25,7 @@ import {
             <img
                 auth
                 [source]="background"
-                class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
+                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h3
@@ -41,7 +41,7 @@ import {
                         btn
                         matRipple
                         [routerLink]="['/checkin']"
-                        class="w-40 bg-base-100 text-base-content"
+                        class="bg-base-100 text-base-content w-40"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -55,7 +55,7 @@ import {
                             btn
                             matRipple
                             [routerLink]="['/register']"
-                            class="w-40 bg-base-100 text-base-content"
+                            class="bg-base-100 text-base-content w-40"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -72,7 +72,7 @@ import {
                             btn
                             matRipple
                             [routerLink]="['/explore', level]"
-                            class="w-40 bg-base-100 text-base-content"
+                            class="bg-base-100 text-base-content w-40"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -86,12 +86,12 @@ import {
                     }
                 </div>
             </div>
-            <div class="absolute right-4 top-4 text-2xl text-white">
+            <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
             @if (locales.length > 1) {
                 <button
-                    class="absolute left-4 top-4"
+                    class="absolute top-4 left-4"
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex items-center justify-between">
@@ -105,7 +105,7 @@ import {
                             }
                         </div>
                         <div
-                            class="ml-4 max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
+                            class="bg-base-200 ml-4 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
                             [matTooltip]="active_locale | translate"
                         >
                             {{ active_locale | translate }}
@@ -139,7 +139,7 @@ import {
             </mat-menu>
             <img
                 src="assets/img/building.png"
-                class="absolute bottom-0 right-0 w-[60%]"
+                class="absolute right-0 bottom-0 w-[60%]"
             />
         </div>
     `,
@@ -201,7 +201,7 @@ export class WelcomeComponent
         return 'LANGUAGE.ENGLISH';
     }
 
-    public get locales(): { id: string; name: string }[] {
+    public get locales(): { id: string; name: string; local?: string }[] {
         return this._settings.get('app.locales') || [];
     }
 

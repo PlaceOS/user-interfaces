@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Building } from '@placeos/common';
 import {
@@ -13,21 +13,19 @@ import { BuildingFormComponent } from './building-form.component';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (building.id
+                (building().id
                     ? 'APP.CONCIERGE.BUILDINGS_EDIT'
                     : 'APP.CONCIERGE.BUILDINGS_NEW'
                 ) | translate
             "
             [loading]="
-                (loading | async)
-                    ? ('APP.CONCIERGE.BUILDINGS_SAVING' | translate)
-                    : ''
+                loading() ? ('APP.CONCIERGE.BUILDINGS_SAVING' | translate) : ''
             "
             (confirm)="save()"
         >
             <building-form
-                [building]="building"
-                [save]="save_state"
+                [building]="building()"
+                [save]="save_state()"
                 [(loading)]="loading"
                 (done)="close($event)"
             />
@@ -46,10 +44,10 @@ export class BuildingModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<BuildingModalComponent>>(MatDialogRef);
 
-    public loading = false;
-    public save_state = 0;
-    public readonly building = this._data;
+    public readonly loading = signal(false);
+    public readonly save_state = signal(0);
+    public readonly building = signal<Building>(this._data);
 
     public readonly close = (d?) => this._dialog_ref.close(d);
-    public readonly save = () => (this.save_state = Date.now());
+    public readonly save = () => this.save_state.set(Date.now());
 }

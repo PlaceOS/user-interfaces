@@ -127,7 +127,7 @@ export function generateTriggerConditionForm(
                 (is_new ? 'TRIGGERS.CONDITION_NEW' : 'TRIGGERS.CONDITION_EDIT')
                     | translate
             "
-            [loading]="loading()"
+            [loading]="loading() ? 'Loading...' : ''"
             (confirm)="save()"
         >
             @if (form) {

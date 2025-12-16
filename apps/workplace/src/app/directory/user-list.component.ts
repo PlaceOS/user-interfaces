@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService, User } from '@placeos/common';
 import {
     IconComponent,
@@ -73,7 +74,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                                 ) {
                                     <div
                                         user
-                                        class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-4 hover:bg-base-200 sm:space-x-4"
+                                        class="bg-base-100 hover:bg-base-200 mb-2 flex flex-wrap items-center overflow-hidden p-4 sm:space-x-4"
                                         [class.with-image]="show_image"
                                     >
                                         @if (show_image) {
@@ -99,7 +100,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
                                             </a>
                                         </div>
                                         <div
-                                            class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
+                                            class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-y-2 sm:space-x-0"
                                         >
                                             <a
                                                 btn
@@ -179,6 +180,7 @@ const LETTERS = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.split('');
         MatProgressSpinnerModule,
         MatInputModule,
         FormsModule,
+        RouterModule,
     ],
 })
 export class DirectoryUserListComponent extends AsyncHandler {

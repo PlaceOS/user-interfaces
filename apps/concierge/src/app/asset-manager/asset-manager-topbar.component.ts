@@ -26,7 +26,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     selector: 'asset-manager-topbar',
     template: `
         <div
-            class="flex w-full items-center space-x-2 bg-base-100 px-8 pb-2 pt-4"
+            class="bg-base-100 flex w-full items-center space-x-2 px-8 pt-4 pb-2"
         >
             <h2 class="text-2xl font-medium">
                 {{
@@ -38,7 +38,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </h2>
             <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript">
-                <icon matPrefix class="relative -left-1 top-1 text-2xl">
+                <icon matPrefix class="relative top-1 -left-1 text-2xl">
                     search
                 </icon>
                 <input
@@ -78,7 +78,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </div>
         @if (active() === 'items') {
             <div class="mb-2 flex items-center space-x-2 px-8">
-                <div class="flex items-center rounded-sm border border-secondary">
+                <div
+                    class="border-secondary flex items-center rounded-sm border"
+                >
                     <button
                         icon
                         matRipple
@@ -114,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
                     "
@@ -125,7 +127,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
                     "
@@ -137,7 +139,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                        class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                         [matTooltip]="
                             'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
                         "
@@ -148,7 +150,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 }
             </div>
         }
-        @if (use_region && (building | async)?.length) {
+        @if (use_region && (buildings | async)?.length) {
             <div class="flex items-center space-x-2 px-4 pb-2">
                 <mat-form-field appearance="outline" class="no-subscript w-48">
                     <mat-select

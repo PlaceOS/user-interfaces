@@ -97,7 +97,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}</label>
                         <a-date-field
                             name="purchase-date"
-                            [from]="from"
+                            [from]="from.valueOf()"
                             formControlName="purchase_date"
                         ></a-date-field>
                     </div>
@@ -125,7 +125,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         </label>
                         <a-date-field
                             name="depreciation-start-date"
-                            [from]="from"
+                            [from]="from.valueOf()"
                             formControlName="expected_service_start_date"
                         ></a-date-field>
                     </div>
@@ -171,11 +171,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 name:
                                     'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL'
                                     | translate,
-                            },
-                            {
-                                key: 'actions',
-                                name: ' ',
-                                content: action_template,
                             },
                         ]"
                         [empty_message]="

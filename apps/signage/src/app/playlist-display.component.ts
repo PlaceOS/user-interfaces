@@ -14,12 +14,12 @@ import { MediaPlayerItem } from './types';
     selector: 'playlist-display',
     template: `
         <div
-            class="flex min-w-[20rem] flex-col space-y-2 overflow-auto rounded-xl border border-base-300 bg-base-100 p-2"
+            class="border-base-300 bg-base-100 flex min-w-[20rem] flex-col space-y-2 overflow-auto rounded-xl border p-2"
         >
             <div class="flex items-center space-x-4 p-2">
                 <h2>{{ 'APP.SIGNAGE.MEDIA_LIST' | translate }}</h2>
                 <div
-                    class="rounded-full bg-info-light px-2 py-1 text-xs shadow-sm"
+                    class="bg-info-light rounded-full px-2 py-1 text-xs shadow-sm"
                 >
                     <div class="text-info">
                         {{
@@ -37,7 +37,7 @@ import { MediaPlayerItem } from './types';
                         @let is_valid = isValidMedia(item);
                         <button
                             matRipple
-                            class="flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left hover:bg-base-200"
+                            class="hover:bg-base-200 flex w-[20rem] items-center space-x-2 rounded-lg p-2 text-left"
                             [class.overflow-visible]="i === index()"
                             [class.pointer-events-none]="i === index()"
                             (click)="setPlaylistItem(i)"
@@ -58,7 +58,7 @@ import { MediaPlayerItem } from './types';
                                 >
                                     @if (is_valid && i === index()) {
                                         <span
-                                            class="absolute z-0 inline-flex h-full w-full animate-ping rounded-full bg-info opacity-75"
+                                            class="bg-info absolute z-0 inline-flex h-full w-full animate-ping rounded-full opacity-75"
                                         ></span>
                                     }
                                     <icon
@@ -81,7 +81,7 @@ import { MediaPlayerItem } from './types';
                                 </div>
                             </div>
                             <div
-                                class="rounded-sm bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                class="bg-info text-info-content rounded-sm px-2 py-1 font-mono text-xs"
                             >
                                 {{ item.duration / 1000 | mediaDuration }}
                             </div>
@@ -90,7 +90,7 @@ import { MediaPlayerItem } from './types';
                 </div>
                 <div class="flex flex-col justify-end">
                     <div
-                        class="rounded-lg bg-base-300 p-2 text-center text-xs opacity-30"
+                        class="bg-base-300 rounded-lg p-2 text-center text-xs opacity-30"
                     >
                         {{ 'APP.SIGNAGE.MEDIA_LIST_END' | translate }}
                     </div>
@@ -98,7 +98,7 @@ import { MediaPlayerItem } from './types';
             } @else {
                 <div class="flex flex-col justify-end">
                     <div
-                        class="rounded-lg bg-base-300 p-16 text-center text-xs opacity-30"
+                        class="bg-base-300 rounded-lg p-16 text-center text-xs opacity-30"
                     >
                         {{ 'APP.SIGNAGE.MEDIA_LIST_EMPTY' | translate }}
                     </div>
@@ -125,5 +125,9 @@ export class PlaylistDisplayComponent {
 
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
+    }
+
+    public setPlaylistItem(index: number) {
+        this.selected.emit(index);
     }
 }

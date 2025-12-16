@@ -12,7 +12,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { BuildingPipe, TranslatePipe } from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -122,6 +122,7 @@ import { VisitorsStateService } from './visitors-state.service';
         ApplicationSidebarComponent,
         ApplicationTopbarComponent,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class VisitorsComponent implements OnInit, OnDestroy {

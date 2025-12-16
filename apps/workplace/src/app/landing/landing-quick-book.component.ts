@@ -23,11 +23,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features()?.includes('desks')) {
                 <button
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     (click)="book('desk')"
                 >
                     <div
-                        class="relative flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 relative flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -38,7 +38,7 @@ import { TranslatePipe } from '@placeos/components';
                                 class="absolute inset-0 flex items-center justify-center"
                             >
                                 <div
-                                    class="absolute inset-0 bg-base-100 opacity-50"
+                                    class="bg-base-100 absolute inset-0 opacity-50"
                                 ></div>
                                 <mat-spinner diameter="48"></mat-spinner>
                             </div>
@@ -52,11 +52,11 @@ import { TranslatePipe } from '@placeos/components';
             @if (features().includes('parking')) {
                 <button
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     (click)="book('parking')"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -67,7 +67,7 @@ import { TranslatePipe } from '@placeos/components';
                                 class="absolute inset-0 flex items-center justify-center"
                             >
                                 <div
-                                    class="absolute inset-0 bg-base-100 opacity-50"
+                                    class="bg-base-100 absolute inset-0 opacity-50"
                                 ></div>
                                 <mat-spinner diameter="48"></mat-spinner>
                             </div>

@@ -1,8 +1,8 @@
+import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActionIconComponent } from '@placeos/components';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
@@ -16,9 +16,11 @@ describe('DeskBookingsComponent', () => {
         providers: [
             MockProvider(DesksStateService, {
                 setFilters: jest.fn(),
-                bookings: new BehaviorSubject([]),
-                filters: new BehaviorSubject({}),
-            }),
+                bookings: signal([]),
+                filters: signal({}),
+                has_more_pages: signal(false),
+                nextPage: jest.fn(),
+            } as any),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
         ],
         declarations: [

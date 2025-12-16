@@ -16,6 +16,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { AssetListFieldComponent, AssetStateService } from '@placeos/assets';
 import {
@@ -58,12 +59,12 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
 @Component({
     selector: 'meeting-flow-form',
     template: `
-        <div class="h-full w-full overflow-auto bg-base-200">
+        <div class="bg-base-200 h-full w-full overflow-auto">
             <div
-                class="mx-auto w-3xl max-w-full border border-base-300 bg-base-100 sm:my-4"
+                class="border-base-300 bg-base-100 mx-auto w-3xl max-w-full border sm:my-4"
             >
                 <h2
-                    class="w-full border-b border-base-300 p-4 text-2xl font-medium sm:px-16 sm:py-4"
+                    class="border-base-300 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
                         (!!form.value.id
@@ -74,13 +75,13 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                 </h2>
                 @if (form) {
                     <form
-                        class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
+                        class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
                         [formGroup]="form"
                     >
                         <section class="p-2">
                             <h3 class="flex items-center space-x-2">
                                 <div
-                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                 >
                                     1
                                 </div>
@@ -117,7 +118,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                             <section class="p-2">
                                 <h3 class="flex items-center space-x-2">
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                        class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
                                         2
                                     </div>
@@ -131,7 +132,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                     <button
                                         matRipple
                                         name="find-attendee-availability"
-                                        class="bg-none text-xs text-info underline"
+                                        class="text-info bg-none text-xs underline"
                                         (click)="findAvailableTime()"
                                     >
                                         {{ 'COMMON.AVAILABILITY' | translate }}
@@ -170,7 +171,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                         <section class="p-2">
                             <h3 class="flex items-center space-x-2">
                                 <div
-                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                 >
                                     3
                                 </div>
@@ -205,7 +206,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                         form.value.attendees?.length
                                 ) {
                                     <div
-                                        class="mx-auto my-2 inline-flex rounded-sm bg-warning p-2 text-xs text-warning-content shadow-sm"
+                                        class="bg-warning text-warning-content mx-auto my-2 inline-flex rounded-sm p-2 text-xs shadow-sm"
                                     >
                                         {{
                                             'CALENDAR_EVENT.CAPACITY_WARNING'
@@ -224,7 +225,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                             <section class="p-2">
                                 <h3 class="flex items-center space-x-2">
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                        class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
                                         4
                                     </div>
@@ -288,7 +289,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                             >
                                                 <input
                                                     #input
-                                                    class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
+                                                    class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
                                                     [ngModel]="
                                                         code_filter.getValue()
                                                     "
@@ -359,7 +360,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                             <section class="p-2">
                                 <h3 class="flex items-center space-x-2">
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                        class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
                                         {{
                                             !(has_catering | async) ? '4' : '5'
@@ -412,7 +413,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                             <section class="p-2">
                                 <h3 class="mb-4 flex items-center space-x-2">
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                        class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                     >
                                         {{
                                             !(has_catering | async) ||
@@ -497,6 +498,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
         CateringListFieldComponent,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
         SpaceListFieldComponent,

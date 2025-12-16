@@ -376,7 +376,7 @@ export class CateringListFieldComponent
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
 
-    public removeOrder(order: CateringItem) {
+    public removeOrder(order: CateringOrder) {
         const updated_list = this.orders.filter((_) => _.id !== order.id);
         this.setValue(updated_list);
     }

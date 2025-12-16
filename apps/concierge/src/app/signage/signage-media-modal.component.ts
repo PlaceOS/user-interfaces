@@ -20,6 +20,7 @@ import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
     MediaDurationPipe,
+    SafePipe,
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
@@ -53,7 +54,7 @@ import { lastValueFrom } from 'rxjs';
                 <div class="flex flex-col">
                     <button
                         matRipple
-                        class="pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl bg-base-300"
+                        class="bg-base-300 pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl"
                         (click)="preview()"
                     >
                         @if (media_type === 'webpage') {
@@ -69,7 +70,7 @@ import { lastValueFrom } from 'rxjs';
                             />
                         }
                         <div
-                            class="absolute left-2 top-2 rounded-sm bg-base-400 px-2 py-1 text-xs capitalize"
+                            class="bg-base-400 absolute top-2 left-2 rounded-sm px-2 py-1 text-xs capitalize"
                         >
                             {{ media_type }}
                         </div>
@@ -236,6 +237,7 @@ import { lastValueFrom } from 'rxjs';
         ReactiveFormsModule,
         DateFieldComponent,
         TranslatePipe,
+        SafePipe,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,

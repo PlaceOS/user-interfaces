@@ -34,6 +34,8 @@ describe('ExploreDeviceInfoComponent', () => {
 
     it('should show location and range', () => {
         expect('[name="dot"]').toExist();
+        spectator.dispatchMouseEvent('[shadow]', 'mouseenter');
+        spectator.detectChanges();
         expect('[name="radius"]').toExist();
     });
 });

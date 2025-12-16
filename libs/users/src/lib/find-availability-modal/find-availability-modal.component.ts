@@ -62,9 +62,9 @@ export interface FindAvailabilityData {
 @Component({
     selector: 'find-availability-modal',
     template: `
-        <div class="fixed inset-0 flex flex-col space-y-2 bg-base-100 p-2">
+        <div class="bg-base-100 fixed inset-0 flex flex-col space-y-2 p-2">
             <header
-                class="flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
@@ -74,10 +74,10 @@ export interface FindAvailabilityData {
                 </button>
             </header>
             <main
-                class="flex h-[calc(100vh-9rem)] flex-1 flex-col overflow-hidden rounded-sm border border-base-300 sm:h-[65vh]"
+                class="border-base-300 flex h-[calc(100vh-9rem)] flex-1 flex-col overflow-hidden rounded-sm border sm:h-[65vh]"
             >
                 <div
-                    class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                 >
                     <a-date-field
                         [ngModel]="date()"
@@ -91,16 +91,16 @@ export interface FindAvailabilityData {
                     ></a-user-search-field>
                 </div>
                 <div
-                    class="relative grid h-1/2 w-full max-w-full flex-1 divide-x divide-y divide-base-300 overflow-hidden border-t border-base-300"
+                    class="divide-base-300 border-base-300 relative grid h-1/2 w-full max-w-full flex-1 divide-x divide-y overflow-hidden border-t"
                 >
                     <div
                         times
-                        class="col-start-2 flex h-10 overflow-hidden border-l border-base-300"
+                        class="border-base-300 col-start-2 flex h-10 overflow-hidden border-l"
                     >
                         @for (hr of hours; track hr; let hour = $index) {
                             <div
                                 hour
-                                class="relative h-10 min-w-20 border-r border-base-300 p-2 text-sm"
+                                class="border-base-300 relative h-10 min-w-20 border-r p-2 text-sm"
                                 [attr.disabled]="
                                     today() && current_hour() > hour
                                 "
@@ -116,7 +116,7 @@ export interface FindAvailabilityData {
                     >
                         <div
                             host
-                            class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-300 py-2"
+                            class="border-base-300 relative flex h-32 w-24 flex-col items-center justify-center border-b py-2"
                             [style.top]="-offset_y() + 'px'"
                         >
                             <a-user-avatar
@@ -124,7 +124,7 @@ export interface FindAvailabilityData {
                                 [user]="host"
                             ></a-user-avatar>
                             <div
-                                class="max-w-full overflow-hidden wrap-break-word px-2 text-center text-xs"
+                                class="max-w-full overflow-hidden px-2 text-center text-xs wrap-break-word"
                             >
                                 {{ host.name || host.email }}
                             </div>
@@ -132,7 +132,7 @@ export interface FindAvailabilityData {
                         @for (user of users(); track user) {
                             <div
                                 person
-                                class="relative flex h-32 w-24 flex-col items-center justify-center border-b border-base-300 py-2"
+                                class="border-base-300 relative flex h-32 w-24 flex-col items-center justify-center border-b py-2"
                                 [style.top]="-offset_y() + 'px'"
                             >
                                 <a-user-avatar
@@ -140,13 +140,13 @@ export interface FindAvailabilityData {
                                     [user]="user"
                                 ></a-user-avatar>
                                 <div
-                                    class="max-w-full wrap-break-word px-2 text-center text-xs"
+                                    class="max-w-full px-2 text-center text-xs wrap-break-word"
                                 >
                                     {{ user.name || host.email }}
                                 </div>
                                 <button
                                     icon
-                                    class="absolute -left-1 -top-1"
+                                    class="absolute -top-1 -left-1"
                                     (click)="removeUser(user)"
                                 >
                                     <icon>close</icon>
@@ -162,7 +162,7 @@ export interface FindAvailabilityData {
                             @for (_ of hours; track _; let h = $index) {
                                 <div
                                     divider
-                                    class="relative h-full min-w-20 border-l border-base-300"
+                                    class="border-base-300 relative h-full min-w-20 border-l"
                                     [style.left]="-(offset_x() + 1) + 'px'"
                                     [attr.disabled]="
                                         today() && current_hour() > h
@@ -171,7 +171,7 @@ export interface FindAvailabilityData {
                             }
                             <div
                                 selection
-                                class="absolute inset-y-0 z-20 cursor-grab border-x-2! border-info! active:cursor-grabbing"
+                                class="border-info! absolute inset-y-0 z-20 cursor-grab border-x-2! active:cursor-grabbing"
                                 [style.left]="
                                     'calc(' +
                                     selection_left() +
@@ -184,26 +184,26 @@ export interface FindAvailabilityData {
                                 (touchstart)="startMovePeriod($event)"
                             >
                                 <div
-                                    class="absolute inset-0 bg-info opacity-30"
+                                    class="bg-info absolute inset-0 opacity-30"
                                 ></div>
                                 <div
                                     handle
-                                    class="absolute -left-px top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
+                                    class="bg-info absolute top-1/2 -left-px h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full"
                                 ></div>
                                 <div
                                     handle
-                                    class="absolute -right-px top-1/2 h-3 w-3 -translate-y-1/2 translate-x-1/2 rounded-full bg-info hover:h-4 hover:w-4 active:bg-secondary"
+                                    class="bg-info active:bg-secondary absolute top-1/2 -right-px h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full hover:h-4 hover:w-4"
                                     (mousedown)="startMoveDuration($event)"
                                     (touchstart)="startMoveDuration($event)"
                                 ></div>
                                 <div
-                                    class="absolute left-1/2 top-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-base-300 bg-base-100 p-2 text-xs shadow-sm"
+                                    class="border-base-300 bg-base-100 absolute top-2 left-1/2 -translate-x-1/2 rounded-sm border p-2 text-xs whitespace-nowrap shadow-sm"
                                 >
                                     {{ duration() | duration }}
                                 </div>
                                 @if (move_time()) {
                                     <div
-                                        class="absolute left-1/2 top-12 -translate-x-1/2 whitespace-nowrap rounded-sm border border-base-300 bg-base-100 p-2 text-xs shadow-sm"
+                                        class="border-base-300 bg-base-100 absolute top-12 left-1/2 -translate-x-1/2 rounded-sm border p-2 text-xs whitespace-nowrap shadow-sm"
                                     >
                                         {{ date() | date: 'shortTime' }}
                                     </div>
@@ -241,7 +241,7 @@ export interface FindAvailabilityData {
                 </div>
             </main>
             <footer
-                class="flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn

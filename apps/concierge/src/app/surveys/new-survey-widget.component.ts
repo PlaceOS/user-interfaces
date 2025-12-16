@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
 import { QuestionType } from './types';
 
@@ -7,7 +8,7 @@ import { QuestionType } from './types';
     selector: 'new-survey-widget',
     template: `
         <div
-            class="h-full space-y-2 rounded-sm border border-base-300 bg-base-100 p-4"
+            class="border-base-300 bg-base-100 h-full space-y-2 rounded-sm border p-4"
         >
             <h3 class="text-lg font-medium">
                 {{ response().question?.title }}
@@ -19,14 +20,14 @@ import { QuestionType } from './types';
                 @if (is_table()) {
                     <div class="space-y-2">
                         @for (answer of answer_list(); track answer.id) {
-                            <div class="rounded-sm bg-base-200 p-2 text-sm">
+                            <div class="bg-base-200 rounded-sm p-2 text-sm">
                                 {{ answer.answer_json }}
                             </div>
                         }
                     </div>
                 } @else if (is_selection()) {
                     @for (item of selection_items(); track item.id) {
-                        <div class="mx-4 flex flex-1 items-end pb-3 pt-2">
+                        <div class="mx-4 flex flex-1 items-end pt-2 pb-3">
                             <div class="w-px flex-1 flex-col space-y-1">
                                 <div
                                     class="flex-1 truncate"
@@ -34,7 +35,7 @@ import { QuestionType } from './types';
                                 >
                                     {{ item.name }}
                                 </div>
-                                <div class="progress-bar h-1 bg-base-200">
+                                <div class="progress-bar bg-base-200 h-1">
                                     @let percent = item.percentage || 0;
                                     <span
                                         class="progress-bar-fill h-1 justify-center rounded-lg"
@@ -109,7 +110,7 @@ import { QuestionType } from './types';
                                 let i = $index
                             ) {
                                 <div
-                                    class="flex w-full flex-row items-center space-x-4 rounded-xl border border-base-100 px-2 hover:border-base-200"
+                                    class="border-base-100 hover:border-base-200 flex w-full flex-row items-center space-x-4 rounded-xl border px-2"
                                 >
                                     @let percent = item.percentage || 0;
                                     <div class="w-5 text-right">
@@ -117,7 +118,7 @@ import { QuestionType } from './types';
                                     </div>
                                     <div
                                         progbar
-                                        class="h-2.5 flex-1 rounded-full bg-base-200"
+                                        class="bg-base-200 h-2.5 flex-1 rounded-full"
                                     >
                                         <div
                                             class="h-2.5 rounded-full"
@@ -157,7 +158,7 @@ import { QuestionType } from './types';
             }
         `,
     ],
-    imports: [CommonModule],
+    imports: [CommonModule, MatTooltipModule],
 })
 export class NewSurveyWidgetComponent {
     public readonly response = input<{

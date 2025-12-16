@@ -16,7 +16,7 @@ import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
 @Component({
     selector: 'placeos-new-book-desk-flow',
     template: `
-        <div class="z-50 h-full w-full bg-base-100">
+        <div class="bg-base-100 z-50 h-full w-full">
             @switch (view()) {
                 @case ('success') {
                     <desk-flow-success></desk-flow-success>

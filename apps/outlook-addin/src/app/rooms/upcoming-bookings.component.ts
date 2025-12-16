@@ -12,12 +12,12 @@ import { startOfMinute } from 'date-fns';
 @Component({
     selector: 'placeos-upcoming-bookings',
     template: `
-        <div class="absolute inset-0 overflow-auto bg-base-200">
+        <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
-                class="mx-auto min-h-full w-160 max-w-full border-x border-base-300 bg-base-100 pt-2"
+                class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x pt-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{ 'APP.WORKPLACE.UPCOMING' | translate }}
@@ -28,9 +28,9 @@ import { startOfMinute } from 'date-fns';
                 </h3>
                 <div
                     class="h-1/2 flex-1 space-y-4 p-4"
-                    [class.hidden]="loading$ | async"
+                    [class.hidden]="loading$()"
                 >
-                    @let event_list = events$ | async;
+                    @let event_list = events$();
                     @if (event_list?.length) {
                         @for (item of event_list; track item.id) {
                             @if (isEvent(item)) {
@@ -52,7 +52,7 @@ import { startOfMinute } from 'date-fns';
                 </div>
                 <div
                     loading
-                    [class.hidden]="!(loading$ | async)"
+                    [class.hidden]="!loading$()"
                     class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>

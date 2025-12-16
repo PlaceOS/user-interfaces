@@ -2,6 +2,7 @@ import { Component, forwardRef, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
+import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { SETTING_KEYS } from '@placeos/common';
@@ -22,7 +23,7 @@ const EMPTY_FAVS: string[] = [];
             @for (item of items; track item) {
                 <div
                     locker
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow-sm"
+                    class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
                 >
                     @if (features()?.length) {
                         <div class="flex flex-col">
@@ -41,7 +42,7 @@ const EMPTY_FAVS: string[] = [];
                                             )
                                         "
                                         (ngModelChange)="
-                                            setFeature(opt, $event)
+                                            setFeatures(opt, $event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
                                     >
@@ -52,7 +53,7 @@ const EMPTY_FAVS: string[] = [];
                         </div>
                     }
                     <div
-                        class="mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                        class="bg-base-200 mr-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl"
                     >
                         @if (item.images?.length) {
                             <img
@@ -72,17 +73,17 @@ const EMPTY_FAVS: string[] = [];
                             {{ item.name || 'Locker' }}
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
-                            <icon class="text-blue-500 text-base">place</icon>
+                            <icon class="text-base text-blue-500">place</icon>
                             <p>
                                 {{
-                                    (item?.zones | level)?.display_name ||
-                                        (item?.zones | level)?.name
+                                    (item?.zone?.id | level)?.display_name ||
+                                        (item?.zone?.id | level)?.name
                                 }}
                             </p>
                         </div>
-                        @if (item.accessible) {
+                        @if ($any(item).accessible) {
                             <div class="flex items-center space-x-2 text-sm">
-                                <icon class="text-base text-info"
+                                <icon class="text-info text-base"
                                     >accessible</icon
                                 >
                                 <p>
@@ -93,14 +94,14 @@ const EMPTY_FAVS: string[] = [];
                             </div>
                         }
                         <div
-                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                            class="absolute right-0 bottom-0 flex items-center justify-end text-xs"
                         >
                             <button
                                 btn
                                 matRipple
                                 name="edit-locker"
                                 class="clear"
-                                (click)="changeResources(item)"
+                                (click)="changeResources()"
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon>edit</icon>
@@ -155,6 +156,7 @@ const EMPTY_FAVS: string[] = [];
         AuthenticatedImageDirective,
         MatCheckboxModule,
         LevelPipe,
+        FormsModule,
     ],
 })
 export class LockerListFieldComponent implements ControlValueAccessor {
@@ -222,6 +224,15 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
         (this._onTouch = fn);
     public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+
+    public setFeatures(opt: string, value: boolean) {
+        const features = this.selected_features || [];
+        if (value) {
+            this.selected_features = [...features, opt];
+        } else {
+            this.selected_features = features.filter((f) => f !== opt);
+        }
+    }
 
     public toggleFavourite(space: BookingAsset) {
         const fav_list = this.favorites;

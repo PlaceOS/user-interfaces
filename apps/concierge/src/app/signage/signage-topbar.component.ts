@@ -9,7 +9,7 @@ import { SignageStateService } from './signage-state.service';
     selector: 'signage-topbar',
     template: `
         <div
-            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
+            class="border-base-200 bg-base-100 flex h-20 items-center space-x-2 border-b px-4"
         >
             <!-- <mat-form-field appearance="outline">
                 <mat-select

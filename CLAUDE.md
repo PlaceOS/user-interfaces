@@ -190,6 +190,11 @@ nx migrate --run-migrations
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
 
+## other
+
+- After you finish making changes make sure all the apps build with `npm run build-all`
+- After you finish making changes make sure all the tests pass with `npm run test-all`
+
 ## Code styles
 
 - Use snake_case for variables

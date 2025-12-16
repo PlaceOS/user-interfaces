@@ -34,7 +34,7 @@ export interface CateringItemModalData {
     selector: 'catering-item-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -235,7 +235,7 @@ export interface CateringItemModalData {
                         [ngModel]="hasTag('Gluten Free')"
                         (ngModelChange)="
                             $event
-                                ? addTag({ value: 'Gluten Free' })
+                                ? addTag($any({ value: 'Gluten Free' }))
                                 : removeTag('Gluten Free')
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -247,7 +247,7 @@ export interface CateringItemModalData {
                         [ngModel]="hasTag('Vegan')"
                         (ngModelChange)="
                             $event
-                                ? addTag({ value: 'Vegan' })
+                                ? addTag($any({ value: 'Vegan' }))
                                 : removeTag('Vegan')
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -259,7 +259,7 @@ export interface CateringItemModalData {
                         [ngModel]="hasTag('Vegetarian')"
                         (ngModelChange)="
                             $event
-                                ? addTag({ value: 'Vegetarian' })
+                                ? addTag($any({ value: 'Vegetarian' }))
                                 : removeTag('Vegetarian')
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -271,7 +271,7 @@ export interface CateringItemModalData {
                         [ngModel]="hasTag('Contains Dairy')"
                         (ngModelChange)="
                             $event
-                                ? addTag({ value: 'Contains Dairy' })
+                                ? addTag($any({ value: 'Contains Dairy' }))
                                 : removeTag('Contains Dairy')
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -283,7 +283,7 @@ export interface CateringItemModalData {
                         [ngModel]="hasTag('Contains Nuts')"
                         (ngModelChange)="
                             $event
-                                ? addTag({ value: 'Contains Nuts' })
+                                ? addTag($any({ value: 'Contains Nuts' }))
                                 : removeTag('Contains Nuts')
                         "
                         [ngModelOptions]="{ standalone: true }"
@@ -310,7 +310,7 @@ export interface CateringItemModalData {
         }
         @if (!loading) {
             <footer
-                class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
+                class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
             >
                 <button
                     btn
@@ -419,12 +419,12 @@ export class CateringItemModalComponent {
 
     public renderPrice = (v) => this._renderPrice(v);
 
-    public _renderPrice(value = 0) {
+    public _renderPrice(value = 0): string {
         return (
             this._currency_pipe?.transform(
                 value / 100,
                 this._org.currency_code,
-            ) || value
+            ) || String(value)
         );
     }
 

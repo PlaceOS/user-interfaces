@@ -34,7 +34,7 @@ import { ScheduleWeekViewComponent } from './schedule-week-view.component';
             (end_dateChange)="setEndDate($event)"
         />
         <div
-            class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
+            class="bg-base-200 relative flex h-1/2 flex-1 flex-col sm:flex-row"
         >
             <schedule-sidebar
                 class="relative z-50 hidden bg-base-100 sm:block"

@@ -13,7 +13,7 @@ import { IconComponent } from './icon.component';
     template: `
         <button
             matRipple
-            class="relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pl-2 pr-1 hover:bg-base-200"
+            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value"
             [class.border-info]="value"
             (click)="setValue(!value)"
@@ -28,13 +28,13 @@ import { IconComponent } from './icon.component';
                 }
             </div>
             @if (value) {
-                <div class="absolute inset-0 z-0 m-0! bg-info opacity-10"></div>
+                <div class="bg-info absolute inset-0 z-0 m-0! opacity-10"></div>
             }
             @if (toggle()) {
                 <div class="px-2">
                     <div
                         toggle
-                        class="relative h-8 w-12 rounded-full border-2 border-base-400"
+                        class="border-base-400 relative h-8 w-12 rounded-full border-2"
                         [class.bg-base-200]="!value"
                         [class.bg-info]="value"
                         [class.border-info!]="value"

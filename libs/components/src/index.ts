@@ -37,6 +37,7 @@ export * from './lib/chat/chat.service';
 
 export * from './lib/building.pipe';
 export * from './lib/date-from.pipe';
+export * from './lib/duration.pipe';
 export * from './lib/level.pipe';
 export * from './lib/media-duration.pipe';
 export * from './lib/safe.pipe';

@@ -16,7 +16,7 @@ import { IconComponent } from './icon.component';
     selector: 'upload-permissions-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Upload File</h2>
             <button icon matRipple mat-dialog-close>
@@ -54,7 +54,7 @@ import { IconComponent } from './icon.component';
             </div> -->
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
+            class="border-base-200 flex items-center justify-end space-x-2 border-t px-4 py-2"
         >
             <button btn matRipple class="inverse w-32" mat-dialog-close>
                 Cancel

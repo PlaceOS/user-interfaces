@@ -268,7 +268,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                             "
                                             [ngModel]="
                                                 (
-                                                    options | async
+                                                    filters | async
                                                 )?.features?.includes(feat)
                                             "
                                             (ngModelChange)="
@@ -292,7 +292,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             class="flex flex-1 flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
                         >
                             @let feature_list =
-                                (options | async)?.features || [];
+                                (filters | async)?.features || [];
                             @let zones = (options | async)?.zones || [];
                             @let capacity = (filters | async)?.capacity || -1;
                             @let event = form().getRawValue();
@@ -584,7 +584,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                         [name]="feature_display()[feat] || feat"
                                         [ngModel]="
                                             (
-                                                options | async
+                                                filters | async
                                             )?.features?.includes(feat)
                                         "
                                         (ngModelChange)="

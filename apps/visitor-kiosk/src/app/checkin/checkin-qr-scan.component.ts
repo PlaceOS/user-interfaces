@@ -27,7 +27,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+            class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code"
         >
             <p class="my-4">
@@ -56,10 +56,10 @@ import { CheckinStateService } from './checkin-state.service';
                 </button>
             </div>
             <div
-                class="relative mt-4 overflow-hidden rounded-sm border border-base-200 bg-base-200"
+                class="border-base-200 bg-base-200 relative mt-4 overflow-hidden rounded-sm border"
             >
                 <div
-                    class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
+                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
                 >
                     <icon class="text-6xl">videocam_off</icon>
                     <p class="text-center">
@@ -79,14 +79,14 @@ import { CheckinStateService } from './checkin-state.service';
             <a
                 icon
                 matRipple
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
                 <icon>close</icon>
             </a>
         </div>
         <div
-            class="relative flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-16 shadow-sm"
+            class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>

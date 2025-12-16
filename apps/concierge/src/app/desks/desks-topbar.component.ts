@@ -34,7 +34,7 @@ import { DesksStateService } from './desks-state.service';
     selector: 'desks-topbar',
     template: `
         <div
-            class="flex h-20 items-center space-x-2 border-b border-base-200 bg-base-100 px-4"
+            class="border-base-200 bg-base-100 flex h-20 items-center space-x-2 border-b px-4"
         >
             <mat-form-field appearance="outline">
                 <mat-select
@@ -71,7 +71,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded-sm bg-primary text-white"
+                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >
@@ -82,7 +82,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="relative rounded-sm bg-primary text-white"
+                    class="bg-primary relative rounded-sm text-white"
                     [matTooltip]="'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate"
                 >
                     <icon>cloud_upload</icon>
@@ -97,7 +97,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded-sm bg-primary text-white"
+                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="downloadTemplate()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -110,7 +110,7 @@ import { DesksStateService } from './desks-state.service';
                 <button
                     icon
                     matRipple
-                    class="mx-2 rounded-sm bg-primary text-white"
+                    class="bg-primary mx-2 rounded-sm text-white"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate

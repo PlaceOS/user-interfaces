@@ -22,7 +22,7 @@ import { GroupEventsStateService } from './group-events-state.service';
 @Component({
     selector: `group-events-sidebar`,
     template: `
-        <div class="flex flex-col bg-base-100 sm:h-full sm:w-[18rem]">
+        <div class="bg-base-100 flex flex-col sm:h-full sm:w-[18rem]">
             <div class="flex items-center space-x-2 p-2">
                 <button
                     btn
@@ -62,14 +62,14 @@ import { GroupEventsStateService } from './group-events-state.service';
                 </mat-form-field>
             </div>
             <hr
-                class="mx-auto hidden w-[calc(100%-1rem)] border-base-200 sm:block"
+                class="border-base-200 mx-auto hidden w-[calc(100%-1rem)] sm:block"
             />
             <div class="hidden flex-1 flex-col overflow-auto sm:flex">
                 <date-calendar
                     [ngModel]="(options | async).date"
                     (ngModelChange)="setPeriodFromDate($event)"
                 ></date-calendar>
-                <hr class="mx-auto w-[calc(100%-1rem)] border-base-200" />
+                <hr class="border-base-200 mx-auto w-[calc(100%-1rem)]" />
                 <div class="flex flex-1 flex-col overflow-auto">
                     <h2 class="p-4 text-lg font-medium">
                         {{ 'COMMON.FILTERS' | translate }}

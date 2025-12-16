@@ -16,7 +16,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     selector: 'parking-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.PARKING_CONFIRM_TITLE' | translate }}
@@ -38,7 +38,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
-            <icon class="text-2xl text-success">done</icon>
+            <icon class="text-success text-2xl">done</icon>
             <div details class="space-y-2 text-base">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -65,7 +65,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 resource
                 class="flex space-x-1 border-t px-2 py-4 text-base"
             >
-                <icon class="text-2xl text-success">done</icon>
+                <icon class="text-success text-2xl">done</icon>
                 <div details class="space-y-2 text-base">
                     <h3 class="text-xl">
                         {{ booking_asset?.name || booking_asset?.id || '' }}
@@ -87,7 +87,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </div>
             </section>
         }
-        <footer class="mt-4 w-full border-t border-base-200 p-2">
+        <footer class="border-base-200 mt-4 w-full border-t p-2">
             @if (!(loading | async)) {
                 <button
                     confirm

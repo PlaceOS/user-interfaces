@@ -10,6 +10,8 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import {
     SETTING_KEYS,
     settingSignal,
@@ -39,8 +41,8 @@ import { EventFormService } from '@placeos/events';
                             "
                             class="relative w-full rounded-lg border border-base-200 bg-base-100 shadow hover:border-info"
                             [class.!bg-error-light]="
-                                room_alerts[space.id]
-                                    ? room_alerts[space.id][0] === 'closed'
+                                room_alerts()[space.id]
+                                    ? room_alerts()[space.id][0] === 'closed'
                                     : false
                             "
                         >
@@ -50,8 +52,8 @@ import { EventFormService } from '@placeos/events';
                                     class="flex h-full w-full items-center rounded"
                                     (click)="space_selected.emit(space)"
                                     [class.pointer-events-none]="
-                                        room_alerts[space.id]
-                                            ? room_alerts[space.id][0] ===
+                                        room_alerts()[space.id]
+                                            ? room_alerts()[space.id][0] ===
                                               'closed'
                                             : false
                                     "
@@ -79,34 +81,34 @@ import { EventFormService } from '@placeos/events';
                                                 src="assets/icons/room-placeholder.svg"
                                             />
                                         }
-                                        @if (room_alerts[space.id]) {
+                                        @if (room_alerts()[space.id]) {
                                             <div
                                                 class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full"
                                                 [matTooltip]="
-                                                    alerts[space.id][1]
+                                                    room_alerts()[space.id][1]
                                                 "
                                                 [class.bg-error]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'closed'
                                                 "
                                                 [class.bg-info]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'info'
                                                 "
                                                 [class.bg-warning]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'warn'
                                                 "
                                                 [class.text-error-content]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'closed'
                                                 "
                                                 [class.text-info-content]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'info'
                                                 "
                                                 [class.text-warning-content]="
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'warn'
                                                 "
                                                 (click)="
@@ -114,10 +116,10 @@ import { EventFormService } from '@placeos/events';
                                                 "
                                             >
                                                 <icon>{{
-                                                    alerts[space.id][0] ===
+                                                    room_alerts()[space.id][0] ===
                                                     'warn'
                                                         ? 'warning'
-                                                        : alerts[
+                                                        : room_alerts()[
                                                                 space.id
                                                             ][0] === 'info'
                                                           ? 'info'
@@ -143,9 +145,8 @@ import { EventFormService } from '@placeos/events';
                                             <icon class="text-info">place</icon>
                                             <p class="truncate">
                                                 {{
-                                                    space.location ||
-                                                        (space.zones | level)
-                                                            ?.display_name ||
+                                                    (space.zones | level)
+                                                        ?.display_name ||
                                                         (space.zones | level)
                                                             ?.name
                                                 }}
@@ -277,6 +278,8 @@ import { EventFormService } from '@placeos/events';
         LevelPipe,
         IconComponent,
         MatRippleModule,
+        MatTooltipModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class MeetingFlowSpaceListComponent {

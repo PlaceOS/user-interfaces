@@ -14,7 +14,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div>
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -31,7 +31,7 @@ import { TranslatePipe } from './translate.pipe';
             @if (!loading()) {
                 <main class="max-h-[65vh] w-lg overflow-auto">
                     <table class="min-w-lg">
-                        <thead class="border-b border-base-200">
+                        <thead class="border-base-200 border-b">
                             <tr>
                                 <td class="w-12 py-1" (click)="toggleRoom('*')">
                                     <mat-checkbox
@@ -108,7 +108,7 @@ import { TranslatePipe } from './translate.pipe';
                     </table>
                 </main>
                 <footer
-                    class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
+                    class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
                 >
                     <button btn matRipple (click)="enableSelected()">
                         {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}

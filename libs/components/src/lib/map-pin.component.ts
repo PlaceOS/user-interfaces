@@ -13,12 +13,12 @@ export interface MapPinData {
     selector: '[map-pin]',
     template: `
         <div
-            class="-z-1 absolute bottom-1/2 left-1/2 flex w-[24rem] -translate-x-1/2 flex-col items-center"
+            class="absolute bottom-1/2 left-1/2 -z-1 flex w-[24rem] -translate-x-1/2 flex-col items-center"
         >
             @if (message && show_message()) {
                 <div
                     name="message"
-                    class="text-gray-700 m-2 rounded-sm bg-base-100 p-2 shadow-sm"
+                    class="bg-base-100 m-2 rounded-sm p-2 text-gray-700 shadow-sm"
                 >
                     {{ message }}
                 </div>

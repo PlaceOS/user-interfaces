@@ -13,6 +13,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
 import { CateringComponent } from './catering.component';
 
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -23,6 +24,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 const STANDALONE_COMPONENTS = [
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
     CateringComponent,

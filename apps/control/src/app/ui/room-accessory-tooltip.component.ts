@@ -15,19 +15,19 @@ import { ControlStateService } from '../control-state.service';
     selector: 'room-accessory-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-2 shadow-sm"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-2 shadow-sm"
         >
             <h3
-                class="w-full rounded-sm bg-base-200 px-4 py-2 text-xl font-medium"
+                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.ACCESSORIES' | translate }}
             </h3>
             @if (list()?.length) {
                 @for (item of list(); track item) {
                     <div
-                        class="flex w-full min-w-[20rem] items-center space-x-2 rounded-sm border border-base-300 p-2"
+                        class="border-base-300 flex w-full min-w-[20rem] items-center space-x-2 rounded-sm border p-2"
                     >
-                        <div class="flex-1 pl-2 pr-8 font-medium">
+                        <div class="flex-1 pr-8 pl-2 font-medium">
                             {{ item.name }}
                         </div>
                         @for (ctrl of item.controls; track ctrl) {
@@ -35,7 +35,7 @@ import { ControlStateService } from '../control-state.service';
                                 state
                                 icon
                                 matRipple
-                                class="rounded-sm border border-solid border-primary text-primary"
+                                class="border-primary text-primary rounded-sm border border-solid"
                                 (click)="performAction(item.name, ctrl.name)"
                                 [matTooltip]="ctrl.name"
                             >

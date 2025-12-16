@@ -9,7 +9,7 @@ import { ReportsStateService } from '../reports-state.service';
 @Component({
     selector: 'report-spaces-overall',
     template: ` <div
-            class="m-4 flex items-center justify-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-4"
+            class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
         >
             <div class="flex flex-1 flex-col items-center">
                 <h3>{{ 'APP.CONCIERGE.REPORTS_BUSINESS_DAYS' | translate }}</h3>
@@ -30,7 +30,7 @@ import { ReportsStateService } from '../reports-state.service';
         </div>
         @if (has_attendance | async) {
             <div
-                class="m-4 flex items-center justify-center space-x-2 rounded-sm bg-base-100 p-4"
+                class="bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm p-4"
             >
                 <div class="flex flex-1 flex-col items-center justify-center">
                     <h3>{{ 'APP.CONCIERGE.REPORTS_NO_SHOWS' | translate }}</h3>

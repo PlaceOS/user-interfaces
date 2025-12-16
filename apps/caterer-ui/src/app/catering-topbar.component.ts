@@ -17,9 +17,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService } from '@placeos/common';
 import {
     AvailableRoomsStateModalComponent,
+    BuildingPipe,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -28,7 +30,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
 @Component({
     selector: 'catering-topbar',
     template: `
-        <div class="flex w-full items-center space-x-2 px-8 pb-2 pt-4">
+        <div class="flex w-full items-center space-x-2 px-8 pt-4 pb-2">
             <a
                 icon
                 matRipple
@@ -55,7 +57,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                 <icon class="text-xl" matSuffix>search</icon>
             </mat-form-field>
         </div>
-        <div class="flex items-center space-x-2 bg-base-100 px-8 pb-4 pt-2">
+        <div class="bg-base-100 flex items-center space-x-2 px-8 pt-2 pb-4">
             <div class="w-12"></div>
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
@@ -110,7 +112,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="addItem()"
                 >
                     <icon class="text-2xl">add</icon>
@@ -121,7 +123,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     icon
                     matRipple
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="editConfig()"
                 >
                     <icon class="text-2xl">menu_book</icon>
@@ -132,7 +134,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="importMenu()"
                 >
                     <icon class="text-2xl">cloud_upload</icon>
@@ -143,7 +145,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     icon
                     matRipple
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setRoomAvailability()"
                 >
                     <icon class="text-2xl">event_available</icon>
@@ -154,7 +156,7 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
                     icon
                     matRipple
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setChargeCodes()"
                 >
                     <icon class="text-2xl">payments</icon>
@@ -188,6 +190,8 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         FormsModule,
         MatInputModule,
         RouterModule,
+        BuildingPipe,
+        MatTooltipModule,
     ],
 })
 export class CateringTopbarComponent extends AsyncHandler implements OnInit {
@@ -235,6 +239,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
     public readonly importMenu = () => this._catering.importMenu();
+    public readonly setCaterer = (caterer: string) =>
+        (this._orders.filters = { ...this._orders.filters, caterer });
 
     public get building() {
         return this._org.building;

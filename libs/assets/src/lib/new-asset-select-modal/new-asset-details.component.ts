@@ -19,7 +19,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
     selector: 'new-asset-details',
     template: `
         @if (item()) {
-            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
+            <section image class="bg-base-200 relative h-64 w-full sm:h-40">
                 <image-carousel
                     [images]="item().images"
                     class="absolute inset-0"
@@ -29,7 +29,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-100 lg:hidden"
+                    class="bg-base-100 absolute top-2 left-2 lg:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -39,7 +39,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                     fav
                     [class.text-info-content]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-100"
+                    class="bg-base-100 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -58,8 +58,8 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                 <section actions class="z-0 flex items-center justify-between">
                     <p class="px-2">
                         {{
-                            (item().available != null
-                                ? item().available
+                            ($any(item()).available != null
+                                ? $any(item()).available
                                 : item().assets?.length) || 0
                         }}
                         Available
@@ -69,18 +69,18 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
                         (ngModelChange)="countChange.emit($event)"
                         [min]="1"
                         [max]="
-                            (item().available != null
-                                ? item().available
+                            ($any(item()).available != null
+                                ? $any(item()).available
                                 : item().assets?.length) || 1
                         "
                     ></a-counter>
                 </section>
                 <section
                     details
-                    class="relative space-y-2 rounded-sm border border-base-400 px-3 pb-2 pt-2"
+                    class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-2 pb-2"
                 >
                     <h2
-                        class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
                         Details
                     </h2>

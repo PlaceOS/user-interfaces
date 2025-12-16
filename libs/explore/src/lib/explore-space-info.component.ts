@@ -1,4 +1,4 @@
-import { DatePipe, UpperCasePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, UpperCasePipe } from '@angular/common';
 import {
     Component,
     computed,
@@ -74,11 +74,11 @@ export interface SpaceInfoData {
                             />
                         } @else {
                             <div
-                                class="absolute inset-0 bg-base-200 opacity-30"
+                                class="bg-base-200 absolute inset-0 opacity-30"
                             ></div>
                         }
                     </div>
-                    <div class="absolute left-2 top-2 flex flex-wrap text-sm">
+                    <div class="absolute top-2 left-2 flex flex-wrap text-sm">
                         <div
                             status
                             [class]="
@@ -126,7 +126,7 @@ export interface SpaceInfoData {
                                     track feature
                                 ) {
                                     <li
-                                        class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-xs font-medium"
+                                        class="bg-base-200 m-1 rounded-2xl px-2 py-1 text-xs font-medium"
                                     >
                                         {{ feature }}
                                     </li>
@@ -134,13 +134,15 @@ export interface SpaceInfoData {
                             </ul>
                         }
                         @if (show_event_details() && next()) {
-                            @let host = next().host | user;
-                            <div class="rounded-sm px-2 pb-1 text-xs opacity-30">
+                            @let host = next().host | user | async;
+                            <div
+                                class="rounded-sm px-2 pb-1 text-xs opacity-30"
+                            >
                                 {{ current() ? 'Current' : 'Upcoming' }}
                                 booking
                             </div>
                             <div
-                                class="mb-1 flex flex-col rounded-lg border border-base-300 p-2"
+                                class="border-base-300 mb-1 flex flex-col rounded-lg border p-2"
                             >
                                 <h3>{{ next().title }}</h3>
                                 <div class="text-xs opacity-50">
@@ -194,6 +196,7 @@ export interface SpaceInfoData {
     ],
 
     imports: [
+        AsyncPipe,
         DatePipe,
         UpperCasePipe,
         IconComponent,

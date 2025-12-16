@@ -18,6 +18,7 @@ import {
     Space,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 @Component({
     selector: 'desk-flow-select-list',
@@ -208,6 +209,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         MatProgressSpinnerModule,
         IconComponent,
         MatRippleModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class DeskFlowSelectListComponent {

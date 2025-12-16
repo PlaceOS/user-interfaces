@@ -15,9 +15,9 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'user-parking-tooltip',
     template: `
         <div
-            class="min-w-[20rem] space-y-2 rounded-md border border-base-300 bg-base-100 p-2"
+            class="border-base-300 bg-base-100 min-w-[20rem] space-y-2 rounded-md border p-2"
         >
-            <h3 class="border-b border-base-300 text-lg font-medium">
+            <h3 class="border-base-300 border-b text-lg font-medium">
                 {{ 'COMMON.CONTROLS_PARKING' | translate }}
             </h3>
             <div class="flex flex-col">

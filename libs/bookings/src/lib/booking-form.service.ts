@@ -71,8 +71,8 @@ import {
     queryBookings,
     saveBooking,
 } from './bookings.fn';
-import { openRecurringClashModal } from './recurring-clash-modal.component';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
+import { openRecurringClashModal } from './recurring-clash-modal.component';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
@@ -110,10 +110,14 @@ export interface BookingFlowOptions {
 
 export interface BookingAsset {
     id: string;
-    map_id: string;
+    map_id?: string;
+    display_name?: string;
     name: string;
     bookable: boolean;
     zone?: PlaceZone;
+    level?: PlaceZone;
+    location?: string;
+    images?: string[];
     groups?: string[];
     assigned_to?: string;
     features: string[];
@@ -1008,9 +1012,15 @@ export class BookingFormService extends AsyncHandler {
 
         // Check setting for allow_recurring_instance_clashes
         const allow_clashes =
-            this._settings.get(`app.${type}s.allow_recurring_instance_clashes`) ??
-            this._settings.get(`app.${type}.allow_recurring_instance_clashes`) ??
-            this._settings.get('app.bookings.allow_recurring_instance_clashes') ??
+            this._settings.get(
+                `app.${type}s.allow_recurring_instance_clashes`,
+            ) ??
+            this._settings.get(
+                `app.${type}.allow_recurring_instance_clashes`,
+            ) ??
+            this._settings.get(
+                'app.bookings.allow_recurring_instance_clashes',
+            ) ??
             true;
 
         if (!allow_clashes) {

@@ -6,6 +6,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
@@ -32,7 +33,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                 <div class="flex w-full items-center space-x-2">
                     <input
                         type="text"
-                        class="flex-1 rounded-sm border border-base-200 px-4 py-3"
+                        class="border-base-200 flex-1 rounded-sm border px-4 py-3"
                         [placeholder]="
                             'APP.CONCIERGE.SUPPORT_TYPES_NAME' | translate
                         "
@@ -40,7 +41,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                     />
                     <input
                         type="email"
-                        class="flex-2 rounded-sm border border-base-200 px-4 py-3"
+                        class="border-base-200 flex-2 rounded-sm border px-4 py-3"
                         [placeholder]="
                             'APP.CONCIERGE.SUPPORT_TYPES_EMAIL' | translate
                         "
@@ -52,7 +53,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
                         [matTooltip]="
                             'APP.CONCIERGE.SUPPORT_TYPES_REMOVE' | translate
                         "
-                        class="h-12 w-12 rounded-sm border border-error text-error"
+                        class="border-error text-error h-12 w-12 rounded-sm border"
                         (click)="item_list.splice(i, 1)"
                     >
                         <icon class="text-2xl">delete</icon>
@@ -61,7 +62,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
             }
         </main>
         <footer
-            class="flex items-center justify-end border-t border-base-200 p-2"
+            class="border-base-200 flex items-center justify-end border-t p-2"
         >
             <button btn matRipple class="w-32" (click)="save()">Save</button>
         </footer>
@@ -71,9 +72,9 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
         MatDialogModule,
         MatRippleModule,
         IconComponent,
-        MatRippleModule,
         FormsModule,
         TranslatePipe,
+        MatTooltipModule,
     ],
 })
 export class ItemListModalComponent implements OnInit {

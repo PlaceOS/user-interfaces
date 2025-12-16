@@ -23,6 +23,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 @Component({
     selector: 'desk-flow-select-map',
@@ -93,6 +94,7 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
         InteractiveMapComponent,
         IconComponent,
         TranslatePipe,
+        AuthenticatedImageDirective,
     ],
 })
 export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {

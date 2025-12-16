@@ -16,11 +16,11 @@ import {
     selector: 'desk-booking-form',
     template: `
         @if (form) {
-            <div class="space-y-2 divide-y divide-base-200" [formGroup]="form">
+            <div class="divide-base-200 space-y-2 divide-y" [formGroup]="form">
                 <section class="p-4">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             1
                         </div>
@@ -76,7 +76,7 @@ import {
                             @if (allow_all_day) {
                                 <mat-checkbox
                                     formControlName="all_day"
-                                    class="absolute right-0 top-0"
+                                    class="absolute top-0 right-0"
                                 >
                                     All Day
                                 </mat-checkbox>
@@ -106,7 +106,7 @@ import {
                 <section class="p-4">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             2
                         </div>
@@ -120,15 +120,17 @@ import {
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 3
                             </div>
                             <div class="text-xl">Request Asset</div>
                         </h3>
                         <asset-list-field
-                            [date]="form.value.date"
-                            [duration]="form.value.duration"
+                            [options]="{
+                                date: form.value.date,
+                                duration: form.value.duration,
+                            }"
                             formControlName="assets"
                         ></asset-list-field>
                     </section>
@@ -158,6 +160,14 @@ export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
 
     public get allow_assets() {
         return this._settings.get('app.desks.allow_assets');
+    }
+
+    public get allow_all_day() {
+        return this._settings.get('app.desks.allow_all_day');
+    }
+
+    public get can_book_lockers() {
+        return this._settings.get('app.desks.can_book_lockers');
     }
 
     public ngOnInit() {

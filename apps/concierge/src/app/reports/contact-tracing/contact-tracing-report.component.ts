@@ -29,7 +29,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         >
             <div class="w-full">
                 <div
-                    class="m-4 flex items-center overflow-hidden rounded-sm bg-base-200 p-4"
+                    class="bg-base-200 m-4 flex items-center overflow-hidden rounded-sm p-4"
                 >
                     <img
                         auth
@@ -47,10 +47,10 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             @if (!(loading | async)) {
                 @if ((options | async)?.user) {
                     <div
-                        class="mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] rounded-lg border border-base-200"
+                        class="border-base-200 mx-auto my-2 w-5xl max-w-[calc(100%-2rem)] rounded-lg border"
                     >
                         <div
-                            class="flex items-center justify-between border-b border-base-200 px-4"
+                            class="border-base-200 flex items-center justify-between border-b px-4"
                         >
                             <h2 class="py-2 text-xl font-medium">
                                 Contact Events
@@ -82,7 +82,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                                 },
                             ]"
                             [sortable]="true"
-                            [page_size]="print ? 0 : 30"
+                            [page_size]="printing ? 0 : 30"
                             empty_message="No contact tracing events for selected period"
                         ></simple-table>
                         <ng-template
@@ -125,7 +125,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 <div
                     class="flex flex-col items-center justify-center space-y-2 p-8"
                 >
-                    <map-spinner diameter="32"></map-spinner>
+                    <mat-spinner [diameter]="32"></mat-spinner>
                     <p class="opacity-30">{{ loading | async }}</p>
                 </div>
             }

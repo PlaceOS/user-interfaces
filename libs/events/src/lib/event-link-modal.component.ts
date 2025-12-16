@@ -67,7 +67,7 @@ import {
             icon
             matRipple
             [mat-dialog-close]="has_actioned"
-            class="absolute right-0 top-2"
+            class="absolute top-2 right-0"
         >
             <icon>close</icon>
         </button>

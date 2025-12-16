@@ -21,7 +21,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
+            class="border-base-200 mb-4 flex items-center space-x-2 border-b text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <icon>chevron_left</icon>
@@ -36,7 +36,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 @if (hasFeature(item.feat)) {
                     <settings-toggle
                         [ngModel]="
-                            (filters | async)?.shown_types?.includes(item.type)
+                            filters()?.shown_types?.includes(item.type)
                         "
                         (click)="toggleType(item.type)"
                     >

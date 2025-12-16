@@ -13,6 +13,7 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
@@ -23,7 +24,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
     selector: `new-space-map`,
     template: `
         @if ((levels | async)?.length) {
-            <div class="w-full border-b border-base-200 bg-base-100 p-2">
+            <div class="border-base-200 bg-base-100 w-full border-b p-2">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
@@ -88,6 +89,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
         MatSelectModule,
         FormsModule,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class NewSpaceMapComponent extends AsyncHandler implements OnInit {

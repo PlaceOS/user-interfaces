@@ -5,7 +5,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     selector: 'an-action-field',
     template: `
         <button
-            class="flex w-full items-center rounded-sm border border-base-200 p-2 hover:border-base-200"
+            class="border-base-200 hover:border-base-200 flex w-full items-center rounded-sm border p-2"
             type="button"
             role="button"
             [attr.disabled]="disabled()"

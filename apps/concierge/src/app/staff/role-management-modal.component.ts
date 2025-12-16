@@ -16,7 +16,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
     selector: 'role-management-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
@@ -30,13 +30,13 @@ import { EmergencyContactsService } from './emergency-contacts.service';
         <main class="h-128 max-h-[65vh] min-w-md overflow-y-auto">
             @for (role of roles | async; track role + $index) {
                 <div
-                    class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded-sm border border-base-200 p-2"
+                    class="hover:bg-base-200:bg-base-300 border-base-200 m-2 flex items-center space-x-2 rounded-sm border p-2"
                 >
                     <div class="flex-1 truncate px-2">{{ role }}</div>
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-sm border border-secondary text-secondary"
+                        class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                         (click)="active = role; role_name = role"
                         customTooltip
                         [content]="role_form"
@@ -46,7 +46,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded-sm border border-error text-error"
+                        class="border-error text-error h-12 w-12 rounded-sm border"
                         (click)="removeRole(role)"
                     >
                         <icon>delete</icon>
@@ -54,7 +54,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                 </div>
             }
         </main>
-        <footer class="border-t border-base-200">
+        <footer class="border-base-200 border-t">
             <button
                 btn
                 matRipple
@@ -70,7 +70,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
             </button>
         </footer>
         <ng-template #role_form>
-            <div class="rounded-sm bg-base-100 p-4">
+            <div class="bg-base-100 rounded-sm p-4">
                 <mat-form-field appearance="outline">
                     <input
                         matInput

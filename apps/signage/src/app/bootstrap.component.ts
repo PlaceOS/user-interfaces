@@ -33,13 +33,13 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 bg-base-300">
+        <div class="bg-base-300 absolute inset-0">
             <div
                 form
-                class="absolute left-1/2 top-2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm bg-base-100 shadow-sm"
+                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
             >
                 <header
-                    class="mb-2 w-full bg-secondary px-4 py-3 text-lg font-medium text-secondary-content"
+                    class="bg-secondary text-secondary-content mb-2 w-full px-4 py-3 text-lg font-medium"
                 >
                     {{ 'APP.SIGNAGE.BOOTSTRAP_TITLE' | translate }}
                 </header>

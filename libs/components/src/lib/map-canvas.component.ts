@@ -38,7 +38,7 @@ export interface MapPolygonData {
     template: `
         <canvas
             #canvas
-            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             [style.width]="width * svg_ratio * zoom + '%'"
             [style.height]="width * svg_ratio * ratio * zoom + '%'"
         ></canvas>

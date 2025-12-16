@@ -71,8 +71,37 @@ import {
     tap,
 } from 'rxjs/operators';
 
+export type EventSource = 'api' | 'driver' | 'ws';
+
 export interface ScheduleOptions {
     period: 'day' | 'week' | 'month' | 'range';
+}
+
+/**
+ * De-duplicates events from multiple sources based on ical_uid.
+ * Events from sources earlier in the list take priority.
+ * @param events_by_source - Array of event arrays, ordered by priority (first = highest priority)
+ * @returns De-duplicated array of events
+ */
+function deduplicateEventsByIcalUid(
+    events_by_source: CalendarEvent[][],
+): CalendarEvent[] {
+    const seen_ical_uids = new Set<string>();
+    const result: CalendarEvent[] = [];
+
+    for (const events of events_by_source) {
+        for (const event of events) {
+            const uid = event.ical_uid;
+            // If no ical_uid, include the event (can't dedupe without it)
+            // If ical_uid exists and hasn't been seen, include and mark as seen
+            if (!uid || !seen_ical_uids.has(uid)) {
+                if (uid) seen_ical_uids.add(uid);
+                result.push(event);
+            }
+        }
+    }
+
+    return result;
 }
 
 @Injectable({

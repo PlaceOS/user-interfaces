@@ -13,7 +13,7 @@ import { DeviceOutputListItemComponent } from './output-list-item.component';
                     <device-output-list-item
                         [item]="output"
                         [active]="active_output() === output.id"
-                        class="max-w-1/2 w-64 sm:min-w-64"
+                        class="w-64 max-w-1/2 sm:min-w-64"
                     ></device-output-list-item>
                 }
             }

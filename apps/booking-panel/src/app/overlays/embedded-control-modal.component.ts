@@ -13,9 +13,9 @@ export interface EmbeddedControlModalData {
 @Component({
     selector: 'embedded-control-modal',
     template: `
-        <div class="absolute inset-0 bg-base-100"></div>
+        <div class="bg-base-100 absolute inset-0"></div>
         <div
-            class="absolute w-screen overflow-hidden bg-secondary"
+            class="bg-secondary absolute w-screen overflow-hidden"
             modal
             [@show]
             (window:click)="reset()"
@@ -27,7 +27,7 @@ export interface EmbeddedControlModalData {
                 ></iframe>
             </div>
         </div>
-        <div class="absolute left-0 top-0 flex h-12 items-center">
+        <div class="absolute top-0 left-0 flex h-12 items-center">
             <div countdown class="mx-2 text-2xl">{{ countdown() }}</div>
             <button
                 icon

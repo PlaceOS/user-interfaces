@@ -15,6 +15,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import {
+    BuildingPipe,
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
@@ -97,7 +98,7 @@ const EMPTY = [];
                 }
                 <div class="flex flex-1 justify-end pr-2">
                     <div
-                        class="flex max-w-lg flex-1 items-center rounded-full border border-base-300"
+                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
                     >
                         <div
                             class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
@@ -105,7 +106,7 @@ const EMPTY = [];
                             @for (type of types; track type.id) {
                                 @if (!type_list.includes(type.id)) {
                                     <div
-                                        class="flex items-center rounded-full border border-base-300"
+                                        class="border-base-300 flex items-center rounded-full border"
                                     >
                                         <div
                                             class="m-2 h-4 w-4 rounded-full"
@@ -158,7 +159,7 @@ const EMPTY = [];
                     </mat-menu>
                 </div>
             </div>
-            <div class="mt-4 flex h-px w-full flex-1 border-t border-base-200">
+            <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if ((period | async) === 'day') {
                     <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
                 } @else if ((period | async) === 'week') {
@@ -187,6 +188,7 @@ const EMPTY = [];
         RoomWeekBookingsTimelineComponent,
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
+        BuildingPipe,
     ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {

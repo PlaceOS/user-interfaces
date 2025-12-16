@@ -30,7 +30,7 @@ export interface CateringOrderOptionsModalData {
         <main class="overflow-auto">
             @for (group of groups; track group) {
                 <div
-                    class="border-b border-base-200 pb-2 pt-1"
+                    class="border-base-200 border-b pt-1 pb-2"
                     [attr.group]="group.name"
                 >
                     <div class="p-2 font-medium capitalize">

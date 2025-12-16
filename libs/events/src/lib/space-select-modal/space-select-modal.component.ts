@@ -17,12 +17,13 @@ import { SpaceDetailsComponent } from './space-details.component';
 import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
 import { SpaceFiltersComponent } from './space-filters.component';
 import { SpaceListComponent } from './space-list.component';
+import { SpaceSelectMapComponent } from './space-map.component';
 
 @Component({
     selector: 'space-select-modal',
     template: `
         <div
-            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
@@ -53,7 +54,7 @@ import { SpaceListComponent } from './space-list.component';
                 </div>
             </header>
             <main
-                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <space-filters
                     class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
@@ -65,7 +66,7 @@ import { SpaceListComponent } from './space-list.component';
                     class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <space-filters-display
-                        class="w-full border-b border-base-200"
+                        class="border-base-200 w-full border-b"
                         [(view)]="view"
                     ></space-filters-display>
                     @if (view === 'list') {
@@ -75,12 +76,12 @@ import { SpaceListComponent } from './space-list.component';
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed = $event"
-                            class="h-1/2 flex-1 bg-base-200"
+                            class="bg-base-200 h-1/2 flex-1"
                         ></space-list>
                     } @else {
                         <space-map
                             class="h-1/2 w-full flex-1"
-                            [selected]="selected_ids"
+                            [selected]="selected_ids_list"
                             [is_displayed]="!!displayed"
                             [active]="displayed?.id"
                             (onSelect)="displayed = $event"
@@ -91,7 +92,7 @@ import { SpaceListComponent } from './space-list.component';
                 <space-details
                     [space]="displayed"
                     [alert]="(room_alerts | async)[displayed?.id]"
-                    class="absolute z-20 flex h-full w-full min-w-[20rem] bg-base-100 sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
+                    class="bg-base-100 absolute z-20 flex h-full w-full min-w-[20rem] sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [hide_map]="view === 'map'"
@@ -103,7 +104,7 @@ import { SpaceListComponent } from './space-list.component';
                 ></space-details>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
+                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -128,7 +129,7 @@ import { SpaceListComponent } from './space-list.component';
                 </button>
             </footer>
             <footer
-                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
+                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
                 <button
                     btn
@@ -186,6 +187,7 @@ import { SpaceListComponent } from './space-list.component';
         SpaceFiltersDisplayComponent,
         IconComponent,
         MatDialogModule,
+        SpaceSelectMapComponent,
     ],
 })
 export class SpaceSelectModalComponent {
@@ -201,7 +203,7 @@ export class SpaceSelectModalComponent {
 
     public displayed?: Space;
     public selected: Space[] = [];
-    public view = 'list';
+    public view: 'map' | 'list' = 'list';
     public readonly multiday = !!this._data.multiday;
     public readonly room_alerts = this._event_form.room_alerts;
 
@@ -209,6 +211,10 @@ export class SpaceSelectModalComponent {
 
     public get selected_ids() {
         return this.selected.map((_) => _.id).join(',');
+    }
+
+    public get selected_ids_list(): string[] {
+        return this.selected.map((_) => _.id);
     }
 
     public get favorites() {

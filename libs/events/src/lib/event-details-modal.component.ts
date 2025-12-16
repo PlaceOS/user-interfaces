@@ -51,16 +51,16 @@ import { lastValueFrom } from 'rxjs';
 import { AttendeeListComponent } from './attendee-list.component';
 import { getEventMetadata } from './events.fn';
 
-const EMPTY_ACTIONS = [];
+const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
 
 @Component({
     selector: 'event-details-modal',
     template: `
         <div
-            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm sm:bg-base-200 print:min-h-screen print:w-screen print:overflow-visible"
+            class="bg-base-100 sm:bg-base-200 h-screen w-screen space-y-2 overflow-auto pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm print:min-h-screen print:w-screen print:overflow-visible"
         >
             <div
-                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
+                class="border-base-200 bg-base-100 max-h-screen flex-col items-center pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
             >
                 <i
                     binding
@@ -74,7 +74,7 @@ const EMPTY_ACTIONS = [];
                 }
                 @if (event()?.system?.images?.length) {
                     <div
-                        class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
+                        class="bg-neutral h-64 w-full overflow-hidden sm:rounded-b print:hidden"
                     >
                         <image-carousel
                             [images]="event()?.system?.images"
@@ -159,7 +159,7 @@ const EMPTY_ACTIONS = [];
                                     icon
                                     matRipple
                                     [matMenuTriggerFor]="menu"
-                                    class="h-12 w-12 rounded-sm bg-secondary text-white"
+                                    class="bg-secondary h-12 w-12 rounded-sm text-white"
                                 >
                                     <icon>more_horiz</icon>
                                 </button>
@@ -170,9 +170,9 @@ const EMPTY_ACTIONS = [];
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="min-w-1/3 grow-3 space-y-2 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="border-base-200 sm:bg-base-100 min-w-1/3 grow-3 space-y-2 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
-                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
+                    <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
@@ -185,7 +185,7 @@ const EMPTY_ACTIONS = [];
                                 <div class="text-xs opacity-30">
                                     {{
                                         event().date
-                                            | date: 'EEEE, dd LLLL y (z)' : tz
+                                            | date: 'EEEE, dd LLLL y (z)' : tz()
                                     }}
                                 </div>
                             }
@@ -232,7 +232,7 @@ const EMPTY_ACTIONS = [];
                             <icon matTooltip="Created By">person</icon>
                             <div>
                                 {{
-                                    (event().creator | user)?.name ||
+                                    (event().creator | user | async)?.name ||
                                         event().creator
                                 }}
                             </div>
@@ -254,10 +254,10 @@ const EMPTY_ACTIONS = [];
                     }
                 </div>
                 <div
-                    class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <div
-                        class="mx-3 flex items-center justify-between border-t border-base-200 sm:border-none"
+                        class="border-base-200 mx-3 flex items-center justify-between border-t sm:border-none"
                     >
                         <h3 class="text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
@@ -327,7 +327,7 @@ const EMPTY_ACTIONS = [];
                         }
                     </div>
                     <h3
-                        class="mx-3 mt-2 border-t border-base-200 pt-2 text-lg font-medium"
+                        class="border-base-200 mx-3 mt-2 border-t pt-2 text-lg font-medium"
                     >
                         {{ 'FORM.HOST' | translate }}
                     </h3>
@@ -350,7 +350,7 @@ const EMPTY_ACTIONS = [];
                 </div>
                 @if (has_catering()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
@@ -362,7 +362,7 @@ const EMPTY_ACTIONS = [];
                             ) {
                                 <div
                                     order
-                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                    class="border-base-300 bg-base-100 overflow-hidden rounded-xl border"
                                 >
                                     <div
                                         class="flex items-center space-x-2 p-3"
@@ -400,7 +400,7 @@ const EMPTY_ACTIONS = [];
                                                 </div>
                                                 @if (order.caterer) {
                                                     <div
-                                                        class="rounded-sm bg-base-200 px-2 py-1 text-xs"
+                                                        class="bg-base-200 rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         {{ order.caterer }}
                                                     </div>
@@ -431,7 +431,7 @@ const EMPTY_ACTIONS = [];
                                         </button>
                                     </div>
                                     <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
                                             print || show_order[order.id]
                                                 ? 'show'
@@ -472,12 +472,12 @@ const EMPTY_ACTIONS = [];
                                                     }
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     {{
                                                         item.unit_price_with_options /
@@ -497,7 +497,7 @@ const EMPTY_ACTIONS = [];
                 }
                 <button
                     map
-                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] grow-3 overflow-hidden rounded-sm border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
+                    class="border-base-200 sm:bg-base-100 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] min-w-1/3 grow-3 overflow-hidden rounded-sm border p-2 sm:mt-2 sm:h-48 sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     @if (!hide_map()) {
@@ -514,10 +514,10 @@ const EMPTY_ACTIONS = [];
                 </button>
                 @if (raw_body()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3
-                            class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
+                            class="border-base-200 mx-3 border-t text-lg font-medium sm:border-none"
                         >
                             {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                         </h3>
@@ -532,7 +532,7 @@ const EMPTY_ACTIONS = [];
                 }
                 @if (has_assets()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
@@ -546,7 +546,7 @@ const EMPTY_ACTIONS = [];
                             ) {
                                 <div
                                     request
-                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                    class="border-base-300 bg-base-100 overflow-hidden rounded-xl border"
                                 >
                                     <button
                                         matRipple
@@ -621,7 +621,7 @@ const EMPTY_ACTIONS = [];
                                         </div>
                                     </button>
                                     <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
                                             print || show_request[request.id]
                                                 ? 'show'
@@ -643,7 +643,7 @@ const EMPTY_ACTIONS = [];
                                                     }}</span>
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
@@ -659,7 +659,7 @@ const EMPTY_ACTIONS = [];
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute left-2 top-2 bg-neutral text-white print:hidden"
+                    class="bg-neutral absolute top-2 left-2 text-white print:hidden"
                 >
                     <icon>close</icon>
                 </button>
@@ -695,7 +695,7 @@ const EMPTY_ACTIONS = [];
                     (click)="remove ? remove(event(), false) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl text-error">delete</icon>
+                        <icon class="text-error text-2xl">delete</icon>
                         <div>
                             {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
                         </div>
@@ -717,7 +717,7 @@ const EMPTY_ACTIONS = [];
                         (click)="remove ? remove(event(), true) : ''"
                     >
                         <div class="flex items-center space-x-2 pr-2 text-base">
-                            <icon class="text-2xl text-error">delete</icon>
+                            <icon class="text-error text-2xl">delete</icon>
                             <div>
                                 {{
                                     'CALENDAR_EVENT.ACTION_DELETE_SERIES'
@@ -883,15 +883,17 @@ export class EventDetailsModalComponent implements OnInit {
         () => !settingSignal('events.booking_unavailable')(),
     );
 
-    public readonly custom_actions = computed(() => {
-        return (settingSignal('events.custom_actions')() || EMPTY_ACTIONS) as [
-            string,
-            string,
-        ][];
-    });
+    public readonly custom_actions = settingSignal(
+        'events.custom_actions',
+        EMPTY_ACTIONS,
+    );
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get currency_code() {
+        return this._org.currency_code;
     }
 
     public readonly event_status = computed(() => {

@@ -87,7 +87,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
                             <div
                                 #feature
                                 class="pointer-events-none"
-                                [attr.no-scale]="element.no_scale"
+                                [attr.no-scale]="$any(element).no_scale"
                                 [attr.el-id]="element.location"
                                 [attr.track-id]="element.track_id"
                                 [attr.view-id]="viewer()"

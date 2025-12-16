@@ -63,7 +63,7 @@ import {
                                     {{ option.name }}
                                     @if (option.this_week) {
                                         <span
-                                            class="px-1 text-xs text-info"
+                                            class="text-info px-1 text-xs"
                                             [matTooltip]="
                                                 'COMMON.WEEK_THIS' | translate
                                             "
@@ -80,8 +80,8 @@ import {
                 <date-range-calendar
                     class="border-b border-base-200 p-2"
                     [from]="null"
-                    [start]="date()"
-                    [end]="end_date()"
+                    [start]="date()?.valueOf()"
+                    [end]="end_date()?.valueOf()"
                     [offset_weekday]="offset_weekday"
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
@@ -144,6 +144,7 @@ import {
         FormsModule,
         MatFormFieldModule,
         MatSelectModule,
+        MatTooltipModule,
         DateCalendarComponent,
         DateRangeCalendarComponent,
         SettingsToggleComponent,

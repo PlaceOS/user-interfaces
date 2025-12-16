@@ -25,6 +25,7 @@ describe('MicrophoneTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     mic_list: new BehaviorSubject([]),
+                    microphones: new BehaviorSubject([]),
                 },
             },
             {

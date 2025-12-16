@@ -34,7 +34,7 @@ const DEFAULT_TEMPLATE = `
     template: `
         @if (event | async) {
             <div
-                class="relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm print:hidden"
+                class="bg-base-100 relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm p-4 shadow-sm print:hidden"
             >
                 @let ev = event | async;
                 <h3 class="text-xl">
@@ -53,20 +53,22 @@ const DEFAULT_TEMPLATE = `
                     <div printable class="print-only" [content]="print_content">
                         <ng-template #print_content>
                             <user-label
-                                [user]="{
-                                    name: ev?.asset_name || ev?.description,
-                                    email: ev?.asset_id,
-                                    photo: photo | async,
-                                    title: ev?.title,
-                                    host: ev?.user_name || ev.user_email,
-                                    zones: ev?.zones,
-                                    date: ev?.date || date,
-                                    extra_details:
-                                        ev?.extension_data?.extra_details,
-                                    pass_number:
-                                        ev?.extension_data?.pass_number,
-                                    qr_code: qr_code,
-                                }"
+                                [user]="
+                                    $any({
+                                        name: ev?.asset_name || ev?.description,
+                                        email: ev?.asset_id,
+                                        photo: photo | async,
+                                        title: ev?.title,
+                                        host: ev?.user_name || ev.user_email,
+                                        zones: ev?.zones,
+                                        date: ev?.date || date,
+                                        extra_details:
+                                            ev?.extension_data?.extra_details,
+                                        pass_number:
+                                            ev?.extension_data?.pass_number,
+                                        qr_code: qr_code,
+                                    })
+                                "
                                 [width]="label_size().width"
                                 [height]="label_size().height"
                                 [style.font-size]="label_size().scale + 'mm'"

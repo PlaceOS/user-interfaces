@@ -16,7 +16,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
 import { BuildingLevel, OrganisationService, Space } from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { SpaceLocationPinComponent } from './space-location-pin.component';
@@ -24,7 +26,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
 @Component({
     selector: `space-map`,
     template: `
-        <div class="w-full border-b border-base-200 bg-base-100 p-2">
+        <div class="border-base-200 bg-base-100 w-full border-b p-2">
             <mat-form-field
                 appearance="outline"
                 class="w-full"
@@ -86,7 +88,8 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
-        SpaceLocationPinComponent,
+        TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class SpaceSelectMapComponent extends AsyncHandler implements OnInit {

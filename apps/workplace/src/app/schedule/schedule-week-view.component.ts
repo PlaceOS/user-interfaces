@@ -103,9 +103,9 @@ interface Weekday {
                                             : '') +
                                         '
 ' +
-                                        (bkn.user_name ||
-                                            (bkn.host | user | async)?.name ||
-                                            bkn.host) +
+                                        ($any(bkn).user_name ||
+                                            ($any(bkn).host | user | async)?.name ||
+                                            $any(bkn).host) +
                                         '
 ' +
                                         (bkn.date | date: 'shortTime') +
@@ -157,6 +157,7 @@ export class ScheduleWeekViewComponent {
     private _org = inject(OrganisationService);
     public readonly date = input(Date.now());
     public readonly bookings = input<(Booking | CalendarEvent)[]>([]);
+    public readonly loading = input(false);
     public readonly colors = BOOKING_TYPE_COLORS;
 
     private readonly _scroll_container =
