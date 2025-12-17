@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -329,7 +329,19 @@ export class DeskBookingsComponent {
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = computed(() => {
+        const all_bookings = this._state.bookings();
+        if (!this._state.loading()) return all_bookings;
+        // While loading, filter to only show bookings matching the newly selected zones
+        const selected_zones = this.filters().zones || [];
+        const active_zones = selected_zones.filter(
+            (z) => z && z !== 'All' && z !== '-1',
+        );
+        if (!active_zones.length) return [];
+        return all_bookings.filter((booking) =>
+            booking.zones?.some((z) => active_zones.includes(z)),
+        );
+    });
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly cancel = (b) => this._state.cancelBooking(b);
