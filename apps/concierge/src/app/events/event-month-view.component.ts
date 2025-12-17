@@ -65,9 +65,7 @@ import { EventStateService } from './event-state.service';
                                 <div
                                     class="h-full truncate text-left text-sm opacity-60"
                                 >
-                                    {{
-                                        $any(event).date | date: 'shortTime'
-                                    }}
+                                    {{ $any(event).date | date: 'shortTime' }}
                                     &mdash;
                                     {{ $any(event).title }}
                                 </div>

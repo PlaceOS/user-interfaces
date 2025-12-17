@@ -53,7 +53,7 @@ interface WeekDay {
     selector: 'landing-desk-week',
     template: `
         <div
-            class="space-y-2 rounded-lg border border-base-300 bg-base-100 p-4"
+            class="border-base-300 bg-base-100 space-y-2 rounded-lg border p-4"
         >
             <div
                 class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
@@ -79,6 +79,7 @@ interface WeekDay {
                         btn
                         matRipple
                         class="inverse h-8 text-sm"
+                        [disabled]="!is_current_week()"
                         (click)="goToNextMonday()"
                     >
                         {{ 'APP.WORKPLACE.DESK_WEEK_NEXT_MONDAY' | translate }}
@@ -87,7 +88,7 @@ interface WeekDay {
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded-lg hover:bg-base-200"
+                            class="hover:bg-base-200 h-12 w-12 rounded-lg"
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
                             "
@@ -98,7 +99,7 @@ interface WeekDay {
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded-lg hover:bg-base-200"
+                            class="hover:bg-base-200 h-12 w-12 rounded-lg"
                             [matTooltip]="
                                 'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
                             "
@@ -141,7 +142,7 @@ interface WeekDay {
                             </span>
                         </div>
                         <div
-                            class="min-h-16 flex-1 rounded-lg border border-base-300 p-2"
+                            class="border-base-300 min-h-16 flex-1 rounded-lg border p-2"
                             [class.opacity-40]="day.is_past"
                             [class.bg-base-200]="day.is_weekend"
                         >
@@ -152,7 +153,7 @@ interface WeekDay {
                                 ) {
                                     <button
                                         matRipple
-                                        class="mb-2 w-full rounded-lg bg-secondary p-2 text-left text-secondary-content last:mb-0"
+                                        class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
                                         (click)="viewBooking(booking)"
                                         [matTooltip]="bookingTooltip(booking)"
                                     >
@@ -180,7 +181,7 @@ interface WeekDay {
                                 <button
                                     btn
                                     matRipple
-                                    class="inverse h-full w-full space-x-2 border-2 border-dashed border-base-300"
+                                    class="inverse border-base-300 h-full w-full space-x-2 border-2 border-dashed"
                                     (click)="bookDesk(day.date)"
                                 >
                                     <icon class="text-xl opacity-60"
@@ -229,7 +230,7 @@ interface WeekDay {
                                 </span>
                             </div>
                             <div
-                                class="min-h-24 flex-1 rounded-lg border border-base-300 p-2"
+                                class="border-base-300 min-h-24 flex-1 rounded-lg border p-2"
                                 [class.opacity-40]="day.is_past"
                             >
                                 @if (
@@ -242,7 +243,7 @@ interface WeekDay {
                                     ) {
                                         <button
                                             matRipple
-                                            class="mb-2 w-full rounded-lg bg-secondary p-2 text-left text-secondary-content last:mb-0"
+                                            class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
                                             (click)="viewBooking(booking)"
                                             [matTooltip]="
                                                 bookingTooltip(booking)
@@ -280,7 +281,7 @@ interface WeekDay {
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse h-full w-full flex-col space-y-1 border-2 border-dashed border-base-300"
+                                        class="inverse border-base-300 h-full w-full flex-col space-y-1 border-2 border-dashed"
                                         (click)="bookDesk(day.date)"
                                     >
                                         <icon class="text-xl opacity-60"
@@ -313,7 +314,7 @@ interface WeekDay {
                             >
                                 <div class="flex items-center space-x-1">
                                     <icon class="text-base opacity-40"
-                                        >star</icon
+                                        >sunny</icon
                                     >
                                     <span class="font-medium uppercase">{{
                                         day.day_name
@@ -328,7 +329,7 @@ interface WeekDay {
                                 </span>
                             </div>
                             <div
-                                class="flex min-h-12 flex-1 rounded-lg border border-base-300 bg-base-200 p-2"
+                                class="border-base-300 bg-base-200 flex min-h-12 flex-1 rounded-lg border p-2"
                                 [class.opacity-40]="day.is_past"
                             >
                                 @if (
@@ -341,7 +342,7 @@ interface WeekDay {
                                     ) {
                                         <button
                                             matRipple
-                                            class="mb-2 w-full rounded-lg bg-secondary p-2 text-left text-secondary-content last:mb-0"
+                                            class="bg-secondary text-secondary-content mb-2 w-full rounded-lg p-2 text-left last:mb-0"
                                             (click)="viewBooking(booking)"
                                             [matTooltip]="
                                                 bookingTooltip(booking)
