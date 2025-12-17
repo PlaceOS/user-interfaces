@@ -31,6 +31,7 @@ export * from './lib/translate.pipe';
 export * from './lib/unauthorised.component';
 export * from './lib/user-avatar.component';
 export * from './lib/user-controls.component';
+export * from './lib/user-controls-sidebar.component';
 export * from './lib/virtual-keyboard.component';
 
 export * from './lib/chat/chat.service';

@@ -8,10 +8,9 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    CustomTooltipComponent,
     IconComponent,
     UserAvatarComponent,
-    UserControlsComponent,
+    UserControlsSidebarComponent,
 } from '@placeos/components';
 
 @Component({
@@ -39,16 +38,9 @@ import {
                 <button btn icon matRipple>
                     <icon class="text-2xl">notifications</icon>
                 </button>
-                <button
-                    matRipple
-                    avatar
-                    name="user-controls"
-                    class="bg-base-200 mr-2 flex h-10 w-10 items-center justify-center rounded-full"
-                    customTooltip
-                    [content]="user_controls"
-                >
+                <user-controls-sidebar class="mr-2">
                     <a-user-avatar [user]="user"></a-user-avatar>
-                </button>
+                </user-controls-sidebar>
             </div>
         </div>
     `,
@@ -62,17 +54,15 @@ import {
     imports: [
         RouterModule,
         UserAvatarComponent,
-        CustomTooltipComponent,
         MatRippleModule,
         AuthenticatedImageDirective,
         IconComponent,
+        UserControlsSidebarComponent,
     ],
 })
 export class ApplicationTopbarComponent {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-
-    public readonly user_controls = UserControlsComponent;
 
     public get logo() {
         return (
