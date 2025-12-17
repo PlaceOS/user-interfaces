@@ -411,7 +411,15 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 'app.desks.allow_all_day',
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host, resource, all_day, allow_all_day },
+                data: {
+                    date,
+                    duration,
+                    until,
+                    host,
+                    resource,
+                    all_day,
+                    allow_all_day,
+                },
             });
             const details = await lastValueFrom(ref.afterClosed());
             if (!details) throw 'User cancelled';

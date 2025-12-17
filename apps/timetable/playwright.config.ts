@@ -9,7 +9,10 @@ export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
     reporter: [
         ['list'],
-        ['html', { outputFolder: '../../reports/e2e/timetable', open: 'never' }],
+        [
+            'html',
+            { outputFolder: '../../reports/e2e/timetable', open: 'never' },
+        ],
     ],
     use: {
         baseURL,
