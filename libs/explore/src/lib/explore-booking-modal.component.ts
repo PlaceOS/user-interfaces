@@ -259,9 +259,9 @@ export class ExploreBookingModalComponent implements OnInit {
 
     private _checkAllDay(value: boolean) {
         if (value) {
-            this.form.controls.duration.disable();
+            this.form.controls.duration.disable({ emitEvent: false });
         } else {
-            this.form.controls.duration.enable();
+            this.form.controls.duration.enable({ emitEvent: false });
         }
     }
 }
