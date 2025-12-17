@@ -19,6 +19,7 @@ describe('DeskBookingsComponent', () => {
                 bookings: signal([]),
                 filters: signal({}),
                 has_more_pages: signal(false),
+                loading: signal(false),
                 nextPage: jest.fn(),
             } as any),
             MockProvider(SettingsService, { time_format: 'h:mm a' }),
