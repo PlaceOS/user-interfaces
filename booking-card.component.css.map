@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["booking-card.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                width: 100%;\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,SAAA;AACA,YAAA;AACJ;",
+  "names": []
+}
