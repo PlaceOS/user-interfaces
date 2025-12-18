@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["report-desks.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n\n            h3 {\n                font-weight: 500;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;AAEA;AACI,eAAA;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["room-timeline.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline] {\n                grid-template-columns: 4rem auto;\n                grid-template-rows: 3.5rem auto;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,aAAA;AACJ;AAEA,CAAA;AACI,yBAAA,KAAA;AACA,sBAAA,OAAA;AACJ;",
+  "names": []
+}

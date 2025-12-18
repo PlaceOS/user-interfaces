@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-device-info.component.ts"],
+  "sourcesContent": ["\n            :host {\n                pointer-events: auto;\n            }\n\n            :host > [name='dot'] {\n                background-color: #616161;\n            }\n\n            :host:hover > [name='radius'] {\n                opacity: 1;\n            }\n\n            [name='radius'] {\n                opacity: 0;\n                transition: opacity 200ms;\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAA;AACJ;AAEA,MAAA,EAAA,CAAA;AACI,oBAAA;AACJ;AAEA,KAAA,OAAA,EAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA;AACI,WAAA;AACA,cAAA,QAAA;AACA,kBAAA;AACJ;",
+  "names": []
+}

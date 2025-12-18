@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering-item-modal.component.ts"],
+  "sourcesContent": ["\n            [list] mat-checkbox {\n                margin: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY,CAAA,MAAA;AACI,UAAA;AACJ;",
+  "names": []
+}

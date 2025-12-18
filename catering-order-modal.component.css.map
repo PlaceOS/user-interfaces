@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering-order-modal.component.ts"],
+  "sourcesContent": ["\n            .list {\n                height: 24em;\n                min-width: 32em;\n                max-width: calc(100vw - 1em);\n            }\n\n            footer button {\n                min-width: 12em;\n            }\n\n            input {\n                position: relative;\n                width: 100%;\n                padding: 1em;\n                border: none;\n                border-radius: 0 !important;\n                border-top: 1px solid #ccc;\n                border-bottom: 1px solid #ccc;\n                outline: none;\n                font-size: 1em;\n            }\n\n            input:focus {\n                border: none;\n                border-top: 2px solid var(--secondary);\n                border-bottom: 2px solid var(--secondary);\n                box-shadow: none;\n            }\n\n            input.error::placeholder {\n                color: rgba(var(--error), 0.45);\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,UAAA;AACA,aAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,OAAA;AACI,aAAA;AACJ;AAEA;AACI,YAAA;AACA,SAAA;AACA,WAAA;AACA,UAAA;AACA,iBAAA;AACA,cAAA,IAAA,MAAA;AACA,iBAAA,IAAA,MAAA;AACA,WAAA;AACA,aAAA;AACJ;AAEA,KAAA;AACI,UAAA;AACA,cAAA,IAAA,MAAA,IAAA;AACA,iBAAA,IAAA,MAAA,IAAA;AACA,cAAA;AACJ;AAEA,KAAA,CAAA,KAAA;AACI,SAAA,KAAA,IAAA,QAAA,EAAA;AACJ;",
+  "names": []
+}
