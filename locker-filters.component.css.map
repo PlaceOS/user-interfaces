@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["locker-filters.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                max-width: 100vw;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,aAAA;AACJ;",
+  "names": []
+}
