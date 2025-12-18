@@ -230,7 +230,7 @@ interface WeekDay {
                                 </span>
                             </div>
                             <div
-                                class="border-base-300 min-h-24 flex-1 rounded-lg border p-2"
+                                class="border-base-300 flex min-h-24 flex-1 flex-col space-y-2 rounded-lg border p-2"
                                 [class.opacity-40]="day.is_past"
                             >
                                 @if (
@@ -329,7 +329,7 @@ interface WeekDay {
                                 </span>
                             </div>
                             <div
-                                class="border-base-300 bg-base-200 flex min-h-12 flex-1 rounded-lg border p-2"
+                                class="border-base-300 bg-base-200 flex min-h-12 flex-1 flex-col space-y-2 rounded-lg border p-2"
                                 [class.opacity-40]="day.is_past"
                             >
                                 @if (
