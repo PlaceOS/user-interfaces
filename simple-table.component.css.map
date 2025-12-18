@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["simple-table.component.ts"],
+  "sourcesContent": ["\n            :host,\n            :host > button {\n                min-width: 100%;\n            }\n\n            [header] icon {\n                opacity: 0;\n            }\n            [header]:hover icon {\n                opacity: 0.3;\n            }\n            [header]:hover.pointer-events-none icon {\n                opacity: 0;\n            }\n            [header].active icon {\n                opacity: 1;\n            }\n        "],
+  "mappings": ";AACY;;AAEI,aAAA;AACJ;AAEA,CAAA,QAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,OAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,MAAA,CAAA,oBAAA;AACI,WAAA;AACJ;AACA,CAAA,OAAA,CAAA,OAAA;AACI,WAAA;AACJ;",
+  "names": []
+}
