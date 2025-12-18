@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["facilities-status.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n                width: 20em;\n                padding: 2em;\n            }\n\n            .bg-light {\n                background-color: rgba(0, 0, 0, 0.05);\n            }\n\n            [name='mood'] icon {\n            }\n\n            [name='status'] {\n                margin: 0.5em;\n                border: 4px solid #21a453;\n                border-radius: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACA,SAAA;AACA,WAAA;AACJ;AAEA,CAAA;AACI,oBAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACJ;AAEA,CAAA,WAAA;AACA;AAEA,CAAA;AACI,UAAA;AACA,UAAA,IAAA,MAAA;AACA,iBAAA;AACJ;",
+  "names": []
+}

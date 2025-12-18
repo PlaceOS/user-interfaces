@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["user-form.component.ts"],
+  "sourcesContent": ["\n            :host,\n            mat-form-field {\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;;AAEI,SAAA;AACJ;",
+  "names": []
+}

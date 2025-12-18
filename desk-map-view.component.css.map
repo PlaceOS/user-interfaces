@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["desk-map-view.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                position: relative;\n                height: 100%;\n                width: 100%;\n            }\n\n            [info] {\n                left: 50%;\n                transform: translateX(-50%);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,YAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA,CAAA;AACI,QAAA;AACA,aAAA,WAAA;AACJ;",
+  "names": []
+}

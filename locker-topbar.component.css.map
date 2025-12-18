@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["locker-topbar.component.ts"],
+  "sourcesContent": ["\n            button {\n                min-width: 0;\n                padding: 0 0.85rem;\n            }\n\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n            }\n        "],
+  "mappings": ";AACY;AACI,aAAA;AACA,WAAA,EAAA;AACJ;AAEA;AACI,UAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
