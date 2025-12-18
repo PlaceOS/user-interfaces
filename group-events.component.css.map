@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["group-events.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                overflow: hidden;\n                display: flex;\n                flex-direction: column;\n            }\n\n            main {\n                min-height: 50%;\n            }\n\n            .top {\n                background-color: #007ac8;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,OAAA;AACA,QAAA;AACA,SAAA;AACA,UAAA;AACA,YAAA;AACA,WAAA;AACA,kBAAA;AACJ;AAEA;AACI,cAAA;AACJ;AAEA,CAAA;AACI,oBAAA;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["parking-flow-confirm.component.ts"],
+  "sourcesContent": ["\n            section > icon {\n                font-size: 1.5rem;\n                margin-top: 0.3rem;\n            }\n\n            h3 {\n                font-size: 1.25rem;\n                font-weight: medium;\n                margin: 0.5rem 0;\n            }\n        "],
+  "mappings": ";AACY,QAAA,EAAA;AACI,aAAA;AACA,cAAA;AACJ;AAEA;AACI,aAAA;AACA,eAAA;AACA,UAAA,OAAA;AACJ;",
+  "names": []
+}
