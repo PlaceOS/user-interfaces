@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["facilities-topbar.component.ts"],
+  "sourcesContent": ["\n            .flex-full {\n                flex: 1;\n                width: 0.5em;\n            }\n\n            mat-form-field {\n                height: 3.25em;\n                width: 8em;\n                margin-left: 1em;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,QAAA;AACA,SAAA;AACJ;AAEA;AACI,UAAA;AACA,SAAA;AACA,eAAA;AACJ;",
+  "names": []
+}
