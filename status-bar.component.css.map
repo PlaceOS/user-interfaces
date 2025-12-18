@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["status-bar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n                height: 3.5rem;\n                overflow: hidden;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,eAAA;AACA,UAAA;AACA,YAAA;AACJ;",
+  "names": []
+}
