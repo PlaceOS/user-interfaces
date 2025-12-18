@@ -135,17 +135,39 @@ import { SignageStateService } from './signage-state.service';
                             (click)="previewItem(media)"
                             class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
                         >
-                            @if (media.thumbnail_url) {
-                                <img
-                                    auth
-                                    [source]="media.thumbnail_url"
-                                    class="h-full w-full rounded-lg object-contain"
-                                />
+                            @if (media.media_type === 'webpage') {
                                 <div
-                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                    class="flex h-full w-full items-center justify-center"
                                 >
-                                    <icon class="text-2xl">expand_content</icon>
+                                    <icon class="text-8xl opacity-30"
+                                        >http</icon
+                                    >
                                 </div>
+                            } @else {
+                                @if (media.thumbnail_url) {
+                                    <img
+                                        auth
+                                        [source]="media.thumbnail_url"
+                                        class="absolute -inset-px rounded-lg object-contain"
+                                    />
+                                    <div
+                                        class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                    >
+                                        <icon class="text-2xl"
+                                            >expand_content</icon
+                                        >
+                                    </div>
+                                } @else {
+                                    <div
+                                        class="flex h-full w-full items-center justify-center"
+                                    >
+                                        <icon class="text-8xl opacity-30">{{
+                                            media.media_type === 'video'
+                                                ? 'video_library'
+                                                : 'image'
+                                        }}</icon>
+                                    </div>
+                                }
                             }
                             <div
                                 class="absolute top-1 left-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"

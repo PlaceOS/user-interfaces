@@ -54,7 +54,7 @@ import { lastValueFrom } from 'rxjs';
                 <div class="flex flex-col">
                     <button
                         matRipple
-                        class="bg-base-300 pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl"
+                        class="bg-base-300 border-base-300 pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
                         (click)="preview()"
                     >
                         @if (media_type === 'webpage') {
@@ -70,7 +70,7 @@ import { lastValueFrom } from 'rxjs';
                             />
                         }
                         <div
-                            class="bg-base-400 absolute top-2 left-2 rounded-sm px-2 py-1 text-xs capitalize"
+                            class="bg-info text-info-content absolute top-2 left-2 rounded-sm px-2 py-1 text-xs capitalize shadow"
                         >
                             {{ media_type }}
                         </div>

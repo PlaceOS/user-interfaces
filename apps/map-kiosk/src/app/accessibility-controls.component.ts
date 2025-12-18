@@ -20,6 +20,17 @@ import { AsyncHandler, SettingsService } from '@placeos/common';
                 ></mat-slide-toggle>
             </button>
         }
+        <button
+            matRipple
+            class="hover:bg-base-200 flex w-full items-center justify-between rounded-sm p-2"
+            (click)="setIsometric(!isometric)"
+        >
+            <div>Isometric View</div>
+            <mat-slide-toggle
+                [ngModel]="isometric"
+                (ngModelChange)="setIsometric($event)"
+            ></mat-slide-toggle>
+        </button>
         <!-- <button
             matRipple
             class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded-sm"
@@ -66,6 +77,15 @@ export class AccessibilityControlsComponent extends AsyncHandler {
 
     public get can_change_dark_mode() {
         return !!this._settings.get('app.allow_dark_mode');
+    }
+
+    public get isometric() {
+        return localStorage.getItem('KIOSK.isometric') === 'true';
+    }
+
+    public setIsometric(state: boolean) {
+        localStorage.setItem('KIOSK.isometric', String(state));
+        window.dispatchEvent(new CustomEvent('isometric-change', { detail: state }));
     }
 
     public get accessible() {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     currentUser,
@@ -45,8 +45,9 @@ export interface AppLocale {
     template: `
         <div
             class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex max-h-[90vh] flex-col divide-y overflow-auto rounded-sm border shadow-sm"
+            [class.border]="!sidebar()"
         >
-            <div avatar class="flex w-[18rem] flex-col items-center p-2">
+            <div avatar class="flex w-full min-w-72 flex-col items-center p-2">
                 <a-user-avatar
                     class="text-2xl"
                     [user]="user"
@@ -56,7 +57,7 @@ export interface AppLocale {
                 <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
             @if (features().includes('wfh') && active_block) {
-                <div class="w-full rounded border border-base-200 py-2">
+                <div class="border-base-200 w-full rounded-sm border-y py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
                     </h3>
@@ -396,6 +397,7 @@ export class UserControlsComponent implements OnInit {
     public readonly building = this._org.active_building;
     public readonly region = this._org.active_region;
     public readonly regions = this._org.region_list;
+    public readonly sidebar = input(false);
 
     public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;

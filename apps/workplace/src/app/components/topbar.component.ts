@@ -60,7 +60,6 @@ const EMPTY = [];
                     [content]="user_controls"
                 >
                     <a-user-avatar [user]="user()" />
-                    <!-- <icon class="text-2xl">person</icon> -->
                 </button>
             </div>
         </div>
@@ -73,14 +72,13 @@ const EMPTY = [];
         `,
     ],
     imports: [
-        // IconComponent,
         MatRippleModule,
-        CustomTooltipComponent,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
         UserAvatarComponent,
+        CustomTooltipComponent,
     ],
 })
 export class TopbarComponent {
