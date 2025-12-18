@@ -233,19 +233,24 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 <hr class="mx-auto w-[calc(100%-4rem)]" />
             </div>
             <div class="relative h-full flex-1">
-                <interactive-map
-                    [src]="url | async"
-                    [zoom]="(positions | async)?.zoom"
-                    [center]="(positions | async)?.center"
-                    (zoomChange)="updateZoom($event)"
-                    (centerChange)="updateCenter($event)"
-                    [styles]="styles | async"
-                    [features]="features | async"
-                    [actions]="actions | async"
-                    [labels]="labels | async"
-                    [options]="{ controls: true }"
-                    [focus]="locate"
-                ></interactive-map>
+                <div
+                    class="absolute inset-0"
+                    [class.isometric]="isometric"
+                >
+                    <interactive-map
+                        [src]="url | async"
+                        [zoom]="(positions | async)?.zoom"
+                        [center]="(positions | async)?.center"
+                        (zoomChange)="updateZoom($event)"
+                        (centerChange)="updateCenter($event)"
+                        [styles]="styles | async"
+                        [features]="features | async"
+                        [actions]="actions | async"
+                        [labels]="labels | async"
+                        [options]="{ controls: true }"
+                        [focus]="locate"
+                    ></interactive-map>
+                </div>
             </div>
         </div>
     `,
@@ -265,6 +270,18 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
             hr {
                 margin-top: 0.5rem !important;
                 margin-bottom: 0.5rem !important;
+            }
+
+            .isometric {
+                transform: perspective(800px) rotateX(45deg) rotateZ(-45deg)
+                    scale(0.7);
+                transform-origin: center center;
+                transition: transform 300ms ease-in-out;
+            }
+
+            .isometric interactive-map {
+                height: 100%;
+                width: 100%;
             }
         `,
     ],
@@ -370,11 +387,16 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
 
     public locate = '';
+    public isometric = localStorage.getItem('KIOSK.isometric') === 'true';
 
     @HostListener('window:mousedown') public onMouse = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
     @HostListener('window:touchstart') public onTouch = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
+    @HostListener('window:isometric-change', ['$event'])
+    public onIsometricChange(event: Event) {
+        this.isometric = (event as CustomEvent).detail;
+    }
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
