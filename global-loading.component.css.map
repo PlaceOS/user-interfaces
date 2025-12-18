@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["global-loading.component.ts"],
+  "sourcesContent": ["\n            :host {\n                pointer-events: none;\n            }\n\n            [loader] {\n                background-image: linear-gradient(\n                    to right,\n                    #f15b55 0%,\n                    #f68c50 100%\n                );\n            }\n        "],
+  "mappings": ";AACY;AACI,kBAAA;AACJ;AAEA,CAAA;AACI;IAAA;cAAA;gBAAA;;AAKJ;",
+  "names": []
+}
