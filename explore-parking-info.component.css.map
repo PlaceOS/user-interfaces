@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-parking-info.component.ts"],
+  "sourcesContent": ["\n            .triangle {\n                width: 0px;\n                height: 0px;\n                border-style: solid;\n                border-width: 0.5rem 0.5rem 0 0;\n                border-color: currentColor transparent transparent transparent;\n                transform: rotate(0deg);\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,SAAA;AACA,UAAA;AACA,gBAAA;AACA,gBAAA,OAAA,OAAA,EAAA;AACA,gBAAA,aAAA,YAAA,YAAA;AACA,aAAA,OAAA;AACJ;",
+  "names": []
+}
