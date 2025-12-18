@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-map-control.component.ts"],
+  "sourcesContent": ["\n            mat-form-field[has-bld='true'] {\n                max-width: calc(50vw - 2.5rem);\n            }\n\n            :host[full] mat-form-field {\n                max-width: calc(50% - 2.5rem);\n            }\n        "],
+  "mappings": ";AACY,cAAA,CAAA;AACI,aAAA,KAAA,KAAA,EAAA;AACJ;AAEA,KAAA,CAAA,MAAA;AACI,aAAA,KAAA,IAAA,EAAA;AACJ;",
+  "names": []
+}
