@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["user-search-field.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n            icon {\n                top: 0.15em;\n                left: -0.15em;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;AACA;AACI,OAAA;AACA,QAAA;AACJ;",
+  "names": []
+}

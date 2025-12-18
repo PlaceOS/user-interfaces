@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["desk-confirm-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                width: 24rem;\n                max-width: calc(100vw - 4.5rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;",
+  "names": []
+}
