@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["desk-questions-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                width: 24rem;\n                max-width: calc(100vw - 4.5rem);\n            }\n\n            [close] {\n                position: absolute;\n                top: 0.5rem;\n                right: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,CAAA;AACI,YAAA;AACA,OAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
