@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["virtual-keyboard.component.ts"],
+  "sourcesContent": ["\n            [key] {\n                height: 3.5rem;\n                width: 4rem;\n                transition:\n                    box-shadow 200ms,\n                    top 200ms;\n                box-shadow: 0 4px 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n\n            [key].special {\n                width: 10rem;\n            }\n\n            [key].space {\n                flex: 1;\n                min-width: 10rem;\n                max-width: 25rem;\n            }\n\n            [key]:hover {\n                top: 2px;\n                box-shadow: 0 2px 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n\n            [key]:active {\n                top: 4px;\n                box-shadow: 0 0 0 0.04px rgba(0, 0, 0, 0.1);\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,UAAA;AACA,SAAA;AACA;AAGA,cAAA,EAAA,IAAA,EAAA,OAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACJ;AAEA,CAAA,IAAA,CAAA;AACI,SAAA;AACJ;AAEA,CAAA,IAAA,CAAA;AACI,QAAA;AACA,aAAA;AACA,aAAA;AACJ;AAEA,CAAA,IAAA;AACI,OAAA;AACA,cAAA,EAAA,IAAA,EAAA,OAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACJ;AAEA,CAAA,IAAA;AACI,OAAA;AACA,cAAA,EAAA,EAAA,EAAA,OAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACJ;",
+  "names": []
+}
