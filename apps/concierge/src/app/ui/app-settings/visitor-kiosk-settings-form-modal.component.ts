@@ -155,6 +155,10 @@ import { UploadButtonComponent } from './upload-button.component';
                             name="Allow Printing Label"
                             formControlName="allow_printing_label"
                         ></settings-toggle>
+                        <settings-toggle
+                            name="Hide Explore Map option"
+                            formControlName="hide_explore"
+                        ></settings-toggle>
                     </div>
                 </section>
                 <section
@@ -472,6 +476,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         allow_self_registration: new FormControl(false),
         allow_pass_number: new FormControl(false),
         allow_printing_label: new FormControl(false),
+        hide_explore: new FormControl(false),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
             show_legend: new FormControl(false),
