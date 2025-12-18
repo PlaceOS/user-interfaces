@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["topbar-header.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                height: 3.5rem;\n            }\n\n            a {\n                border-radius: 0;\n            }\n\n            img {\n                max-height: 2.5rem;\n                max-width: 50vw;\n            }\n        "],
+  "mappings": ";AACY,MAAA,EAAA;AACI,UAAA;AACJ;AAEA;AACI,iBAAA;AACJ;AAEA;AACI,cAAA;AACA,aAAA;AACJ;",
+  "names": []
+}
