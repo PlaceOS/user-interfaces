@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["new-desk-details.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACJ;",
+  "names": []
+}
