@@ -57,7 +57,7 @@ import { combineLatest } from 'rxjs';
                     }
                 </mat-select>
             </mat-form-field>
-            <date-range-field [week_start]="week_start">
+            <date-range-field [week_start]="week_start" [from]="0">
                 <input
                     #startDate
                     [ngModel]="start"
