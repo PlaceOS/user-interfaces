@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-timetable.component.ts"],
+  "sourcesContent": ["\n            [event] {\n                --color1: #969696;\n                --color2: #424242;\n                background: repeating-linear-gradient(\n                    -45deg,\n                    var(--color1),\n                    var(--color1) 6px,\n                    var(--color2) 6px,\n                    var(--color2) 8px\n                );\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,YAAA;AACA,YAAA;AACA;IAAA;;;;;;AAOJ;",
+  "names": []
+}

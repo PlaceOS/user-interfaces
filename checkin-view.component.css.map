@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-view.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                background-color: #f8f8fa;\n                height: 100%;\n                width: 100%;\n                overflow: hidden;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,oBAAA;AACA,UAAA;AACA,SAAA;AACA,YAAA;AACJ;",
+  "names": []
+}
