@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-qr-scan.component.ts"],
+  "sourcesContent": ["\n            video {\n                width: 34rem;\n                height: 24rem;\n            }\n\n            a {\n                position: absolute;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACJ;AAEA;AACI,YAAA;AACJ;",
+  "names": []
+}
