@@ -70139,15 +70139,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "2c0587c",
-  "hash": "2c0587c",
+  "raw": "273d58c",
+  "hash": "273d58c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2c0587c",
+  "suffix": "273d58c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1766367059126
+  "time": 1766367682993
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -139805,14 +139805,13 @@ var UserControlsSidebarComponent = _UserControlsSidebarComponent;
         PortalModule,
         MatRippleModule,
         IconComponent,
-        UserControlsComponent,
-        TranslatePipe
+        UserControlsComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 66 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 64 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
@@ -161692,43 +161691,6 @@ var UploadListFieldComponent = _UploadListFieldComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadListFieldComponent, { className: "UploadListFieldComponent", filePath: "libs/form-fields/src/lib/upload-list-field.component.ts", lineNumber: 108 });
 })();
 
-// libs/form-fields/src/lib/place-user.pipe.ts
-var USER_LIST2 = [];
-var EMPTY_USER3 = {};
-var _PlaceUserPipe = class _PlaceUserPipe {
-  /**
-   * Get details of the user with the given ID
-   * @param user_id ID or Email of the user
-   */
-  async transform(user_id) {
-    if (!user_id)
-      return EMPTY_USER3;
-    let user = USER_LIST2.find(({ id, email }) => id === user_id || email === user_id);
-    if (user)
-      return user;
-    user = await Aa(user_id).toPromise().catch(() => null);
-    if (user) {
-      user = new StaffUser(user);
-      USER_LIST2.push(user);
-      return user;
-    }
-    return EMPTY_USER3;
-  }
-};
-_PlaceUserPipe.\u0275fac = function PlaceUserPipe_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _PlaceUserPipe)();
-};
-_PlaceUserPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "placeuser", type: _PlaceUserPipe, pure: true });
-var PlaceUserPipe = _PlaceUserPipe;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlaceUserPipe, [{
-    type: Pipe,
-    args: [{
-      name: "placeuser"
-    }]
-  }], null, null);
-})();
-
 // libs/form-fields/src/lib/user-list-field.component.ts
 var _c076 = ["search_field"];
 var _c138 = (a0) => ({ name: a0 });
@@ -162364,14 +162326,13 @@ var UserListFieldComponent = _UserListFieldComponent;
       MatRippleModule,
       TranslatePipe,
       IconComponent,
-      PlaceUserPipe,
       MatTooltipModule,
       UserAvatarComponent
     ] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 245 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 243 });
 })();
 
 // apps/signage/src/app/time-controls.component.ts
