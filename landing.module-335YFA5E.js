@@ -7,7 +7,7 @@ import {
   FooterMenuComponent,
   ScheduleStateService,
   TopbarComponent
-} from "./chunk-I4HIS35D.js";
+} from "./chunk-QYUEW5H6.js";
 import {
   $h,
   Aa,
@@ -138,7 +138,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-2I6M3YMW.js";
+} from "./chunk-RWM5K7ZP.js";
 
 // apps/workplace/src/app/landing/landing-state.service.ts
 var _LandingStateService = class _LandingStateService extends AsyncHandler {
@@ -2898,4 +2898,4 @@ var AppLandingModule = _AppLandingModule;
 export {
   AppLandingModule
 };
-//# sourceMappingURL=landing.module-Q6S7WP5K.js.map
+//# sourceMappingURL=landing.module-335YFA5E.js.map

@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-I4HIS35D.js";
+} from "./chunk-QYUEW5H6.js";
 import {
   AsyncHandler,
   AsyncPipe,
@@ -73,7 +73,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-2I6M3YMW.js";
+} from "./chunk-RWM5K7ZP.js";
 
 // apps/workplace/src/app/directory/user-list.component.ts
 var _c0 = ["a-directory-user-list", ""];
@@ -463,4 +463,4 @@ var DirectoryModule = _DirectoryModule;
 export {
   DirectoryModule
 };
-//# sourceMappingURL=directory.module-IOESZDFF.js.map
+//# sourceMappingURL=directory.module-YWPAM33N.js.map

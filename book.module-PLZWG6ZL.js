@@ -1,11 +1,11 @@
 import {
   subMinutes
-} from "./chunk-EALZPFQX.js";
+} from "./chunk-XSLPINGH.js";
 import {
   HostSelectFieldComponent,
   RecurrenceFieldComponent,
   SpaceListFieldComponent
-} from "./chunk-GUH6QSFR.js";
+} from "./chunk-I7ZPYPNW.js";
 import {
   BookingFormService,
   DeskListFieldComponent,
@@ -16,7 +16,7 @@ import {
   ParkingSpaceListFieldComponent,
   TopbarComponent,
   UserListFieldComponent
-} from "./chunk-I4HIS35D.js";
+} from "./chunk-QYUEW5H6.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -324,7 +324,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-2I6M3YMW.js";
+} from "./chunk-RWM5K7ZP.js";
 
 // apps/workplace/src/app/book/book.component.ts
 function BookComponent_Conditional_0_Template(rf, ctx) {
@@ -21344,4 +21344,4 @@ var BookModule = _BookModule;
 export {
   BookModule
 };
-//# sourceMappingURL=book.module-NSSHHCQK.js.map
+//# sourceMappingURL=book.module-PLZWG6ZL.js.map
