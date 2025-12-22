@@ -57138,15 +57138,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION6 = {
   "dirty": false,
-  "raw": "2c0587c",
-  "hash": "2c0587c",
+  "raw": "273d58c",
+  "hash": "273d58c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2c0587c",
+  "suffix": "273d58c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1766367060909
+  "time": 1766367733610
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -141414,14 +141414,13 @@ var UserControlsSidebarComponent = _UserControlsSidebarComponent;
         PortalModule,
         MatRippleModule,
         IconComponent,
-        UserControlsComponent,
-        TranslatePipe
+        UserControlsComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 66 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 64 });
 })();
 
 // libs/components/src/lib/building.pipe.ts
@@ -159351,7 +159350,6 @@ export {
   RendererFactory2,
   ɵɵdefineComponent,
   ɵɵdefineNgModule,
-  ɵɵdefinePipe,
   ɵɵInheritDefinitionFeature,
   ɵɵtemplate,
   EventEmitter,
@@ -159411,7 +159409,6 @@ export {
   ɵɵtemplateRefExtractor,
   ɵsetClassDebugInfo,
   Component,
-  Pipe,
   Input,
   Output,
   HostListener,
@@ -159497,7 +159494,6 @@ export {
   rc,
   Gc,
   xa,
-  Aa,
   gh,
   $o,
   $h,
@@ -159764,4 +159760,4 @@ qr/esm/decode.js:
   limitations under the License.
   *)
 */
-//# sourceMappingURL=chunk-SMZGGOF2.js.map
+//# sourceMappingURL=chunk-DOMDVGRR.js.map

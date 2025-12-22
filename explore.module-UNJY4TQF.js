@@ -220,7 +220,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-SMZGGOF2.js";
+} from "./chunk-DOMDVGRR.js";
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
 var _c0 = ["switch"];
@@ -5504,4 +5504,4 @@ var AppExploreModule = _AppExploreModule;
 export {
   AppExploreModule
 };
-//# sourceMappingURL=explore.module-V2EK3OLH.js.map
+//# sourceMappingURL=explore.module-UNJY4TQF.js.map
