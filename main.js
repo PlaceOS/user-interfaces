@@ -74838,15 +74838,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "2c0587c",
-  "hash": "2c0587c",
+  "raw": "273d58c",
+  "hash": "273d58c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2c0587c",
+  "suffix": "273d58c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1766367057402
+  "time": 1766367677976
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -144483,14 +144483,13 @@ var UserControlsSidebarComponent = _UserControlsSidebarComponent;
         PortalModule,
         MatRippleModule,
         IconComponent,
-        UserControlsComponent,
-        TranslatePipe
+        UserControlsComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 66 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 64 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
@@ -163569,43 +163568,6 @@ var DesksService = _DesksService;
   }], null, null);
 })();
 
-// libs/form-fields/src/lib/place-user.pipe.ts
-var USER_LIST2 = [];
-var EMPTY_USER3 = {};
-var _PlaceUserPipe = class _PlaceUserPipe {
-  /**
-   * Get details of the user with the given ID
-   * @param user_id ID or Email of the user
-   */
-  async transform(user_id) {
-    if (!user_id)
-      return EMPTY_USER3;
-    let user = USER_LIST2.find(({ id, email }) => id === user_id || email === user_id);
-    if (user)
-      return user;
-    user = await Aa(user_id).toPromise().catch(() => null);
-    if (user) {
-      user = new StaffUser(user);
-      USER_LIST2.push(user);
-      return user;
-    }
-    return EMPTY_USER3;
-  }
-};
-_PlaceUserPipe.\u0275fac = function PlaceUserPipe_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _PlaceUserPipe)();
-};
-_PlaceUserPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "placeuser", type: _PlaceUserPipe, pure: true });
-var PlaceUserPipe = _PlaceUserPipe;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlaceUserPipe, [{
-    type: Pipe,
-    args: [{
-      name: "placeuser"
-    }]
-  }], null, null);
-})();
-
 // libs/form-fields/src/lib/user-list-field.component.ts
 var _c069 = ["search_field"];
 var _c138 = (a0) => ({ name: a0 });
@@ -164241,14 +164203,13 @@ var UserListFieldComponent = _UserListFieldComponent;
       MatRippleModule,
       TranslatePipe,
       IconComponent,
-      PlaceUserPipe,
       MatTooltipModule,
       UserAvatarComponent
     ] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 245 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 243 });
 })();
 
 // libs/bookings/src/lib/invite-visitor-form.component.ts
@@ -172565,11 +172526,11 @@ var NewParkingFiltersDisplayComponent = _NewParkingFiltersDisplayComponent;
                 </div>
             }
         </section>
-    `, imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule], styles: ["/* angular:styles/component:css;40c2cfb0940879f4b472b0df17d108f20a06d9aef1b032e0c2528e24b3273369;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/new-parking-select-modal/new-parking-filters-display.component.ts */\n[filter-item] {\n  display: flex;\n  align-items: center;\n  padding: 0 1rem;\n  height: 2rem;\n  font-size: 0.875rem;\n  border: 1px solid rgba(0, 0, 0, 0.2);\n  border-radius: 1.25rem;\n  margin: 0.25rem;\n}\n[filter-item]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n[filter-item] > * + * {\n  margin-left: 0.5rem;\n}\n/*# sourceMappingURL=new-parking-filters-display.component.css.map */\n"] }]
+    `, imports: [CommonModule, IconComponent, MatRippleModule], styles: ["/* angular:styles/component:css;40c2cfb0940879f4b472b0df17d108f20a06d9aef1b032e0c2528e24b3273369;/home/runner/work/user-interfaces/user-interfaces/libs/bookings/src/lib/new-parking-select-modal/new-parking-filters-display.component.ts */\n[filter-item] {\n  display: flex;\n  align-items: center;\n  padding: 0 1rem;\n  height: 2rem;\n  font-size: 0.875rem;\n  border: 1px solid rgba(0, 0, 0, 0.2);\n  border-radius: 1.25rem;\n  margin: 0.25rem;\n}\n[filter-item]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n[filter-item] > * + * {\n  margin-left: 0.5rem;\n}\n/*# sourceMappingURL=new-parking-filters-display.component.css.map */\n"] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingFiltersDisplayComponent, { className: "NewParkingFiltersDisplayComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-filters-display.component.ts", lineNumber: 72 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingFiltersDisplayComponent, { className: "NewParkingFiltersDisplayComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-filters-display.component.ts", lineNumber: 71 });
 })();
 
 // libs/bookings/src/lib/new-parking-select-modal/new-parking-filters.component.ts
