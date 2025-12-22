@@ -309,10 +309,10 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
             return [
                 ...desks
                     .filter(({ id }) => this.desks.includes(id))
-                    .map((_) => ({ ..._, type: 'desk' })),
+                    .map((_) => ({ ..._, type: 'desk' as const })),
                 ...parking
                     .filter(({ id }) => this.parking_spaces.includes(id))
-                    .map((_) => ({ ..._, type: 'parking' })),
+                    .map((_) => ({ ..._, type: 'parking' as const })),
             ];
         }),
         tap((_) => console.log(_)),
