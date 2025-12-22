@@ -95930,15 +95930,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "2c0587c",
-  "hash": "2c0587c",
+  "raw": "273d58c",
+  "hash": "273d58c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2c0587c",
+  "suffix": "273d58c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1766367132721
+  "time": 1766367685088
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -144923,14 +144923,13 @@ var UserControlsSidebarComponent = _UserControlsSidebarComponent;
         PortalModule,
         MatRippleModule,
         IconComponent,
-        UserControlsComponent,
-        TranslatePipe
+        UserControlsComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 66 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 64 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
