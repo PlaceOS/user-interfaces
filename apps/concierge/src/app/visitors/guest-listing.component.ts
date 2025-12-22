@@ -127,7 +127,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         sortable: false,
                     },
                 ]"
-                [filter]="search | async"
+                [filter]="search"
                 [sortable]="true"
             />
         </div>

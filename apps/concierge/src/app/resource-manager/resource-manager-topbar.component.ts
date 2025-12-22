@@ -276,8 +276,8 @@ export class ResourceManagerTopbarComponent
         });
     }
 
-    public async loadCSVData(event: InputEvent) {
-        const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
+    public async loadCSVData(event: Event) {
+        const data = await loadTextFileFromInputEvent(event as InputEvent).catch(([m, e]) => {
             notifyError(m);
             throw e;
         });
