@@ -19,16 +19,16 @@ import { ControlStateService } from '../control-state.service';
 @Component({
     selector: 'select-meeting-modal',
     template: `
-        <div class="fixed inset-0 bg-base-100">
+        <div class="bg-base-100 fixed inset-0">
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2"
+                class="absolute top-2 right-2"
             >
                 <icon>close</icon>
             </button>
-            <div class="mx-auto w-[40rem] max-w-full p-2">
+            <div class="mx-auto w-160 max-w-full p-2">
                 <h2 class="my-4 w-full text-center text-2xl font-medium">
                     {{ 'APP.CONTROL.MEETING_SELECT' | translate }}
                 </h2>
@@ -63,7 +63,7 @@ import { ControlStateService } from '../control-state.service';
                                 <button
                                     btn
                                     matRipple
-                                    class="flex w-full items-center rounded border border-base-200 p-4"
+                                    class="border-base-200 flex w-full items-center rounded-sm border p-4"
                                     (click)="select(event)"
                                 >
                                     <div

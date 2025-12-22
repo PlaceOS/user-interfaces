@@ -19,7 +19,7 @@ import { DashboardsService } from './dashboards.service';
                 [class.opacity-0]="loading.length <= 0"
             />
             <simple-table
-                class="block min-w-[48rem] bg-base-100"
+                class="bg-base-100 block min-w-3xl"
                 [data]="alert_list()"
                 [filter]="search_term()"
                 [columns]="[
@@ -59,7 +59,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #status_template let-enabled="data">
                 @if (enabled) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     >
                         <icon>done</icon>
                     </div>
@@ -71,7 +71,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #conditions_template let-list="data">
                 <div class="flex w-full space-x-2 p-2">
                     <div
-                        class="flex flex-1 space-x-1 rounded border border-base-200 p-2"
+                        class="border-base-200 flex flex-1 space-x-1 rounded-sm border p-2"
                         matTooltip="Comparision Conditions"
                     >
                         <div class="flex-1">
@@ -80,7 +80,7 @@ import { DashboardsService } from './dashboards.service';
                         <icon class="text-lg">compare_arrows</icon>
                     </div>
                     <div
-                        class="flex flex-1 space-x-1 rounded border border-base-200 p-2"
+                        class="border-base-200 flex flex-1 space-x-1 rounded-sm border p-2"
                         matTooltip="Time Dependant Conditions"
                     >
                         <div class="flex-1">
@@ -95,7 +95,7 @@ import { DashboardsService } from './dashboards.service';
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         [matMenuTriggerFor]="menu"
                     >
                         <icon>more_vert</icon>
@@ -105,7 +105,7 @@ import { DashboardsService } from './dashboards.service';
                             mat-menu-item
                             [routerLink]="[
                                 '/dashboards',
-                                dashboard.id,
+                                dashboard()?.id,
                                 'alerts',
                                 'manage',
                                 alert.id,
@@ -123,7 +123,7 @@ import { DashboardsService } from './dashboards.service';
                         </a>
                         <button mat-menu-item (click)="remove(alert)">
                             <div class="flex items-center space-x-2 pr-4">
-                                <icon class="text-xl text-error">delete</icon>
+                                <icon class="text-error text-xl">delete</icon>
                                 <div>
                                     {{
                                         'APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE'

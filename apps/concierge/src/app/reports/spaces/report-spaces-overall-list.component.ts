@@ -3,6 +3,8 @@ import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
 import { format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -15,9 +17,9 @@ import { ReportsStateService } from '../reports-state.service';
     template: `
         <div class="w-full">
             <div
-                class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
             >
-                <div class="flex items-center border-b border-base-200 p-4">
+                <div class="border-base-200 flex items-center border-b p-4">
                     <h3 class="flex-1 text-xl font-bold">
                         {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                     </h3>
@@ -76,7 +78,14 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
         </div>
     `,
-    imports: [CommonModule, TranslatePipe, IconComponent, SimpleTableComponent],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        IconComponent,
+        SimpleTableComponent,
+        MatRippleModule,
+        MatTooltipModule,
+    ],
 })
 export class ReportSpacesOverallListComponent {
     private _state = inject(ReportsStateService);

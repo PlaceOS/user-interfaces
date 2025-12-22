@@ -35,7 +35,7 @@ interface DateItem {
         <div class="p-2">
             <div class="flex items-center justify-between">
                 <button
-                    class="pl-1.5 pr-2 font-medium"
+                    class="pr-2 pl-1.5 font-medium"
                     (dblclick)="setMonthToCurrent()"
                 >
                     {{ date_list[6]?.id || date | date: 'LLLL yyyy' }}
@@ -62,7 +62,7 @@ interface DateItem {
                 </div>
             </div>
             <div
-                class="mb-2 flex items-center border-b border-base-200 pb-2 text-sm"
+                class="border-base-200 mb-2 flex items-center border-b pb-2 text-sm"
             >
                 @for (day of date_list | slice: 0 : 7; track day.id) {
                     <div class="flex-1 text-center opacity-60">
@@ -77,7 +77,7 @@ interface DateItem {
                         name="schedule-set-date"
                         class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
                         [class.hover:bg-base-100]="day.id !== active_date"
-                        [class.!text-base-300]="!day.is_month"
+                        [class.text-base-300!]="!day.is_month"
                         [class.text-secondary-content]="day.id === active_date"
                         [class.text-base-content]="day.id !== active_date"
                         [class.bg-secondary]="day.id === active_date"
@@ -88,7 +88,7 @@ interface DateItem {
                         {{ day.id | date: 'd' }}
                         @if (today === day.id) {
                             <div
-                                class="absolute -inset-[2px] overflow-hidden rounded-full border border-secondary"
+                                class="border-secondary absolute -inset-[2px] overflow-hidden rounded-full border"
                                 matRipple
                             ></div>
                         }

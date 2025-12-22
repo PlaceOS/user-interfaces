@@ -16,7 +16,7 @@ import { StaffStateService } from './staff-state.service';
     selector: 'staff-topbar',
     template: `
         <div
-            class="flex items-center space-x-4 border-b border-base-200 bg-base-100 p-4"
+            class="border-base-200 bg-base-100 flex items-center space-x-4 border-b p-4"
         >
             <mat-form-field appearance="outline" class="no-subscript w-48">
                 <mat-select

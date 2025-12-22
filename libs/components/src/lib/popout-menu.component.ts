@@ -15,7 +15,7 @@ export interface PopoutAction extends ApplicationIcon {
             <button
                 icon
                 matRipple
-                class="small center absolute text-base shadow"
+                class="small center absolute text-base shadow-sm"
                 [style.top]="show ? -110 * i - 60 + '%' : ''"
                 (click)="action.emit(item.id); show = false"
             >

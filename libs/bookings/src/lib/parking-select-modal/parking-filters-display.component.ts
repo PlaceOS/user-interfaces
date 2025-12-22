@@ -48,7 +48,7 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
         </section>
         <section
             filters
-            class="flex w-[35rem] max-w-full flex-wrap items-center p-2 sm:max-w-[35rem]"
+            class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
             @if (location) {
                 <div filter-item zone>
@@ -61,12 +61,6 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
             <div filter-item time>
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
-            </div>
-            <div filter-item count>
-                {{
-                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (options | async)?.capcaity || 2 }
-                }}
             </div>
             @for (feat of (options | async)?.features; track feat) {
                 <div filter-item>

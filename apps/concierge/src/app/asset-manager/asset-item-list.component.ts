@@ -38,11 +38,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <ng-container [ngSwitch]="(options | async).view">
                         <ng-container *ngSwitchCase="'list'">
                             <div
-                                class="divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100"
+                                class="divide-base-200 border-base-200 bg-base-100 divide-y overflow-hidden rounded-sm border"
                             >
                                 <a
                                     matRipple
-                                    class="hover:border-indigo-400 flex items-center space-x-4 rounded border border-base-200 p-4 text-left"
+                                    class="border-base-200 flex items-center space-x-4 rounded-sm border p-4 text-left hover:border-indigo-400"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -55,7 +55,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="flex h-12 w-12 items-center justify-center overflow-hidden border border-base-200 bg-base-200"
+                                        class="border-base-200 bg-base-200 flex h-12 w-12 items-center justify-center overflow-hidden border"
                                     >
                                         <img
                                             *ngIf="
@@ -103,7 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             >
                                 <a
                                     matRipple
-                                    class="hover:border-indigo-400 m-2 flex h-44 w-40 flex-col rounded border border-base-200 bg-base-100 text-left shadow"
+                                    class="border-base-200 bg-base-100 m-2 flex h-44 w-40 flex-col rounded-sm border text-left shadow-sm hover:border-indigo-400"
                                     *ngFor="
                                         let asset of (products | async)[
                                             group.id
@@ -116,7 +116,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     ]"
                                 >
                                     <div
-                                        class="flex h-32 w-full items-center justify-center overflow-hidden bg-base-200"
+                                        class="bg-base-200 flex h-32 w-full items-center justify-center overflow-hidden"
                                     >
                                         <img
                                             auth
@@ -135,7 +135,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         </ng-template>
                                     </div>
                                     <div
-                                        class="flex w-full flex-1 flex-col justify-center border-t border-base-200 px-3 py-1"
+                                        class="border-base-200 flex w-full flex-1 flex-col justify-center border-t px-3 py-1"
                                     >
                                         <div class="truncate">
                                             {{ asset.name }}

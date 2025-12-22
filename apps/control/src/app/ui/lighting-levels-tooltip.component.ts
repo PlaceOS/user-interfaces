@@ -15,20 +15,20 @@ import { ControlStateService } from '../control-state.service';
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-4 rounded bg-base-100 p-2 shadow"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-4 rounded-sm p-2 shadow-sm"
         >
             <h3
-                class="w-full rounded bg-base-200 px-4 py-2 text-xl font-medium"
+                class="bg-base-200 w-full rounded-sm px-4 py-2 text-xl font-medium"
             >
                 {{ 'APP.CONTROL.LIGHTING_LEVELS' | translate }}
             </h3>
             @if (lights().length > 0) {
                 @for (light of lights(); track light.binding) {
                     <div
-                        class="relative min-w-[20rem] rounded border border-base-300 px-4"
+                        class="border-base-300 relative min-w-[20rem] rounded-sm border px-4"
                     >
                         <div
-                            class="absolute left-2 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 text-sm font-medium"
+                            class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 rounded-sm px-2 py-1 text-sm font-medium"
                         >
                             {{ light?.name }}
                         </div>
@@ -43,8 +43,8 @@ import { ControlStateService } from '../control-state.service';
                         <mat-slider class="mt-2 w-[calc(100%-1rem)]">
                             <input
                                 matSliderThumb
-                                [ngModel]="lights()?.value"
-                                (ngModelChange)="setLevel(lights(), $event)"
+                                [ngModel]="light?.value"
+                                (ngModelChange)="setLevel(light, $event)"
                             />
                         </mat-slider>
                     </div>

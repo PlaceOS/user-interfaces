@@ -24,7 +24,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-4 top-4"
+                class="absolute top-4 right-4"
             >
                 <icon>close</icon>
             </button>
@@ -32,13 +32,13 @@ import { SplitJoinPipe } from './split-join.pipe';
                 {{ (asset | async)?.name }} in use location:
                 {{ (requests | async)?.length }}
             </h2>
-            <mat-form-field appearance="outline" class="mb-2 h-[3.5rem]">
+            <mat-form-field appearance="outline" class="mb-2 h-14">
                 <icon matPrefix>search</icon>
                 <input matInput placeholder="Search..." />
             </mat-form-field>
             <div class="flex w-[90vw] items-center space-x-4 text-sm">
                 <div
-                    class="h-[60vh] w-1/2 flex-1 overflow-auto border border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 h-[60vh] w-1/2 flex-1 overflow-auto border"
                 >
                     <simple-table
                         class="block w-full"
@@ -59,22 +59,27 @@ import { SplitJoinPipe } from './split-join.pipe';
                         ]"
                         [sortable]="true"
                         empty_message="No requested assets for this product"
-                        (row_clicked)="selected = $event; updateFeatures()"
+                        (row_clicked)="
+                            selected = $any($event); updateFeatures()
+                        "
                     ></simple-table>
                 </div>
                 <div
-                    class="relative flex h-[60vh] w-1/2 flex-1 items-center justify-center border border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 relative flex h-[60vh] w-1/2 flex-1 items-center justify-center border"
                 >
                     @if (selected) {
                         <div
-                            class="absolute left-4 top-4 rounded-3xl border border-base-200 bg-base-100 px-4 py-2"
+                            class="border-base-200 bg-base-100 absolute top-4 left-4 rounded-3xl border px-4 py-2"
                         >
-                            {{ level(selected.zone)?.display_name || 'N/A' }}
+                            {{
+                                level(selected.zones?.[0])?.display_name ||
+                                    'N/A'
+                            }}
                         </div>
                     }
                     @if (selected) {
                         <interactive-map
-                            [src]="level(selected.zone)?.map_id || ''"
+                            [src]="level(selected.zones?.[0])?.map_id || ''"
                             [styles]="{
                                 '#Zones': { display: 'none' },
                                 '#zones': { display: 'none' },
@@ -98,7 +103,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="flex w-full items-center rounded bg-none px-2 py-1 text-left"
+                    class="flex w-full items-center rounded-sm bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
                     [disabled]="loading[row.id]"

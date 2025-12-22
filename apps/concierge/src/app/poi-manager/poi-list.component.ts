@@ -28,7 +28,7 @@ interface QR_Codes {
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-[48rem] text-sm"
+                class="block min-w-3xl text-sm"
                 [data]="features"
                 empty_message="No Points of Interest found."
                 [columns]="[
@@ -71,7 +71,7 @@ interface QR_Codes {
         <ng-template #bool_template let-data="data">
             @if (data) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 >
                     <icon>done</icon>
                 </div>
@@ -105,14 +105,14 @@ interface QR_Codes {
                     </button>
                 </div>
                 <ng-template #qr_menu let-qr="qr" let-item="item">
-                    <div class="rounded bg-base-100 py-2 shadow">
+                    <div class="bg-base-100 rounded-sm py-2 shadow-sm">
                         <div class="" printable [content]="print_content">
                             <ng-template #print_content>
                                 <a
                                     [href]="qr?.link | safe: 'url'"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                    class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                 >
                                     <img
                                         class="mx-auto w-48"
@@ -120,7 +120,7 @@ interface QR_Codes {
                                     />
                                 </a>
                                 <div
-                                    class="mx-4 mt-2 w-[calc(100%-2rem)] rounded bg-base-200 p-2 text-center font-mono text-sm"
+                                    class="bg-base-200 mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm p-2 text-center font-mono text-sm"
                                 >
                                     {{ item.name || item.id }}
                                 </div>
@@ -157,7 +157,7 @@ interface QR_Codes {
                         </div>
                     </button>
                     <button mat-menu-item (click)="remove(row)">
-                        <div class="text-red-500 flex items-center space-x-2">
+                        <div class="flex items-center space-x-2 text-red-500">
                             <icon class="text-error">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.POI_REMOVE' | translate

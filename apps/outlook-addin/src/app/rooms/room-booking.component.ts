@@ -17,21 +17,21 @@ import { FeaturesFilterService } from './features-filter.service';
 @Component({
     selector: 'room-booking',
     template: `
-        <div class="absolute inset-0 overflow-auto bg-base-200">
+        <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
-                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100 pt-2"
+                class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x pt-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto mb-2 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">Book Room</h2>
                 </header>
                 @if (form) {
-                    <form [formGroup]="form" class="divide-y divide-base-200">
+                    <form [formGroup]="form" class="divide-base-200 divide-y">
                         <section class="px-4 py-2">
                             <div class="my-2 flex space-x-4">
                                 <div
-                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                 >
                                     1
                                 </div>
@@ -89,7 +89,7 @@ import { FeaturesFilterService } from './features-filter.service';
                         <section class="px-4 py-2">
                             <div class="my-2 flex space-x-4">
                                 <div
-                                    class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                                 >
                                     2
                                 </div>
@@ -105,7 +105,7 @@ import { FeaturesFilterService } from './features-filter.service';
                             </div>
                         </section>
                         <section
-                            class="sticky bottom-0 flex flex-col items-center space-y-2 bg-base-100 px-4 py-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                            class="bg-base-100 sticky bottom-0 flex flex-col items-center space-y-2 px-4 py-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                         >
                             <button
                                 btn
@@ -152,7 +152,7 @@ export class RoomBookingComponent implements OnInit {
     public show_spaces = false;
     public show_people = false;
 
-    min_date: Date = new Date();
+    min_date = Date.now();
 
     public get form() {
         return this._state.form;

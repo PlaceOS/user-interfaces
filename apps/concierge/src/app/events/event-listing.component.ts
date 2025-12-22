@@ -8,6 +8,7 @@ import { CalendarEvent, SettingsService, User } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     BuildingPipe,
+    CustomTooltipComponent,
     IconComponent,
     LevelPipe,
     SimpleTableComponent,
@@ -26,7 +27,7 @@ import { EventStateService } from './event-state.service';
             mode="indeterminate"
         />
         <simple-table
-            class="block w-full min-w-[72rem] text-sm"
+            class="block w-full min-w-6xl text-sm"
             [data]="event_list"
             empty_message="No group events for selected period"
             [columns]="[
@@ -97,7 +98,7 @@ import { EventStateService } from './event-state.service';
                     </div>
                 </div>
                 <div
-                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded border border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 flex h-12 w-12 items-center justify-center overflow-hidden rounded-sm border"
                 >
                     <img
                         *ngIf="item.images?.length"
@@ -151,14 +152,14 @@ import { EventStateService } from './event-state.service';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded"
+                class="mx-auto h-12 w-12 rounded-sm"
                 [disabled]="!attendeeCount(item.attendees)"
             >
                 {{ attendeeCount(item.attendees) || 0 }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
+                    class="relative h-112 w-[20rem] overflow-auto rounded-sm bg-white shadow-sm"
                 >
                     <attendee-list
                         [list]="attendeeList(item.attendees)"
@@ -178,14 +179,14 @@ import { EventStateService } from './event-state.service';
                 matRipple
                 customTooltip
                 [content]="view_attendees"
-                class="mx-auto h-12 w-12 rounded"
+                class="mx-auto h-12 w-12 rounded-sm"
                 [disabled]="!checkedInCount(item.attendees)"
             >
                 {{ checkedInCount(item.attendees) }}
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative h-[28rem] w-[20rem] overflow-auto rounded bg-white shadow"
+                    class="relative h-112 w-[20rem] overflow-auto rounded-sm bg-white shadow-sm"
                 >
                     <attendee-list
                         [show_host]="false"
@@ -199,7 +200,7 @@ import { EventStateService } from './event-state.service';
         <ng-template #published_template let-data="data">
             <div
                 *ngIf="data !== 'PRIVATE' && data !== 'private'"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
             >
                 <icon>done</icon>
             </div>
@@ -243,7 +244,7 @@ import { EventStateService } from './event-state.service';
             <button
                 icon
                 matRipple
-                class="mx-2 h-12 w-12 rounded"
+                class="mx-2 h-12 w-12 rounded-sm"
                 [matMenuTriggerFor]="menu"
                 [disabled]="row.state === 'done'"
             >
@@ -292,7 +293,7 @@ import { EventStateService } from './event-state.service';
                 </button>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
-                        <icon class="text-2xl text-error">delete</icon>
+                        <icon class="text-error text-2xl">delete</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
                         </div>
@@ -316,6 +317,7 @@ import { EventStateService } from './event-state.service';
         AuthenticatedImageDirective,
         LevelPipe,
         BuildingPipe,
+        CustomTooltipComponent,
     ],
 })
 export class EventListingComponent {

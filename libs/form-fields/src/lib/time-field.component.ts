@@ -37,7 +37,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         <button
             time-field
             matRipple
-            class="flex h-12 w-full items-center justify-between rounded border border-neutral px-2"
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             [matMenuTriggerFor]="menu"
@@ -56,13 +56,13 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             </div>
             <icon class="text-2xl">arrow_drop_down</icon>
         </button>
-        <mat-menu #menu="matMenu" class="max-h-[15rem] min-w-[18rem]">
+        <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
-                    (click)="setValue(force_time())"
+                    (click)="setValue(force_time().toString())"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col leading-tight">
@@ -146,7 +146,9 @@ export class TimeFieldComponent
     public readonly use_24hr = input(false);
     public readonly force_time = input<number>(undefined);
     public readonly no_error = input<boolean>(undefined);
-    public readonly extra_info_fn = input((t?: number) => '');
+    public readonly extra_info_fn = input<(t?: number) => string>(
+        (t?: number) => '',
+    );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
     public readonly timezone = input<string>('');

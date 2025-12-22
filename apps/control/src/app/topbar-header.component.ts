@@ -48,7 +48,7 @@ enum TOOLTIP {
                 [source]="logo()?.src || logo()"
             />
         </div>
-        <div class="p-4 text-lg text-base-content">
+        <div class="text-base-content p-4 text-lg">
             {{ system()?.name }}
         </div>
         <div
@@ -72,7 +72,7 @@ enum TOOLTIP {
                             matRipple
                             class="bg-base-200 text-base-content"
                             [attr.type]="item.id"
-                            [class.!bg-success]="item.enabled"
+                            [class.bg-success!]="item.enabled"
                             (click)="item.action ? item.action() : ''"
                         >
                             <icon>{{ item.icon }}</icon>
@@ -85,7 +85,7 @@ enum TOOLTIP {
             icon
             matRipple
             [matMenuTriggerFor]="menu"
-            class="mr-2 text-base-content sm:hidden"
+            class="text-base-content mr-2 sm:hidden"
         >
             <icon>more_vert</icon>
         </button>

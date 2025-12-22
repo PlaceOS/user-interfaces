@@ -40,6 +40,7 @@ import { map } from 'rxjs/operators';
 
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
+import { SanitizePipe } from './sanitise.pipe';
 import { TranslatePipe } from './translate.pipe';
 
 function isSamePoint(p1: Point, p2: Point): boolean {
@@ -86,7 +87,7 @@ function isSamePoint(p1: Point, p2: Point): boolean {
                             <div
                                 #feature
                                 class="pointer-events-none"
-                                [attr.no-scale]="element.no_scale"
+                                [attr.no-scale]="$any(element).no_scale"
                                 [attr.el-id]="element.location"
                                 [attr.track-id]="element.track_id"
                                 [attr.view-id]="viewer()"
@@ -137,7 +138,12 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, MatProgressSpinnerModule],
+    imports: [
+        CommonModule,
+        TranslatePipe,
+        MatProgressSpinnerModule,
+        SanitizePipe,
+    ],
 })
 export class MapRendererComponent
     extends AsyncHandler

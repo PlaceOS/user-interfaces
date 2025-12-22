@@ -24,7 +24,7 @@ import { PanelStateService } from './panel-state.service';
 @Component({
     selector: 'event-panel',
     template: `
-        <div class="absolute inset-0 flex flex-col items-center bg-base-100">
+        <div class="bg-base-100 absolute inset-0 flex flex-col items-center">
             <header class="flex w-full items-center justify-between p-8">
                 <h1 class="text-3xl font-medium">{{ space_name | async }}</h1>
                 <div class="flex items-center space-x-4 portrait:hidden">
@@ -40,7 +40,7 @@ import { PanelStateService } from './panel-state.service';
                 </div>
             </header>
             <main
-                class="relative flex h-1/2 w-full flex-1 justify-between space-x-8 overflow-hidden bg-cover p-8 portrait:flex-col portrait:space-x-0 portrait:space-y-4"
+                class="relative flex h-1/2 w-full flex-1 justify-between space-x-8 overflow-hidden bg-cover p-8 portrait:flex-col portrait:space-y-4 portrait:space-x-0"
                 [style.background-color]="background_color | safe"
                 [style.color]="text_color | safe"
                 [style.background-image]="
@@ -102,7 +102,7 @@ import { PanelStateService } from './panel-state.service';
                 </div>
             </main>
             <footer
-                class="flex w-full items-center justify-between bg-base-100 px-8 py-3 landscape:hidden"
+                class="bg-base-100 flex w-full items-center justify-between px-8 py-3 landscape:hidden"
             >
                 <img
                     auth
@@ -115,18 +115,18 @@ import { PanelStateService } from './panel-state.service';
                 </p>
             </footer>
             @if (!hide_qr && checkin) {
-                <div class="absolute -right-[2px] top-1/2 -translate-y-1/2">
+                <div class="absolute top-1/2 -right-[2px] -translate-y-1/2">
                     <button
                         book-tag
                         matRipple
                         (click)="toggleQRShow()"
-                        class="absolute left-px top-1/2 z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l border-base-300 bg-base-100 px-1 py-4 uppercase"
+                        class="border-base-300 bg-base-100 absolute top-1/2 left-px z-20 -translate-x-full -translate-y-1/2 rounded-l-lg border-y border-l px-1 py-4 uppercase"
                     >
                         {{ 'COMMON.BOOK' | translate }}
                     </button>
                     <div
                         qr-code-out
-                        class="z-10 overflow-hidden rounded-l-lg border border-base-300 bg-base-100 shadow"
+                        class="border-base-300 bg-base-100 z-10 overflow-hidden rounded-l-lg border shadow-sm"
                         [class.w-0]="!show_qr"
                         [class.w-56]="show_qr"
                     >

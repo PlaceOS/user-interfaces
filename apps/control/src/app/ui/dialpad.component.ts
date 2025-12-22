@@ -7,13 +7,13 @@ import { TranslatePipe } from '@placeos/components';
     template: `
         <div
             dialpad
-            class="relative flex w-60 flex-wrap items-center justify-center !text-base-content"
+            class="text-base-content! relative flex w-60 flex-wrap items-center justify-center"
         >
             @for (digit of digits; track digit) {
                 <button
                     digit
                     matRipple
-                    class="relative m-2 flex h-16 w-16 items-center justify-center rounded-lg bg-base-100 active:top-1"
+                    class="bg-base-100 relative m-2 flex h-16 w-16 items-center justify-center rounded-lg active:top-1"
                     (click)="pressed.emit(digit)"
                 >
                     {{ digit }}
@@ -23,7 +23,7 @@ import { TranslatePipe } from '@placeos/components';
                 <button
                     digit
                     matRipple
-                    class="m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg bg-base-100 active:-bottom-1"
+                    class="bg-base-100 m-2 flex h-16 w-60 flex-1 items-center justify-center rounded-lg active:-bottom-1"
                     [class.absolute]="!inline()"
                     [class.bottom-0]="!inline()"
                     [class.-right-4]="!inline()"

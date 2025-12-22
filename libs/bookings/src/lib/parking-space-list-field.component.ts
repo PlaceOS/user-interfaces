@@ -22,10 +22,10 @@ const EMPTY_FAVS: string[] = [];
             @for (space of spaces; track space) {
                 <div
                     space
-                    class="relative flex w-full items-center rounded-lg border border-base-200 p-2 shadow"
+                    class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
                 >
                     <div
-                        class="mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                        class="bg-base-200 mr-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl"
                     >
                         @if (space.images?.length) {
                             <img
@@ -57,14 +57,14 @@ const EMPTY_FAVS: string[] = [];
                             </p>
                         </div>
                         <div
-                            class="absolute bottom-0 right-0 flex items-center justify-end text-xs"
+                            class="absolute right-0 bottom-0 flex items-center justify-end text-xs"
                         >
                             <button
                                 btn
                                 matRipple
                                 edit-space
                                 class="clear"
-                                (click)="changeResources(space)"
+                                (click)="changeResources()"
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl">edit</icon>
@@ -89,13 +89,13 @@ const EMPTY_FAVS: string[] = [];
                         icon
                         matRipple
                         fav
-                        class="absolute right-1 top-1"
-                        [class.text-info]="favorites.includes(asset?.id)"
-                        (click)="toggleFavourite(asset)"
+                        class="absolute top-1 right-1"
+                        [class.text-info]="favorites.includes(space?.id)"
+                        (click)="toggleFavourite(space)"
                     >
                         <icon
                             [className]="
-                                favorites.includes(asset?.id)
+                                favorites.includes(space?.id)
                                     ? 'material-symbols-rounded'
                                     : 'material-symbols-outlined'
                             "

@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
@@ -8,7 +9,7 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { InteractiveMapComponent } from '@placeos/components';
 import { DeskMapViewComponent } from '../../app/desks/desk-map-view.component';
@@ -23,8 +24,8 @@ describe('DeskMapViewComponent', () => {
                 provide: DesksStateService,
                 useValue: {
                     setFilters: jest.fn(),
-                    desks: new BehaviorSubject([]),
-                    filters: new BehaviorSubject({}),
+                    desks: signal([]),
+                    filters: signal({}),
                     startPolling: jest.fn(() => () => null),
                 },
             },

@@ -7,14 +7,14 @@ import { IconComponent } from '@placeos/components';
     selector: 'footer-menu',
     template: `
         <div
-            class="flex w-full items-center divide-x border-t border-solid border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 flex w-full items-center divide-x border-t border-solid"
         >
             <a
                 btn
                 matRipple
-                class="h-16 flex-1 !rounded-none"
+                class="h-16 flex-1 rounded-none!"
                 [routerLink]="['/desks']"
-                routerLinkActive="!bg-primary !text-white"
+                routerLinkActive="bg-primary! text-white!"
             >
                 <div class="flex flex-col items-center justify-center">
                     <icon class="text-2xl">book</icon>
@@ -24,9 +24,9 @@ import { IconComponent } from '@placeos/components';
             <a
                 btn
                 matRipple
-                class="h-16 flex-1 !rounded-none"
+                class="h-16 flex-1 rounded-none!"
                 [routerLink]="['/explore']"
-                routerLinkActive="!bg-primary !text-white"
+                routerLinkActive="bg-primary! text-white!"
             >
                 <div class="flex flex-col items-center justify-center">
                     <icon class="text-2xl">place</icon>

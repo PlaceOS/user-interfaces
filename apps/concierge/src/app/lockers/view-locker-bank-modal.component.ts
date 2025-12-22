@@ -8,7 +8,7 @@ import { IconComponent } from '@placeos/components';
     selector: 'view-locker-bank-modal',
     template: `
         <header
-            class="sticky top-0 z-10 mx-4 mb-2 mt-4 w-[calc(100%-2rem)] rounded border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 sticky top-0 z-10 mx-4 mt-4 mb-2 w-[calc(100%-2rem)] rounded-sm border-none px-4 py-2"
         >
             <h2 class="text-xl font-medium">
                 View Locker Bank - {{ bank.name }}

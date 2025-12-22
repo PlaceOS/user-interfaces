@@ -38,11 +38,9 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </button>
             </div>
         </div>
-        <div
-            class="grid h-[17.25rem] w-[17.25rem] grid-cols-7 grid-rows-7 gap-1"
-        >
+        <div class="grid h-69 w-69 grid-cols-7 grid-rows-7 gap-1">
             <div
-                class="col-span-full grid grid-cols-7 border-b border-base-200"
+                class="border-base-200 col-span-full grid grid-cols-7 border-b"
             >
                 @for (weekday of weekdays; track weekday) {
                     <div
@@ -55,7 +53,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             </div>
             @for (day of month_days; track trackByFn($index, day)) {
                 <button
-                    class="relative h-9 w-9 rounded-full hover:bg-base-200"
+                    class="hover:bg-base-200 relative h-9 w-9 rounded-full"
                     [class.text-secondary-content]="day.is_start || day.is_end"
                     [disabled]="day.disabled"
                     (click)="selectDate(day.id)"
@@ -63,22 +61,22 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 >
                     @if (day.is_selected && !day.is_start && !day.is_end) {
                         <div
-                            class="absolute -inset-x-0.5 inset-y-0 border-y border-dashed border-base-content bg-base-200"
+                            class="border-base-content bg-base-200 absolute -inset-x-0.5 inset-y-0 border-y border-dashed"
                         ></div>
                     }
                     @if (day.is_start && end_after_start) {
                         <div
-                            class="absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
+                            class="border-base-content bg-base-200 absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed"
                         ></div>
                     }
                     @if (day.is_end && end_after_start) {
                         <div
-                            class="absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed border-base-content bg-base-200"
+                            class="border-base-content bg-base-200 absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed"
                         ></div>
                     }
                     @if (day.is_start || day.is_end) {
                         <div
-                            class="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-secondary"
+                            class="bg-secondary absolute inset-0 z-10 flex items-center justify-center rounded-full"
                         ></div>
                     }
                     <div
@@ -90,7 +88,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                     @if (day.is_today) {
                         <div
-                            class="absolute -inset-[3px] z-10 flex items-center justify-center rounded-full border border-secondary"
+                            class="border-secondary absolute -inset-[3px] z-10 flex items-center justify-center rounded-full border"
                         ></div>
                     }
                 </button>

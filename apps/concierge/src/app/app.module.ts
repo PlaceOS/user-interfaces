@@ -34,6 +34,7 @@ import localeJa from '@angular/common/locales/ja';
 import localeZh from '@angular/common/locales/zh';
 import { LocaleService } from '@placeos/common';
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -49,6 +50,7 @@ import { AppComponent } from './app.component';
         BrowserAnimationsModule,
         GlobalLoadingComponent,
         GlobalBannerComponent,
+        ChatComponent,
         ServiceWorkerModule.register('ngsw-worker.js', {
             enabled: environment.production,
         }),

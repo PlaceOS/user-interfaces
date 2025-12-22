@@ -20,7 +20,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             [features]="features | async"
             [actions]="actions | async"
         />
-        <explore-zoom-controls class="absolute bottom-2 right-2" />
+        <explore-zoom-controls class="absolute right-2 bottom-2" />
     `,
     styles: [
         `

@@ -8,9 +8,7 @@ import {
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    CustomTooltipComponent,
-    IconComponent,
-    UserControlsComponent,
+    UserControlsSidebarComponent,
 } from '@placeos/components';
 import { GlobalSearchComponent } from './global-search.component';
 import { TopMenuComponent } from './top-menu.component';
@@ -22,7 +20,7 @@ const EMPTY = [];
     template: `
         <div
             topbar
-            class="relative z-50 flex h-[3.5rem] items-center justify-between border-b border-base-200 bg-base-100 shadow"
+            class="border-base-200 bg-base-100 relative z-50 flex h-14 items-center justify-between border-b shadow-sm"
         >
             <a
                 name="nav-logo"
@@ -49,17 +47,7 @@ const EMPTY = [];
                 @if (search) {
                     <global-search></global-search>
                 }
-                <button
-                    icon
-                    matRipple
-                    avatar
-                    name="user-controls"
-                    class="mr-2 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
-                    customTooltip
-                    [content]="user_controls"
-                >
-                    <icon class="text-2xl">person</icon>
-                </button>
+                <user-controls-sidebar class="mr-2"></user-controls-sidebar>
             </div>
         </div>
     `,
@@ -71,13 +59,12 @@ const EMPTY = [];
         `,
     ],
     imports: [
-        IconComponent,
         MatRippleModule,
-        CustomTooltipComponent,
         GlobalSearchComponent,
         TopMenuComponent,
         AuthenticatedImageDirective,
         RouterModule,
+        UserControlsSidebarComponent,
     ],
 })
 export class TopbarComponent {
@@ -85,7 +72,6 @@ export class TopbarComponent {
     private _org = inject(OrganisationService);
 
     public show_menu: boolean;
-    public readonly user_controls = UserControlsComponent;
 
     public get logo() {
         return (

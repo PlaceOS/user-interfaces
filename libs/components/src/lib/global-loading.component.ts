@@ -16,7 +16,7 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         @if (!online()) {
             <div
-                class="fixed left-1/2 top-2 z-[9999] -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow"
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
             >
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
@@ -24,19 +24,19 @@ import { TranslatePipe } from './translate.pipe';
         @if (loading()) {
             <div
                 loader
-                class="pointer-events-auto fixed inset-0 z-[9998] flex items-center justify-center bg-base-300"
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex items-center justify-center"
             >
                 <div
-                    class="absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-base-300 bg-base-100 p-2 text-center text-xs shadow"
+                    class="border-base-300 bg-base-100 absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border p-2 text-center text-xs shadow-sm"
                 >
                     <p class="text-center font-mono">{{ message() }}</p>
                 </div>
                 <div
-                    class="absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border border-base-300 shadow"
+                    class="border-base-300 absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border shadow-sm"
                 >
                     <mat-progress-bar
                         mode="indeterminate"
-                        class="scale-150 rounded"
+                        class="scale-150 rounded-sm"
                     ></mat-progress-bar>
                 </div>
             </div>

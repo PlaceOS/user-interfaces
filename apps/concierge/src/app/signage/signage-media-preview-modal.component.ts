@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -12,7 +13,7 @@ import {
     selector: 'signage-media-preview-modal',
     template: `
         <header
-            class="flex items-center justify-between border-b border-base-300 p-2"
+            class="border-base-300 flex items-center justify-between border-b p-2"
         >
             <h1 class="px-2">
                 {{
@@ -55,7 +56,7 @@ import {
             </main>
         } @else {
             <main
-                class="flex h-[20rem] max-h-[65vh] w-[28rem] max-w-[80vw] flex-col items-center justify-center p-8"
+                class="flex h-80 max-h-[65vh] w-md max-w-[80vw] flex-col items-center justify-center p-8"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ loading() }}</p>
@@ -63,9 +64,9 @@ import {
         }
         @if (can_save() && !loading()) {
             <footer
-                class="flex items-center justify-end space-x-2 border-t border-base-300 p-2"
+                class="border-base-300 flex items-center justify-end space-x-2 border-t p-2"
             >
-                <button btn matRipple class="w-32" (click)="save.emit()">
+                <button btn matRipple class="w-32" (click)="save.emit(true)">
                     {{ 'APP.CONCIERGE.SIGNAGE_MEDIA_SAVE' | translate }}
                 </button>
             </footer>
@@ -75,6 +76,7 @@ import {
     imports: [
         MatDialogModule,
         MatRippleModule,
+        MatProgressSpinnerModule,
         AuthenticatedImageDirective,
         TranslatePipe,
         IconComponent,

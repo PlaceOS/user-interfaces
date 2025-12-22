@@ -31,5 +31,12 @@
         },
         "types": ["google.maps"]
     },
+    "angularCompilerOptions": {
+        "enableI18nLegacyMessageIdFormat": false,
+        "strictInjectionParameters": true,
+        "strictInputAccessModifiers": true,
+        "typeCheckHostBindings": true,
+        "strictTemplates": true
+    },
     "exclude": ["node_modules", "tmp"]
 }

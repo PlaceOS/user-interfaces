@@ -16,7 +16,7 @@ import { BookingFormService } from '../booking-form.service';
     template: `
         <section
             filters
-            class="sticky -top-1 z-20 -mx-1 !mb-4 flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded border border-base-300 bg-base-100 p-1 !pr-10 sm:!pr-1"
+            class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
             @if (location) {
                 <div filter-item zone>
@@ -29,12 +29,6 @@ import { BookingFormService } from '../booking-form.service';
             <div filter-item time>
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
-            </div>
-            <div filter-item count>
-                {{
-                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (options | async)?.capcaity || 2 }
-                }}
             </div>
             @for (feat of (options | async)?.features; track feat) {
                 <div filter-item>

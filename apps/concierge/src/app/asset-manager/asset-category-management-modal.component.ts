@@ -16,7 +16,7 @@ import { Observable } from 'rxjs';
     selector: 'asset-category-management-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate }}
@@ -25,11 +25,11 @@ import { Observable } from 'rxjs';
                 <icon>close</icon>
             </button>
         </header>
-        <main class="h-[32rem] max-h-[65vh] min-w-[28rem]">
+        <main class="h-128 max-h-[65vh] min-w-md">
             @for (category of list | async; track category) {
                 @if (category.id) {
                     <div
-                        class="hover:bg-base-200:bg-base-300 m-2 flex items-center space-x-2 rounded border border-base-200 p-2"
+                        class="hover:bg-base-200:bg-base-300 border-base-200 m-2 flex items-center space-x-2 rounded-sm border p-2"
                     >
                         <div class="flex-1 truncate px-2">
                             {{ category.name }}
@@ -40,7 +40,7 @@ import { Observable } from 'rxjs';
                             [matTooltip]="
                                 'APP.CONCIERGE.ASSETS_CATEGORY_EDIT' | translate
                             "
-                            class="h-12 w-12 rounded border border-secondary text-secondary"
+                            class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                             (click)="edit(category)"
                         >
                             <icon>edit</icon>
@@ -52,7 +52,7 @@ import { Observable } from 'rxjs';
                                 'APP.CONCIERGE.ASSETS_CATEGORY_REMOVE'
                                     | translate
                             "
-                            class="h-12 w-12 rounded border border-error text-error"
+                            class="border-error text-error h-12 w-12 rounded-sm border"
                             (click)="remove(category)"
                         >
                             <icon>delete</icon>

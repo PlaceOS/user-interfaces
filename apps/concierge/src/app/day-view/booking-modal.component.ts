@@ -42,7 +42,7 @@ export interface BookingModalData {
         </main>
         @if (!(loading | async)) {
             <footer
-                class="flex items-center justify-center border-t border-base-200 p-2"
+                class="border-base-200 flex items-center justify-center border-t p-2"
             >
                 <button btn matRipple class="w-32" (click)="save()">
                     Save

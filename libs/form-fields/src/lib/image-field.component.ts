@@ -25,7 +25,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
 @Component({
     selector: 'image-field',
     template: `
-        <button matRipple class="relative h-48 w-full rounded-xl bg-base-200">
+        <button matRipple class="bg-base-200 relative h-48 w-full rounded-xl">
             <input
                 #file_input
                 type="file"
@@ -44,12 +44,12 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                     matRipple
                     matTooltip="Clear Image"
                     matTooltipPosition="left"
-                    class="absolute right-2 top-2 z-20 rounded-full border border-base-300 bg-base-100"
+                    class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
                 >
                     <icon>close</icon>
                 </button>
                 <div
-                    class="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full border border-base-300 bg-base-100"
+                    class="border-base-300 bg-base-100 absolute top-1/2 left-2 z-20 -translate-y-1/2 rounded-full border"
                 >
                     <button
                         icon
@@ -81,7 +81,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 </div>
             } @else {
                 <div
-                    class="flex h-full w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-300"
+                    class="border-base-300 flex h-full w-full flex-col items-center justify-center rounded-xl border-2 border-dashed"
                 >
                     <h3 class="mb-2 text-lg font-medium">
                         {{ 'COMMON.UPLOAD_IMAGE' | translate }}

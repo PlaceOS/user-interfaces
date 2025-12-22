@@ -6,7 +6,7 @@ import { TranslatePipe } from '@placeos/components';
 @Component({
     selector: 'code-flow-success',
     template: `
-        <div class="absolute inset-0 z-50 flex flex-col bg-base-100">
+        <div class="bg-base-100 absolute inset-0 z-50 flex flex-col">
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
@@ -14,21 +14,16 @@ import { TranslatePipe } from '@placeos/components';
                     {{ 'APP.WORKPLACE.RESOURCE_CHECKED_IN' | translate }}
                 </h2>
                 <img src="assets/icons/success.svg" />
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     {{
                         'APP.WORKPLACE.RESOURCE_CHECKED_IN_MESSAGE' | translate
                     }}
                 </p>
             </main>
             <footer
-                class="mt-4 flex w-full items-center justify-center border-t border-base-200 p-2"
+                class="border-base-200 mt-4 flex w-full items-center justify-center border-t p-2"
             >
-                <a
-                    btn
-                    matRipple
-                    class="w-full max-w-[32rem]"
-                    [routerLink]="['/']"
-                >
+                <a btn matRipple class="w-full max-w-lg" [routerLink]="['/']">
                     {{ 'COMMON.CONTINUE' | translate }}
                 </a>
             </footer>

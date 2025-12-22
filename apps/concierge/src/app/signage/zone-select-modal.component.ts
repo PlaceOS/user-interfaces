@@ -22,7 +22,7 @@ import {
     selector: 'app-zone-select-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ZONE_SELECT_HEADER' | translate }}
@@ -32,11 +32,11 @@ import {
             </button>
         </header>
         <main
-            class="h-[65vh] min-w-[32rem] max-w-lg space-y-2 overflow-auto px-4 pb-4 pt-2 text-center"
+            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center"
         >
             <mat-form-field
                 appearance="outline"
-                class="no-subscript sticky top-0 z-10 w-full bg-base-100"
+                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
             >
                 <input
                     matInput
@@ -49,7 +49,7 @@ import {
             @if (zone_list.length > 0) {
                 <button
                     matRipple
-                    class="z-0 flex h-16 w-full items-center justify-center space-x-2 rounded border border-base-300 p-2 text-left hover:bg-base-200"
+                    class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border p-2 text-left"
                     *ngFor="let zone of zone_list"
                     [mat-dialog-close]="zone.id"
                 >
@@ -61,7 +61,7 @@ import {
                     </div>
                     @for (tag of zone.tags | slice: 0 : 3; track $index) {
                         <div
-                            class="rounded-lg bg-info px-2 py-1 font-mono text-[0.625rem] text-info-content"
+                            class="bg-info text-info-content rounded-lg px-2 py-1 font-mono text-[0.625rem]"
                         >
                             {{ tag }}
                         </div>
@@ -69,7 +69,7 @@ import {
                 </button>
             } @else {
                 <div
-                    class="flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg bg-base-200 p-16"
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
                     <icon class="text-8xl opacity-30">layers_clear</icon>
                     <div class="opacity-30">No zones found</div>

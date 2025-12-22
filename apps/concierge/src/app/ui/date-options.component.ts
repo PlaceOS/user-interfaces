@@ -9,6 +9,7 @@ import {
     model,
     output,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
@@ -34,7 +35,7 @@ import {
             <button
                 icon
                 matRipple
-                class="relative rounded"
+                class="relative rounded-sm"
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
@@ -47,7 +48,7 @@ import {
         <button
             icon
             matRipple
-            class="rounded hover:bg-base-200"
+            class="hover:bg-base-200 rounded-sm"
             (click)="previousDay()"
         >
             <icon>keyboard_arrow_left</icon>
@@ -56,7 +57,7 @@ import {
             <button
                 icon
                 matRipple
-                class="rounded hover:bg-base-200"
+                class="hover:bg-base-200 rounded-sm"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -65,11 +66,11 @@ import {
         <button
             matRipple
             (dblclick)="setDate()"
-            class="display relative mx-4 flex h-12 w-28 items-center justify-center rounded leading-none hover:bg-base-200"
+            class="display hover:bg-base-200 relative mx-4 flex h-12 w-28 items-center justify-center rounded-sm leading-none"
         >
             @if (is_today) {
                 <div
-                    class="absolute left-1/2 top-1 -translate-x-1/2 text-xs text-info"
+                    class="text-info absolute top-1 left-1/2 -translate-x-1/2 text-xs"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
@@ -82,7 +83,7 @@ import {
             <button
                 icon
                 matRipple
-                class="rounded hover:bg-base-200"
+                class="hover:bg-base-200 rounded-sm"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -92,7 +93,7 @@ import {
             <button
                 icon
                 matRipple
-                class="relative rounded border border-base-200"
+                class="border-base-200 relative rounded-sm border"
                 customTooltip
                 [content]="calendar_picker"
                 yPosition="top"
@@ -103,7 +104,7 @@ import {
             </button>
         }
         <ng-template #calendar_picker>
-            <div class="relative w-[19rem] rounded bg-base-100 px-2 py-4">
+            <div class="bg-base-100 relative w-76 rounded-sm px-2 py-4">
                 <date-calendar
                     [ngModel]="date()"
                     [offset_weekday]="week_start()"
@@ -127,6 +128,7 @@ import {
     ],
     imports: [
         CommonModule,
+        FormsModule,
         MatRippleModule,
         TranslatePipe,
         CustomTooltipComponent,

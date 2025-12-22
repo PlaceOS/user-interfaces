@@ -28,7 +28,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -195,7 +199,7 @@ import { DesksStateService } from './desks-state.service';
                             icon
                             matRipple
                             [matTooltip]="'COMMON.REFRESH' | translate"
-                            class="ml-2 rounded border border-base-200"
+                            class="border-base-200 ml-2 rounded-sm border"
                             (click)="refresh()"
                             [disabled]="loading()"
                         >
@@ -208,7 +212,7 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
-                            class="ml-2 rounded border border-base-200"
+                            class="border-base-200 ml-2 rounded-sm border"
                             (click)="rejectAll()"
                             [disabled]="loading()"
                         >
@@ -220,7 +224,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_VIEW_QR_CODE_LIST'
                                     | translate
@@ -233,7 +237,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_UPLOAD' | translate
                             "
@@ -242,14 +246,14 @@ import { DesksStateService } from './desks-state.service';
                             <input
                                 type="file"
                                 class="absolute inset-0 opacity-0"
-                                (change)="loadCSVData($event)"
+                                (change)="loadCSVData($any($event))"
                             />
                         </button>
                         <button
                             btn
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="downloadTemplate()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_LIST_DOWNLOAD' | translate
@@ -260,7 +264,7 @@ import { DesksStateService } from './desks-state.service';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                             (click)="manageRestrictions()"
                             [matTooltip]="
                                 'APP.CONCIERGE.DESKS_BOOKING_RULES' | translate
@@ -309,6 +313,7 @@ import { DesksStateService } from './desks-state.service';
         ApplicationTopbarComponent,
         SearchbarComponent,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {

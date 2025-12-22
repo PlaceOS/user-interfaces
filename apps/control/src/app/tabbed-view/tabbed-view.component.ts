@@ -27,10 +27,10 @@ import { TabOutletComponent } from './tab-outlet.component';
         @if (system()?.connected) {
             @if (system()?.active) {
                 <div
-                    class="divide relative flex h-full w-full flex-col divide-base-200 bg-base-100"
+                    class="divide divide-base-200 bg-base-100 relative flex h-full w-full flex-col"
                 >
                     <topbar-header></topbar-header>
-                    <div class="h-1/2 flex-1 bg-base-200" tab-outlet></div>
+                    <div class="bg-base-200 h-1/2 flex-1" tab-outlet></div>
                     <control-status-bar></control-status-bar>
                 </div>
             } @else {
@@ -59,7 +59,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                             ({{ version.time | date: 'shortTime' }})
                         </div>
                     </div>
-                    <div class="absolute bottom-4 right-4">
+                    <div class="absolute right-4 bottom-4">
                         <voice-assistant
                             [system_id]="id"
                             [enabled]="system()?.voice_control"
@@ -70,9 +70,9 @@ import { TabOutletComponent } from './tab-outlet.component';
             @if (!join_status()[0] && join_status()[1]) {
                 <div
                     lockout
-                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 p-16"
+                    class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16"
                 >
-                    <div class="absolute left-4 top-4 z-0">
+                    <div class="absolute top-4 left-4 z-0">
                         <img
                             auth
                             class="h-10"
@@ -80,10 +80,10 @@ import { TabOutletComponent } from './tab-outlet.component';
                             [source]="logo()?.src || logo()"
                         />
                     </div>
-                    <icon class="relative z-10 text-8xl text-base-content"
+                    <icon class="text-base-content relative z-10 text-8xl"
                         >lock</icon
                     >
-                    <p class="relative z-10 text-2xl text-base-content">
+                    <p class="text-base-content relative z-10 text-2xl">
                         {{ 'APP.CONTROL.ROOMS_JOINED' | translate }}
                     </p>
                 </div>
@@ -91,7 +91,7 @@ import { TabOutletComponent } from './tab-outlet.component';
         } @else {
             <div
                 name="loader"
-                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-black"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center text-black"
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="my-4 text-2xl">

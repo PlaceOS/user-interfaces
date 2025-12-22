@@ -10,7 +10,7 @@ import { AssetsReportService } from './assets-report.service';
     selector: 'asset-report-overall',
     template: `
         <div
-            class="m-4 flex items-center justify-center space-x-2 rounded border border-base-200 bg-base-100 p-4"
+            class="border-base-200 bg-base-100 m-4 flex items-center justify-center space-x-2 rounded-sm border p-4"
         >
             <div class="flex flex-1 flex-col items-center">
                 <h3 class="text-sm">

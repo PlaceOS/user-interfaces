@@ -29,19 +29,19 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 [src]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <img
                 src="assets/img/building.png"
-                class="absolute bottom-0 right-0 w-[60%]"
+                class="absolute right-0 bottom-0 w-[60%]"
             />
             @if (!loading) {
                 <div
-                    class="absolute left-4 top-1/2 max-h-[80vh] w-[32rem] max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded bg-base-100 shadow"
+                    class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
                     [formGroup]="form"
                 >
                     <div
-                        class="sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+                        class="bg-base-200 sticky top-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
                     >
                         <h3 class="px-2 text-lg font-medium">
                             {{ 'APP.VISITOR_KIOSK.REGISTRATION' | translate }}
@@ -152,7 +152,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         }
                     </div>
                     <div
-                        class="sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded border-none bg-base-200 p-2"
+                        class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
                     >
                         <button btn matRipple class="w-40" (click)="register()">
                             {{ 'APP.VISITOR_KIOSK.REGISTER' | translate }}
@@ -161,13 +161,13 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 </div>
             } @else {
                 <div
-                    class="absolute left-4 top-1/2 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded bg-base-100 p-16 shadow"
+                    class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ 'APP.VISITOR_KIOSK.REGISTERING' | translate }}</p>
                 </div>
             }
-            <div class="absolute right-4 top-4 text-2xl text-white">
+            <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
         </div>

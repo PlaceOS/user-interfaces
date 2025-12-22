@@ -28,6 +28,7 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -86,7 +87,6 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <mat-option
                             *ngFor="let b of buildings$ | async"
                             [value]="b.id"
-                            (click)="onBuildingClick(b)"
                             >{{ b.display_name || b.name }}</mat-option
                         >
                     </mat-select>
@@ -151,11 +151,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
             </div>
             <div
                 view-select
-                class="flex w-full items-center space-x-2 rounded bg-base-200 p-2"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm p-2"
             >
                 <button
                     matRipple
-                    class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
+                    class="hover:bg-base-300 flex h-10 flex-1 items-center justify-center rounded-sm"
                     [class.bg-secondary]="view() === 'builder'"
                     [class.text-secondary-content]="view() === 'builder'"
                     (click)="view.set('builder')"
@@ -164,7 +164,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 </button>
                 <button
                     matRipple
-                    class="flex h-10 flex-1 items-center justify-center rounded hover:bg-base-300"
+                    class="hover:bg-base-300 flex h-10 flex-1 items-center justify-center rounded-sm"
                     [class.bg-secondary]="view() === 'preview'"
                     [class.text-secondary-content]="view() === 'preview'"
                     (click)="view.set('preview')"
@@ -176,7 +176,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         @if (view() === 'builder') {
             <div
                 builder
-                class="flex h-px w-full flex-1 space-x-2 bg-base-200 px-8 py-2"
+                class="bg-base-200 flex h-px w-full flex-1 space-x-2 px-8 py-2"
             >
                 <div
                     pages
@@ -185,7 +185,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 >
                     <div class="flex items-center space-x-2">
                         <div
-                            class="relative h-[calc(3rem+2px)] flex-1 overflow-hidden rounded border border-base-300 bg-base-100"
+                            class="border-base-300 bg-base-100 relative h-[calc(3rem+2px)] flex-1 overflow-hidden rounded-sm border"
                         >
                             <mat-tab-group
                                 [selectedIndex]="active_page()"
@@ -208,7 +208,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-base-300 bg-base-100"
+                            class="border-base-300 bg-base-100 h-12 w-12 rounded-sm border"
                             matTooltip="Add Page"
                             (click)="addPage()"
                         >
@@ -218,7 +218,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     <div class="flex items-center space-x-2">
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript w-1/2 flex-1 rounded bg-base-100"
+                            class="no-subscript bg-base-100 w-1/2 flex-1 rounded-sm"
                         >
                             <input
                                 matInput
@@ -230,7 +230,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-base-300 bg-base-100 text-error"
+                                class="border-base-300 bg-base-100 text-error h-12 w-12 rounded-sm border"
                                 matTooltip="Remove Page"
                                 (click)="removePage()"
                             >
@@ -252,19 +252,18 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 track q_id;
                                 let idx = $index
                             ) {
-                                @let quest =
-                                    q_id | question: questions().length;
+                                @let quest = q_id | question;
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
-                                            class="border-3 h-20 w-full rounded-lg border-dashed border-base-content bg-base-300 opacity-50"
+                                            class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-50"
                                             *cdkDragPlaceholder
                                         ></div>
                                         <div
                                             class="relative left-px z-10 flex flex-col items-center space-y-1"
                                         >
                                             <div
-                                                class="relative left-px flex h-10 w-10 items-center justify-center rounded-l border-y border-l border-base-400 bg-base-100 p-2 font-mono"
+                                                class="border-base-400 bg-base-100 relative left-px flex h-10 w-10 items-center justify-center rounded-l border-y border-l p-2 font-mono"
                                             >
                                                 {{ idx + 1 }}
                                             </div>
@@ -272,7 +271,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                                 icon
                                                 matRipple
                                                 cdkDragHandle
-                                                class="cursor-grab rounded-l rounded-r-none border-y border-l border-base-400 bg-base-100"
+                                                class="border-base-400 bg-base-100 cursor-grab rounded-l rounded-r-none border-y border-l"
                                                 matTooltip="Reorder Question"
                                             >
                                                 <icon class="text-xl"
@@ -282,7 +281,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                             <button
                                                 icon
                                                 matRipple
-                                                class="rounded-l rounded-r-none border-y border-l border-base-400 bg-base-100 text-error"
+                                                class="border-base-400 bg-base-100 text-error rounded-l rounded-r-none border-y border-l"
                                                 matTooltip="Remove Question"
                                                 (click)="
                                                     removePageQuestion(idx)
@@ -318,11 +317,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                 </div>
                 <div
                     questions
-                    class="h-full w-[20rem] space-y-2 overflow-auto rounded border border-base-300 bg-base-100 pb-2 shadow"
+                    class="border-base-300 bg-base-100 h-full w-[20rem] space-y-2 overflow-auto rounded-sm border pb-2 shadow-sm"
                 >
-                    <div class="sticky top-0 z-10 bg-base-100">
+                    <div class="bg-base-100 sticky top-0 z-10">
                         <div
-                            class="flex items-center justify-between border-b border-base-200 px-2 py-1"
+                            class="border-base-200 flex items-center justify-between border-b px-2 py-1"
                         >
                             <h3 class="px-2 font-medium">
                                 {{
@@ -340,7 +339,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             </button>
                         </div>
                         <div
-                            class="flex items-center justify-between space-x-2 border-b border-base-200 p-2"
+                            class="border-base-200 flex items-center justify-between space-x-2 border-b p-2"
                         >
                             <mat-form-field
                                 class="no-subscript flex-1"
@@ -397,22 +396,22 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             track question.id
                         ) {
                             <div
-                                class="relative flex w-full items-center rounded border border-base-200 bg-base-200"
+                                class="border-base-200 bg-base-200 relative flex w-full items-center rounded-sm border"
                                 cdkDrag
                             >
                                 <div
-                                    class="border-3 h-20 w-full rounded-lg border-dashed border-base-content bg-base-300 opacity-50"
+                                    class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-50"
                                     *cdkDragPlaceholder
                                 ></div>
                                 <button
                                     cdkDragHandle
-                                    class="flex h-20 h-full flex-col justify-center rounded bg-base-200 p-1 hover:cursor-move"
+                                    class="bg-base-200 flex h-20 h-full flex-col justify-center rounded-sm p-1 hover:cursor-move"
                                     matRipple
                                     matTooltip="Drag Question onto page"
                                 >
                                     <icon>drag_indicator</icon>
                                 </button>
-                                <div class="flex-1 bg-base-100 py-2 pl-4 pr-12">
+                                <div class="bg-base-100 flex-1 py-2 pr-12 pl-4">
                                     <div>{{ question.title }}</div>
                                     <div class="text-sm opacity-40">
                                         {{ question_types[question.type] }}
@@ -421,7 +420,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 <button
                                     icon
                                     matRipple
-                                    class="absolute right-1 top-1"
+                                    class="absolute top-1 right-1"
                                     [matMenuTriggerFor]="actionsMenu"
                                 >
                                     <icon>more_vert</icon>
@@ -429,7 +428,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 <mat-menu #actionsMenu="matMenu">
                                     <button
                                         mat-menu-item
-                                        (click)="duplicateQuestion(q)"
+                                        (click)="duplicateQuestion(question)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -447,7 +446,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     </button>
                                     <button
                                         mat-menu-item
-                                        (click)="editQuestion(q)"
+                                        (click)="editQuestion(question)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
@@ -460,12 +459,12 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     </button>
                                     <button
                                         mat-menu-item
-                                        (click)="removeQuestion(q)"
+                                        (click)="removeQuestion(question)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
                                         >
-                                            <icon class="text-xl text-error"
+                                            <icon class="text-error text-xl"
                                                 >delete</icon
                                             >
                                             <div>
@@ -484,7 +483,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         } @else {
             <div preview class="h-px w-full flex-1">
                 <survey-outlet
-                    [survey]="form.value"
+                    [survey]="$any(form.value)"
                     [preview]="true"
                 ></survey-outlet>
             </div>
@@ -520,6 +519,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         MatInputModule,
         MatSelectModule,
         MatTooltipModule,
+        MatProgressSpinnerModule,
         IconComponent,
         TranslatePipe,
         SurveyOutletComponent,

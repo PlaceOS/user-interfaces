@@ -4,10 +4,10 @@ import { IconComponent } from '@placeos/components';
 @Component({
     selector: 'facilities-status',
     template: `
-        <div class="w-full flex-1 rounded-lg bg-base-100 p-6 shadow-sm">
-            <h3 class="mb-4 mt-0">People Count</h3>
+        <div class="bg-base-100 w-full flex-1 rounded-lg p-6 shadow-xs">
+            <h3 class="mt-0 mb-4">People Count</h3>
             <div
-                class="mb-2 flex w-full items-center rounded-lg border border-base-200"
+                class="border-base-200 mb-2 flex w-full items-center rounded-lg border"
             >
                 <div name="status" class="rounded-full">
                     <icon>account_circle</icon>
@@ -19,11 +19,11 @@ import { IconComponent } from '@placeos/components';
             </div>
             <div class="text-bold mr-4 text-right">Total: {{ total || 0 }}</div>
         </div>
-        <div class="w-full rounded bg-base-100 p-6 shadow-sm">
-            <h3 class="mb-2 mt-0">Mood</h3>
+        <div class="bg-base-100 w-full rounded-sm p-6 shadow-xs">
+            <h3 class="mt-0 mb-2">Mood</h3>
             <div
                 name="mood"
-                class="flex w-full items-center overflow-hidden rounded-lg border border-base-200"
+                class="border-base-200 flex w-full items-center overflow-hidden rounded-lg border"
             >
                 <icon
                     class="bg-light px-1 text-2xl"

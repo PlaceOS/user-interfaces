@@ -1,10 +1,13 @@
 import {
     Component,
+    ElementRef,
     inject,
     input,
     OnChanges,
+    OnDestroy,
     OnInit,
     SimpleChanges,
+    viewChild,
 } from '@angular/core';
 import { ReportsStateService } from '../reports-state.service';
 
@@ -15,9 +18,32 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { LineChart, PieChart } from 'chartist';
+import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    PieController,
+    ArcElement,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
+
+Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    PieController,
+    ArcElement,
+    Tooltip,
+    Legend,
+);
 
 @Component({
     selector: 'report-spaces-charts',
@@ -28,26 +54,24 @@ import { combineLatest } from 'rxjs';
             (window:resize)="updateCharts()"
         >
             <div
-                class="h-[18rem] flex-1 rounded border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_DAILY_HEADER' | translate }}
                 </div>
-                <div
-                    id="daily-chart"
-                    class="ct-chart ct-octave mx-auto h-56 w-full max-w-full"
-                ></div>
+                <div class="mx-auto h-56 w-full max-w-full p-2">
+                    <canvas #dailyChart></canvas>
+                </div>
             </div>
             <div
-                class="h-[18rem] flex-1 rounded border border-base-200 bg-base-100"
+                class="border-base-200 bg-base-100 h-72 flex-1 rounded-sm border"
             >
-                <div class="border-b border-base-200 p-4 text-xl font-bold">
+                <div class="border-base-200 border-b p-4 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_LEVEL_UTIL_HEADER' | translate }}
                 </div>
-                <div
-                    id="level-chart"
-                    class="ct-chart ct-octave mx-auto h-56 w-[24rem] max-w-full"
-                ></div>
+                <div class="mx-auto h-56 w-[24rem] max-w-full p-2">
+                    <canvas #levelChart></canvas>
+                </div>
             </div>
         </div>
     `,
@@ -57,7 +81,7 @@ import { combineLatest } from 'rxjs';
                 display: block;
             }
 
-            .is-print .ct-chart {
+            .is-print canvas {
                 width: 8cm !important;
             }
         `,
@@ -66,7 +90,7 @@ import { combineLatest } from 'rxjs';
 })
 export class ReportSpacesChartsComponent
     extends AsyncHandler
-    implements OnInit, OnChanges
+    implements OnInit, OnChanges, OnDestroy
 {
     private _state = inject(ReportsStateService);
     private _org = inject(OrganisationService);
@@ -79,8 +103,12 @@ export class ReportSpacesChartsComponent
         this._state.counts,
     ]);
 
-    private _day_chart: any;
-    private _level_chart: any;
+    private _daily_chart_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');
+    private _level_chart_el =
+        viewChild<ElementRef<HTMLCanvasElement>>('levelChart');
+    private _day_chart: Chart | null = null;
+    private _level_chart: Chart | null = null;
 
     public ngOnInit() {
         this.subscription(
@@ -100,6 +128,12 @@ export class ReportSpacesChartsComponent
         }
     }
 
+    public override ngOnDestroy() {
+        super.ngOnDestroy();
+        this._day_chart?.destroy();
+        this._level_chart?.destroy();
+    }
+
     public updateCharts() {
         this.timeout(
             'update_charts',
@@ -108,25 +142,48 @@ export class ReportSpacesChartsComponent
                 this.updateDailyChart(day_list);
                 const [mappings, counts] = await nextValueFrom(this.stats);
                 this.updateLevelChart(mappings, counts);
-                this.timeout(
-                    'update_charts',
-                    () => this.updateDailyChart(day_list),
-                    500,
-                );
             },
             50,
         );
     }
 
     public updateDailyChart(list) {
-        const data = {
-            labels: list.map((_) => format(_.date, 'dd MMM')),
-            series: [list.map((_) => +_.utilisation)],
-        };
-        this._day_chart = new LineChart('#daily-chart', data);
+        const el = this._daily_chart_el()?.nativeElement;
+        if (!el) return;
+        this._day_chart?.destroy();
+        this._day_chart = new Chart(el, {
+            type: 'line',
+            data: {
+                labels: list.map((_) => format(_.date, 'dd MMM')),
+                datasets: [
+                    {
+                        data: list.map((_) => +_.utilisation),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: this.print() ? false : undefined,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+            },
+        });
     }
 
     public updateLevelChart(mapping, count) {
+        const el = this._level_chart_el()?.nativeElement;
+        if (!el) return;
         let { zones } = mapping || { zones: [] };
         if (!zones.length) {
             zones = this._settings.get('app.use_region')
@@ -134,13 +191,42 @@ export class ReportSpacesChartsComponent
                 : this._org.levelsForBuilding().map((_) => _.id);
         }
         const zone_list = (zones || []).filter((_) => (count[_] || 0) > 0);
-        const data = {
-            labels: zone_list.map((_) => {
-                const level = this._org.levelWithID([_]);
-                return level?.display_name || level.name || '';
-            }),
-            series: zone_list.map((_) => count[_] || 0),
-        };
-        this._level_chart = new PieChart('#level-chart', data);
+        const labels = zone_list.map((_) => {
+            const level = this._org.levelWithID([_]);
+            return level?.display_name || level.name || '';
+        });
+        const data = zone_list.map((_) => count[_] || 0);
+        this._level_chart?.destroy();
+        this._level_chart = new Chart(el, {
+            type: 'pie',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        data,
+                        backgroundColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)',
+                            'rgb(239, 68, 68)',
+                            'rgb(139, 92, 246)',
+                            'rgb(236, 72, 153)',
+                            'rgb(20, 184, 166)',
+                            'rgb(249, 115, 22)',
+                        ],
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: this.print() ? false : undefined,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                },
+            },
+        });
     }
 }

@@ -35,9 +35,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     selector: `deals-manage`,
     template: `
         @if (!loading()) {
-            <div class="absolute inset-0 overflow-auto bg-base-100">
+            <div class="bg-base-100 absolute inset-0 overflow-auto">
                 <header
-                    class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium">
                         {{
@@ -54,7 +54,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     }
                 </header>
                 <form
-                    class="mx-auto my-2 flex w-[40rem] max-w-full flex-col px-4 pb-16"
+                    class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                     [formGroup]="form"
                 >
                     <label for="name"
@@ -157,7 +157,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </form>
                 @if (!loading()) {
                     <footer
-                        class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                        class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none px-4 py-2"
                     >
                         <button btn matRipple class="w-32" (click)="save()">
                             {{ 'COMMON.SAVE' | translate }}
@@ -167,7 +167,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </div>
         } @else {
             <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-base-100"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner diameter="48"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.DEALS_SAVING' | translate }}</p>

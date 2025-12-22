@@ -26,9 +26,9 @@ import { DesksStateService } from './desks-state.service';
                 [actions]="actions()"
             ></interactive-map>
             <explore-zoom-controls
-                class="absolute bottom-2 right-2"
+                class="absolute right-2 bottom-2"
             ></explore-zoom-controls>
-            <div class="absolute left-0 top-0 p-2 text-black">
+            <div class="absolute top-0 left-0 p-2 text-black">
                 <a-user-search-field
                     [ngModel]="null"
                     (ngModelChange)="setHost($event)"
@@ -38,7 +38,7 @@ import { DesksStateService } from './desks-state.service';
             </div>
             <div
                 info
-                class="absolute bottom-0 m-2 rounded bg-base-100 p-2 text-center shadow"
+                class="bg-base-100 absolute bottom-0 m-2 rounded-sm p-2 text-center shadow-sm"
             >
                 Click or Tap an available desk to book it.
             </div>

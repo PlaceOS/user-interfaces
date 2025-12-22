@@ -38,7 +38,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         @if (!loading() && (item | async)) {
             <div class="flex h-full w-full flex-col">
                 <div
-                    class="flex w-full space-x-2 bg-base-100 pb-4 pl-4 pr-8 pt-8"
+                    class="bg-base-100 flex w-full space-x-2 pt-8 pr-8 pb-4 pl-4"
                 >
                     <a
                         icon
@@ -74,7 +74,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         btn
                         matRipple
                         customTooltip
-                        class="h-12 w-32 border-error bg-base-100 text-error"
+                        class="border-error bg-base-100 text-error h-12 w-32"
                         [content]="delete_tooltip"
                     >
                         <div class="flex items-center space-x-2">
@@ -87,14 +87,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
                 <div class="mb-4 flex items-center space-x-4 px-8">
                     <div
-                        class="h-64 w-[24rem] flex-1 overflow-hidden rounded-xl bg-base-200"
+                        class="bg-base-200 h-64 w-[24rem] flex-1 overflow-hidden rounded-xl"
                     >
                         <image-carousel
                             [images]="(item | async)?.images || []"
                         ></image-carousel>
                     </div>
                     <div
-                        class="flex h-64 w-1/2 flex-1 flex-col space-y-4 rounded-lg border border-base-300 p-4"
+                        class="border-base-300 flex h-64 w-1/2 flex-1 flex-col space-y-4 rounded-lg border p-4"
                     >
                         <div class="h-1/2 w-full flex-1 overflow-auto">
                             @if ((item | async)?.description) {
@@ -109,7 +109,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             }
                         </div>
                         <div
-                            class="w-full divide-y divide-base-200 rounded border border-base-200 bg-base-100"
+                            class="divide-base-200 border-base-200 bg-base-100 w-full divide-y rounded-sm border"
                         >
                             <div
                                 class="flex h-16 items-center justify-between p-2"
@@ -220,7 +220,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 </a>
                             </div>
                             <simple-table
-                                class="block min-w-[40rem] text-sm"
+                                class="block min-w-160 text-sm"
                                 [data]="asset_list"
                                 [columns]="[
                                     {
@@ -308,10 +308,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </h3>
                             <div
                                 data-table
-                                class="border border-base-200 bg-base-100"
+                                class="border-base-200 bg-base-100 border"
                             >
                                 <div
-                                    class="flex items-center justify-between p-2 even:bg-base-200"
+                                    class="even:bg-base-200 flex items-center justify-between p-2"
                                 >
                                     <div
                                         class="w-32 flex-1 text-sm font-medium"
@@ -352,7 +352,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 }}
                             </a>
                             <simple-table
-                                class="block min-w-[40rem] text-sm"
+                                class="block min-w-160 text-sm"
                                 asset-purchases
                                 [data]="(item | async)?.purchase_orders"
                                 [columns]="[
@@ -449,7 +449,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         </ng-template>
         <ng-template #delete_tooltip>
             @if (!deleting()) {
-                <div class="my-2 w-[18rem] rounded bg-base-100 p-4 text-center">
+                <div
+                    class="bg-base-100 my-2 w-[18rem] rounded-sm p-4 text-center"
+                >
                     <p>
                         {{ 'APP.CONCIERGE.ASSETS_ITEM_DELETE_MSG' | translate }}
                     </p>
@@ -477,7 +479,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             } @else {
                 <div
-                    class="my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded bg-base-100 p-4"
+                    class="bg-base-100 my-2 flex h-36 w-64 flex-col items-center justify-center space-y-2 rounded-sm p-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                     <p>
@@ -508,6 +510,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatTooltipModule,
         ImageCarouselComponent,
         IconComponent,
+        CustomTooltipComponent,
     ],
 })
 export class AssetViewComponent extends AsyncHandler implements OnInit {

@@ -16,7 +16,7 @@ import { CheckinStateService } from './checkin-state.service';
         @if ((form | async) && !loading) {
             <form
                 [formGroup]="form | async"
-                class="relative flex w-[36rem] flex-col items-center overflow-hidden rounded bg-base-100 p-4 shadow"
+                class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
                 <div field class="flex flex-col">
@@ -122,7 +122,7 @@ import { CheckinStateService } from './checkin-state.service';
                 <a
                     icon
                     matRipple
-                    class="absolute right-0 top-0"
+                    class="absolute top-0 right-0"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -133,7 +133,7 @@ import { CheckinStateService } from './checkin-state.service';
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex flex-col items-center space-y-2 rounded bg-base-100 p-16 shadow"
+                    class="bg-base-100 flex flex-col items-center space-y-2 rounded-sm p-16 shadow-sm"
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">

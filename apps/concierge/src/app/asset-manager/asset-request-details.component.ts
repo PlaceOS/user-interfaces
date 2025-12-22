@@ -3,7 +3,13 @@ import { Component, inject, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
+import {
+    DurationPipe,
+    IconComponent,
+    LevelPipe,
+    TranslatePipe,
+    UserAvatarComponent,
+} from '@placeos/components';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { SplitJoinPipe } from './split-join.pipe';
 
@@ -17,7 +23,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             >
                 <div class="absolute inset-0 bg-black opacity-50"></div>
                 <div
-                    class="absolute inset-y-0 right-0 w-[480px] bg-base-100"
+                    class="bg-base-100 absolute inset-y-0 right-0 w-[480px]"
                     (click)="$event.stopPropagation()"
                 >
                     <button
@@ -26,15 +32,15 @@ import { SplitJoinPipe } from './split-join.pipe';
                         (click)="
                             request.set(null); requestChange.emit(request())
                         "
-                        class="absolute right-1 top-1"
+                        class="absolute top-1 right-1"
                     >
                         <icon>close</icon>
                     </button>
                     <div
-                        class="flex space-x-4 border-b border-base-200 px-2 py-4"
+                        class="border-base-200 flex space-x-4 border-b px-2 py-4"
                     >
                         <a-user-avatar
-                            [user]="{ name: request().user_name }"
+                            [user]="$any({ name: request().user_name })"
                             class="text-xl"
                         ></a-user-avatar>
                         <div details class="space-y-1">
@@ -73,7 +79,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                     <div class="relative px-3 py-4">
                         <div class="flex items-center space-x-4">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
+                                class="bg-base-200 text-secondary flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 <icon class="text-sm">send</icon>
                             </div>
@@ -89,7 +95,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                 <div>
                                     {{ item.name }}
                                     <span
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                     >
                                         x{{ item.quantity }}
                                     </span>
@@ -98,7 +104,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
+                                class="bg-base-200 text-secondary flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 <icon class="text-sm">event</icon>
                             </div>
@@ -114,7 +120,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
+                                class="bg-base-200 text-secondary flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 <icon class="text-sm">schedule</icon>
                             </div>
@@ -132,7 +138,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
+                                class="bg-base-200 text-secondary flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 <icon class="text-sm">place</icon>
                             </div>
@@ -145,7 +151,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                         </div>
                         <div class="mt-4 flex items-center space-x-4">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200 text-secondary"
+                                class="bg-base-200 text-secondary flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 <icon class="text-sm">meeting_room</icon>
                             </div>
@@ -156,10 +162,10 @@ import { SplitJoinPipe } from './split-join.pipe';
                         <div class="mt-1 pl-10">
                             {{ request().description }}
                         </div>
-                        <div class="absolute right-4 top-4 text-sm">
+                        <div class="absolute top-4 right-4 text-sm">
                             <button
                                 matRipple
-                                class="mb-4 flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
+                                class="!bg-opacity-20 mb-4 flex w-full items-center space-x-2 rounded-3xl px-2 py-1 text-left"
                                 [class.bg-success]="
                                     request().status === 'approved'
                                 "
@@ -213,7 +219,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             </mat-menu>
                             <button
                                 matRipple
-                                class="flex w-full items-center rounded-none border border-base-200 bg-none px-2 py-1 text-left"
+                                class="border-base-200 flex w-full items-center rounded-none border bg-none px-2 py-1 text-left"
                                 [matMenuTriggerFor]="tracking_menu"
                                 [disabled]="loading"
                             >
@@ -269,6 +275,8 @@ import { SplitJoinPipe } from './split-join.pipe';
         MatRippleModule,
         IconComponent,
         LevelPipe,
+        UserAvatarComponent,
+        DurationPipe,
     ],
 })
 export class AssetRequestDetailsComponent {

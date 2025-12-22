@@ -11,7 +11,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filters',
     template: `
         <div
-            class="hidden rounded border border-base-200 bg-base-100 p-2 sm:block"
+            class="border-base-200 bg-base-100 hidden rounded-sm border p-2 sm:block"
         >
             <h3 class="mb-2 font-medium">
                 {{
@@ -24,7 +24,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('spaces')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.ROOMS' | translate }}
@@ -44,7 +44,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('desks')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.DESKS' | translate }}
@@ -64,7 +64,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('parking')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.PARKING' | translate }}
@@ -84,7 +84,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('visitor-invite')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.VISITORS' | translate }}
@@ -104,7 +104,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('lockers')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.LOCKERS' | translate }}
@@ -124,7 +124,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     hasFeature('group-events')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.EVENTS' | translate }}
@@ -159,7 +159,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('spaces')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <button
@@ -177,7 +177,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('desks')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.DESKS' | translate }}</div>
                     <button
@@ -195,7 +195,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('parking')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.PARKING' | translate }}</div>
                     <button
@@ -213,7 +213,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('visitor-invite')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.VISITORS' | translate }}</div>
                     <button
@@ -231,7 +231,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('lockers')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.LOCKERS' | translate }}</div>
                     <button
@@ -249,7 +249,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 hasFeature('group-events')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.EVENTS' | translate }}</div>
                     <button

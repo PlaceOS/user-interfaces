@@ -43,7 +43,7 @@ import { SignageStateService } from './signage-state.service';
                     }
                 </div>
                 <div class="px-8">
-                    <div class="overflow-hidden rounded bg-base-200">
+                    <div class="bg-base-200 overflow-hidden rounded-sm">
                         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
                             @for (link of links(); track link.id) {
                                 <a

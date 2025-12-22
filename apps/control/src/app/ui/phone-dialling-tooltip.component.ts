@@ -13,9 +13,9 @@ import { DialpadComponent } from './dialpad.component';
     selector: 'phone-dialling-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm"
         >
-            <mat-form-field appearance="outline" class="h-[3.25rem] w-full">
+            <mat-form-field appearance="outline" class="h-13 w-full">
                 <input
                     matInput
                     readonly

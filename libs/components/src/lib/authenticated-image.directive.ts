@@ -39,8 +39,10 @@ export class AuthenticatedImageDirective
         if (!this._element || !authority()) {
             return this.timeout('load', () => this._loadImage(), 300);
         }
+        const is_upload = source.includes('/api/engine/v2/uploads');
+        const is_thumbnail = source.includes('/api/engine/v2/signage/media');
         // If not an API call, just load the image
-        if (!source.includes('/api/engine/v2/uploads')) {
+        if (!is_upload && !is_thumbnail) {
             this._element.nativeElement.src = source;
             return;
         }
@@ -50,11 +52,14 @@ export class AuthenticatedImageDirective
             return;
         }
         const tkn = token();
+        const cookie_path = is_upload
+            ? '/api/engine/v2/uploads'
+            : '/api/engine/v2/signage';
         document.cookie = `${
             tkn === 'x-api-key'
                 ? 'api-key=' + encodeURIComponent(apiKey())
                 : 'bearer_token=' + encodeURIComponent(tkn)
-        };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
+        };max-age=30;path=${cookie_path};samesite=strict;${
             location.protocol === 'https:' ? 'secure;' : ''
         }`;
         let response = null;

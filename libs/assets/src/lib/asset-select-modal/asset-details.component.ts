@@ -10,7 +10,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
     selector: 'asset-details',
     template: `
         @if (item()) {
-            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
+            <section image class="bg-base-200 relative h-64 w-full sm:h-40">
                 <image-carousel
                     [images]="item().images"
                     class="absolute inset-0"
@@ -20,7 +20,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-200 sm:hidden"
+                    class="bg-base-200 absolute top-2 left-2 sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -29,9 +29,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     fav
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-200"
+                    class="bg-base-200 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -46,7 +46,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
-                        <h2 class="mb-2 mt-4 text-xl font-medium">
+                        <h2 class="mt-4 mb-2 text-xl font-medium">
                             {{ item().name }}
                         </h2>
                         <p>
@@ -77,7 +77,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     </div>
                 </section>
             </div>
-            <div class="border-t border-base-200 p-2 shadow sm:hidden">
+            <div class="border-base-200 border-t p-2 shadow-sm sm:hidden">
                 <button
                     btn
                     matRipple

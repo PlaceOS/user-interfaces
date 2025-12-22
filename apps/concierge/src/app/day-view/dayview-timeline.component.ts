@@ -20,16 +20,16 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
     selector: 'dayview-timeline',
     template: `
         <div class="absolute inset-0 flex">
-            <div class="time relative h-full w-24 overflow-hidden bg-base-100">
+            <div class="time bg-base-100 relative h-full w-24 overflow-hidden">
                 <div header class="relative z-50 h-16">
                     <div
-                        class="absolute bottom-8 left-0 right-0 top-0 bg-base-100"
+                        class="bg-base-100 absolute top-0 right-0 bottom-8 left-0"
                     ></div>
                 </div>
                 @for (time of blocks; track time) {
                     <div
                         change-transform
-                        class="relative z-10 h-16 border-r border-base-300"
+                        class="border-base-300 relative z-10 h-16 border-r"
                         [style.transform]="'translateY(-' + scroll.y + 'px)'"
                     >
                         <div
@@ -38,28 +38,28 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                             {{ time }}
                         </div>
                         <div
-                            class="absolute right-0 top-0 h-px w-2 bg-base-300"
+                            class="bg-base-300 absolute top-0 right-0 h-px w-2"
                         ></div>
                     </div>
                 }
-                <div class="absolute right-0 top-8 h-8 w-px bg-base-300"></div>
+                <div class="bg-base-300 absolute top-8 right-0 h-8 w-px"></div>
             </div>
             <div class="flex h-full w-1/2 flex-1 flex-col">
                 <div
                     header
-                    class="relative flex h-16 w-full overflow-hidden border-b border-base-300 border-opacity-50 bg-base-100"
+                    class="border-base-300 border-opacity-50 bg-base-100 relative flex h-16 w-full overflow-hidden border-b"
                 >
                     @for (space of space_list | async; track space) {
                         <div
                             change-transform
-                            class="relative h-16 w-48 min-w-[12rem]"
+                            class="relative h-16 w-48 min-w-48"
                             [style.transform]="
                                 'translateX(-' + scroll.x + 'px)'
                             "
                         >
                             <div
                                 bar
-                                class="absolute -left-px bottom-0 h-8 w-px bg-base-300"
+                                class="bg-base-300 absolute bottom-0 -left-px h-8 w-px"
                             ></div>
                             <div class="name m-2 text-center">
                                 {{ space.display_name || space.name }}
@@ -76,12 +76,12 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                     @for (space of space_list | async; track space) {
                         <dayview-space
                             [space]="space"
-                            class="h-[96rem] w-48 min-w-[12rem] border-r border-base-300"
+                            class="border-base-300 h-384 w-48 min-w-48 border-r"
                         ></dayview-space>
                     }
                     @for (time of blocks; track time; let i = $index) {
                         <div
-                            class="absolute left-0 h-px min-w-full bg-base-300"
+                            class="bg-base-300 absolute left-0 h-px min-w-full"
                             [style.width]="
                                 (space_list | async)?.length * 12 + 'rem'
                             "
@@ -93,7 +93,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             @if (loading | async) {
                 <mat-progress-bar
                     mode="indeterminate"
-                    class="absolute bottom-0 left-0 right-0"
+                    class="absolute right-0 bottom-0 left-0"
                 ></mat-progress-bar>
             }
             @if (event | async) {

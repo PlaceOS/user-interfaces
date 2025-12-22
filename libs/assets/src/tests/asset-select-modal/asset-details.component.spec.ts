@@ -27,27 +27,27 @@ describe('AssetDetailsComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should show a counter for selected amount', () => {
-        spectator.setInput({ item: new AssetGroup() });
+        spectator.setInput({ item: { id: '1', name: 'Test' } as AssetGroup });
         spectator.detectChanges();
         expect('a-counter').toExist();
     });
 
     it('should show empty state without an asset', () => {
         expect('[empty]').toExist();
-        spectator.setInput({ item: new AssetGroup() });
+        spectator.setInput({ item: { id: '1', name: 'Test' } as AssetGroup });
         spectator.detectChanges();
         expect('[empty]').not.toExist();
     });
 
     it('should allow toggling favourite state', (done) => {
-        spectator.setInput({ item: new AssetGroup() });
+        spectator.setInput({ item: { id: '1', name: 'Test' } as AssetGroup });
         spectator.detectChanges();
         spectator.component.toggleFav.subscribe(() => done());
         spectator.click('[fav]');
     });
 
     it('should allow toggling active state', (done) => {
-        spectator.setInput({ item: new AssetGroup() });
+        spectator.setInput({ item: { id: '1', name: 'Test' } as AssetGroup });
         spectator.detectChanges();
         spectator.component.active.subscribe((state) => {
             if (state) {

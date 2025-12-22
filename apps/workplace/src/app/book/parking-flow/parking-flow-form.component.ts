@@ -26,12 +26,12 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
 @Component({
     selector: 'parking-flow-form',
     template: `
-        <div class="h-full w-full overflow-auto bg-base-200">
+        <div class="bg-base-200 h-full w-full overflow-auto">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="border-base-200 bg-base-100 mx-auto w-3xl max-w-full border sm:my-4"
             >
                 <h2
-                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
+                    class="border-base-200 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{
                         (form.value.id
@@ -41,13 +41,13 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                     }}
                 </h2>
                 <form
-                    class="space-y-2 divide-y divide-base-200 p-0 sm:px-16 sm:py-4"
+                    class="divide-base-200 space-y-2 divide-y p-0 sm:px-16 sm:py-4"
                     [formGroup]="form"
                 >
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 1
                             </div>
@@ -82,7 +82,7 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 2
                             </div>

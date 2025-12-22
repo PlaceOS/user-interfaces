@@ -7,7 +7,7 @@ import { SurveyOutletComponent } from '@placeos/components';
 @Component({
     selector: 'app-survey',
     template: `
-        <div class="absolute inset-0 bg-base-200">
+        <div class="bg-base-200 absolute inset-0">
             <survey-outlet (not_found)="notFound()"></survey-outlet>
         </div>
     `,

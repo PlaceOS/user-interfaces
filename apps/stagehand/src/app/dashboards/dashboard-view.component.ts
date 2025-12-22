@@ -14,7 +14,7 @@ import { DashboardsService } from './dashboards.service';
         <div class="p-4">
             <mat-progress-bar class="w-full" [class.opacity-0]="!loading()" />
             <simple-table
-                class="block min-w-[40rem] bg-base-100"
+                class="bg-base-100 block min-w-160"
                 [data]="alerts()"
                 [filter]="search_term()"
                 [columns]="[
@@ -53,7 +53,7 @@ import { DashboardsService } from './dashboards.service';
             </ng-template>
             <ng-template #actions_template let-dashboard="row">
                 <div class="p-2">
-                    <button icon matRipple class="rounded">
+                    <button icon matRipple class="rounded-sm">
                         <icon>more_vert</icon>
                     </button>
                 </div>

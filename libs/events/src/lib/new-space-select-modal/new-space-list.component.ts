@@ -29,9 +29,9 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                     @for (space of available_spaces | async; track space) {
                         <li
                             space
-                            [class.!border-info]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow"
-                            [class.!bg-error-light]="
+                            [class.border-info!]="active() === space.id"
+                            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
+                            [class.bg-error-light!]="
                                 (room_alerts | async)[space.id]
                                     ? (room_alerts | async)[space.id][0] ===
                                       'closed'
@@ -41,7 +41,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                             <button
                                 matRipple
                                 name="select-space"
-                                class="flex h-full w-full items-center rounded"
+                                class="flex h-full w-full items-center rounded-sm"
                                 (click)="selectSpace(space)"
                                 [class.pointer-events-none]="
                                     (room_alerts | async)[space.id]
@@ -51,11 +51,11 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 "
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                                    class="bg-base-200 relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl"
                                 >
                                     @if (selected().includes(space.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -173,7 +173,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 icon
                                 matRipple
                                 name="toggle-space-favourite"
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="isFavourite(space.id)"
                                 (click)="toggleFav.emit(space)"
                             >
@@ -188,7 +188,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="absolute bottom-1 right-1 w-14 rounded bg-warning px-2 py-1 text-center text-[0.625rem] font-medium leading-tight text-warning-content"
+                                    class="bg-warning text-warning-content absolute right-1 bottom-1 w-14 rounded-sm px-2 py-1 text-center text-[0.625rem] leading-tight font-medium"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>

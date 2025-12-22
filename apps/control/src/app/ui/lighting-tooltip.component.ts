@@ -16,7 +16,7 @@ import {
     selector: 'lighting-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm"
         >
             @if (lights()[0]) {
                 <div hidden>

@@ -23,18 +23,18 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="absolute inset-0 z-0 bg-base-200"></div>
+        <div class="bg-base-200 absolute inset-0 z-0"></div>
         <div
             form
-            class="relative z-10 mx-auto my-8 w-[28rem] max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow"
+            class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
         >
             <header
-                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
+                class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
             >
                 <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
-                <div class="relative overflow-hidden rounded px-2 py-1">
+                <div class="relative overflow-hidden rounded-sm px-2 py-1">
                     <div
-                        class="absolute inset-0 z-0 bg-base-100 opacity-10"
+                        class="bg-base-100 absolute inset-0 z-0 opacity-10"
                     ></div>
                     <div class="relative z-10 font-mono text-sm uppercase">
                         {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
@@ -73,7 +73,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_region()?.id }}
                                         </div>
@@ -133,7 +133,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_building()?.id }}
                                         </div>
@@ -193,7 +193,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             }}
                                         </div>
                                         <div
-                                            class="!mr-4 rounded bg-base-200 px-1.5 font-mono text-[0.625rem]"
+                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
                                             {{ active_level()?.id }}
                                         </div>
@@ -320,7 +320,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
             }
             @if (!loading()) {
                 <div
-                    class="!mt-4 flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
+                    class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
                 >
                     <button
                         btn

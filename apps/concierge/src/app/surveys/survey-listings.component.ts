@@ -47,7 +47,7 @@ import { SurveyService } from './survey.service';
         </div>
         <div class="flex h-1/2 w-full flex-1 overflow-auto px-8">
             <simple-table
-                class="block w-full min-w-[36rem] text-sm"
+                class="block w-full min-w-xl text-sm"
                 [data]="surveys()"
                 [columns]="[
                     { key: 'title', name: 'FORM.TITLE' | translate },
@@ -94,7 +94,7 @@ import { SurveyService } from './survey.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="actionsMenu"
                 >
                     <icon>more_vert</icon>
@@ -137,7 +137,7 @@ import { SurveyService } from './survey.service';
                     </a>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-xl text-error"> delete </icon>
+                            <icon class="text-error text-xl"> delete </icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_REMOVE' | translate
                             }}</span>

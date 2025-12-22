@@ -33,7 +33,7 @@ declare let mapsindoors: any;
     selector: 'select-map-item-modal',
     template: `
         <header
-            class="sticky top-0 z-10 mx-auto mt-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 sticky top-0 z-10 mx-auto mt-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}
@@ -43,11 +43,11 @@ declare let mapsindoors: any;
             </button>
         </header>
         <main
-            class="flex h-[75vh] max-h-[75vh] min-w-[80vw] max-w-[calc(100vw-2rem)] space-x-2 overflow-hidden p-2 sm:max-w-[64rem]"
+            class="flex h-[75vh] max-h-[75vh] max-w-[calc(100vw-2rem)] min-w-[80vw] space-x-2 overflow-hidden p-2 sm:max-w-5xl"
         >
             <div
                 map
-                class="relative h-full w-1/2 flex-1 rounded-lg bg-base-200"
+                class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg"
             >
                 <interactive-map
                     [src]="level?.map_id"
@@ -55,14 +55,14 @@ declare let mapsindoors: any;
                     [features]="features | async"
                     [options]="{ controls: true }"
                     [focus]="selected.value"
-                    (mapInfo)="setMapInfo($event)"
+                    (mapInfo)="setMapInfo($any($event))"
                 ></interactive-map>
             </div>
             <div
                 poi-list
-                class="relative flex h-full w-[20rem] flex-col rounded-lg border border-base-300"
+                class="border-base-300 relative flex h-full w-[20rem] flex-col rounded-lg border"
             >
-                <div search class="flex flex-col border-b border-base-200 p-2">
+                <div search class="border-base-200 flex flex-col border-b p-2">
                     <mat-form-field
                         class="no-subscript mb-2 w-full"
                         appearance="outline"
@@ -98,7 +98,7 @@ declare let mapsindoors: any;
                     class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto px-2"
                 >
                     <div
-                        class="sticky top-0 z-10 w-full bg-base-100 px-1 py-3 text-sm"
+                        class="bg-base-100 sticky top-0 z-10 w-full px-1 py-3 text-sm"
                     >
                         {{
                             'APP.CONCIERGE.POI_MAP_SELECT_RESULTS'
@@ -111,7 +111,7 @@ declare let mapsindoors: any;
                         }}
                         @if (last_page) {
                             <span
-                                class="rounded-full border border-info bg-info-light px-2 py-1 text-xs"
+                                class="border-info bg-info-light rounded-full border px-2 py-1 text-xs"
                             >
                                 {{ page * 100 + 1 }} -
                                 {{
@@ -133,9 +133,9 @@ declare let mapsindoors: any;
                             <button
                                 btn
                                 matRipple
-                                class="clear flex w-full items-center rounded text-left hover:bg-base-200"
-                                [class.!bg-primary]="poi.id === selected.value"
-                                [class.!text-primary-content]="
+                                class="clear hover:bg-base-200 flex w-full items-center rounded-sm text-left"
+                                [class.bg-primary!]="poi.id === selected.value"
+                                [class.text-primary-content!]="
                                     poi.id === selected.value
                                 "
                                 (click)="selected.next(poi.id)"
@@ -172,12 +172,12 @@ declare let mapsindoors: any;
                     @if (last_page > 0) {
                         <div
                             pagination
-                            class="sticky bottom-0 z-10 -mx-2 flex w-[calc(100%+1rem)] items-center justify-center space-x-1 border-t border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 sticky bottom-0 z-10 -mx-2 flex w-[calc(100%+1rem)] items-center justify-center space-x-1 border-t p-2"
                         >
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
+                                class="border-base-200 rounded-sm border"
                                 [disabled]="page === 0"
                                 (click)="page = page - 1"
                             >
@@ -186,9 +186,9 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                [class.!bg-secondary]="page === 0"
+                                [class.bg-secondary!]="page === 0"
                                 [class.text-secondary-content]="page === 0"
-                                [class.!rounded-full]="page === 0"
+                                [class.rounded-full!]="page === 0"
                                 (click)="page = 0"
                             >
                                 1
@@ -199,7 +199,7 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="!bg-secondary text-secondary-content"
+                                class="bg-secondary! text-secondary-content"
                                 [class.opacity-0]="
                                     page == 0 || page == last_page
                                 "
@@ -215,12 +215,12 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
-                                [class.!bg-secondary]="page === last_page"
+                                class="border-base-200 rounded-sm border"
+                                [class.bg-secondary!]="page === last_page"
                                 [class.text-secondary-content]="
                                     page === last_page
                                 "
-                                [class.!rounded-full]="page === last_page"
+                                [class.rounded-full!]="page === last_page"
                                 (click)="page = last_page"
                             >
                                 {{ last_page + 1 }}
@@ -228,7 +228,7 @@ declare let mapsindoors: any;
                             <button
                                 icon
                                 matRipple
-                                class="rounded border border-base-200"
+                                class="border-base-200 rounded-sm border"
                                 [disabled]="page === last_page"
                                 (click)="page = page + 1"
                             >
@@ -237,7 +237,7 @@ declare let mapsindoors: any;
                         </div>
                     }
                 </div>
-                <div actions class="border-t border-base-200 p-2">
+                <div actions class="border-base-200 border-t p-2">
                     <button
                         btn
                         matRipple

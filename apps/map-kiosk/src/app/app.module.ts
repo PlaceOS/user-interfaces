@@ -21,6 +21,7 @@ import { ExploreComponent } from './explore.component';
 import { FooterMenuComponent } from './footer-menu.component';
 
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -28,6 +29,7 @@ import { AppComponent } from './app.component';
 import { ParkingComponent } from './parking.component';
 
 const STANDALONE_COMPONENTS = [
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
     BootstrapComponent,

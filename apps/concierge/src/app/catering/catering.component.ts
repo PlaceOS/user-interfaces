@@ -23,7 +23,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                 <div class="flex h-1/2 flex-1 flex-col px-8">
                     @if (page === 'menu') {
                         <div
-                            class="mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
+                            class="bg-info mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
                         >
                             {{ 'CATERING.MENU_EDIT_INFO' | translate }}
                         </div>
@@ -44,7 +44,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                 >
                                     <a
                                         matRipple
-                                        class="flex flex-col items-center rounded bg-base-100 text-black shadow"
+                                        class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
                                         [routerLink]="['/catering', 'menu']"
                                     >
                                         <div
@@ -55,7 +55,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                             "
                                         >
                                             <div
-                                                class="absolute inset-0 z-0 bg-neutral opacity-60"
+                                                class="bg-neutral absolute inset-0 z-0 opacity-60"
                                             ></div>
                                             <span class="z-10"
                                                 >Menus and Pricing</span
@@ -69,7 +69,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     </a>
                                     <a
                                         matRipple
-                                        class="flex flex-col items-center rounded bg-base-100 text-black shadow"
+                                        class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
                                         [routerLink]="['/catering', 'orders']"
                                     >
                                         <div
@@ -80,7 +80,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                             "
                                         >
                                             <div
-                                                class="absolute inset-0 z-0 bg-neutral opacity-60"
+                                                class="bg-neutral absolute inset-0 z-0 opacity-60"
                                             ></div>
                                             <span class="z-10"
                                                 >Today's Orders</span

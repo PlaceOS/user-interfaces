@@ -18,6 +18,11 @@ export interface CateringOptionGroup {
     options: CateringOption[];
 }
 
+export interface OrderCateringItem extends CateringItem {
+    amount?: number;
+    count?: number;
+}
+
 export interface CateringOption {
     /** Unique Identifier of the catering option */
     readonly id: string;

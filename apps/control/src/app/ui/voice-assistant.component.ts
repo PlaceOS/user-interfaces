@@ -14,15 +14,15 @@ import { VoiceAssistantService } from './voice-assistant.service';
                 class="m-4 flex h-12 w-12 items-center justify-center overflow-visible rounded-full"
                 [class.bg-base-400]="!(active | async)"
                 [class.bg-success]="active | async"
-                [class.bg-error]="error.speech_recognition"
+                [class.bg-error]="(error | async)?.speech_recognition"
             >
                 @if (active | async) {
                     <span
-                        class="absolute inline-flex h-10 w-10 animate-ping rounded-full bg-success opacity-75"
+                        class="bg-success absolute inline-flex h-10 w-10 animate-ping rounded-full opacity-75"
                     ></span>
                 }
                 <icon class="text-2xl">{{
-                    error.speech_recognition ? 'mic_off' : 'mic'
+                    (error | async)?.speech_recognition ? 'mic_off' : 'mic'
                 }}</icon>
                 <button
                     matRipple
@@ -32,7 +32,7 @@ import { VoiceAssistantService } from './voice-assistant.service';
             </div>
             @if ((active | async) && (progress | async)) {
                 <div
-                    class="absolute left-2 top-1/2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl bg-info p-2 text-xs text-info-content shadow"
+                    class="bg-info text-info-content absolute top-1/2 left-2 max-w-[30vw] -translate-x-full -translate-y-1/2 rounded-xl p-2 text-xs shadow-sm"
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">{{

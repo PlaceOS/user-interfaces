@@ -38,12 +38,12 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         <h3 class="px-4 pt-4 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.UPCOMING' | translate }}
         </h3>
-        <div class="space-y-2 bg-base-100 p-2">
+        <div class="bg-base-100 space-y-2 p-2">
             <div
-                class="flex items-center rounded border border-base-300 p-2 shadow"
+                class="border-base-300 flex items-center rounded-sm border p-2 shadow-sm"
             >
                 <div
-                    class="h-full min-h-[3rem] w-2 rounded"
+                    class="h-full min-h-12 w-2 rounded-sm"
                     [class.bg-error]="(state | async) === 'busy'"
                     [class.bg-success]="(state | async) === 'free'"
                     [class.bg-warning]="(state | async) === 'pending'"
@@ -147,10 +147,10 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 }
             </div>
             <div
-                class="flex items-center rounded border border-base-300 p-2 shadow"
+                class="border-base-300 flex items-center rounded-sm border p-2 shadow-sm"
             >
                 <div
-                    class="h-full min-h-[3rem] w-2 rounded bg-error"
+                    class="bg-error h-full min-h-12 w-2 rounded-sm"
                     [class.bg-error]="(event_state | async)?.next"
                     [class.bg-success]="!(event_state | async)?.next"
                 ></div>
@@ -174,11 +174,11 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 }
             </div>
         </div>
-        <h3 class="px-4 pb-2 pt-4 text-xl font-medium">
+        <h3 class="px-4 pt-4 pb-2 text-xl font-medium">
             {{ 'APP.BOOKING_PANEL.SCHEDULE' | translate }}
         </h3>
         <div
-            class="mx-2 flex items-center overflow-auto rounded border border-base-300 shadow"
+            class="border-base-300 mx-2 flex items-center overflow-auto rounded-sm border shadow-sm"
         >
             <checkin-timetable
                 [events]="bookings | async"
@@ -192,11 +192,11 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         }
         @if (false) {
             <div
-                class="h-px flex-1 divide-y divide-base-200 overflow-auto bg-base-100"
+                class="divide-base-200 bg-base-100 h-px flex-1 divide-y overflow-auto"
             >
                 <button btn matRipple class="flex w-full items-center p-4">
                     <div
-                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
                     >
                         <icon>lightbulb</icon>
                     </div>
@@ -207,7 +207,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 </button>
                 <button btn matRipple class="flex w-full items-center p-4">
                     <div
-                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
                     >
                         <icon>add_to_queue</icon>
                     </div>
@@ -218,7 +218,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 </button>
                 <button btn matRipple class="flex w-full items-center p-4">
                     <div
-                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
                     >
                         <icon>restaurant</icon>
                     </div>
@@ -229,7 +229,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 </button>
                 <button btn matRipple class="flex w-full items-center p-4">
                     <div
-                        class="rounded-full bg-neutral p-2 text-2xl text-black/40"
+                        class="bg-neutral rounded-full p-2 text-2xl text-black/40"
                     >
                         <icon>help</icon>
                     </div>

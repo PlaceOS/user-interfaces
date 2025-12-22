@@ -58,13 +58,13 @@ export enum ZoomDirection {
                         ></joystick>
                         <div
                             zoom
-                            class="flex flex-col items-center rounded border border-base-200"
+                            class="border-base-200 flex flex-col items-center rounded-sm border"
                         >
                             <button
                                 zoom-in
                                 icon
                                 matRipple
-                                class="rounded"
+                                class="rounded-sm"
                                 (mousedown)="startZoom('in', $event)"
                                 (touchstart)="startZoom('in', $event)"
                                 (contextmenu)="$event.preventDefault()"
@@ -72,7 +72,7 @@ export enum ZoomDirection {
                                 <icon>add</icon>
                             </button>
                             <div
-                                class="flex h-10 w-10 items-center justify-center border-b border-t border-base-200 text-xs"
+                                class="border-base-200 flex h-10 w-10 items-center justify-center border-t border-b text-xs"
                             >
                                 {{ 'APP.CONTROL.ZOOM' | translate }}
                             </div>
@@ -80,7 +80,7 @@ export enum ZoomDirection {
                                 zoom-out
                                 icon
                                 matRipple
-                                class="rounded"
+                                class="rounded-sm"
                                 (mousedown)="startZoom('out', $event)"
                                 (touchstart)="startZoom('out', $event)"
                                 (contextmenu)="$event.preventDefault()"
@@ -94,7 +94,7 @@ export enum ZoomDirection {
                 </div>
                 @if (!active_camera()) {
                     <div
-                        class="absolute inset-0 flex items-center justify-center bg-base-100 bg-opacity-75"
+                        class="bg-base-100 bg-opacity-75 absolute inset-0 flex items-center justify-center"
                     >
                         <p>{{ 'APP.CONTROL.CAMERA_SELECT_MSG' | translate }}</p>
                     </div>

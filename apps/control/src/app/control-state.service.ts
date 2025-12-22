@@ -57,12 +57,15 @@ export interface LightScene {
 }
 
 export interface TabDetails {
+    id?: string;
     icon: string;
     name: string;
     inputs: string[];
     help: string;
     controls: string;
     type: string;
+    presentation_source?: string;
+    mod?: string;
 }
 
 export interface RoomInput {
@@ -79,6 +82,7 @@ export interface RoomInput {
     outputs: string[];
     hidden?: boolean;
     presentable?: boolean;
+    icon?: string;
 }
 
 export interface RoomOutput {
@@ -105,6 +109,8 @@ export interface SystemState {
     selected_input?: string;
     mute?: boolean;
     volume?: number;
+    voice_control?: boolean;
+    active?: boolean;
 }
 
 @Injectable({
@@ -254,6 +260,7 @@ export class ControlStateService extends AsyncHandler {
             name: string;
             area: any;
             binding: string;
+            value?: number;
         }[]
     > = this.system_id.pipe(
         switchMap((id) => this._listenToSystemBinding(id, 'lighting_levels')),
@@ -300,7 +307,7 @@ export class ControlStateService extends AsyncHandler {
         shareReplay(1),
     );
     public readonly tabs: Observable<TabDetails[]> = this.system_id.pipe(
-        switchMap((id) => this._listenToSystemBinding(id, 'local_tabs')),
+        switchMap((id) => this._listenToSystemBinding(id, 'tabs')),
         map((_) => _ || []),
         shareReplay(1),
     );

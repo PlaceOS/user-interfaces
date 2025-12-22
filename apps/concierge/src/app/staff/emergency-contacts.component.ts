@@ -118,7 +118,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
@@ -132,7 +132,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                 </section>
                 <section class="h-1/2 w-full flex-1 overflow-auto px-8">
                     <simple-table
-                        class="block min-w-[52rem] text-sm"
+                        class="block min-w-208 text-sm"
                         [data]="filtered_contacts"
                         [filter]="search"
                         [empty_message]="
@@ -186,7 +186,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                         <div class="flex flex-wrap p-2">
                             @for (role of data; track role) {
                                 <span
-                                    class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                    class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
                                 >
                                     {{ role }}
                                 </span>

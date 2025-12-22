@@ -11,6 +11,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     setCustomHeaders,
     ViewAction,
@@ -52,7 +53,7 @@ let _initialized = false;
     template: `
         @if (use_mapsindoors$ | async) {
             <maps-indoors
-                [zone]="location"
+                [zone]="location()"
                 (zoneChange)="onLevelChange($event)"
                 [zoom]="zoom()"
                 (zoomChange)="zoom.set($event)"
@@ -85,7 +86,7 @@ let _initialized = false;
         @if (options()?.controls) {
             <div
                 zoom
-                class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded border border-base-200 bg-base-100 text-base-content shadow"
+                class="divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
             >
                 <button
                     icon
@@ -126,6 +127,7 @@ let _initialized = false;
         IconComponent,
         TranslatePipe,
         MatRippleModule,
+        MatTooltipModule,
         MapsIndoorsComponent,
         MapRendererComponent,
         CiscoMapComponent,

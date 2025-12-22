@@ -13,13 +13,13 @@ import { CateringTopbarComponent } from './catering-topbar.component';
 @Component({
     selector: 'app-catering',
     template: `
-        <main class="relative flex w-full flex-col bg-base-100">
+        <main class="bg-base-100 relative flex w-full flex-col">
             @if (page) {
                 <catering-topbar class="relative z-10"></catering-topbar>
             }
             @if (page === 'menu') {
                 <div
-                    class="mx-8 mb-4 flex items-center justify-center rounded bg-info p-2 text-sm text-white"
+                    class="bg-info mx-8 mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
                 >
                     {{ 'CATERING.MENU_EDIT_INFO' | translate }}
                 </div>
@@ -36,11 +36,11 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                     }
                     @default {
                         <div
-                            class="my-8 flex h-1/2 w-full flex-1 items-center justify-center rounded-2xl bg-base-200"
+                            class="bg-base-200 my-8 flex h-1/2 w-full flex-1 items-center justify-center rounded-2xl"
                         >
                             <a
                                 matRipple
-                                class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
+                                class="border-base-300 bg-base-100 text-base-content m-2 flex h-64 w-md flex-col items-center overflow-hidden rounded-sm border"
                                 [routerLink]="['/menu']"
                             >
                                 <div
@@ -50,9 +50,9 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     "
                                 >
                                     <div
-                                        class="absolute inset-0 z-0 bg-base-content opacity-40"
+                                        class="bg-base-content absolute inset-0 z-0 opacity-40"
                                     ></div>
-                                    <div class="z-10 text-2xl text-base-100">
+                                    <div class="text-base-100 z-10 text-2xl">
                                         {{ 'CATERING.OPTION_MENU' | translate }}
                                     </div>
                                 </div>
@@ -66,7 +66,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                             </a>
                             <a
                                 matRipple
-                                class="m-2 flex h-64 w-[28rem] flex-col items-center overflow-hidden rounded border border-base-300 bg-base-100 text-base-content"
+                                class="border-base-300 bg-base-100 text-base-content m-2 flex h-64 w-md flex-col items-center overflow-hidden rounded-sm border"
                                 [routerLink]="['/orders']"
                             >
                                 <div
@@ -76,9 +76,9 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                     "
                                 >
                                     <div
-                                        class="absolute inset-0 z-0 bg-base-content opacity-40"
+                                        class="bg-base-content absolute inset-0 z-0 opacity-40"
                                     ></div>
-                                    <div class="z-10 text-2xl text-base-100">
+                                    <div class="text-base-100 z-10 text-2xl">
                                         {{
                                             'CATERING.OPTION_ORDERS' | translate
                                         }}

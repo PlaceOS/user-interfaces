@@ -2,15 +2,22 @@ import { CommonModule } from '@angular/common';
 import {
     ChangeDetectorRef,
     Component,
+    computed,
+    inject,
     OnDestroy,
     OnInit,
-    inject,
+    signal,
 } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
-import { AsyncHandler, LocaleService, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    LocaleService,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -24,14 +31,14 @@ import {
         <div class="absolute inset-0 flex items-center p-8">
             <img
                 auth
-                [source]="background"
-                class="absolute left-1/2 top-1/2 min-h-[100%] min-w-[100%] -translate-x-1/2 -translate-y-1/2"
+                [source]="background()"
+                class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h3
                     class="mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
-                        welcome_message ||
+                        welcome_message() ||
                             ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                             | sanitize: 'html'
                     "
@@ -41,7 +48,7 @@ import {
                         btn
                         matRipple
                         [routerLink]="['/checkin']"
-                        class="w-40 bg-base-100 text-base-content"
+                        class="bg-base-100 border-base-100 text-base-content w-40 border"
                     >
                         <div class="flex items-center space-x-2">
                             <div class="ml-2">
@@ -50,12 +57,12 @@ import {
                             <icon class="text-2xl">chevron_right</icon>
                         </div>
                     </a>
-                    @if (can_register) {
+                    @if (can_register()) {
                         <a
                             btn
                             matRipple
                             [routerLink]="['/register']"
-                            class="w-40 bg-base-100 text-base-content"
+                            class="bg-base-100 border-base-100 text-base-content w-40 border"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -67,12 +74,12 @@ import {
                             </div>
                         </a>
                     }
-                    @if (level) {
+                    @if (level() && !hide_explore()) {
                         <a
                             btn
                             matRipple
-                            [routerLink]="['/explore', level]"
-                            class="w-40 bg-base-100 text-base-content"
+                            [routerLink]="['/explore', level()]"
+                            class="bg-base-100 border-base-100 text-base-content w-40 border"
                         >
                             <div class="flex items-center space-x-2">
                                 <div class="ml-2">
@@ -86,12 +93,12 @@ import {
                     }
                 </div>
             </div>
-            <div class="absolute right-4 top-4 text-2xl text-white">
-                {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
+            <div class="absolute top-4 right-4 text-2xl text-white">
+                {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
             </div>
             @if (locales.length > 1) {
                 <button
-                    class="absolute left-4 top-4"
+                    class="absolute top-4 left-4"
                     [matMenuTriggerFor]="menu"
                 >
                     <div class="flex items-center justify-between">
@@ -105,16 +112,16 @@ import {
                             }
                         </div>
                         <div
-                            class="ml-4 max-w-24 truncate rounded bg-base-200 px-2 py-1 text-sm"
-                            [matTooltip]="active_locale | translate"
+                            class="bg-base-200 ml-4 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
+                            [matTooltip]="active_locale() | translate"
                         >
-                            {{ active_locale | translate }}
+                            {{ active_locale() | translate }}
                         </div>
                     </div>
                 </button>
             }
             <mat-menu #menu="matMenu">
-                @for (lang of locales; track lang) {
+                @for (lang of locales(); track lang) {
                     <button mat-menu-item (click)="setLocale(lang.id)">
                         <div
                             class="flex h-14 min-w-[24rem] items-center justify-between space-x-8"
@@ -139,7 +146,7 @@ import {
             </mat-menu>
             <img
                 src="assets/img/building.png"
-                class="absolute bottom-0 right-0 w-[60%]"
+                class="absolute right-0 bottom-0 w-[60%]"
             />
         </div>
     `,
@@ -170,9 +177,23 @@ export class WelcomeComponent
     private _locale = inject(LocaleService);
     private _cdr = inject(ChangeDetectorRef);
 
-    public now = Date.now();
+    public readonly now = signal(Date.now());
     /** Level to initially load on explore */
-    public level = '';
+    public readonly level = signal('');
+
+    public readonly hide_explore = settingSignal('hide_explore');
+    public readonly background = settingSignal('welcome_background');
+    public readonly can_register = settingSignal('allow_self_registration');
+    public readonly welcome_message = settingSignal('welcome_message');
+    public readonly locales = settingSignal('locales');
+    public readonly active_locale = computed(() => {
+        const locale_list = this.locales();
+        const locale = this._locale.locale;
+        for (const item of locale_list) {
+            if (item.id === locale) return item.name;
+        }
+        return 'LANGUAGE.ENGLISH';
+    });
 
     public readonly setLocale = (code: string) => {
         this._locale.setLocale(code);
@@ -180,45 +201,20 @@ export class WelcomeComponent
         setTimeout(() => location.reload(), 300);
     };
 
-    public get background() {
-        return this._settings.get('app.welcome_background');
-    }
-
-    public get can_register() {
-        return this._settings.get('app.allow_self_registration');
-    }
-
-    public get welcome_message() {
-        return this._settings.get('app.welcome_message');
-    }
-
-    public get active_locale(): string {
-        const locale_list = this.locales;
-        const locale = this._locale.locale;
-        for (const item of locale_list) {
-            if (item.id === locale) return item.name;
-        }
-        return 'LANGUAGE.ENGLISH';
-    }
-
-    public get locales(): { id: string; name: string }[] {
-        return this._settings.get('app.locales') || [];
-    }
-
     public ngOnInit() {
-        this.interval('time', () => (this.now = Date.now()), 30 * 1000);
+        this.interval('time', () => this.now.set(Date.now()), 30 * 1000);
         this.subscription(
             'level',
             this._settings
                 .listen('KIOSK.level')
-                .subscribe((lvl) => (this.level = lvl)),
+                .subscribe((lvl) => this.level.set(lvl)),
         );
-        this.level = localStorage?.getItem('KIOSK.level');
+        this.level.set(localStorage?.getItem('KIOSK.level'));
         this.subscription(
             'route.params',
             this.route.paramMap.subscribe((params) => {
                 if (params.has('level')) {
-                    this.level = params.get('level');
+                    this.level.set(params.get('level'));
                 }
             }),
         );

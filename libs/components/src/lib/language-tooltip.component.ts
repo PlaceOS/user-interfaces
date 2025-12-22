@@ -9,12 +9,12 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'language-select',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[18.5rem] flex-col overflow-auto rounded bg-base-100 pb-3 shadow"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
@@ -29,7 +29,7 @@ import { TranslatePipe } from './translate.pipe';
                     class="flex h-14 items-center justify-between space-x-8 px-2 text-left"
                 >
                     <div
-                        class="flex flex-1 items-center justify-between rounded p-2 leading-tight hover:bg-base-200"
+                        class="hover:bg-base-200 flex flex-1 items-center justify-between rounded-sm p-2 leading-tight"
                         [class.mt-2]="(lang.name | translate) !== lang.local"
                         [class.border]="active_locale === lang.id"
                         [class.border-info]="active_locale === lang.id"
@@ -37,7 +37,7 @@ import { TranslatePipe } from './translate.pipe';
                         <div>{{ lang.name | translate }}</div>
                         @if ((lang.name | translate) !== lang.local) {
                             <div
-                                class="rounded bg-base-300 px-2 py-1 text-xs opacity-60"
+                                class="bg-base-300 rounded-sm px-2 py-1 text-xs opacity-60"
                             >
                                 {{ lang.local }}
                             </div>
@@ -66,7 +66,7 @@ export class LanguageSelectComponent {
         return this._locale.locale;
     }
 
-    public get locales(): { id: string; name: string }[] {
+    public get locales(): { id: string; name: string; local?: string }[] {
         return this._settings.get('app.locales') || [];
     }
 

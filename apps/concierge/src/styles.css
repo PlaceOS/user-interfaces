@@ -1,8 +1,6 @@
-@import 'suneditor/dist/css/suneditor.min.css';
+@import 'suneditor/dist/css/suneditor.min.css' layer(base);
+@import '../../../shared/styles/tailwind.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
 
 html,

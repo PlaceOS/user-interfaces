@@ -28,8 +28,8 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     @for (desk of desks | async; track desk) {
                         <li
                             desk
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow"
-                            [class.!border-info]="active() === desk.id"
+                            class="border-base-200 bg-base-100 relative w-full overflow-hidden rounded-lg border shadow-sm"
+                            [class.border-info!]="active() === desk.id"
                         >
                             <button
                                 name="select-desk"
@@ -38,11 +38,11 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 (click)="selectDesk(desk)"
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+                                    class="bg-base-200 relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl"
                                 >
                                     @if (selected().includes(desk.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -84,7 +84,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                                 icon
                                 matRipple
                                 name="toggle-desk-favourite"
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="isFavourite(desk.id)"
                                 (click)="toggleFav.emit(desk)"
                             >
@@ -100,7 +100,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         </li>
                     }
                     <li
-                        class="rounded bg-base-400 p-2 text-center text-sm opacity-30"
+                        class="bg-base-400 rounded-sm p-2 text-center text-sm opacity-30"
                     >
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </li>

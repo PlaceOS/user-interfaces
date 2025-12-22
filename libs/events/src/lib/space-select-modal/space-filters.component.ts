@@ -19,6 +19,7 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -31,7 +32,7 @@ import { SpacesService } from '../spaces.service';
 @Component({
     selector: `space-filters`,
     template: `
-        <div class="flex items-center border-b border-base-200 pb-2 sm:hidden">
+        <div class="border-base-200 flex items-center border-b pb-2 sm:hidden">
             <div class="flex-1 pl-2">
                 @if (can_close) {
                     <button
@@ -50,14 +51,14 @@ import { SpacesService } from '../spaces.service';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
+            class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
             [formGroup]="form"
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
                     {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                 </h2>
-                <div class="flex min-w-[8rem] flex-1 flex-col">
+                <div class="flex min-w-32 flex-1 flex-col">
                     <label for="location">
                         {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
                     </label>
@@ -85,13 +86,10 @@ import { SpacesService } from '../spaces.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
+                                [ngModel]="bld"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
-                                "
+                                [placeholder]="bld?.display_name || bld?.name"
                             >
                                 @for (bld of buildings | async; track bld) {
                                     <mat-option [value]="bld">
@@ -142,7 +140,7 @@ import { SpacesService } from '../spaces.service';
                     }
                 </div>
                 <div class="flex flex-wrap items-center sm:space-x-2">
-                    <div class="min-w-[8rem] flex-1">
+                    <div class="min-w-32 flex-1">
                         <label for="date">
                             {{ 'FORM.DATE' | translate }}<span>*</span>
                         </label>
@@ -160,7 +158,7 @@ import { SpacesService } from '../spaces.service';
                         </a-date-field>
                     </div>
                     @if (multiday()) {
-                        <div class="relative min-w-[8rem] flex-1">
+                        <div class="relative min-w-32 flex-1">
                             <label for="date">
                                 {{ 'FORM.DATE_END' | translate }}<span>*</span>
                             </label>
@@ -256,7 +254,7 @@ import { SpacesService } from '../spaces.service';
                         <settings-toggle
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                            [ngModel]="(options | async)?.show_fav"
+                            [ngModel]="(filters | async)?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
@@ -277,7 +275,7 @@ import { SpacesService } from '../spaces.service';
                                     class="w-full"
                                     [name]="feature_display[feat] || feat"
                                     [ngModel]="
-                                        (options | async)?.features?.includes(
+                                        (filters | async)?.features?.includes(
                                             feat
                                         )
                                     "
@@ -293,7 +291,7 @@ import { SpacesService } from '../spaces.service';
             }
         </form>
         @if (can_close) {
-            <div class="w-full border-t border-base-200 px-2 pt-2">
+            <div class="border-base-200 w-full border-t px-2 pt-2">
                 <button
                     btn
                     matRipple
@@ -330,6 +328,7 @@ import { SpacesService } from '../spaces.service';
         FormsModule,
         ReactiveFormsModule,
         IconComponent,
+        BuildingPipe,
     ],
 })
 export class SpaceFiltersComponent {
@@ -348,6 +347,7 @@ export class SpaceFiltersComponent {
     public readonly viewing_map = input<boolean>(undefined);
     public can_close = false;
     public readonly options = this._event_form.options$;
+    public readonly filters = this._event_form.filters$;
 
     public readonly building = this._org.active_building;
     public readonly buildings = this._org.active_buildings;
@@ -439,7 +439,7 @@ export class SpaceFiltersComponent {
                 Date.now(),
                 this._settings.get('app.events.allowed_future_days') || 180,
             ),
-        );
+        ).valueOf();
     }
 
     constructor() {

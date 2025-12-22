@@ -27,21 +27,21 @@ import { ChatService } from './chat.service';
     selector: 'global-chat',
     template: `
         @if (can_show()) {
-            <div class="absolute bottom-0 right-0 p-2">
+            <div class="absolute right-0 bottom-0 p-2">
                 <button
                     icon
                     matRipple
-                    class="rounded-full border border-base-300 bg-base-100 shadow"
+                    class="border-base-300 bg-base-100 rounded-full border shadow-sm"
                     (click)="toggleChat()"
                 >
                     <icon>chat</icon>
                 </button>
                 @if (show()) {
                     <div
-                        class="absolute bottom-2 right-2 w-[40rem] max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow"
+                        class="border-base-300 bg-base-200 absolute right-2 bottom-2 w-160 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border shadow-sm"
                     >
                         <div
-                            class="flex w-full items-center justify-between border-b border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex w-full items-center justify-between border-b p-2"
                         >
                             <h3 class="pl-4">
                                 {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
@@ -51,7 +51,7 @@ import { ChatService } from './chat.service';
                             </button>
                         </div>
                         <div
-                            class="h-[32rem] max-h-[60vh] overflow-auto"
+                            class="h-128 max-h-[60vh] overflow-auto"
                             #container
                         >
                             <div
@@ -71,7 +71,7 @@ import { ChatService } from './chat.service';
                             </div>
                             @if (hint | async) {
                                 <div
-                                    class="m-2 rounded border-base-300 bg-base-100 p-4 text-sm shadow"
+                                    class="border-base-300 bg-base-100 m-2 rounded-sm p-4 text-sm shadow-sm"
                                 >
                                     {{ hint | async }}
                                 </div>
@@ -96,7 +96,7 @@ import { ChatService } from './chat.service';
                                     <div class="flex items-center space-x-2">
                                         @if (message.user_id !== user().id) {
                                             <div
-                                                class="px-2 py-1 text-sm text-base-content opacity-60"
+                                                class="text-base-content px-2 py-1 text-sm opacity-60"
                                             >
                                                 {{
                                                     'APP.WORKPLACE.CHAT_ASSISTANT'
@@ -105,7 +105,7 @@ import { ChatService } from './chat.service';
                                             </div>
                                         }
                                         <div
-                                            class="px-2 py-1 text-xs text-base-content opacity-40"
+                                            class="text-base-content px-2 py-1 text-xs opacity-40"
                                         >
                                             {{
                                                 message.timestamp + offset()
@@ -115,7 +115,7 @@ import { ChatService } from './chat.service';
                                     </div>
                                     <div
                                         message
-                                        class="markdown selectable rounded border-base-300 bg-base-100 p-4 text-sm shadow"
+                                        class="markdown selectable border-base-300 bg-base-100 rounded-sm p-4 text-sm shadow-sm"
                                         [innerHTML]="message.content | sanitize"
                                     ></div>
                                 </div>
@@ -123,7 +123,7 @@ import { ChatService } from './chat.service';
                             @if (progress | async) {
                                 <div class="p-4">
                                     <button
-                                        class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
+                                        class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
                                         (click)="show_info.set(!show_info)"
                                     >
                                         <div
@@ -144,14 +144,14 @@ import { ChatService } from './chat.service';
                                             </p>
                                         </div>
                                         <div
-                                            class="relative w-full overflow-hidden rounded"
+                                            class="relative w-full overflow-hidden rounded-sm"
                                         >
                                             <div
-                                                class="absolute inset-0 bg-base-100 opacity-10"
+                                                class="bg-base-100 absolute inset-0 opacity-10"
                                             ></div>
                                             @if (show_info) {
                                                 <div
-                                                    class="text-mono break-words p-2 text-left text-xs"
+                                                    class="text-mono p-2 text-left text-xs wrap-break-word"
                                                     [innerHTML]="
                                                         (progress | async)
                                                             .content | sanitize
@@ -165,17 +165,17 @@ import { ChatService } from './chat.service';
                         </div>
                         @if (waiting | async) {
                             <div
-                                class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
+                                class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
                                 [style.bottom]="height() + 8 + 'px'"
                             >
                                 <div
-                                    class="h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <div
-                                    class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="anim-delay-1 bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <div
-                                    class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="anim-delay-2 bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <span class="sr-only">{{
                                     'APP.WORKPLACE.CHAT_WAITING' | translate
@@ -183,7 +183,7 @@ import { ChatService } from './chat.service';
                             </div>
                         }
                         <div
-                            class="flex max-h-[10rem] overflow-y-auto border-t border-base-300 bg-base-100 outline-info focus-within:outline"
+                            class="border-base-300 bg-base-100 outline-info flex max-h-40 overflow-y-auto border-t focus-within:outline-solid"
                         >
                             <textarea
                                 #input
@@ -191,7 +191,7 @@ import { ChatService } from './chat.service';
                                     'APP.WORKPLACE.CHAT_MESSAGE_PLACEHOLDER'
                                         | translate
                                 "
-                                class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-none"
+                                class="w-1/2 flex-1 resize-none overflow-hidden p-4 focus:outline-hidden"
                                 [style.height]="height() + 'px'"
                                 [(ngModel)]="message"
                                 (ngModelChange)="resizeInput()"

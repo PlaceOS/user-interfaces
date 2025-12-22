@@ -24,9 +24,9 @@ import { ReportsStateService } from '../reports-state.service';
     selector: 'report-spaces-space-listing',
     template: `
         <div
-            class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
         >
-            <div class="flex items-center border-b border-base-200 px-4 py-2">
+            <div class="border-base-200 flex items-center border-b px-4 py-2">
                 <h3 class="flex-1 text-xl font-bold">
                     {{ 'APP.CONCIERGE.REPORTS_ROOMS_UTIL_HEADER' | translate }}
                 </h3>

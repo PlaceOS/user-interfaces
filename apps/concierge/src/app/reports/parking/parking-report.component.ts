@@ -25,8 +25,8 @@ import { ParkingReportService } from './parking-report.service';
     template: `
         <reports-options
             (printing)="printing = $event"
-            [loading]="loading | async"
-            [has_data]="total_count | async"
+            [loading]="!!(loading | async)"
+            [has_data]="!!(total_count | async)"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -34,7 +34,7 @@ import { ParkingReportService } from './parking-report.service';
             class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
         >
             <div class="w-full">
-                <div class="m-4 flex items-center rounded bg-base-200 p-4">
+                <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
                     <img
                         auth
                         class="h-12"

@@ -10,7 +10,7 @@ import { IconComponent, SafePipe } from '@placeos/components';
     template: `
         @if (space()) {
             <div
-                class="mx-auto mb-2 flex max-w-[40rem] flex-wrap items-center overflow-hidden rounded border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
+                class="border-base-200 bg-base-100 hover:border-info mx-auto mb-2 flex max-w-160 flex-wrap items-center overflow-hidden rounded-sm border p-2 pl-4 sm:space-x-4"
                 [class.with-image]="show_image"
             >
                 <div class="flex flex-1 flex-col">
@@ -26,7 +26,7 @@ import { IconComponent, SafePipe } from '@placeos/components';
                     </div>
                 </div>
                 <div
-                    class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
+                    class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-y-2 sm:space-x-0"
                 >
                     <a
                         btn

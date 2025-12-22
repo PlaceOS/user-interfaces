@@ -13,13 +13,11 @@ export interface AvailabilityBlock {
 @Component({
     selector: 'user-availability-list',
     template: `
-        <div
-            class="relative inset-y-0 h-32 w-[120rem] border-b border-base-300"
-        >
+        <div class="border-base-300 relative inset-y-0 h-32 w-480 border-b">
             @for (event of availability(); track event) {
                 <div
                     event
-                    class="absolute inset-y-0 overflow-hidden rounded border border-error bg-error p-2 text-white"
+                    class="border-error bg-error absolute inset-y-0 overflow-hidden rounded-sm border p-2 text-white"
                     [style.left]="event.start + '%'"
                     [style.width]="event.size + '%'"
                 >

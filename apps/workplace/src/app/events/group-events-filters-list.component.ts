@@ -11,7 +11,7 @@ import { GroupEventsStateService } from './group-events-state.service';
     selector: 'group-events-filters-list',
     template: `
         <div
-            class="mx-auto my-2 w-[63rem] max-w-full rounded border border-base-300 bg-base-100 p-4"
+            class="border-base-300 bg-base-100 mx-auto my-2 w-252 max-w-full rounded-sm border p-4"
         >
             <div class="mb-4 flex items-center justify-between space-x-2">
                 <div>
@@ -29,7 +29,7 @@ import { GroupEventsStateService } from './group-events-state.service';
             </div>
             <div class="flex flex-wrap">
                 <div
-                    class="m-1 flex items-center rounded-3xl border border-base-400 px-4 py-3 text-sm"
+                    class="border-base-400 m-1 flex items-center rounded-3xl border px-4 py-3 text-sm"
                 >
                     {{ (options | async)?.date | date: 'MMM d, y' }}
                     &ndash;
@@ -37,7 +37,7 @@ import { GroupEventsStateService } from './group-events-state.service';
                 </div>
                 @for (tag of (filters | async)?.tags || []; track tag) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-400 pl-4 pr-1"
+                        class="border-base-400 m-1 flex items-center rounded-3xl border pr-1 pl-4"
                     >
                         <div class="mr-2 flex-1 text-sm">{{ tag }}</div>
                         <button icon matRipple (click)="removeTag(tag)">

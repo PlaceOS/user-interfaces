@@ -3,6 +3,7 @@ import { ControlStateService } from '../../app/control-state.service';
 
 import { CustomTooltipData, SanitizePipe } from '@placeos/components';
 import { MockPipe, MockProvider } from 'ng-mocks';
+import { BehaviorSubject } from 'rxjs';
 import { PowerTooltipComponent } from '../../app/ui/power-tooltip.component';
 
 describe('PowerTooltipComponent', () => {
@@ -11,7 +12,10 @@ describe('PowerTooltipComponent', () => {
         component: PowerTooltipComponent,
         declarations: [MockPipe(SanitizePipe)],
         providers: [
-            MockProvider(ControlStateService, { powerOff: jest.fn() }),
+            MockProvider(ControlStateService, {
+                powerOff: jest.fn(),
+                joined: new BehaviorSubject([]),
+            } as any),
             MockProvider(CustomTooltipData, { close: jest.fn() }),
         ],
     });

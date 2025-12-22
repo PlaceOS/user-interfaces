@@ -42,9 +42,9 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
     selector: `survey-outlet`,
     template: `
         @if (survey()) {
-            <div class="h-full w-full overflow-auto bg-base-100 px-2">
+            <div class="bg-base-100 h-full w-full overflow-auto px-2">
                 <header
-                    class="sticky top-0 z-10 mx-auto my-2 flex min-h-[4.5rem] w-[calc(100%-1rem)] w-full max-w-[40rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex min-h-18 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{ survey().title }}
@@ -60,7 +60,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                     @if (success()) {
                         <main
                             loading
-                            class="mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-[40rem] flex-col items-center justify-center space-y-2 space-y-4 rounded border border-base-300 p-4"
+                            class="border-base-300 mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border p-4"
                         >
                             <p>
                                 {{
@@ -72,7 +72,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                         @if (form) {
                             <main
                                 page
-                                class="mx-auto w-[calc(100%-1rem)] w-full max-w-[40rem] space-y-2 rounded border border-base-300 p-4"
+                                class="border-base-300 mx-auto w-[calc(100%-1rem)] w-full max-w-160 space-y-2 rounded-sm border p-4"
                                 [formGroup]="form"
                             >
                                 @let page = survey().pages[active_page()];
@@ -91,7 +91,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                 </div>
                                                 @if (question.required) {
                                                     <span
-                                                        class="rounded bg-warning px-2 py-1 font-mono text-[0.625rem] text-warning-content"
+                                                        class="bg-warning text-warning-content rounded-sm px-2 py-1 font-mono text-[0.625rem]"
                                                         >{{
                                                             'COMMON.REQUIRED'
                                                                 | translate
@@ -103,7 +103,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                 @case ('rating') {
                                                     <div
                                                         btn-grp
-                                                        class="divide-x divide-secondary py-2"
+                                                        class="divide-secondary divide-x py-2"
                                                     >
                                                         @for (
                                                             idx of question.options;
@@ -111,7 +111,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                         ) {
                                                             <button
                                                                 matRipple
-                                                                class="h-12 w-12 border-y border-secondary first:rounded-l first:border-l last:rounded-r last:!border-r"
+                                                                class="border-secondary h-12 w-12 border-y first:rounded-l first:border-l last:rounded-r last:border-r!"
                                                                 [class.bg-secondary]="
                                                                     form.value[
                                                                         question
@@ -126,7 +126,8 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                                 "
                                                                 (click)="
                                                                     setRating(
-                                                                        question.id,
+                                                                        '' +
+                                                                            question.id,
                                                                         idx
                                                                     )
                                                                 "
@@ -245,9 +246,10 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                                 [ngModelOptions]="{
                                                                     standalone: true,
                                                                 }"
-                                                                (ngModelChanges)="
+                                                                (ngModelChange)="
                                                                     toggleOption(
-                                                                        question.id,
+                                                                        '' +
+                                                                            question.id,
                                                                         choice.text,
                                                                         $event
                                                                     )
@@ -266,13 +268,13 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                 }
                             </main>
                             <footer
-                                class="sticky bottom-0 z-10 mx-auto my-2 flex h-16 w-[calc(100%-1rem)] w-full max-w-[40rem] items-center justify-end space-x-2 rounded border-none bg-base-200 p-2"
+                                class="bg-base-200 sticky bottom-0 z-10 mx-auto my-2 flex h-16 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-end space-x-2 rounded-sm border-none p-2"
                             >
                                 @if (active_page() > 0) {
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse w-32 bg-base-100"
+                                        class="inverse bg-base-100 w-32"
                                         (click)="previousPage()"
                                     >
                                         {{ 'COMMON.PREVIOUS' | translate }}
@@ -306,7 +308,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                 } @else {
                     <main
                         loading
-                        class="mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-[40rem] flex-col items-center justify-center space-y-2 space-y-4 rounded border border-base-300 p-4"
+                        class="border-base-300 mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border p-4"
                     >
                         <mat-spinner diameter="32"></mat-spinner>
                         <p>{{ loading() }}</p>

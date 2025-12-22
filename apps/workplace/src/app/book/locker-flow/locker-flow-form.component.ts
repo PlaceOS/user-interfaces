@@ -24,19 +24,19 @@ import { LockerFormDetailsComponent } from './locker-form-details.component';
     selector: 'locker-flow-form',
     styles: [],
     template: `
-        <div class="h-full w-full overflow-auto bg-base-200">
+        <div class="bg-base-200 h-full w-full overflow-auto">
             <div
-                class="mx-auto w-[48rem] max-w-full border border-base-200 bg-base-100 sm:my-4"
+                class="border-base-200 bg-base-100 mx-auto w-3xl max-w-full border sm:my-4"
             >
                 <h2
-                    class="w-full border-b border-base-200 p-4 text-2xl font-medium sm:px-16 sm:py-4"
+                    class="border-base-200 w-full border-b p-4 text-2xl font-medium sm:px-16 sm:py-4"
                 >
                     {{ 'BOOKINGS.LOCKER_TITLE' | translate }}
                 </h2>
                 <new-locker-form-details
                     [form]="form"
                 ></new-locker-form-details>
-                <div class="w-full border-b border-base-200 sm:mb-2"></div>
+                <div class="border-base-200 w-full border-b sm:mb-2"></div>
                 <section
                     class="flex flex-col items-center p-2 sm:mb-2 sm:flex-row sm:space-x-2 sm:px-16"
                 >

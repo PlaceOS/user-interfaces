@@ -36,7 +36,7 @@ const EMPTY_FAVS: string[] = [];
             @for (request of asset_requests; track request) {
                 <div
                     request
-                    class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                    class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
                     [class.border-error]="end_time < request.deliver_at"
                     [class.border-base-300]="end_time >= request.deliver_at"
                 >
@@ -63,7 +63,7 @@ const EMPTY_FAVS: string[] = [];
                                     request.conflict
                                 ) {
                                     <div
-                                        class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                        class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                         [matTooltip]="err_tooltip(request)"
                                     >
                                         <icon>priority_high</icon>
@@ -120,7 +120,7 @@ const EMPTY_FAVS: string[] = [];
                         </button>
                     </div>
                     <div
-                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                         [@show]="show_request[request.id] ? 'show' : 'hide'"
                     >
                         @for (item of request.items; track item) {
@@ -131,7 +131,7 @@ const EMPTY_FAVS: string[] = [];
                                     {{ item.name || 'Item' }}
                                 </div>
                                 <div
-                                    class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                 >
                                     x{{ item.quantity }}
                                 </div>

@@ -7,7 +7,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
     selector: 'status-pill',
     template: `
         <div
-            class="flex items-center space-x-2 rounded-full border border-base-200 bg-opacity-30 px-2 py-1 text-base font-medium text-black"
+            class="border-base-200 bg-opacity-30 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium text-black"
             [class.bg-success-light]="status() === 'success'"
             [class.bg-warning-light]="status() === 'warning'"
             [class.bg-error-light]="status() === 'error'"

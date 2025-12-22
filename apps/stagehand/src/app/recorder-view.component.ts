@@ -23,11 +23,11 @@ interface RecorderStreamMetadata {
 
 @Component({
     selector: `recorder-grid-view`,
-    template: ` <div class="absolute inset-0 flex bg-base-200">
+    template: ` <div class="bg-base-200 absolute inset-0 flex">
         <sidebar />
         <div class="flex flex-1 flex-col">
             <header
-                class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
             >
                 <h1 class="text-2xl font-bold">Recorder Streams</h1>
             </header>
@@ -36,10 +36,10 @@ interface RecorderStreamMetadata {
             >
                 @for (image of images(); track image.id) {
                     <div
-                        class="relative min-h-[25vh] overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                        class="border-base-300 bg-base-100 relative min-h-[25vh] overflow-hidden rounded-xl border"
                     >
                         <div
-                            class="absolute inset-2 overflow-hidden rounded-lg bg-base-300"
+                            class="bg-base-300 absolute inset-2 overflow-hidden rounded-lg"
                         >
                             <img
                                 class="h-full w-full object-contain object-center"
@@ -47,7 +47,7 @@ interface RecorderStreamMetadata {
                             />
                         </div>
                         <div
-                            class="overflow absolute bottom-4 left-1/2 -translate-x-1/2 rounded bg-base-400 bg-opacity-30 px-2 py-1 text-xs"
+                            class="overflow bg-base-400 bg-opacity-30 absolute bottom-4 left-1/2 -translate-x-1/2 rounded-sm px-2 py-1 text-xs"
                         >
                             {{ image.name }}
                         </div>

@@ -159,10 +159,14 @@ export interface BookingFlowOptions {
 
 export interface BookingAsset {
     id: string;
-    map_id: string;
+    map_id?: string;
+    display_name?: string;
     name: string;
     bookable: boolean;
     zone?: PlaceZone;
+    level?: PlaceZone;
+    location?: string;
+    images?: string[];
     groups?: string[];
     assigned_to?: string;
     features: string[];

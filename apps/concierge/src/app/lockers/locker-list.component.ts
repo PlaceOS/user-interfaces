@@ -23,7 +23,7 @@ import { LockerStateService } from './locker-state.service';
             class="w-full"
         />
         <simple-table
-            class="block min-w-[52rem] text-sm"
+            class="block min-w-208 text-sm"
             [data]="locker_banks"
             [columns]="[
                 {
@@ -117,7 +117,7 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                     <button mat-menu-item (click)="removeLockerBank(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-xl text-error">delete</icon>
+                            <icon class="text-error text-xl">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_BANK_REMOVE' | translate
                             }}</span>
@@ -213,7 +213,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.COLUMN' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="bg-base-200 w-12 rounded-sm px-2 py-1 text-center"
                         >
                             {{ data[0] + 1 }}u
                         </div>
@@ -223,7 +223,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.ROW' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="bg-base-200 w-12 rounded-sm px-2 py-1 text-center"
                         >
                             {{ data[1] + 1 }}u
                         </div>
@@ -237,7 +237,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.WIDTH' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="bg-base-200 w-12 rounded-sm px-2 py-1 text-center"
                         >
                             {{ data[0] }}u
                         </div>
@@ -247,7 +247,7 @@ import { LockerStateService } from './locker-state.service';
                             {{ 'COMMON.HEIGHT' | translate }}
                         </div>
                         <div
-                            class="w-12 rounded bg-base-200 px-2 py-1 text-center"
+                            class="bg-base-200 w-12 rounded-sm px-2 py-1 text-center"
                         >
                             {{ data[1] }}u
                         </div>
@@ -258,7 +258,7 @@ import { LockerStateService } from './locker-state.service';
                 <div class="flex w-full items-center justify-center p-2">
                     @if (data) {
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded bg-info text-info-content"
+                            class="bg-info text-info-content flex h-8 w-8 items-center justify-center rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.LOCKERS_ACCESSIBLE_INFO'
                                     | translate
@@ -272,7 +272,7 @@ import { LockerStateService } from './locker-state.service';
             <ng-template #bool_template let-data="data">
                 @if (data) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                         [matTooltip]="'COMMON.BOOKABLE' | translate"
                     >
                         <icon>done</icon>
@@ -324,7 +324,7 @@ import { LockerStateService } from './locker-state.service';
                     }
                     <button mat-menu-item (click)="removeLocker(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-xl text-error">delete</icon>
+                            <icon class="text-error text-xl">delete</icon>
                             <span>{{
                                 'APP.CONCIERGE.LOCKERS_REMOVE' | translate
                             }}</span>

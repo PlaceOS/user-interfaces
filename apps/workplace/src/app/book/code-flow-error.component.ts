@@ -10,7 +10,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
 @Component({
     selector: 'code-flow-success',
     template: `
-        <div class="absolute inset-0 z-50 flex flex-col bg-base-100">
+        <div class="bg-base-100 absolute inset-0 z-50 flex flex-col">
             <main
                 class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
@@ -23,7 +23,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 <div class="py-4">
                     <img src="assets/icons/not-found.svg" class="h-64" />
                 </div>
-                <p class="max-w-[32rem] text-center">
+                <p class="max-w-lg text-center">
                     @switch (type()) {
                         @case ('not_started') {
                             Booking has not started yet. Please try again once
@@ -40,13 +40,13 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 </p>
             </main>
             <footer
-                class="mt-4 flex w-full items-center justify-center space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 mt-4 flex w-full items-center justify-center space-x-2 border-t p-2"
             >
                 @if (type() === 'not_started') {
                     <a
                         btn
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/book', 'code']"
                         [queryParams]="{ asset_id: asset_id }"
                     >
@@ -57,7 +57,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                     <a
                         btn
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/book', 'desk']"
                         [queryParams]="{ asset_id: asset_id }"
                     >
@@ -67,7 +67,7 @@ const VALID_TYPES = ['not_started', 'wrong_resource', 'other'];
                 <a
                     btn
                     matRipple
-                    class="inverse w-full max-w-[32rem]"
+                    class="inverse w-full max-w-lg"
                     [routerLink]="['/']"
                 >
                     {{ 'COMMON.CONTINUE' | translate }}

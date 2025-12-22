@@ -45,11 +45,11 @@ function contains(str: string, substr: string) {
 @Component({
     selector: 'stagehand-remote-support',
     template: `
-        <div class="absolute inset-0 flex bg-base-200">
+        <div class="bg-base-200 absolute inset-0 flex">
             <sidebar />
             <div class="flex w-px flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                    class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
                 >
                     <h1 class="text-2xl font-bold">
                         AV Systems Remote Support
@@ -60,9 +60,9 @@ function contains(str: string, substr: string) {
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2"
                     >
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
                         >
-                            <icon class="mb-5 text-3xl text-info">sensors</icon>
+                            <icon class="text-info mb-5 text-3xl">sensors</icon>
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">Total Rooms</h3>
                                 <div class="text-sm opacity-40">
@@ -74,9 +74,9 @@ function contains(str: string, substr: string) {
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border p-4 shadow-sm"
                         >
-                            <icon class="mb-5 text-3xl text-error"
+                            <icon class="text-error mb-5 text-3xl"
                                 >warning</icon
                             >
                             <div class="flex-1">
@@ -92,7 +92,7 @@ function contains(str: string, substr: string) {
                             </div>
                         </div>
                         <!-- <div
-                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                            class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm"
                         >
                             <div class="flex items-center justify-between">
                                 <h3 class="text-xl font-medium">
@@ -109,7 +109,7 @@ function contains(str: string, substr: string) {
                     <div class="flex items-center space-x-4 px-4">
                         <mat-form-field
                             appearance="outline"
-                            class="no-subscript flex-1 bg-base-100"
+                            class="no-subscript bg-base-100 flex-1"
                         >
                             <icon matPrefix class="relative -left-2 text-2xl"
                                 >search</icon
@@ -151,7 +151,7 @@ function contains(str: string, substr: string) {
                             ></i>
                         }
                         <simple-table
-                            class="block w-full min-w-[64rem] overflow-hidden bg-base-100 text-sm"
+                            class="bg-base-100 block w-full min-w-5xl overflow-hidden text-sm"
                             [data]="filtered_rooms()"
                             [columns]="[
                                 {
@@ -250,7 +250,7 @@ function contains(str: string, substr: string) {
                                     track idx
                                 ) {
                                     <div
-                                        class="m-1 flex items-center rounded bg-info-light px-2 py-1"
+                                        class="bg-info-light m-1 flex items-center rounded-sm px-2 py-1"
                                     >
                                         <icon
                                             class="mr-1 text-2xl"
@@ -299,7 +299,7 @@ function contains(str: string, substr: string) {
                                 <button
                                     snap
                                     matRipple
-                                    class="relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300 hover:border-2 hover:border-info"
+                                    class="border-base-300 bg-base-300 hover:border-info relative m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border hover:border-2"
                                     (click)="openCameraSnapshot(space)"
                                     (mouseenter)="setHovering(true)"
                                     (mouseleave)="setHovering(false)"
@@ -317,7 +317,7 @@ function contains(str: string, substr: string) {
                                             alt="Camera Feed"
                                         />
                                     </div>
-                                    <div class="absolute right-0 top-0">
+                                    <div class="absolute top-0 right-0">
                                         <icon class="text-2xl text-white"
                                             >expand_content</icon
                                         >
@@ -325,7 +325,7 @@ function contains(str: string, substr: string) {
                                 </button>
                             } @else {
                                 <div
-                                    class="m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded border border-base-300 bg-base-300"
+                                    class="border-base-300 bg-base-300 m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border"
                                 >
                                     <icon class="text-3xl opacity-30"
                                         >hide_image</icon
@@ -380,7 +380,7 @@ function contains(str: string, substr: string) {
                                     target="_blank"
                                     ref="noopener noreferrer"
                                     matTooltip="Manage Room"
-                                    class="rounded"
+                                    class="rounded-sm"
                                 >
                                     <icon class="text-2xl">build</icon>
                                 </a>
@@ -394,7 +394,7 @@ function contains(str: string, substr: string) {
                                     target="_blank"
                                     ref="noopener noreferrer"
                                     matTooltip="Control Room"
-                                    class="rounded"
+                                    class="rounded-sm"
                                 >
                                     <icon class="text-2xl">devices</icon>
                                 </a>

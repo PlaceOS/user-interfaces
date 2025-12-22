@@ -19,7 +19,7 @@ export interface CameraSnapshotData {
     template: `
         <div>
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     Camera Feed - {{ data.room_name }}
@@ -29,10 +29,10 @@ export interface CameraSnapshotData {
                 </button>
             </header>
             <main
-                class="mb-2 max-h-[65vh] w-[48rem] max-w-[calc(100vw-2rem)] space-y-4 overflow-auto px-2"
+                class="mb-2 max-h-[65vh] w-3xl max-w-[calc(100vw-2rem)] space-y-4 overflow-auto px-2"
             >
                 <div
-                    class="relative flex min-h-[45vmin] min-w-[80vmin] max-w-full items-center justify-center overflow-hidden rounded-lg border border-base-300 bg-base-300"
+                    class="border-base-300 bg-base-300 relative flex min-h-[45vmin] max-w-full min-w-[80vmin] items-center justify-center overflow-hidden rounded-lg border"
                 >
                     @if (snapshot_url()) {
                         <img
@@ -42,7 +42,7 @@ export interface CameraSnapshotData {
                             alt="Camera Feed"
                         />
                         <div
-                            class="absolute bottom-2 right-2 overflow-hidden rounded-full px-2 py-1 font-mono text-xs text-white"
+                            class="absolute right-2 bottom-2 overflow-hidden rounded-full px-2 py-1 font-mono text-xs text-white"
                         >
                             <div
                                 class="absolute inset-0 z-0 bg-black opacity-30"

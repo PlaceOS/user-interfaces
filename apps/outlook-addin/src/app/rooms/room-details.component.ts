@@ -18,7 +18,7 @@ import {
         >
             @if (space?.images?.length > 0) {
                 <section
-                    class="text-gray-500 flex min-h-[300px] items-center justify-center bg-base-200"
+                    class="bg-base-200 flex min-h-[300px] items-center justify-center text-gray-500"
                 >
                     <img
                         auth
@@ -31,7 +31,7 @@ import {
                 </section>
             }
             <section
-                class="mx-auto flex w-[calc(100%-2rem)] flex-col border-b border-base-200"
+                class="border-base-200 mx-auto flex w-[calc(100%-2rem)] flex-col border-b"
             >
                 <span class="mt-3 text-lg font-bold"> {{ space?.name }}</span>
 
@@ -40,7 +40,7 @@ import {
                         <button
                             btn
                             matRipple
-                            class="m-3 mx-auto w-full border-secondary bg-secondary"
+                            class="border-secondary bg-secondary m-3 mx-auto w-full"
                         >
                             <span class="text-white">+ Add this room</span>
                         </button>
@@ -50,7 +50,7 @@ import {
                         <button
                             btn
                             matRipple
-                            class="m-3 mx-auto w-full border-base-200 bg-base-200"
+                            class="border-base-200 bg-base-200 m-3 mx-auto w-full"
                         >
                             <span class="text-black">- Remove this room</span>
                         </button>
@@ -58,12 +58,12 @@ import {
                 </div>
             </section>
             <section
-                class="mx-auto flex w-[calc(100%-2rem)] flex-col border-b border-base-200 p-3 pl-0"
+                class="border-base-200 mx-auto flex w-[calc(100%-2rem)] flex-col border-b p-3 pl-0"
             >
                 <span class="text-base font-bold">Details</span>
                 <div class="mt-3 flex flex-row items-center text-sm">
                     <icon class="text-info">people</icon>
-                    <span class="text-gray-500 text-sm">
+                    <span class="text-sm text-gray-500">
                         {{ space?.capacity }} People</span
                     >
                 </div>
@@ -77,9 +77,7 @@ import {
             </section>
             @if (space?.feature_list.length > 0) {
                 <section class="mx-auto flex w-[calc(100%-2rem)] flex-col py-3">
-                    <span class="mb-3 text-base font-bold"
-                        >Room Facilities</span
-                    >
+                    <span class="mb-3 text-base font-bold">Room Features</span>
                     @for (facility of space?.feature_list; track facility) {
                         <div class="mb-1 flex w-full flex-row">
                             <div>
@@ -126,7 +124,7 @@ import {
                                     }
                                 }
                             </div>
-                            <span class="text-gray-500 text-sm">
+                            <span class="text-sm text-gray-500">
                                 {{ facility }}
                             </span>
                         </div>
@@ -134,13 +132,13 @@ import {
                 </section>
             }
             <div
-                class="top-box-shadow flex flex-col border-t border-base-200 bg-base-100 p-3"
+                class="top-box-shadow border-base-200 bg-base-100 flex flex-col border-t p-3"
             >
                 @if (!room_added) {
                     <button
                         btn
                         matRipple
-                        class="mx-auto w-full border-secondary bg-base-100"
+                        class="border-secondary bg-base-100 mx-auto w-full"
                         (click)="back()"
                     >
                         <span class="text-secondary">Back</span>
@@ -150,7 +148,7 @@ import {
                     <button
                         btn
                         matRipple
-                        class="mx-auto w-full border-secondary bg-secondary"
+                        class="border-secondary bg-secondary mx-auto w-full"
                         (click)="back()"
                     >
                         <span class="text-white">Confirm</span>

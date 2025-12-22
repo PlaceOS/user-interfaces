@@ -22,7 +22,7 @@ import { DateFieldComponent } from './date-field.component';
     selector: 'recurrence-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h3 class="text-xl font-medium">
                 {{ 'FORM.RECURRENCE_CUSTOM_HEADER' | translate }}
@@ -82,7 +82,7 @@ import { DateFieldComponent } from './date-field.component';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 rounded border border-secondary"
+                            class="border-secondary h-12 w-12 rounded-sm border"
                             [class.bg-secondary]="has_date"
                             [class.text-secondary]="!has_date"
                             [class.text-base-200]="has_date"
@@ -141,7 +141,7 @@ import { DateFieldComponent } from './date-field.component';
             </div>
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
+            class="border-base-200 flex items-center justify-end space-x-2 border-t px-4 py-2"
         >
             <button btn matRipple class="inverse w-32" mat-dialog-close>
                 {{ 'COMMON.CANCEL' | translate }}
@@ -200,10 +200,12 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
                 : this.week === 3
                   ? '3rd'
                   : `${this.week}th`;
-    public readonly weekdays = new Array(7).fill(0).map((_, idx) => {
-        const date = addDays(startOfWeek(Date.now()), idx);
-        return [date.valueOf(), date.getDay()];
-    });
+    public readonly weekdays: [number, DayIndex][] = new Array(7)
+        .fill(0)
+        .map((_, idx) => {
+            const date = addDays(startOfWeek(Date.now()), idx);
+            return [date.valueOf(), date.getDay() as DayIndex];
+        });
 
     public readonly form = new FormGroup({
         _custom: new FormControl(true),

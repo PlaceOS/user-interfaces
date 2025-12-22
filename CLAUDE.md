@@ -187,8 +187,13 @@ nx migrate --run-migrations
 - Supports multiple locales (see `app.locales` in settings)
 - Service worker support for PWA functionality (production builds)
 - Custom localization support via `shared/locales`, **TranslationPipe** and **LocalesService**
-- Tailwind is custom themed with CSS variables in `shared/styles/application.scss`
+- Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
+
+## other
+
+- After you finish making changes make sure all the apps build with `npm run build-all`
+- After you finish making changes make sure all the tests pass with `npm run test-all`
 
 ## Code styles
 

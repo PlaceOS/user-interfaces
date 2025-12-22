@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
-import { CateringItem, unique } from '@placeos/common';
+import { OrderCateringItem, unique } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
@@ -28,7 +28,7 @@ interface CateringOptionGroup {
     selector: 'new-catering-item-details',
     template: `
         @if (item()) {
-            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
+            <section image class="bg-base-200 relative h-64 w-full sm:h-40">
                 <image-carousel
                     [images]="item().images"
                     class="absolute inset-0"
@@ -38,7 +38,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="close-catering-item-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-100 lg:hidden"
+                    class="bg-base-100 absolute top-2 left-2 lg:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -48,7 +48,7 @@ interface CateringOptionGroup {
                     name="toggle-catering-item-favourite-details"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-100"
+                    class="bg-base-100 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -63,7 +63,7 @@ interface CateringOptionGroup {
             <div class="flex-1 space-y-4 p-2">
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
-                        <h2 class="mb-2 mt-4 text-xl font-medium">
+                        <h2 class="mt-4 mb-2 text-xl font-medium">
                             {{ item().name }}
                         </h2>
                         @if (item().unit_price) {
@@ -84,7 +84,7 @@ interface CateringOptionGroup {
                 <section class="flex flex-wrap items-center">
                     @for (tag of item().tags; track tag) {
                         <div
-                            class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
+                            class="bg-base-200 m-1 rounded-2xl px-2 py-1 text-sm capitalize"
                         >
                             {{ tag }}
                         </div>
@@ -95,10 +95,10 @@ interface CateringOptionGroup {
                         @for (group of groups; track group) {
                             <div
                                 [attr.group]="group.name"
-                                class="relative space-y-2 rounded border border-base-400 px-3 pb-2 pt-4"
+                                class="border-base-400 relative space-y-2 rounded-sm border px-3 pt-4 pb-2"
                             >
                                 <h3
-                                    class="text-md absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 font-medium"
+                                    class="text-md bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 font-medium"
                                 >
                                     {{ group.name }}
                                 </h3>
@@ -137,10 +137,10 @@ interface CateringOptionGroup {
                                                     [value]="opt.id"
                                                 >
                                                     <div
-                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-[15rem]"
+                                                        class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-60"
                                                     >
                                                         <div
-                                                            class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
+                                                            class="w-1/2 flex-1 p-2 font-medium whitespace-normal capitalize"
                                                         >
                                                             {{ opt.name }}
                                                         </div>
@@ -232,7 +232,7 @@ interface CateringOptionGroup {
     ],
 })
 export class NewCateringItemDetailsComponent implements OnChanges {
-    public readonly item = input<CateringItem>(undefined);
+    public readonly item = input<OrderCateringItem>(undefined);
     public readonly active = input(false);
     public readonly fav = input(false);
     public readonly code = input('USD');

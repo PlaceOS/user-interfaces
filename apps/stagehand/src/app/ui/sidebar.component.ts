@@ -20,7 +20,7 @@ const COMPACT_SIGNAL = signal(false);
     template: `
         <div
             sidebar
-            class="flex h-full flex-col bg-secondary text-secondary-content"
+            class="bg-secondary text-secondary-content flex h-full flex-col"
             [style.width]="is_compact() ? '3.5rem' : '16rem'"
         >
             <div class="flex items-center px-1">
@@ -41,7 +41,7 @@ const COMPACT_SIGNAL = signal(false);
                 <button
                     icon
                     matRipple
-                    class="rounded"
+                    class="rounded-sm"
                     [class.w-14]="is_compact()"
                     (click)="toggleCompact()"
                     [matTooltip]="
@@ -123,9 +123,9 @@ const COMPACT_SIGNAL = signal(false);
                     matTooltipPosition="right"
                 >
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">notifications</icon>
+                    <icon class="ml-0! text-3xl">notifications</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Alerts</span>
                     }
@@ -139,9 +139,9 @@ const COMPACT_SIGNAL = signal(false);
                     matTooltipPosition="right"
                 >
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">wifi</icon>
+                    <icon class="ml-0! text-3xl">wifi</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Remote Support</span>
                     }
@@ -156,9 +156,9 @@ const COMPACT_SIGNAL = signal(false);
                         matTooltipPosition="right"
                     >
                         <div
-                            class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                            class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                         ></div>
-                        <icon class="!ml-0 text-3xl">show_chart</icon>
+                        <icon class="ml-0! text-3xl">show_chart</icon>
                         @if (!is_compact()) {
                             <span class="truncate">Analytics</span>
                         }
@@ -173,9 +173,9 @@ const COMPACT_SIGNAL = signal(false);
                     matTooltipPosition="right"
                 >
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                     ></div>
-                    <icon class="!ml-0 text-3xl">dashboard</icon>
+                    <icon class="ml-0! text-3xl">dashboard</icon>
                     @if (!is_compact()) {
                         <span class="truncate">Manage Dashboards</span>
                     }
@@ -190,9 +190,9 @@ const COMPACT_SIGNAL = signal(false);
                         matTooltipPosition="right"
                     >
                         <div
-                            class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                            class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                         ></div>
-                        <icon class="!ml-0 text-2xl">stream</icon>
+                        <icon class="ml-0! text-2xl">stream</icon>
                         @if (!is_compact) {
                             <span class="truncate">Recorder Streams</span>
                         }
@@ -206,14 +206,14 @@ const COMPACT_SIGNAL = signal(false);
             >
                 <button
                     matRipple
-                    class="relative flex w-full items-center justify-center space-x-2 rounded p-2"
+                    class="relative flex w-full items-center justify-center space-x-2 rounded-sm p-2"
                     [class.px-4]="!is_compact()"
                     (click)="openNotificationSettings()"
                     [matTooltip]="is_compact() ? 'Notification Settings' : ''"
                     matTooltipPosition="right"
                 >
                     <div
-                        class="absolute inset-0 bg-base-100 opacity-0 hover:opacity-10"
+                        class="bg-base-100 absolute inset-0 opacity-0 hover:opacity-10"
                     ></div>
                     <icon class="text-2xl">{{
                         notifications_active()
@@ -227,7 +227,7 @@ const COMPACT_SIGNAL = signal(false);
                     }
                     @if (notifications_active() && !is_compact()) {
                         <span
-                            class="ml-auto rounded-full bg-success px-2 py-0.5 text-xs text-success-content"
+                            class="bg-success text-success-content ml-auto rounded-full px-2 py-0.5 text-xs"
                             >ON</span
                         >
                     }
@@ -253,7 +253,7 @@ const COMPACT_SIGNAL = signal(false);
                         </span>
                     }
                     @if (is_compact()) {
-                        <icon class="text-3xl text-base-100">open_in_new</icon>
+                        <icon class="text-base-100 text-3xl">open_in_new</icon>
                     }
                 </a>
                 @if (!is_compact()) {

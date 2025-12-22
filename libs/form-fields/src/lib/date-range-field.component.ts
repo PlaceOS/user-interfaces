@@ -13,7 +13,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
     template: `
         <button
             matRipple
-            class="flex min-w-max items-center space-x-2 rounded border border-neutral px-4 py-2 outline-base-content hover:border-base-content focus:outline-2"
+            class="border-neutral outline-base-content hover:border-base-content flex min-w-max items-center space-x-2 rounded-sm border px-4 py-2 focus:outline-2"
             type="button"
             role="date-picker"
             customTooltip
@@ -36,7 +36,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             <ng-content select="input[endDate]"></ng-content>
         </div>
         <ng-template #calendar_picker>
-            <div class="relative w-[18.25rem] rounded bg-base-100 px-2 py-4">
+            <div class="bg-base-100 relative w-73 rounded-sm px-2 py-4">
                 <date-range-calendar
                     [month]="start_date()?.control?.value || now"
                     [from]="from"
@@ -74,6 +74,16 @@ export class DateRangeFieldComponent extends AsyncHandler {
 
     public readonly start_date = contentChild('startDate', { read: NgControl });
     public readonly end_date = contentChild('endDate', { read: NgControl });
+
+    /** First allowed date on the calendar */
+    public get from(): number {
+        const from = this.from_date();
+        return from !== undefined ? from : startOfDay(new Date()).valueOf();
+    }
+    /** Current date value */
+    public get until(): number {
+        return this.to_date();
+    }
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 

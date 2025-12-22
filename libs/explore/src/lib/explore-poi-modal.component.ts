@@ -31,7 +31,7 @@ export interface POI {
     selector: `explore-poi-modal`,
     template: `
         <div
-            class="h-screen w-full min-w-[20rem] max-w-[28rem] overflow-auto rounded bg-base-100 sm:h-auto"
+            class="bg-base-100 h-screen w-full max-w-md min-w-[20rem] overflow-auto rounded-sm sm:h-auto"
         >
             <header>
                 <h2>{{ item.name }}</h2>
@@ -46,14 +46,14 @@ export interface POI {
                     !item.extra_details?.length
                 ) {
                     <p
-                        class="m-4 flex h-[calc(100vh-5.75rem)] w-[calc(100%-2rem)] items-center justify-center rounded-lg bg-base-200 p-8 text-center opacity-50 sm:h-64"
+                        class="bg-base-200 m-4 flex h-[calc(100vh-5.75rem)] w-[calc(100%-2rem)] items-center justify-center rounded-lg p-8 text-center opacity-50 sm:h-64"
                     >
                         No available details for this point of interest.
                     </p>
                 }
                 @if (item.image) {
                     <img
-                        class="h-48 w-full bg-base-300 object-contain"
+                        class="bg-base-300 h-48 w-full object-contain"
                         [src]="item.image"
                         [alt]="item.name"
                     />
@@ -79,18 +79,18 @@ export interface POI {
                         }
                     </div>
                     <div
-                        class="flex w-full flex-col items-center justify-center space-y-2 border-t border-base-200 p-4"
+                        class="border-base-200 flex w-full flex-col items-center justify-center space-y-2 border-t p-4"
                     >
                         <div class="relative">
                             @if (playing()) {
                                 <div
-                                    class="absolute left-2 top-2 h-8 w-8 animate-ping rounded-full bg-info"
+                                    class="bg-info absolute top-2 left-2 h-8 w-8 animate-ping rounded-full"
                                 ></div>
                             }
                             <button
                                 icon
                                 matRipple
-                                class="relative h-12 w-12 bg-base-200"
+                                class="bg-base-200 relative h-12 w-12"
                                 (click)="togglePlay()"
                             >
                                 <icon>{{
@@ -105,9 +105,9 @@ export interface POI {
                     <div class="text-sm">
                         @for (details of item.extra_details; track $index) {
                             <div
-                                class="flex space-x-4 border-t border-base-200 p-4"
+                                class="border-base-200 flex space-x-4 border-t p-4"
                             >
-                                <div class="w-20 min-w-20 text-info">
+                                <div class="text-info w-20 min-w-20">
                                     {{ details?.[0] }}
                                 </div>
                                 <div>{{ details?.[1] }}</div>

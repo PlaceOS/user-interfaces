@@ -31,7 +31,7 @@ const EMPTY = [];
     selector: 'landing-favourites',
     template: `
         <div
-            class="mx-2 flex items-center justify-between rounded bg-base-200 p-2 text-sm"
+            class="bg-base-200 mx-2 flex items-center justify-between rounded-sm p-2 text-sm"
         >
             <h2>
                 {{
@@ -46,7 +46,7 @@ const EMPTY = [];
             </h2>
         </div>
         <div
-            class="h-1/2 w-full flex-1 space-y-2 divide-y divide-base-200 overflow-auto pt-4"
+            class="divide-base-200 h-1/2 w-full flex-1 space-y-2 divide-y overflow-auto pt-4"
         >
             @if (spaces?.length || (assets | async)?.length) {
                 @for (item of spaces; track item || $index) {
@@ -60,12 +60,12 @@ const EMPTY = [];
                                 class="relative flex w-full items-center space-x-2"
                             >
                                 <div
-                                    class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                                    class="bg-base-300 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm"
                                 >
                                     @if (space.images.length) {
                                         <img
                                             auth
-                                            class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                            class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                             [source]="space.images[0]"
                                         />
                                     } @else {
@@ -123,7 +123,7 @@ const EMPTY = [];
                                 icon
                                 name="favourite-more"
                                 [matMenuTriggerFor]="menu"
-                                class="absolute right-0 top-2 !m-0 !rounded bg-base-200"
+                                class="bg-base-200 absolute top-2 right-0 m-0! rounded-sm!"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -141,7 +141,7 @@ const EMPTY = [];
                                     (click)="removeFavourite('space', item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl text-error"
+                                        <icon class="text-error text-2xl"
                                             >delete</icon
                                         >
                                         <div>
@@ -165,12 +165,12 @@ const EMPTY = [];
                             class="relative flex w-full items-center space-x-2"
                         >
                             <div
-                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                                class="bg-base-300 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (item?.images?.length) {
                                     <img
                                         auth
-                                        class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                        class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                         [source]="item?.images[0]"
                                     />
                                 } @else {
@@ -219,7 +219,7 @@ const EMPTY = [];
                             icon
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="top-22 absolute right-0 !m-0 !rounded bg-base-200"
+                            class="bg-base-200 absolute top-22 right-0 m-0! rounded-sm!"
                         >
                             <icon>more_horiz</icon>
                         </button>
@@ -239,7 +239,7 @@ const EMPTY = [];
                                 (click)="removeFavourite(item.type, item.id)"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error">
+                                    <icon class="text-error text-2xl">
                                         delete
                                     </icon>
                                     <div class="pr-4">

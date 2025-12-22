@@ -16,7 +16,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
@@ -38,7 +42,7 @@ import { LockerStateService } from './locker-state.service';
             <div class="w-px flex-1"></div>
             <searchbar
                 class="mr-2"
-                [model]="(options | async)?.search"
+                [model]="search | async"
                 (modelChange)="setSearch($event)"
             ></searchbar>
             <div
@@ -78,7 +82,7 @@ import { LockerStateService } from './locker-state.service';
                 </button>
             }
         </div>
-        <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
+        <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
             <mat-form-field appearance="outline" class="no-subscript w-56">
                 <mat-select
                     [(ngModel)]="zones"
@@ -111,7 +115,7 @@ import { LockerStateService } from './locker-state.service';
                 <button
                     icon
                     matRipple
-                    class="mr-2 h-12 w-12 rounded border border-error text-error"
+                    class="border-error text-error mr-2 h-12 w-12 rounded-sm border"
                     (click)="releaseAllLockers()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_RELEASE_ALL' | translate
@@ -124,7 +128,7 @@ import { LockerStateService } from './locker-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.LOCKERS_BOOKING_RULES' | translate
@@ -177,6 +181,7 @@ import { LockerStateService } from './locker-state.service';
         FormsModule,
         SearchbarComponent,
         TranslatePipe,
+        BuildingPipe,
     ],
 })
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
@@ -197,6 +202,8 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** Migration status signals */
     public readonly banks_need_migration = this._state.banks_need_migration;
     public readonly lockers_need_migration = this._state.lockers_need_migration;
+    /** Search string */
+    public readonly search = this._state.search;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setFilters({ date: d });
     /** Set filter string */

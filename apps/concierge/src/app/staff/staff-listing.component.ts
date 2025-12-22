@@ -38,7 +38,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
                         <div
                             group
                             [id]="'letter-' + (group === '#' ? '0' : group)"
-                            class="sticky top-0 z-10 m-2 rounded-lg border border-base-300 bg-base-200 text-sm font-medium capitalize"
+                            class="border-base-300 bg-base-200 sticky top-0 z-10 m-2 rounded-lg border text-sm font-medium capitalize"
                         >
                             {{ group }}
                         </div>

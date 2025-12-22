@@ -13,7 +13,14 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
-type DeskStatus = 'free' | 'busy' | 'pending' | 'reserved' | 'unknown' | '';
+type DeskStatus =
+    | 'free'
+    | 'busy'
+    | 'pending'
+    | 'reserved'
+    | 'not-bookable'
+    | 'unknown'
+    | '';
 
 export interface DeskInfoData {
     id: string;
@@ -48,13 +55,13 @@ export interface DeskInfoData {
                 name="space-info"
                 [id]="map_id()"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 w-64 bg-base-100 p-1 shadow ' +
+                    'bg-base-100 pointer-events-none absolute top-0 left-0 w-64 p-1 shadow-sm ' +
                     x_pos() +
                     ' ' +
                     y_pos()
                 "
             >
-                <div class="rounded-md border border-base-200 p-1">
+                <div class="border-base-200 rounded-md border p-1">
                     <div class="triangle absolute"></div>
                     <div class="flex w-full items-center space-x-4">
                         <div class="flex flex-1 flex-col px-2 py-1">
@@ -83,7 +90,7 @@ export interface DeskInfoData {
                                 <div
                                     status
                                     [class]="
-                                        'text-light rounded border border-base-100 p-1 px-2 capitalize shadow ' +
+                                        'text-light border-base-100 rounded-sm border p-1 px-2 capitalize shadow-sm ' +
                                         status()
                                     "
                                 >

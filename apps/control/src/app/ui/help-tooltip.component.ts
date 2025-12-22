@@ -11,7 +11,7 @@ import { ControlStateService } from '../control-state.service';
     selector: 'help-tooltip',
     template: `
         <div
-            class="my-2 flex flex-col items-center space-y-2 rounded bg-base-100 p-4 shadow"
+            class="bg-base-100 my-2 flex flex-col items-center space-y-2 rounded-sm p-4 shadow-sm"
         >
             <h3 class="mb-2 text-xl font-medium">
                 {{ 'APP.CONTROL.HELP_CONTACT' | translate }}

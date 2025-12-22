@@ -15,38 +15,38 @@ import { EventStateService } from './event-state.service';
     template: `
         <div class="absolute inset-0 flex overflow-auto">
             <div
-                class="sticky left-0 z-20 flex min-h-full w-24 flex-col items-end bg-base-100"
+                class="bg-base-100 sticky left-0 z-20 flex min-h-full w-24 flex-col items-end"
             >
                 <div
                     header
                     class="sticky top-0 z-10 flex h-16 min-h-16 justify-end"
                 >
-                    <div class="h-10 bg-base-100 pt-6">
+                    <div class="bg-base-100 h-10 pt-6">
                         <div class="px-2 text-xs opacity-30">
                             {{ now | date: 'zzzz' }}
                         </div>
                     </div>
                 </div>
                 @for (hour of hours; track i; let i = $index) {
-                    <div class="relative min-h-10 w-full flex-1 bg-base-100">
+                    <div class="bg-base-100 relative min-h-10 w-full flex-1">
                         <div
                             hour
-                            class="absolute right-1 top-0 -translate-y-1/2 whitespace-nowrap text-xs opacity-60"
+                            class="absolute top-0 right-1 -translate-y-1/2 text-xs whitespace-nowrap opacity-60"
                         >
                             {{ hour }} {{ i >= 12 ? 'PM' : 'AM' }}
                         </div>
                     </div>
                 }
             </div>
-            <div class="relative z-10 min-h-full min-w-[84rem]">
+            <div class="relative z-10 min-h-full min-w-336">
                 <div
                     header
-                    class="sticky top-0 z-10 flex h-16 min-h-16 border-b border-base-200 bg-base-100"
+                    class="border-base-200 bg-base-100 sticky top-0 z-10 flex h-16 min-h-16 border-b"
                 >
                     @for (date of days; track date + '' + $index) {
                         <div
                             date
-                            class="flex min-w-48 flex-1 flex-col items-center justify-center border-r border-base-200 p-4"
+                            class="border-base-200 flex min-w-48 flex-1 flex-col items-center justify-center border-r p-4"
                         >
                             <div class="text-sm opacity-60">
                                 {{ date | date: 'EEEE' }}
@@ -57,13 +57,13 @@ import { EventStateService } from './event-state.service';
                 </div>
                 @for (hour of hours; track i; let i = $index) {
                     <div
-                        class="pointer-events-none relative flex min-h-10 min-w-[84rem] flex-1 border-x border-b border-base-200"
+                        class="border-base-200 pointer-events-none relative flex min-h-10 min-w-336 flex-1 border-x border-b"
                     ></div>
                 }
                 @for (date of days; track date + '' + i; let i = $index) {
                     <div
                         date
-                        class="pointer-events-none absolute left-0 top-16 h-[60rem] w-[calc(100%/7)] flex-1 border-r border-base-200"
+                        class="border-base-200 pointer-events-none absolute top-16 left-0 h-240 w-[calc(100%/7)] flex-1 border-r"
                         [style.transform]="'translateX(' + i * 100 + '%)'"
                     >
                         @for (
@@ -74,13 +74,13 @@ import { EventStateService } from './event-state.service';
                         ) {
                             <button
                                 matRipple
-                                class="pointer-events-auto absolute inset-x-1 overflow-hidden rounded border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow hover:border-info"
+                                class="border-base-200 bg-base-100 hover:border-info pointer-events-auto absolute inset-x-1 overflow-hidden rounded-sm border py-1 pr-2 pl-3 shadow-sm"
                                 [style.top]="event.offset * 100 + '%'"
                                 [style.height]="event.length * 100 + '%'"
                                 (click)="viewEvent(event)"
                             >
                                 <div
-                                    class="absolute inset-y-0 left-0 w-1.5 bg-info"
+                                    class="bg-info absolute inset-y-0 left-0 w-1.5"
                                 ></div>
                                 <div
                                     class="h-full text-left text-sm opacity-60"
@@ -108,11 +108,11 @@ import { EventStateService } from './event-state.service';
                         @if (isCurrentDay(date)) {
                             <div
                                 now
-                                class="absolute inset-x-0 h-0 border-y-2 border-base-content"
+                                class="border-base-content absolute inset-x-0 h-0 border-y-2"
                                 [style.top]="now_offset * 100 + '%'"
                             >
                                 <div
-                                    class="absolute left-0 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-base-content"
+                                    class="bg-base-content absolute top-0 left-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full"
                                 ></div>
                             </div>
                         }

@@ -8,11 +8,11 @@ import { CounterComponent } from '@placeos/form-fields';
     selector: 'points-overview',
     template: `
         <h2
-            class="mb-4 w-full rounded border border-base-300 px-4 py-3 text-lg font-medium"
+            class="border-base-300 mb-4 w-full rounded-sm border px-4 py-3 text-lg font-medium"
         >
             {{ 'APP.CONCIERGE.POINTS_OVERVIEW_HEADER' | translate }}
         </h2>
-        <section class="w-full bg-base-100">
+        <section class="bg-base-100 w-full">
             <h2 class="p-2 text-lg font-medium underline">
                 {{ 'APP.CONCIERGE.POINTS_VALUE_HEADER' | translate }}
             </h2>
@@ -35,13 +35,13 @@ import { CounterComponent } from '@placeos/form-fields';
                 </icon>
             </div>
         </section>
-        <section class="w-full flex-1 bg-base-100">
+        <section class="bg-base-100 w-full flex-1">
             <h2 class="p-2 text-lg font-medium underline">
                 {{ 'APP.CONCIERGE.POINTS_AUTO_REWARDS' | translate }}
             </h2>
             <div class="p-4">
                 <div
-                    class="flex items-center space-x-4 border-b border-base-200 p-2"
+                    class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.desk_checkin"
@@ -52,7 +52,7 @@ import { CounterComponent } from '@placeos/form-fields';
                     }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-4 border-b border-base-200 p-2"
+                    class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.room_checkin"
@@ -63,7 +63,7 @@ import { CounterComponent } from '@placeos/form-fields';
                     }}</span>
                 </div>
                 <div
-                    class="flex items-center space-x-4 border-b border-base-200 p-2"
+                    class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
                         [(ngModel)]="points.booking_cancel"

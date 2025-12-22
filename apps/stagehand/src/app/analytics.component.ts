@@ -17,11 +17,11 @@ interface AnalyticsPage {
 @Component({
     selector: 'stagehand-analytics',
     template: `
-        <div class="absolute inset-0 flex bg-base-200">
+        <div class="bg-base-200 absolute inset-0 flex">
             <sidebar />
             <div class="flex flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between border-base-400 bg-base-100 p-4"
+                    class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Analytics</h1>
                     <mat-form-field appearance="outline" class="no-subscript">

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,7 +18,7 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
-                class="block min-w-[92rem] text-sm"
+                class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
                 [filter_on]="[
@@ -134,7 +134,7 @@ import { DesksStateService } from './desks-state.service';
                         row.status === 'ended'
                     ) {
                         <div
-                            class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
+                            class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
                         >
                             {{
                                 (row.deleted
@@ -156,7 +156,7 @@ import { DesksStateService } from './desks-state.service';
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 select-all truncate text-xs opacity-30"
+                            class="max-w-48 truncate text-xs opacity-30 select-all"
                         >
                             {{ email }}
                         </div>
@@ -167,20 +167,20 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[7.5rem] rounded-3xl border-none bg-warning text-warning-content"
-                        [class.!text-success-content]="
+                        class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
+                        [class.text-success-content!]="
                             row?.status === 'approved'
                         "
-                        [class.!bg-success]="row?.status === 'approved'"
-                        [class.!text-error-content]="row?.status === 'declined'"
-                        [class.!bg-error]="row?.status === 'declined'"
-                        [class.!text-neutral-content]="row?.status === 'ended'"
-                        [class.!bg-neutral]="row?.status === 'ended'"
+                        [class.bg-success!]="row?.status === 'approved'"
+                        [class.text-error-content!]="row?.status === 'declined'"
+                        [class.bg-error!]="row?.status === 'declined'"
+                        [class.text-neutral-content!]="row?.status === 'ended'"
+                        [class.bg-neutral!]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (row?.status === 'ended'
@@ -226,12 +226,12 @@ import { DesksStateService } from './desks-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-[4.5rem] rounded-3xl border-none bg-warning text-warning-content"
+                        class="bg-warning text-warning-content h-10 w-18 rounded-3xl border-none"
                         [matMenuTriggerFor]="checkinMenu"
-                        [class.!bg-neutral]="!data"
-                        [class.!text-neutral-content]="!data"
-                        [class.!bg-success]="data"
-                        [class.!text-success-content]="data"
+                        [class.bg-neutral!]="!data"
+                        [class.text-neutral-content!]="!data"
+                        [class.bg-success!]="data"
+                        [class.text-success-content!]="data"
                         [class.opacity-30]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="
@@ -240,7 +240,7 @@ import { DesksStateService } from './desks-state.service';
                                 : 'Check-in or check-out desk'
                         "
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
@@ -271,7 +271,7 @@ import { DesksStateService } from './desks-state.service';
                     <button
                         icon
                         matRipple
-                        class="h-12 w-12 rounded"
+                        class="h-12 w-12 rounded-sm"
                         [matMenuTriggerFor]="actionMenu"
                     >
                         <icon class="text-2xl">more_vert</icon>
@@ -329,7 +329,19 @@ export class DeskBookingsComponent {
     public loading = signal<string>('');
     public readonly filters = this._state.filters;
     public readonly has_more_pages = this._state.has_more_pages;
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = computed(() => {
+        const all_bookings = this._state.bookings();
+        if (!this._state.loading()) return all_bookings;
+        // While loading, filter to only show bookings matching the newly selected zones
+        const selected_zones = this.filters().zones || [];
+        const active_zones = selected_zones.filter(
+            (z) => z && z !== 'All' && z !== '-1',
+        );
+        if (!active_zones.length) return [];
+        return all_bookings.filter((booking) =>
+            booking.zones?.some((z) => active_zones.includes(z)),
+        );
+    });
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly cancel = (b) => this._state.cancelBooking(b);

@@ -8,6 +8,7 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { updateBooking } from '@placeos/bookings';
 import { Booking, i18n, notifyError, notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -19,7 +20,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             <h2>
                 {{ 'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate }}
                 <span
-                    class="ml-2 rounded bg-base-200 px-2 py-1 text-sm font-medium"
+                    class="bg-base-200 ml-2 rounded-sm px-2 py-1 text-sm font-medium"
                 >
                     {{ item?.asset_name }}
                 </span>
@@ -31,7 +32,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             }
         </header>
         @if (!loading) {
-            <main class="max-h-[65vh] w-[36rem] overflow-auto p-4">
+            <main class="max-h-[65vh] w-xl overflow-auto p-4">
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
@@ -39,7 +40,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <textarea
                         matInput
                         [(ngModel)]="notes"
-                        class="h-[60vh] max-h-[64rem] resize-none"
+                        class="h-[60vh] max-h-256 resize-none"
                         [placeholder]="
                             'APP.CONCIERGE.VISITORS_NOTES_HEADERS' | translate
                         "
@@ -49,7 +50,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         } @else {
             <div
                 loading
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-2"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.VISITORS_NOTES_SAVING' | translate }}</p>
@@ -57,7 +58,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         }
         @if (!loading) {
             <footer
-                class="flex justify-end space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 flex justify-end space-x-2 border-t p-2"
             >
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -72,6 +73,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         TranslatePipe,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         IconComponent,
         FormsModule,
     ],

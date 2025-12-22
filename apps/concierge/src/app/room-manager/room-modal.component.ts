@@ -300,11 +300,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                         <mat-form-field appearance="outline">
                             <mat-chip-grid
                                 #chipList
-                                [aria-label]="'COMMON.FEATRUES' | translate"
+                                [attr.aria-label]="
+                                    'COMMON.FEATURES' | translate
+                                "
                             >
                                 @for (feature of feature_list; track feature) {
                                     <mat-chip-row
-                                        [selectable]="true"
                                         [removable]="true"
                                         (removed)="removeFeature(feature)"
                                     >
@@ -344,7 +345,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded border border-secondary text-secondary"
+                                class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                                 [matTooltip]="
                                     'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                 "

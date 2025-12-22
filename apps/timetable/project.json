@@ -44,10 +44,7 @@
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                     "apps/timetable/src/styles.css",
-                    "shared/styles/application.scss",
-                    "shared/styles/custom-element.scss",
-                    "shared/styles/native-element.scss",
-                    "shared/styles/utility.scss"
+                    "shared/styles/application.css"
                 ],
                 "scripts": [],
                 "serviceWorker": "apps/timetable/ngsw-config.json",

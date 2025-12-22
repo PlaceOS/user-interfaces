@@ -9,12 +9,12 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'help-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-[18.5rem] flex-col rounded bg-base-100 shadow"
+            class="bg-base-100 relative -top-12 -right-1 flex w-74 flex-col rounded-sm shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-4"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-4"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
@@ -28,7 +28,7 @@ import { TranslatePipe } from './translate.pipe';
                     [href]="tile.link"
                 >
                     <div
-                        class="flex w-full items-center space-x-2 rounded p-2 hover:bg-base-200"
+                        class="hover:bg-base-200 flex w-full items-center space-x-2 rounded-sm p-2"
                     >
                         <icon class="text-xl" [icon]="tile.icon"></icon>
                         <div>{{ tile.name }}</div>

@@ -28,7 +28,7 @@ export interface PointAsset {
     selector: 'points-assets',
     template: `
         <simple-table
-            class="block w-full min-w-[32rem]"
+            class="block w-full min-w-lg"
             [data]="asset_list"
             [columns]="[
                 { key: 'name', name: 'FORM.NAME' | translate },
@@ -66,7 +66,9 @@ export interface PointAsset {
         />
         <ng-template #type_template let-data="data">
             <div class="p-2">
-                <span class="rounded bg-base-200 px-2 py-1 text-sm capitalize">
+                <span
+                    class="bg-base-200 rounded-sm px-2 py-1 text-sm capitalize"
+                >
                     {{ data }}
                 </span>
             </div>
@@ -80,7 +82,7 @@ export interface PointAsset {
             <div
                 [class.bg-error]="!data"
                 [class.bg-success]="data"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
             >
                 <icon>{{ data ? 'done' : 'close' }}</icon>
             </div>

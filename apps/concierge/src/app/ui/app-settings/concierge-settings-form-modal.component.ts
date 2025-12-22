@@ -48,7 +48,7 @@ import { UploadButtonComponent } from './upload-button.component';
             (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col space-y-8 pb-4">
-                <section general class="space-y-2 rounded bg-base-100">
+                <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
@@ -183,10 +183,10 @@ import { UploadButtonComponent } from './upload-button.component';
                         </mat-form-field>
                     </div>
                     <div
-                        class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                        class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             Banner
                         </h3>
@@ -341,18 +341,18 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         spaces
                         id="feature-spaces"
-                        class="relative rounded border border-base-300"
+                        class="border-base-300 relative rounded-sm border"
                         formGroupName="events"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             Room Bookings
                         </h3>
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
                             (click)="toggleGroup('spaces')"
                         >
                             <icon>{{
@@ -365,7 +365,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             collapsible
                             [class.open]="shown_group() === 'spaces'"
                         >
-                            <div class="content px-4 pb-2 pt-4">
+                            <div class="content px-4 pt-4 pb-2">
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
                                         <label for="block-start"
@@ -691,18 +691,18 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         visitors
                         id="feature-visitors"
-                        class="relative rounded border border-base-300"
+                        class="border-base-300 relative rounded-sm border"
                         formGroupName="visitors"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             Visitors
                         </h3>
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
                             (click)="toggleGroup('visitors')"
                         >
                             <icon>{{
@@ -715,7 +715,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             collapsible
                             [class.open]="shown_group() === 'visitors'"
                         >
-                            <div class="content px-4 pb-2 pt-4">
+                            <div class="content px-4 pt-4 pb-2">
                                 <label for="hide-fields"
                                     >Hide Guest List fields</label
                                 >
@@ -787,18 +787,18 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         bookings
                         id="feature-bookings"
-                        class="relative rounded border border-base-300"
+                        class="border-base-300 relative rounded-sm border"
                         formGroupName="bookings"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             PlaceOS Bookings
                         </h3>
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
                             (click)="toggleGroup('bookings')"
                         >
                             <icon>{{
@@ -811,7 +811,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             collapsible
                             [class.open]="shown_group() === 'bookings'"
                         >
-                            <div class="content px-4 pb-2 pt-4">
+                            <div class="content px-4 pt-4 pb-2">
                                 <div>
                                     <label for="available-period">
                                         Available Period
@@ -1000,18 +1000,18 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         parking
                         id="feature-parking"
-                        class="relative rounded border border-base-300"
+                        class="border-base-300 relative rounded-sm border"
                         formGroupName="parking"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             Parking
                         </h3>
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
                             (click)="toggleGroup('parking')"
                         >
                             <icon>{{
@@ -1024,7 +1024,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             collapsible
                             [class.open]="shown_group() === 'parking'"
                         >
-                            <div class="content px-4 pb-2 pt-4">
+                            <div class="content px-4 pt-4 pb-2">
                                 <div>
                                     <label for="available-period">
                                         Available Period
@@ -1206,18 +1206,18 @@ import { UploadButtonComponent } from './upload-button.component';
                     <section
                         lockers
                         id="feature-lockers"
-                        class="relative rounded border border-base-300"
+                        class="border-base-300 relative rounded-sm border"
                         formGroupName="lockers"
                     >
                         <h3
-                            class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                         >
                             Locker Bookings
                         </h3>
                         <button
                             icon
                             matRipple
-                            class="absolute right-4 top-0 -translate-y-1/2 bg-base-100"
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
                             (click)="toggleGroup('lockers')"
                         >
                             <icon>{{
@@ -1230,7 +1230,7 @@ import { UploadButtonComponent } from './upload-button.component';
                             collapsible
                             [class.open]="shown_group() === 'lockers'"
                         >
-                            <div class="content px-4 pb-2 pt-4">
+                            <div class="content px-4 pt-4 pb-2">
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Default bookings to all day"

@@ -28,12 +28,12 @@ import { SidebarComponent } from './ui/sidebar.component';
 @Component({
     selector: 'stagehand-alerts',
     template: `
-        <div class="absolute inset-0 flex bg-base-200">
+        <div class="bg-base-200 absolute inset-0 flex">
             <sidebar />
 
             <div class="flex w-px flex-1 flex-col">
                 <header
-                    class="flex h-[4.5rem] w-full items-center justify-between space-x-2 border-base-400 bg-base-100 p-4"
+                    class="border-base-400 bg-base-100 flex h-18 w-full items-center justify-between space-x-2 p-4"
                 >
                     <h1 class="text-2xl font-bold">AV Systems Alerts</h1>
                     <div class="flex-1"></div>
@@ -41,7 +41,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                         <a
                             icon
                             matRipple
-                            class="rounded-xl hover:bg-base-200"
+                            class="hover:bg-base-200 rounded-xl"
                             [routerLink]="[
                                 '/dashboards',
                                 dashboard(),
@@ -72,16 +72,16 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </mat-select>
                     </mat-form-field>
                 </header>
-                <main class="w-full flex-1 overflow-auto bg-base-200">
+                <main class="bg-base-200 w-full flex-1 overflow-auto">
                     <!-- @if (dashboard()) { -->
                     <div
                         class="grid w-full flex-1 grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3"
                     >
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
                         >
                             <icon
-                                class="mb-5 text-3xl text-error"
+                                class="text-error mb-5 text-3xl"
                                 className="outlined"
                                 >warning</icon
                             >
@@ -96,10 +96,10 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
                         >
                             <icon
-                                class="mb-5 text-3xl text-warning"
+                                class="text-warning mb-5 text-3xl"
                                 className="outlined"
                                 >error</icon
                             >
@@ -114,10 +114,10 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-2 rounded-lg border border-base-300 bg-base-100 px-4 py-2 shadow"
+                            class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border px-4 py-2 shadow-sm"
                         >
                             <icon
-                                class="mb-5 text-3xl text-info"
+                                class="text-info mb-5 text-3xl"
                                 className="outlined"
                                 >schedule</icon
                             >
@@ -133,12 +133,12 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </div>
                     </div>
                     <div
-                        class="flex flex-col items-center space-y-2 px-4 lg:flex-row lg:space-x-2 lg:space-y-0"
+                        class="flex flex-col items-center space-y-2 px-4 lg:flex-row lg:space-y-0 lg:space-x-2"
                     >
-                        <div class="lg:max-w-1/2 w-full max-w-full flex-1">
+                        <div class="w-full max-w-full flex-1 lg:max-w-1/2">
                             <mat-form-field
                                 appearance="outline"
-                                class="no-subscript w-full bg-base-100"
+                                class="no-subscript bg-base-100 w-full"
                             >
                                 <icon
                                     matPrefix
@@ -154,11 +154,11 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </mat-form-field>
                         </div>
                         <div
-                            class="lg:max-w-1/2 flex w-full max-w-full flex-1 items-center space-x-2"
+                            class="flex w-full max-w-full flex-1 items-center space-x-2 lg:max-w-1/2"
                         >
                             <mat-form-field
                                 appearance="outline"
-                                class="no-subscript flex-1 bg-base-100"
+                                class="no-subscript bg-base-100 flex-1"
                             >
                                 <mat-select
                                     placeholder="All Severities"
@@ -203,7 +203,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                             </mat-form-field> -->
                             <mat-form-field
                                 appearance="outline"
-                                class="no-subscript flex-1 bg-base-100"
+                                class="no-subscript bg-base-100 flex-1"
                             >
                                 <mat-select
                                     placeholder="All Device Types"
@@ -230,7 +230,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                     </div>
                     <div class="overflow-auto p-4">
                         <simple-table
-                            class="block w-full min-w-[56rem] overflow-hidden bg-base-100 text-sm"
+                            class="bg-base-100 block w-full min-w-4xl overflow-hidden text-sm"
                             [data]="filtered_alerts()"
                             [filter]="search()"
                             [columns]="[
@@ -357,7 +357,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     "
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Manage Room"
                                 >
                                     <icon class="text-2xl">build</icon>
@@ -368,7 +368,7 @@ import { SidebarComponent } from './ui/sidebar.component';
                                     [href]="service_link()"
                                     target="_blank"
                                     ref="noopener noreferrer"
-                                    class="rounded"
+                                    class="rounded-sm"
                                     matTooltip="Raise Ticket"
                                 >
                                     <icon class="text-2xl"

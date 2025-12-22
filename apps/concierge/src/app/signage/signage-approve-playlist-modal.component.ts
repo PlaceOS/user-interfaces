@@ -34,7 +34,7 @@ import { SignageStateService } from './signage-state.service';
     selector: 'signage-approve-playlist-modal',
     template: `
         <div class="p-2">
-            <header class="rounded bg-base-200 p-2">
+            <header class="bg-base-200 rounded-sm p-2">
                 <h2 class="px-2 text-xl font-medium">Approve Playlist</h2>
                 @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
@@ -47,12 +47,12 @@ import { SignageStateService } from './signage-state.service';
                     @let versions = playlist_versions | async;
                     @let media = playlist_media | async;
                     <div
-                        class="w-[24rem] rounded border border-base-300 bg-success-light"
+                        class="border-base-300 bg-success-light w-[24rem] rounded-sm border"
                     >
                         @let current_version = versions?.[0];
                         @let current_media = media?.[0] || [];
                         <div
-                            class="flex items-center space-x-8 rounded border-b border-base-300 bg-base-200 px-4 py-2"
+                            class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                         >
                             <h3>Version to approve</h3>
                             <div class="font-mono text-xs opacity-50">
@@ -77,10 +77,10 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of current_media; track item.id) {
                                 <div
-                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
+                                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                 >
                                     <button
-                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
                                         matRipple
                                         (click)="previewItem(item)"
                                     >
@@ -116,12 +116,12 @@ import { SignageStateService } from './signage-state.service';
                         </div>
                     </div>
                     <div
-                        class="w-[24rem] rounded border border-base-300 bg-error-light"
+                        class="border-base-300 bg-error-light w-[24rem] rounded-sm border"
                     >
                         @let previous_version = versions?.[1];
                         @let previous_media = media?.[1] || [];
                         <div
-                            class="flex items-center space-x-8 rounded border-b border-base-300 bg-base-200 px-4 py-2"
+                            class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                         >
                             <h3>Previous version</h3>
                             <div class="font-mono text-xs opacity-50">
@@ -147,10 +147,10 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @for (item of previous_media; track item.id) {
                                 <div
-                                    class="flex items-center space-x-2 rounded border border-base-300 bg-base-100 p-2"
+                                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                 >
                                     <button
-                                        class="h-10 w-10 shrink-0 overflow-hidden rounded bg-base-200"
+                                        class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
                                         matRipple
                                         (click)="previewItem(item)"
                                     >
@@ -180,12 +180,12 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                 </main>
                 <footer
-                    class="flex items-center justify-end space-x-2 rounded bg-base-200 p-2"
+                    class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
                 >
                     <button
                         btn
                         matRipple
-                        class="inverse w-40 bg-base-100"
+                        class="inverse bg-base-100 w-40"
                         (click)="undoChanges()"
                     >
                         Undo Changes

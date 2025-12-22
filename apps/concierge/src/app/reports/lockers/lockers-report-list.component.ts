@@ -3,7 +3,11 @@ import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
-import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SimpleTableComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import { map } from 'rxjs/operators';
@@ -13,9 +17,9 @@ import { LockersReportService } from './lockers-report.service';
     selector: 'lockers-report-list',
     template: `
         <div
-            class="m-4 overflow-hidden rounded border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 m-4 overflow-hidden rounded-sm border"
         >
-            <div class="flex items-center border-b border-base-200 px-4 py-2">
+            <div class="border-base-200 flex items-center border-b px-4 py-2">
                 <h3 class="flex-1 text-xl font-bold">
                     {{
                         'APP.CONCIERGE.REPORTS_LOCKERS_UTIL_HEADER' | translate
@@ -95,6 +99,7 @@ import { LockersReportService } from './lockers-report.service';
         SimpleTableComponent,
         MatRippleModule,
         MatTooltipModule,
+        IconComponent,
     ],
 })
 export class LockersReportListComponent {

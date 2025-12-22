@@ -6,6 +6,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 import { OrganisationService } from '@placeos/common';
 import {
     CardInputFieldComponent,
@@ -29,7 +31,7 @@ export interface PaymentData {
     selector: 'payment-modal',
     template: `
         @if (!(loading | async)) {
-            <div class="relative max-h-[100vh] overflow-auto">
+            <div class="relative max-h-screen overflow-auto">
                 @if (!success) {
                     <main
                         class="relative flex w-[24rem] flex-col items-center space-y-2 px-4 pt-8"
@@ -73,7 +75,7 @@ export interface PaymentData {
                         icon
                         matRipple
                         mat-dialog-close
-                        class="absolute left-1 top-1"
+                        class="absolute top-1 left-1"
                     >
                         <i class="material-symbols-rounded text-2xl">close</i>
                     </button>
@@ -98,7 +100,7 @@ export interface PaymentData {
                         src="assets/icons/payment-confirmed.svg"
                         class="w-full"
                     />
-                    <footer class="border-t border-base-200 p-4">
+                    <footer class="border-base-200 border-t p-4">
                         <button btn matRipple mat-dialog-close class="w-full">
                             Great, thanks.
                         </button>
@@ -117,9 +119,11 @@ export interface PaymentData {
     styles: [``],
     imports: [
         CommonModule,
+        FormsModule,
         CardInputFieldComponent,
         MatProgressSpinnerModule,
         MatRippleModule,
+        MatDialogModule,
     ],
 })
 export class PaymentModalComponent {

@@ -53,10 +53,11 @@ import {
                     : ''
             "
             [hide_confirm]="true"
+            [full_width]="view !== 'form'"
         >
             <div>
                 <div
-                    class="-mx-2 mb-2 w-[calc(100%+1rem)] rounded bg-info p-4 text-center text-xs text-info-content"
+                    class="bg-info text-info-content -mx-2 mb-2 w-[calc(100%+1rem)] rounded-sm p-4 text-center text-xs"
                 >
                     {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
                 </div>
@@ -69,7 +70,7 @@ import {
                     />
                     <div class="-mx-2 w-[calc(100%+1rem)] overflow-auto">
                         <simple-table
-                            class="block w-full min-w-[48rem] text-sm"
+                            class="block w-full min-w-3xl text-sm"
                             *ngSwitchCase="'list'"
                             [data]="booking_rules"
                             [columns]="[
@@ -111,7 +112,7 @@ import {
                                 {
                                     key: 'actions',
                                     name: ' ',
-                                    size: '11.5rem',
+                                    size: '5.5rem',
                                     content: actions_template,
                                 },
                             ]"
@@ -154,64 +155,73 @@ import {
                         <div
                             [class.bg-error]="!row.rules[key]"
                             [class.bg-success]="row.rules[key]"
-                            class="mx-auto flex h-8 w-8 items-center justify-center rounded text-2xl text-white"
+                            class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
                         >
                             <icon>{{ row.rules[key] ? 'done' : 'close' }}</icon>
                         </div>
                     </ng-template>
                     <ng-template #actions_template let-row="row">
                         <div
-                            class="mx-auto flex w-full items-center space-x-2 px-2"
+                            class="mx-auto flex w-full flex-col items-center justify-center gap-1 p-1"
                         >
-                            <button
-                                icon
-                                matRipple
-                                (click)="editRuleset(row)"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.BOOKING_RULESET_EDIT'
-                                        | translate
-                                "
-                            >
-                                <icon>edit</icon>
-                            </button>
-                            <button
-                                icon
-                                matRipple
-                                (click)="updateRulesetPriority(row, -1)"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_UP'
-                                        | translate
-                                "
-                            >
-                                <icon>arrow_upward</icon>
-                            </button>
-                            <button
-                                icon
-                                matRipple
-                                (click)="updateRulesetPriority(row, 1)"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_DOWN'
-                                        | translate
-                                "
-                            >
-                                <icon>arrow_downward</icon>
-                            </button>
-                            <button
-                                icon
-                                matRipple
-                                (click)="removeRuleset(row)"
-                                [matTooltip]="
-                                    'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
-                                        | translate
-                                "
-                            >
-                                <icon class="text-error">delete</icon>
-                            </button>
+                            <div class="flex items-center gap-1">
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded-sm"
+                                    (click)="editRuleset(row)"
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.BOOKING_RULESET_EDIT'
+                                            | translate
+                                    "
+                                >
+                                    <icon>edit</icon>
+                                </button>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded-sm"
+                                    (click)="updateRulesetPriority(row, -1)"
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_UP'
+                                            | translate
+                                    "
+                                >
+                                    <icon>arrow_upward</icon>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded-sm"
+                                    (click)="removeRuleset(row)"
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
+                                            | translate
+                                    "
+                                >
+                                    <icon class="text-error">delete</icon>
+                                </button>
+                                <button
+                                    icon
+                                    matRipple
+                                    class="rounded-sm"
+                                    (click)="updateRulesetPriority(row, 1)"
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.BOOKING_RULESET_PRIORITY_DOWN'
+                                            | translate
+                                    "
+                                >
+                                    <icon>arrow_downward</icon>
+                                </button>
+                            </div>
                         </div>
                     </ng-template>
                 </ng-container>
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[39rem] -translate-x-1/2 items-center justify-end space-x-4 rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none px-4 py-2"
+                    [class.max-w-156]="view === 'form'"
                     *ngIf="!loading"
                 >
                     <button

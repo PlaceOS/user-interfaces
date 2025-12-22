@@ -1,5 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+} from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -14,12 +19,13 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
 import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 
 @Component({
     selector: 'app-settings-modal',
     template: `
-        <div class="flex h-screen w-screen flex-col bg-base-100">
+        <div class="bg-base-100 flex h-screen w-screen flex-col">
             <header
                 class="sticky top-0 z-10 mx-auto w-full max-w-[640px] border-none px-0 py-2"
             >
@@ -37,7 +43,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                         <div class="-mx-2 flex flex-wrap items-center py-2">
                             <button
                                 matRipple
-                                class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
                                 (click)="
                                     active_features['use_24_hour_time'] =
                                         !active_features['use_24_hour_time']
@@ -65,7 +71,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             ) {
                                 <button
                                     matRipple
-                                    class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                    class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
                                     (click)="
                                         active_features[feature] =
                                             !active_features[feature]
@@ -87,7 +93,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                             @for (feature of landing_features; track feature) {
                                 <button
                                     matRipple
-                                    class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                    class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
                                     (click)="
                                         active_features[feature] =
                                             !active_features[feature]
@@ -118,7 +124,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                     ) {
                                         <button
                                             matRipple
-                                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                            class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
                                             (click)="
                                                 form
                                                     .get('events')
@@ -160,7 +166,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                     ) {
                                         <button
                                             matRipple
-                                            class="m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border border-base-200 p-2"
+                                            class="border-base-200 m-2 flex w-[calc(50%-1rem)] items-center space-x-2 border p-2"
                                             (click)="
                                                 form
                                                     .get('desks')
@@ -200,7 +206,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
             }
             @if (!loading) {
                 <footer
-                    class="sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 bg-base-100 p-2"
+                    class="bg-base-100 sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 p-2"
                 >
                     <button btn matRipple class="inverse w-32" mat-dialog-close>
                         Discard
@@ -215,7 +221,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                 >
                     <icon>close</icon>
                 </button>
@@ -225,10 +231,12 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
     styles: [``],
     imports: [
         ReactiveFormsModule,
+        FormsModule,
         MatRippleModule,
         MatDialogModule,
         MatProgressSpinnerModule,
         MatCheckboxModule,
+        IconComponent,
     ],
 })
 export class AppSettingsModalComponent implements OnInit {

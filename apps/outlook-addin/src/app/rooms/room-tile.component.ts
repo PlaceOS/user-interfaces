@@ -22,10 +22,10 @@ import { RoomConfirmService } from './room-confirm.service';
                 (click)="openRoomDetail()"
             >
                 <div
-                    class="mx-4 flex h-full w-full flex-col rounded-lg border bg-base-100"
+                    class="bg-base-100 mx-4 flex h-full w-full flex-col rounded-lg border"
                 >
                     <div
-                        class="text-gray-500 m-3 flex h-44 items-center justify-center rounded-lg bg-base-200"
+                        class="bg-base-200 m-3 flex h-44 items-center justify-center rounded-lg text-gray-500"
                     >
                         @if (space?.images?.length > 0) {
                             <img
@@ -62,7 +62,7 @@ import { RoomConfirmService } from './room-confirm.service';
                         <div
                             class="mx-3 mt-1 flex flex-row items-center text-base"
                         >
-                            <icon class="flex items-center text-info"
+                            <icon class="text-info flex items-center"
                                 >people</icon
                             >
                             <span class="text-gray-500">
@@ -74,13 +74,13 @@ import { RoomConfirmService } from './room-confirm.service';
             </div>
         </div>
         <div
-            class="top-box-shadow -mx-4 mb-10 mt-5 flex h-full flex-col items-center border-t border-base-200 bg-base-100 p-3"
+            class="top-box-shadow border-base-200 bg-base-100 -mx-4 mt-5 mb-10 flex h-full flex-col items-center border-t p-3"
         >
             <button
                 btn
                 matRipple
                 (click)="cancel()"
-                class="mx-4 ml-2 w-[460px] border-secondary bg-base-100"
+                class="border-secondary bg-base-100 mx-4 ml-2 w-[460px]"
             >
                 <span class="text-secondary">Back</span>
             </button>

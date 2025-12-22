@@ -19,6 +19,7 @@ import { EventPanelComponent } from './event-panel.component';
 
 import { LocaleService } from '@placeos/common';
 import {
+    ChatComponent,
     GlobalBannerComponent,
     GlobalLoadingComponent,
 } from '@placeos/components';
@@ -41,6 +42,7 @@ import { PanelViewComponent } from './new-panel/panel-view.component';
         BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
+        ChatComponent,
         GlobalBannerComponent,
         GlobalLoadingComponent,
 

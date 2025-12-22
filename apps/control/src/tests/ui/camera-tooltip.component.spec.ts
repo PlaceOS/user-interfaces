@@ -38,7 +38,7 @@ describe('CameraTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     id: 'sys-1',
-                    camera_list: new BehaviorSubject([]),
+                    available_cameras: new BehaviorSubject([]),
                     selected_camera: new BehaviorSubject(''),
                 },
             },

@@ -34,16 +34,16 @@ import { SpacePipe } from './space.pipe';
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="flex h-[20rem] w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
+                class="border-base-300 bg-base-100 hover:border-info flex h-80 w-60 flex-col overflow-hidden rounded-xl border shadow-sm hover:shadow-2xl"
             >
                 <div
-                    class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b"
                 >
                     @if (event().images?.length) {
                         <img
                             auth
                             [source]="event().images[0]"
-                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                            class="absolute top-0 left-0 h-full w-full object-cover object-center"
                         />
                     }
                 </div>
@@ -59,7 +59,7 @@ import { SpacePipe } from './space.pipe';
                         {{ event().title }}
                     </h2>
                     <div
-                        class="mb-2 h-[4.5rem] flex-1 overflow-hidden text-left text-xs opacity-60"
+                        class="mb-2 h-18 flex-1 overflow-hidden text-left text-xs opacity-60"
                     >
                         <p class="line-clamp-4">{{ raw_description() }}</p>
                         @if (!raw_description().trim()) {
@@ -112,21 +112,21 @@ import { SpacePipe } from './space.pipe';
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="mx-auto flex h-56 w-[63rem] max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow hover:border-info hover:shadow-2xl"
+                class="border-base-300 bg-base-100 hover:border-info mx-auto flex h-56 w-252 max-w-full overflow-hidden rounded-xl border shadow-sm hover:shadow-2xl"
             >
                 <div
-                    class="relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r"
                 >
                     @if (event().images?.length) {
                         <img
                             auth
                             [source]="event().images[0]"
-                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                            class="absolute top-0 left-0 h-full w-full object-cover object-center"
                         />
                     }
                 </div>
                 <div
-                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br-xl bg-info py-2 pl-2 pr-4 text-sm text-info-content"
+                    class="bg-info text-info-content absolute top-0 left-0 flex items-center space-x-2 rounded-br-xl py-2 pr-4 pl-2 text-sm"
                 >
                     <icon class="text-base">star</icon>
                     <div class="uppercase">
@@ -156,8 +156,8 @@ import { SpacePipe } from './space.pipe';
                             }}
                         </div>
                         <div class="h-20 overflow-hidden text-left">
-                            <p class="line-clamp-3">{{ raw_description }}</p>
-                            @if (!raw_description.trim()) {
+                            <p class="line-clamp-3">{{ raw_description() }}</p>
+                            @if (!raw_description().trim()) {
                                 <p class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
@@ -210,7 +210,7 @@ import { SpacePipe } from './space.pipe';
                     </div>
                 </div>
                 <div
-                    class="absolute right-4 top-4 w-32 truncate rounded bg-secondary px-4 py-2 text-center text-secondary-content"
+                    class="bg-secondary text-secondary-content absolute top-4 right-4 w-32 truncate rounded-sm px-4 py-2 text-center"
                 >
                     {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>

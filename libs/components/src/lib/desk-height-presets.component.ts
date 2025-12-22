@@ -8,7 +8,7 @@ import { TranslatePipe } from './translate.pipe';
 @Component({
     selector: 'desk-height-presets',
     template: `
-        <div class="relative w-[20rem] rounded bg-base-100 p-4 shadow">
+        <div class="bg-base-100 relative w-[20rem] rounded-sm p-4 shadow-sm">
             <div class="mb-2 text-lg">
                 {{ 'COMMON.DESK_HEIGHT_TITLE' | translate }}
             </div>
@@ -17,7 +17,7 @@ import { TranslatePipe } from './translate.pipe';
             </div>
             @if (not_set && show_close()) {
                 <div
-                    class="-mx-2 mb-4 rounded bg-warning p-2 text-xs text-warning-content"
+                    class="bg-warning text-warning-content -mx-2 mb-4 rounded-sm p-2 text-xs"
                 >
                     {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
                 </div>

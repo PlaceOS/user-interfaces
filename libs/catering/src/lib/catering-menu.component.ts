@@ -5,7 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CateringItem, unique } from '@placeos/common';
+import { CateringItem, OrganisationService, unique } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -19,7 +19,7 @@ import { CateringStateService } from './catering-state.service';
     selector: 'catering-menu',
     template: `
         <simple-table
-            class="block w-full min-w-[32rem] text-sm"
+            class="block w-full min-w-lg text-sm"
             [data]="menu"
             [columns]="[
                 {
@@ -67,9 +67,9 @@ import { CateringStateService } from './catering-state.service';
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
-                class="mx-auto flex items-center rounded bg-secondary px-2 py-1 font-mono text-xs text-secondary-content"
+                class="bg-secondary text-secondary-content mx-auto flex items-center rounded-sm px-2 py-1 font-mono text-xs"
             >
-                {{ data / 100 | currency: (symbol | async) }}
+                {{ data / 100 | currency: currency_code }}
             </div>
         </ng-template>
         <ng-template #actions_template let-row="row">
@@ -144,12 +144,12 @@ import { CateringStateService } from './catering-state.service';
         <ng-template #child_template let-row="row">
             @for (option of row.options; track option) {
                 <div
-                    class="relative flex items-center space-x-2 border-b border-solid border-base-200 p-2"
+                    class="border-base-200 relative flex items-center space-x-2 border-b border-solid p-2"
                 >
                     <div
                         class="absolute inset-y-0 left-0 w-2 bg-black opacity-10"
                     ></div>
-                    <div class="flex-1 pl-4 pr-2">
+                    <div class="flex-1 pr-2 pl-4">
                         <div class="text">{{ option.name }}</div>
                         <div class="text-xs opacity-60">
                             {{ option.group }}
@@ -171,7 +171,7 @@ import { CateringStateService } from './catering-state.service';
                         <button
                             icon
                             matRipple
-                            class="!mr-1"
+                            class="mr-1!"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_REMOVE' | translate
                             "
@@ -209,6 +209,11 @@ import { CateringStateService } from './catering-state.service';
 export class CateringMenuComponent {
     private _catering = inject(CateringStateService);
     private _orders = inject(CateringOrdersService);
+    private _org = inject(OrganisationService);
+
+    public get currency_code() {
+        return this._org.building?.currency || 'USD';
+    }
 
     public show_children: Record<string, boolean> = {};
     /** Observable for the currently active menu */

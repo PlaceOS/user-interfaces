@@ -42,7 +42,7 @@ import { BookingFormService } from './booking-form.service';
     template: `
         @if (form) {
             <form [formGroup]="form">
-                @if (buildings?.length > 1) {
+                @if ((buildings | async)?.length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
@@ -150,8 +150,8 @@ import { BookingFormService } from './booking-form.service';
                                         <div class="text-xs opacity-60">
                                             {{ item.email }}
                                             {{
-                                                item.company
-                                                    ? '| ' + item.company
+                                                item.organisation
+                                                    ? '| ' + item.organisation
                                                     : ''
                                             }}
                                         </div>
@@ -193,8 +193,8 @@ import { BookingFormService } from './booking-form.service';
                                         <div class="text-xs opacity-60">
                                             {{ item.email }}
                                             {{
-                                                item.company
-                                                    ? '| ' + item.company
+                                                item.organisation
+                                                    ? '| ' + item.organisation
                                                     : ''
                                             }}
                                         </div>

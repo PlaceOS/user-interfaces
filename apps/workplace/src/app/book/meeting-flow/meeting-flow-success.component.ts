@@ -29,7 +29,7 @@ import { set } from 'date-fns';
             };
         @if (!loading()) {
             <div
-                class="absolute inset-0 z-50 flex flex-col overflow-auto bg-base-100"
+                class="bg-base-100 absolute inset-0 z-50 flex flex-col overflow-auto"
             >
                 <main
                     class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -42,7 +42,7 @@ import { set } from 'date-fns';
                         }}
                     </h2>
                     <img src="assets/icons/success.svg" />
-                    <p class="max-w-[32rem] text-center">
+                    <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
                                 (space
@@ -81,13 +81,13 @@ import { set } from 'date-fns';
                     }
                 </main>
                 <footer
-                    class="sticky bottom-0 mt-4 flex w-full items-center justify-center border-t border-base-200 bg-base-100 p-2"
+                    class="border-base-200 bg-base-100 sticky bottom-0 mt-4 flex w-full items-center justify-center border-t p-2"
                 >
                     <a
                         btn
                         name="meeting-created-continue"
                         matRipple
-                        class="w-full max-w-[32rem]"
+                        class="w-full max-w-lg"
                         [routerLink]="['/']"
                     >
                         {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}

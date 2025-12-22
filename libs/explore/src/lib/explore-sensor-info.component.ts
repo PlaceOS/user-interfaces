@@ -23,17 +23,17 @@ let shown_id = '';
             [content]="stats"
             yPosition="center"
             xPosition="center"
-            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow"
+            class="bg-base-100 pointer-events-auto absolute top-1/2 left-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 shadow-sm"
         >
             <icon> visibility </icon>
         </button>
         <ng-template #stats>
             <div
-                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-base-200 bg-base-100 p-2 text-xl"
+                class="border-base-200 bg-base-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border p-2 text-xl"
             >
                 @if (temp) {
                     <div
-                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                        class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>thermostat</icon>
                         <div class="">{{ temp }}˚{{ temp_unit }}</div>
@@ -41,7 +41,7 @@ let shown_id = '';
                 }
                 @if (humidity) {
                     <div
-                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                        class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>opacity</icon>
                         <div class="">{{ humidity }}%</div>
@@ -49,9 +49,9 @@ let shown_id = '';
                 }
                 @if (temp > 82) {
                     <div
-                        class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
+                        class="border-base-200 bg-base-100 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 rounded-full border"
                     >
-                        <icon class="text-xl text-error">error</icon>
+                        <icon class="text-error text-xl">error</icon>
                     </div>
                 }
             </div>

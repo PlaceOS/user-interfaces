@@ -9,9 +9,9 @@ import { IconComponent } from '@placeos/components';
     template: `
         <div
             name="success"
-            class="bg-indigo-900 fixed inset-0 z-50 flex flex-col items-center justify-center"
+            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-indigo-900"
         >
-            <div class="mb-4 rounded-full bg-base-100 text-7xl text-success">
+            <div class="bg-base-100 text-success mb-4 rounded-full text-7xl">
                 <icon>done</icon>
             </div>
             <div class="mb-4 text-center text-lg leading-10 text-white">

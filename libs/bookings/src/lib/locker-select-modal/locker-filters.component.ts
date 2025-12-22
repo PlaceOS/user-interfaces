@@ -10,6 +10,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
+import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -34,7 +35,7 @@ import { BookingFormService } from '../booking-form.service';
     ],
     template: `
         <div
-            class="flex items-center rounded-t-md border-b border-base-200 pb-2 sm:hidden"
+            class="border-base-200 flex items-center rounded-t-md border-b pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
                 @if (can_close) {
@@ -55,7 +56,7 @@ import { BookingFormService } from '../booking-form.service';
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] w-full divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
+            class="divide-base-200 max-h-[65vh] w-full divide-y overflow-x-hidden overflow-y-auto p-2"
             [formGroup]="form"
         >
             <section details>
@@ -67,7 +68,7 @@ import { BookingFormService } from '../booking-form.service';
                     (!(use_region && (regions | async)?.length) ||
                         !(!use_region && (buildings | async)?.length > 1))
                 ) {
-                    <div class="flex min-w-[8rem] flex-1 flex-col">
+                    <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
@@ -76,7 +77,7 @@ import { BookingFormService } from '../booking-form.service';
                                 <mat-select
                                     name="region"
                                     [ngModel]="region"
-                                    (ngModelChange)="setRegion($event)"
+                                    (ngModelChange)="region = $event"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
                                         'COMMON.REGION_ANY' | translate
@@ -94,12 +95,11 @@ import { BookingFormService } from '../booking-form.service';
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="building"
-                                    [ngModel]="building | async"
-                                    (ngModelChange)="setBuilding($event)"
+                                    [ngModel]="building"
+                                    (ngModelChange)="building = $event"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        (building | async)?.display_name ||
-                                        (building | async)?.name
+                                        building?.display_name || building?.name
                                     "
                                 >
                                     @for (bld of buildings | async; track bld) {
@@ -254,7 +254,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         </form>
         @if (can_close) {
-            <div class="w-full border-t border-base-200 px-2 py-2">
+            <div class="border-base-200 w-full border-t px-2 py-2">
                 <button
                     btn
                     matRipple
@@ -281,6 +281,7 @@ import { BookingFormService } from '../booking-form.service';
         ReactiveFormsModule,
         FormsModule,
         MatCheckboxModule,
+        BuildingPipe,
     ],
 })
 export class LockerFiltersComponent extends AsyncHandler implements OnInit {
@@ -365,7 +366,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
                 Date.now(),
                 this._settings.get('app.lockers.available_period') || 90,
             ),
-        );
+        ).valueOf();
     }
 
     public get use_24hr() {

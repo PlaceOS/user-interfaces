@@ -20,9 +20,11 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { AssetListFieldComponent } from '@placeos/assets';
 import {
     CateringListFieldComponent,
@@ -60,7 +62,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                 <section class="p-2">
                     <h3 class="flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             1
                         </div>
@@ -95,7 +97,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 2
                             </div>
@@ -106,7 +108,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             <button
                                 matRipple
                                 name="find-attendee-availability"
-                                class="bg-none text-xs text-info underline"
+                                class="text-info bg-none text-xs underline"
                                 (click)="findAvailableTime()"
                             >
                                 {{ 'COMMON.AVAILABILITY' | translate }}
@@ -141,7 +143,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                 <section class="p-2">
                     <h3 class="flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             3
                         </div>
@@ -174,7 +176,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             total_capacity <= form.value.attendees?.length
                         ) {
                             <div
-                                class="mx-auto my-2 inline-flex rounded bg-warning p-2 text-xs text-warning-content shadow"
+                                class="bg-warning text-warning-content mx-auto my-2 inline-flex rounded-sm p-2 text-xs shadow-sm"
                             >
                                 {{
                                     'CALENDAR_EVENT.CAPACITY_WARNING'
@@ -193,7 +195,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 4
                             </div>
@@ -238,7 +240,6 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                 <mat-form-field
                                     appearance="outline"
                                     class="mt-2 w-full"
-                                    (openedChange)="focusInput()"
                                 >
                                     <mat-select
                                         formControlName="catering_charge_code"
@@ -249,7 +250,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                     >
                                         <input
                                             #input
-                                            class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
+                                            class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
                                             [ngModel]="code_filter.getValue()"
                                             (ngModelChange)="
                                                 code_filter.next($event)
@@ -314,7 +315,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{ !(has_catering | async) ? '4' : '5' }}
                             </div>
@@ -358,7 +359,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{
                                     !(has_catering | async) || !has_assets
@@ -405,6 +406,9 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
         ReactiveFormsModule,
         MeetingFormDetailsComponent,
         UserListFieldComponent,
+        MatAutocompleteModule,
+        FormsModule,
+        MatSelectModule,
     ],
 })
 export class EventBookModalComponent implements OnInit {

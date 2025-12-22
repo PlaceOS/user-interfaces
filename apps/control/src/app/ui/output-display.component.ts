@@ -28,17 +28,17 @@ export const ICON_MAP = {
     selector: 'output-display',
     template: `
         @if (item()) {
-            <div class="m-2 rounded bg-base-100 p-4 text-black shadow">
+            <div class="bg-base-100 m-2 rounded-sm p-4 text-black shadow-sm">
                 <div
                     view
                     matRipple
-                    class="relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded border border-base-200"
+                    class="border-base-200 relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded-sm border"
                     [class.opacity-60]="!(input | async)"
                     [class.bg-base-200]="!(input | async)"
                     (click)="switchSource()"
                 >
                     <div
-                        class="absolute left-1 top-1 rounded bg-secondary px-2 py-1 text-white shadow"
+                        class="bg-secondary absolute top-1 left-1 rounded-sm px-2 py-1 text-white shadow-sm"
                     >
                         {{ item()?.name }}
                     </div>

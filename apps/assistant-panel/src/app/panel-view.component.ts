@@ -6,6 +6,8 @@ import {
     DateFromPipe,
     IconComponent,
     SanitizePipe,
+    TranslatePipe,
+    UserAvatarComponent,
 } from '@placeos/components';
 import { first, map, tap } from 'rxjs/operators';
 
@@ -21,7 +23,7 @@ declare let loadVosklet: any;
     template: `
         <div class="flex h-full w-full items-center justify-center">
             <button
-                class="relative flex h-full flex-1 items-center justify-center bg-base-300 p-8"
+                class="bg-base-300 relative flex h-full flex-1 items-center justify-center p-8"
                 (click)="startListening()"
             >
                 <canvas
@@ -38,7 +40,7 @@ declare let loadVosklet: any;
                 <div class="absolute inset-x-0 bottom-0 p-4 text-center"></div>
                 @if (error.speech_recognition || error.speech_synthesis) {
                     <div
-                        class="absolute left-1/2 top-2 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-center text-xs text-error-content"
+                        class="bg-error text-error-content absolute top-2 left-1/2 -translate-x-1/2 rounded-3xl px-4 py-2 text-center text-xs"
                     >
                         @if (error.speech_recognition) {
                             <div
@@ -61,13 +63,13 @@ declare let loadVosklet: any;
                     autoplay
                     playsinline
                     [class.opacity-0]="!debug"
-                    class="absolute bottom-4 left-4 h-48 w-48 rounded-xl border-[0.25rem] bg-base-200 object-cover"
+                    class="bg-base-200 absolute bottom-4 left-4 h-48 w-48 rounded-xl border-[0.25rem] object-cover"
                     [class.border-success]="person_in_view"
                     [class.border-base-200]="!person_in_view"
                 ></video>
                 @if (listening) {
                     <div
-                        class="absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-success text-success-content"
+                        class="bg-success text-success-content absolute right-4 bottom-4 flex h-12 w-12 items-center justify-center rounded-full"
                     >
                         <icon class="text-2xl">mic</icon>
                     </div>
@@ -80,7 +82,7 @@ declare let loadVosklet: any;
                 ></canvas>
             </button>
             <div
-                class="relative flex h-full w-[24rem] flex-col justify-end overflow-auto bg-base-100"
+                class="bg-base-100 relative flex h-full w-[24rem] flex-col justify-end overflow-auto"
             >
                 @if (!(messages | async)?.length) {
                     <div
@@ -98,20 +100,22 @@ declare let loadVosklet: any;
                 <div class="max-h-full w-full overflow-auto" #message_element>
                     @for (message of messages | async; track message) {
                         <div
-                            class="my-2 flex space-x-4 p-2 hover:bg-base-200"
+                            class="hover:bg-base-200 my-2 flex space-x-4 p-2"
                             (click)="
                                 show_time[message.id] = !show_time[message.id]
                             "
                             [class.waiting-margin]="waiting | async"
                         >
                             <a-user-avatar
-                                [user]="{
-                                    name: message.user_name || '',
-                                    photo:
-                                        message.user_id !== user.id
-                                            ? 'assets/icons/ai-avatar.jpg'
-                                            : 'assets/icons/user-avatar.jpg',
-                                }"
+                                [user]="
+                                    $any({
+                                        name: message.message || '',
+                                        photo:
+                                            message.user_id !== user.id
+                                                ? 'assets/icons/ai-avatar.jpg'
+                                                : 'assets/icons/user-avatar.jpg',
+                                    })
+                                "
                                 class="text-xl"
                             ></a-user-avatar>
                             <div class="flex flex-1 flex-col space-y-1">
@@ -124,7 +128,7 @@ declare let loadVosklet: any;
                                         }}
                                     </div>
                                     <div
-                                        class="w-full px-2 py-1 text-right text-xs text-base-content opacity-40"
+                                        class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
                                     >
                                         {{
                                             message.timestamp + offset
@@ -143,7 +147,7 @@ declare let loadVosklet: any;
                     @if (progress | async) {
                         <div class="p-4">
                             <button
-                                class="block w-full rounded border-base-300 bg-info p-2 text-info-content"
+                                class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
                                 (click)="show_info = !show_info"
                             >
                                 <div class="flex items-center space-x-2">
@@ -159,14 +163,14 @@ declare let loadVosklet: any;
                                     </p>
                                 </div>
                                 <div
-                                    class="relative w-full overflow-hidden rounded"
+                                    class="relative w-full overflow-hidden rounded-sm"
                                 >
                                     <div
-                                        class="absolute inset-0 bg-base-100 opacity-10"
+                                        class="bg-base-100 absolute inset-0 opacity-10"
                                     ></div>
                                     @if (show_info) {
                                         <div
-                                            class="text-mono break-words p-2 text-left text-xs"
+                                            class="text-mono p-2 text-left text-xs wrap-break-word"
                                             [innerHTML]="
                                                 (progress | async).content
                                                     | sanitize
@@ -179,17 +183,17 @@ declare let loadVosklet: any;
                     }
                     @if (waiting | async) {
                         <div
-                            class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
+                            class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
                             [style.bottom]="'8px'"
                         >
                             <div
-                                class="h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                class="bg-neutral h-2 w-2 animate-bounce rounded-full"
                             ></div>
                             <div
-                                class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                class="anim-delay-1 bg-neutral h-2 w-2 animate-bounce rounded-full"
                             ></div>
                             <div
-                                class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                class="anim-delay-2 bg-neutral h-2 w-2 animate-bounce rounded-full"
                             ></div>
                             <span class="sr-only">Waiting for reply...</span>
                         </div>
@@ -201,7 +205,7 @@ declare let loadVosklet: any;
             <button
                 icon
                 matRipple
-                class="absolute left-2 top-2 h-12 w-12 bg-error text-error-content shadow"
+                class="bg-error text-error-content absolute top-2 left-2 h-12 w-12 shadow-sm"
                 (click)="endService()"
             >
                 <icon class="text-2xl">call_end</icon>
@@ -232,6 +236,8 @@ declare let loadVosklet: any;
         IconComponent,
         SanitizePipe,
         DateFromPipe,
+        TranslatePipe,
+        UserAvatarComponent,
     ],
 })
 export class PanelViewComponent extends AsyncHandler {
@@ -247,6 +253,9 @@ export class PanelViewComponent extends AsyncHandler {
     public debug = true;
     public setup = false;
     public error: Record<string, boolean> = {};
+    public show_time: Record<string, boolean> = {};
+    public show_info = false;
+    public offset = 0;
     private _time = 0;
     private _last_message = '';
     private _previous_message = '';

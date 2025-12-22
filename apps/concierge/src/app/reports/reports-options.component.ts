@@ -15,7 +15,11 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
@@ -24,7 +28,7 @@ import { combineLatest } from 'rxjs';
     selector: 'reports-options',
     template: `
         <div
-            class="z-20 flex h-20 w-full items-center space-x-2 border-b border-base-200 bg-base-100 p-4 print:hidden"
+            class="border-base-200 bg-base-100 z-20 flex h-20 w-full items-center space-x-2 border-b p-4 print:hidden"
         >
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
@@ -53,7 +57,7 @@ import { combineLatest } from 'rxjs';
                     }
                 </mat-select>
             </mat-form-field>
-            <date-range-field [week_start]="week_start">
+            <date-range-field [week_start]="week_start" [from]="0">
                 <input
                     #startDate
                     [ngModel]="start"
@@ -84,7 +88,7 @@ import { combineLatest } from 'rxjs';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
@@ -94,7 +98,7 @@ import { combineLatest } from 'rxjs';
             <button
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_PRINT' | translate"
                 (click)="print()"
@@ -132,6 +136,7 @@ import { combineLatest } from 'rxjs';
         IconComponent,
         TranslatePipe,
         CommonModule,
+        BuildingPipe,
     ],
 })
 export class ReportsOptionsComponent extends AsyncHandler implements OnInit {

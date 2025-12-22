@@ -28,12 +28,12 @@ import { BookingAsset } from '../booking-form.service';
         @if (desk()) {
             <section
                 image
-                class="relative w-full bg-base-300"
+                class="bg-base-300 relative w-full"
                 [class.sm:h-64]="desk().images?.length"
                 [class.h-40]="desk().images?.length"
                 [class.sm:h-0]="!desk().images?.length"
                 [class.h-12]="!desk().images?.length"
-                [class.!bg-transparent]="!desk().images?.length"
+                [class.bg-transparent!]="!desk().images?.length"
             >
                 @if (desk().images?.length) {
                     <image-carousel
@@ -46,7 +46,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     name="close-desk-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-200 text-base-content sm:hidden"
+                    class="bg-base-200 text-base-content absolute top-2 left-2 sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -55,9 +55,9 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     name="toggle-desk-favourite-details"
                     [class.text-info-content]="fav()"
-                    [class.!bg-info]="fav()"
+                    [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-200"
+                    class="bg-base-200 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -73,7 +73,7 @@ import { BookingAsset } from '../booking-form.service';
                 class="h-[calc(100%-19.75rem)] flex-1 space-y-2 overflow-auto p-2"
             >
                 <section actions class="z-0 border-b pb-2">
-                    <h2 class="mb-2 mt-4 text-xl font-medium">
+                    <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ desk().display_name || desk().name || desk().client_id || desk().id }}
                     </h2>
                 </section>
@@ -117,7 +117,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded border border-base-200 sm:h-48"
+                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -133,7 +133,7 @@ import { BookingAsset } from '../booking-form.service';
                 }
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-[5.5rem] pt-2 shadow sm:hidden"
+                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
             >
                 <button
                     btn
@@ -141,7 +141,7 @@ import { BookingAsset } from '../booking-form.service';
                     name="toggle-desk-details"
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="activeChange.emit()"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{

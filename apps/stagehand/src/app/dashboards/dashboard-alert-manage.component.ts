@@ -42,12 +42,12 @@ export type AlertType = 'threshold' | 'status' | 'custom';
 @Component({
     selector: `stagehand-dashboard-alert-manage`,
     template: `
-        <div class="fixed inset-0 overflow-auto bg-base-200">
+        <div class="bg-base-200 fixed inset-0 overflow-auto">
             <div
-                class="mx-auto min-h-full w-[40rem] max-w-full border-x border-base-300 bg-base-100 p-2"
+                class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x p-2"
             >
                 <header
-                    class="sticky top-0 z-10 mx-auto flex h-14 w-full max-w-[39rem] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{
@@ -193,7 +193,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         </div>
                         <section>
                             <simple-table
-                                class="mb-4 block w-full min-w-[32rem] text-sm"
+                                class="mb-4 block w-full min-w-lg text-sm"
                                 [data]="
                                     form.value.conditions?.comparisons || []
                                 "
@@ -220,7 +220,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 "
                             ></simple-table>
                             <!-- <simple-table
-                                class="block w-full min-w-[32rem] text-sm"
+                                class="block w-full min-w-lg text-sm"
                                 [data]="
                                     form.value.conditions?.time_dependents || []
                                 "
@@ -296,7 +296,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                     <div class="h-20 w-full"></div>
                 </main>
                 <footer
-                    class="fixed bottom-2 flex w-[39rem] max-w-full justify-end rounded bg-base-200 p-2"
+                    class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
                     <button btn matRipple class="min-w-32" (click)="save()">
                         {{ 'COMMON.SAVE' | translate }}

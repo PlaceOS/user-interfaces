@@ -43,9 +43,9 @@ const CHARS = '0123456789ABCDEF';
 @Component({
     selector: 'desk-modal',
     template: `
-        <div class="w-[32rem]">
+        <div class="w-lg">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -129,7 +129,7 @@ const CHARS = '0123456789ABCDEF';
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 min-w-12 rounded border border-secondary text-secondary"
+                                    class="border-secondary text-secondary h-12 w-12 min-w-12 rounded-sm border"
                                     [matTooltip]="
                                         'APP.CONCIERGE.POI_MAP_SELECT'
                                             | translate
@@ -153,7 +153,7 @@ const CHARS = '0123456789ABCDEF';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
@@ -225,7 +225,7 @@ const CHARS = '0123456789ABCDEF';
                 </main>
             }
             <footer
-                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
+                class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}

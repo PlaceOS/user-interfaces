@@ -10,16 +10,16 @@ import { Observable, of } from 'rxjs';
     selector: 'booking-confirmed',
     template: `
         <div
-            class="z-0 flex h-full flex-1 flex-col overflow-y-auto bg-base-200"
+            class="bg-base-200 z-0 flex h-full flex-1 flex-col overflow-y-auto"
         >
             <section
-                class="justify-content flex h-full items-center border-b border-base-200 py-5"
+                class="justify-content border-base-200 flex h-full items-center border-b py-5"
             >
                 <div
                     class="mx-auto flex w-[calc(100%-2rem)] max-w-[375px] flex-col items-center"
                 >
                     <div class="mb-3">
-                        <span class="text-gray-700 mr-auto text-3xl font-bold">
+                        <span class="mr-auto text-3xl font-bold text-gray-700">
                             Booking Confirmed!</span
                         >
                     </div>
@@ -42,7 +42,7 @@ import { Observable, of } from 'rxjs';
                             btn
                             matRipple
                             (click)="newBooking()"
-                            class="my-2 border-secondary bg-base-100 text-sm text-secondary"
+                            class="border-secondary bg-base-100 text-secondary my-2 text-sm"
                         >
                             <span class="text-sm">New Booking</span>
                         </button>

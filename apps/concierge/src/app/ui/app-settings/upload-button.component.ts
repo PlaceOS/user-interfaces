@@ -13,7 +13,7 @@ import { IconComponent } from '@placeos/components';
             icon
             matRipple
             [disabled]="uploading()"
-            class="h-12 w-12 overflow-hidden rounded bg-secondary text-secondary-content"
+            class="bg-secondary text-secondary-content h-12 w-12 overflow-hidden rounded-sm"
             [title]="value()"
         >
             @if (!uploading()) {

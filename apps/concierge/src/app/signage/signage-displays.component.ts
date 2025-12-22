@@ -35,10 +35,10 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
         <div class="relative flex h-full w-full space-x-2 overflow-visible">
             <div
                 sidebar
-                class="flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border border-base-300 p-2"
+                class="border-base-300 flex h-full w-64 flex-col space-y-2 overflow-auto rounded-xl border p-2"
             >
                 <h3
-                    class="rounded-lg bg-base-200 p-2 text-center text-xl font-medium"
+                    class="bg-base-200 rounded-lg p-2 text-center text-xl font-medium"
                 >
                     {{ 'APP.CONCIERGE.SIGNAGE_DISPLAYS' | translate }}
                 </h3>
@@ -58,8 +58,8 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                         @for (display of displays(); track display.id) {
                             <a
                                 matRipple
-                                class="relative z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border border-base-100 px-6 even:border-base-200 even:bg-base-200 hover:border-info"
-                                [class.!bg-secondary]="
+                                class="border-base-100 even:border-base-200 even:bg-base-200 hover:border-info relative z-10 flex h-12 min-h-12 w-full items-center truncate rounded-3xl border px-6"
+                                [class.bg-secondary!]="
                                     selected() === display.id
                                 "
                                 [class.text-secondary-content]="
@@ -80,13 +80,13 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                     >
                                         <div class="w-6">
                                             <div
-                                                class="absolute left-6 top-1/2 z-0 h-16 w-4 -translate-y-full border-b-2 border-l-2 border-base-300"
+                                                class="border-base-300 absolute top-1/2 left-6 z-0 h-16 w-4 -translate-y-full border-b-2 border-l-2"
                                             ></div>
                                         </div>
                                         <a
                                             matRipple
-                                            class="relative z-10 flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6 hover:bg-base-200"
-                                            [class.!bg-secondary]="
+                                            class="hover:bg-base-200 relative z-10 flex min-h-12 w-1/2 flex-1 items-center truncate rounded-3xl px-6"
+                                            [class.bg-secondary!]="
                                                 selected_trigger() ===
                                                 trigger?.id
                                             "
@@ -128,7 +128,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                 }
             </div>
             <div
-                class="relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border border-base-300 bg-base-200 p-2 shadow"
+                class="border-base-300 bg-base-200 relative flex h-full w-1/2 flex-1 flex-col space-y-2 overflow-auto rounded-lg border p-2 shadow-sm"
             >
                 @if (active_display()) {
                     @let display = active_display();
@@ -152,11 +152,11 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                     >
                         @if (!trigger) {
                             <div
-                                class="mt-2 flex flex-wrap items-center overflow-auto rounded-xl bg-base-100 p-1"
+                                class="bg-base-100 mt-2 flex flex-wrap items-center overflow-auto rounded-xl p-1"
                             >
                                 @for (zone of display?.zones; track zone) {
                                     <a
-                                        class="m-1 whitespace-nowrap rounded bg-base-200 px-2 py-1 font-mono text-xs"
+                                        class="bg-base-200 m-1 rounded-sm px-2 py-1 font-mono text-xs whitespace-nowrap"
                                         matRipple
                                         [routerLink]="['/signage', 'zones']"
                                         [queryParams]="{ zone: zone }"
@@ -169,7 +169,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                                     </a>
                                 }
                                 <button
-                                    class="m-1 rounded px-2 py-1 font-mono text-xs underline"
+                                    class="m-1 rounded-sm px-2 py-1 font-mono text-xs underline"
                                     matRipple
                                     (click)="addZone()"
                                 >
@@ -184,7 +184,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                             icon
                             matRipple
                             [matMenuTriggerFor]="menu"
-                            class="absolute right-2 top-2 !m-0"
+                            class="absolute top-2 right-2 m-0!"
                         >
                             <icon>more_vert</icon>
                         </button>
@@ -292,7 +292,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                             </mat-menu>
                             <button mat-menu-item (click)="removeDisplay()">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error"
+                                    <icon class="text-error text-2xl"
                                         >delete</icon
                                     >
                                     <div class="pr-2">

@@ -3,6 +3,7 @@ import { Component, inject, model } from '@angular/core';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AssetRequest,
@@ -25,7 +26,7 @@ import { map } from 'rxjs/operators';
     selector: 'desk-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="m-0 flex-1 px-2 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.DESK_CONFIRM_TITLE' | translate }}
@@ -47,7 +48,7 @@ import { map } from 'rxjs/operators';
             </div>
         </header>
         <section period class="flex space-x-1 px-2 py-4 text-base">
-            <icon class="text-2xl text-success">done</icon>
+            <icon class="text-success text-2xl">done</icon>
             <div details class="space-y-2">
                 <h3 class="text-xl">{{ booking.title || '~Untitled~' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -79,9 +80,9 @@ import { map } from 'rxjs/operators';
         @if (booking_asset?.id) {
             <section
                 desk
-                class="flex space-x-1 border-t border-neutral px-2 py-4 text-base"
+                class="border-neutral flex space-x-1 border-t px-2 py-4 text-base"
             >
-                <icon class="text-2xl text-success">done</icon>
+                <icon class="text-success text-2xl">done</icon>
                 <div details class="space-y-2">
                     <h3 class="text-xl">
                         {{ booking_asset?.name || booking_asset?.id || '' }}
@@ -121,7 +122,7 @@ import { map } from 'rxjs/operators';
                     @for (request of assets; track request) {
                         <div
                             request
-                            class="overflow-hidden rounded-xl border bg-base-100"
+                            class="bg-base-100 overflow-hidden rounded-xl border"
                             [class.border-error]="end_time < request.deliver_at"
                             [class.border-base-300]="
                                 end_time >= request.deliver_at
@@ -147,7 +148,7 @@ import { map } from 'rxjs/operators';
                                         request.conflict
                                     ) {
                                         <div
-                                            class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                            class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="err_tooltip(request)"
                                         >
                                             <icon>priority_high</icon>
@@ -155,7 +156,7 @@ import { map } from 'rxjs/operators';
                                     }
                                     <div class="flex-1"></div>
                                     <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                     >
                                         {{
                                             'COMMON.ITEM_COUNT'
@@ -168,7 +169,7 @@ import { map } from 'rxjs/operators';
                                 </div>
                             </div>
                             <div
-                                class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                class="divide-base-100 bg-base-200 flex flex-col divide-y"
                             >
                                 @for (item of request.items; track item) {
                                     <div
@@ -180,7 +181,7 @@ import { map } from 'rxjs/operators';
                                             }}</span>
                                         </div>
                                         <div
-                                            class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                            class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                         >
                                             x{{ item.quantity }}
                                         </div>
@@ -203,7 +204,7 @@ import { map } from 'rxjs/operators';
                 </div>
             </section>
         }
-        <footer class="mt-4 w-full border-t border-base-200 p-2">
+        <footer class="border-base-200 mt-4 w-full border-t p-2">
             @if (!(loading | async)) {
                 <button
                     name="confirm-desk"
@@ -224,6 +225,7 @@ import { map } from 'rxjs/operators';
         IconComponent,
         MatRippleModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
     ],
 })
 export class NewDeskFlowConfirmComponent extends AsyncHandler {

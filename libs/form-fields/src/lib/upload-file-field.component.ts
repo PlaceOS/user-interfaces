@@ -17,7 +17,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     selector: 'upload-file',
     template: `
         <div
-            class="relative w-full cursor-pointer rounded border border-base-200 bg-base-200 p-2 hover:bg-base-200"
+            class="border-base-200 bg-base-200 hover:bg-base-200 relative w-full cursor-pointer rounded-sm border p-2"
         >
             <input
                 type="file"
@@ -27,8 +27,8 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
             @if (item) {
                 <div
                     item
-                    class="relative z-50 flex w-full items-center rounded border border-base-200 bg-base-100 hover:bg-base-200"
-                    [class.!bg-error]="item.progress < 1"
+                    class="border-base-200 bg-base-100 hover:bg-base-200 relative z-50 flex w-full items-center rounded-sm border"
+                    [class.bg-error!]="item.progress < 1"
                     [class.!bg-opacity-20]="item.progress < 1"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">
@@ -42,7 +42,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                                 [value]="item.progress"
                             ></mat-progress-spinner>
                             <div
-                                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
                             >
                                 {{ item.progress }}
                             </div>

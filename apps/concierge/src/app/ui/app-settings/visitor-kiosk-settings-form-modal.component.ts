@@ -46,7 +46,7 @@ import { UploadButtonComponent } from './upload-button.component';
             (confirm)="save()"
         >
             <form [formGroup]="form" class="flex flex-col space-y-8">
-                <section general class="space-y-2 rounded bg-base-100">
+                <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
                         <label for="logo_light">Light Mode Logo</label>
                         <div class="mb-4 flex items-center space-x-2">
@@ -155,15 +155,19 @@ import { UploadButtonComponent } from './upload-button.component';
                             name="Allow Printing Label"
                             formControlName="allow_printing_label"
                         ></settings-toggle>
+                        <settings-toggle
+                            name="Hide Explore Map option"
+                            formControlName="hide_explore"
+                        ></settings-toggle>
                     </div>
                 </section>
                 <section
                     explore
-                    class="relative rounded border border-base-300 px-4 pb-2 pt-4"
+                    class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
                     formGroupName="explore"
                 >
                     <h3
-                        class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                        class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                     >
                         PlaceOS Maps
                     </h3>
@@ -322,10 +326,10 @@ import { UploadButtonComponent } from './upload-button.component';
                     </div>
                     @if (form.value.explore?.show_legend) {
                         <div
-                            class="relative rounded border border-base-300 p-4"
+                            class="border-base-300 relative rounded-sm border p-4"
                         >
                             <h3
-                                class="absolute left-4 top-0 -translate-y-1/2 rounded bg-base-100 px-2 py-1 font-medium"
+                                class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
                             >
                                 Legend
                             </h3>
@@ -356,7 +360,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     >
                                         <input
                                             type="color"
-                                            class="h-11 rounded-lg border border-base-content"
+                                            class="border-base-content h-11 rounded-lg border"
                                             [(ngModel)]="item[1]"
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -366,7 +370,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <button
                                         icon
                                         matRipple
-                                        class="h-12 w-12 rounded border border-error text-error"
+                                        class="border-error text-error h-12 w-12 rounded-sm border"
                                         (click)="removeLegend(i)"
                                     >
                                         <icon>delete</icon>
@@ -472,6 +476,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         allow_self_registration: new FormControl(false),
         allow_pass_number: new FormControl(false),
         allow_printing_label: new FormControl(false),
+        hide_explore: new FormControl(false),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
             show_legend: new FormControl(false),

@@ -87,7 +87,7 @@ describe('CustomTooltipComponent', () => {
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
-        expect(spectator.directive.type).toBe('component');
+        expect(spectator.directive.type()).toBe('component');
         expect(spectator.directive.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Fake Component');
@@ -102,7 +102,7 @@ describe('CustomTooltipComponent', () => {
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
-        expect(spectator.directive.type).toBe('template');
+        expect(spectator.directive.type()).toBe('template');
         expect(spectator.directive.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Test Template');
@@ -121,7 +121,7 @@ describe('CustomTooltipComponent', () => {
         expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
-        expect(spectator.directive.type).toBe('html');
+        expect(spectator.directive.type()).toBe('html');
         expect(spectator.directive.open).toHaveBeenCalled();
         expect('[custom-tooltip]').toExist();
         expect('[custom-tooltip]').toContainText('Test HTML');

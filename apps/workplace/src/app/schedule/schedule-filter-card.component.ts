@@ -12,7 +12,7 @@ import { ScheduleStateService } from './schedule-state.service';
     selector: 'schedule-filter-card',
     template: `
         <div
-            class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
+            class="border-base-200 mb-4 flex items-center space-x-2 border-b text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <icon>chevron_left</icon>
@@ -22,7 +22,7 @@ import { ScheduleStateService } from './schedule-state.service';
             </h2>
             <icon></icon>
         </div>
-        <div class="mb-4 space-y-4 border-b border-base-200 px-2 pb-4">
+        <div class="border-base-200 mb-4 space-y-4 border-b px-2 pb-4">
             @if (hasFeature('spaces')) {
                 <button
                     matRipple
@@ -31,7 +31,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('event')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>place</icon>
                     </div>
@@ -59,7 +59,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('desk')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
@@ -87,7 +87,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('parking')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>drive_eta</icon>
                     </div>
@@ -115,7 +115,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('visitor')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>people</icon>
                     </div>
@@ -145,7 +145,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('locker')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>door_back</icon>
                     </div>
@@ -175,7 +175,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     (click)="toggleType('group-event')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>door_back</icon>
                     </div>

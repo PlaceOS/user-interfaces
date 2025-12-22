@@ -42,7 +42,7 @@ import { NewSurveyService } from './new-survey.service';
     ],
     template: `
         <header
-            class="flex w-full items-center justify-between pb-4 pl-4 pr-8 pt-8"
+            class="flex w-full items-center justify-between pt-8 pr-8 pb-4 pl-4"
         >
             <div class="flex flex-row">
                 <a
@@ -80,7 +80,7 @@ import { NewSurveyService } from './new-survey.service';
         </header>
         <div class="mb-4 flex justify-end space-x-4 px-8">
             <div
-                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
+                class="border-base-300 flex flex-1 flex-col items-center rounded-sm border p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_QUESTIONS' | translate }}
@@ -90,7 +90,7 @@ import { NewSurveyService } from './new-survey.service';
                 </p>
             </div>
             <div
-                class="flex flex-1 flex-col items-center rounded border border-base-300 p-4"
+                class="border-base-300 flex flex-1 flex-col items-center rounded-sm border p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_ANSWERS' | translate }}
@@ -100,7 +100,7 @@ import { NewSurveyService } from './new-survey.service';
                 </p>
             </div>
             <div
-                class="flex flex-1 flex-col items-center space-y-2 rounded border border-base-300 p-4"
+                class="border-base-300 flex flex-1 flex-col items-center space-y-2 rounded-sm border p-4"
             >
                 <h3>
                     {{ 'APP.CONCIERGE.SURVEY_ANSWERS_TRIGGER' | translate }}
@@ -112,7 +112,7 @@ import { NewSurveyService } from './new-survey.service';
         </div>
         @let question_pages = paged_responses$ | async;
         <div
-            class="h-1/2 flex-1 overflow-auto border-t border-base-300 bg-base-200"
+            class="border-base-300 bg-base-200 h-1/2 flex-1 overflow-auto border-t"
             *ngIf="question_pages?.length > 0; else empty_template"
         >
             <ng-container *ngFor="let p of question_pages; let i = index">
@@ -143,7 +143,7 @@ import { NewSurveyService } from './new-survey.service';
         </div>
         <ng-template #empty_template>
             <div
-                class="flex min-h-[10rem] w-full flex-col items-center justify-center"
+                class="flex min-h-40 w-full flex-col items-center justify-center"
             >
                 <span class="text-lg opacity-30">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
@@ -152,7 +152,7 @@ import { NewSurveyService } from './new-survey.service';
         </ng-template>
         <div
             *ngIf="loading$ | async"
-            class="absolute inset-0 z-10 flex bg-base-100 opacity-60"
+            class="bg-base-100 absolute inset-0 z-10 flex opacity-60"
         >
             <div class="m-auto flex flex-col items-center space-y-4">
                 <mat-spinner [diameter]="32"></mat-spinner>

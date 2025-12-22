@@ -14,7 +14,7 @@ import { BuildingManagementService } from './building-management.service';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
-                    class="mb-2 flex items-center justify-between px-8 pb-8 pt-4"
+                    class="mb-2 flex items-center justify-between px-8 pt-4 pb-8"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.BUILDINGS_HEADER' | translate }}

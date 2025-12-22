@@ -19,25 +19,25 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             (click)="close.emit()"
             (window:keydown.esc)="close.emit()"
         >
-            <div class="absolute inset-0 z-0 bg-base-content opacity-70"></div>
+            <div class="bg-base-content absolute inset-0 z-0 opacity-70"></div>
             <div
-                class="relative z-10 mx-auto mb-4 w-[32rem] max-w-[calc(100%-2rem)]"
+                class="relative z-10 mx-auto mb-4 w-lg max-w-[calc(100%-2rem)]"
                 (click)="$event.stopPropagation()"
             >
                 <input
-                    class="w-full rounded-[4rem] border border-base-300 bg-base-100 py-4 pl-14 pr-6 text-xl text-base-content shadow"
+                    class="border-base-300 bg-base-100 text-base-content w-full rounded-[4rem] border py-4 pr-6 pl-14 text-xl shadow-sm"
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <icon
-                    class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-3xl"
+                    class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-3xl"
                 >
                     search
                 </icon>
             </div>
             <div
-                class="z-10 mx-auto max-h-[65%] w-[32rem] max-w-[calc(100%-2rem)] overflow-auto rounded"
+                class="z-10 mx-auto max-h-[65%] w-lg max-w-[calc(100%-2rem)] overflow-auto rounded-sm"
                 (click)="$event.stopPropagation()"
             >
                 @for (item of item_list(); track item) {
@@ -55,9 +55,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             ></ng-container>
                         } @else {
                             <div
-                                class="w-full border border-base-300 bg-base-100 p-4 hover:bg-base-200"
+                                class="border-base-300 bg-base-100 hover:bg-base-200 w-full border p-4"
                             >
-                                {{ item.name || item }}
+                                {{ $any(item).name || item }}
                             </div>
                         }
                     </button>
@@ -65,7 +65,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 @if (!item_list()?.length) {
                     <button
                         matRipple
-                        class="w-full p-4 text-base-100"
+                        class="text-base-100 w-full p-4"
                         (click)="close.emit()"
                     >
                         <div class="opacity-30">
@@ -79,7 +79,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             <button
                 icon
                 matRipple
-                class="absolute right-8 top-10 h-12 w-12 text-xl text-base-100"
+                class="text-base-100 absolute top-10 right-8 h-12 w-12 text-xl"
             >
                 <icon>close</icon>
             </button>

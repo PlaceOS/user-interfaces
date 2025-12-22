@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
@@ -13,8 +13,9 @@ import {
     selector: 'explore-map-stack',
     template: `
         <div
-            class="absolute inset-0 overflow-hidden bg-base-200"
-            [class.hide-levels]="(options | async)?.show_levels"
+            class="bg-base-200 absolute inset-0 overflow-hidden"
+            [class.hide-levels]="$any(options | async)?.show_levels"
+            [class.isometric]="isometric"
         >
             @for (lvl of levels | async; track lvl; let i = $index) {
                 <interactive-map
@@ -36,8 +37,13 @@ import {
     `,
     styles: [
         `
-            div:not(.hide-levels) interactive-map {
+            div:not(.hide-levels):not(.isometric) interactive-map {
                 transform: perspective(500px) rotateX(50deg) scale(0.9);
+            }
+
+            div.isometric:not(.hide-levels) interactive-map {
+                transform: perspective(800px) rotateX(45deg) rotateZ(-45deg)
+                    scale(0.7);
             }
 
             .hide-levels > div:not(.active) {
@@ -68,6 +74,13 @@ export class ExploreMapStackComponent {
     private _s = inject(ExploreSpacesService);
     private _desks = inject(ExploreDesksService);
     private _zones = inject(ExploreZonesService);
+
+    public isometric = localStorage.getItem('KIOSK.isometric') === 'true';
+
+    @HostListener('window:isometric-change', ['$event'])
+    public onIsometricChange(event: Event) {
+        this.isometric = (event as CustomEvent).detail;
+    }
 
     public readonly levels = this._orgs.active_levels;
     /** Observable for the active map */

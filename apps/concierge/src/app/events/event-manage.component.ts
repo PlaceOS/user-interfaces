@@ -55,9 +55,9 @@ const EMPTY = [];
     selector: 'app-event-manage',
     template: `
         @if (!loading()) {
-            <div class="absolute inset-0 overflow-auto bg-base-100">
+            <div class="bg-base-100 absolute inset-0 overflow-auto">
                 <header
-                    class="sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex w-full max-w-[640px] items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium">
                         {{
@@ -78,7 +78,7 @@ const EMPTY = [];
                     }
                 </header>
                 <form
-                    class="mx-auto my-2 flex w-[40rem] max-w-full flex-col px-4 pb-16"
+                    class="mx-auto my-2 flex w-160 max-w-full flex-col px-4 pb-16"
                     [formGroup]="form"
                 >
                     <section class="flex flex-col space-y-2">
@@ -115,7 +115,6 @@ const EMPTY = [];
                             <mat-chip-grid #chipList aria-label="Event Tags">
                                 @for (tag of tag_list; track tag) {
                                     <mat-chip-row
-                                        [selectable]="true"
                                         [removable]="true"
                                         (removed)="removeTag(tag)"
                                     >
@@ -161,7 +160,7 @@ const EMPTY = [];
                             </mat-form-field>
                         </div>
                         <!-- END BASIC DETAILS -->
-                        <div class="h-px w-full bg-base-200"></div>
+                        <div class="bg-base-200 h-px w-full"></div>
                         <h3 class="py-4 text-2xl font-medium">
                             {{ 'APP.CONCIERGE.EVENTS_DATE_TIME' | translate }}
                         </h3>
@@ -276,7 +275,7 @@ const EMPTY = [];
                             </mat-autocomplete>
                         </div>
                         <!-- END DATE TIME -->
-                        <div class="h-px w-full bg-base-200"></div>
+                        <div class="bg-base-200 h-px w-full"></div>
                         <h3 class="py-4 text-2xl font-medium">
                             {{ 'COMMON.LOCATION' | translate }}
                         </h3>
@@ -373,7 +372,7 @@ const EMPTY = [];
                                 </mat-select>
                             </mat-form-field>
                             <div class="flex space-x-2">
-                                <div class="flex flex-[2] flex-col">
+                                <div class="flex flex-2 flex-col">
                                     <label for="level">{{
                                         'RESOURCE.LEVEL' | translate
                                     }}</label>
@@ -403,7 +402,7 @@ const EMPTY = [];
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
-                                <div class="flex flex-[3] flex-col">
+                                <div class="flex flex-3 flex-col">
                                     <label for="level">{{
                                         'RESOURCE.ROOM' | translate
                                     }}</label>
@@ -446,7 +445,7 @@ const EMPTY = [];
                             </div>
                         }
                         <!-- END LOCATION -->
-                        <div class="h-px w-full bg-base-200"></div>
+                        <div class="bg-base-200 h-px w-full"></div>
                         <h3 class="py-4 text-2xl font-medium">
                             {{ 'APP.CONCIERGE.EVENTS_INFO' | translate }}
                         </h3>
@@ -469,7 +468,7 @@ const EMPTY = [];
                     </section>
                     @if (!loading()) {
                         <footer
-                            class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded border-none bg-base-200 px-4 py-2"
+                            class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full max-w-[640px] -translate-x-1/2 items-center justify-end rounded-sm border-none px-4 py-2"
                         >
                             <button btn matRipple class="w-32" (click)="save()">
                                 {{ 'COMMON.SAVE' | translate }}
@@ -480,7 +479,7 @@ const EMPTY = [];
             </div>
         } @else {
             <div
-                class="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-base-100"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4"
             >
                 <mat-spinner diameter="48"></mat-spinner>
                 <p>{{ 'APP.CONCIERGE.EVENTS_SAVING' | translate }}</p>
@@ -539,6 +538,21 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get start_date() {
+        return this.form?.getRawValue()?.date;
+    }
+
+    public get end_date() {
+        return this._settings.get('app.events.available_period')
+            ? startOfDay(Date.now()).valueOf() +
+                  this._settings.get('app.events.available_period') *
+                      24 *
+                      60 *
+                      60 *
+                      1000
+            : undefined;
     }
 
     public get building_zone() {

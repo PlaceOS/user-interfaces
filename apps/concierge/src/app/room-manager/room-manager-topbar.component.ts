@@ -36,7 +36,7 @@ import { RoomManagementService } from './room-management.service';
                 {{ 'APP.CONCIERGE.ROOMS_ADD' | translate }}
             </button>
         </div>
-        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8">
+        <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
@@ -69,7 +69,7 @@ import { RoomManagementService } from './room-management.service';
                 btn
                 icon
                 matRipple
-                class="h-12 w-12 rounded bg-secondary text-secondary-content"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
             >

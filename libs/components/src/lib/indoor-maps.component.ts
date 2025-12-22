@@ -108,7 +108,7 @@ function degreesToRadians(degrees: number): number {
             </div>
         }
         <div
-            class="absolute left-2 top-2 z-50 flex h-min w-min flex-col rounded-lg bg-base-100 p-2 text-base-content shadow"
+            class="bg-base-100 text-base-content absolute top-2 left-2 z-50 flex h-min w-min flex-col rounded-lg p-2 shadow-sm"
         >
             <mat-form-field appearance="outline" class="map no-subscript">
                 <input
@@ -161,7 +161,7 @@ function degreesToRadians(degrees: number): number {
                         track item
                     ) {
                         <li
-                            class="w-full rounded border border-base-200 even:bg-base-200 hover:bg-base-300"
+                            class="border-base-200 even:bg-base-200 hover:bg-base-300 w-full rounded-sm border"
                         >
                             <button
                                 class="flex w-full items-center space-x-2 p-2 text-left"

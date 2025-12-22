@@ -7,7 +7,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { AuthenticatedImageDirective } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
 import { debounceTime, map } from 'rxjs/operators';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
 import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
@@ -17,9 +20,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
 @Component({
     selector: 'app-enrolment',
     template: `
-        <div class="absolute inset-0 flex flex-col bg-base-300">
+        <div class="bg-base-300 absolute inset-0 flex flex-col">
             <div
-                class="z-20 h-16 w-full bg-secondary p-2 text-secondary-content shadow"
+                class="bg-secondary text-secondary-content z-20 h-16 w-full p-2 shadow-sm"
             >
                 @let logo_path = (logo | async)?.src || (logo | async);
                 <img
@@ -43,14 +46,16 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         }
                         @case ('complete') {
                             <div
-                                class="m-4 rounded border border-base-200 bg-base-100 p-4 shadow"
+                                class="border-base-200 bg-base-100 m-4 rounded-sm border p-4 shadow-sm"
                             >
-                                <icon class="text-7xl text-success">done</icon>
+                                <icon class="text-success text-7xl">done</icon>
                                 <p>
                                     You are now checked in. See you
                                     {{
-                                        event
-                                            ? 'at ' + event.display.time
+                                        (event | async)?.date
+                                            ? 'at ' +
+                                              ((event | async)?.date
+                                                  | date: 'shortTime')
                                             : 'soon'
                                     }}
                                 </p>
@@ -79,6 +84,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         EnrolmentGuestConfirmComponent,
         EnrolmentEventDetailsComponent,
         AuthenticatedImageDirective,
+        IconComponent,
     ],
 })
 export class EnrolmentComponent extends AsyncHandler {
@@ -89,6 +95,7 @@ export class EnrolmentComponent extends AsyncHandler {
 
     public loading = this._state.loading;
     public view = this._state.view;
+    public event = this._state.event;
 
     public readonly logo = this._org.active_building.pipe(
         debounceTime(500),

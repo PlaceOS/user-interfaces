@@ -21,7 +21,7 @@ import { ParkingStateService } from './parking-state.service';
             class="sticky left-0 w-full"
         />
         <simple-table
-            class="block min-w-[76rem] text-sm"
+            class="block min-w-304 text-sm"
             [data]="filtered_events"
             [columns]="[
                 {
@@ -109,7 +109,7 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-base-300 text-2xl text-base-100"
+                    class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
                             | translate
@@ -126,7 +126,7 @@ import { ParkingStateService } from './parking-state.service';
             }
             @if (!row?.checked_in && !row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-warning text-2xl text-warning-content"
+                    class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_NOT_CHECKED_IN' | translate
                     "
@@ -137,7 +137,7 @@ import { ParkingStateService } from './parking-state.service';
             }
             @if (row?.checked_in) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
                     "
@@ -161,7 +161,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4">
                 <button
                     matRipple
-                    class="h-10 w-[7.5rem] rounded-3xl border-none"
+                    class="h-10 w-30 rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="row?.status === 'declined'"
@@ -174,7 +174,7 @@ import { ParkingStateService } from './parking-state.service';
                     [matMenuTriggerFor]="menu"
                     [disabled]="row?.status === 'ended'"
                 >
-                    <div class="flex items-center space-x-2 pl-4 pr-2">
+                    <div class="flex items-center space-x-2 pr-2 pl-4">
                         <div class="flex-1 text-left">
                             {{
                                 (row?.status === 'ended'

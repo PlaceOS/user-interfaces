@@ -23,12 +23,12 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         @if (space()) {
             <section
                 image
-                class="relative w-full bg-neutral"
+                class="bg-neutral relative w-full"
                 [class.sm:h-64]="space().images?.length"
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
                 [class.h-12]="!space().images?.length"
-                [class.!bg-transparent]="!space().images?.length"
+                [class.bg-transparent!]="!space().images?.length"
             >
                 @if (space().images?.length) {
                     <image-carousel
@@ -41,7 +41,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-100 lg:hidden"
+                    class="bg-base-100 absolute top-2 left-2 lg:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -51,7 +51,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     name="toggle-space-favourite-details"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-100"
+                    class="bg-base-100 absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -65,13 +65,13 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             </section>
             <div class="h-1/2 flex-1 space-y-2 p-2">
                 <section actions class="z-0">
-                    <h2 class="mb-2 mt-4 text-xl font-medium">
+                    <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
                     </h2>
                 </section>
                 @if (alert()) {
                     <div
-                        class="my-2 rounded px-2 py-1 text-xs"
+                        class="my-2 rounded-sm px-2 py-1 text-xs"
                         [class.bg-info]="alert()[0] === 'info'"
                         [class.text-info-content]="alert()[0] === 'info'"
                         [class.bg-warning]="alert()[0] === 'warn'"
@@ -84,10 +84,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 }
                 <section
                     details
-                    class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                    class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
                 >
                     <h2
-                        class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                     >
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h2>
@@ -120,10 +120,10 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (space().features?.length) {
                     <section
                         facilities
-                        class="relative !mt-4 space-y-2 rounded border border-base-400 px-2 pb-1 pt-1"
+                        class="border-base-400 relative mt-4! space-y-2 rounded-sm border px-2 pt-1 pb-1"
                     >
                         <h2
-                            class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2 text-lg font-medium"
+                            class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2 text-lg font-medium"
                         >
                             {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
                         </h2>
@@ -131,7 +131,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             @for (feature of space().features; track feature) {
                                 <div
                                     for="feat"
-                                    class="m-1 rounded-full border border-base-300 px-4 py-2 text-sm capitalize"
+                                    class="border-base-300 m-1 rounded-full border px-4 py-2 text-sm capitalize"
                                 >
                                     {{ feature }}
                                 </div>
@@ -142,7 +142,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto !mb-2 h-64 w-full overflow-hidden rounded bg-base-200 sm:h-48"
+                        class="bg-base-200 relative mx-auto mb-2! h-64 w-full overflow-hidden rounded-sm sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

@@ -21,7 +21,7 @@ import { QuestionComponent } from './question.component';
     styles: [],
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -35,7 +35,7 @@ import { QuestionComponent } from './question.component';
                 <icon>close</icon>
             </button>
         </header>
-        <main class="min-w-[40rem] overflow-x-hidden">
+        <main class="min-w-160 overflow-x-hidden">
             <placeos-question
                 #question_el
                 [is_card]="false"

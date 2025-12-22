@@ -20,7 +20,7 @@ import { DashboardsService } from './dashboards.service';
                 [class.opacity-0]="loading.length <= 0"
             />
             <simple-table
-                class="block min-w-[48rem] bg-base-100"
+                class="bg-base-100 block min-w-3xl"
                 [data]="dashboards()"
                 [filter]="search_term()"
                 [columns]="[
@@ -55,10 +55,10 @@ import { DashboardsService } from './dashboards.service';
             />
             <ng-template #child_template let-dash="row">
                 <div
-                    class="absolute inset-0 z-0 bg-info-light opacity-30"
+                    class="bg-info-light absolute inset-0 z-0 opacity-30"
                 ></div>
                 <simple-table
-                    class="block min-w-[48rem]"
+                    class="block min-w-3xl"
                     [data]="alert_map()?.[dash.id] || []"
                     [filter]="search_term()"
                     [columns]="[
@@ -103,7 +103,7 @@ import { DashboardsService } from './dashboards.service';
                                 'manage',
                                 alert.id,
                             ]"
-                            class="rounded"
+                            class="rounded-sm"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
                                     | translate
@@ -114,14 +114,14 @@ import { DashboardsService } from './dashboards.service';
                         <button
                             icon
                             matRipple
-                            class="rounded"
+                            class="rounded-sm"
                             (click)="removeAlert(alert)"
                             [matTooltip]="
                                 'APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE'
                                     | translate
                             "
                         >
-                            <icon class="text-2xl text-error">delete</icon>
+                            <icon class="text-error text-2xl">delete</icon>
                         </button>
                     </div>
                     <button icon matRipple></button>
@@ -130,7 +130,7 @@ import { DashboardsService } from './dashboards.service';
             <ng-template #status_template let-enabled="data">
                 @if (enabled) {
                     <div
-                        class="mx-auto flex h-8 w-8 items-center justify-center rounded bg-success text-2xl text-success-content"
+                        class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     >
                         <icon>done</icon>
                     </div>
@@ -150,7 +150,7 @@ import { DashboardsService } from './dashboards.service';
                             'alerts',
                             'manage',
                         ]"
-                        class="rounded"
+                        class="rounded-sm"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_ALERTS_ADD' | translate
                         "
@@ -161,7 +161,7 @@ import { DashboardsService } from './dashboards.service';
                         icon
                         matRipple
                         [routerLink]="['/dashboards', 'manage', dashboard.id]"
-                        class="rounded"
+                        class="rounded-sm"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_EDIT' | translate
                         "
@@ -171,18 +171,18 @@ import { DashboardsService } from './dashboards.service';
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         (click)="remove(dashboard)"
                         [matTooltip]="
                             'APP.STAGEHAND.DASHBOARD_REMOVE' | translate
                         "
                     >
-                        <icon class="text-2xl text-error">delete</icon>
+                        <icon class="text-error text-2xl">delete</icon>
                     </button>
                     <button
                         icon
                         matRipple
-                        class="rounded"
+                        class="rounded-sm"
                         (click)="toggleChildren(dashboard)"
                         [matTooltip]="
                             (show_children()?.[dashboard.id]
@@ -222,6 +222,7 @@ export class DashboardListComponent implements OnInit {
     public readonly loading = this._service.loading;
 
     public readonly remove = (d) => this._service.removeDashboard(d);
+    public readonly removeAlert = (a) => this._service.removeDashboardAlert(a);
 
     public ngOnInit() {
         this._service.loadDashboards();

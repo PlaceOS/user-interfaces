@@ -8,15 +8,15 @@ import { EventFormService, SpacePipe } from '@placeos/events';
     selector: 'meeting-booking-success',
     template: `
         <div
-            class="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-base-100 p-4 text-center"
+            class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4 p-4 text-center"
         >
             <h3 class="text-3xl">Booking Confirmed!</h3>
             <img src="assets/tick_success.svg" />
-            @let room = last_success()?.system?.email || '' | space;
+            @let room = last_success()?.system?.email || '' | space | async;
             <p>
                 Your meeting booking for
                 <i>{{
-                    last_success()?.location || room.display_name || room.name
+                    last_success()?.location || room?.display_name || room?.name
                 }}</i>
                 has been successfully booked for the
                 {{ last_success()?.date | date: 'dd MMMM yyyy' }} at

@@ -53,7 +53,7 @@ export interface CateringOrderModalData {
                                         ) {
                                             <div
                                                 item
-                                                class="flex items-center border-b border-base-200 p-2"
+                                                class="border-base-200 flex items-center border-b p-2"
                                             >
                                                 <div class="w-1/2 flex-1">
                                                     <div class="w-1/2 flex-1">
@@ -71,7 +71,7 @@ export interface CateringOrderModalData {
                                                     }
                                                 </div>
                                                 <div
-                                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                                    class="bg-primary mx-2 rounded-sm px-4 py-2 text-xs font-medium text-white"
                                                 >
                                                     {{
                                                         item.unit_price / 100
@@ -139,7 +139,7 @@ export interface CateringOrderModalData {
                         }
                     </mat-tab-group>
                 } @else {
-                    <header class="h-[3.25rem]">
+                    <header class="h-13">
                         <h3>
                             {{ 'CATERING.ORDERS_CONFIRM' | translate }}
                         </h3>
@@ -148,7 +148,7 @@ export interface CateringOrderModalData {
                         @for (item of order.items; track item) {
                             <div
                                 item
-                                class="flex items-center border-b border-base-200 p-2"
+                                class="border-base-200 flex items-center border-b p-2"
                             >
                                 <div class="w-1/2 flex-1">
                                     <div class="w-1/2 flex-1">
@@ -172,7 +172,7 @@ export interface CateringOrderModalData {
                                     }
                                 </div>
                                 <div
-                                    class="mx-2 rounded bg-primary px-4 py-2 text-xs font-medium text-white"
+                                    class="bg-primary mx-2 rounded-sm px-4 py-2 text-xs font-medium text-white"
                                 >
                                     {{ item.total_cost / 100 | currency: code }}
                                 </div>
@@ -195,7 +195,7 @@ export interface CateringOrderModalData {
         }
         @if (!loading) {
             <footer
-                class="flex items-center justify-center space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 flex items-center justify-center space-x-2 border-t p-2"
             >
                 @if (!show_order_details) {
                     <button btn matRipple class="inverse" mat-dialog-close>

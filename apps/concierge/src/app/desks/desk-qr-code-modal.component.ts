@@ -11,7 +11,7 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 @Component({
     selector: 'desk-qr-code-modal',
     template: `
-        <div class="relative min-h-screen w-screen rounded-none bg-base-100">
+        <div class="bg-base-100 relative min-h-screen w-screen rounded-none">
             <div
                 class="sticky top-0 flex w-full items-center justify-between p-4 print:hidden"
             >
@@ -33,12 +33,12 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
                         class="mx-auto flex w-[28%] flex-col items-center justify-center landscape:w-[21%] print:h-[25vh] print:landscape:h-[33.33vh]"
                     >
                         <div
-                            class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                            class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                         >
                             <img class="w-48" [src]="desk.qr_code" />
                         </div>
                         <div
-                            class="mx-4 my-1 w-[calc(100%-2rem)] rounded bg-base-200 p-1 text-center font-mono text-sm"
+                            class="bg-base-200 mx-4 my-1 w-[calc(100%-2rem)] rounded-sm p-1 text-center font-mono text-sm"
                         >
                             {{ desk.name || desk.id }}
                         </div>

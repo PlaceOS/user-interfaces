@@ -22,7 +22,7 @@ import { ParkingStateService } from './parking-state.service';
             class="w-full"
         />
         <simple-table
-            class="block min-w-[52rem] text-sm"
+            class="block min-w-208 text-sm"
             [data]="spaces"
             [columns]="[
                 {
@@ -56,7 +56,7 @@ import { ParkingStateService } from './parking-state.service';
         />
         <ng-template #status_template let-row="row">
             <div
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded"
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm"
                 [class.bg-warning]="
                     !space_status[row.id]?.includes('free') &&
                     !space_status[row.id]?.includes('busy')

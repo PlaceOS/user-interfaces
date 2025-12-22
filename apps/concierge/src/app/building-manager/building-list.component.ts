@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import {
     AuthenticatedImageDirective,
     IconComponent,
+    LevelPipe,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -21,7 +22,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block w-full min-w-[62rem] text-sm"
+                class="block w-full min-w-248 text-sm"
                 [data]="buildings"
                 [empty_message]="'APP.CONCIERGE.BUILDINGS_EMPTY' | translate"
                 [columns]="[
@@ -83,11 +84,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         </ng-template>
         <ng-template #image_template let-data="data">
             @if (data.length) {
-                <img
-                    auth
-                    [source]="data[0]"
-                    class="max-h-[3rem] max-w-[8rem]"
-                />
+                <img auth [source]="data[0]" class="max-h-12 max-w-32" />
             }
             @if (!data.length) {
                 <span class="opacity-30">{{
@@ -100,7 +97,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded"
+                    class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
                 >
                     <icon>more_vert</icon>
@@ -232,8 +229,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeBuilding(row)">
-                        <div class="text-red-500 flex items-center space-x-2">
-                            <icon class="text-xl text-error"> delete </icon>
+                        <div class="flex items-center space-x-2 text-red-500">
+                            <icon class="text-error text-xl"> delete </icon>
                             <div>
                                 {{
                                     'APP.CONCIERGE.BUILDINGS_REMOVE' | translate
@@ -252,6 +249,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         MatMenuModule,
         TranslatePipe,
         IconComponent,
+        LevelPipe,
     ],
 })
 export class BuildingListComponent {

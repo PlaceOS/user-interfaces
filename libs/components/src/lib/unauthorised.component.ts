@@ -5,7 +5,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'app-unauthorised',
     template: `
         <div
-            class="unauthorised m-4 rounded border border-base-200 bg-base-100 p-4 text-center text-black shadow"
+            class="unauthorised border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
         >
             <h1 class="text-4xl">403</h1>
             <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>

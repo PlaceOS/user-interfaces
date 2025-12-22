@@ -15,7 +15,7 @@ import { GroupEventsStateService } from './group-events-state.service';
     selector: '[group-events]',
     template: `
         <topbar />
-        <main class="flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row">
+        <main class="bg-base-200 flex h-1/2 flex-1 flex-col sm:flex-row">
             <group-events-sidebar></group-events-sidebar>
             <div class="h-full w-full flex-1 overflow-auto p-2 sm:w-1/2 sm:p-4">
                 <group-events-filters-list></group-events-filters-list>
@@ -23,13 +23,11 @@ import { GroupEventsStateService } from './group-events-state.service';
                     <group-event-card
                         [event]="featured | async"
                         [featured]="true"
-                        class="mx-auto my-2 w-[64rem] max-w-full"
+                        class="mx-auto my-2 w-5xl max-w-full"
                     ></group-event-card>
                 }
                 @if ((event_list | async)?.length) {
-                    <div
-                        class="mx-auto mt-2 flex w-[64rem] max-w-full flex-wrap"
-                    >
+                    <div class="mx-auto mt-2 flex w-5xl max-w-full flex-wrap">
                         @for (
                             event of events_without_featured | async;
                             track event

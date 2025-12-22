@@ -32,7 +32,7 @@ import { EventsStateService } from './events-state.service';
                 #input_el
                 [class.opacity-0]="!show"
                 [class.pointer-events-none]="!show"
-                class="absolute right-0 top-1/2 w-[20rem] -translate-y-1/2 rounded-full border border-base-300 bg-base-100 py-3 pl-10 pr-4 shadow"
+                class="border-base-300 bg-base-100 absolute top-1/2 right-0 w-[20rem] -translate-y-1/2 rounded-full border py-3 pr-4 pl-10 shadow-sm"
                 [ngModel]="search.getValue()"
                 (ngModelChange)="search.next($event)"
                 (blur)="hideSearch()"
@@ -40,16 +40,16 @@ import { EventsStateService } from './events-state.service';
             />
             @if (show) {
                 <icon
-                    class="absolute right-[17.5rem] top-1/2 -translate-y-1/2 text-2xl"
+                    class="absolute top-1/2 right-70 -translate-y-1/2 text-2xl"
                 >
                     search
                 </icon>
             }
             @if (show) {
                 <div
-                    class="absolute right-4 top-full max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded border border-base-300 bg-base-100 shadow"
+                    class="border-base-300 bg-base-100 absolute top-full right-4 max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded-sm border shadow-sm"
                 >
-                    <div class="sticky top-0 z-10 rounded bg-base-100 p-4">
+                    <div class="bg-base-100 sticky top-0 z-10 rounded-sm p-4">
                         <div class="text-xs opacity-60">
                             {{
                                 'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
@@ -77,7 +77,7 @@ import { EventsStateService } from './events-state.service';
                         @for (event of filtered | async; track event) {
                             <button
                                 matRipple
-                                class="relative z-0 flex w-full items-center space-x-2 rounded p-2 text-left hover:bg-base-200"
+                                class="hover:bg-base-200 relative z-0 flex w-full items-center space-x-2 rounded-sm p-2 text-left"
                                 (click)="selected.emit(event)"
                             >
                                 <div
@@ -120,7 +120,7 @@ import { EventsStateService } from './events-state.service';
                                     </div>
                                     <div class="truncate text-xs opacity-30">
                                         {{
-                                            (event.host | user)?.name ||
+                                            (event.host | user | async)?.name ||
                                                 event.host
                                         }}
                                     </div>

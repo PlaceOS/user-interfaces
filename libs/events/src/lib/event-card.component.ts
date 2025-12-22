@@ -55,7 +55,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow"
+                    class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <h4 class="px-4 text-lg">{{ event()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
@@ -124,13 +124,13 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         </div>
                     </div>
                     <icon
-                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
+                        class="absolute top-1/2 right-1 -translate-y-1/2 text-4xl"
                     >
                         chevron_right
                     </icon>
                     @if (event()?.attendees?.length) {
                         <div
-                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
+                            class="absolute right-2 bottom-2 flex items-center pr-4 text-sm sm:top-2 sm:bottom-auto sm:text-base"
                         >
                             @for (
                                 user of event()?.attendees
@@ -150,7 +150,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                             @if (event()?.attendees?.length > 6) {
                                 <div class="h-10 w-6">
                                     <div
-                                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
+                                        class="border-base-100 bg-secondary text-secondary-content flex h-10 w-10 items-center justify-center rounded-full border-2"
                                     >
                                         +{{ event()?.attendees?.length - 5 }}
                                     </div>

@@ -35,7 +35,7 @@ import { SignageStateService } from './signage-state.service';
     template: `
         <div class="relative p-2">
             <h3
-                class="mb-2 rounded-xl bg-base-100 p-2 text-center text-xl font-medium"
+                class="bg-base-100 mb-2 rounded-xl p-2 text-center text-xl font-medium"
             >
                 {{ 'APP.CONCIERGE.SIGNAGE_MEDIA' | translate }}
             </h3>
@@ -55,7 +55,7 @@ import { SignageStateService } from './signage-state.service';
                 matRipple
                 customTooltip
                 [content]="add_link_template"
-                class="absolute right-14 top-3 !h-9 max-h-9 !w-9 min-w-0 max-w-9 border border-base-300"
+                class="border-base-300 absolute top-3 right-14 h-9! max-h-9 w-9! max-w-9 min-w-0 border"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_LINK' | translate"
                 matTooltipPosition="left"
             >
@@ -63,7 +63,7 @@ import { SignageStateService } from './signage-state.service';
             </button>
             <ng-template #add_link_template>
                 <div
-                    class="my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border border-base-300 bg-base-100 p-4 shadow"
+                    class="border-base-300 bg-base-100 my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border p-4 shadow-sm"
                 >
                     <mat-form-field appearance="outline" class="no-subscript">
                         <input
@@ -86,7 +86,7 @@ import { SignageStateService } from './signage-state.service';
             <button
                 icon
                 matRipple
-                class="absolute right-3 top-3 !h-9 max-h-9 !w-9 min-w-0 max-w-9 border border-base-300"
+                class="border-base-300 absolute top-3 right-3 h-9! max-h-9 w-9! max-w-9 min-w-0 border"
                 [matTooltip]="'APP.CONCIERGE.SIGNAGE_MEDIA_UPLOAD' | translate"
                 matTooltipPosition="left"
             >
@@ -109,46 +109,68 @@ import { SignageStateService } from './signage-state.service';
             >
                 @for (media of media(); track media.id) {
                     <div
-                        class="relative flex flex-col items-center justify-center rounded-lg border border-base-300 bg-base-100 p-3 hover:opacity-80"
+                        class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80"
                         cdkDrag
                     >
                         @if (media.valid_from && now < media.valid_from) {
                             <div
-                                class="absolute inset-0 z-0 rounded-lg bg-warning opacity-10"
+                                class="bg-warning absolute inset-0 z-0 rounded-lg opacity-10"
                             ></div>
                         } @else if (
                             media.valid_until && now > media.valid_until
                         ) {
                             <div
-                                class="absolute inset-0 z-0 rounded-lg bg-error opacity-10"
+                                class="bg-error absolute inset-0 z-0 rounded-lg opacity-10"
                             ></div>
                         }
                         <div
-                            class="flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed border-base-400 bg-base-300 opacity-30"
+                            class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
                             *cdkDragPlaceholder
                         >
-                            <icon class="text-2xl text-base-100"> add </icon>
+                            <icon class="text-base-100 text-2xl"> add </icon>
                         </div>
                         <button
                             preview
                             matRipple
                             (click)="previewItem(media)"
-                            class="relative h-36 w-full overflow-hidden rounded-lg bg-base-200"
+                            class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
                         >
-                            @if (media.thumbnail_url) {
-                                <img
-                                    auth
-                                    [source]="media.thumbnail_url"
-                                    class="h-full w-full rounded-lg object-contain"
-                                />
+                            @if (media.media_type === 'webpage') {
                                 <div
-                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                    class="flex h-full w-full items-center justify-center"
                                 >
-                                    <icon class="text-2xl">expand_content</icon>
+                                    <icon class="text-8xl opacity-30"
+                                        >http</icon
+                                    >
                                 </div>
+                            } @else {
+                                @if (media.thumbnail_url) {
+                                    <img
+                                        auth
+                                        [source]="media.thumbnail_url"
+                                        class="absolute -inset-px rounded-lg object-contain"
+                                    />
+                                    <div
+                                        class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                    >
+                                        <icon class="text-2xl"
+                                            >expand_content</icon
+                                        >
+                                    </div>
+                                } @else {
+                                    <div
+                                        class="flex h-full w-full items-center justify-center"
+                                    >
+                                        <icon class="text-8xl opacity-30">{{
+                                            media.media_type === 'video'
+                                                ? 'video_library'
+                                                : 'image'
+                                        }}</icon>
+                                    </div>
+                                }
                             }
                             <div
-                                class="absolute left-1 top-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
+                                class="absolute top-1 left-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
                                 [class.bg-info]="media.media_type === 'video'"
                                 [class.text-info-content]="
                                     media.media_type === 'video'
@@ -177,7 +199,7 @@ import { SignageStateService } from './signage-state.service';
                             </div>
                             @if (media.play_time) {
                                 <div
-                                    class="absolute bottom-1 right-1 rounded-lg bg-info px-2 py-1 font-mono text-xs capitalize text-info-content"
+                                    class="bg-info text-info-content absolute right-1 bottom-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
                                 >
                                     {{ media.play_time / 1000 | mediaDuration }}
                                 </div>
@@ -187,7 +209,7 @@ import { SignageStateService } from './signage-state.service';
                             class="relative top-1 flex w-full items-center justify-between"
                         >
                             <div
-                                class="w-1/2 flex-1 truncate text-base-content"
+                                class="text-base-content w-1/2 flex-1 truncate"
                                 [matTooltip]="media.name"
                             >
                                 {{ media.name }}
@@ -293,7 +315,7 @@ import { SignageStateService } from './signage-state.service';
                                     (click)="removeItem(media)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl text-error">
+                                        <icon class="text-error text-2xl">
                                             delete
                                         </icon>
                                         <div class="pr-2">
@@ -415,7 +437,9 @@ export class SignageMediaListComponent implements OnChanges {
         }
     }
 
-    // public drop(event) {}
+    public drop(event: any) {
+        // No-op for media list drops - media is managed via addToPlaylist
+    }
 
     public async addToPlaylist(media_id: string, playlist: any) {
         const media_list = await lastValueFrom(

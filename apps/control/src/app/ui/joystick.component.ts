@@ -49,7 +49,7 @@ export enum JoystickPan {
             (touchstart)="startPan($event)"
             (contextmenu)="$event.preventDefault()"
             (click)="stopPan()"
-            class="relative h-48 w-48 rounded-full bg-base-300 text-white"
+            class="bg-base-300 relative h-48 w-48 rounded-full text-white"
         >
             <div class="absolute inset-0 flex items-center text-5xl">
                 <icon style="transform: translateX(-.5rem)">
@@ -70,12 +70,12 @@ export enum JoystickPan {
                 <icon style="transform: translateY(.5rem)">expand_more</icon>
             </div>
             <div
-                class="absolute bottom-12 left-12 right-12 top-12 flex items-center justify-center rounded-full bg-base-100"
+                class="bg-base-100 absolute top-12 right-12 bottom-12 left-12 flex items-center justify-center rounded-full"
             >
                 <div
                     thumb
                     [style.transform]="thumb_transform"
-                    class="h-12 w-12 rounded-full bg-neutral"
+                    class="bg-neutral h-12 w-12 rounded-full"
                 ></div>
             </div>
         </div>

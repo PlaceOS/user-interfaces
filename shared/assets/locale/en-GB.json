@@ -680,7 +680,7 @@
         "CAPACITY_COUNT": "Capacity {{ count }}",
         "SPACE_SELECT_FIND": "Find Space",
         "SPACE_SELECT_COUNT": "{{ count }} room(s) added",
-        "FACILITIES": "Room Facilities",
+        "FACILITIES": "Room Features",
         "SPACE_REMOVE": "Remove this room",
         "SPACE_ADD_TO": "Add this room",
         "SPACE_LIST_INFO": "Select a room to view its details",
