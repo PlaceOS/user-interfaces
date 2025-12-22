@@ -1,6 +1,6 @@
 import {
   CheckinStateService
-} from "./chunk-CA3RXT2G.js";
+} from "./chunk-6GPUXQPR.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -131,7 +131,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-WLIO66DZ.js";
+} from "./chunk-SMZGGOF2.js";
 
 // apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts
 var _c0 = ["checkin-covid", ""];
@@ -159,7 +159,7 @@ var _CheckinCovidComponent = class _CheckinCovidComponent {
 _CheckinCovidComponent.\u0275fac = function CheckinCovidComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinCovidComponent)();
 };
-_CheckinCovidComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "relative", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "bg-base-100", "p-4"], [1, "mb-4", "text-xl", "font-medium"], [1, "list-inside", "list-decimal"], [1, "mb-4", "list-inside", "list-disc", "px-4"], ["aria-label", "Has Symptoms", 3, "ngModelChange", "ngModel"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-0", 3, "routerLink"]], template: function CheckinCovidComponent_Template(rf, ctx) {
+_CheckinCovidComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinCovidComponent, selectors: [["", "checkin-covid", ""]], attrs: _c0, decls: 55, vars: 5, consts: [[1, "bg-base-100", "relative", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "p-4"], [1, "mb-4", "text-xl", "font-medium"], [1, "list-inside", "list-decimal"], [1, "mb-4", "list-inside", "list-disc", "px-4"], ["aria-label", "Has Symptoms", 3, "ngModelChange", "ngModel"], ["value", "true"], ["value", "false", 1, "ml-4"], [1, "my-4"], ["aria-label", "COVID contact or self-isolated", 3, "ngModelChange", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"]], template: function CheckinCovidComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2, "COVID Disclaimer");
@@ -270,7 +270,7 @@ var CheckinCovidComponent = _CheckinCovidComponent;
     type: Component,
     args: [{ selector: "[checkin-covid]", template: `
         <div
-            class="relative overflow-y-auto overflow-x-hidden rounded-sm bg-base-100 p-4"
+            class="bg-base-100 relative overflow-x-hidden overflow-y-auto rounded-sm p-4"
         >
             <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
             <ol class="list-inside list-decimal">
@@ -321,7 +321,7 @@ var CheckinCovidComponent = _CheckinCovidComponent;
                 icon
                 matRipple
                 [attr.disabled]="!symptoms && !contact"
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
                 <icon>close</icon>
@@ -532,7 +532,7 @@ var _CheckinDetailsComponent = class _CheckinDetailsComponent {
 _CheckinDetailsComponent.\u0275fac = function CheckinDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinDetailsComponent)();
 };
-_CheckinDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], attrs: _c02, decls: 3, vars: 3, consts: [[1, "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm", 3, "formGroup"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["matInput", "", "name", "host", "formControlName", "host", 3, "placeholder"], ["form", "name"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["form", "email"], ["matInput", "", "name", "email", "formControlName", "email", 3, "placeholder"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "organisation", 3, "placeholder"], ["next", "", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], [1, "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "bg-base-100", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
+_CheckinDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinDetailsComponent, selectors: [["", "checkin-details", ""]], attrs: _c02, decls: 3, vars: 3, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm", 3, "formGroup"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "m-4", "text-2xl"], ["field", "", 1, "flex", "flex-col"], ["form", "host"], ["appearance", "outline"], ["matInput", "", "name", "host", "formControlName", "host", 3, "placeholder"], ["form", "name"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["form", "email"], ["matInput", "", "name", "email", "formControlName", "email", 3, "placeholder"], ["matInput", "", "name", "phone", "type", "tel", "formControlName", "phone", 3, "placeholder"], ["form", "org"], ["matInput", "", "name", "org", "formControlName", "organisation", 3, "placeholder"], ["next", "", "btn", "", "matRipple", "", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], ["form", "pass"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "name", "pass", "formControlName", "pass_number", 3, "placeholder"], [1, "bg-base-100", "flex", "flex-col", "items-center", "space-y-2", "rounded-sm", "p-16", "shadow-sm"], [3, "diameter"], [1, "my-4", "text-lg"]], template: function CheckinDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CheckinDetailsComponent_Conditional_0_Template, 54, 45, "form", 0);
     \u0275\u0275pipe(1, "async");
@@ -571,7 +571,7 @@ var CheckinDetailsComponent = _CheckinDetailsComponent;
         @if ((form | async) && !loading) {
             <form
                 [formGroup]="form | async"
-                class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
                 <div field class="flex flex-col">
@@ -677,7 +677,7 @@ var CheckinDetailsComponent = _CheckinDetailsComponent;
                 <a
                     icon
                     matRipple
-                    class="absolute right-0 top-0"
+                    class="absolute top-0 right-0"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -688,7 +688,7 @@ var CheckinDetailsComponent = _CheckinDetailsComponent;
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
-                    class="flex flex-col items-center space-y-2 rounded-sm bg-base-100 p-16 shadow-sm"
+                    class="bg-base-100 flex flex-col items-center space-y-2 rounded-sm p-16 shadow-sm"
                 >
                     <mat-spinner [diameter]="48"></mat-spinner>
                     <div class="my-4 text-lg">
@@ -737,7 +737,7 @@ var _CheckinErrorComponent = class _CheckinErrorComponent {
 _CheckinErrorComponent.\u0275fac = function CheckinErrorComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinErrorComponent)();
 };
-_CheckinErrorComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinErrorComponent, selectors: [["checkin-error"]], decls: 10, vars: 8, consts: [[1, "relative", "m-4", "flex", "flex-col", "items-center", "space-y-4", "overflow-hidden", "rounded-sm", "bg-base-100", "px-16", "py-4", "text-center", "shadow-sm"], [1, "pb-2", "text-2xl"], ["btn", "", "matRipple", "", 1, "w-32", 3, "routerLink"]], template: function CheckinErrorComponent_Template(rf, ctx) {
+_CheckinErrorComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinErrorComponent, selectors: [["checkin-error"]], decls: 10, vars: 8, consts: [[1, "bg-base-100", "relative", "m-4", "flex", "flex-col", "items-center", "space-y-4", "overflow-hidden", "rounded-sm", "px-16", "py-4", "text-center", "shadow-sm"], [1, "pb-2", "text-2xl"], ["btn", "", "matRipple", "", 1, "w-32", 3, "routerLink"]], template: function CheckinErrorComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2, "Please see reception.");
@@ -767,7 +767,7 @@ var CheckinErrorComponent = _CheckinErrorComponent;
     type: Component,
     args: [{ selector: "checkin-error", template: `
         <div
-            class="relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm bg-base-100 px-16 py-4 text-center shadow-sm"
+            class="bg-base-100 relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm px-16 py-4 text-center shadow-sm"
         >
             <h3 class="pb-2 text-2xl">Please see reception.</h3>
             @if (error | async) {
@@ -852,7 +852,7 @@ var _CheckinInductionComponent = class _CheckinInductionComponent {
 _CheckinInductionComponent.\u0275fac = function CheckinInductionComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinInductionComponent)();
 };
-_CheckinInductionComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinInductionComponent, selectors: [["", "checkin-induction", ""]], attrs: _c04, decls: 16, vars: 15, consts: [[1, "relative", "flex", "w-lg", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "my-4"], [1, "max-h-[50vh]", "w-full", "overflow-y-auto", "overflow-x-hidden", "whitespace-pre-wrap", "rounded-sm", "border", "border-base-300", "p-4", "text-sm", "opacity-60"], [1, "my-4", 3, "ngModelChange", "ngModel"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "w-32", "underline", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CheckinInductionComponent_Template(rf, ctx) {
+_CheckinInductionComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinInductionComponent, selectors: [["", "checkin-induction", ""]], attrs: _c04, decls: 16, vars: 15, consts: [[1, "bg-base-100", "relative", "flex", "w-lg", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "border-base-300", "max-h-[50vh]", "w-full", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "border", "p-4", "text-sm", "whitespace-pre-wrap", "opacity-60"], [1, "my-4", 3, "ngModelChange", "ngModel"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "w-32", "underline", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CheckinInductionComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "p", 1);
     \u0275\u0275text(2);
@@ -907,13 +907,13 @@ var CheckinInductionComponent = _CheckinInductionComponent;
     type: Component,
     args: [{ selector: "[checkin-induction]", template: `
         <div
-            class="relative flex w-lg flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+            class="bg-base-100 relative flex w-lg flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
         >
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.INDUCTION_MSG' | translate }}
             </p>
             <div
-                class="max-h-[50vh] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap rounded-sm border border-base-300 p-4 text-sm opacity-60"
+                class="border-base-300 max-h-[50vh] w-full overflow-x-hidden overflow-y-auto rounded-sm border p-4 text-sm whitespace-pre-wrap opacity-60"
             >
                 {{ induction_details }}
             </div>
@@ -1115,7 +1115,7 @@ _TakePhotoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
   }
-}, inputs: { back_text: [1, "back_text"] }, outputs: { captured: "captured", back: "back" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 6, consts: [["video", ""], ["canvas", ""], ["name", "camera", 1, "relative", "flex", "h-88", "w-88", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border-2", "border-base-300", "bg-base-200"], ["id", "video", "autoplay", "", 1, "absolute", "left-1/2", "top-1/2", "mx-auto", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover"], ["id", "canvas", "width", "400", "height", "400", 1, "absolute", "left-1/2", "top-1/2", "mx-auto", "h-full", "w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-4"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "space-x-2"], ["diameter", "32"], [1, "text"], ["btn", "", "matRipple", "", 1, "inverse", "flex-1", 3, "click"], ["btn", "", "matRipple", "", 1, "take-photo", "flex-1", 3, "click"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"]], template: function TakePhotoComponent_Template(rf, ctx) {
+}, inputs: { back_text: [1, "back_text"] }, outputs: { captured: "captured", back: "back" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 9, vars: 6, consts: [["video", ""], ["canvas", ""], ["name", "camera", 1, "border-base-300", "bg-base-200", "relative", "flex", "h-88", "w-88", "flex-col", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border-2"], ["id", "video", "autoplay", "", 1, "absolute", "top-1/2", "left-1/2", "mx-auto", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover"], ["id", "canvas", "width", "400", "height", "400", 1, "absolute", "top-1/2", "left-1/2", "mx-auto", "h-full", "w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-4"], [1, "mt-4", "flex", "w-full", "items-center", "justify-center", "space-x-2"], ["diameter", "32"], [1, "text"], ["btn", "", "matRipple", "", 1, "inverse", "flex-1", 3, "click"], ["btn", "", "matRipple", "", 1, "take-photo", "flex-1", 3, "click"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"]], template: function TakePhotoComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
     \u0275\u0275element(1, "video", 3, 0)(3, "canvas", 4, 1);
@@ -1143,21 +1143,21 @@ var TakePhotoComponent = _TakePhotoComponent;
     args: [{ selector: "a-take-photo", template: `
         <div
             name="camera"
-            class="relative flex h-88 w-88 flex-col items-center justify-center overflow-hidden rounded-full border-2 border-base-300 bg-base-200"
+            class="border-base-300 bg-base-200 relative flex h-88 w-88 flex-col items-center justify-center overflow-hidden rounded-full border-2"
         >
             <video
                 id="video"
                 #video
                 autoplay
                 [class.opacity-0]="has_photo()"
-                class="absolute left-1/2 top-1/2 mx-auto min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                class="absolute top-1/2 left-1/2 mx-auto min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
             ></video>
             <canvas
                 id="canvas"
                 #canvas
                 width="400"
                 height="400"
-                class="absolute left-1/2 top-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                class="absolute top-1/2 left-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                 [class.opacity-0]="!has_photo()"
             ></canvas>
             @if (loading()) {
@@ -1278,7 +1278,7 @@ var _CheckinPhotoComponent = class _CheckinPhotoComponent {
 _CheckinPhotoComponent.\u0275fac = function CheckinPhotoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinPhotoComponent)();
 };
-_CheckinPhotoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinPhotoComponent, selectors: [["checkin-photo"]], decls: 2, vars: 1, consts: [[1, "relative", "flex", "w-[24rem]", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "m-auto", "flex", "flex-col", "items-center"], [1, "mb-4", "text-xl"], [3, "captured", "back", "back_text"], [3, "diameter"], [1, "my-4", "text-lg", "text-white"]], template: function CheckinPhotoComponent_Template(rf, ctx) {
+_CheckinPhotoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinPhotoComponent, selectors: [["checkin-photo"]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-[24rem]", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "m-auto", "flex", "flex-col", "items-center"], [1, "mb-4", "text-xl"], [3, "captured", "back", "back_text"], [3, "diameter"], [1, "my-4", "text-lg", "text-white"]], template: function CheckinPhotoComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CheckinPhotoComponent_Conditional_0_Template, 6, 6, "div", 0)(1, CheckinPhotoComponent_Conditional_1_Template, 5, 4, "div", 1);
   }
@@ -1293,7 +1293,7 @@ var CheckinPhotoComponent = _CheckinPhotoComponent;
     args: [{ selector: "checkin-photo", template: `
         @if (!loading) {
             <div
-                class="relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="mb-4 text-xl">
                     {{ 'APP.VISITOR_KIOSK.TAKE_PHOTO' | translate }}
@@ -1551,7 +1551,7 @@ _CheckinPreferencesComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275CheckinPreferencesComponent_BaseFactory || (\u0275CheckinPreferencesComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CheckinPreferencesComponent)))(__ngFactoryType__ || _CheckinPreferencesComponent);
   };
 })();
-_CheckinPreferencesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinPreferencesComponent, selectors: [["checkin-preferences"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [[1, "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "relative", "flex", "h-80", "w-md", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "bg-base-100", "p-8", "shadow-sm"], [1, "mb-2", "w-full", "text-xl"], [1, "w-full"], ["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "rounded-sm", "bg-warning", "px-2", "py-1", "text-warning-content"], [1, "flex", "w-full", "items-center", "justify-end"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-2", 3, "routerLink"], [3, "diameter"]], template: function CheckinPreferencesComponent_Template(rf, ctx) {
+_CheckinPreferencesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinPreferencesComponent, selectors: [["checkin-preferences"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "bg-base-100", "relative", "flex", "h-80", "w-md", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "p-8", "shadow-sm"], [1, "mb-2", "w-full", "text-xl"], [1, "w-full"], ["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [1, "bg-warning", "text-warning-content", "rounded-sm", "px-2", "py-1"], [1, "flex", "w-full", "items-center", "justify-end"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "absolute", "top-2", "right-2", 3, "routerLink"], [3, "diameter"]], template: function CheckinPreferencesComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CheckinPreferencesComponent_Conditional_0_Template, 21, 18, "div", 0)(1, CheckinPreferencesComponent_Conditional_1_Template, 5, 4, "div", 1);
   }
@@ -1561,6 +1561,9 @@ _CheckinPreferencesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompo
 }, dependencies: [
   CommonModule,
   AsyncPipe,
+  FormsModule,
+  NgControlStatus,
+  NgModel,
   TranslatePipe,
   IconComponent,
   MatProgressSpinnerModule,
@@ -1582,7 +1585,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
     args: [{ selector: "checkin-preferences", template: `
         @if (!loading()) {
             <div
-                class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 @let has_beverage = !!(event | async)?.extension_data.beverage;
                 <h3 class="mb-2 w-full text-xl">
@@ -1606,7 +1609,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
                 </div>
                 @if (has_beverage) {
                     <div
-                        class="rounded-sm bg-warning px-2 py-1 text-warning-content"
+                        class="bg-warning text-warning-content rounded-sm px-2 py-1"
                     >
                         You have already selected a beverage.
                     </div>
@@ -1630,7 +1633,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
                 <a
                     icon
                     matRipple
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -1638,7 +1641,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
             </div>
         } @else {
             <div
-                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
+                class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>
@@ -1653,6 +1656,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
         }
     `, imports: [
       CommonModule,
+      FormsModule,
       TranslatePipe,
       IconComponent,
       MatProgressSpinnerModule,
@@ -1664,7 +1668,7 @@ var CheckinPreferencesComponent = _CheckinPreferencesComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPreferencesComponent, { className: "CheckinPreferencesComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts", lineNumber: 132 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPreferencesComponent, { className: "CheckinPreferencesComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts", lineNumber: 134 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-qr-scan.component.ts
@@ -1801,7 +1805,7 @@ _CheckinQRScanComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c14, decls: 30, vars: 22, consts: [["video", ""], [1, "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "my-4"], [1, "flex", "w-full", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "w-px", "flex-1"], ["matInput", "", "placeholder", "Enter email...", "type", "email", "autocomplete", "off", 3, "ngModelChange", "blur", "keyup.enter", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], [1, "relative", "mt-4", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-200"], [1, "absolute", "left-1/2", "top-1/2", "z-0", "flex", "-translate-x-1/2", "-translate-y-1/2", "flex-col", "items-center", "space-y-2", "opacity-30"], [1, "text-6xl"], [1, "text-center"], ["id", "qr-stream", "playsinline", "", "width", "640", "height", "480", "autoplay", "", 1, "relative", "z-10", "object-cover"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-0", 3, "routerLink"], [1, "relative", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-16", "shadow-sm"], ["diameter", "32"]], template: function CheckinQRScanComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c14, decls: 30, vars: 22, consts: [["video", ""], [1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "my-4"], [1, "flex", "w-full", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "w-px", "flex-1"], ["matInput", "", "placeholder", "Enter email...", "type", "email", "autocomplete", "off", 3, "ngModelChange", "blur", "keyup.enter", "ngModel"], ["btn", "", "matRipple", "", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "mt-4", "overflow-hidden", "rounded-sm", "border"], [1, "absolute", "top-1/2", "left-1/2", "z-0", "flex", "-translate-x-1/2", "-translate-y-1/2", "flex-col", "items-center", "space-y-2", "opacity-30"], [1, "text-6xl"], [1, "text-center"], ["id", "qr-stream", "playsinline", "", "width", "640", "height", "480", "autoplay", "", 1, "relative", "z-10", "object-cover"], ["icon", "", "matRipple", "", 1, "absolute", "top-0", "right-0", 3, "routerLink"], [1, "bg-base-100", "relative", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-16", "shadow-sm"], ["diameter", "32"]], template: function CheckinQRScanComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1)(1, "p", 2);
@@ -1897,7 +1901,7 @@ var CheckinQRScanComponent = _CheckinQRScanComponent;
     type: Component,
     args: [{ selector: "[checkin-qr-scan]", template: `
         <div
-            class="relative flex w-xl flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+            class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code"
         >
             <p class="my-4">
@@ -1926,10 +1930,10 @@ var CheckinQRScanComponent = _CheckinQRScanComponent;
                 </button>
             </div>
             <div
-                class="relative mt-4 overflow-hidden rounded-sm border border-base-200 bg-base-200"
+                class="border-base-200 bg-base-200 relative mt-4 overflow-hidden rounded-sm border"
             >
                 <div
-                    class="absolute left-1/2 top-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
+                    class="absolute top-1/2 left-1/2 z-0 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-2 opacity-30"
                 >
                     <icon class="text-6xl">videocam_off</icon>
                     <p class="text-center">
@@ -1949,14 +1953,14 @@ var CheckinQRScanComponent = _CheckinQRScanComponent;
             <a
                 icon
                 matRipple
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
                 <icon>close</icon>
             </a>
         </div>
         <div
-            class="relative flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-16 shadow-sm"
+            class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
             [class.hidden]="!checking_code"
         >
             <mat-spinner diameter="32"></mat-spinner>
@@ -2183,7 +2187,7 @@ _CheckinResultsComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275CheckinResultsComponent_BaseFactory || (\u0275CheckinResultsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CheckinResultsComponent)))(__ngFactoryType__ || _CheckinResultsComponent);
   };
 })();
-_CheckinResultsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinResultsComponent, selectors: [["checkin-results"]], features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275InheritDefinitionFeature], decls: 2, vars: 3, consts: [["print_content", ""], [1, "relative", "flex", "w-xl", "flex-col", "items-center", "space-y-4", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm", "print:hidden"], [1, "text-xl"], [1, "", 3, "innerHTML"], ["printable", "", 1, "print-only", 3, "content"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "w-32"], ["btn", "", "matRipple", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [3, "user", "width", "height"], ["btn", "", "matRipple", "", 1, "inverse", "w-32", 3, "click"]], template: function CheckinResultsComponent_Template(rf, ctx) {
+_CheckinResultsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinResultsComponent, selectors: [["checkin-results"]], features: [\u0275\u0275ProvidersFeature([DatePipe]), \u0275\u0275InheritDefinitionFeature], decls: 2, vars: 3, consts: [["print_content", ""], [1, "bg-base-100", "relative", "flex", "w-xl", "flex-col", "items-center", "space-y-4", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm", "print:hidden"], [1, "text-xl"], [1, "", 3, "innerHTML"], ["printable", "", 1, "print-only", 3, "content"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "w-32"], ["btn", "", "matRipple", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], [3, "user", "width", "height"], ["btn", "", "matRipple", "", 1, "inverse", "w-32", 3, "click"]], template: function CheckinResultsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CheckinResultsComponent_Conditional_0_Template, 16, 18, "div", 1);
     \u0275\u0275pipe(1, "async");
@@ -2208,7 +2212,7 @@ var CheckinResultsComponent = _CheckinResultsComponent;
     args: [{ selector: "checkin-results", template: `
         @if (event | async) {
             <div
-                class="relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm print:hidden"
+                class="bg-base-100 relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm p-4 shadow-sm print:hidden"
             >
                 @let ev = event | async;
                 <h3 class="text-xl">
@@ -2227,20 +2231,22 @@ var CheckinResultsComponent = _CheckinResultsComponent;
                     <div printable class="print-only" [content]="print_content">
                         <ng-template #print_content>
                             <user-label
-                                [user]="{
-                                    name: ev?.asset_name || ev?.description,
-                                    email: ev?.asset_id,
-                                    photo: photo | async,
-                                    title: ev?.title,
-                                    host: ev?.user_name || ev.user_email,
-                                    zones: ev?.zones,
-                                    date: ev?.date || date,
-                                    extra_details:
-                                        ev?.extension_data?.extra_details,
-                                    pass_number:
-                                        ev?.extension_data?.pass_number,
-                                    qr_code: qr_code,
-                                }"
+                                [user]="
+                                    $any({
+                                        name: ev?.asset_name || ev?.description,
+                                        email: ev?.asset_id,
+                                        photo: photo | async,
+                                        title: ev?.title,
+                                        host: ev?.user_name || ev.user_email,
+                                        zones: ev?.zones,
+                                        date: ev?.date || date,
+                                        extra_details:
+                                            ev?.extension_data?.extra_details,
+                                        pass_number:
+                                            ev?.extension_data?.pass_number,
+                                        qr_code: qr_code,
+                                    })
+                                "
                                 [width]="label_size().width"
                                 [height]="label_size().height"
                                 [style.font-size]="label_size().scale + 'mm'"
@@ -2281,7 +2287,7 @@ var CheckinResultsComponent = _CheckinResultsComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinResultsComponent, { className: "CheckinResultsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-result.component.ts", lineNumber: 117 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinResultsComponent, { className: "CheckinResultsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-result.component.ts", lineNumber: 119 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin.component.ts
@@ -2300,7 +2306,7 @@ var _CheckinComponent = class _CheckinComponent {
 _CheckinComponent.\u0275fac = function CheckinComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckinComponent)();
 };
-_CheckinComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], attrs: _c09, decls: 8, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:hidden"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "right-4", "top-4", "text-2xl", "text-white"], ["src", "assets/img/building.png", 1, "absolute", "bottom-0", "right-0", "w-[60%]"]], template: function CheckinComponent_Template(rf, ctx) {
+_CheckinComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], attrs: _c09, decls: 8, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:hidden"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]"]], template: function CheckinComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275element(2, "router-outlet");
@@ -2332,12 +2338,12 @@ var CheckinComponent = _CheckinComponent;
             <div class="z-10 flex w-full flex-col justify-center space-y-8">
                 <router-outlet></router-outlet>
             </div>
-            <div class="absolute right-4 top-4 text-2xl text-white">
+            <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
             <img
                 src="assets/img/building.png"
-                class="absolute bottom-0 right-0 w-[60%]"
+                class="absolute right-0 bottom-0 w-[60%]"
             />
         </div>
     `, imports: [CommonModule, RouterModule], styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/checkin/checkin.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=checkin.component.css.map */\n"] }]
@@ -2426,7 +2432,7 @@ var _CheckoutComponent = class _CheckoutComponent {
 _CheckoutComponent.\u0275fac = function CheckoutComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CheckoutComponent)();
 };
-_CheckoutComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckoutComponent, selectors: [["app-checkout"]], decls: 2, vars: 1, consts: [[1, "relative", "flex", "w-md", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "relative", "flex", "h-80", "w-md", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "bg-base-100", "p-8", "shadow-sm"], [1, "mb-2", "w-full", "text-xl"], [1, "mb-4", "mt-2", "w-full"], [1, "flex", "w-full", "items-center", "justify-end"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-2", "top-2", 3, "routerLink"], [3, "diameter"]], template: function CheckoutComponent_Template(rf, ctx) {
+_CheckoutComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckoutComponent, selectors: [["app-checkout"]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "flex", "w-md", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "bg-base-100", "relative", "flex", "h-80", "w-md", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "p-8", "shadow-sm"], [1, "mb-2", "w-full", "text-xl"], [1, "mt-2", "mb-4", "w-full"], [1, "flex", "w-full", "items-center", "justify-end"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-2", "right-2", 3, "routerLink"], [3, "diameter"]], template: function CheckoutComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, CheckoutComponent_Conditional_0_Template, 14, 11, "div", 0)(1, CheckoutComponent_Conditional_1_Template, 5, 4, "div", 1);
   }
@@ -2450,12 +2456,12 @@ var CheckoutComponent = _CheckoutComponent;
     args: [{ selector: "app-checkout", template: `
         @if (!loading) {
             <div
-                class="relative flex w-md flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 relative flex w-md flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT' | translate }}
                 </h3>
-                <div class="mb-4 mt-2 w-full">
+                <div class="mt-2 mb-4 w-full">
                     {{ 'APP.VISITOR_KIOSK.CHECKOUT_MSG' | translate }}
                 </div>
                 <div class="flex w-full items-center justify-end">
@@ -2466,7 +2472,7 @@ var CheckoutComponent = _CheckoutComponent;
                 <a
                     icon
                     matRipple
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                     [routerLink]="['/welcome']"
                 >
                     <icon>close</icon>
@@ -2474,7 +2480,7 @@ var CheckoutComponent = _CheckoutComponent;
             </div>
         } @else {
             <div
-                class="relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 p-8 shadow-sm"
+                class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <div>
@@ -2555,4 +2561,4 @@ var VisitorCheckinModule = _VisitorCheckinModule;
 export {
   VisitorCheckinModule
 };
-//# sourceMappingURL=checkin.module-XRQ5GPOI.js.map
+//# sourceMappingURL=checkin.module-722SQUXV.js.map

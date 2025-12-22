@@ -1,4 +1,5 @@
 import {
+  $h,
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
   AsyncHandler,
@@ -53,6 +54,8 @@ import {
   MatAutocompleteModule,
   MatAutocompleteOrigin,
   MatAutocompleteTrigger,
+  MatCheckbox,
+  MatCheckboxModule,
   MatCommonModule,
   MatDialog,
   MatDialogClose,
@@ -129,7 +132,6 @@ import {
   i18n,
   inject,
   isSameDay,
-  kh,
   lastValueFrom,
   loadLockerBanks,
   loadLockers,
@@ -218,7 +220,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-WLIO66DZ.js";
+} from "./chunk-SMZGGOF2.js";
 
 // node_modules/@angular/material/fesm2022/slide-toggle.mjs
 var _c0 = ["switch"];
@@ -772,6 +774,13 @@ var _AccessibilityControlsComponent = class _AccessibilityControlsComponent exte
   get can_change_dark_mode() {
     return !!this._settings.get("app.allow_dark_mode");
   }
+  get isometric() {
+    return localStorage.getItem("KIOSK.isometric") === "true";
+  }
+  setIsometric(state) {
+    localStorage.setItem("KIOSK.isometric", String(state));
+    window.dispatchEvent(new CustomEvent("isometric-change", { detail: state }));
+  }
   get accessible() {
     return !!this._settings.get("accessible");
   }
@@ -794,14 +803,28 @@ _AccessibilityControlsComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275AccessibilityControlsComponent_BaseFactory || (\u0275AccessibilityControlsComponent_BaseFactory = \u0275\u0275getInheritedFactory(_AccessibilityControlsComponent)))(__ngFactoryType__ || _AccessibilityControlsComponent);
   };
 })();
-_AccessibilityControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityControlsComponent, selectors: [["accessibility-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2", "hover:bg-base-200"], ["matRipple", "", 1, "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2", "hover:bg-base-200", 3, "click"], [3, "ngModelChange", "ngModel"]], template: function AccessibilityControlsComponent_Template(rf, ctx) {
+_AccessibilityControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityControlsComponent, selectors: [["accessibility-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 2, consts: [["matRipple", "", 1, "hover:bg-base-200", "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "w-full", "items-center", "justify-between", "rounded-sm", "p-2", 3, "click"], [3, "ngModelChange", "ngModel"]], template: function AccessibilityControlsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, AccessibilityControlsComponent_Conditional_0_Template, 4, 1, "button", 0);
+    \u0275\u0275elementStart(1, "button", 1);
+    \u0275\u0275listener("click", function AccessibilityControlsComponent_Template_button_click_1_listener() {
+      return ctx.setIsometric(!ctx.isometric);
+    });
+    \u0275\u0275elementStart(2, "div");
+    \u0275\u0275text(3, "Isometric View");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-slide-toggle", 2);
+    \u0275\u0275listener("ngModelChange", function AccessibilityControlsComponent_Template_mat_slide_toggle_ngModelChange_4_listener($event) {
+      return ctx.setIsometric($event);
+    });
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275conditional(ctx.can_change_dark_mode ? 0 : -1);
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", ctx.isometric);
   }
-}, dependencies: [MatRippleModule, MatRipple, MatSlideToggleModule, MatSlideToggle], encapsulation: 2 });
+}, dependencies: [MatRippleModule, MatRipple, MatSlideToggleModule, MatSlideToggle, FormsModule, NgControlStatus, NgModel], encapsulation: 2 });
 var AccessibilityControlsComponent = _AccessibilityControlsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AccessibilityControlsComponent, [{
@@ -810,7 +833,7 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
         @if (can_change_dark_mode) {
             <button
                 matRipple
-                class="flex w-full items-center justify-between rounded-sm p-2 hover:bg-base-200"
+                class="hover:bg-base-200 flex w-full items-center justify-between rounded-sm p-2"
                 (click)="setDarkMode(!dark_mode)"
             >
                 <div>Dark Mode</div>
@@ -820,6 +843,17 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
                 ></mat-slide-toggle>
             </button>
         }
+        <button
+            matRipple
+            class="hover:bg-base-200 flex w-full items-center justify-between rounded-sm p-2"
+            (click)="setIsometric(!isometric)"
+        >
+            <div>Isometric View</div>
+            <mat-slide-toggle
+                [ngModel]="isometric"
+                (ngModelChange)="setIsometric($event)"
+            ></mat-slide-toggle>
+        </button>
         <!-- <button
             matRipple
             class="flex items-center justify-between hover:bg-base-200 w-full p-2 rounded-sm"
@@ -853,11 +887,11 @@ var AccessibilityControlsComponent = _AccessibilityControlsComponent;
                 {{ font_size }}px
             </div>
         </div> -->
-    `, imports: [MatRippleModule, MatSlideToggleModule] }]
+    `, imports: [MatRippleModule, MatSlideToggleModule, FormsModule] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AccessibilityControlsComponent, { className: "AccessibilityControlsComponent", filePath: "apps/map-kiosk/src/app/accessibility-controls.component.ts", lineNumber: 59 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AccessibilityControlsComponent, { className: "AccessibilityControlsComponent", filePath: "apps/map-kiosk/src/app/accessibility-controls.component.ts", lineNumber: 71 });
 })();
 
 // libs/explore/src/lib/set-datetime-modal.component.ts
@@ -886,6 +920,33 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275elementEnd()();
   }
 }
+function SetDatetimeModalComponent_Conditional_6_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9)(1, "label");
+    \u0275\u0275text(2, "End Time");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(3, "a-duration-field", 15);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("time", (tmp_2_0 = ctx_r1.form.get("date")) == null ? null : tmp_2_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr_time);
+  }
+}
+function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 16);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+  }
+}
 function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -908,14 +969,12 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
       return \u0275\u0275resetView(ctx_r1.form.patchValue({ date: $event }));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "div", 9)(15, "label");
-    \u0275\u0275text(16, "End Time");
+    \u0275\u0275conditionalCreate(14, SetDatetimeModalComponent_Conditional_6_Conditional_14_Template, 4, 5, "div", 9);
     \u0275\u0275elementEnd();
-    \u0275\u0275element(17, "a-duration-field", 11);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 4, 3, "div", 11);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_8_0;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275property("formGroup", ctx_r1.form);
     \u0275\u0275advance();
@@ -925,9 +984,11 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275property("to", ctx_r1.book_until);
     \u0275\u0275advance(6);
-    \u0275\u0275property("ngModel", ctx_r1.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(12, _c02))("use_24hr", ctx_r1.use_24hr_time);
-    \u0275\u0275advance(4);
-    \u0275\u0275property("time", (tmp_8_0 = ctx_r1.form.get("date")) == null ? null : tmp_8_0.value)("max", 10 * 60)("min", 60)("step", 60)("use_24hr", ctx_r1.use_24hr_time);
+    \u0275\u0275property("ngModel", ctx_r1.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(9, _c02))("use_24hr", ctx_r1.use_24hr_time);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r1.form.value.all_day ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.allow_all_day ? 15 : -1);
   }
 }
 var _SetDatetimeModalComponent = class _SetDatetimeModalComponent {
@@ -938,19 +999,33 @@ var _SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     this.form = new FormGroup({
       user: new FormControl(this._data.user),
       date: new FormControl(this._data.date),
-      duration: new FormControl(this._data.duration)
+      duration: new FormControl(this._data.duration),
+      all_day: new FormControl(this._data.all_day ?? false)
     });
     this.book_until = this._data.until;
     this.resource = this._data.resource;
+    this.allow_all_day = this._data.allow_all_day ?? false;
   }
   get use_24hr_time() {
     return this._settings.get("app.use_24_hour_time");
+  }
+  ngOnInit() {
+    this.form.controls.all_day.valueChanges.subscribe((all_day) => {
+      if (all_day) {
+        this.form.controls.duration.disable();
+      } else {
+        this.form.controls.duration.enable();
+      }
+    });
+    if (this._data.all_day) {
+      this.form.controls.duration.disable();
+    }
   }
 };
 _SetDatetimeModalComponent.\u0275fac = function SetDatetimeModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SetDatetimeModalComponent)();
 };
-_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "mb-4", "w-full", "rounded-sm", "border", "border-base-200", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2, "Set date and time");
@@ -958,7 +1033,7 @@ _SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
     \u0275\u0275elementStart(3, "button", 2)(4, "icon");
     \u0275\u0275text(5, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 18, 13, "main", 3);
+    \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 16, 10, "main", 3);
     \u0275\u0275elementStart(7, "footer", 4)(8, "button", 5);
     \u0275\u0275text(9);
     \u0275\u0275pipe(10, "translate");
@@ -977,6 +1052,8 @@ _SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   MatRipple,
   MatDialogModule,
   MatDialogClose,
+  MatCheckboxModule,
+  MatCheckbox,
   IconComponent,
   DurationFieldComponent,
   TimeFieldComponent,
@@ -997,7 +1074,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
     type: Component,
     args: [{ selector: "set-datetime-modal", template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Set date and time</h2>
             <button icon matRipple mat-dialog-close>
@@ -1013,7 +1090,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
                             <label>Resource:</label>
                             <div
-                                class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                                class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
                                 {{
                                     resource.name ||
@@ -1059,23 +1136,34 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
                             [use_24hr]="use_24hr_time"
                         ></a-time-field>
                     </div>
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>End Time</label>
-                        <a-duration-field
-                            formControlName="duration"
-                            [time]="form.get('date')?.value"
-                            [max]="10 * 60"
-                            [min]="60"
-                            [step]="60"
-                            [use_24hr]="use_24hr_time"
-                        >
-                        </a-duration-field>
-                    </div>
+                    @if (!form.value.all_day) {
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>End Time</label>
+                            <a-duration-field
+                                formControlName="duration"
+                                [time]="form.get('date')?.value"
+                                [max]="10 * 60"
+                                [min]="60"
+                                [step]="60"
+                                [use_24hr]="use_24hr_time"
+                            >
+                            </a-duration-field>
+                        </div>
+                    }
                 </div>
+                @if (allow_all_day) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    </div>
+                }
             </main>
         }
         <footer
-            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 {{ 'COMMON.CONTINUE' | translate }}
@@ -1084,6 +1172,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
     `, imports: [
       MatRippleModule,
       MatDialogModule,
+      MatCheckboxModule,
       IconComponent,
       DurationFieldComponent,
       TimeFieldComponent,
@@ -1096,7 +1185,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 123 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 136 });
 })();
 
 // libs/explore/src/lib/explore-device-info.component.ts
@@ -1316,7 +1405,7 @@ var _ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = kh(this._details.system, "LocationServices");
+    const mod = $h(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -1327,7 +1416,7 @@ var _ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
 _ExploreDeviceInfoComponent.\u0275fac = function ExploreDeviceInfoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreDeviceInfoComponent)();
 };
-_ExploreDeviceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreDeviceInfoComponent, selectors: [["", "explore-device-info", ""]], attrs: _c03, decls: 7, vars: 8, consts: [["dot", ""], ["device_tooltip", ""], ["name", "radius", 1, "radius", "center", "border-blue-600", "absolute", "rounded-full", "border-8", "border-dashed", "border-info", "bg-info", "opacity-30", 3, "style"], ["shadow", "", 1, "center", "pointer-events-auto", "absolute", "h-8", "w-8", "rounded-full", "bg-black", "opacity-30", 3, "mouseenter", "click", "mouseleave"], ["name", "dot", 1, "center", "absolute", "h-3", "w-3", "rounded-full", "border-2", "border-white", "shadow-sm"], ["customTooltip", "", 1, "pointer-events-auto", "absolute", "inset-0", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover"], ["name", "radius", 1, "radius", "center", "border-blue-600", "absolute", "rounded-full", "border-8", "border-dashed", "border-info", "bg-info", "opacity-30"], ["name", "device-info", 1, "pointer-events-none", "left-0", "top-0", "mx-2", "w-64", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "arrow"], [1, "details"], [1, "wrap-break-word"], ["type", ""], ["os", ""], ["ssid", ""], ["username", ""], ["user", ""]], template: function ExploreDeviceInfoComponent_Template(rf, ctx) {
+_ExploreDeviceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreDeviceInfoComponent, selectors: [["", "explore-device-info", ""]], attrs: _c03, decls: 7, vars: 8, consts: [["dot", ""], ["device_tooltip", ""], ["name", "radius", 1, "radius", "center", "border-info", "bg-info", "absolute", "rounded-full", "border-8", "border-dashed", "border-blue-600", "opacity-30", 3, "style"], ["shadow", "", 1, "center", "pointer-events-auto", "absolute", "h-8", "w-8", "rounded-full", "bg-black", "opacity-30", 3, "mouseenter", "click", "mouseleave"], ["name", "dot", 1, "center", "absolute", "h-3", "w-3", "rounded-full", "border-2", "border-white", "shadow-sm"], ["customTooltip", "", 1, "pointer-events-auto", "absolute", "inset-0", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover"], ["name", "radius", 1, "radius", "center", "border-info", "bg-info", "absolute", "rounded-full", "border-8", "border-dashed", "border-blue-600", "opacity-30"], ["name", "device-info", 1, "bg-base-100", "pointer-events-none", "top-0", "left-0", "mx-2", "w-64", "rounded-sm", "p-4", "shadow-sm"], [1, "arrow"], [1, "details"], [1, "wrap-break-word"], ["type", ""], ["os", ""], ["ssid", ""], ["username", ""], ["user", ""]], template: function ExploreDeviceInfoComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275conditionalCreate(0, ExploreDeviceInfoComponent_Conditional_0_Template, 1, 2, "div", 2);
@@ -1372,7 +1461,7 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
         @if (show_radius()) {
             <div
                 name="radius"
-                class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
+                class="radius center border-info bg-info absolute rounded-full border-8 border-dashed border-blue-600 opacity-30"
                 [style]="
                     'height: ' + diameter() + '%; width: ' + diameter() + '%;'
                 "
@@ -1406,7 +1495,7 @@ var ExploreDeviceInfoComponent = _ExploreDeviceInfoComponent;
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 pointer-events-none top-0 left-0 mx-2 w-64 rounded-sm p-4 shadow-sm"
             >
                 <div class="arrow"></div>
                 <div class="details">
@@ -1684,12 +1773,21 @@ var _ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this._state.setFeatures("desks", list);
     this.timeout("update", () => this.updateStatus(), 100);
   }
-  async _setBookingTime(date, duration, host = false, resource = null) {
+  async _setBookingTime(date, duration, host = false, resource = null, all_day = false) {
     let user = null;
     if (!!this._settings.get("app.desks.allow_time_changes")) {
       const until = endOfDay(addDays(Date.now(), this._settings.get("app.desks.available_period") || 90));
+      const allow_all_day = !!this._settings.get("app.desks.allow_all_day");
       const ref = this._dialog.open(SetDatetimeModalComponent, {
-        data: { date, duration, until, host, resource }
+        data: {
+          date,
+          duration,
+          until,
+          host,
+          resource,
+          all_day,
+          allow_all_day
+        }
       });
       const details = await lastValueFrom(ref.afterClosed());
       if (!details)
@@ -1697,8 +1795,9 @@ var _ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       date = details.date;
       duration = details.duration;
       user = details.user;
+      all_day = details.all_day;
     }
-    return { date, duration, user };
+    return { date, duration, user, all_day };
   }
   async _bookDesk(desk, options) {
     if (this._statuses[desk.id]?.() !== "free") {
@@ -1719,7 +1818,7 @@ var _ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
         all_day: !!options.all_day
       });
     }
-    let { date, duration, user } = await this._setBookingTime(this._bookings.form.value.date, this._bookings.form.value.duration, this._options.getValue()?.custom ?? false, desk);
+    let { date, duration, user, all_day } = await this._setBookingTime(this._bookings.form.value.date, this._bookings.form.value.duration, this._options.getValue()?.custom ?? false, desk, !!options.all_day);
     user = user || options.host || currentUser();
     const user_email = user?.email;
     this._bookings.form.patchValue({
@@ -1727,7 +1826,8 @@ var _ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       asset_id: desk.id,
       asset_name: desk.name,
       date,
-      duration: options.all_day ? 12 * 60 : duration,
+      duration: all_day ? 12 * 60 : duration,
+      all_day,
       map_id: desk?.map_id || desk?.id,
       description: desk.name,
       user,
@@ -2019,8 +2119,8 @@ function ExploreLockerBankInfoComponent_ng_template_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMap("pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm " + ctx_r1.x_pos + " " + ctx_r1.y_pos);
-    \u0275\u0275property("id", ctx_r1.map_id);
+    \u0275\u0275classMap("bg-base-100 pointer-events-none absolute top-0 left-0 rounded-sm p-4 shadow-sm " + ctx_r1.x_pos + " " + ctx_r1.y_pos);
+    \u0275\u0275property("id", (ctx_r1.bank == null ? null : ctx_r1.bank.map_id) || (ctx_r1.bank == null ? null : ctx_r1.bank.id));
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.bank.name);
     \u0275\u0275advance(2);
@@ -2059,7 +2159,7 @@ var _ExploreLockerBankInfoComponent = class _ExploreLockerBankInfoComponent {
 _ExploreLockerBankInfoComponent.\u0275fac = function ExploreLockerBankInfoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreLockerBankInfoComponent)();
 };
-_ExploreLockerBankInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLockerBankInfoComponent, selectors: [["explore-locker-bank-info"]], decls: 4, vars: 6, consts: [["desk_tooltip", ""], [1, "pointer-events-auto", "relative", "h-full", "w-full", 3, "click"], ["customTooltip", "", 1, "pointer-events-auto", "relative", "h-full", "w-full", 3, "content", "backdrop", "xPosition", "yPosition", "hover", "delay"], ["name", "space-info", 3, "id"], [1, "font-medium"], [1, "whitespace-nowrap", "text-sm"]], template: function ExploreLockerBankInfoComponent_Template(rf, ctx) {
+_ExploreLockerBankInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLockerBankInfoComponent, selectors: [["explore-locker-bank-info"]], decls: 4, vars: 6, consts: [["desk_tooltip", ""], [1, "pointer-events-auto", "relative", "h-full", "w-full", 3, "click"], ["customTooltip", "", 1, "pointer-events-auto", "relative", "h-full", "w-full", 3, "content", "backdrop", "xPosition", "yPosition", "hover", "delay"], ["name", "space-info", 3, "id"], [1, "font-medium"], [1, "text-sm", "whitespace-nowrap"]], template: function ExploreLockerBankInfoComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 1);
@@ -2100,16 +2200,16 @@ var ExploreLockerBankInfoComponent = _ExploreLockerBankInfoComponent;
         <ng-template #desk_tooltip>
             <div
                 name="space-info"
-                [id]="map_id"
+                [id]="bank?.map_id || bank?.id"
                 [class]="
-                    'pointer-events-none absolute left-0 top-0 rounded-sm bg-base-100 p-4 shadow-sm ' +
+                    'bg-base-100 pointer-events-none absolute top-0 left-0 rounded-sm p-4 shadow-sm ' +
                     x_pos +
                     ' ' +
                     y_pos
                 "
             >
                 <h3 class="font-medium">{{ bank.name }}</h3>
-                <p class="whitespace-nowrap text-sm">
+                <p class="text-sm whitespace-nowrap">
                     {{
                         'EXPLORE.LOCKERS_USE'
                             | translate
@@ -2592,7 +2692,7 @@ _ExplorePointOfInterestModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, decls: 12, vars: 5, consts: [["media_el", ""], [1, "h-screen", "w-full", "min-w-[20rem]", "max-w-md", "overflow-auto", "rounded-sm", "bg-base-100", "sm:h-auto"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "m-4", "flex", "h-[calc(100vh-5.75rem)]", "w-[calc(100%-2rem)]", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-8", "text-center", "opacity-50", "sm:h-64"], [1, "h-48", "w-full", "bg-base-300", "object-contain", 3, "src", "alt"], [1, "text-sm"], [1, "pointer-events-none", "absolute", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "w-full", 3, "source"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "border-t", "border-base-200", "p-4"], [1, "relative"], [1, "absolute", "left-2", "top-2", "h-8", "w-8", "animate-ping", "rounded-full", "bg-info"], ["icon", "", "matRipple", "", 1, "relative", "h-12", "w-12", "bg-base-200", 3, "click"], [1, "text-xs", "font-medium"], [1, "flex", "space-x-4", "border-t", "border-base-200", "p-4"], [1, "w-20", "min-w-20", "text-info"]], template: function ExplorePointOfInterestModalComponent_Template(rf, ctx) {
+}, decls: 12, vars: 5, consts: [["media_el", ""], [1, "bg-base-100", "h-screen", "w-full", "max-w-md", "min-w-[20rem]", "overflow-auto", "rounded-sm", "sm:h-auto"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "bg-base-200", "m-4", "flex", "h-[calc(100vh-5.75rem)]", "w-[calc(100%-2rem)]", "items-center", "justify-center", "rounded-lg", "p-8", "text-center", "opacity-50", "sm:h-64"], [1, "bg-base-300", "h-48", "w-full", "object-contain", 3, "src", "alt"], [1, "text-sm"], [1, "pointer-events-none", "absolute", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "w-full", 3, "source"], [1, "border-base-200", "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "border-t", "p-4"], [1, "relative"], [1, "bg-info", "absolute", "top-2", "left-2", "h-8", "w-8", "animate-ping", "rounded-full"], ["icon", "", "matRipple", "", 1, "bg-base-200", "relative", "h-12", "w-12", 3, "click"], [1, "text-xs", "font-medium"], [1, "border-base-200", "flex", "space-x-4", "border-t", "p-4"], [1, "text-info", "w-20", "min-w-20"]], template: function ExplorePointOfInterestModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "header")(2, "h2");
     \u0275\u0275text(3);
@@ -2634,7 +2734,7 @@ var ExplorePointOfInterestModalComponent = _ExplorePointOfInterestModalComponent
     type: Component,
     args: [{ selector: `explore-poi-modal`, template: `
         <div
-            class="h-screen w-full min-w-[20rem] max-w-md overflow-auto rounded-sm bg-base-100 sm:h-auto"
+            class="bg-base-100 h-screen w-full max-w-md min-w-[20rem] overflow-auto rounded-sm sm:h-auto"
         >
             <header>
                 <h2>{{ item.name }}</h2>
@@ -2649,14 +2749,14 @@ var ExplorePointOfInterestModalComponent = _ExplorePointOfInterestModalComponent
                     !item.extra_details?.length
                 ) {
                     <p
-                        class="m-4 flex h-[calc(100vh-5.75rem)] w-[calc(100%-2rem)] items-center justify-center rounded-lg bg-base-200 p-8 text-center opacity-50 sm:h-64"
+                        class="bg-base-200 m-4 flex h-[calc(100vh-5.75rem)] w-[calc(100%-2rem)] items-center justify-center rounded-lg p-8 text-center opacity-50 sm:h-64"
                     >
                         No available details for this point of interest.
                     </p>
                 }
                 @if (item.image) {
                     <img
-                        class="h-48 w-full bg-base-300 object-contain"
+                        class="bg-base-300 h-48 w-full object-contain"
                         [src]="item.image"
                         [alt]="item.name"
                     />
@@ -2682,18 +2782,18 @@ var ExplorePointOfInterestModalComponent = _ExplorePointOfInterestModalComponent
                         }
                     </div>
                     <div
-                        class="flex w-full flex-col items-center justify-center space-y-2 border-t border-base-200 p-4"
+                        class="border-base-200 flex w-full flex-col items-center justify-center space-y-2 border-t p-4"
                     >
                         <div class="relative">
                             @if (playing()) {
                                 <div
-                                    class="absolute left-2 top-2 h-8 w-8 animate-ping rounded-full bg-info"
+                                    class="bg-info absolute top-2 left-2 h-8 w-8 animate-ping rounded-full"
                                 ></div>
                             }
                             <button
                                 icon
                                 matRipple
-                                class="relative h-12 w-12 bg-base-200"
+                                class="bg-base-200 relative h-12 w-12"
                                 (click)="togglePlay()"
                             >
                                 <icon>{{
@@ -2708,9 +2808,9 @@ var ExplorePointOfInterestModalComponent = _ExplorePointOfInterestModalComponent
                     <div class="text-sm">
                         @for (details of item.extra_details; track $index) {
                             <div
-                                class="flex space-x-4 border-t border-base-200 p-4"
+                                class="border-base-200 flex space-x-4 border-t p-4"
                             >
-                                <div class="w-20 min-w-20 text-info">
+                                <div class="text-info w-20 min-w-20">
                                     {{ details?.[0] }}
                                 </div>
                                 <div>{{ details?.[1] }}</div>
@@ -2920,7 +3020,7 @@ _MapCanvasComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c12, decls: 2, vars: 4, consts: [["canvas", ""], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2"]], template: function MapCanvasComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c12, decls: 2, vars: 4, consts: [["canvas", ""], [1, "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2"]], template: function MapCanvasComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "canvas", 1, 0);
   }
@@ -2935,7 +3035,7 @@ var MapCanvasComponent = _MapCanvasComponent;
     args: [{ selector: "[map-canvas]", template: `
         <canvas
             #canvas
-            class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             [style.width]="width * svg_ratio * zoom + '%'"
             [style.height]="width * svg_ratio * ratio * zoom + '%'"
         ></canvas>
@@ -3021,7 +3121,7 @@ var _ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Asyn
 _ExploreSensorInfoComponent.\u0275fac = function ExploreSensorInfoComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreSensorInfoComponent)();
 };
-_ExploreSensorInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "pointer-events-auto", "absolute", "left-1/2", "top-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "bg-base-100", "shadow-sm", 3, "content"], [1, "absolute", "left-1/2", "top-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "whitespace-nowrap", "pr-2"], [1, "absolute", "right-0", "top-0", "-translate-y-1/2", "translate-x-1/2", "rounded-full", "border", "border-base-200", "bg-base-100"], [1, ""], [1, "text-xl", "text-error"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
+_ExploreSensorInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "bg-base-100", "pointer-events-auto", "absolute", "top-1/2", "left-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "shadow-sm", 3, "content"], [1, "border-base-200", "bg-base-100", "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "pr-2", "whitespace-nowrap"], [1, "border-base-200", "bg-base-100", "absolute", "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "border"], [1, ""], [1, "text-error", "text-xl"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "button", 1)(1, "icon");
     \u0275\u0275text(2, " visibility ");
@@ -3045,17 +3145,17 @@ var ExploreSensorInfoComponent = _ExploreSensorInfoComponent;
             [content]="stats"
             yPosition="center"
             xPosition="center"
-            class="pointer-events-auto absolute left-1/2 top-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 bg-base-100 shadow-sm"
+            class="bg-base-100 pointer-events-auto absolute top-1/2 left-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 shadow-sm"
         >
             <icon> visibility </icon>
         </button>
         <ng-template #stats>
             <div
-                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-base-200 bg-base-100 p-2 text-xl"
+                class="border-base-200 bg-base-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border p-2 text-xl"
             >
                 @if (temp) {
                     <div
-                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                        class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>thermostat</icon>
                         <div class="">{{ temp }}\u02DA{{ temp_unit }}</div>
@@ -3063,7 +3163,7 @@ var ExploreSensorInfoComponent = _ExploreSensorInfoComponent;
                 }
                 @if (humidity) {
                     <div
-                        class="flex items-center space-x-2 whitespace-nowrap pr-2"
+                        class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>opacity</icon>
                         <div class="">{{ humidity }}%</div>
@@ -3071,9 +3171,9 @@ var ExploreSensorInfoComponent = _ExploreSensorInfoComponent;
                 }
                 @if (temp > 82) {
                     <div
-                        class="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 rounded-full border border-base-200 bg-base-100"
+                        class="border-base-200 bg-base-100 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 rounded-full border"
                     >
-                        <icon class="text-xl text-error">error</icon>
+                        <icon class="text-error text-xl">error</icon>
                     </div>
                 }
             </div>
@@ -3570,7 +3670,7 @@ _ExploreMapViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   ExploreLockersService,
   ExplorePointOfInterestService,
   SpacePipe
-]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "absolute", "left-2", "top-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2"], ["legend", "", 1, "absolute", "bottom-2", "left-2", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow-sm"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "h-3", "w-3", "rounded-full", "border", "border-base-200"], [1, "text-sm"], ["matRipple", "", 1, "absolute", "right-2", "top-2", "h-12", "min-w-32", "rounded-lg", "border", "border-base-300", "bg-base-100", "px-4", "shadow-sm", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "border-base-200", "bg-base-100", "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded-sm", "border", "p-2"], ["legend", "", 1, "border-base-200", "bg-base-100", "absolute", "bottom-2", "left-2", "rounded-sm", "border", "p-2"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "border-base-200", "h-3", "w-3", "rounded-full", "border"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "interactive-map", 0);
     \u0275\u0275pipe(1, "async");
@@ -3579,7 +3679,7 @@ _ExploreMapViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275pipe(4, "async");
     \u0275\u0275pipe(5, "async");
     \u0275\u0275listener("mapInfo", function ExploreMapViewComponent_Template_interactive_map_mapInfo_0_listener($event) {
-      return ctx.map_info = $event || {};
+      return ctx.map_info = $event ?? {};
     });
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(6, ExploreMapViewComponent_Conditional_6_Template, 3, 1, "div", 1);
@@ -3622,12 +3722,12 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
             [labels]="labels | async"
             [focus]="locate"
             [options]="{ controls: true }"
-            (mapInfo)="map_info = $event || {}"
+            (mapInfo)="map_info = $event ?? $any({})"
         />
         @if (!(use_mapsindoors$ | async)) {
             <div
                 controls
-                class="absolute left-2 top-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border border-base-200 bg-base-100 p-2"
+                class="border-base-200 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border p-2"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (!hide_zones) {
@@ -3650,7 +3750,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
         @if (show_legend && legend.length) {
             <div
                 legend
-                class="absolute bottom-2 left-2 rounded-sm border border-base-200 bg-base-100 p-2"
+                class="border-base-200 bg-base-100 absolute bottom-2 left-2 rounded-sm border p-2"
             >
                 <h3 class="mb-2 font-medium">
                     {{ 'EXPLORE.LEGEND' | translate }}
@@ -3658,7 +3758,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
                 @for (pair of legend; track pair) {
                     <div class="flex items-center space-x-2">
                         <div
-                            class="h-3 w-3 rounded-full border border-base-200"
+                            class="border-base-200 h-3 w-3 rounded-full border"
                             [style.background-color]="pair[1]"
                         ></div>
                         <div class="text-sm">{{ pair[0] }}</div>
@@ -3668,7 +3768,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
         }
         @if (locate) {
             <button
-                class="absolute right-2 top-2 h-12 min-w-32 rounded-lg border border-base-300 bg-base-100 px-4 shadow-sm"
+                class="border-base-300 bg-base-100 absolute top-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >
@@ -3767,7 +3867,10 @@ var _ExploreSearchService = class _ExploreSearchService {
         switchMap((category) => {
           if (!category)
             return of(null);
-          return queryAssetTypesLocal({ zone_id: bld.id, q: `"${category.name}"` }).pipe(catchError(() => of([])), map((groups) => groups.find((g) => g.name === EMERGENCY_CONTACTS_CATEGORY_NAME && g.category_id === category.id) || null));
+          return queryAssetTypesLocal({
+            zone_id: bld.id,
+            q: `"${category.name}"`
+          }).pipe(catchError(() => of([])), map((groups) => groups.find((g) => g.name === EMERGENCY_CONTACTS_CATEGORY_NAME && g.category_id === category.id) || null));
         }),
         // Finally get the assets for that type
         switchMap((assetType) => {
@@ -4173,7 +4276,7 @@ _ExploreSearchComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 23, consts: [["button", ""], ["origin", "matAutocompleteOrigin"], ["input", ""], ["auto", "matAutocomplete"], ["icon", "", "matRipple", "", 1, "m-2", "bg-base-200", 3, "resize", "click"], ["role", "search", "tabindex", "0", "matRipple", "", "matAutocompleteOrigin", "", 1, "absolute", "top-1/2", "z-10", "flex", "max-w-[calc(100vw-7rem)]", "-translate-y-1/2", "items-center", "overflow-hidden", "bg-base-100", "px-4", "outline-hidden", 3, "click"], ["keyboard", "", 1, "flex-1", "border-none", "text-base", "outline-hidden", 3, "ngModelChange", "focus", "blur", "ngModel", "placeholder", "matAutocomplete", "matAutocompleteConnectedTo"], [1, "mr-2", 3, "diameter"], [1, "pointer-events-none"], [3, "value"], [3, "click", "value"], [1, "flex", "w-88", "max-w-[calc(100vw-2rem)]", "items-center", "leading-tight"], [1, "w-1/2", "flex-1", "overflow-hidden"], [1, "w-full", "truncate"], [1, "text-xs"], [1, "rounded-sm", "bg-base-300", "p-2", "text-xs", "font-bold", "capitalize", "text-white"]], template: function ExploreSearchComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 23, consts: [["button", ""], ["origin", "matAutocompleteOrigin"], ["input", ""], ["auto", "matAutocomplete"], ["icon", "", "matRipple", "", 1, "bg-base-200", "m-2", 3, "resize", "click"], ["role", "search", "tabindex", "0", "matRipple", "", "matAutocompleteOrigin", "", 1, "bg-base-100", "absolute", "top-1/2", "z-10", "flex", "max-w-[calc(100vw-7rem)]", "-translate-y-1/2", "items-center", "overflow-hidden", "px-4", "outline-hidden", 3, "click"], ["keyboard", "", 1, "flex-1", "border-none", "text-base", "outline-hidden", 3, "ngModelChange", "focus", "blur", "ngModel", "placeholder", "matAutocomplete", "matAutocompleteConnectedTo"], [1, "mr-2", 3, "diameter"], [1, "pointer-events-none"], [3, "value"], [3, "click", "value"], [1, "flex", "w-88", "max-w-[calc(100vw-2rem)]", "items-center", "leading-tight"], [1, "w-1/2", "flex-1", "overflow-hidden"], [1, "w-full", "truncate"], [1, "text-xs"], [1, "bg-base-300", "rounded-sm", "p-2", "text-xs", "font-bold", "text-white", "capitalize"]], template: function ExploreSearchComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 4, 0);
@@ -4263,7 +4366,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
             #button
             icon
             matRipple
-            class="m-2 bg-base-200"
+            class="bg-base-200 m-2"
             (window:resize)="checkButtonPosition()"
             (click)="show ? closeSearch($event) : showSearch()"
         >
@@ -4273,7 +4376,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
             role="search"
             tabindex="0"
             matRipple
-            class="absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden bg-base-100 px-4 outline-hidden"
+            class="bg-base-100 absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden px-4 outline-hidden"
             [class.right-0]="right_size"
             [class.-translate-x-14]="right_size"
             [class.left-0]="!right_size"
@@ -4323,7 +4426,7 @@ var ExploreSearchComponent = _ExploreSearchComponent;
                                 </div>
                             </div>
                             <div
-                                class="rounded-sm bg-base-300 p-2 text-xs font-bold capitalize text-white"
+                                class="bg-base-300 rounded-sm p-2 text-xs font-bold text-white capitalize"
                             >
                                 {{ option.type }}
                             </div>
@@ -4532,7 +4635,7 @@ var _ExploreLevelSelectComponent = class _ExploreLevelSelectComponent {
 _ExploreLevelSelectComponent.\u0275fac = function ExploreLevelSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreLevelSelectComponent)();
 };
-_ExploreLevelSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLevelSelectComponent, selectors: [["explore-level-select"]], decls: 4, vars: 2, consts: [[1, "m-2", "overflow-hidden", "rounded-sm", "border", "border-solid", "border-base-300", "bg-base-100", "shadow-sm"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "active"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "click"], [1, "text-2xl"], [1, "m-0", "whitespace-nowrap", "text-sm"]], template: function ExploreLevelSelectComponent_Template(rf, ctx) {
+_ExploreLevelSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreLevelSelectComponent, selectors: [["explore-level-select"]], decls: 4, vars: 2, consts: [[1, "border-base-300", "bg-base-100", "m-2", "overflow-hidden", "rounded-sm", "border", "border-solid", "shadow-sm"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "active"], ["matRipple", "", 1, "flex", "h-16", "w-16", "flex-col", "items-center", "justify-center", "border-none", "p-2", 3, "click"], [1, "text-2xl"], [1, "m-0", "text-sm", "whitespace-nowrap"]], template: function ExploreLevelSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, ExploreLevelSelectComponent_For_2_Template, 6, 6, "button", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -4550,7 +4653,7 @@ var ExploreLevelSelectComponent = _ExploreLevelSelectComponent;
     type: Component,
     args: [{ selector: "explore-level-select", template: `
         <div
-            class="m-2 overflow-hidden rounded-sm border border-solid border-base-300 bg-base-100 shadow-sm"
+            class="border-base-300 bg-base-100 m-2 overflow-hidden rounded-sm border border-solid shadow-sm"
         >
             @for (lvl of levels | async; track lvl) {
                 <button
@@ -4560,7 +4663,7 @@ var ExploreLevelSelectComponent = _ExploreLevelSelectComponent;
                     matRipple
                 >
                     <div class="text-2xl">{{ lvl.number }}</div>
-                    <p class="m-0 whitespace-nowrap text-sm">
+                    <p class="m-0 text-sm whitespace-nowrap">
                         {{ lvl.display_name || lvl.name }}
                     </p>
                 </button>
@@ -4583,7 +4686,7 @@ function ExploreComponent_Conditional_4_Template(rf, ctx) {
 }
 function ExploreComponent_ng_template_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275element(1, "accessibility-controls");
     \u0275\u0275elementEnd();
   }
@@ -4591,7 +4694,7 @@ function ExploreComponent_ng_template_8_Template(rf, ctx) {
 function ExploreComponent_Conditional_10_Conditional_1_For_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275listener("click", function ExploreComponent_Conditional_10_Conditional_1_For_8_Template_button_click_0_listener() {
       const lvl_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(3);
@@ -4608,14 +4711,14 @@ function ExploreComponent_Conditional_10_Conditional_1_For_8_Template(rf, ctx) {
 }
 function ExploreComponent_Conditional_10_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 20)(1, "div", 13);
+    \u0275\u0275elementStart(0, "button", 21)(1, "div", 13);
     \u0275\u0275text(2, "Level");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "icon", 12);
     \u0275\u0275text(4, "keyboard_arrow_down");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(5, "mat-menu", null, 1);
-    \u0275\u0275repeaterCreate(7, ExploreComponent_Conditional_10_Conditional_1_For_8_Template, 2, 1, "button", 21, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(7, ExploreComponent_Conditional_10_Conditional_1_For_8_Template, 2, 1, "button", 22, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd();
   }
@@ -4629,9 +4732,9 @@ function ExploreComponent_Conditional_10_Conditional_1_Template(rf, ctx) {
 }
 function ExploreComponent_Conditional_10_Conditional_3_For_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23);
-    \u0275\u0275element(1, "div", 24);
-    \u0275\u0275elementStart(2, "div", 25);
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275element(1, "div", 25);
+    \u0275\u0275elementStart(2, "div", 26);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
   }
@@ -4645,14 +4748,14 @@ function ExploreComponent_Conditional_10_Conditional_3_For_8_Template(rf, ctx) {
 }
 function ExploreComponent_Conditional_10_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 20)(1, "div", 13);
+    \u0275\u0275elementStart(0, "button", 21)(1, "div", 13);
     \u0275\u0275text(2, "Legend");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "icon", 12);
     \u0275\u0275text(4, "keyboard_arrow_down");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(5, "mat-menu", null, 2);
-    \u0275\u0275repeaterCreate(7, ExploreComponent_Conditional_10_Conditional_3_For_8_Template, 4, 3, "div", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(7, ExploreComponent_Conditional_10_Conditional_3_For_8_Template, 4, 3, "div", 24, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -4683,14 +4786,14 @@ function ExploreComponent_Conditional_10_Template(rf, ctx) {
 function ExploreComponent_Conditional_14_For_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 27);
+    \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275pipe(1, "async");
     \u0275\u0275listener("click", function ExploreComponent_Conditional_14_For_10_Template_button_click_0_listener() {
       const lvl_r10 = \u0275\u0275restoreView(_r9).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r3.setLevel(lvl_r10));
     });
-    \u0275\u0275elementStart(2, "div", 28);
+    \u0275\u0275elementStart(2, "div", 29);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
   }
@@ -4722,7 +4825,7 @@ function ExploreComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(7, "div", 14)(8, "div", 15);
-    \u0275\u0275repeaterCreate(9, ExploreComponent_Conditional_14_For_10_Template, 4, 5, "button", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(9, ExploreComponent_Conditional_14_For_10_Template, 4, 5, "button", 27, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275pipe(11, "async");
     \u0275\u0275elementEnd()();
     \u0275\u0275element(12, "hr", 16);
@@ -4739,9 +4842,9 @@ function ExploreComponent_Conditional_14_Template(rf, ctx) {
 }
 function ExploreComponent_Conditional_16_For_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23);
-    \u0275\u0275element(1, "div", 24);
-    \u0275\u0275elementStart(2, "div", 25);
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275element(1, "div", 25);
+    \u0275\u0275elementStart(2, "div", 26);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
   }
@@ -4772,7 +4875,7 @@ function ExploreComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(7, "div", 14)(8, "div", 15);
-    \u0275\u0275repeaterCreate(9, ExploreComponent_Conditional_16_For_10_Template, 4, 3, "div", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(9, ExploreComponent_Conditional_16_For_10_Template, 4, 3, "div", 24, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
     \u0275\u0275element(11, "hr", 16);
   }
@@ -4829,6 +4932,7 @@ var _ExploreComponent = class _ExploreComponent extends AsyncHandler {
     this.labels = this._state.map_labels;
     this.options = this._state.options;
     this.locate = "";
+    this.isometric = localStorage.getItem("KIOSK.isometric") === "true";
     this.onMouse = () => this.timeout("reset", () => this.resetKiosk(), this.reset_delay * 1e3);
     this.onTouch = () => this.timeout("reset", () => this.resetKiosk(), this.reset_delay * 1e3);
     this.setOptions = (o) => this._state.setOptions(o);
@@ -4846,6 +4950,9 @@ var _ExploreComponent = class _ExploreComponent extends AsyncHandler {
   }
   get hide_zones() {
     return this._settings.get("app.explore.hide_zones");
+  }
+  onIsometricChange(event) {
+    this.isometric = event.detail;
   }
   updateZoom(zoom) {
     this._state.setPositions(zoom, this._state.positions.center);
@@ -4959,7 +5066,7 @@ var _ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = kh(locate_details.system_id, locate_details.module);
+    const mod = $h(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -5012,6 +5119,8 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
       return ctx.onMouse();
     }, \u0275\u0275resolveWindow)("touchstart", function ExploreComponent_touchstart_HostBindingHandler() {
       return ctx.onTouch();
+    }, \u0275\u0275resolveWindow)("isometric-change", function ExploreComponent_isometric_change_HostBindingHandler($event) {
+      return ctx.onIsometricChange($event);
     }, \u0275\u0275resolveWindow);
   }
 }, features: [\u0275\u0275ProvidersFeature([
@@ -5020,7 +5129,7 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
   ExploreZonesService,
   ExploreParkingService,
   SpacePipe
-]), \u0275\u0275InheritDefinitionFeature], attrs: _c09, decls: 37, vars: 36, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "relative", "flex", "items-center", "justify-between", "border-b", "border-base-300", "bg-base-100", "px-4", "py-2", "text-base-content"], ["matRipple", "", "routerLink", "/", 1, "rounded-sm", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "right-2", "top-1/2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "flex", "bg-base-200", "sm:hidden", 3, "content"], ["options", "", 1, "flex", "items-center", "space-x-2", "bg-base-content", "p-2", "text-base-100", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "hidden", "w-[20rem]", "overflow-auto", "border-r", "border-base-300", "bg-base-100", "px-2", "py-4", "text-base-content", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "flex", "w-full", "space-x-4", "hover:bg-base-200", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "w-[18rem]", "rounded-sm", "bg-base-100", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "flex", "w-full", "items-center", "space-x-4", "rounded-sm", "px-4", "py-2", "hover:bg-base-200"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "w-full", "hover:bg-base-200", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], attrs: _c09, decls: 38, vars: 38, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "relative", "flex", "items-center", "justify-between", "border-b", "px-4", "py-2"], ["matRipple", "", "routerLink", "/", 1, "rounded-sm", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "top-1/2", "right-2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "bg-base-200", "flex", "sm:hidden", 3, "content"], ["options", "", 1, "bg-base-content", "text-base-100", "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "hidden", "w-[20rem]", "overflow-auto", "border-r", "px-2", "py-4", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "hover:bg-base-200", "flex", "w-full", "space-x-4", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [1, "absolute", "inset-0"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "bg-base-100", "w-[18rem]", "rounded-sm", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-4", "rounded-sm", "px-4", "py-2"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 3)(1, "a", 4);
@@ -5058,28 +5167,28 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
     \u0275\u0275elementEnd()();
     \u0275\u0275element(27, "hr", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(28, "div", 17)(29, "interactive-map", 18);
-    \u0275\u0275pipe(30, "async");
+    \u0275\u0275elementStart(28, "div", 17)(29, "div", 18)(30, "interactive-map", 19);
     \u0275\u0275pipe(31, "async");
     \u0275\u0275pipe(32, "async");
     \u0275\u0275pipe(33, "async");
     \u0275\u0275pipe(34, "async");
     \u0275\u0275pipe(35, "async");
     \u0275\u0275pipe(36, "async");
-    \u0275\u0275listener("zoomChange", function ExploreComponent_Template_interactive_map_zoomChange_29_listener($event) {
+    \u0275\u0275pipe(37, "async");
+    \u0275\u0275listener("zoomChange", function ExploreComponent_Template_interactive_map_zoomChange_30_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.updateZoom($event));
-    })("centerChange", function ExploreComponent_Template_interactive_map_centerChange_29_listener($event) {
+    })("centerChange", function ExploreComponent_Template_interactive_map_centerChange_30_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.updateCenter($event));
     });
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
     let tmp_4_0;
     let tmp_5_0;
-    let tmp_10_0;
     let tmp_11_0;
+    let tmp_12_0;
     const accessibility_controls_r13 = \u0275\u0275reference(9);
     \u0275\u0275advance(2);
     \u0275\u0275property("source", (ctx.logo == null ? null : ctx.logo.src) || ctx.logo);
@@ -5088,9 +5197,9 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
     \u0275\u0275advance();
     \u0275\u0275property("content", accessibility_controls_r13);
     \u0275\u0275advance(5);
-    \u0275\u0275conditional(((tmp_4_0 = \u0275\u0275pipeBind1(11, 17, ctx.levels)) == null ? null : tmp_4_0.length) || ctx.legend.length ? 10 : -1);
+    \u0275\u0275conditional(((tmp_4_0 = \u0275\u0275pipeBind1(11, 19, ctx.levels)) == null ? null : tmp_4_0.length) || ctx.legend.length ? 10 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional(((tmp_5_0 = \u0275\u0275pipeBind1(15, 19, ctx.levels)) == null ? null : tmp_5_0.length) ? 14 : -1);
+    \u0275\u0275conditional(((tmp_5_0 = \u0275\u0275pipeBind1(15, 21, ctx.levels)) == null ? null : tmp_5_0.length) ? 14 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.legend.length && ctx.legend_visible ? 16 : -1);
     \u0275\u0275advance(7);
@@ -5098,7 +5207,9 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
     \u0275\u0275advance();
     \u0275\u0275property("@show", ctx.show_accessibility ? "show" : "hide");
     \u0275\u0275advance(5);
-    \u0275\u0275property("src", \u0275\u0275pipeBind1(30, 21, ctx.url))("zoom", (tmp_10_0 = \u0275\u0275pipeBind1(31, 23, ctx.positions)) == null ? null : tmp_10_0.zoom)("center", (tmp_11_0 = \u0275\u0275pipeBind1(32, 25, ctx.positions)) == null ? null : tmp_11_0.center)("styles", \u0275\u0275pipeBind1(33, 27, ctx.styles))("features", \u0275\u0275pipeBind1(34, 29, ctx.features))("actions", \u0275\u0275pipeBind1(35, 31, ctx.actions))("labels", \u0275\u0275pipeBind1(36, 33, ctx.labels))("options", \u0275\u0275pureFunction0(35, _c14))("focus", ctx.locate);
+    \u0275\u0275classProp("isometric", ctx.isometric);
+    \u0275\u0275advance();
+    \u0275\u0275property("src", \u0275\u0275pipeBind1(31, 23, ctx.url))("zoom", (tmp_11_0 = \u0275\u0275pipeBind1(32, 25, ctx.positions)) == null ? null : tmp_11_0.zoom)("center", (tmp_12_0 = \u0275\u0275pipeBind1(33, 27, ctx.positions)) == null ? null : tmp_12_0.center)("styles", \u0275\u0275pipeBind1(34, 29, ctx.styles))("features", \u0275\u0275pipeBind1(35, 31, ctx.features))("actions", \u0275\u0275pipeBind1(36, 33, ctx.actions))("labels", \u0275\u0275pipeBind1(37, 35, ctx.labels))("options", \u0275\u0275pureFunction0(37, _c14))("focus", ctx.locate);
   }
 }, dependencies: [
   CommonModule,
@@ -5115,8 +5226,9 @@ _ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
   MatMenuModule,
   MatMenu,
   MatMenuItem,
-  MatMenuTrigger
-], styles: ["\n\n[_nghost-%COMP%] {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--base-200);\n}\nhr[_ngcontent-%COMP%] {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n/*# sourceMappingURL=explore.component.css.map */"], data: { animation: [ANIMATION_SHOW_CONTRACT_EXPAND] } });
+  MatMenuTrigger,
+  ExploreSearchComponent
+], styles: ["\n\n[_nghost-%COMP%] {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--base-200);\n}\nhr[_ngcontent-%COMP%] {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n.isometric[_ngcontent-%COMP%] {\n  transform: perspective(800px) rotateX(45deg) rotateZ(-45deg) scale(0.7);\n  transform-origin: center center;\n  transition: transform 300ms ease-in-out;\n}\n.isometric[_ngcontent-%COMP%]   interactive-map[_ngcontent-%COMP%] {\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=explore.component.css.map */"], data: { animation: [ANIMATION_SHOW_CONTRACT_EXPAND] } });
 var ExploreComponent = _ExploreComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreComponent, [{
@@ -5124,7 +5236,7 @@ var ExploreComponent = _ExploreComponent;
     args: [{ selector: "[app-explore]", template: `
         <div
             topbar
-            class="relative flex items-center justify-between border-b border-base-300 bg-base-100 px-4 py-2 text-base-content"
+            class="border-base-300 bg-base-100 text-base-content relative flex items-center justify-between border-b px-4 py-2"
         >
             <a matRipple routerLink="/" class="rounded-sm p-2 text-2xl">
                 <img
@@ -5135,7 +5247,7 @@ var ExploreComponent = _ExploreComponent;
                 />
             </a>
             <div
-                class="absolute right-2 top-1/2 flex -translate-y-1/2 items-center"
+                class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center"
             >
                 @if (can_search) {
                     <explore-search></explore-search>
@@ -5145,12 +5257,12 @@ var ExploreComponent = _ExploreComponent;
                     matRipple
                     customTooltip
                     [content]="accessibility_controls"
-                    class="flex bg-base-200 sm:hidden"
+                    class="bg-base-200 flex sm:hidden"
                 >
                     <icon>accessible</icon>
                 </button>
                 <ng-template #accessibility_controls>
-                    <div class="w-[18rem] rounded-sm bg-base-100 p-2">
+                    <div class="bg-base-100 w-[18rem] rounded-sm p-2">
                         <accessibility-controls></accessibility-controls>
                     </div>
                 </ng-template>
@@ -5159,7 +5271,7 @@ var ExploreComponent = _ExploreComponent;
         @if ((levels | async)?.length || legend.length) {
             <div
                 options
-                class="flex items-center space-x-2 bg-base-content p-2 text-base-100 sm:hidden"
+                class="bg-base-content text-base-100 flex items-center space-x-2 p-2 sm:hidden"
             >
                 @if ((levels | async)?.length) {
                     <button
@@ -5192,7 +5304,7 @@ var ExploreComponent = _ExploreComponent;
                     <mat-menu #legendMenu="matMenu">
                         @for (value of legend; track value) {
                             <div
-                                class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
+                                class="hover:bg-base-200 flex w-full items-center space-x-4 rounded-sm px-4 py-2"
                             >
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -5210,13 +5322,13 @@ var ExploreComponent = _ExploreComponent;
         <div class="flex h-1/2 flex-1">
             <div
                 sidebar
-                class="hidden w-[20rem] overflow-auto border-r border-base-300 bg-base-100 px-2 py-4 text-base-content sm:block"
+                class="border-base-300 bg-base-100 text-base-content hidden w-[20rem] overflow-auto border-r px-2 py-4 sm:block"
             >
                 @if ((levels | async)?.length) {
                     <button
                         btn
                         matRipple
-                        class="items clear flex w-full space-x-4 hover:bg-base-200"
+                        class="items clear hover:bg-base-200 flex w-full space-x-4"
                         (click)="show_levels = !show_levels"
                     >
                         <icon class="text-2xl">corporate_fare</icon>
@@ -5233,7 +5345,7 @@ var ExploreComponent = _ExploreComponent;
                                 <button
                                     btn
                                     matRipple
-                                    class="clear w-full hover:bg-base-200 hover:opacity-100"
+                                    class="clear hover:bg-base-200 w-full hover:opacity-100"
                                     [class.opacity-30]="
                                         lvl.id !== (level | async)?.id
                                     "
@@ -5252,7 +5364,7 @@ var ExploreComponent = _ExploreComponent;
                     <button
                         btn
                         matRipple
-                        class="items clear flex w-full space-x-4 hover:bg-base-200"
+                        class="items clear hover:bg-base-200 flex w-full space-x-4"
                         (click)="show_legend = !show_legend"
                     >
                         <icon class="text-2xl">place</icon>
@@ -5267,7 +5379,7 @@ var ExploreComponent = _ExploreComponent;
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
-                                    class="flex w-full items-center space-x-4 rounded-sm px-4 py-2 hover:bg-base-200"
+                                    class="hover:bg-base-200 flex w-full items-center space-x-4 rounded-sm px-4 py-2"
                                 >
                                     <div
                                         class="h-3 w-3 rounded-full"
@@ -5285,7 +5397,7 @@ var ExploreComponent = _ExploreComponent;
                 <button
                     btn
                     matRipple
-                    class="items clear flex w-full space-x-4 hover:bg-base-200"
+                    class="items clear hover:bg-base-200 flex w-full space-x-4"
                     (click)="show_accessibility = !show_accessibility"
                 >
                     <icon class="text-2xl">accessible</icon>
@@ -5309,19 +5421,24 @@ var ExploreComponent = _ExploreComponent;
                 <hr class="mx-auto w-[calc(100%-4rem)]" />
             </div>
             <div class="relative h-full flex-1">
-                <interactive-map
-                    [src]="url | async"
-                    [zoom]="(positions | async)?.zoom"
-                    [center]="(positions | async)?.center"
-                    (zoomChange)="updateZoom($event)"
-                    (centerChange)="updateCenter($event)"
-                    [styles]="styles | async"
-                    [features]="features | async"
-                    [actions]="actions | async"
-                    [labels]="labels | async"
-                    [options]="{ controls: true }"
-                    [focus]="locate"
-                ></interactive-map>
+                <div
+                    class="absolute inset-0"
+                    [class.isometric]="isometric"
+                >
+                    <interactive-map
+                        [src]="url | async"
+                        [zoom]="(positions | async)?.zoom"
+                        [center]="(positions | async)?.center"
+                        (zoomChange)="updateZoom($event)"
+                        (centerChange)="updateCenter($event)"
+                        [styles]="styles | async"
+                        [features]="features | async"
+                        [actions]="actions | async"
+                        [labels]="labels | async"
+                        [options]="{ controls: true }"
+                        [focus]="locate"
+                    ></interactive-map>
+                </div>
             </div>
         </div>
     `, providers: [
@@ -5339,18 +5456,22 @@ var ExploreComponent = _ExploreComponent;
       AuthenticatedImageDirective,
       CustomTooltipComponent,
       RouterModule,
-      MatMenuModule
-    ], styles: ["/* angular:styles/component:css;59c187f5c41ee4ecc442e4a27538a3705c2d95e29d3770d64524df8725f62ff7;/home/runner/work/user-interfaces/user-interfaces/apps/map-kiosk/src/app/explore.component.ts */\n:host {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--base-200);\n}\nhr {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n/*# sourceMappingURL=explore.component.css.map */\n"] }]
+      MatMenuModule,
+      ExploreSearchComponent
+    ], styles: ["/* angular:styles/component:css;6d05b721634a51f19ea7ef3012b5c71e0f957ccfe91d8cc3df3e27744d6b0130;/home/runner/work/user-interfaces/user-interfaces/apps/map-kiosk/src/app/explore.component.ts */\n:host {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--base-200);\n}\nhr {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n.isometric {\n  transform: perspective(800px) rotateX(45deg) rotateZ(-45deg) scale(0.7);\n  transform-origin: center center;\n  transition: transform 300ms ease-in-out;\n}\n.isometric interactive-map {\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=explore.component.css.map */\n"] }]
   }], null, { onMouse: [{
     type: HostListener,
     args: ["window:mousedown"]
   }], onTouch: [{
     type: HostListener,
     args: ["window:touchstart"]
+  }], onIsometricChange: [{
+    type: HostListener,
+    args: ["window:isometric-change", ["$event"]]
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreComponent, { className: "ExploreComponent", filePath: "apps/map-kiosk/src/app/explore.component.ts", lineNumber: 290 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreComponent, { className: "ExploreComponent", filePath: "apps/map-kiosk/src/app/explore.component.ts", lineNumber: 309 });
 })();
 
 // apps/visitor-kiosk/src/app/explore.module.ts
@@ -5383,4 +5504,4 @@ var AppExploreModule = _AppExploreModule;
 export {
   AppExploreModule
 };
-//# sourceMappingURL=explore.module-P5IUBAU7.js.map
+//# sourceMappingURL=explore.module-V2EK3OLH.js.map
