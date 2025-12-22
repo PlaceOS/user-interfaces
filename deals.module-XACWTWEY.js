@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
   AsyncPipe,
   AuthenticatedImageDirective,
@@ -75,7 +75,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/deals/deal-details-modal.component.ts
 function DealDetailsModalComponent_Conditional_2_Template(rf, ctx) {
@@ -112,7 +112,7 @@ var _DealDetailsModalComponent = class _DealDetailsModalComponent {
 _DealDetailsModalComponent.\u0275fac = function DealDetailsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DealDetailsModalComponent)();
 };
-_DealDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealDetailsModalComponent, selectors: [["deal-details-modal"]], outputs: { remove: "remove" }, decls: 27, vars: 15, consts: [[1, "relative", "w-lg", "max-w-[calc(100vw-2rem)]", "bg-base-100"], [1, "relative", "h-48", "w-lg", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow-sm"], [1, "flex", "space-x-2", "p-2"], [1, "w-auto", "px-2", "text-xl", "font-medium"], [1, "flex-1"], [1, "max-h-[60vh]", "space-y-2", "overflow-auto", "p-4"], [1, "font-medium"], [1, "pb-4", "text-sm"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-2", "top-2", "bg-base-100"]], template: function DealDetailsModalComponent_Template(rf, ctx) {
+_DealDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealDetailsModalComponent, selectors: [["deal-details-modal"]], outputs: { remove: "remove" }, decls: 27, vars: 15, consts: [[1, "bg-base-100", "relative", "w-lg", "max-w-[calc(100vw-2rem)]"], [1, "bg-base-300", "relative", "h-48", "w-lg", "max-w-full", "overflow-hidden", "rounded-b-lg"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "bg-info", "text-info-content", "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "px-2", "py-1", "text-xs", "shadow-sm"], [1, "flex", "space-x-2", "p-2"], [1, "w-auto", "px-2", "text-xl", "font-medium"], [1, "flex-1"], [1, "max-h-[60vh]", "space-y-2", "overflow-auto", "p-4"], [1, "font-medium"], [1, "pb-4", "text-sm"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-100", "absolute", "top-2", "right-2"]], template: function DealDetailsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, DealDetailsModalComponent_Conditional_2_Template, 1, 1, "img", 2);
@@ -183,9 +183,9 @@ var DealDetailsModalComponent = _DealDetailsModalComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DealDetailsModalComponent, [{
     type: Component,
     args: [{ selector: "deal-details-modal", template: `
-        <div class="relative w-lg max-w-[calc(100vw-2rem)] bg-base-100">
+        <div class="bg-base-100 relative w-lg max-w-[calc(100vw-2rem)]">
             <div
-                class="relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                class="bg-base-300 relative h-48 w-lg max-w-full overflow-hidden rounded-b-lg"
             >
                 @if (deal.image) {
                     <img
@@ -197,7 +197,7 @@ var DealDetailsModalComponent = _DealDetailsModalComponent;
                 }
                 @if (deal.details) {
                     <div
-                        class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
+                        class="bg-info text-info-content absolute bottom-2 left-2 max-w-full truncate rounded-sm px-2 py-1 text-xs shadow-sm"
                     >
                         {{ deal.details }}
                     </div>
@@ -232,7 +232,7 @@ var DealDetailsModalComponent = _DealDetailsModalComponent;
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2 bg-base-100"
+                class="bg-base-100 absolute top-2 right-2"
             >
                 <icon>close</icon>
             </button>
@@ -422,7 +422,7 @@ var _DealsComponent = class _DealsComponent {
 _DealsComponent.\u0275fac = function DealsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DealsComponent)();
 };
-_DealsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealsComponent, selectors: [["deals-n-offers"]], decls: 40, vars: 30, consts: [["sortMenu", "matMenu"], [1, "absolute", "inset-0", "flex", "flex-col", "overflow-auto"], [1, "min-h-1/2", "flex", "h-1/2", "flex-1", "flex-col", "overflow-auto", "bg-base-200", "px-4"], [1, "sticky", "top-0", "z-20", "mx-auto", "mb-2", "w-160", "max-w-full", "bg-base-200", "px-2", "pt-2"], [1, "-mx-2", "flex", "flex-wrap", "py-2"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "click"], ["matRipple", "", 1, "m-1", "rounded-full", "border", "border-base-300", "px-4", "py-1", 3, "bg-base-100"], [1, "flex", "items-center", "justify-between", "text-base"], ["matRipple", "", 1, "flex", "items-center", "rounded-sm", "p-2", 3, "matMenuTriggerFor"], [1, "ml-2", "text-xl"], ["mat-menu-item", "", 3, "click"], [1, "mx-auto", "mb-4", "grid", "w-160", "max-w-full", "grid-cols-1", "gap-4", "px-2", "sm:grid-cols-2", "lg:grid-cols-3"], [1, "col-span-6", "flex", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "bg-base-200", "p-16"], [1, "flex", "w-full", "flex-col", "items-center", "overflow-hidden", "rounded-lg", "border", "border-base-300", "bg-base-100", "shadow-sm", 3, "click"], [1, "relative", "h-48", "w-full", "max-w-full", "overflow-hidden", "rounded-b-lg", "bg-base-300"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content", "shadow-sm"], [1, "w-full", "px-4", "py-2", "text-left"], [1, "truncate", "font-bold"], [1, "text-sm", "opacity-50"], ["src", "assets/icons/no-deals.svg", "alt", "No Deals or Offers Available", 1, "mb-8", "w-48"], [1, "flex", "flex-col", "items-center", "space-y-4", "text-center"], [1, "text-lg", "font-bold"], ["btn", "", "matRipple", ""]], template: function DealsComponent_Template(rf, ctx) {
+_DealsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DealsComponent, selectors: [["deals-n-offers"]], decls: 40, vars: 30, consts: [["sortMenu", "matMenu"], [1, "absolute", "inset-0", "flex", "flex-col", "overflow-auto"], [1, "bg-base-200", "flex", "h-1/2", "min-h-1/2", "flex-1", "flex-col", "overflow-auto", "px-4"], [1, "bg-base-200", "sticky", "top-0", "z-20", "mx-auto", "mb-2", "w-160", "max-w-full", "px-2", "pt-2"], [1, "-mx-2", "flex", "flex-wrap", "py-2"], ["matRipple", "", 1, "border-base-300", "m-1", "rounded-full", "border", "px-4", "py-1", 3, "click"], ["matRipple", "", 1, "border-base-300", "m-1", "rounded-full", "border", "px-4", "py-1", 3, "bg-base-100"], [1, "flex", "items-center", "justify-between", "text-base"], ["matRipple", "", 1, "flex", "items-center", "rounded-sm", "p-2", 3, "matMenuTriggerFor"], [1, "ml-2", "text-xl"], ["mat-menu-item", "", 3, "click"], [1, "mx-auto", "mb-4", "grid", "w-160", "max-w-full", "grid-cols-1", "gap-4", "px-2", "sm:grid-cols-2", "lg:grid-cols-3"], [1, "bg-base-200", "col-span-6", "flex", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "p-16"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "flex-col", "items-center", "overflow-hidden", "rounded-lg", "border", "shadow-sm", 3, "click"], [1, "bg-base-300", "relative", "h-48", "w-full", "max-w-full", "overflow-hidden", "rounded-b-lg"], ["auth", "", "alt", "Deal Image", 1, "h-full", "w-full", "object-cover", 3, "source"], [1, "bg-info", "text-info-content", "absolute", "bottom-2", "left-2", "max-w-full", "truncate", "rounded-sm", "px-2", "py-1", "text-xs", "shadow-sm"], [1, "w-full", "px-4", "py-2", "text-left"], [1, "truncate", "font-bold"], [1, "text-sm", "opacity-50"], ["src", "assets/icons/no-deals.svg", "alt", "No Deals or Offers Available", 1, "mb-8", "w-48"], [1, "flex", "flex-col", "items-center", "space-y-4", "text-center"], [1, "text-lg", "font-bold"], ["btn", "", "matRipple", ""]], template: function DealsComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
@@ -537,17 +537,17 @@ var DealsComponent = _DealsComponent;
         <div class="absolute inset-0 flex flex-col overflow-auto">
             <topbar />
             <main
-                class="min-h-1/2 flex h-1/2 flex-1 flex-col overflow-auto bg-base-200 px-4"
+                class="bg-base-200 flex h-1/2 min-h-1/2 flex-1 flex-col overflow-auto px-4"
             >
                 @let deal_list = filtered_deals$ | async;
                 <div
-                    class="sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full bg-base-200 px-2 pt-2"
+                    class="bg-base-200 sticky top-0 z-20 mx-auto mb-2 w-160 max-w-full px-2 pt-2"
                 >
                     <div class="-mx-2 flex flex-wrap py-2">
                         @let type_list = types | async;
                         <button
                             matRipple
-                            class="m-1 rounded-full border border-base-300 px-4 py-1"
+                            class="border-base-300 m-1 rounded-full border px-4 py-1"
                             [class.bg-base-100]="type.value === ''"
                             (click)="type.next('')"
                         >
@@ -556,7 +556,7 @@ var DealsComponent = _DealsComponent;
                         @for (t of type_list; track t) {
                             <button
                                 matRipple
-                                class="m-1 rounded-full border border-base-300 px-4 py-1"
+                                class="border-base-300 m-1 rounded-full border px-4 py-1"
                                 [class.bg-base-100]="type.value === t"
                                 (click)="type.next(t)"
                             >
@@ -620,11 +620,11 @@ var DealsComponent = _DealsComponent;
                     @for (deal of deal_list; track deal.id) {
                         <div>
                             <button
-                                class="flex w-full flex-col items-center overflow-hidden rounded-lg border border-base-300 bg-base-100 shadow-sm"
+                                class="border-base-300 bg-base-100 flex w-full flex-col items-center overflow-hidden rounded-lg border shadow-sm"
                                 (click)="view(deal)"
                             >
                                 <div
-                                    class="relative h-48 w-full max-w-full overflow-hidden rounded-b-lg bg-base-300"
+                                    class="bg-base-300 relative h-48 w-full max-w-full overflow-hidden rounded-b-lg"
                                 >
                                     @if (deal.image) {
                                         <img
@@ -636,7 +636,7 @@ var DealsComponent = _DealsComponent;
                                     }
                                     @if (deal.details) {
                                         <div
-                                            class="absolute bottom-2 left-2 max-w-full truncate rounded-sm bg-info px-2 py-1 text-xs text-info-content shadow-sm"
+                                            class="bg-info text-info-content absolute bottom-2 left-2 max-w-full truncate rounded-sm px-2 py-1 text-xs shadow-sm"
                                         >
                                             {{ deal.details }}
                                         </div>
@@ -664,7 +664,7 @@ var DealsComponent = _DealsComponent;
                     }
                     @if (deal_list?.length <= 0) {
                         <div
-                            class="col-span-6 flex w-full flex-col items-center justify-center rounded-lg bg-base-200 p-16"
+                            class="bg-base-200 col-span-6 flex w-full flex-col items-center justify-center rounded-lg p-16"
                         >
                             <img
                                 src="assets/icons/no-deals.svg"
@@ -737,4 +737,4 @@ var DealsModule = _DealsModule;
 export {
   DealsModule
 };
-//# sourceMappingURL=deals.module-2XHL3A2P.js.map
+//# sourceMappingURL=deals.module-XACWTWEY.js.map

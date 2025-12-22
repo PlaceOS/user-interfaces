@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
   AsyncHandler,
   AsyncPipe,
@@ -70,7 +70,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/control/list-item.component.ts
 var _c0 = () => ["/explore"];
@@ -148,7 +148,7 @@ var _ControlSpaceListItemComponent = class _ControlSpaceListItemComponent {
 _ControlSpaceListItemComponent.\u0275fac = function ControlSpaceListItemComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ControlSpaceListItemComponent)();
 };
-_ControlSpaceListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlSpaceListItemComponent, selectors: [["a-control-space-list-item"]], inputs: { space: [1, "space"] }, decls: 1, vars: 1, consts: [[1, "mx-auto", "mb-2", "flex", "max-w-160", "flex-wrap", "items-center", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "pl-4", "hover:border-info", "sm:space-x-4", 3, "with-image"], [1, "mx-auto", "mb-2", "flex", "max-w-160", "flex-wrap", "items-center", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "pl-4", "hover:border-info", "sm:space-x-4"], [1, "flex", "flex-1", "flex-col"], [1, "text-xl"], [1, "flex", "w-full", "items-center", "text-sm"], [1, "flex-1"], [1, "flex", "items-center", "space-x-2", "text-lg"], [1, "text-2xl"], [1, "mt-4", "flex", "w-full", "items-center", "space-x-2", "sm:mt-0", "sm:w-auto", "sm:flex-col", "sm:space-x-0", "sm:space-y-2"], ["btn", "", "matRipple", "", "control", "", 1, "w-32", "flex-1", "sm:flex-none", 3, "href"], ["btn", "", "matRipple", "", "locate", "", 1, "inverse", "w-32", "flex-1", "sm:flex-none", 3, "routerLink", "queryParams"]], template: function ControlSpaceListItemComponent_Template(rf, ctx) {
+_ControlSpaceListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlSpaceListItemComponent, selectors: [["a-control-space-list-item"]], inputs: { space: [1, "space"] }, decls: 1, vars: 1, consts: [[1, "border-base-200", "bg-base-100", "hover:border-info", "mx-auto", "mb-2", "flex", "max-w-160", "flex-wrap", "items-center", "overflow-hidden", "rounded-sm", "border", "p-2", "pl-4", "sm:space-x-4", 3, "with-image"], [1, "border-base-200", "bg-base-100", "hover:border-info", "mx-auto", "mb-2", "flex", "max-w-160", "flex-wrap", "items-center", "overflow-hidden", "rounded-sm", "border", "p-2", "pl-4", "sm:space-x-4"], [1, "flex", "flex-1", "flex-col"], [1, "text-xl"], [1, "flex", "w-full", "items-center", "text-sm"], [1, "flex-1"], [1, "flex", "items-center", "space-x-2", "text-lg"], [1, "text-2xl"], [1, "mt-4", "flex", "w-full", "items-center", "space-x-2", "sm:mt-0", "sm:w-auto", "sm:flex-col", "sm:space-y-2", "sm:space-x-0"], ["btn", "", "matRipple", "", "control", "", 1, "w-32", "flex-1", "sm:flex-none", 3, "href"], ["btn", "", "matRipple", "", "locate", "", 1, "inverse", "w-32", "flex-1", "sm:flex-none", 3, "routerLink", "queryParams"]], template: function ControlSpaceListItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ControlSpaceListItemComponent_Conditional_0_Template, 17, 10, "div", 0);
   }
@@ -163,7 +163,7 @@ var ControlSpaceListItemComponent = _ControlSpaceListItemComponent;
     args: [{ selector: "a-control-space-list-item", template: `
         @if (space()) {
             <div
-                class="mx-auto mb-2 flex max-w-160 flex-wrap items-center overflow-hidden rounded-sm border border-base-200 bg-base-100 p-2 pl-4 hover:border-info sm:space-x-4"
+                class="border-base-200 bg-base-100 hover:border-info mx-auto mb-2 flex max-w-160 flex-wrap items-center overflow-hidden rounded-sm border p-2 pl-4 sm:space-x-4"
                 [class.with-image]="show_image"
             >
                 <div class="flex flex-1 flex-col">
@@ -179,7 +179,7 @@ var ControlSpaceListItemComponent = _ControlSpaceListItemComponent;
                     </div>
                 </div>
                 <div
-                    class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
+                    class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-y-2 sm:space-x-0"
                 >
                     <a
                         btn
@@ -256,7 +256,7 @@ function ControlSpaceListComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", ctx_r3.search_str ? ' No matches for "' + ctx_r3.search.getValue() + '"' : "No controllable spaces", " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r3.search.getValue() ? ' No matches for "' + ctx_r3.search.getValue() + '"' : "No controllable spaces", " ");
   }
 }
 var _ControlSpaceListComponent = class _ControlSpaceListComponent extends AsyncHandler {
@@ -304,7 +304,7 @@ _ControlSpaceListComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275ControlSpaceListComponent_BaseFactory || (\u0275ControlSpaceListComponent_BaseFactory = \u0275\u0275getInheritedFactory(_ControlSpaceListComponent)))(__ngFactoryType__ || _ControlSpaceListComponent);
   };
 })();
-_ControlSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlSpaceListComponent, selectors: [["a-control-space-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 10, vars: 6, consts: [[1, "flex", "w-full", "items-center", "justify-center", "border-b", "border-base-300", "bg-base-100", "p-2"], ["overlay", "", "appearance", "outline", 1, "h-12", "rounded-sm"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", "placeholder", "Search...", 3, "ngModelChange", "ngModel"], ["matSuffix", "", 1, "top-2", 3, "diameter"], [1, "flex", "w-full", "flex-1", "flex-col", "overflow-auto", "p-4"], [1, "flex", "flex-col", "items-center", "space-y-4", "p-8", "opacity-30"], [3, "space"], [1, "text-6xl"]], template: function ControlSpaceListComponent_Template(rf, ctx) {
+_ControlSpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlSpaceListComponent, selectors: [["a-control-space-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 10, vars: 6, consts: [[1, "border-base-300", "bg-base-100", "flex", "w-full", "items-center", "justify-center", "border-b", "p-2"], ["overlay", "", "appearance", "outline", 1, "h-12", "rounded-sm"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", "placeholder", "Search...", 3, "ngModelChange", "ngModel"], ["matSuffix", "", 1, "top-2", 3, "diameter"], [1, "flex", "w-full", "flex-1", "flex-col", "overflow-auto", "p-4"], [1, "flex", "flex-col", "items-center", "space-y-4", "p-8", "opacity-30"], [3, "space"], [1, "text-6xl"]], template: function ControlSpaceListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 1)(2, "icon", 2);
@@ -356,9 +356,13 @@ var ControlSpaceListComponent = _ControlSpaceListComponent;
     type: Component,
     args: [{ selector: "a-control-space-list", template: `
         <div
-            class="flex w-full items-center justify-center border-b border-base-300 bg-base-100 p-2"
+            class="border-base-300 bg-base-100 flex w-full items-center justify-center border-b p-2"
         >
-            <mat-form-field overlay class="h-12 rounded-sm" appearance="outline">
+            <mat-form-field
+                overlay
+                class="h-12 rounded-sm"
+                appearance="outline"
+            >
                 <icon class="text-xl" matPrefix>search</icon>
                 <input
                     matInput
@@ -389,7 +393,7 @@ var ControlSpaceListComponent = _ControlSpaceListComponent;
                 <icon class="text-6xl">no_meeting_room</icon>
                 <p>
                     {{
-                        search_str
+                        search.getValue()
                             ? ' No matches for "' + search.getValue() + '"'
                             : 'No controllable spaces'
                     }}
@@ -408,7 +412,7 @@ var ControlSpaceListComponent = _ControlSpaceListComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlSpaceListComponent, { className: "ControlSpaceListComponent", filePath: "apps/workplace/src/app/control/space-list.component.ts", lineNumber: 85 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlSpaceListComponent, { className: "ControlSpaceListComponent", filePath: "apps/workplace/src/app/control/space-list.component.ts", lineNumber: 89 });
 })();
 
 // apps/workplace/src/app/control/control.component.ts
@@ -476,4 +480,4 @@ var ControlModule = _ControlModule;
 export {
   ControlModule
 };
-//# sourceMappingURL=control.module-PHFBGDCY.js.map
+//# sourceMappingURL=control.module-CVTX7FRF.js.map

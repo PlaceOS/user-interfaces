@@ -41311,6 +41311,11 @@ function formatDuration(duration, options2) {
   return result;
 }
 
+// node_modules/date-fns/fromUnixTime.js
+function fromUnixTime(unixTime, options2) {
+  return toDate2(unixTime * 1e3, options2?.in);
+}
+
 // node_modules/date-fns/getDaysInMonth.js
 function getDaysInMonth(date, options2) {
   const _date = toDate2(date, options2?.in);
@@ -50826,7 +50831,7 @@ var CALENDAR_EVENT = {
   CAPACITY_COUNT: "Capacity {{ count }}",
   SPACE_SELECT_FIND: "Find Space",
   SPACE_SELECT_COUNT: "{{ count }} room(s) added",
-  FACILITIES: "Room Facilities",
+  FACILITIES: "Room Features",
   SPACE_REMOVE: "Remove this room",
   SPACE_ADD_TO: "Add this room",
   SPACE_LIST_INFO: "Select a room to view its details",
@@ -52383,14 +52388,14 @@ function te(t, e2) {
   }
   t.prototype = e2 === null ? Object.create(e2) : (n2.prototype = e2.prototype, new n2());
 }
-var Ke = function() {
-  return Ke = Object.assign || function(e2) {
+var Ze = function() {
+  return Ze = Object.assign || function(e2) {
     for (var n2, r2 = 1, i = arguments.length; r2 < i; r2++) {
       n2 = arguments[r2];
       for (var s in n2) Object.prototype.hasOwnProperty.call(n2, s) && (e2[s] = n2[s]);
     }
     return e2;
-  }, Ke.apply(this, arguments);
+  }, Ze.apply(this, arguments);
 };
 function si(t, e2) {
   var n2 = {};
@@ -53669,7 +53674,7 @@ function wn(t, e2) {
           return c.removeEventListener("abort", l2);
         });
       }
-    var _3 = Ke(Ke({}, r2), { signal: o }), y = function(p) {
+    var _3 = Ze(Ze({}, r2), { signal: o }), y = function(p) {
       u3 = false, i.error(p);
     };
     return fetch(t, _3).then(function(p) {
@@ -53981,13 +53986,13 @@ function Zi() {
         3329325298
       ]);
       function r2(p, a, f2, h2, $3) {
-        for (var b3, A3, w2, Q4, j3, U3, ne3, F14, H4, z2, Qe2, Ye2, St3; $3 >= 64; ) {
+        for (var b3, A3, w2, Q4, j3, U3, ne3, F14, H4, z2, Ye2, Ge2, St3; $3 >= 64; ) {
           for (b3 = a[0], A3 = a[1], w2 = a[2], Q4 = a[3], j3 = a[4], U3 = a[5], ne3 = a[6], F14 = a[7], z2 = 0; z2 < 16; z2++)
-            Qe2 = h2 + z2 * 4, p[z2] = (f2[Qe2] & 255) << 24 | (f2[Qe2 + 1] & 255) << 16 | (f2[Qe2 + 2] & 255) << 8 | f2[Qe2 + 3] & 255;
+            Ye2 = h2 + z2 * 4, p[z2] = (f2[Ye2] & 255) << 24 | (f2[Ye2 + 1] & 255) << 16 | (f2[Ye2 + 2] & 255) << 8 | f2[Ye2 + 3] & 255;
           for (z2 = 16; z2 < 64; z2++)
-            H4 = p[z2 - 2], Ye2 = (H4 >>> 17 | H4 << 15) ^ (H4 >>> 19 | H4 << 13) ^ H4 >>> 10, H4 = p[z2 - 15], St3 = (H4 >>> 7 | H4 << 25) ^ (H4 >>> 18 | H4 << 14) ^ H4 >>> 3, p[z2] = (Ye2 + p[z2 - 7] | 0) + (St3 + p[z2 - 16] | 0);
+            H4 = p[z2 - 2], Ge2 = (H4 >>> 17 | H4 << 15) ^ (H4 >>> 19 | H4 << 13) ^ H4 >>> 10, H4 = p[z2 - 15], St3 = (H4 >>> 7 | H4 << 25) ^ (H4 >>> 18 | H4 << 14) ^ H4 >>> 3, p[z2] = (Ge2 + p[z2 - 7] | 0) + (St3 + p[z2 - 16] | 0);
           for (z2 = 0; z2 < 64; z2++)
-            Ye2 = (((j3 >>> 6 | j3 << 26) ^ (j3 >>> 11 | j3 << 21) ^ (j3 >>> 25 | j3 << 7)) + (j3 & U3 ^ ~j3 & ne3) | 0) + (F14 + (n2[z2] + p[z2] | 0) | 0) | 0, St3 = ((b3 >>> 2 | b3 << 30) ^ (b3 >>> 13 | b3 << 19) ^ (b3 >>> 22 | b3 << 10)) + (b3 & A3 ^ b3 & w2 ^ A3 & w2) | 0, F14 = ne3, ne3 = U3, U3 = j3, j3 = Q4 + Ye2 | 0, Q4 = w2, w2 = A3, A3 = b3, b3 = Ye2 + St3 | 0;
+            Ge2 = (((j3 >>> 6 | j3 << 26) ^ (j3 >>> 11 | j3 << 21) ^ (j3 >>> 25 | j3 << 7)) + (j3 & U3 ^ ~j3 & ne3) | 0) + (F14 + (n2[z2] + p[z2] | 0) | 0) | 0, St3 = ((b3 >>> 2 | b3 << 30) ^ (b3 >>> 13 | b3 << 19) ^ (b3 >>> 22 | b3 << 10)) + (b3 & A3 ^ b3 & w2 ^ A3 & w2) | 0, F14 = ne3, ne3 = U3, U3 = j3, j3 = Q4 + Ge2 | 0, Q4 = w2, w2 = A3, A3 = b3, b3 = Ge2 + St3 | 0;
           a[0] += b3, a[1] += A3, a[2] += w2, a[3] += Q4, a[4] += j3, a[5] += U3, a[6] += ne3, a[7] += F14, h2 += 64, $3 -= 64;
         }
         return h2;
@@ -54301,11 +54306,11 @@ var Vn = Symbol.for("constructDateFrom");
 function Tt(t, e2) {
   return typeof t == "function" ? t(e2) : t && typeof t == "object" && Vn in t ? t[Vn](e2) : t instanceof Date ? new t.constructor(e2) : new Date(e2);
 }
-function Ze(t, e2) {
+function Xe(t, e2) {
   return Tt(t, t);
 }
 function ns(t, e2, n2) {
-  const r2 = Ze(t);
+  const r2 = Xe(t);
   if (isNaN(e2)) return Tt(t, NaN);
   const i = r2.getDate(), s = Tt(t, r2.getTime());
   s.setMonth(r2.getMonth() + e2 + 1, 0);
@@ -54317,7 +54322,7 @@ function ns(t, e2, n2) {
   ), r2);
 }
 function Or(t, e2, n2) {
-  return Tt(t, +Ze(t) + e2);
+  return Tt(t, +Xe(t) + e2);
 }
 function rs(t, e2, n2) {
   return Or(t, e2 * ts);
@@ -54329,7 +54334,7 @@ function ss(t, e2, n2) {
   return ns(t, e2 * 12);
 }
 function os(t, e2) {
-  return +Ze(t) < +Ze(e2);
+  return +Xe(t) < +Xe(e2);
 }
 function d(t, e2, n2, r2 = "debug", i) {
   if (window.debug) {
@@ -54350,13 +54355,13 @@ function Ir() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n2 = Ge(i[0]), e2 || (e2 = i[1]);
+      n2 = Je(i[0]), e2 || (e2 = i[1]);
     } else
-      n2 = Ge(t);
+      n2 = Je(t);
   let r2 = {};
-  return e2 && (r2 = Ge(e2)), __spreadValues(__spreadValues({}, n2), r2);
+  return e2 && (r2 = Je(e2)), __spreadValues(__spreadValues({}, n2), r2);
 }
-function Ge(t) {
+function Je(t) {
   const e2 = {}, n2 = t.split("&");
   for (const r2 of n2) {
     const i = r2.split("=");
@@ -54847,7 +54852,7 @@ function Ds(t, e2, n2 = Ht) {
   return null;
 }
 function Ns(t, e2, n2) {
-  const r2 = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = r2[0].replace(/^\//, ""), s = r2[1] || "", o = Ge(s), u3 = i.split("/"), c = {};
+  const r2 = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = r2[0].replace(/^\//, ""), s = r2[1] || "", o = Je(s), u3 = i.split("/"), c = {};
   for (let _3 = 0; _3 < e2.path_structure.length; _3++) {
     const y = e2.path_structure[_3];
     y && (c[y] = u3[_3]);
@@ -54877,19 +54882,19 @@ var Dr = {};
 function Fs(t, e2 = Dr) {
   return e2[t] || {};
 }
-function N(t, e2, n2 = et) {
+function N(t, e2, n2 = tt) {
   return e2 || (e2 = { response_type: "json" }), n2("GET", t, __spreadValues({ response_type: "json" }, e2));
 }
-function G(t, e2, n2, r2 = et) {
+function G(t, e2, n2, r2 = tt) {
   return n2 || (n2 = { response_type: "json" }), r2("POST", t, __spreadValues({ body: e2, response_type: "json" }, n2));
 }
-function Ne(t, e2, n2, r2 = et) {
+function Ne(t, e2, n2, r2 = tt) {
   return n2 || (n2 = { response_type: "json" }), r2("PUT", t, __spreadValues({ body: e2, response_type: "json" }, n2));
 }
-function Xe(t, e2, n2, r2 = et) {
+function et(t, e2, n2, r2 = tt) {
   return n2 || (n2 = { response_type: "json" }), r2("PATCH", t, __spreadValues({ body: e2, response_type: "json" }, n2));
 }
-function Oe(t, e2, n2 = et) {
+function Oe(t, e2, n2 = tt) {
   return e2 || (e2 = { response_type: "void" }), n2("DELETE", t, __spreadValues({ response_type: "void" }, e2));
 }
 async function zs(t, e2, n2 = Dr) {
@@ -54918,7 +54923,7 @@ var Nr = () => (Tn(), Er().then(
     }, 1e3);
   })
 ));
-function et(t, e2, n2, r2 = In, i = Cs, s = zs) {
+function tt(t, e2, n2, r2 = In, i = Cs, s = zs) {
   if (r2()) {
     const o = i(t, e2, n2?.body);
     if (o) return o;
@@ -55020,7 +55025,7 @@ function T(t) {
   const { id: e2, query_params: n2, form_data: r2, method: i, path: s, fn: o } = t, u3 = R(__spreadProps(__spreadValues({}, n2), {
     version: r2.version || 0
   })), c = `${x()}/${s}/${e2}${u3 ? "?" + u3 : ""}`;
-  return (i === "put" ? Ne : Xe)(c, r2).pipe(
+  return (i === "put" ? Ne : et)(c, r2).pipe(
     g((l2) => (o || Lt)(l2))
   );
 }
@@ -55035,7 +55040,7 @@ function Bs(t, e2, n2) {
     const s = +(r2["x-total-count"] || 0);
     (e2.length < 2 || e2.length < 12 && e2.indexOf("offset=") >= 0) && (jr[n2] = s), Fr[n2] = s, i.total = s;
   }
-  return r2 && r2.link && (Zn = cs(r2.link || "").next, i.next = Ge(Zn.split("?")[1])), i;
+  return r2 && r2.link && (Zn = cs(r2.link || "").next, i.next = Je(Zn.split("?")[1])), i;
 }
 var He = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(He || {});
 var Ie = class extends L {
@@ -55250,14 +55255,14 @@ var Xs = class {
   }
 };
 var Te = "metadata";
-function ut(t) {
+function ct(t) {
   return new Wr(t);
 }
 function Xu(t, e2) {
   return k({
     id: t,
     query_params: { name: e2 },
-    fn: (n2) => ut(n2[e2]),
+    fn: (n2) => ct(n2[e2]),
     path: Te
   });
 }
@@ -55267,7 +55272,7 @@ function ec(t, e2, n2 = "put") {
     form_data: e2,
     query_params: {},
     method: n2,
-    fn: ut,
+    fn: ct,
     path: Te
   });
 }
@@ -55522,7 +55527,7 @@ var Gr = class {
   }
 };
 var Jr = "/api/staff/v1/surveys/answers";
-function al(t) {
+function ll(t) {
   return G(`${Jr}`, t).pipe(
     g((e2) => e2.map((n2) => new Gr(n2)))
   );
@@ -55543,7 +55548,7 @@ var on = class {
   }
 };
 var dt = "/api/staff/v1/surveys/questions";
-function ml(t, e2 = {}) {
+function yl(t, e2 = {}) {
   const n2 = R(e2);
   return N(`${dt}/${t}${n2 ? "?" + n2 : ""}`).pipe(
     g((r2) => new on(r2))
@@ -55562,7 +55567,7 @@ var un = class {
   }
 };
 var pt = "/api/staff/v1/surveys";
-function Sl(t, e2 = {}) {
+function kl(t, e2 = {}) {
   const n2 = R(e2);
   return N(`${pt}/${t}${n2 ? "?" + n2 : ""}`).pipe(
     g((r2) => new un(r2))
@@ -55627,7 +55632,7 @@ var ye = "assets";
 function qe(t) {
   return new po(t);
 }
-function Al(t = {}) {
+function wl(t = {}) {
   return O({
     query_params: t,
     fn: qe,
@@ -55638,14 +55643,14 @@ var _t = "asset_types";
 function cn(t) {
   return new fo(t);
 }
-function Ul(t = {}) {
+function Rl(t = {}) {
   return O({
     query_params: t,
     fn: cn,
     path: _t
   });
 }
-function Rl(t, e2 = {}) {
+function Ml(t, e2 = {}) {
   return k({
     id: t,
     query_params: e2,
@@ -55657,7 +55662,7 @@ var mt = "asset_categories";
 function an(t) {
   return new lo(t);
 }
-function Nl(t = {}) {
+function jl(t = {}) {
   return O({
     query_params: t,
     fn: an,
@@ -55681,7 +55686,7 @@ var bo = function(t) {
     if (i._socket = null, n2 instanceof D)
       i.destination = r2, i.source = n2;
     else {
-      var s = i._config = Ke({}, yo);
+      var s = i._config = Ze({}, yo);
       if (i._output = new $e(), typeof n2 == "string")
         s.url = n2;
       else
@@ -55861,7 +55866,7 @@ var ko = class {
   }
 };
 var Ct = {};
-function yh(t, e2) {
+function gh(t, e2) {
   return Ct[t] = new ko(e2), Ct[t];
 }
 function $o(t) {
@@ -55906,28 +55911,28 @@ function Oo(t, e2 = Mn) {
   if (e2[n2])
     return e2[n2].getValue();
 }
-function Xn(t, e2 = 0, n2 = Ve) {
+function Xn(t, e2 = 0, n2 = Qe) {
   const r2 = __spreadValues({
     id: ++bt,
     cmd: "bind"
   }, t);
   return n2(r2, e2);
 }
-function Io(t, e2 = 0, n2 = Ve) {
+function Io(t, e2 = 0, n2 = Qe) {
   const r2 = __spreadValues({
     id: ++bt,
     cmd: "unbind"
   }, t);
   return n2(r2, e2);
 }
-function Po(t, e2 = vt, n2 = Ve) {
+function Po(t, e2 = vt, n2 = Qe) {
   const r2 = __spreadValues({
     id: ++bt,
     cmd: "exec"
   }, t);
   return n2(r2, e2);
 }
-function Ve(t, e2 = vt, n2 = 0) {
+function Qe(t, e2 = vt, n2 = 0) {
   const r2 = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${fs()}`;
   if (B[r2])
     d("WS", "Request already in progress. Waiting...", t);
@@ -55935,7 +55940,7 @@ function Ve(t, e2 = vt, n2 = 0) {
     const i = __spreadProps(__spreadValues({}, t), { key: r2 });
     i.promise = new Promise((s, o) => {
       const u3 = () => {
-        delete B[r2], B[r2] = null, Ve(t, e2, n2).then(
+        delete B[r2], B[r2] = null, Qe(t, e2, n2).then(
           (c) => s(c),
           (c) => o(c)
         );
@@ -56351,7 +56356,7 @@ var yn = {};
 function jo(t) {
   return yn[t] || (yn[t] = new No(t)), yn[t];
 }
-function kh(t, e2, n2 = 1) {
+function $h(t, e2, n2 = 1) {
   return jo(t).module(e2, n2);
 }
 
@@ -57470,15 +57475,15 @@ function userSignal() {
 // libs/common/src/lib/version.ts
 var VERSION6 = {
   "dirty": false,
-  "raw": "cc7673c",
-  "hash": "cc7673c",
+  "raw": "2c0587c",
+  "hash": "2c0587c",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "cc7673c",
+  "suffix": "2c0587c",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1765511224282
+  "time": 1766367055956
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -57899,7 +57904,7 @@ var _VorlonService = class _VorlonService extends AsyncHandler {
   async load() {
     const system = this._settings.get("app.vorlon.system");
     if (system) {
-      const module2 = kh(system, "Vorlon");
+      const module2 = $h(system, "Vorlon");
       if (module2) {
         const binding = module2.variable("enabled");
         this.subscription("binding_value", binding.bindThenSubscribe((state2) => {
@@ -59541,7 +59546,7 @@ var _KeepAliveService = class _KeepAliveService extends AsyncHandler {
   }
   /** List to binding */
   _bindTo(id, name2, mod2 = "SystemHealth") {
-    const module2 = kh(id, mod2).variable(name2);
+    const module2 = $h(id, mod2).variable(name2);
     this.subscription(`bind:${name2}`, module2.bind());
     return module2.listen();
   }
@@ -88971,7 +88976,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     const settings = this._settings.get("composer") || {};
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ge(START_QUERY.substring(1));
+      const query2 = Je(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -89328,7 +89333,7 @@ var _OrganisationService = class _OrganisationService {
     const binding = this.binding(name2);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : kh(system_id, mod_id);
+    return !system_id || !mod_id ? null : $h(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -91913,7 +91918,7 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
     this._metadata = null;
     this._logging_bindings = this._system_id.pipe(filter((_3) => !!_3), switchMap((id) => combineLatest([of(id), this._bindTo(id, "enabled")])), filter(([_3, enabled]) => !!enabled), map(([id]) => this.subscription("post_events", this._event_history.subscribe(async (d3) => {
       this._disable_handling = true;
-      await kh(id, "Logger").execute("post_event", [d3]).catch();
+      await $h(id, "Logger").execute("post_event", [d3]).catch();
       this._disable_handling = false;
     }))));
     this.history = this._event_history;
@@ -91955,7 +91960,7 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
   }
   /** List to binding */
   _bindTo(id, name2, mod2 = "Logger") {
-    const module2 = kh(id, mod2).variable(name2);
+    const module2 = $h(id, mod2).variable(name2);
     this.subscription(`bind:${name2}`, module2.bind());
     return module2.listen();
   }
@@ -94180,7 +94185,7 @@ var pt2 = function(s) {
     return r2.isStopped = false, t ? (r2.destination = t, $t2(t) && t.add(r2)) : r2.destination = Zt, r2;
   }
   return e2.create = function(t, r2, i) {
-    return new ut2(t, r2, i);
+    return new ut(t, r2, i);
   }, e2.prototype.next = function(t) {
     this.isStopped || this._next(t);
   }, e2.prototype.error = function(t) {
@@ -94237,7 +94242,7 @@ var Xt = function() {
       }
   }, s;
 }();
-var ut2 = function(s) {
+var ut = function(s) {
   L3(e2, s);
   function e2(t, r2, i) {
     var n2 = s.call(this) || this, o;
@@ -94282,7 +94287,7 @@ var lt = function() {
     var t = new s();
     return t.source = this, t.operator = e2, t;
   }, s.prototype.subscribe = function(e2, t, r2) {
-    var i = this, n2 = se2(e2) ? e2 : new ut2(e2, t, r2);
+    var i = this, n2 = se2(e2) ? e2 : new ut(e2, t, r2);
     return B3(function() {
       var o = i, a = o.operator, h2 = o.source;
       n2.add(a ? a.call(n2, h2) : h2 ? i._subscribe(n2) : i._trySubscribe(n2));
@@ -94296,7 +94301,7 @@ var lt = function() {
   }, s.prototype.forEach = function(e2, t) {
     var r2 = this;
     return t = vt2(t), new t(function(i, n2) {
-      var o = new ut2({
+      var o = new ut({
         next: function(a) {
           try {
             e2(a);
@@ -94803,7 +94808,7 @@ function rt(s) {
 }
 var C3 = "";
 var D3 = "";
-var ct = class {
+var ct2 = class {
   constructor(e2, t) {
     this._upload = e2, this._endpoint = t, this._abort_ctrl.signal.addEventListener(
       "abort",
@@ -95042,7 +95047,7 @@ var ye2 = class {
     const t = this._state.getValue();
     if (!["complete", "uploading", "cancelled"].includes(t.status)) {
       if (e2 && (this.parallel = e2), !this._provider) {
-        this._request = new ct(this, this._endpoint);
+        this._request = new ct2(this, this._endpoint);
         const { residence: r2 } = await this._request.initialise(), i = ge(r2);
         i ? (this._provider = new i(this._request, this), this._state.next(__spreadProps(__spreadValues({}, t), { status: "uploading" }))) : this.onError("No provider available to upload to");
       }
@@ -103980,6 +103985,961 @@ var MatSelectModule = class _MatSelectModule {
   }], null, null);
 })();
 
+// node_modules/@angular/material/fesm2022/module-CWxMD37a.mjs
+var _c012 = ["tooltip"];
+var SCROLL_THROTTLE_MS = 20;
+function getMatTooltipInvalidPositionError(position) {
+  return Error(`Tooltip position "${position}" is invalid.`);
+}
+var MAT_TOOLTIP_SCROLL_STRATEGY = new InjectionToken("mat-tooltip-scroll-strategy", {
+  providedIn: "root",
+  factory: () => {
+    const injector = inject(Injector);
+    return () => createRepositionScrollStrategy(injector, {
+      scrollThrottle: SCROLL_THROTTLE_MS
+    });
+  }
+});
+function MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY(_overlay) {
+  const injector = inject(Injector);
+  return () => createRepositionScrollStrategy(injector, {
+    scrollThrottle: SCROLL_THROTTLE_MS
+  });
+}
+var MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER = {
+  provide: MAT_TOOLTIP_SCROLL_STRATEGY,
+  deps: [],
+  useFactory: MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY
+};
+function MAT_TOOLTIP_DEFAULT_OPTIONS_FACTORY() {
+  return {
+    showDelay: 0,
+    hideDelay: 0,
+    touchendHideDelay: 1500
+  };
+}
+var MAT_TOOLTIP_DEFAULT_OPTIONS = new InjectionToken("mat-tooltip-default-options", {
+  providedIn: "root",
+  factory: MAT_TOOLTIP_DEFAULT_OPTIONS_FACTORY
+});
+var PANEL_CLASS = "tooltip-panel";
+var passiveListenerOptions = normalizePassiveListenerOptions({
+  passive: true
+});
+var MIN_VIEWPORT_TOOLTIP_THRESHOLD = 8;
+var UNBOUNDED_ANCHOR_GAP = 8;
+var MIN_HEIGHT = 24;
+var MAX_WIDTH = 200;
+var MatTooltip = class _MatTooltip {
+  _elementRef = inject(ElementRef);
+  _ngZone = inject(NgZone);
+  _platform = inject(Platform);
+  _ariaDescriber = inject(AriaDescriber);
+  _focusMonitor = inject(FocusMonitor);
+  _dir = inject(Directionality);
+  _injector = inject(Injector);
+  _viewContainerRef = inject(ViewContainerRef);
+  _animationsDisabled = _animationsDisabled();
+  _defaultOptions = inject(MAT_TOOLTIP_DEFAULT_OPTIONS, {
+    optional: true
+  });
+  _overlayRef;
+  _tooltipInstance;
+  _overlayPanelClass;
+  // Used for styling internally.
+  _portal;
+  _position = "below";
+  _positionAtOrigin = false;
+  _disabled = false;
+  _tooltipClass;
+  _viewInitialized = false;
+  _pointerExitEventsInitialized = false;
+  _tooltipComponent = TooltipComponent;
+  _viewportMargin = 8;
+  _currentPosition;
+  _cssClassPrefix = "mat-mdc";
+  _ariaDescriptionPending;
+  _dirSubscribed = false;
+  /** Allows the user to define the position of the tooltip relative to the parent element */
+  get position() {
+    return this._position;
+  }
+  set position(value) {
+    if (value !== this._position) {
+      this._position = value;
+      if (this._overlayRef) {
+        this._updatePosition(this._overlayRef);
+        this._tooltipInstance?.show(0);
+        this._overlayRef.updatePosition();
+      }
+    }
+  }
+  /**
+   * Whether tooltip should be relative to the click or touch origin
+   * instead of outside the element bounding box.
+   */
+  get positionAtOrigin() {
+    return this._positionAtOrigin;
+  }
+  set positionAtOrigin(value) {
+    this._positionAtOrigin = coerceBooleanProperty(value);
+    this._detach();
+    this._overlayRef = null;
+  }
+  /** Disables the display of the tooltip. */
+  get disabled() {
+    return this._disabled;
+  }
+  set disabled(value) {
+    const isDisabled = coerceBooleanProperty(value);
+    if (this._disabled !== isDisabled) {
+      this._disabled = isDisabled;
+      if (isDisabled) {
+        this.hide(0);
+      } else {
+        this._setupPointerEnterEventsIfNeeded();
+      }
+      this._syncAriaDescription(this.message);
+    }
+  }
+  /** The default delay in ms before showing the tooltip after show is called */
+  get showDelay() {
+    return this._showDelay;
+  }
+  set showDelay(value) {
+    this._showDelay = coerceNumberProperty(value);
+  }
+  _showDelay;
+  /** The default delay in ms before hiding the tooltip after hide is called */
+  get hideDelay() {
+    return this._hideDelay;
+  }
+  set hideDelay(value) {
+    this._hideDelay = coerceNumberProperty(value);
+    if (this._tooltipInstance) {
+      this._tooltipInstance._mouseLeaveHideDelay = this._hideDelay;
+    }
+  }
+  _hideDelay;
+  /**
+   * How touch gestures should be handled by the tooltip. On touch devices the tooltip directive
+   * uses a long press gesture to show and hide, however it can conflict with the native browser
+   * gestures. To work around the conflict, Angular Material disables native gestures on the
+   * trigger, but that might not be desirable on particular elements (e.g. inputs and draggable
+   * elements). The different values for this option configure the touch event handling as follows:
+   * - `auto` - Enables touch gestures for all elements, but tries to avoid conflicts with native
+   *   browser gestures on particular elements. In particular, it allows text selection on inputs
+   *   and textareas, and preserves the native browser dragging on elements marked as `draggable`.
+   * - `on` - Enables touch gestures for all elements and disables native
+   *   browser gestures with no exceptions.
+   * - `off` - Disables touch gestures. Note that this will prevent the tooltip from
+   *   showing on touch devices.
+   */
+  touchGestures = "auto";
+  /** The message to be displayed in the tooltip */
+  get message() {
+    return this._message;
+  }
+  set message(value) {
+    const oldMessage = this._message;
+    this._message = value != null ? String(value).trim() : "";
+    if (!this._message && this._isTooltipVisible()) {
+      this.hide(0);
+    } else {
+      this._setupPointerEnterEventsIfNeeded();
+      this._updateTooltipMessage();
+    }
+    this._syncAriaDescription(oldMessage);
+  }
+  _message = "";
+  /** Classes to be passed to the tooltip. Supports the same syntax as `ngClass`. */
+  get tooltipClass() {
+    return this._tooltipClass;
+  }
+  set tooltipClass(value) {
+    this._tooltipClass = value;
+    if (this._tooltipInstance) {
+      this._setTooltipClass(this._tooltipClass);
+    }
+  }
+  /** Manually-bound passive event listeners. */
+  _passiveListeners = [];
+  /** Timer started at the last `touchstart` event. */
+  _touchstartTimeout = null;
+  /** Emits when the component is destroyed. */
+  _destroyed = new Subject();
+  /** Whether ngOnDestroyed has been called. */
+  _isDestroyed = false;
+  constructor() {
+    const defaultOptions2 = this._defaultOptions;
+    if (defaultOptions2) {
+      this._showDelay = defaultOptions2.showDelay;
+      this._hideDelay = defaultOptions2.hideDelay;
+      if (defaultOptions2.position) {
+        this.position = defaultOptions2.position;
+      }
+      if (defaultOptions2.positionAtOrigin) {
+        this.positionAtOrigin = defaultOptions2.positionAtOrigin;
+      }
+      if (defaultOptions2.touchGestures) {
+        this.touchGestures = defaultOptions2.touchGestures;
+      }
+      if (defaultOptions2.tooltipClass) {
+        this.tooltipClass = defaultOptions2.tooltipClass;
+      }
+    }
+    this._viewportMargin = MIN_VIEWPORT_TOOLTIP_THRESHOLD;
+  }
+  ngAfterViewInit() {
+    this._viewInitialized = true;
+    this._setupPointerEnterEventsIfNeeded();
+    this._focusMonitor.monitor(this._elementRef).pipe(takeUntil(this._destroyed)).subscribe((origin) => {
+      if (!origin) {
+        this._ngZone.run(() => this.hide(0));
+      } else if (origin === "keyboard") {
+        this._ngZone.run(() => this.show());
+      }
+    });
+  }
+  /**
+   * Dispose the tooltip when destroyed.
+   */
+  ngOnDestroy() {
+    const nativeElement = this._elementRef.nativeElement;
+    if (this._touchstartTimeout) {
+      clearTimeout(this._touchstartTimeout);
+    }
+    if (this._overlayRef) {
+      this._overlayRef.dispose();
+      this._tooltipInstance = null;
+    }
+    this._passiveListeners.forEach(([event, listener]) => {
+      nativeElement.removeEventListener(event, listener, passiveListenerOptions);
+    });
+    this._passiveListeners.length = 0;
+    this._destroyed.next();
+    this._destroyed.complete();
+    this._isDestroyed = true;
+    this._ariaDescriber.removeDescription(nativeElement, this.message, "tooltip");
+    this._focusMonitor.stopMonitoring(nativeElement);
+  }
+  /** Shows the tooltip after the delay in ms, defaults to tooltip-delay-show or 0ms if no input */
+  show(delay2 = this.showDelay, origin) {
+    if (this.disabled || !this.message || this._isTooltipVisible()) {
+      this._tooltipInstance?._cancelPendingAnimations();
+      return;
+    }
+    const overlayRef = this._createOverlay(origin);
+    this._detach();
+    this._portal = this._portal || new ComponentPortal(this._tooltipComponent, this._viewContainerRef);
+    const instance = this._tooltipInstance = overlayRef.attach(this._portal).instance;
+    instance._triggerElement = this._elementRef.nativeElement;
+    instance._mouseLeaveHideDelay = this._hideDelay;
+    instance.afterHidden().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
+    this._setTooltipClass(this._tooltipClass);
+    this._updateTooltipMessage();
+    instance.show(delay2);
+  }
+  /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
+  hide(delay2 = this.hideDelay) {
+    const instance = this._tooltipInstance;
+    if (instance) {
+      if (instance.isVisible()) {
+        instance.hide(delay2);
+      } else {
+        instance._cancelPendingAnimations();
+        this._detach();
+      }
+    }
+  }
+  /** Shows/hides the tooltip */
+  toggle(origin) {
+    this._isTooltipVisible() ? this.hide() : this.show(void 0, origin);
+  }
+  /** Returns true if the tooltip is currently visible to the user */
+  _isTooltipVisible() {
+    return !!this._tooltipInstance && this._tooltipInstance.isVisible();
+  }
+  /** Create the overlay config and position strategy */
+  _createOverlay(origin) {
+    if (this._overlayRef) {
+      const existingStrategy = this._overlayRef.getConfig().positionStrategy;
+      if ((!this.positionAtOrigin || !origin) && existingStrategy._origin instanceof ElementRef) {
+        return this._overlayRef;
+      }
+      this._detach();
+    }
+    const scrollableAncestors = this._injector.get(ScrollDispatcher).getAncestorScrollContainers(this._elementRef);
+    const panelClass = `${this._cssClassPrefix}-${PANEL_CLASS}`;
+    const strategy = createFlexibleConnectedPositionStrategy(this._injector, this.positionAtOrigin ? origin || this._elementRef : this._elementRef).withTransformOriginOn(`.${this._cssClassPrefix}-tooltip`).withFlexibleDimensions(false).withViewportMargin(this._viewportMargin).withScrollableContainers(scrollableAncestors);
+    strategy.positionChanges.pipe(takeUntil(this._destroyed)).subscribe((change) => {
+      this._updateCurrentPositionClass(change.connectionPair);
+      if (this._tooltipInstance) {
+        if (change.scrollableViewProperties.isOverlayClipped && this._tooltipInstance.isVisible()) {
+          this._ngZone.run(() => this.hide(0));
+        }
+      }
+    });
+    this._overlayRef = createOverlayRef(this._injector, {
+      direction: this._dir,
+      positionStrategy: strategy,
+      panelClass: this._overlayPanelClass ? [...this._overlayPanelClass, panelClass] : panelClass,
+      scrollStrategy: this._injector.get(MAT_TOOLTIP_SCROLL_STRATEGY)(),
+      disableAnimations: this._animationsDisabled
+    });
+    this._updatePosition(this._overlayRef);
+    this._overlayRef.detachments().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
+    this._overlayRef.outsidePointerEvents().pipe(takeUntil(this._destroyed)).subscribe(() => this._tooltipInstance?._handleBodyInteraction());
+    this._overlayRef.keydownEvents().pipe(takeUntil(this._destroyed)).subscribe((event) => {
+      if (this._isTooltipVisible() && event.keyCode === ESCAPE && !hasModifierKey(event)) {
+        event.preventDefault();
+        event.stopPropagation();
+        this._ngZone.run(() => this.hide(0));
+      }
+    });
+    if (this._defaultOptions?.disableTooltipInteractivity) {
+      this._overlayRef.addPanelClass(`${this._cssClassPrefix}-tooltip-panel-non-interactive`);
+    }
+    if (!this._dirSubscribed) {
+      this._dirSubscribed = true;
+      this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => {
+        if (this._overlayRef) {
+          this._updatePosition(this._overlayRef);
+        }
+      });
+    }
+    return this._overlayRef;
+  }
+  /** Detaches the currently-attached tooltip. */
+  _detach() {
+    if (this._overlayRef && this._overlayRef.hasAttached()) {
+      this._overlayRef.detach();
+    }
+    this._tooltipInstance = null;
+  }
+  /** Updates the position of the current tooltip. */
+  _updatePosition(overlayRef) {
+    const position = overlayRef.getConfig().positionStrategy;
+    const origin = this._getOrigin();
+    const overlay = this._getOverlayPosition();
+    position.withPositions([this._addOffset(__spreadValues(__spreadValues({}, origin.main), overlay.main)), this._addOffset(__spreadValues(__spreadValues({}, origin.fallback), overlay.fallback))]);
+  }
+  /** Adds the configured offset to a position. Used as a hook for child classes. */
+  _addOffset(position) {
+    const offset = UNBOUNDED_ANCHOR_GAP;
+    const isLtr = !this._dir || this._dir.value == "ltr";
+    if (position.originY === "top") {
+      position.offsetY = -offset;
+    } else if (position.originY === "bottom") {
+      position.offsetY = offset;
+    } else if (position.originX === "start") {
+      position.offsetX = isLtr ? -offset : offset;
+    } else if (position.originX === "end") {
+      position.offsetX = isLtr ? offset : -offset;
+    }
+    return position;
+  }
+  /**
+   * Returns the origin position and a fallback position based on the user's position preference.
+   * The fallback position is the inverse of the origin (e.g. `'below' -> 'above'`).
+   */
+  _getOrigin() {
+    const isLtr = !this._dir || this._dir.value == "ltr";
+    const position = this.position;
+    let originPosition;
+    if (position == "above" || position == "below") {
+      originPosition = {
+        originX: "center",
+        originY: position == "above" ? "top" : "bottom"
+      };
+    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
+      originPosition = {
+        originX: "start",
+        originY: "center"
+      };
+    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
+      originPosition = {
+        originX: "end",
+        originY: "center"
+      };
+    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
+      throw getMatTooltipInvalidPositionError(position);
+    }
+    const {
+      x: x4,
+      y
+    } = this._invertPosition(originPosition.originX, originPosition.originY);
+    return {
+      main: originPosition,
+      fallback: {
+        originX: x4,
+        originY: y
+      }
+    };
+  }
+  /** Returns the overlay position and a fallback position based on the user's preference */
+  _getOverlayPosition() {
+    const isLtr = !this._dir || this._dir.value == "ltr";
+    const position = this.position;
+    let overlayPosition;
+    if (position == "above") {
+      overlayPosition = {
+        overlayX: "center",
+        overlayY: "bottom"
+      };
+    } else if (position == "below") {
+      overlayPosition = {
+        overlayX: "center",
+        overlayY: "top"
+      };
+    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
+      overlayPosition = {
+        overlayX: "end",
+        overlayY: "center"
+      };
+    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
+      overlayPosition = {
+        overlayX: "start",
+        overlayY: "center"
+      };
+    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
+      throw getMatTooltipInvalidPositionError(position);
+    }
+    const {
+      x: x4,
+      y
+    } = this._invertPosition(overlayPosition.overlayX, overlayPosition.overlayY);
+    return {
+      main: overlayPosition,
+      fallback: {
+        overlayX: x4,
+        overlayY: y
+      }
+    };
+  }
+  /** Updates the tooltip message and repositions the overlay according to the new message length */
+  _updateTooltipMessage() {
+    if (this._tooltipInstance) {
+      this._tooltipInstance.message = this.message;
+      this._tooltipInstance._markForCheck();
+      afterNextRender(() => {
+        if (this._tooltipInstance) {
+          this._overlayRef.updatePosition();
+        }
+      }, {
+        injector: this._injector
+      });
+    }
+  }
+  /** Updates the tooltip class */
+  _setTooltipClass(tooltipClass) {
+    if (this._tooltipInstance) {
+      this._tooltipInstance.tooltipClass = tooltipClass;
+      this._tooltipInstance._markForCheck();
+    }
+  }
+  /** Inverts an overlay position. */
+  _invertPosition(x4, y) {
+    if (this.position === "above" || this.position === "below") {
+      if (y === "top") {
+        y = "bottom";
+      } else if (y === "bottom") {
+        y = "top";
+      }
+    } else {
+      if (x4 === "end") {
+        x4 = "start";
+      } else if (x4 === "start") {
+        x4 = "end";
+      }
+    }
+    return {
+      x: x4,
+      y
+    };
+  }
+  /** Updates the class on the overlay panel based on the current position of the tooltip. */
+  _updateCurrentPositionClass(connectionPair) {
+    const {
+      overlayY,
+      originX,
+      originY
+    } = connectionPair;
+    let newPosition;
+    if (overlayY === "center") {
+      if (this._dir && this._dir.value === "rtl") {
+        newPosition = originX === "end" ? "left" : "right";
+      } else {
+        newPosition = originX === "start" ? "left" : "right";
+      }
+    } else {
+      newPosition = overlayY === "bottom" && originY === "top" ? "above" : "below";
+    }
+    if (newPosition !== this._currentPosition) {
+      const overlayRef = this._overlayRef;
+      if (overlayRef) {
+        const classPrefix = `${this._cssClassPrefix}-${PANEL_CLASS}-`;
+        overlayRef.removePanelClass(classPrefix + this._currentPosition);
+        overlayRef.addPanelClass(classPrefix + newPosition);
+      }
+      this._currentPosition = newPosition;
+    }
+  }
+  /** Binds the pointer events to the tooltip trigger. */
+  _setupPointerEnterEventsIfNeeded() {
+    if (this._disabled || !this.message || !this._viewInitialized || this._passiveListeners.length) {
+      return;
+    }
+    if (this._platformSupportsMouseEvents()) {
+      this._passiveListeners.push(["mouseenter", (event) => {
+        this._setupPointerExitEventsIfNeeded();
+        let point = void 0;
+        if (event.x !== void 0 && event.y !== void 0) {
+          point = event;
+        }
+        this.show(void 0, point);
+      }]);
+    } else if (this.touchGestures !== "off") {
+      this._disableNativeGesturesIfNecessary();
+      this._passiveListeners.push(["touchstart", (event) => {
+        const touch = event.targetTouches?.[0];
+        const origin = touch ? {
+          x: touch.clientX,
+          y: touch.clientY
+        } : void 0;
+        this._setupPointerExitEventsIfNeeded();
+        if (this._touchstartTimeout) {
+          clearTimeout(this._touchstartTimeout);
+        }
+        const DEFAULT_LONGPRESS_DELAY = 500;
+        this._touchstartTimeout = setTimeout(() => {
+          this._touchstartTimeout = null;
+          this.show(void 0, origin);
+        }, this._defaultOptions?.touchLongPressShowDelay ?? DEFAULT_LONGPRESS_DELAY);
+      }]);
+    }
+    this._addListeners(this._passiveListeners);
+  }
+  _setupPointerExitEventsIfNeeded() {
+    if (this._pointerExitEventsInitialized) {
+      return;
+    }
+    this._pointerExitEventsInitialized = true;
+    const exitListeners = [];
+    if (this._platformSupportsMouseEvents()) {
+      exitListeners.push(["mouseleave", (event) => {
+        const newTarget = event.relatedTarget;
+        if (!newTarget || !this._overlayRef?.overlayElement.contains(newTarget)) {
+          this.hide();
+        }
+      }], ["wheel", (event) => this._wheelListener(event)]);
+    } else if (this.touchGestures !== "off") {
+      this._disableNativeGesturesIfNecessary();
+      const touchendListener = () => {
+        if (this._touchstartTimeout) {
+          clearTimeout(this._touchstartTimeout);
+        }
+        this.hide(this._defaultOptions?.touchendHideDelay);
+      };
+      exitListeners.push(["touchend", touchendListener], ["touchcancel", touchendListener]);
+    }
+    this._addListeners(exitListeners);
+    this._passiveListeners.push(...exitListeners);
+  }
+  _addListeners(listeners) {
+    listeners.forEach(([event, listener]) => {
+      this._elementRef.nativeElement.addEventListener(event, listener, passiveListenerOptions);
+    });
+  }
+  _platformSupportsMouseEvents() {
+    return !this._platform.IOS && !this._platform.ANDROID;
+  }
+  /** Listener for the `wheel` event on the element. */
+  _wheelListener(event) {
+    if (this._isTooltipVisible()) {
+      const elementUnderPointer = this._injector.get(DOCUMENT).elementFromPoint(event.clientX, event.clientY);
+      const element = this._elementRef.nativeElement;
+      if (elementUnderPointer !== element && !element.contains(elementUnderPointer)) {
+        this.hide();
+      }
+    }
+  }
+  /** Disables the native browser gestures, based on how the tooltip has been configured. */
+  _disableNativeGesturesIfNecessary() {
+    const gestures = this.touchGestures;
+    if (gestures !== "off") {
+      const element = this._elementRef.nativeElement;
+      const style2 = element.style;
+      if (gestures === "on" || element.nodeName !== "INPUT" && element.nodeName !== "TEXTAREA") {
+        style2.userSelect = style2.msUserSelect = style2.webkitUserSelect = style2.MozUserSelect = "none";
+      }
+      if (gestures === "on" || !element.draggable) {
+        style2.webkitUserDrag = "none";
+      }
+      style2.touchAction = "none";
+      style2.webkitTapHighlightColor = "transparent";
+    }
+  }
+  /** Updates the tooltip's ARIA description based on it current state. */
+  _syncAriaDescription(oldMessage) {
+    if (this._ariaDescriptionPending) {
+      return;
+    }
+    this._ariaDescriptionPending = true;
+    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, oldMessage, "tooltip");
+    if (!this._isDestroyed) {
+      afterNextRender({
+        write: () => {
+          this._ariaDescriptionPending = false;
+          if (this.message && !this.disabled) {
+            this._ariaDescriber.describe(this._elementRef.nativeElement, this.message, "tooltip");
+          }
+        }
+      }, {
+        injector: this._injector
+      });
+    }
+  }
+  static \u0275fac = function MatTooltip_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatTooltip)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MatTooltip,
+    selectors: [["", "matTooltip", ""]],
+    hostAttrs: [1, "mat-mdc-tooltip-trigger"],
+    hostVars: 2,
+    hostBindings: function MatTooltip_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("mat-mdc-tooltip-disabled", ctx.disabled);
+      }
+    },
+    inputs: {
+      position: [0, "matTooltipPosition", "position"],
+      positionAtOrigin: [0, "matTooltipPositionAtOrigin", "positionAtOrigin"],
+      disabled: [0, "matTooltipDisabled", "disabled"],
+      showDelay: [0, "matTooltipShowDelay", "showDelay"],
+      hideDelay: [0, "matTooltipHideDelay", "hideDelay"],
+      touchGestures: [0, "matTooltipTouchGestures", "touchGestures"],
+      message: [0, "matTooltip", "message"],
+      tooltipClass: [0, "matTooltipClass", "tooltipClass"]
+    },
+    exportAs: ["matTooltip"]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltip, [{
+    type: Directive,
+    args: [{
+      selector: "[matTooltip]",
+      exportAs: "matTooltip",
+      host: {
+        "class": "mat-mdc-tooltip-trigger",
+        "[class.mat-mdc-tooltip-disabled]": "disabled"
+      }
+    }]
+  }], () => [], {
+    position: [{
+      type: Input,
+      args: ["matTooltipPosition"]
+    }],
+    positionAtOrigin: [{
+      type: Input,
+      args: ["matTooltipPositionAtOrigin"]
+    }],
+    disabled: [{
+      type: Input,
+      args: ["matTooltipDisabled"]
+    }],
+    showDelay: [{
+      type: Input,
+      args: ["matTooltipShowDelay"]
+    }],
+    hideDelay: [{
+      type: Input,
+      args: ["matTooltipHideDelay"]
+    }],
+    touchGestures: [{
+      type: Input,
+      args: ["matTooltipTouchGestures"]
+    }],
+    message: [{
+      type: Input,
+      args: ["matTooltip"]
+    }],
+    tooltipClass: [{
+      type: Input,
+      args: ["matTooltipClass"]
+    }]
+  });
+})();
+var TooltipComponent = class _TooltipComponent {
+  _changeDetectorRef = inject(ChangeDetectorRef);
+  _elementRef = inject(ElementRef);
+  /* Whether the tooltip text overflows to multiple lines */
+  _isMultiline = false;
+  /** Message to display in the tooltip */
+  message;
+  /** Classes to be added to the tooltip. Supports the same syntax as `ngClass`. */
+  tooltipClass;
+  /** The timeout ID of any current timer set to show the tooltip */
+  _showTimeoutId;
+  /** The timeout ID of any current timer set to hide the tooltip */
+  _hideTimeoutId;
+  /** Element that caused the tooltip to open. */
+  _triggerElement;
+  /** Amount of milliseconds to delay the closing sequence. */
+  _mouseLeaveHideDelay;
+  /** Whether animations are currently disabled. */
+  _animationsDisabled = _animationsDisabled();
+  /** Reference to the internal tooltip element. */
+  _tooltip;
+  /** Whether interactions on the page should close the tooltip */
+  _closeOnInteraction = false;
+  /** Whether the tooltip is currently visible. */
+  _isVisible = false;
+  /** Subject for notifying that the tooltip has been hidden from the view */
+  _onHide = new Subject();
+  /** Name of the show animation and the class that toggles it. */
+  _showAnimation = "mat-mdc-tooltip-show";
+  /** Name of the hide animation and the class that toggles it. */
+  _hideAnimation = "mat-mdc-tooltip-hide";
+  constructor() {
+  }
+  /**
+   * Shows the tooltip with an animation originating from the provided origin
+   * @param delay Amount of milliseconds to the delay showing the tooltip.
+   */
+  show(delay2) {
+    if (this._hideTimeoutId != null) {
+      clearTimeout(this._hideTimeoutId);
+    }
+    this._showTimeoutId = setTimeout(() => {
+      this._toggleVisibility(true);
+      this._showTimeoutId = void 0;
+    }, delay2);
+  }
+  /**
+   * Begins the animation to hide the tooltip after the provided delay in ms.
+   * @param delay Amount of milliseconds to delay showing the tooltip.
+   */
+  hide(delay2) {
+    if (this._showTimeoutId != null) {
+      clearTimeout(this._showTimeoutId);
+    }
+    this._hideTimeoutId = setTimeout(() => {
+      this._toggleVisibility(false);
+      this._hideTimeoutId = void 0;
+    }, delay2);
+  }
+  /** Returns an observable that notifies when the tooltip has been hidden from view. */
+  afterHidden() {
+    return this._onHide;
+  }
+  /** Whether the tooltip is being displayed. */
+  isVisible() {
+    return this._isVisible;
+  }
+  ngOnDestroy() {
+    this._cancelPendingAnimations();
+    this._onHide.complete();
+    this._triggerElement = null;
+  }
+  /**
+   * Interactions on the HTML body should close the tooltip immediately as defined in the
+   * material design spec.
+   * https://material.io/design/components/tooltips.html#behavior
+   */
+  _handleBodyInteraction() {
+    if (this._closeOnInteraction) {
+      this.hide(0);
+    }
+  }
+  /**
+   * Marks that the tooltip needs to be checked in the next change detection run.
+   * Mainly used for rendering the initial text before positioning a tooltip, which
+   * can be problematic in components with OnPush change detection.
+   */
+  _markForCheck() {
+    this._changeDetectorRef.markForCheck();
+  }
+  _handleMouseLeave({
+    relatedTarget
+  }) {
+    if (!relatedTarget || !this._triggerElement.contains(relatedTarget)) {
+      if (this.isVisible()) {
+        this.hide(this._mouseLeaveHideDelay);
+      } else {
+        this._finalizeAnimation(false);
+      }
+    }
+  }
+  /**
+   * Callback for when the timeout in this.show() gets completed.
+   * This method is only needed by the mdc-tooltip, and so it is only implemented
+   * in the mdc-tooltip, not here.
+   */
+  _onShow() {
+    this._isMultiline = this._isTooltipMultiline();
+    this._markForCheck();
+  }
+  /** Whether the tooltip text has overflown to the next line */
+  _isTooltipMultiline() {
+    const rect = this._elementRef.nativeElement.getBoundingClientRect();
+    return rect.height > MIN_HEIGHT && rect.width >= MAX_WIDTH;
+  }
+  /** Event listener dispatched when an animation on the tooltip finishes. */
+  _handleAnimationEnd({
+    animationName
+  }) {
+    if (animationName === this._showAnimation || animationName === this._hideAnimation) {
+      this._finalizeAnimation(animationName === this._showAnimation);
+    }
+  }
+  /** Cancels any pending animation sequences. */
+  _cancelPendingAnimations() {
+    if (this._showTimeoutId != null) {
+      clearTimeout(this._showTimeoutId);
+    }
+    if (this._hideTimeoutId != null) {
+      clearTimeout(this._hideTimeoutId);
+    }
+    this._showTimeoutId = this._hideTimeoutId = void 0;
+  }
+  /** Handles the cleanup after an animation has finished. */
+  _finalizeAnimation(toVisible) {
+    if (toVisible) {
+      this._closeOnInteraction = true;
+    } else if (!this.isVisible()) {
+      this._onHide.next();
+    }
+  }
+  /** Toggles the visibility of the tooltip element. */
+  _toggleVisibility(isVisible) {
+    const tooltip = this._tooltip.nativeElement;
+    const showClass = this._showAnimation;
+    const hideClass = this._hideAnimation;
+    tooltip.classList.remove(isVisible ? hideClass : showClass);
+    tooltip.classList.add(isVisible ? showClass : hideClass);
+    if (this._isVisible !== isVisible) {
+      this._isVisible = isVisible;
+      this._changeDetectorRef.markForCheck();
+    }
+    if (isVisible && !this._animationsDisabled && typeof getComputedStyle === "function") {
+      const styles = getComputedStyle(tooltip);
+      if (styles.getPropertyValue("animation-duration") === "0s" || styles.getPropertyValue("animation-name") === "none") {
+        this._animationsDisabled = true;
+      }
+    }
+    if (isVisible) {
+      this._onShow();
+    }
+    if (this._animationsDisabled) {
+      tooltip.classList.add("_mat-animation-noopable");
+      this._finalizeAnimation(isVisible);
+    }
+  }
+  static \u0275fac = function TooltipComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _TooltipComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _TooltipComponent,
+    selectors: [["mat-tooltip-component"]],
+    viewQuery: function TooltipComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuery(_c012, 7);
+      }
+      if (rf & 2) {
+        let _t4;
+        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx._tooltip = _t4.first);
+      }
+    },
+    hostAttrs: ["aria-hidden", "true"],
+    hostBindings: function TooltipComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("mouseleave", function TooltipComponent_mouseleave_HostBindingHandler($event) {
+          return ctx._handleMouseLeave($event);
+        });
+      }
+    },
+    decls: 4,
+    vars: 4,
+    consts: [["tooltip", ""], [1, "mdc-tooltip", "mat-mdc-tooltip", 3, "animationend", "ngClass"], [1, "mat-mdc-tooltip-surface", "mdc-tooltip__surface"]],
+    template: function TooltipComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        const _r1 = \u0275\u0275getCurrentView();
+        \u0275\u0275elementStart(0, "div", 1, 0);
+        \u0275\u0275listener("animationend", function TooltipComponent_Template_div_animationend_0_listener($event) {
+          \u0275\u0275restoreView(_r1);
+          return \u0275\u0275resetView(ctx._handleAnimationEnd($event));
+        });
+        \u0275\u0275elementStart(2, "div", 2);
+        \u0275\u0275text(3);
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275classProp("mdc-tooltip--multiline", ctx._isMultiline);
+        \u0275\u0275property("ngClass", ctx.tooltipClass);
+        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate(ctx.message);
+      }
+    },
+    dependencies: [NgClass],
+    styles: ['.mat-mdc-tooltip{position:relative;transform:scale(0);display:inline-flex}.mat-mdc-tooltip::before{content:"";top:0;right:0;bottom:0;left:0;z-index:-1;position:absolute}.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before{top:-8px}.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before{bottom:-8px}.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before{left:-8px}.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before{right:-8px}.mat-mdc-tooltip._mat-animation-noopable{animation:none;transform:scale(1)}.mat-mdc-tooltip-surface{word-break:normal;overflow-wrap:anywhere;padding:4px 8px;min-width:40px;max-width:200px;min-height:24px;max-height:40vh;box-sizing:border-box;overflow:hidden;text-align:center;will-change:transform,opacity;background-color:var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));color:var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));border-radius:var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));font-family:var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));font-size:var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));font-weight:var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));line-height:var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));letter-spacing:var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking))}.mat-mdc-tooltip-surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}.mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:left}[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:right}.mat-mdc-tooltip-panel{line-height:normal}.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive{pointer-events:none}@keyframes mat-mdc-tooltip-show{0%{opacity:0;transform:scale(0.8)}100%{opacity:1;transform:scale(1)}}@keyframes mat-mdc-tooltip-hide{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8)}}.mat-mdc-tooltip-show{animation:mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards}.mat-mdc-tooltip-hide{animation:mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards}\n'],
+    encapsulation: 2,
+    changeDetection: 0
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TooltipComponent, [{
+    type: Component,
+    args: [{
+      selector: "mat-tooltip-component",
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      host: {
+        "(mouseleave)": "_handleMouseLeave($event)",
+        "aria-hidden": "true"
+      },
+      imports: [NgClass],
+      template: '<div\n  #tooltip\n  class="mdc-tooltip mat-mdc-tooltip"\n  [ngClass]="tooltipClass"\n  (animationend)="_handleAnimationEnd($event)"\n  [class.mdc-tooltip--multiline]="_isMultiline">\n  <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">{{message}}</div>\n</div>\n',
+      styles: ['.mat-mdc-tooltip{position:relative;transform:scale(0);display:inline-flex}.mat-mdc-tooltip::before{content:"";top:0;right:0;bottom:0;left:0;z-index:-1;position:absolute}.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before{top:-8px}.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before{bottom:-8px}.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before{left:-8px}.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before{right:-8px}.mat-mdc-tooltip._mat-animation-noopable{animation:none;transform:scale(1)}.mat-mdc-tooltip-surface{word-break:normal;overflow-wrap:anywhere;padding:4px 8px;min-width:40px;max-width:200px;min-height:24px;max-height:40vh;box-sizing:border-box;overflow:hidden;text-align:center;will-change:transform,opacity;background-color:var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));color:var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));border-radius:var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));font-family:var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));font-size:var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));font-weight:var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));line-height:var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));letter-spacing:var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking))}.mat-mdc-tooltip-surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}.mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:left}[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:right}.mat-mdc-tooltip-panel{line-height:normal}.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive{pointer-events:none}@keyframes mat-mdc-tooltip-show{0%{opacity:0;transform:scale(0.8)}100%{opacity:1;transform:scale(1)}}@keyframes mat-mdc-tooltip-hide{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8)}}.mat-mdc-tooltip-show{animation:mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards}.mat-mdc-tooltip-hide{animation:mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards}\n']
+    }]
+  }], () => [], {
+    _tooltip: [{
+      type: ViewChild,
+      args: ["tooltip", {
+        // Use a static query here since we interact directly with
+        // the DOM which can happen before `ngAfterViewInit`.
+        static: true
+      }]
+    }]
+  });
+})();
+var MatTooltipModule = class _MatTooltipModule {
+  static \u0275fac = function MatTooltipModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatTooltipModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatTooltipModule,
+    imports: [A11yModule, OverlayModule, MatCommonModule, MatTooltip, TooltipComponent],
+    exports: [MatTooltip, TooltipComponent, MatCommonModule, CdkScrollableModule]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    providers: [MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER],
+    imports: [A11yModule, OverlayModule, MatCommonModule, MatCommonModule, CdkScrollableModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltipModule, [{
+    type: NgModule,
+    args: [{
+      imports: [A11yModule, OverlayModule, MatCommonModule, MatTooltip, TooltipComponent],
+      exports: [MatTooltip, TooltipComponent, MatCommonModule, CdkScrollableModule],
+      providers: [MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER]
+    }]
+  }], null, null);
+})();
+
 // libs/components/src/lib/translate.pipe.ts
 var _TranslatePipe = class _TranslatePipe {
   constructor() {
@@ -104093,7 +105053,9 @@ var _AuthenticatedImageDirective = class _AuthenticatedImageDirective extends As
     if (!this._element || !Ut()) {
       return this.timeout("load", () => this._loadImage(), 300);
     }
-    if (!source.includes("/api/engine/v2/uploads")) {
+    const is_upload = source.includes("/api/engine/v2/uploads");
+    const is_thumbnail = source.includes("/api/engine/v2/signage/media");
+    if (!is_upload && !is_thumbnail) {
       this._element.nativeElement.src = source;
       return;
     }
@@ -104102,7 +105064,8 @@ var _AuthenticatedImageDirective = class _AuthenticatedImageDirective extends As
       return;
     }
     const tkn = X();
-    document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(zt()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=/api/engine/v2/uploads;samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+    const cookie_path = is_upload ? "/api/engine/v2/uploads" : "/api/engine/v2/signage";
+    document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(zt()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
     let response = null;
     try {
       response = await fetch(source).catch((_3) => null);
@@ -106679,7 +107642,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     }));
     this._chat_id = "";
     this.chat_hint = this._chat_system.pipe(filter((_3) => !!_3), switchMap((id) => {
-      const mod2 = kh(id, "LLM");
+      const mod2 = $h(id, "LLM");
       const binding = mod2.variable("user_hint");
       this.subscription(`binding:LLM:user_hint`, binding.bind());
       return binding.listen();
@@ -106801,7 +107764,7 @@ var ChatService = _ChatService;
 })();
 
 // libs/components/src/lib/chat/chat.component.ts
-var _c012 = ["input"];
+var _c013 = ["input"];
 var _c19 = ["container"];
 var _c26 = (a0) => ({ name: a0 });
 function ChatComponent_Conditional_0_Conditional_4_Conditional_19_Template(rf, ctx) {
@@ -107099,13 +108062,13 @@ _ChatComponent.\u0275fac = /* @__PURE__ */ (() => {
 })();
 _ChatComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChatComponent, selectors: [["global-chat"]], viewQuery: function ChatComponent_Query(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275viewQuerySignal(ctx._input_el, _c012, 5);
+    \u0275\u0275viewQuerySignal(ctx._input_el, _c013, 5);
     \u0275\u0275viewQuerySignal(ctx._container_el, _c19, 5);
   }
   if (rf & 2) {
     \u0275\u0275queryAdvance(2);
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["container", ""], ["input", ""], [1, "absolute", "bottom-0", "right-0", "p-2"], ["icon", "", "matRipple", "", 1, "rounded-full", "border", "border-base-300", "bg-base-100", "shadow-sm", 3, "click"], [1, "absolute", "bottom-2", "right-2", "w-160", "max-w-[calc(100vw-1rem)]", "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-200", "shadow-sm"], [1, "flex", "w-full", "items-center", "justify-between", "border-b", "border-base-300", "bg-base-100", "p-2"], [1, "pl-4"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-128", "max-h-[60vh]", "overflow-auto"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-8xl"], [1, "text-center", "text-xl"], [1, "m-2", "rounded-sm", "border-base-300", "bg-base-100", "p-4", "text-sm", "shadow-sm"], [1, "m-2", "flex", "flex-col", 3, "pr-4", "pl-4", "items-left", "items-end", "waiting-margin"], [1, "p-4"], [1, "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "border-neutral", "bg-base-100", "p-1", 3, "bottom"], [1, "flex", "max-h-40", "overflow-y-auto", "border-t", "border-base-300", "bg-base-100", "outline-info", "focus-within:outline-solid"], [1, "w-1/2", "flex-1", "resize-none", "overflow-hidden", "p-4", "focus:outline-hidden", 3, "ngModelChange", "keyup.enter", "placeholder", "ngModel"], ["icon", "", "matRipple", "", 1, "mt-2", 3, "click", "disabled"], [1, "m-2", "flex", "flex-col", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "px-2", "py-1", "text-sm", "text-base-content", "opacity-60"], [1, "px-2", "py-1", "text-xs", "text-base-content", "opacity-40"], ["message", "", 1, "markdown", "selectable", "rounded-sm", "border-base-300", "bg-base-100", "p-4", "text-sm", "shadow-sm", 3, "innerHTML"], [1, "block", "w-full", "rounded-sm", "border-base-300", "bg-info", "p-2", "text-info-content", 3, "click"], [1, "text-2xl"], [1, "text-sm"], [1, "relative", "w-full", "overflow-hidden", "rounded-sm"], [1, "absolute", "inset-0", "bg-base-100", "opacity-10"], [1, "text-mono", "wrap-break-word", "p-2", "text-left", "text-xs", 3, "innerHTML"], [1, "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "border-neutral", "bg-base-100", "p-1"], [1, "h-2", "w-2", "animate-bounce", "rounded-full", "bg-neutral"], [1, "anim-delay-1", "h-2", "w-2", "animate-bounce", "rounded-full", "bg-neutral"], [1, "anim-delay-2", "h-2", "w-2", "animate-bounce", "rounded-full", "bg-neutral"], [1, "sr-only"]], template: function ChatComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 1, vars: 1, consts: [["container", ""], ["input", ""], [1, "absolute", "right-0", "bottom-0", "p-2"], ["icon", "", "matRipple", "", 1, "border-base-300", "bg-base-100", "rounded-full", "border", "shadow-sm", 3, "click"], [1, "border-base-300", "bg-base-200", "absolute", "right-2", "bottom-2", "w-160", "max-w-[calc(100vw-1rem)]", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "border-base-300", "bg-base-100", "flex", "w-full", "items-center", "justify-between", "border-b", "p-2"], [1, "pl-4"], ["icon", "", "matRipple", "", 3, "click"], [1, "h-128", "max-h-[60vh]", "overflow-auto"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-8xl"], [1, "text-center", "text-xl"], [1, "border-base-300", "bg-base-100", "m-2", "rounded-sm", "p-4", "text-sm", "shadow-sm"], [1, "m-2", "flex", "flex-col", 3, "pr-4", "pl-4", "items-left", "items-end", "waiting-margin"], [1, "p-4"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1", 3, "bottom"], [1, "border-base-300", "bg-base-100", "outline-info", "flex", "max-h-40", "overflow-y-auto", "border-t", "focus-within:outline-solid"], [1, "w-1/2", "flex-1", "resize-none", "overflow-hidden", "p-4", "focus:outline-hidden", 3, "ngModelChange", "keyup.enter", "placeholder", "ngModel"], ["icon", "", "matRipple", "", 1, "mt-2", 3, "click", "disabled"], [1, "m-2", "flex", "flex-col", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-base-content", "px-2", "py-1", "text-sm", "opacity-60"], [1, "text-base-content", "px-2", "py-1", "text-xs", "opacity-40"], ["message", "", 1, "markdown", "selectable", "border-base-300", "bg-base-100", "rounded-sm", "p-4", "text-sm", "shadow-sm", 3, "innerHTML"], [1, "border-base-300", "bg-info", "text-info-content", "block", "w-full", "rounded-sm", "p-2", 3, "click"], [1, "text-2xl"], [1, "text-sm"], [1, "relative", "w-full", "overflow-hidden", "rounded-sm"], [1, "bg-base-100", "absolute", "inset-0", "opacity-10"], [1, "text-mono", "p-2", "text-left", "text-xs", "wrap-break-word", 3, "innerHTML"], [1, "border-neutral", "bg-base-100", "absolute", "right-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-2xl", "border", "p-1"], [1, "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-1", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "anim-delay-2", "bg-neutral", "h-2", "w-2", "animate-bounce", "rounded-full"], [1, "sr-only"]], template: function ChatComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ChatComponent_Conditional_0_Template, 5, 1, "div", 2);
   }
@@ -107132,21 +108095,21 @@ var ChatComponent = _ChatComponent;
     type: Component,
     args: [{ selector: "global-chat", template: `
         @if (can_show()) {
-            <div class="absolute bottom-0 right-0 p-2">
+            <div class="absolute right-0 bottom-0 p-2">
                 <button
                     icon
                     matRipple
-                    class="rounded-full border border-base-300 bg-base-100 shadow-sm"
+                    class="border-base-300 bg-base-100 rounded-full border shadow-sm"
                     (click)="toggleChat()"
                 >
                     <icon>chat</icon>
                 </button>
                 @if (show()) {
                     <div
-                        class="absolute bottom-2 right-2 w-160 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow-sm"
+                        class="border-base-300 bg-base-200 absolute right-2 bottom-2 w-160 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border shadow-sm"
                     >
                         <div
-                            class="flex w-full items-center justify-between border-b border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex w-full items-center justify-between border-b p-2"
                         >
                             <h3 class="pl-4">
                                 {{ 'APP.WORKPLACE.CHAT_TITLE' | translate }}
@@ -107176,7 +108139,7 @@ var ChatComponent = _ChatComponent;
                             </div>
                             @if (hint | async) {
                                 <div
-                                    class="m-2 rounded-sm border-base-300 bg-base-100 p-4 text-sm shadow-sm"
+                                    class="border-base-300 bg-base-100 m-2 rounded-sm p-4 text-sm shadow-sm"
                                 >
                                     {{ hint | async }}
                                 </div>
@@ -107201,7 +108164,7 @@ var ChatComponent = _ChatComponent;
                                     <div class="flex items-center space-x-2">
                                         @if (message.user_id !== user().id) {
                                             <div
-                                                class="px-2 py-1 text-sm text-base-content opacity-60"
+                                                class="text-base-content px-2 py-1 text-sm opacity-60"
                                             >
                                                 {{
                                                     'APP.WORKPLACE.CHAT_ASSISTANT'
@@ -107210,7 +108173,7 @@ var ChatComponent = _ChatComponent;
                                             </div>
                                         }
                                         <div
-                                            class="px-2 py-1 text-xs text-base-content opacity-40"
+                                            class="text-base-content px-2 py-1 text-xs opacity-40"
                                         >
                                             {{
                                                 message.timestamp + offset()
@@ -107220,7 +108183,7 @@ var ChatComponent = _ChatComponent;
                                     </div>
                                     <div
                                         message
-                                        class="markdown selectable rounded-sm border-base-300 bg-base-100 p-4 text-sm shadow-sm"
+                                        class="markdown selectable border-base-300 bg-base-100 rounded-sm p-4 text-sm shadow-sm"
                                         [innerHTML]="message.content | sanitize"
                                     ></div>
                                 </div>
@@ -107228,7 +108191,7 @@ var ChatComponent = _ChatComponent;
                             @if (progress | async) {
                                 <div class="p-4">
                                     <button
-                                        class="block w-full rounded-sm border-base-300 bg-info p-2 text-info-content"
+                                        class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
                                         (click)="show_info.set(!show_info)"
                                     >
                                         <div
@@ -107252,11 +108215,11 @@ var ChatComponent = _ChatComponent;
                                             class="relative w-full overflow-hidden rounded-sm"
                                         >
                                             <div
-                                                class="absolute inset-0 bg-base-100 opacity-10"
+                                                class="bg-base-100 absolute inset-0 opacity-10"
                                             ></div>
                                             @if (show_info) {
                                                 <div
-                                                    class="text-mono wrap-break-word p-2 text-left text-xs"
+                                                    class="text-mono p-2 text-left text-xs wrap-break-word"
                                                     [innerHTML]="
                                                         (progress | async)
                                                             .content | sanitize
@@ -107270,17 +108233,17 @@ var ChatComponent = _ChatComponent;
                         </div>
                         @if (waiting | async) {
                             <div
-                                class="absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border border-neutral bg-base-100 p-1"
+                                class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
                                 [style.bottom]="height() + 8 + 'px'"
                             >
                                 <div
-                                    class="h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <div
-                                    class="anim-delay-1 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="anim-delay-1 bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <div
-                                    class="anim-delay-2 h-2 w-2 animate-bounce rounded-full bg-neutral"
+                                    class="anim-delay-2 bg-neutral h-2 w-2 animate-bounce rounded-full"
                                 ></div>
                                 <span class="sr-only">{{
                                     'APP.WORKPLACE.CHAT_WAITING' | translate
@@ -107288,7 +108251,7 @@ var ChatComponent = _ChatComponent;
                             </div>
                         }
                         <div
-                            class="flex max-h-40 overflow-y-auto border-t border-base-300 bg-base-100 outline-info focus-within:outline-solid"
+                            class="border-base-300 bg-base-100 outline-info flex max-h-40 overflow-y-auto border-t focus-within:outline-solid"
                         >
                             <textarea
                                 #input
@@ -107430,7 +108393,7 @@ var _ConfirmModalComponent = class _ConfirmModalComponent extends AsyncHandler {
 _ConfirmModalComponent.\u0275fac = function ConfirmModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ConfirmModalComponent)();
 };
-_ConfirmModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ConfirmModalComponent, selectors: [["confirm-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 6, vars: 3, consts: [[1, "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "min-w-[20rem]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "w-md", "max-w-[85vw]", "flex-col", "items-center", "space-y-4", "p-4", "sm:h-auto"], ["loading", ""], [1, "sticky", "bottom-0", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "text-5xl", 3, "icon"], ["content", "", 1, "text-center", 3, "innerHTML"], [1, "flex", "h-48", "w-full", "flex-col", "items-center", "justify-center", "space-y-4"], ["diameter", "32"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "flex-1", "bg-base-100"], ["btn", "", "matRipple", "", "name", "accept", 1, "flex-1", 3, "click"]], template: function ConfirmModalComponent_Template(rf, ctx) {
+_ConfirmModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ConfirmModalComponent, selectors: [["confirm-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 6, vars: 3, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "min-w-[20rem]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex", "w-md", "max-w-[85vw]", "flex-col", "items-center", "space-y-4", "p-4", "sm:h-auto"], ["loading", ""], [1, "bg-base-200", "sticky", "bottom-0", "m-2", "flex", "items-center", "justify-center", "space-x-2", "rounded-sm", "border-none", "p-2"], [1, "text-5xl", 3, "icon"], ["content", "", 1, "text-center", 3, "innerHTML"], [1, "flex", "h-48", "w-full", "flex-col", "items-center", "justify-center", "space-y-4"], ["diameter", "32"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "bg-base-100", "flex-1"], ["btn", "", "matRipple", "", "name", "accept", 1, "flex-1", 3, "click"]], template: function ConfirmModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -107462,7 +108425,7 @@ var ConfirmModalComponent = _ConfirmModalComponent;
     type: Component,
     args: [{ selector: "confirm-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">{{ title }}</h2>
         </header>
@@ -107485,12 +108448,12 @@ var ConfirmModalComponent = _ConfirmModalComponent;
         }
         @if (!loading) {
             <footer
-                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn
                     matRipple
-                    class="inverse flex-1 bg-base-100"
+                    class="inverse bg-base-100 flex-1"
                     mat-dialog-close
                 >
                     {{ cancel_text | translate }}
@@ -107961,7 +108924,7 @@ _GlobalLoadingComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275GlobalLoadingComponent_BaseFactory || (\u0275GlobalLoadingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_GlobalLoadingComponent)))(__ngFactoryType__ || _GlobalLoadingComponent);
   };
 })();
-_GlobalLoadingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 2, consts: [[1, "fixed", "left-1/2", "top-2", "z-9999", "-translate-x-1/2", "rounded-3xl", "bg-error", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "items-center", "justify-center", "bg-base-300"], [1, "absolute", "bottom-5", "left-1/2", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "rounded-lg", "border", "border-base-300", "bg-base-100", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "absolute", "bottom-2", "left-1/2", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "overflow-hidden", "rounded-full", "border", "border-base-300", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
+_GlobalLoadingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GlobalLoadingComponent, selectors: [["global-loading"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 2, consts: [[1, "bg-error", "fixed", "top-2", "left-1/2", "z-9999", "-translate-x-1/2", "rounded-3xl", "px-4", "py-2", "text-xs", "text-white", "shadow-sm"], ["loader", "", 1, "bg-base-300", "pointer-events-auto", "fixed", "inset-0", "z-9998", "flex", "items-center", "justify-center"], [1, "border-base-300", "bg-base-100", "absolute", "bottom-5", "left-1/2", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "rounded-lg", "border", "p-2", "text-center", "text-xs", "shadow-sm"], [1, "text-center", "font-mono"], [1, "border-base-300", "absolute", "bottom-2", "left-1/2", "w-[24rem]", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "overflow-hidden", "rounded-full", "border", "shadow-sm"], ["mode", "indeterminate", 1, "scale-150", "rounded-sm"]], template: function GlobalLoadingComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, GlobalLoadingComponent_Conditional_0_Template, 3, 3, "div", 0);
     \u0275\u0275conditionalCreate(1, GlobalLoadingComponent_Conditional_1_Template, 6, 1, "div", 1);
@@ -107979,7 +108942,7 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
     args: [{ selector: "global-loading", template: `
         @if (!online()) {
             <div
-                class="fixed left-1/2 top-2 z-9999 -translate-x-1/2 rounded-3xl bg-error px-4 py-2 text-xs text-white shadow-sm"
+                class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
             >
                 {{ 'COMMON.SERVER_DOWN' | translate }}
             </div>
@@ -107987,15 +108950,15 @@ var GlobalLoadingComponent = _GlobalLoadingComponent;
         @if (loading()) {
             <div
                 loader
-                class="pointer-events-auto fixed inset-0 z-9998 flex items-center justify-center bg-base-300"
+                class="bg-base-300 pointer-events-auto fixed inset-0 z-9998 flex items-center justify-center"
             >
                 <div
-                    class="absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-base-300 bg-base-100 p-2 text-center text-xs shadow-sm"
+                    class="border-base-300 bg-base-100 absolute bottom-5 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border p-2 text-center text-xs shadow-sm"
                 >
                     <p class="text-center font-mono">{{ message() }}</p>
                 </div>
                 <div
-                    class="absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border border-base-300 shadow-sm"
+                    class="border-base-300 absolute bottom-2 left-1/2 w-[24rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden rounded-full border shadow-sm"
                 >
                     <mat-progress-bar
                         mode="indeterminate"
@@ -108062,7 +109025,7 @@ var _UserAvatarComponent = class _UserAvatarComponent {
 _UserAvatarComponent.\u0275fac = function UserAvatarComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UserAvatarComponent)();
 };
-_UserAvatarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserAvatarComponent, selectors: [["a-user-avatar"]], inputs: { user: [1, "user"] }, decls: 1, vars: 1, consts: [[1, "flex", "h-[2.5em]", "w-[2.5em]", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border-2", "border-base-100", "bg-base-200"], ["initials", "", 1, "uppercase", "text-base-content", "opacity-60"], ["auth", "", 1, "h-full", "w-full", "object-cover", "object-center", 3, "source"]], template: function UserAvatarComponent_Template(rf, ctx) {
+_UserAvatarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserAvatarComponent, selectors: [["a-user-avatar"]], inputs: { user: [1, "user"] }, decls: 1, vars: 1, consts: [[1, "border-base-100", "bg-base-200", "flex", "h-[2.5em]", "w-[2.5em]", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border-2"], ["initials", "", 1, "text-base-content", "uppercase", "opacity-60"], ["auth", "", 1, "h-full", "w-full", "object-cover", "object-center", 3, "source"]], template: function UserAvatarComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, UserAvatarComponent_Conditional_0_Template, 3, 2, "div", 0);
   }
@@ -108077,13 +109040,13 @@ var UserAvatarComponent = _UserAvatarComponent;
     args: [{ selector: "a-user-avatar", template: `
         @if (user()) {
             <div
-                class="flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2 border-base-100 bg-base-200"
+                class="border-base-100 bg-base-200 flex h-[2.5em] w-[2.5em] items-center justify-center overflow-hidden rounded-full border-2"
                 [attr.user-id]="user().id"
             >
                 @if (!user().photo) {
                     <div
                         initials
-                        class="uppercase text-base-content opacity-60"
+                        class="text-base-content uppercase opacity-60"
                     >
                         {{ initials }}
                     </div>
@@ -108104,7 +109067,7 @@ var UserAvatarComponent = _UserAvatarComponent;
 })();
 
 // libs/components/src/lib/action-icon.component.ts
-var _c013 = ["*"];
+var _c014 = ["*"];
 function ActionIconComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "icon");
@@ -108142,7 +109105,7 @@ var _ActionIconComponent = class _ActionIconComponent {
 _ActionIconComponent.\u0275fac = function ActionIconComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ActionIconComponent)();
 };
-_ActionIconComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ActionIconComponent, selectors: [["action-icon"]], inputs: { icon: [1, "icon"], className: [1, "className"], content: [1, "content"], loading: [1, "loading"], disabled: [1, "disabled"], state: [1, "state"] }, ngContentSelectors: _c013, decls: 6, vars: 8, consts: [["icon", "", "matRipple", "", "title", "", 1, "relative", 3, "disabled"], ["root", "", 3, "className", "icon"], [3, "class"], [1, "loader", "center"], [3, "diameter"]], template: function ActionIconComponent_Template(rf, ctx) {
+_ActionIconComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ActionIconComponent, selectors: [["action-icon"]], inputs: { icon: [1, "icon"], className: [1, "className"], content: [1, "content"], loading: [1, "loading"], disabled: [1, "disabled"], state: [1, "state"] }, ngContentSelectors: _c014, decls: 6, vars: 8, consts: [["icon", "", "matRipple", "", "title", "", 1, "relative", 3, "disabled"], ["root", "", 3, "className", "icon"], [3, "class"], [1, "loader", "center"], [3, "diameter"]], template: function ActionIconComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 0)(1, "icon", 1);
@@ -108216,7 +109179,7 @@ var ActionIconComponent = _ActionIconComponent;
 })();
 
 // node_modules/@angular/material/fesm2022/checkbox.mjs
-var _c014 = ["input"];
+var _c015 = ["input"];
 var _c110 = ["label"];
 var _c27 = ["*"];
 var MAT_CHECKBOX_DEFAULT_OPTIONS = new InjectionToken("mat-checkbox-default-options", {
@@ -108568,7 +109531,7 @@ var MatCheckbox = class _MatCheckbox {
     selectors: [["mat-checkbox"]],
     viewQuery: function MatCheckbox_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c014, 5);
+        \u0275\u0275viewQuery(_c015, 5);
         \u0275\u0275viewQuery(_c110, 5);
       }
       if (rf & 2) {
@@ -108898,961 +109861,6 @@ var MatCheckboxModule = class _MatCheckboxModule {
   }], null, null);
 })();
 
-// node_modules/@angular/material/fesm2022/module-CWxMD37a.mjs
-var _c015 = ["tooltip"];
-var SCROLL_THROTTLE_MS = 20;
-function getMatTooltipInvalidPositionError(position) {
-  return Error(`Tooltip position "${position}" is invalid.`);
-}
-var MAT_TOOLTIP_SCROLL_STRATEGY = new InjectionToken("mat-tooltip-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject(Injector);
-    return () => createRepositionScrollStrategy(injector, {
-      scrollThrottle: SCROLL_THROTTLE_MS
-    });
-  }
-});
-function MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY(_overlay) {
-  const injector = inject(Injector);
-  return () => createRepositionScrollStrategy(injector, {
-    scrollThrottle: SCROLL_THROTTLE_MS
-  });
-}
-var MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER = {
-  provide: MAT_TOOLTIP_SCROLL_STRATEGY,
-  deps: [],
-  useFactory: MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY
-};
-function MAT_TOOLTIP_DEFAULT_OPTIONS_FACTORY() {
-  return {
-    showDelay: 0,
-    hideDelay: 0,
-    touchendHideDelay: 1500
-  };
-}
-var MAT_TOOLTIP_DEFAULT_OPTIONS = new InjectionToken("mat-tooltip-default-options", {
-  providedIn: "root",
-  factory: MAT_TOOLTIP_DEFAULT_OPTIONS_FACTORY
-});
-var PANEL_CLASS = "tooltip-panel";
-var passiveListenerOptions = normalizePassiveListenerOptions({
-  passive: true
-});
-var MIN_VIEWPORT_TOOLTIP_THRESHOLD = 8;
-var UNBOUNDED_ANCHOR_GAP = 8;
-var MIN_HEIGHT = 24;
-var MAX_WIDTH = 200;
-var MatTooltip = class _MatTooltip {
-  _elementRef = inject(ElementRef);
-  _ngZone = inject(NgZone);
-  _platform = inject(Platform);
-  _ariaDescriber = inject(AriaDescriber);
-  _focusMonitor = inject(FocusMonitor);
-  _dir = inject(Directionality);
-  _injector = inject(Injector);
-  _viewContainerRef = inject(ViewContainerRef);
-  _animationsDisabled = _animationsDisabled();
-  _defaultOptions = inject(MAT_TOOLTIP_DEFAULT_OPTIONS, {
-    optional: true
-  });
-  _overlayRef;
-  _tooltipInstance;
-  _overlayPanelClass;
-  // Used for styling internally.
-  _portal;
-  _position = "below";
-  _positionAtOrigin = false;
-  _disabled = false;
-  _tooltipClass;
-  _viewInitialized = false;
-  _pointerExitEventsInitialized = false;
-  _tooltipComponent = TooltipComponent;
-  _viewportMargin = 8;
-  _currentPosition;
-  _cssClassPrefix = "mat-mdc";
-  _ariaDescriptionPending;
-  _dirSubscribed = false;
-  /** Allows the user to define the position of the tooltip relative to the parent element */
-  get position() {
-    return this._position;
-  }
-  set position(value) {
-    if (value !== this._position) {
-      this._position = value;
-      if (this._overlayRef) {
-        this._updatePosition(this._overlayRef);
-        this._tooltipInstance?.show(0);
-        this._overlayRef.updatePosition();
-      }
-    }
-  }
-  /**
-   * Whether tooltip should be relative to the click or touch origin
-   * instead of outside the element bounding box.
-   */
-  get positionAtOrigin() {
-    return this._positionAtOrigin;
-  }
-  set positionAtOrigin(value) {
-    this._positionAtOrigin = coerceBooleanProperty(value);
-    this._detach();
-    this._overlayRef = null;
-  }
-  /** Disables the display of the tooltip. */
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value) {
-    const isDisabled = coerceBooleanProperty(value);
-    if (this._disabled !== isDisabled) {
-      this._disabled = isDisabled;
-      if (isDisabled) {
-        this.hide(0);
-      } else {
-        this._setupPointerEnterEventsIfNeeded();
-      }
-      this._syncAriaDescription(this.message);
-    }
-  }
-  /** The default delay in ms before showing the tooltip after show is called */
-  get showDelay() {
-    return this._showDelay;
-  }
-  set showDelay(value) {
-    this._showDelay = coerceNumberProperty(value);
-  }
-  _showDelay;
-  /** The default delay in ms before hiding the tooltip after hide is called */
-  get hideDelay() {
-    return this._hideDelay;
-  }
-  set hideDelay(value) {
-    this._hideDelay = coerceNumberProperty(value);
-    if (this._tooltipInstance) {
-      this._tooltipInstance._mouseLeaveHideDelay = this._hideDelay;
-    }
-  }
-  _hideDelay;
-  /**
-   * How touch gestures should be handled by the tooltip. On touch devices the tooltip directive
-   * uses a long press gesture to show and hide, however it can conflict with the native browser
-   * gestures. To work around the conflict, Angular Material disables native gestures on the
-   * trigger, but that might not be desirable on particular elements (e.g. inputs and draggable
-   * elements). The different values for this option configure the touch event handling as follows:
-   * - `auto` - Enables touch gestures for all elements, but tries to avoid conflicts with native
-   *   browser gestures on particular elements. In particular, it allows text selection on inputs
-   *   and textareas, and preserves the native browser dragging on elements marked as `draggable`.
-   * - `on` - Enables touch gestures for all elements and disables native
-   *   browser gestures with no exceptions.
-   * - `off` - Disables touch gestures. Note that this will prevent the tooltip from
-   *   showing on touch devices.
-   */
-  touchGestures = "auto";
-  /** The message to be displayed in the tooltip */
-  get message() {
-    return this._message;
-  }
-  set message(value) {
-    const oldMessage = this._message;
-    this._message = value != null ? String(value).trim() : "";
-    if (!this._message && this._isTooltipVisible()) {
-      this.hide(0);
-    } else {
-      this._setupPointerEnterEventsIfNeeded();
-      this._updateTooltipMessage();
-    }
-    this._syncAriaDescription(oldMessage);
-  }
-  _message = "";
-  /** Classes to be passed to the tooltip. Supports the same syntax as `ngClass`. */
-  get tooltipClass() {
-    return this._tooltipClass;
-  }
-  set tooltipClass(value) {
-    this._tooltipClass = value;
-    if (this._tooltipInstance) {
-      this._setTooltipClass(this._tooltipClass);
-    }
-  }
-  /** Manually-bound passive event listeners. */
-  _passiveListeners = [];
-  /** Timer started at the last `touchstart` event. */
-  _touchstartTimeout = null;
-  /** Emits when the component is destroyed. */
-  _destroyed = new Subject();
-  /** Whether ngOnDestroyed has been called. */
-  _isDestroyed = false;
-  constructor() {
-    const defaultOptions2 = this._defaultOptions;
-    if (defaultOptions2) {
-      this._showDelay = defaultOptions2.showDelay;
-      this._hideDelay = defaultOptions2.hideDelay;
-      if (defaultOptions2.position) {
-        this.position = defaultOptions2.position;
-      }
-      if (defaultOptions2.positionAtOrigin) {
-        this.positionAtOrigin = defaultOptions2.positionAtOrigin;
-      }
-      if (defaultOptions2.touchGestures) {
-        this.touchGestures = defaultOptions2.touchGestures;
-      }
-      if (defaultOptions2.tooltipClass) {
-        this.tooltipClass = defaultOptions2.tooltipClass;
-      }
-    }
-    this._viewportMargin = MIN_VIEWPORT_TOOLTIP_THRESHOLD;
-  }
-  ngAfterViewInit() {
-    this._viewInitialized = true;
-    this._setupPointerEnterEventsIfNeeded();
-    this._focusMonitor.monitor(this._elementRef).pipe(takeUntil(this._destroyed)).subscribe((origin) => {
-      if (!origin) {
-        this._ngZone.run(() => this.hide(0));
-      } else if (origin === "keyboard") {
-        this._ngZone.run(() => this.show());
-      }
-    });
-  }
-  /**
-   * Dispose the tooltip when destroyed.
-   */
-  ngOnDestroy() {
-    const nativeElement = this._elementRef.nativeElement;
-    if (this._touchstartTimeout) {
-      clearTimeout(this._touchstartTimeout);
-    }
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._tooltipInstance = null;
-    }
-    this._passiveListeners.forEach(([event, listener]) => {
-      nativeElement.removeEventListener(event, listener, passiveListenerOptions);
-    });
-    this._passiveListeners.length = 0;
-    this._destroyed.next();
-    this._destroyed.complete();
-    this._isDestroyed = true;
-    this._ariaDescriber.removeDescription(nativeElement, this.message, "tooltip");
-    this._focusMonitor.stopMonitoring(nativeElement);
-  }
-  /** Shows the tooltip after the delay in ms, defaults to tooltip-delay-show or 0ms if no input */
-  show(delay2 = this.showDelay, origin) {
-    if (this.disabled || !this.message || this._isTooltipVisible()) {
-      this._tooltipInstance?._cancelPendingAnimations();
-      return;
-    }
-    const overlayRef = this._createOverlay(origin);
-    this._detach();
-    this._portal = this._portal || new ComponentPortal(this._tooltipComponent, this._viewContainerRef);
-    const instance = this._tooltipInstance = overlayRef.attach(this._portal).instance;
-    instance._triggerElement = this._elementRef.nativeElement;
-    instance._mouseLeaveHideDelay = this._hideDelay;
-    instance.afterHidden().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._setTooltipClass(this._tooltipClass);
-    this._updateTooltipMessage();
-    instance.show(delay2);
-  }
-  /** Hides the tooltip after the delay in ms, defaults to tooltip-delay-hide or 0ms if no input */
-  hide(delay2 = this.hideDelay) {
-    const instance = this._tooltipInstance;
-    if (instance) {
-      if (instance.isVisible()) {
-        instance.hide(delay2);
-      } else {
-        instance._cancelPendingAnimations();
-        this._detach();
-      }
-    }
-  }
-  /** Shows/hides the tooltip */
-  toggle(origin) {
-    this._isTooltipVisible() ? this.hide() : this.show(void 0, origin);
-  }
-  /** Returns true if the tooltip is currently visible to the user */
-  _isTooltipVisible() {
-    return !!this._tooltipInstance && this._tooltipInstance.isVisible();
-  }
-  /** Create the overlay config and position strategy */
-  _createOverlay(origin) {
-    if (this._overlayRef) {
-      const existingStrategy = this._overlayRef.getConfig().positionStrategy;
-      if ((!this.positionAtOrigin || !origin) && existingStrategy._origin instanceof ElementRef) {
-        return this._overlayRef;
-      }
-      this._detach();
-    }
-    const scrollableAncestors = this._injector.get(ScrollDispatcher).getAncestorScrollContainers(this._elementRef);
-    const panelClass = `${this._cssClassPrefix}-${PANEL_CLASS}`;
-    const strategy = createFlexibleConnectedPositionStrategy(this._injector, this.positionAtOrigin ? origin || this._elementRef : this._elementRef).withTransformOriginOn(`.${this._cssClassPrefix}-tooltip`).withFlexibleDimensions(false).withViewportMargin(this._viewportMargin).withScrollableContainers(scrollableAncestors);
-    strategy.positionChanges.pipe(takeUntil(this._destroyed)).subscribe((change) => {
-      this._updateCurrentPositionClass(change.connectionPair);
-      if (this._tooltipInstance) {
-        if (change.scrollableViewProperties.isOverlayClipped && this._tooltipInstance.isVisible()) {
-          this._ngZone.run(() => this.hide(0));
-        }
-      }
-    });
-    this._overlayRef = createOverlayRef(this._injector, {
-      direction: this._dir,
-      positionStrategy: strategy,
-      panelClass: this._overlayPanelClass ? [...this._overlayPanelClass, panelClass] : panelClass,
-      scrollStrategy: this._injector.get(MAT_TOOLTIP_SCROLL_STRATEGY)(),
-      disableAnimations: this._animationsDisabled
-    });
-    this._updatePosition(this._overlayRef);
-    this._overlayRef.detachments().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._overlayRef.outsidePointerEvents().pipe(takeUntil(this._destroyed)).subscribe(() => this._tooltipInstance?._handleBodyInteraction());
-    this._overlayRef.keydownEvents().pipe(takeUntil(this._destroyed)).subscribe((event) => {
-      if (this._isTooltipVisible() && event.keyCode === ESCAPE && !hasModifierKey(event)) {
-        event.preventDefault();
-        event.stopPropagation();
-        this._ngZone.run(() => this.hide(0));
-      }
-    });
-    if (this._defaultOptions?.disableTooltipInteractivity) {
-      this._overlayRef.addPanelClass(`${this._cssClassPrefix}-tooltip-panel-non-interactive`);
-    }
-    if (!this._dirSubscribed) {
-      this._dirSubscribed = true;
-      this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => {
-        if (this._overlayRef) {
-          this._updatePosition(this._overlayRef);
-        }
-      });
-    }
-    return this._overlayRef;
-  }
-  /** Detaches the currently-attached tooltip. */
-  _detach() {
-    if (this._overlayRef && this._overlayRef.hasAttached()) {
-      this._overlayRef.detach();
-    }
-    this._tooltipInstance = null;
-  }
-  /** Updates the position of the current tooltip. */
-  _updatePosition(overlayRef) {
-    const position = overlayRef.getConfig().positionStrategy;
-    const origin = this._getOrigin();
-    const overlay = this._getOverlayPosition();
-    position.withPositions([this._addOffset(__spreadValues(__spreadValues({}, origin.main), overlay.main)), this._addOffset(__spreadValues(__spreadValues({}, origin.fallback), overlay.fallback))]);
-  }
-  /** Adds the configured offset to a position. Used as a hook for child classes. */
-  _addOffset(position) {
-    const offset = UNBOUNDED_ANCHOR_GAP;
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    if (position.originY === "top") {
-      position.offsetY = -offset;
-    } else if (position.originY === "bottom") {
-      position.offsetY = offset;
-    } else if (position.originX === "start") {
-      position.offsetX = isLtr ? -offset : offset;
-    } else if (position.originX === "end") {
-      position.offsetX = isLtr ? offset : -offset;
-    }
-    return position;
-  }
-  /**
-   * Returns the origin position and a fallback position based on the user's position preference.
-   * The fallback position is the inverse of the origin (e.g. `'below' -> 'above'`).
-   */
-  _getOrigin() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let originPosition;
-    if (position == "above" || position == "below") {
-      originPosition = {
-        originX: "center",
-        originY: position == "above" ? "top" : "bottom"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      originPosition = {
-        originX: "start",
-        originY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      originPosition = {
-        originX: "end",
-        originY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x: x4,
-      y
-    } = this._invertPosition(originPosition.originX, originPosition.originY);
-    return {
-      main: originPosition,
-      fallback: {
-        originX: x4,
-        originY: y
-      }
-    };
-  }
-  /** Returns the overlay position and a fallback position based on the user's preference */
-  _getOverlayPosition() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let overlayPosition;
-    if (position == "above") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "bottom"
-      };
-    } else if (position == "below") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "top"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      overlayPosition = {
-        overlayX: "end",
-        overlayY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      overlayPosition = {
-        overlayX: "start",
-        overlayY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x: x4,
-      y
-    } = this._invertPosition(overlayPosition.overlayX, overlayPosition.overlayY);
-    return {
-      main: overlayPosition,
-      fallback: {
-        overlayX: x4,
-        overlayY: y
-      }
-    };
-  }
-  /** Updates the tooltip message and repositions the overlay according to the new message length */
-  _updateTooltipMessage() {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.message = this.message;
-      this._tooltipInstance._markForCheck();
-      afterNextRender(() => {
-        if (this._tooltipInstance) {
-          this._overlayRef.updatePosition();
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  /** Updates the tooltip class */
-  _setTooltipClass(tooltipClass) {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.tooltipClass = tooltipClass;
-      this._tooltipInstance._markForCheck();
-    }
-  }
-  /** Inverts an overlay position. */
-  _invertPosition(x4, y) {
-    if (this.position === "above" || this.position === "below") {
-      if (y === "top") {
-        y = "bottom";
-      } else if (y === "bottom") {
-        y = "top";
-      }
-    } else {
-      if (x4 === "end") {
-        x4 = "start";
-      } else if (x4 === "start") {
-        x4 = "end";
-      }
-    }
-    return {
-      x: x4,
-      y
-    };
-  }
-  /** Updates the class on the overlay panel based on the current position of the tooltip. */
-  _updateCurrentPositionClass(connectionPair) {
-    const {
-      overlayY,
-      originX,
-      originY
-    } = connectionPair;
-    let newPosition;
-    if (overlayY === "center") {
-      if (this._dir && this._dir.value === "rtl") {
-        newPosition = originX === "end" ? "left" : "right";
-      } else {
-        newPosition = originX === "start" ? "left" : "right";
-      }
-    } else {
-      newPosition = overlayY === "bottom" && originY === "top" ? "above" : "below";
-    }
-    if (newPosition !== this._currentPosition) {
-      const overlayRef = this._overlayRef;
-      if (overlayRef) {
-        const classPrefix = `${this._cssClassPrefix}-${PANEL_CLASS}-`;
-        overlayRef.removePanelClass(classPrefix + this._currentPosition);
-        overlayRef.addPanelClass(classPrefix + newPosition);
-      }
-      this._currentPosition = newPosition;
-    }
-  }
-  /** Binds the pointer events to the tooltip trigger. */
-  _setupPointerEnterEventsIfNeeded() {
-    if (this._disabled || !this.message || !this._viewInitialized || this._passiveListeners.length) {
-      return;
-    }
-    if (this._platformSupportsMouseEvents()) {
-      this._passiveListeners.push(["mouseenter", (event) => {
-        this._setupPointerExitEventsIfNeeded();
-        let point = void 0;
-        if (event.x !== void 0 && event.y !== void 0) {
-          point = event;
-        }
-        this.show(void 0, point);
-      }]);
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      this._passiveListeners.push(["touchstart", (event) => {
-        const touch = event.targetTouches?.[0];
-        const origin = touch ? {
-          x: touch.clientX,
-          y: touch.clientY
-        } : void 0;
-        this._setupPointerExitEventsIfNeeded();
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        const DEFAULT_LONGPRESS_DELAY = 500;
-        this._touchstartTimeout = setTimeout(() => {
-          this._touchstartTimeout = null;
-          this.show(void 0, origin);
-        }, this._defaultOptions?.touchLongPressShowDelay ?? DEFAULT_LONGPRESS_DELAY);
-      }]);
-    }
-    this._addListeners(this._passiveListeners);
-  }
-  _setupPointerExitEventsIfNeeded() {
-    if (this._pointerExitEventsInitialized) {
-      return;
-    }
-    this._pointerExitEventsInitialized = true;
-    const exitListeners = [];
-    if (this._platformSupportsMouseEvents()) {
-      exitListeners.push(["mouseleave", (event) => {
-        const newTarget = event.relatedTarget;
-        if (!newTarget || !this._overlayRef?.overlayElement.contains(newTarget)) {
-          this.hide();
-        }
-      }], ["wheel", (event) => this._wheelListener(event)]);
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      const touchendListener = () => {
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        this.hide(this._defaultOptions?.touchendHideDelay);
-      };
-      exitListeners.push(["touchend", touchendListener], ["touchcancel", touchendListener]);
-    }
-    this._addListeners(exitListeners);
-    this._passiveListeners.push(...exitListeners);
-  }
-  _addListeners(listeners) {
-    listeners.forEach(([event, listener]) => {
-      this._elementRef.nativeElement.addEventListener(event, listener, passiveListenerOptions);
-    });
-  }
-  _platformSupportsMouseEvents() {
-    return !this._platform.IOS && !this._platform.ANDROID;
-  }
-  /** Listener for the `wheel` event on the element. */
-  _wheelListener(event) {
-    if (this._isTooltipVisible()) {
-      const elementUnderPointer = this._injector.get(DOCUMENT).elementFromPoint(event.clientX, event.clientY);
-      const element = this._elementRef.nativeElement;
-      if (elementUnderPointer !== element && !element.contains(elementUnderPointer)) {
-        this.hide();
-      }
-    }
-  }
-  /** Disables the native browser gestures, based on how the tooltip has been configured. */
-  _disableNativeGesturesIfNecessary() {
-    const gestures = this.touchGestures;
-    if (gestures !== "off") {
-      const element = this._elementRef.nativeElement;
-      const style2 = element.style;
-      if (gestures === "on" || element.nodeName !== "INPUT" && element.nodeName !== "TEXTAREA") {
-        style2.userSelect = style2.msUserSelect = style2.webkitUserSelect = style2.MozUserSelect = "none";
-      }
-      if (gestures === "on" || !element.draggable) {
-        style2.webkitUserDrag = "none";
-      }
-      style2.touchAction = "none";
-      style2.webkitTapHighlightColor = "transparent";
-    }
-  }
-  /** Updates the tooltip's ARIA description based on it current state. */
-  _syncAriaDescription(oldMessage) {
-    if (this._ariaDescriptionPending) {
-      return;
-    }
-    this._ariaDescriptionPending = true;
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, oldMessage, "tooltip");
-    if (!this._isDestroyed) {
-      afterNextRender({
-        write: () => {
-          this._ariaDescriptionPending = false;
-          if (this.message && !this.disabled) {
-            this._ariaDescriber.describe(this._elementRef.nativeElement, this.message, "tooltip");
-          }
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  static \u0275fac = function MatTooltip_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltip)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatTooltip,
-    selectors: [["", "matTooltip", ""]],
-    hostAttrs: [1, "mat-mdc-tooltip-trigger"],
-    hostVars: 2,
-    hostBindings: function MatTooltip_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275classProp("mat-mdc-tooltip-disabled", ctx.disabled);
-      }
-    },
-    inputs: {
-      position: [0, "matTooltipPosition", "position"],
-      positionAtOrigin: [0, "matTooltipPositionAtOrigin", "positionAtOrigin"],
-      disabled: [0, "matTooltipDisabled", "disabled"],
-      showDelay: [0, "matTooltipShowDelay", "showDelay"],
-      hideDelay: [0, "matTooltipHideDelay", "hideDelay"],
-      touchGestures: [0, "matTooltipTouchGestures", "touchGestures"],
-      message: [0, "matTooltip", "message"],
-      tooltipClass: [0, "matTooltipClass", "tooltipClass"]
-    },
-    exportAs: ["matTooltip"]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltip, [{
-    type: Directive,
-    args: [{
-      selector: "[matTooltip]",
-      exportAs: "matTooltip",
-      host: {
-        "class": "mat-mdc-tooltip-trigger",
-        "[class.mat-mdc-tooltip-disabled]": "disabled"
-      }
-    }]
-  }], () => [], {
-    position: [{
-      type: Input,
-      args: ["matTooltipPosition"]
-    }],
-    positionAtOrigin: [{
-      type: Input,
-      args: ["matTooltipPositionAtOrigin"]
-    }],
-    disabled: [{
-      type: Input,
-      args: ["matTooltipDisabled"]
-    }],
-    showDelay: [{
-      type: Input,
-      args: ["matTooltipShowDelay"]
-    }],
-    hideDelay: [{
-      type: Input,
-      args: ["matTooltipHideDelay"]
-    }],
-    touchGestures: [{
-      type: Input,
-      args: ["matTooltipTouchGestures"]
-    }],
-    message: [{
-      type: Input,
-      args: ["matTooltip"]
-    }],
-    tooltipClass: [{
-      type: Input,
-      args: ["matTooltipClass"]
-    }]
-  });
-})();
-var TooltipComponent = class _TooltipComponent {
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _elementRef = inject(ElementRef);
-  /* Whether the tooltip text overflows to multiple lines */
-  _isMultiline = false;
-  /** Message to display in the tooltip */
-  message;
-  /** Classes to be added to the tooltip. Supports the same syntax as `ngClass`. */
-  tooltipClass;
-  /** The timeout ID of any current timer set to show the tooltip */
-  _showTimeoutId;
-  /** The timeout ID of any current timer set to hide the tooltip */
-  _hideTimeoutId;
-  /** Element that caused the tooltip to open. */
-  _triggerElement;
-  /** Amount of milliseconds to delay the closing sequence. */
-  _mouseLeaveHideDelay;
-  /** Whether animations are currently disabled. */
-  _animationsDisabled = _animationsDisabled();
-  /** Reference to the internal tooltip element. */
-  _tooltip;
-  /** Whether interactions on the page should close the tooltip */
-  _closeOnInteraction = false;
-  /** Whether the tooltip is currently visible. */
-  _isVisible = false;
-  /** Subject for notifying that the tooltip has been hidden from the view */
-  _onHide = new Subject();
-  /** Name of the show animation and the class that toggles it. */
-  _showAnimation = "mat-mdc-tooltip-show";
-  /** Name of the hide animation and the class that toggles it. */
-  _hideAnimation = "mat-mdc-tooltip-hide";
-  constructor() {
-  }
-  /**
-   * Shows the tooltip with an animation originating from the provided origin
-   * @param delay Amount of milliseconds to the delay showing the tooltip.
-   */
-  show(delay2) {
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = setTimeout(() => {
-      this._toggleVisibility(true);
-      this._showTimeoutId = void 0;
-    }, delay2);
-  }
-  /**
-   * Begins the animation to hide the tooltip after the provided delay in ms.
-   * @param delay Amount of milliseconds to delay showing the tooltip.
-   */
-  hide(delay2) {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    this._hideTimeoutId = setTimeout(() => {
-      this._toggleVisibility(false);
-      this._hideTimeoutId = void 0;
-    }, delay2);
-  }
-  /** Returns an observable that notifies when the tooltip has been hidden from view. */
-  afterHidden() {
-    return this._onHide;
-  }
-  /** Whether the tooltip is being displayed. */
-  isVisible() {
-    return this._isVisible;
-  }
-  ngOnDestroy() {
-    this._cancelPendingAnimations();
-    this._onHide.complete();
-    this._triggerElement = null;
-  }
-  /**
-   * Interactions on the HTML body should close the tooltip immediately as defined in the
-   * material design spec.
-   * https://material.io/design/components/tooltips.html#behavior
-   */
-  _handleBodyInteraction() {
-    if (this._closeOnInteraction) {
-      this.hide(0);
-    }
-  }
-  /**
-   * Marks that the tooltip needs to be checked in the next change detection run.
-   * Mainly used for rendering the initial text before positioning a tooltip, which
-   * can be problematic in components with OnPush change detection.
-   */
-  _markForCheck() {
-    this._changeDetectorRef.markForCheck();
-  }
-  _handleMouseLeave({
-    relatedTarget
-  }) {
-    if (!relatedTarget || !this._triggerElement.contains(relatedTarget)) {
-      if (this.isVisible()) {
-        this.hide(this._mouseLeaveHideDelay);
-      } else {
-        this._finalizeAnimation(false);
-      }
-    }
-  }
-  /**
-   * Callback for when the timeout in this.show() gets completed.
-   * This method is only needed by the mdc-tooltip, and so it is only implemented
-   * in the mdc-tooltip, not here.
-   */
-  _onShow() {
-    this._isMultiline = this._isTooltipMultiline();
-    this._markForCheck();
-  }
-  /** Whether the tooltip text has overflown to the next line */
-  _isTooltipMultiline() {
-    const rect = this._elementRef.nativeElement.getBoundingClientRect();
-    return rect.height > MIN_HEIGHT && rect.width >= MAX_WIDTH;
-  }
-  /** Event listener dispatched when an animation on the tooltip finishes. */
-  _handleAnimationEnd({
-    animationName
-  }) {
-    if (animationName === this._showAnimation || animationName === this._hideAnimation) {
-      this._finalizeAnimation(animationName === this._showAnimation);
-    }
-  }
-  /** Cancels any pending animation sequences. */
-  _cancelPendingAnimations() {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = this._hideTimeoutId = void 0;
-  }
-  /** Handles the cleanup after an animation has finished. */
-  _finalizeAnimation(toVisible) {
-    if (toVisible) {
-      this._closeOnInteraction = true;
-    } else if (!this.isVisible()) {
-      this._onHide.next();
-    }
-  }
-  /** Toggles the visibility of the tooltip element. */
-  _toggleVisibility(isVisible) {
-    const tooltip = this._tooltip.nativeElement;
-    const showClass = this._showAnimation;
-    const hideClass = this._hideAnimation;
-    tooltip.classList.remove(isVisible ? hideClass : showClass);
-    tooltip.classList.add(isVisible ? showClass : hideClass);
-    if (this._isVisible !== isVisible) {
-      this._isVisible = isVisible;
-      this._changeDetectorRef.markForCheck();
-    }
-    if (isVisible && !this._animationsDisabled && typeof getComputedStyle === "function") {
-      const styles = getComputedStyle(tooltip);
-      if (styles.getPropertyValue("animation-duration") === "0s" || styles.getPropertyValue("animation-name") === "none") {
-        this._animationsDisabled = true;
-      }
-    }
-    if (isVisible) {
-      this._onShow();
-    }
-    if (this._animationsDisabled) {
-      tooltip.classList.add("_mat-animation-noopable");
-      this._finalizeAnimation(isVisible);
-    }
-  }
-  static \u0275fac = function TooltipComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _TooltipComponent)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _TooltipComponent,
-    selectors: [["mat-tooltip-component"]],
-    viewQuery: function TooltipComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(_c015, 7);
-      }
-      if (rf & 2) {
-        let _t4;
-        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx._tooltip = _t4.first);
-      }
-    },
-    hostAttrs: ["aria-hidden", "true"],
-    hostBindings: function TooltipComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("mouseleave", function TooltipComponent_mouseleave_HostBindingHandler($event) {
-          return ctx._handleMouseLeave($event);
-        });
-      }
-    },
-    decls: 4,
-    vars: 4,
-    consts: [["tooltip", ""], [1, "mdc-tooltip", "mat-mdc-tooltip", 3, "animationend", "ngClass"], [1, "mat-mdc-tooltip-surface", "mdc-tooltip__surface"]],
-    template: function TooltipComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        const _r1 = \u0275\u0275getCurrentView();
-        \u0275\u0275elementStart(0, "div", 1, 0);
-        \u0275\u0275listener("animationend", function TooltipComponent_Template_div_animationend_0_listener($event) {
-          \u0275\u0275restoreView(_r1);
-          return \u0275\u0275resetView(ctx._handleAnimationEnd($event));
-        });
-        \u0275\u0275elementStart(2, "div", 2);
-        \u0275\u0275text(3);
-        \u0275\u0275elementEnd()();
-      }
-      if (rf & 2) {
-        \u0275\u0275classProp("mdc-tooltip--multiline", ctx._isMultiline);
-        \u0275\u0275property("ngClass", ctx.tooltipClass);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(ctx.message);
-      }
-    },
-    dependencies: [NgClass],
-    styles: ['.mat-mdc-tooltip{position:relative;transform:scale(0);display:inline-flex}.mat-mdc-tooltip::before{content:"";top:0;right:0;bottom:0;left:0;z-index:-1;position:absolute}.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before{top:-8px}.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before{bottom:-8px}.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before{left:-8px}.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before{right:-8px}.mat-mdc-tooltip._mat-animation-noopable{animation:none;transform:scale(1)}.mat-mdc-tooltip-surface{word-break:normal;overflow-wrap:anywhere;padding:4px 8px;min-width:40px;max-width:200px;min-height:24px;max-height:40vh;box-sizing:border-box;overflow:hidden;text-align:center;will-change:transform,opacity;background-color:var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));color:var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));border-radius:var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));font-family:var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));font-size:var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));font-weight:var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));line-height:var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));letter-spacing:var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking))}.mat-mdc-tooltip-surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}.mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:left}[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:right}.mat-mdc-tooltip-panel{line-height:normal}.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive{pointer-events:none}@keyframes mat-mdc-tooltip-show{0%{opacity:0;transform:scale(0.8)}100%{opacity:1;transform:scale(1)}}@keyframes mat-mdc-tooltip-hide{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8)}}.mat-mdc-tooltip-show{animation:mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards}.mat-mdc-tooltip-hide{animation:mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards}\n'],
-    encapsulation: 2,
-    changeDetection: 0
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TooltipComponent, [{
-    type: Component,
-    args: [{
-      selector: "mat-tooltip-component",
-      encapsulation: ViewEncapsulation.None,
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      host: {
-        "(mouseleave)": "_handleMouseLeave($event)",
-        "aria-hidden": "true"
-      },
-      imports: [NgClass],
-      template: '<div\n  #tooltip\n  class="mdc-tooltip mat-mdc-tooltip"\n  [ngClass]="tooltipClass"\n  (animationend)="_handleAnimationEnd($event)"\n  [class.mdc-tooltip--multiline]="_isMultiline">\n  <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">{{message}}</div>\n</div>\n',
-      styles: ['.mat-mdc-tooltip{position:relative;transform:scale(0);display:inline-flex}.mat-mdc-tooltip::before{content:"";top:0;right:0;bottom:0;left:0;z-index:-1;position:absolute}.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before{top:-8px}.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before{bottom:-8px}.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before{left:-8px}.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before{right:-8px}.mat-mdc-tooltip._mat-animation-noopable{animation:none;transform:scale(1)}.mat-mdc-tooltip-surface{word-break:normal;overflow-wrap:anywhere;padding:4px 8px;min-width:40px;max-width:200px;min-height:24px;max-height:40vh;box-sizing:border-box;overflow:hidden;text-align:center;will-change:transform,opacity;background-color:var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));color:var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));border-radius:var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));font-family:var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));font-size:var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));font-weight:var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));line-height:var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));letter-spacing:var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking))}.mat-mdc-tooltip-surface::before{position:absolute;box-sizing:border-box;width:100%;height:100%;top:0;left:0;border:1px solid rgba(0,0,0,0);border-radius:inherit;content:"";pointer-events:none}.mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:left}[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface{text-align:right}.mat-mdc-tooltip-panel{line-height:normal}.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive{pointer-events:none}@keyframes mat-mdc-tooltip-show{0%{opacity:0;transform:scale(0.8)}100%{opacity:1;transform:scale(1)}}@keyframes mat-mdc-tooltip-hide{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.8)}}.mat-mdc-tooltip-show{animation:mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards}.mat-mdc-tooltip-hide{animation:mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards}\n']
-    }]
-  }], () => [], {
-    _tooltip: [{
-      type: ViewChild,
-      args: ["tooltip", {
-        // Use a static query here since we interact directly with
-        // the DOM which can happen before `ngAfterViewInit`.
-        static: true
-      }]
-    }]
-  });
-})();
-var MatTooltipModule = class _MatTooltipModule {
-  static \u0275fac = function MatTooltipModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltipModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatTooltipModule,
-    imports: [A11yModule, OverlayModule, MatCommonModule, MatTooltip, TooltipComponent],
-    exports: [MatTooltip, TooltipComponent, MatCommonModule, CdkScrollableModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    providers: [MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER],
-    imports: [A11yModule, OverlayModule, MatCommonModule, MatCommonModule, CdkScrollableModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltipModule, [{
-    type: NgModule,
-    args: [{
-      imports: [A11yModule, OverlayModule, MatCommonModule, MatTooltip, TooltipComponent],
-      exports: [MatTooltip, TooltipComponent, MatCommonModule, CdkScrollableModule],
-      providers: [MAT_TOOLTIP_SCROLL_STRATEGY_FACTORY_PROVIDER]
-    }]
-  }], null, null);
-})();
-
 // libs/components/src/lib/settings-toggle.component.ts
 var _c016 = ["*"];
 function SettingsToggleComponent_Conditional_5_Template(rf, ctx) {
@@ -109944,7 +109952,7 @@ _SettingsToggleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _SettingsToggleComponent),
     multi: true
   }
-])], ngContentSelectors: _c016, decls: 9, vars: 8, consts: [["matRipple", "", 1, "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pl-2", "pr-1", "hover:bg-base-200", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [3, "matTooltip"], [1, "absolute", "inset-0", "z-0", "m-0!", "bg-info", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "relative", "h-8", "w-12", "rounded-full", "border-2", "border-base-400"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+])], ngContentSelectors: _c016, decls: 9, vars: 8, consts: [["matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 0);
@@ -109980,7 +109988,7 @@ var SettingsToggleComponent = _SettingsToggleComponent;
     args: [{ selector: "settings-toggle", template: `
         <button
             matRipple
-            class="relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pl-2 pr-1 hover:bg-base-200"
+            class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
             [class.border-base-300]="!value"
             [class.border-info]="value"
             (click)="setValue(!value)"
@@ -109995,13 +110003,13 @@ var SettingsToggleComponent = _SettingsToggleComponent;
                 }
             </div>
             @if (value) {
-                <div class="absolute inset-0 z-0 m-0! bg-info opacity-10"></div>
+                <div class="bg-info absolute inset-0 z-0 m-0! opacity-10"></div>
             }
             @if (toggle()) {
                 <div class="px-2">
                     <div
                         toggle
-                        class="relative h-8 w-12 rounded-full border-2 border-base-400"
+                        class="border-base-400 relative h-8 w-12 rounded-full border-2"
                         [class.bg-base-200]="!value"
                         [class.bg-info]="value"
                         [class.border-info!]="value"
@@ -110266,7 +110274,7 @@ var _AttachedResourceConfigModalComponent = class _AttachedResourceConfigModalCo
 _AttachedResourceConfigModalComponent.\u0275fac = function AttachedResourceConfigModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _AttachedResourceConfigModalComponent)();
 };
-_AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AttachedResourceConfigModalComponent, selectors: [["attached-resource-config-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 14, consts: [["menu", "matMenu"], [1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "min-w-xl", "max-w-lg", "space-y-4", "overflow-auto", "px-4", "pb-4", "pt-2", "text-center"], [3, "ngModel", "name"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "ruleset", "mb-2"], [1, "flex", "items-center", "justify-end", "border-t", "border-solid", "border-base-200", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "w-36", 3, "click"], [3, "ngModelChange", "ngModel", "name"], [1, "mb-2", "flex", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", "name", "name", "placeholder", "Zone ID, Category or Tag", "required", "", 3, "ngModelChange", "ngModel"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 1, "w-52", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-error"], ["name", "rules", 1, "overflow-hidden"], [1, "relative", "flex", "h-16", "items-center", "space-x-2", "pl-7"], [1, "absolute", "left-3", "top-1/2", "h-32", "w-4", "-translate-y-full", "border-b-2", "border-l-2", "border-base-200"], ["name", "booking-type", "placeholder", "Select Rule", 3, "ngModelChange", "ngModel"], [3, "value"], ["matInput", "", "name", "value", "placeholder", "Rule value", "required", "", 3, "ngModelChange", "ngModel"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-error", "text-error", 3, "click"]], template: function AttachedResourceConfigModalComponent_Template(rf, ctx) {
+_AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AttachedResourceConfigModalComponent, selectors: [["attached-resource-config-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 16, vars: 14, consts: [["menu", "matMenu"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-w-lg", "min-w-xl", "space-y-4", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center"], [3, "ngModel", "name"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], [1, "ruleset", "mb-2"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "w-36", 3, "click"], [3, "ngModelChange", "ngModel", "name"], [1, "mb-2", "flex", "items-center", "space-x-2"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", "name", "name", "placeholder", "Zone ID, Category or Tag", "required", "", 3, "ngModelChange", "ngModel"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", 3, "matMenuTriggerFor"], ["mat-menu-item", "", 1, "w-52", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["mat-menu-item", "", 3, "click"], [1, "text-error", "flex", "items-center", "space-x-2"], ["name", "rules", 1, "overflow-hidden"], [1, "relative", "flex", "h-16", "items-center", "space-x-2", "pl-7"], [1, "border-base-200", "absolute", "top-1/2", "left-3", "h-32", "w-4", "-translate-y-full", "border-b-2", "border-l-2"], ["name", "booking-type", "placeholder", "Select Rule", 3, "ngModelChange", "ngModel"], [3, "value"], ["matInput", "", "name", "value", "placeholder", "Rule value", "required", "", 3, "ngModelChange", "ngModel"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function AttachedResourceConfigModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 1)(1, "h2", 2);
     \u0275\u0275text(2);
@@ -110278,7 +110286,7 @@ _AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
     \u0275\u0275conditionalCreate(6, AttachedResourceConfigModalComponent_Conditional_6_Template, 2, 4, "settings-toggle", 5);
     \u0275\u0275elementStart(7, "button", 6);
     \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_Template_button_click_7_listener() {
-      return ctx.rulesets.push({ id: ctx.new_id, rules: [] });
+      return ctx.rulesets.push({ id: ctx.new_id, name: "", rules: [] });
     });
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
@@ -110326,7 +110334,12 @@ _AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
   MatMenuTrigger,
   SettingsToggleComponent,
   TranslatePipe,
-  IconComponent
+  IconComponent,
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  RequiredValidator,
+  NgModel
 ], styles: ["\n\n[name=rules][_ngcontent-%COMP%] {\n  transition: height 200ms;\n}\n/*# sourceMappingURL=attached-resource-config-modal.component.css.map */"] });
 var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent;
 (() => {
@@ -110334,7 +110347,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
     type: Component,
     args: [{ selector: "attached-resource-config-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{
@@ -110349,7 +110362,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
             }
         </header>
         <main
-            class="min-w-xl max-w-lg space-y-4 overflow-auto px-4 pb-4 pt-2 text-center"
+            class="max-w-lg min-w-xl space-y-4 overflow-auto px-4 pt-2 pb-4 text-center"
         >
             @if (can_save_notes) {
                 <settings-toggle
@@ -110362,7 +110375,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                 btn
                 matRipple
                 class="w-full"
-                (click)="rulesets.push({ id: new_id, rules: [] })"
+                (click)="rulesets.push({ id: new_id, name: '', rules: [] })"
             >
                 {{ 'RESOURCE.RULESET_NEW' | translate }}
             </button>
@@ -110397,7 +110410,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                 mat-menu-item
                                 class="w-52"
                                 (click)="
-                                    set.rules.push(['', '']);
+                                    set.rules.push($any(['', '']));
                                     show_rules = set.id
                                 "
                             >
@@ -110439,7 +110452,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                 (click)="rulesets.splice(i, 1)"
                             >
                                 <div
-                                    class="flex items-center space-x-2 text-error"
+                                    class="text-error flex items-center space-x-2"
                                 >
                                     <icon class="text-2xl">delete</icon>
                                     <div>
@@ -110465,7 +110478,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                 class="relative flex h-16 items-center space-x-2 pl-7"
                             >
                                 <div
-                                    class="absolute left-3 top-1/2 h-32 w-4 -translate-y-full border-b-2 border-l-2 border-base-200"
+                                    class="border-base-200 absolute top-1/2 left-3 h-32 w-4 -translate-y-full border-b-2 border-l-2"
                                 ></div>
                                 <mat-form-field
                                     class="no-subscript flex-1"
@@ -110502,7 +110515,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                 <button
                                     icon
                                     matRipple
-                                    class="h-12 w-12 rounded-sm border border-error text-error"
+                                    class="border-error text-error h-12 w-12 rounded-sm border"
                                     (click)="set.rules.splice(i, 1)"
                                 >
                                     <icon>delete</icon>
@@ -110514,7 +110527,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
             }
         </main>
         <footer
-            class="flex items-center justify-end border-t border-solid border-base-200 px-4 py-2"
+            class="border-base-200 flex items-center justify-end border-t border-solid px-4 py-2"
         >
             <button btn matRipple class="w-36" (click)="saveChanges()">
                 {{ 'COMMON.SAVE' | translate }}
@@ -110529,14 +110542,15 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
       MatMenuModule,
       SettingsToggleComponent,
       TranslatePipe,
-      IconComponent
+      IconComponent,
+      FormsModule
     ], styles: ["/* angular:styles/component:css;e42970bb9b1cb2f175261260cd89c08d4c8b2fb74f6c959cde75a7e627b2b6e7;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/attached-resource-config-modal.component.ts */\n[name=rules] {\n  transition: height 200ms;\n}\n/*# sourceMappingURL=attached-resource-config-modal.component.css.map */\n"] }]
   }], () => [], { event: [{
     type: Output
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttachedResourceConfigModalComponent, { className: "AttachedResourceConfigModalComponent", filePath: "libs/components/src/lib/attached-resource-config-modal.component.ts", lineNumber: 260 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttachedResourceConfigModalComponent, { className: "AttachedResourceConfigModalComponent", filePath: "libs/components/src/lib/attached-resource-config-modal.component.ts", lineNumber: 262 });
 })();
 
 // libs/users/src/lib/user.utilities.ts
@@ -110858,7 +110872,7 @@ var _AvailableRoomsStateModalComponent = class _AvailableRoomsStateModalComponen
 _AvailableRoomsStateModalComponent.\u0275fac = function AvailableRoomsStateModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _AvailableRoomsStateModalComponent)();
 };
-_AvailableRoomsStateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AvailableRoomsStateModalComponent, selectors: [["available-rooms-state-modal"]], outputs: { change: "change" }, decls: 8, vars: 8, consts: [[1, "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-48", "w-full", "min-w-64", "flex-col", "items-center", "justify-center", "space-y-2", "p-16", "text-center"], [1, "max-h-[65vh]", "w-lg", "overflow-auto"], [1, "min-w-lg"], [1, "border-b", "border-base-200"], [1, "w-12", "py-1", 3, "click"], [1, "pointer-events-none", 3, "checked", "indeterminate"], [1, "px-8", "text-right", "text-xs"], [1, "hover:bg-base-200"], [1, "flex", "items-center", "justify-end", "space-x-2", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", 3, "click"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], [1, "hover:bg-base-200", 3, "click"], [1, "pointer-events-none", 3, "checked"], [1, "text-center"], [1, "ml-auto", "w-24", "rounded-full", "px-3", "py-2", "text-sm", "text-white"], ["diameter", "32"]], template: function AvailableRoomsStateModalComponent_Template(rf, ctx) {
+_AvailableRoomsStateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AvailableRoomsStateModalComponent, selectors: [["available-rooms-state-modal"]], outputs: { change: "change" }, decls: 8, vars: 8, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-48", "w-full", "min-w-64", "flex-col", "items-center", "justify-center", "space-y-2", "p-16", "text-center"], [1, "max-h-[65vh]", "w-lg", "overflow-auto"], [1, "min-w-lg"], [1, "border-base-200", "border-b"], [1, "w-12", "py-1", 3, "click"], [1, "pointer-events-none", 3, "checked", "indeterminate"], [1, "px-8", "text-right", "text-xs"], [1, "hover:bg-base-200"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "p-2"], ["btn", "", "matRipple", "", 3, "click"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], [1, "hover:bg-base-200", 3, "click"], [1, "pointer-events-none", 3, "checked"], [1, "text-center"], [1, "ml-auto", "w-24", "rounded-full", "px-3", "py-2", "text-sm", "text-white"], ["diameter", "32"]], template: function AvailableRoomsStateModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "header", 0)(2, "h2", 1);
     \u0275\u0275text(3);
@@ -110898,7 +110912,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
     args: [{ selector: "available-rooms-state-modal", template: `
         <div>
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -110915,7 +110929,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
             @if (!loading()) {
                 <main class="max-h-[65vh] w-lg overflow-auto">
                     <table class="min-w-lg">
-                        <thead class="border-b border-base-200">
+                        <thead class="border-base-200 border-b">
                             <tr>
                                 <td class="w-12 py-1" (click)="toggleRoom('*')">
                                     <mat-checkbox
@@ -110992,7 +111006,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
                     </table>
                 </main>
                 <footer
-                    class="flex items-center justify-end space-x-2 border-t border-base-200 p-2"
+                    class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
                 >
                     <button btn matRipple (click)="enableSelected()">
                         {{ 'APP.CONCIERGE.AVAILABLE_ROOMS_ENABLE' | translate }}
@@ -111132,7 +111146,7 @@ var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
 _FullscreenModalShellComponent.\u0275fac = function FullscreenModalShellComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _FullscreenModalShellComponent)();
 };
-_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c019, decls: 11, vars: 12, consts: [[1, "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "bg-base-200", "px-2"], [1, "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x", "border-base-300", "bg-base-100"], [1, "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-10", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c019, decls: 11, vars: 12, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-10", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -111183,15 +111197,15 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
     type: Component,
     args: [{ selector: "fullscreen-modal-shell,[fs-modal-shell]", template: `
         <div
-            class="fixed inset-0 flex flex-col items-center overflow-auto bg-base-200 px-2"
+            class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
         >
             <div
-                class="fixed top-0 mx-auto h-screen max-w-full border-x border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 fixed top-0 mx-auto h-screen max-w-full border-x"
                 [class.w-160]="!full_width()"
                 [class.w-full]="full_width()"
             ></div>
             <header
-                class="sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex h-14 w-full items-center justify-between rounded-sm border-none px-4 py-2"
                 [class.max-w-156]="!full_width()"
             >
                 <h2 class="text-xl font-medium capitalize">
@@ -111229,7 +111243,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
             </main>
             @if (!loading() && !hide_confirm()) {
                 <footer
-                    class="fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-full -translate-x-1/2 items-center justify-end rounded-sm border-none px-4 py-2"
                     [class.max-w-156]="!full_width()"
                 >
                     <button
@@ -111343,7 +111357,7 @@ function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngComponentOutlet", ctx_r0.content())("ngComponentOutletInjector", ctx_r0.injector);
+    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
   }
 }
 function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
@@ -111353,7 +111367,7 @@ function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.content()), \u0275\u0275sanitizeHtml);
+    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
   }
 }
 function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
@@ -111367,7 +111381,7 @@ function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngTemplateOutlet", ctx_r0.content())("ngTemplateOutletContext", ctx_r0.data());
+    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
   }
 }
 function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
@@ -111380,24 +111394,20 @@ function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
     let tmp_1_0;
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_1_0 = ctx_r0.type) === "component" ? 1 : tmp_1_0 === "html" ? 2 : 3);
+    \u0275\u0275conditional((tmp_1_0 = ctx_r0.type()) === "component" ? 1 : tmp_1_0 === "html" ? 2 : 3);
   }
 }
 var _CustomTooltipData = class _CustomTooltipData {
-  constructor(d3) {
-    this.data = d3.data;
-    this.close = d3.close || (() => null);
-  }
 };
 _CustomTooltipData.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
-  \u0275\u0275invalidFactory();
+  return new (__ngFactoryType__ || _CustomTooltipData)();
 };
 _CustomTooltipData.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
 var CustomTooltipData = _CustomTooltipData;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
     type: Injectable
-  }], () => [{ type: void 0 }], null);
+  }], null, null);
 })();
 var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
   constructor() {
@@ -111416,9 +111426,29 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
     this.backdrop = input(true);
     this.hover = input(false);
     this.delay = input(0);
-    this.type = "template";
+    this.type = computed(() => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html");
+    this.template = computed(() => {
+      return this.content();
+    });
+    this.html = computed(() => {
+      return this.content();
+    });
+    this.component = computed(() => {
+      return this.content();
+    });
     this._overlay_ref = null;
     this._portal = viewChild(CdkPortal);
+    this._update_injector = effect(() => {
+      this.injector = Injector.create({
+        providers: [
+          {
+            provide: CustomTooltipData,
+            useValue: { data: this.data(), close: () => this.close() }
+          }
+        ],
+        parent: this._injector
+      });
+    });
   }
   ngOnInit() {
     const open = () => this.open();
@@ -111434,7 +111464,6 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
     this.subscription("mouseleave", () => this._element.nativeElement.removeEventListener("mouseleave", hover_close));
   }
   ngOnChanges(changes) {
-    this._updateInjector();
     if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.content)) {
       this.open();
     }
@@ -111452,7 +111481,6 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
       if (hover && delay2) {
         this.timeout("onclose", () => this.close(), delay2);
       }
-      this._updateType();
       if (this._overlay_ref)
         this.close();
       const _portal = this._portal();
@@ -111486,21 +111514,6 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
       this._overlay_ref = null;
     }
   }
-  _updateType() {
-    const content = this.content();
-    this.type = typeof content === "string" ? "html" : content instanceof TemplateRef ? "template" : "component";
-  }
-  _updateInjector() {
-    this.injector = Injector.create({
-      providers: [
-        {
-          provide: CustomTooltipData,
-          useValue: { data: this.data(), close: () => this.close() }
-        }
-      ],
-      parent: this._injector
-    });
-  }
 };
 _CustomTooltipComponent.\u0275fac = /* @__PURE__ */ (() => {
   let \u0275CustomTooltipComponent_BaseFactory;
@@ -111530,18 +111543,18 @@ var CustomTooltipComponent = _CustomTooltipComponent;
         <ng-content />
         <ng-template cdk-portal>
             <div custom-tooltip class="relative print:hidden">
-                @switch (type) {
+                @switch (type()) {
                     @case ('component') {
                         <ng-container
-                            *ngComponentOutlet="content(); injector: injector"
+                            *ngComponentOutlet="component(); injector: injector"
                         ></ng-container>
                     }
                     @case ('html') {
-                        <div [innerHTML]="content() | sanitize"></div>
+                        <div [innerHTML]="html() | sanitize"></div>
                     }
                     @default {
                         <ng-container
-                            *ngTemplateOutlet="content(); context: data()"
+                            *ngTemplateOutlet="template(); context: data()"
                         ></ng-container>
                     }
                 }
@@ -111551,7 +111564,7 @@ var CustomTooltipComponent = _CustomTooltipComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 65 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 63 });
 })();
 
 // libs/components/src/lib/fixed.pipe.ts
@@ -111586,7 +111599,7 @@ function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const image_r1 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("source", image_r1.url || image_r1);
+    \u0275\u0275property("source", (image_r1 == null ? null : image_r1.url) || image_r1);
   }
 }
 function ImageCarouselComponent_For_2_Template(rf, ctx) {
@@ -111695,7 +111708,7 @@ var _ImageCarouselComponent = class _ImageCarouselComponent {
 _ImageCarouselComponent.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ImageCarouselComponent)();
 };
-_ImageCarouselComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "absolute", "left-4", "top-1/2", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "border-base-300", "bg-base-100", "text-base-content", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "absolute", "right-4", "top-1/2", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "border-base-300", "bg-base-100", "text-base-content", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "rounded-full", "bg-base-100", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
+_ImageCarouselComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -111744,7 +111757,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                         <img
                             auth
                             class="h-full object-contain"
-                            [source]="image.url || image"
+                            [source]="$any(image)?.url || image"
                         />
                     }
                 </div>
@@ -111765,7 +111778,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                 >
                     <div
                         matRipple
-                        class="absolute left-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow-sm"
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 left-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
                     >
                         <icon class="text-3xl">chevron_left</icon>
                     </div>
@@ -111779,7 +111792,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                 >
                     <div
                         matRipple
-                        class="absolute right-4 top-1/2 h-10 w-10 -translate-y-1/2 rounded-full border border-base-300 bg-base-100 text-base-content shadow-sm"
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1/2 right-4 h-10 w-10 -translate-y-1/2 rounded-full border shadow-sm"
                     >
                         <icon class="text-3xl">chevron_right</icon>
                     </div>
@@ -111796,7 +111809,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                             class="flex h-4 w-4 items-center justify-center"
                         >
                             <div
-                                class="rounded-full bg-base-100 shadow-sm transition-all"
+                                class="bg-base-100 rounded-full shadow-sm transition-all"
                                 [class.opacity-30]="offset !== i"
                                 [class.h-2]="offset !== i"
                                 [class.w-2]="offset !== i"
@@ -112537,13 +112550,13 @@ var Ee3 = function(e2) {
 function De3(e2) {
   return h(e2?.then);
 }
-function Ge2(e2) {
+function Ge(e2) {
   return h(e2[xe3]);
 }
 function We2(e2) {
   return Symbol.asyncIterator && h(e2?.[Symbol.asyncIterator]);
 }
-function Je(e2) {
+function Je2(e2) {
   return new TypeError("You provided " + (e2 !== null && typeof e2 == "object" ? "an invalid object" : "'" + e2 + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
 }
 function kt3() {
@@ -112553,7 +112566,7 @@ var Xe2 = kt3();
 function Ze2(e2) {
   return h(e2?.[Xe2]);
 }
-function Ke2(e2) {
+function Ke(e2) {
   return mt3(this, arguments, function() {
     var t, r2, o, i;
     return Re3(this, function(s) {
@@ -112584,14 +112597,14 @@ function Ke2(e2) {
     });
   });
 }
-function Qe(e2) {
+function Qe2(e2) {
   return h(e2?.getReader);
 }
 function L4(e2) {
   if (e2 instanceof g2)
     return e2;
   if (e2 != null) {
-    if (Ge2(e2))
+    if (Ge(e2))
       return It3(e2);
     if (Ee3(e2))
       return qt3(e2);
@@ -112601,10 +112614,10 @@ function L4(e2) {
       return et3(e2);
     if (Ze2(e2))
       return Rt3(e2);
-    if (Qe(e2))
+    if (Qe2(e2))
       return Ft3(e2);
   }
-  throw Je(e2);
+  throw Je2(e2);
 }
 function It3(e2) {
   return new g2(function(n2) {
@@ -112659,7 +112672,7 @@ function et3(e2) {
   });
 }
 function Ft3(e2) {
-  return et3(Ke2(e2));
+  return et3(Ke(e2));
 }
 function jt3(e2, n2) {
   var t, r2, o, i;
@@ -112707,7 +112720,7 @@ function C4(e2, n2, t, r2, o) {
   if (e2.add(i), !o)
     return i;
 }
-function tt(e2, n2) {
+function tt2(e2, n2) {
   return n2 === void 0 && (n2 = 0), R4(function(t, r2) {
     t.subscribe(O4(r2, function(o) {
       return C4(r2, e2, function() {
@@ -112732,10 +112745,10 @@ function nt2(e2, n2) {
   });
 }
 function Bt2(e2, n2) {
-  return L4(e2).pipe(nt2(n2), tt(n2));
+  return L4(e2).pipe(nt2(n2), tt2(n2));
 }
 function Nt3(e2, n2) {
-  return L4(e2).pipe(nt2(n2), tt(n2));
+  return L4(e2).pipe(nt2(n2), tt2(n2));
 }
 function Ut3(e2, n2) {
   return new g2(function(t) {
@@ -112779,11 +112792,11 @@ function rt2(e2, n2) {
   });
 }
 function Ht3(e2, n2) {
-  return rt2(Ke2(e2), n2);
+  return rt2(Ke(e2), n2);
 }
 function Dt2(e2, n2) {
   if (e2 != null) {
-    if (Ge2(e2))
+    if (Ge(e2))
       return Bt2(e2, n2);
     if (Ee3(e2))
       return Ut3(e2, n2);
@@ -112793,10 +112806,10 @@ function Dt2(e2, n2) {
       return rt2(e2, n2);
     if (Ze2(e2))
       return Yt2(e2, n2);
-    if (Qe(e2))
+    if (Qe2(e2))
       return Ht3(e2, n2);
   }
-  throw Je(e2);
+  throw Je2(e2);
 }
 function Gt2(e2, n2) {
   return n2 ? Dt2(e2, n2) : L4(e2);
@@ -112947,13 +112960,13 @@ function it2(e2) {
   N4[e2] && (clearTimeout(N4[e2]), delete N4[e2]);
 }
 function st2(e2, n2) {
-  ct2(e2), E4[e2] = n2;
+  ct3(e2), E4[e2] = n2;
 }
-function ct2(e2) {
+function ct3(e2) {
   E4 && E4[e2] && (E4[e2] instanceof G4 ? E4[e2].unsubscribe() : E4[e2](), delete E4[e2]);
 }
 function an2(e2) {
-  Object.keys(E4).filter((n2) => n2.includes(e2)).forEach((n2) => ct2(n2));
+  Object.keys(E4).filter((n2) => n2.includes(e2)).forEach((n2) => ct3(n2));
 }
 function b2(e2, n2, t, r2 = "debug", o = false, i = "SVG VIEWER") {
   if (window.debug || o) {
@@ -113303,10 +113316,10 @@ var ne2 = class {
   }
 };
 var F13 = new Ye([]);
-var ut3 = new Se3();
-var pn2 = ut3.pipe(ot2((e2) => e2 === "resize"));
+var ut2 = new Se3();
+var pn2 = ut2.pipe(ot2((e2) => e2 === "resize"));
 function mn2(e2) {
-  ut3.next(e2);
+  ut2.next(e2);
 }
 function $2(e2) {
   return F13.getValue().find((n2) => n2.id === e2);
@@ -113500,7 +113513,7 @@ function On2(e2) {
   s && s.callback(r2, se3(o, J3(r2)));
 }
 var j2 = {};
-var Ve2 = {};
+var Ve = {};
 var pe2 = {};
 var me2 = {};
 var ge2 = {};
@@ -113540,8 +113553,8 @@ function ht2(e2) {
           () => ht2(e2).then((o) => n2()),
           100
         );
-      const r2 = Ve2[e2.url] || ln(t);
-      Ve2[e2.url] = r2, x3(e2, { mappings: r2 }), t.style.display = "none", Mn2(e2), Le2(e2), n2();
+      const r2 = Ve[e2.url] || ln(t);
+      Ve[e2.url] = r2, x3(e2, { mappings: r2 }), t.style.display = "none", Mn2(e2), Le2(e2), n2();
     });
   });
 }
@@ -114716,7 +114729,15 @@ _MapRendererComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275advance(2);
     \u0275\u0275conditional((ctx.injectors == null ? null : ctx.injectors.length) ? 4 : -1);
   }
-}, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, TranslatePipe, MatProgressSpinnerModule, MatProgressSpinner], styles: ["\n\n[_nghost-%COMP%] {\n  height: 100%;\n  width: 100%;\n}\nmat-spinner[_ngcontent-%COMP%] {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=map-renderer.component.css.map */"] });
+}, dependencies: [
+  CommonModule,
+  NgComponentOutlet,
+  NgTemplateOutlet,
+  TranslatePipe,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  SanitizePipe
+], styles: ["\n\n[_nghost-%COMP%] {\n  height: 100%;\n  width: 100%;\n}\nmat-spinner[_ngcontent-%COMP%] {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=map-renderer.component.css.map */"] });
 var MapRendererComponent = _MapRendererComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapRendererComponent, [{
@@ -114759,7 +114780,7 @@ var MapRendererComponent = _MapRendererComponent;
                             <div
                                 #feature
                                 class="pointer-events-none"
-                                [attr.no-scale]="element.no_scale"
+                                [attr.no-scale]="$any(element).no_scale"
                                 [attr.el-id]="element.location"
                                 [attr.track-id]="element.track_id"
                                 [attr.view-id]="viewer()"
@@ -114795,14 +114816,19 @@ var MapRendererComponent = _MapRendererComponent;
                 }
             </div>
         }
-    `, imports: [CommonModule, TranslatePipe, MatProgressSpinnerModule], styles: ["/* angular:styles/component:css;3e4635dffa25bbb5509b5ad5ed62f87c396dd7f6fe919adad84e303cefc25ff3;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-renderer.component.ts */\n:host {\n  height: 100%;\n  width: 100%;\n}\nmat-spinner {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=map-renderer.component.css.map */\n"] }]
+    `, imports: [
+      CommonModule,
+      TranslatePipe,
+      MatProgressSpinnerModule,
+      SanitizePipe
+    ], styles: ["/* angular:styles/component:css;3e4635dffa25bbb5509b5ad5ed62f87c396dd7f6fe919adad84e303cefc25ff3;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-renderer.component.ts */\n:host {\n  height: 100%;\n  width: 100%;\n}\nmat-spinner {\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n/*# sourceMappingURL=map-renderer.component.css.map */\n"] }]
   }], () => [], { onResize: [{
     type: HostListener,
     args: ["window:resize"]
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapRendererComponent, { className: "MapRendererComponent", filePath: "libs/components/src/lib/map-renderer.component.ts", lineNumber: 142 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapRendererComponent, { className: "MapRendererComponent", filePath: "libs/components/src/lib/map-renderer.component.ts", lineNumber: 148 });
 })();
 
 // libs/components/src/lib/maps-indoors.component.ts
@@ -115192,7 +115218,7 @@ _MapsIndoorsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, inputs: { zone: [1, "zone"], metadata: [1, "metadata"], options: [1, "options"], focus: [1, "focus"], zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zone: "zoneChange", zoom: "zoomChange", zoomChange: "zoomChange", zoneChange: "zoneChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 3, vars: 1, consts: [["map_container", ""], [1, "absolute", "inset-0", "z-0"], ["btn", "", "matRipple", "", 1, "absolute", "bottom-2", "left-2", "z-10", "space-x-2", "border-base-200", "bg-base-100", "text-base-content", "shadow-sm"], ["btn", "", "matRipple", "", 1, "absolute", "bottom-2", "left-2", "z-10", "space-x-2", "border-base-200", "bg-base-100", "text-base-content", "shadow-sm", 3, "click"], [1, "pr-2"], ["diameter", "24"]], template: function MapsIndoorsComponent_Template(rf, ctx) {
+}, inputs: { zone: [1, "zone"], metadata: [1, "metadata"], options: [1, "options"], focus: [1, "focus"], zoom: [1, "zoom"], reset: [1, "reset"] }, outputs: { zone: "zoneChange", zoom: "zoomChange", zoomChange: "zoomChange", zoneChange: "zoneChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 3, vars: 1, consts: [["map_container", ""], [1, "absolute", "inset-0", "z-0"], ["btn", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "text-base-content", "absolute", "bottom-2", "left-2", "z-10", "space-x-2", "shadow-sm"], ["btn", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "text-base-content", "absolute", "bottom-2", "left-2", "z-10", "space-x-2", "shadow-sm", 3, "click"], [1, "pr-2"], ["diameter", "24"]], template: function MapsIndoorsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 1, 0);
     \u0275\u0275conditionalCreate(2, MapsIndoorsComponent_Conditional_2_Template, 6, 2, "button", 2);
@@ -115202,7 +115228,7 @@ _MapsIndoorsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.focus() && !ctx.show_directions && ((tmp_1_0 = ctx.options()) == null ? null : tmp_1_0.controls) ? 2 : -1);
   }
-}, dependencies: [MatRippleModule, MatRipple, MatProgressSpinnerModule, MatProgressSpinner], encapsulation: 2 });
+}, dependencies: [MatRippleModule, MatRipple, MatProgressSpinnerModule, MatProgressSpinner, IconComponent], encapsulation: 2 });
 var MapsIndoorsComponent = _MapsIndoorsComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsIndoorsComponent, [{
@@ -115213,7 +115239,7 @@ var MapsIndoorsComponent = _MapsIndoorsComponent;
             <button
                 btn
                 matRipple
-                class="absolute bottom-2 left-2 z-10 space-x-2 border-base-200 bg-base-100 text-base-content shadow-sm"
+                class="border-base-200 bg-base-100 text-base-content absolute bottom-2 left-2 z-10 space-x-2 shadow-sm"
                 (click)="toggleDirections()"
             >
                 <icon>place</icon>
@@ -115225,11 +115251,11 @@ var MapsIndoorsComponent = _MapsIndoorsComponent;
                 }
             </button>
         }
-    `, imports: [MatRippleModule, MatProgressSpinnerModule] }]
+    `, imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapsIndoorsComponent, { className: "MapsIndoorsComponent", filePath: "libs/components/src/lib/maps-indoors.component.ts", lineNumber: 70 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapsIndoorsComponent, { className: "MapsIndoorsComponent", filePath: "libs/components/src/lib/maps-indoors.component.ts", lineNumber: 71 });
 })();
 
 // libs/components/src/lib/interactive-map.component.ts
@@ -115252,7 +115278,7 @@ function InteractiveMapComponent_Conditional_0_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("zone", ctx_r1.location)("zoom", ctx_r1.zoom())("options", ctx_r1.options())("reset", ctx_r1.reset())("focus", ctx_r1.focus())("metadata", ctx_r1.metadata());
+    \u0275\u0275property("zone", ctx_r1.location())("zoom", ctx_r1.zoom())("options", ctx_r1.options())("reset", ctx_r1.reset())("focus", ctx_r1.focus())("metadata", ctx_r1.metadata());
   }
 }
 function InteractiveMapComponent_Conditional_2_Template(rf, ctx) {
@@ -115388,7 +115414,7 @@ _InteractiveMapComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275InteractiveMapComponent_BaseFactory || (\u0275InteractiveMapComponent_BaseFactory = \u0275\u0275getInheritedFactory(_InteractiveMapComponent)))(__ngFactoryType__ || _InteractiveMapComponent);
   };
 })();
-_InteractiveMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InteractiveMapComponent, selectors: [["interactive-map"]], inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], reset: [1, "reset"], metadata: [1, "metadata"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", reset: "resetChange", metadata: "metadataChange", mapInfo: "mapInfo" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c024, decls: 5, vars: 4, consts: [[3, "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "src", "zoom", "reset", "styles", "features", "actions", "labels"], ["zoom", "", 1, "absolute", "bottom-16", "right-1", "flex", "flex-col", "divide-y", "divide-base-200", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "text-base-content", "shadow-sm"], [3, "zoneChange", "zoomChange", "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "zoomChange", "mapInfo", "src", "zoom", "reset", "styles", "features", "actions", "labels"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "rounded-none", 3, "click", "matTooltip"]], template: function InteractiveMapComponent_Template(rf, ctx) {
+_InteractiveMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InteractiveMapComponent, selectors: [["interactive-map"]], inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], reset: [1, "reset"], metadata: [1, "metadata"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", reset: "resetChange", metadata: "metadataChange", mapInfo: "mapInfo" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c024, decls: 5, vars: 4, consts: [[3, "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "src", "zoom", "reset", "styles", "features", "actions", "labels"], ["zoom", "", 1, "divide-base-200", "border-base-200", "bg-base-100", "text-base-content", "absolute", "right-1", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-sm", "border", "shadow-sm"], [3, "zoneChange", "zoomChange", "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "zoomChange", "mapInfo", "src", "zoom", "reset", "styles", "features", "actions", "labels"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "rounded-none", 3, "click", "matTooltip"]], template: function InteractiveMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef(_c024);
     \u0275\u0275conditionalCreate(0, InteractiveMapComponent_Conditional_0_Template, 2, 6, "maps-indoors", 0);
@@ -115409,6 +115435,8 @@ _InteractiveMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   TranslatePipe,
   MatRippleModule,
   MatRipple,
+  MatTooltipModule,
+  MatTooltip,
   MapsIndoorsComponent,
   MapRendererComponent,
   CiscoMapComponent
@@ -115420,7 +115448,7 @@ var InteractiveMapComponent = _InteractiveMapComponent;
     args: [{ selector: "interactive-map", template: `
         @if (use_mapsindoors$ | async) {
             <maps-indoors
-                [zone]="location"
+                [zone]="location()"
                 (zoneChange)="onLevelChange($event)"
                 [zoom]="zoom()"
                 (zoomChange)="zoom.set($event)"
@@ -115453,7 +115481,7 @@ var InteractiveMapComponent = _InteractiveMapComponent;
         @if (options()?.controls) {
             <div
                 zoom
-                class="absolute bottom-16 right-1 flex flex-col divide-y divide-base-200 overflow-hidden rounded-sm border border-base-200 bg-base-100 text-base-content shadow-sm"
+                class="divide-base-200 border-base-200 bg-base-100 text-base-content absolute right-1 bottom-16 flex flex-col divide-y overflow-hidden rounded-sm border shadow-sm"
             >
                 <button
                     icon
@@ -115492,6 +115520,7 @@ var InteractiveMapComponent = _InteractiveMapComponent;
       IconComponent,
       TranslatePipe,
       MatRippleModule,
+      MatTooltipModule,
       MapsIndoorsComponent,
       MapRendererComponent,
       CiscoMapComponent
@@ -115499,7 +115528,7 @@ var InteractiveMapComponent = _InteractiveMapComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InteractiveMapComponent, { className: "InteractiveMapComponent", filePath: "libs/components/src/lib/interactive-map.component.ts", lineNumber: 134 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InteractiveMapComponent, { className: "InteractiveMapComponent", filePath: "libs/components/src/lib/interactive-map.component.ts", lineNumber: 136 });
 })();
 
 // libs/components/src/lib/login.component.ts
@@ -115564,6 +115593,7 @@ var _LoginComponent = class _LoginComponent {
   constructor() {
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
+    this.focus = "";
     this.form = new FormGroup({
       username: new FormControl("", [Validators.required]),
       password: new FormControl("", [Validators.required])
@@ -115599,7 +115629,7 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, decls: 10, vars: 7, consts: [["username", ""], ["pass_field", ""], [1, "fixed", "inset-0", "overflow-auto"], [1, "mx-auto", "my-4", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "flex", "items-center", "justify-center"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "relative", "h-1/3", "w-full", "flex-1"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "flex", "w-full", "items-center", "justify-center"], [1, "flex", "flex-col"], ["for", "username"], ["appearance", "outline"], ["formControlName", "username", 3, "keyup.enter"], ["for", "password"], ["formControlName", "password", 3, "keyup.enter"], ["diameter", "64"], ["btn", "", "matRipple", "", "color", "primary", 3, "click"]], template: function LoginComponent_Template(rf, ctx) {
+}, decls: 10, vars: 7, consts: [["username", ""], ["pass_field", ""], [1, "fixed", "inset-0", "overflow-auto"], [1, "bg-base-100", "mx-auto", "my-4", "flex", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "p-4", "shadow-sm"], [1, "flex", "items-center", "justify-center"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "relative", "h-1/3", "w-full", "flex-1"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "flex", "w-full", "items-center", "justify-center"], [1, "flex", "flex-col"], ["for", "username"], ["appearance", "outline"], ["formControlName", "username", 3, "keyup.enter"], ["for", "password"], ["formControlName", "password", 3, "keyup.enter"], ["diameter", "64"], ["btn", "", "matRipple", "", "color", "primary", 3, "click"]], template: function LoginComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2)(1, "form", 3)(2, "div", 4);
     \u0275\u0275element(3, "img", 5);
@@ -115655,7 +115685,7 @@ var LoginComponent = _LoginComponent;
     args: [{ selector: "app-login", template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 mx-auto my-4 flex flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <div class="flex items-center justify-center">
                     <img
@@ -115797,7 +115827,7 @@ var _MapPinComponent = class _MapPinComponent {
 _MapPinComponent.\u0275fac = function MapPinComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MapPinComponent)();
 };
-_MapPinComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapPinComponent, selectors: [["", "map-pin", ""]], attrs: _c026, decls: 3, vars: 2, consts: [[1, "-z-1", "absolute", "bottom-1/2", "left-1/2", "flex", "w-[24rem]", "-translate-x-1/2", "flex-col", "items-center"], ["name", "message", 1, "text-gray-700", "m-2", "rounded-sm", "bg-base-100", "p-2", "shadow-sm"], ["name", "pin", "viewBox", "0 0 380 560", 1, "w-8", 3, "pointer-events-auto"], ["name", "pin", "viewBox", "0 0 380 560", 1, "w-8", 3, "click"], ["stroke-width", "25", "d", "M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9\n            C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8\n            c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"]], template: function MapPinComponent_Template(rf, ctx) {
+_MapPinComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapPinComponent, selectors: [["", "map-pin", ""]], attrs: _c026, decls: 3, vars: 2, consts: [[1, "absolute", "bottom-1/2", "left-1/2", "-z-1", "flex", "w-[24rem]", "-translate-x-1/2", "flex-col", "items-center"], ["name", "message", 1, "bg-base-100", "m-2", "rounded-sm", "p-2", "text-gray-700", "shadow-sm"], ["name", "pin", "viewBox", "0 0 380 560", 1, "w-8", 3, "pointer-events-auto"], ["name", "pin", "viewBox", "0 0 380 560", 1, "w-8", 3, "click"], ["stroke-width", "25", "d", "M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9\n            C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8\n            c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"]], template: function MapPinComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275conditionalCreate(1, MapPinComponent_Conditional_1_Template, 2, 1, "div", 1);
@@ -115817,12 +115847,12 @@ var MapPinComponent = _MapPinComponent;
     type: Component,
     args: [{ selector: "[map-pin]", template: `
         <div
-            class="-z-1 absolute bottom-1/2 left-1/2 flex w-[24rem] -translate-x-1/2 flex-col items-center"
+            class="absolute bottom-1/2 left-1/2 -z-1 flex w-[24rem] -translate-x-1/2 flex-col items-center"
         >
             @if (message && show_message()) {
                 <div
                     name="message"
-                    class="text-gray-700 m-2 rounded-sm bg-base-100 p-2 shadow-sm"
+                    class="bg-base-100 m-2 rounded-sm p-2 text-gray-700 shadow-sm"
                 >
                     {{ message }}
                 </div>
@@ -115923,7 +115953,7 @@ var _MapLocateModalComponent = class _MapLocateModalComponent extends AsyncHandl
 _MapLocateModalComponent.\u0275fac = function MapLocateModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MapLocateModalComponent)();
 };
-_MapLocateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapLocateModalComponent, selectors: [["map-locate-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 11, vars: 5, consts: [[1, "h-[calc(100vh-4rem)]", "w-screen", "sm:h-auto", "sm:w-auto"], [1, "p-4"], [1, "text-2xl"], [1, "ml-2", "text-xl", "font-medium"], ["body", "", 1, "relative", "h-[65vh]", "w-full", "overflow-hidden", "sm:max-h-[65vh]"], [1, "flex", "w-full", "items-center", "justify-center", "border-t", "border-base-200", "p-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], ["diameter", "64"], [1, "absolute", "right-2", "top-2", "rounded-3xl", "border", "border-base-200", "bg-base-100", "px-4", "py-2", "shadow-sm"]], template: function MapLocateModalComponent_Template(rf, ctx) {
+_MapLocateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapLocateModalComponent, selectors: [["map-locate-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 11, vars: 5, consts: [[1, "h-[calc(100vh-4rem)]", "w-screen", "sm:h-auto", "sm:w-auto"], [1, "p-4"], [1, "text-2xl"], [1, "ml-2", "text-xl", "font-medium"], ["body", "", 1, "relative", "h-[65vh]", "w-full", "overflow-hidden", "sm:max-h-[65vh]"], [1, "border-base-200", "flex", "w-full", "items-center", "justify-center", "border-t", "p-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], ["diameter", "64"], [1, "border-base-200", "bg-base-100", "absolute", "top-2", "right-2", "rounded-3xl", "border", "px-4", "py-2", "shadow-sm"]], template: function MapLocateModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "icon", 2);
     \u0275\u0275text(3, "place");
@@ -115986,14 +116016,14 @@ var MapLocateModalComponent = _MapLocateModalComponent;
                         <mat-spinner diameter="64"></mat-spinner
                     ></interactive-map>
                     <div
-                        class="absolute right-2 top-2 rounded-3xl border border-base-200 bg-base-100 px-4 py-2 shadow-sm"
+                        class="border-base-200 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-sm"
                     >
                         {{ level?.display_name || level?.name }}
                     </div>
                 </div>
             }
             <footer
-                class="flex w-full items-center justify-center border-t border-base-200 p-2"
+                class="border-base-200 flex w-full items-center justify-center border-t p-2"
             >
                 <button btn matRipple class="inverse w-32" mat-dialog-close>
                     {{ 'COMMON.BACK' | translate }}
@@ -116170,7 +116200,7 @@ var _MapRadiusComponent = class _MapRadiusComponent {
 _MapRadiusComponent.\u0275fac = function MapRadiusComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MapRadiusComponent)();
 };
-_MapRadiusComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapRadiusComponent, selectors: [["", "map-radius", ""]], attrs: _c028, decls: 1, vars: 1, consts: [[3, "resize"], ["radius", "", 1, "center", "rounded-full", "border-4", "border-dashed"], ["message", "", 1, "text-gray-700", "whitespace-no-wrap", "absolute", "top-0", "m-2", "flex", "w-64", "flex-col", "rounded-sm", "bg-base-100", "p-2", "shadow-sm", 3, "top"], ["message", "", 1, "text-gray-700", "whitespace-no-wrap", "absolute", "top-0", "m-2", "flex", "w-64", "flex-col", "rounded-sm", "bg-base-100", "p-2", "shadow-sm"], [1, "text-xs"]], template: function MapRadiusComponent_Template(rf, ctx) {
+_MapRadiusComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapRadiusComponent, selectors: [["", "map-radius", ""]], attrs: _c028, decls: 1, vars: 1, consts: [[3, "resize"], ["radius", "", 1, "center", "rounded-full", "border-4", "border-dashed"], ["message", "", 1, "whitespace-no-wrap", "bg-base-100", "absolute", "top-0", "m-2", "flex", "w-64", "flex-col", "rounded-sm", "p-2", "text-gray-700", "shadow-sm", 3, "top"], ["message", "", 1, "whitespace-no-wrap", "bg-base-100", "absolute", "top-0", "m-2", "flex", "w-64", "flex-col", "rounded-sm", "p-2", "text-gray-700", "shadow-sm"], [1, "text-xs"]], template: function MapRadiusComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, MapRadiusComponent_Conditional_0_Template, 3, 9, "ng-container");
   }
@@ -116197,7 +116227,7 @@ var MapRadiusComponent = _MapRadiusComponent;
                     <div
                         message
                         [style.top]="'-' + (radius() / 2) * zoom() + 'px'"
-                        class="text-gray-700 whitespace-no-wrap absolute top-0 m-2 flex w-64 flex-col rounded-sm bg-base-100 p-2 shadow-sm"
+                        class="whitespace-no-wrap bg-base-100 absolute top-0 m-2 flex w-64 flex-col rounded-sm p-2 text-gray-700 shadow-sm"
                     >
                         {{ message }}
                         @if (last_seen()) {
@@ -116223,7 +116253,7 @@ var _MisconfiguredComponent = class _MisconfiguredComponent {
 _MisconfiguredComponent.\u0275fac = function MisconfiguredComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _MisconfiguredComponent)();
 };
-_MisconfiguredComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MisconfiguredComponent, selectors: [["app-misconfigured"]], decls: 10, vars: 9, consts: [["content", "", 1, "m-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-2xl"], [1, "py-4"]], template: function MisconfiguredComponent_Template(rf, ctx) {
+_MisconfiguredComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MisconfiguredComponent, selectors: [["app-misconfigured"]], decls: 10, vars: 9, consts: [["content", "", 1, "border-base-200", "bg-base-100", "m-4", "rounded-sm", "border", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-2xl"], [1, "py-4"]], template: function MisconfiguredComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -116254,7 +116284,7 @@ var MisconfiguredComponent = _MisconfiguredComponent;
     args: [{ selector: "app-misconfigured", template: `
         <div
             content
-            class="m-4 rounded-sm border border-base-200 bg-base-100 p-4 text-center text-black shadow-sm"
+            class="border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
         >
             <h3 class="text-2xl">
                 {{ 'COMMON.MISCONFIGURED_TITLE' | translate }}
@@ -116447,7 +116477,7 @@ _PrintableComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, inputs: { content: [1, "content"] }, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c029, decls: 2, vars: 1, consts: [[4, "ngTemplateOutlet"], ["cdk-portal", ""], ["printable-view", "", 1, "pointer-events-none", "fixed", "left-0", "top-0", "hidden", "flex-col", "items-end", "print:flex"]], template: function PrintableComponent_Template(rf, ctx) {
+}, inputs: { content: [1, "content"] }, features: [\u0275\u0275InheritDefinitionFeature], attrs: _c029, decls: 2, vars: 1, consts: [[4, "ngTemplateOutlet"], ["cdk-portal", ""], ["printable-view", "", 1, "pointer-events-none", "fixed", "top-0", "left-0", "hidden", "flex-col", "items-end", "print:flex"]], template: function PrintableComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275template(0, PrintableComponent_ng_container_0_Template, 1, 0, "ng-container", 0)(1, PrintableComponent_ng_template_1_Template, 2, 1, "ng-template", 1);
   }
@@ -116467,7 +116497,7 @@ var PrintableComponent = _PrintableComponent;
         <ng-template cdk-portal>
             <div
                 printable-view
-                class="pointer-events-none fixed left-0 top-0 hidden flex-col items-end print:flex"
+                class="pointer-events-none fixed top-0 left-0 hidden flex-col items-end print:flex"
             >
                 <ng-container *ngTemplateOutlet="content()"></ng-container>
             </div>
@@ -116515,7 +116545,7 @@ var RedirectComponent = _RedirectComponent;
 // libs/components/src/lib/simple-table.component.ts
 var _c030 = (a0, a1, a2, a3, a4, a5, a6) => ({ first: a0, last: a1, index: a2, data: a3, row: a4, key: a5, name: a6 });
 var _c114 = (a0, a1, a2, a3) => ({ first: a0, last: a1, index: a2, row: a3 });
-var _forTrack02 = ($index, $item) => $item.id || $item;
+var _forTrack02 = ($index, $item) => $item["id"] || $item;
 var _forTrack1 = ($index, $item) => $item.key + $index;
 function SimpleTableComponent_Conditional_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -116638,7 +116668,7 @@ function SimpleTableComponent_For_3_For_2_Case_1_Template(rf, ctx) {
     const row_r11 = ctx_r9.$implicit;
     const \u0275$index_19_r7 = ctx_r9.$index;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("ngTemplateOutlet", column_r9.content)("ngTemplateOutletContext", \u0275\u0275pureFunction7(2, _c030, \u0275$index_19_r7 === 0, \u0275$index_19_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_19_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11[column_r9.key], row_r11, column_r9.key, column_r9.name || column_r9.key));
+    \u0275\u0275property("ngTemplateOutlet", ctx_r1.template(column_r9))("ngTemplateOutletContext", \u0275\u0275pureFunction7(2, _c030, \u0275$index_19_r7 === 0, \u0275$index_19_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_19_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11[column_r9.key], row_r11, column_r9.key, column_r9.name || column_r9.key));
   }
 }
 function SimpleTableComponent_For_3_For_2_Case_2_Conditional_2_Template(rf, ctx) {
@@ -116670,7 +116700,7 @@ function SimpleTableComponent_For_3_For_2_Case_2_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", row_r11[column_r9.key] ?? (column_r9.key === "_index" ? \u0275$index_19_r7 + 1 + ctx_r1.page() * (ctx_r1.page_size() || 0) : row_r11[column_r9.key]), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional((row_r11[column_r9.key] == null || row_r11[column_r9.key] === "") && column_r9.key !== "_index" ? 2 : -1);
+    \u0275\u0275conditional((row_r11[column_r9.key] === null || row_r11[column_r9.key] === void 0 || row_r11[column_r9.key] === "") && column_r9.key !== "_index" ? 2 : -1);
   }
 }
 function SimpleTableComponent_For_3_For_2_Template(rf, ctx) {
@@ -116737,7 +116767,7 @@ function SimpleTableComponent_For_3_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.active_columns());
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.show_children()[row_r11.id] && ctx_r1.child_template() ? 3 : -1);
+    \u0275\u0275conditional(ctx_r1.show_children()[row_r11["id"]] && ctx_r1.child_template() ? 3 : -1);
   }
 }
 function SimpleTableComponent_Conditional_4_Template(rf, ctx) {
@@ -116912,6 +116942,12 @@ var _SimpleTableComponent = class _SimpleTableComponent {
       }
     }, { allowSignalWrites: true });
   }
+  template(column) {
+    return column.content;
+  }
+  html(column) {
+    return column.content;
+  }
   column(key) {
     return this.active_columns().find((_3) => _3.key === key);
   }
@@ -116950,7 +116986,7 @@ var _SimpleTableComponent = class _SimpleTableComponent {
 _SimpleTableComponent.\u0275fac = function SimpleTableComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SimpleTableComponent)();
 };
-_SimpleTableComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SimpleTableComponent, selectors: [["simple-table"]], inputs: { data: [1, "data"], columns: [1, "columns"], selectable: [1, "selectable"], filter: [1, "filter"], sortable: [1, "sortable"], show_header: [1, "show_header"], selected: [1, "selected"], page_size: [1, "page_size"], empty_message: [1, "empty_message"], child_template: [1, "child_template"], show_children: [1, "show_children"], filter_on: [1, "filter_on"] }, outputs: { selected: "selectedChange", selectedChange: "selectedChange", rowClicked: "rowClicked" }, decls: 6, vars: 5, consts: [["role", "table", 1, "grid", "border", "border-base-300", 3, "click", "touchend", "mouseleave"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30", 3, "gridColumnStart"], [1, "sticky", "bottom-0", "z-30", "flex", "w-full", "items-center", "justify-end", "space-x-2", "bg-base-200", "p-2"], ["id", "column-selector", 1, "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "border-r", "border-base-200", "bg-base-300", "px-2", 3, "gridColumn"], ["header", "", "matRipple", "", 1, "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "border-base-200", "bg-base-300", "p-4", 3, "id", "gridColumn", "pointer-events-none", "active", "border-r", "width"], ["id", "column-selector", 1, "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "border-r", "border-base-200", "bg-base-300", "px-2"], [3, "change", "checked", "indeterminate"], ["header", "", "matRipple", "", 1, "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "border-base-200", "bg-base-300", "p-4", 3, "click", "id"], [1, "font-medium"], [1, "text-[1.25em]"], ["id", "column-selector", 1, "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-base-200", "px-2", 3, "gridColumn", "border-b"], [1, "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-base-200", 3, "gridColumn", "border-b", "border-r", "width"], ["child-node", "", 1, "relative", "border-b", "border-base-200", "last:border-b-0", "last:border-t", 3, "gridColumn"], ["id", "column-selector", 1, "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-base-200", "px-2", 3, "mouseenter", "touchstart"], [3, "change", "checked"], [1, "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-base-200", 3, "mouseenter", "touchstart"], [1, "p-4"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "opacity-30"], ["child-node", "", 1, "relative", "border-b", "border-base-200", "last:border-b-0", "last:border-t"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30"], [1, "px-4", "py-2"], ["icon", "", "matRipple", "", 3, "click", "disabled"]], template: function SimpleTableComponent_Template(rf, ctx) {
+_SimpleTableComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SimpleTableComponent, selectors: [["simple-table"]], inputs: { data: [1, "data"], columns: [1, "columns"], selectable: [1, "selectable"], filter: [1, "filter"], sortable: [1, "sortable"], show_header: [1, "show_header"], selected: [1, "selected"], page_size: [1, "page_size"], empty_message: [1, "empty_message"], child_template: [1, "child_template"], show_children: [1, "show_children"], filter_on: [1, "filter_on"] }, outputs: { selected: "selectedChange", selectedChange: "selectedChange", rowClicked: "rowClicked" }, decls: 6, vars: 5, consts: [["role", "table", 1, "border-base-300", "grid", "border", 3, "click", "touchend", "mouseleave"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30", 3, "gridColumnStart"], [1, "bg-base-200", "sticky", "bottom-0", "z-30", "flex", "w-full", "items-center", "justify-end", "space-x-2", "p-2"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2", 3, "gridColumn"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "id", "gridColumn", "pointer-events-none", "active", "border-r", "width"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2"], [3, "change", "checked", "indeterminate"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "click", "id"], [1, "font-medium"], [1, "text-[1.25em]"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "gridColumn", "border-b"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "gridColumn", "border-b", "border-r", "width"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0", 3, "gridColumn"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "mouseenter", "touchstart"], [3, "change", "checked"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "mouseenter", "touchstart"], [1, "p-4"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "opacity-30"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30"], [1, "px-4", "py-2"], ["icon", "", "matRipple", "", 3, "click", "disabled"]], template: function SimpleTableComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function SimpleTableComponent_Template_div_click_0_listener() {
@@ -116994,7 +117030,7 @@ var SimpleTableComponent = _SimpleTableComponent;
     args: [{ selector: "simple-table", template: `
         <div
             role="table"
-            class="grid border border-base-300"
+            class="border-base-300 grid border"
             [style.gridTemplateColumns]="column_template()"
             (click)="active_row() >= 0 ? rowClicked.emit(active_row()) : null"
             (touchend)="active_row.set(-1)"
@@ -117004,7 +117040,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                 @if (selectable()) {
                     <div
                         id="column-selector"
-                        class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-r border-base-200 bg-base-300 px-2"
+                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-r border-b px-2"
                         [style.gridColumn]="'1 / 2'"
                     >
                         <mat-checkbox
@@ -117026,7 +117062,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                         header
                         matRipple
                         [id]="'column-' + column.key"
-                        class="sticky top-0 z-20 flex min-h-full items-center justify-between border-b border-base-200 bg-base-300 p-4"
+                        class="border-base-200 bg-base-300 sticky top-0 z-20 flex min-h-full items-center justify-between border-b p-4"
                         [style.gridColumn]="
                             1 +
                             i +
@@ -117060,13 +117096,13 @@ var SimpleTableComponent = _SimpleTableComponent;
             }
             @for (
                 row of paginated_data();
-                track row.id || row;
+                track row['id'] || row;
                 let i = $index
             ) {
                 @if (selectable()) {
                     <div
                         id="column-selector"
-                        class="z-10 flex min-h-full items-center justify-between border-r border-base-200 px-2"
+                        class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
                         [style.gridColumn]="'1 / 2'"
                         [class.border-b]="i !== paginated_data().length - 1"
                         (mouseenter)="active_row.set(i)"
@@ -117084,7 +117120,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                     let j = $index
                 ) {
                     <div
-                        class="z-10 flex min-h-full items-center justify-between border-base-200"
+                        class="border-base-200 z-10 flex min-h-full items-center justify-between"
                         [style.gridColumn]="
                             1 +
                             j +
@@ -117110,7 +117146,8 @@ var SimpleTableComponent = _SimpleTableComponent;
                                                 : row[column.key])
                                     }}
                                     @if (
-                                        (row[column.key] == null ||
+                                        (row[column.key] === null ||
+                                            row[column.key] === undefined ||
                                             row[column.key] === '') &&
                                         column.key !== '_index'
                                     ) {
@@ -117126,7 +117163,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                             @case ('template') {
                                 <ng-container
                                     *ngTemplateOutlet="
-                                        column.content;
+                                        template(column);
                                         context: {
                                             first: i === 0,
                                             last:
@@ -117145,11 +117182,11 @@ var SimpleTableComponent = _SimpleTableComponent;
                         }
                     </div>
                 }
-                @if (show_children()[row.id] && child_template()) {
+                @if (show_children()[row['id']] && child_template()) {
                     <div
                         child-node
                         [style.gridColumn]="'span ' + active_columns().length"
-                        class="relative border-b border-base-200 last:border-b-0 last:border-t"
+                        class="border-base-200 relative border-b last:border-t last:border-b-0"
                     >
                         <ng-container
                             *ngTemplateOutlet="
@@ -117176,7 +117213,7 @@ var SimpleTableComponent = _SimpleTableComponent;
         </div>
         @if (page_size()) {
             <div
-                class="sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 bg-base-200 p-2"
+                class="bg-base-200 sticky bottom-0 z-30 flex w-full items-center justify-end space-x-2 p-2"
             >
                 <div class="px-4 py-2">
                     {{ page() * (page_size() || 9999) + 1 }} &ndash;
@@ -117231,7 +117268,7 @@ var SimpleTableComponent = _SimpleTableComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SimpleTableComponent, { className: "SimpleTableComponent", filePath: "libs/components/src/lib/simple-table.component.ts", lineNumber: 292 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SimpleTableComponent, { className: "SimpleTableComponent", filePath: "libs/components/src/lib/simple-table.component.ts", lineNumber: 293 });
 })();
 
 // libs/components/src/lib/status-overlay.component.ts
@@ -117314,7 +117351,7 @@ var _StatusOverlayComponent = class _StatusOverlayComponent {
 _StatusOverlayComponent.\u0275fac = function StatusOverlayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _StatusOverlayComponent)();
 };
-_StatusOverlayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusOverlayComponent, selectors: [["status-overlay"]], inputs: { loading: [1, "loading"], error: [1, "error"], links: [1, "links"] }, ngContentSelectors: _c031, decls: 3, vars: 1, consts: [["status-overlay", "", 1, "fixed", "inset-0", "z-50", "flex", "flex-col", "items-center", "justify-center", "bg-secondary", "text-white"], [1, "mb-4", "rounded-full", "bg-base-100", "text-4xl"], [1, "mb-4", "text-center", "text-lg"], ["error", ""], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "routerLink"], [1, "mb-4", 3, "diameter"], ["loading", "", 1, "text-center", "text-lg"]], template: function StatusOverlayComponent_Template(rf, ctx) {
+_StatusOverlayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusOverlayComponent, selectors: [["status-overlay"]], inputs: { loading: [1, "loading"], error: [1, "error"], links: [1, "links"] }, ngContentSelectors: _c031, decls: 3, vars: 1, consts: [["status-overlay", "", 1, "bg-secondary", "fixed", "inset-0", "z-50", "flex", "flex-col", "items-center", "justify-center", "text-white"], [1, "bg-base-100", "mb-4", "rounded-full", "text-4xl"], [1, "mb-4", "text-center", "text-lg"], ["error", ""], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "routerLink"], [1, "mb-4", 3, "diameter"], ["loading", "", 1, "text-center", "text-lg"]], template: function StatusOverlayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -117333,11 +117370,11 @@ var StatusOverlayComponent = _StatusOverlayComponent;
     args: [{ selector: "status-overlay", template: `
         <div
             status-overlay
-            class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-secondary text-white"
+            class="bg-secondary fixed inset-0 z-50 flex flex-col items-center justify-center text-white"
         >
             @if (!loading()) {
                 <div
-                    class="mb-4 rounded-full bg-base-100 text-4xl"
+                    class="bg-base-100 mb-4 rounded-full text-4xl"
                     [class.text-success]="!error()"
                     [class.text-error]="error()"
                 >
@@ -118248,7 +118285,7 @@ function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditi
       \u0275\u0275nextContext(3);
       const question_r3 = \u0275\u0275readContextLet(0);
       const ctx_r3 = \u0275\u0275nextContext(5);
-      return \u0275\u0275resetView(ctx_r3.setRating(question_r3.id, idx_r2));
+      return \u0275\u0275resetView(ctx_r3.setRating("" + question_r3.id, idx_r2));
     });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
@@ -118361,12 +118398,12 @@ function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditi
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-checkbox", 25);
-    \u0275\u0275listener("ngModelChanges", function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_10_For_2_Template_mat_checkbox_ngModelChanges_0_listener($event) {
+    \u0275\u0275listener("ngModelChange", function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_10_For_2_Template_mat_checkbox_ngModelChange_0_listener($event) {
       const choice_r8 = \u0275\u0275restoreView(_r7).$implicit;
       \u0275\u0275nextContext(3);
       const question_r3 = \u0275\u0275readContextLet(0);
       const ctx_r3 = \u0275\u0275nextContext(5);
-      return \u0275\u0275resetView(ctx_r3.toggleOption(question_r3.id, choice_r8.text, $event));
+      return \u0275\u0275resetView(ctx_r3.toggleOption("" + question_r3.id, choice_r8.text, $event));
     });
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
@@ -118629,7 +118666,7 @@ var _SurveyOutletComponent = class _SurveyOutletComponent extends AsyncHandler {
         });
       }
     }
-    await lastValueFrom(al(answers));
+    await lastValueFrom(ll(answers));
     notifySuccess("Successfully submitted survey answers.");
     this.success.set(true);
     this.loading.set("");
@@ -118639,7 +118676,7 @@ var _SurveyOutletComponent = class _SurveyOutletComponent extends AsyncHandler {
     if (!this.survey_id())
       return;
     this.loading.set("Loading survey details...");
-    const survey = await lastValueFrom(Sl(this.survey_id()).pipe(catchError((_3) => of(null))));
+    const survey = await lastValueFrom(kl(this.survey_id()).pipe(catchError((_3) => of(null))));
     if (!survey)
       return this.not_found.emit(true);
     this.survey.set(survey);
@@ -118653,7 +118690,7 @@ var _SurveyOutletComponent = class _SurveyOutletComponent extends AsyncHandler {
     const requests = [];
     for (const page of this.survey().pages) {
       for (const question_id of page.question_order) {
-        requests.push(ml(`${question_id}`));
+        requests.push(yl(`${question_id}`));
       }
     }
     if (!requests.length)
@@ -118701,7 +118738,7 @@ _SurveyOutletComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275SurveyOutletComponent_BaseFactory || (\u0275SurveyOutletComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SurveyOutletComponent)))(__ngFactoryType__ || _SurveyOutletComponent);
   };
 })();
-_SurveyOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SurveyOutletComponent, selectors: [["survey-outlet"]], inputs: { preview: [1, "preview"], survey_id: [1, "survey_id"], survey: [1, "survey"] }, outputs: { not_found: "not_found", survey_id: "survey_idChange", survey: "surveyChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [[1, "h-full", "w-full", "overflow-auto", "bg-base-100", "px-2"], [1, "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "min-h-18", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "items-center", "justify-between", "rounded-sm", "border-none", "bg-base-200", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], ["auth", "", "alt", "Logo", 1, "h-12", "sm:block", 3, "source"], ["loading", "", 1, "mx-auto", "flex", "min-h-64", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "flex-col", "items-center", "justify-center", "space-y-2", "space-y-4", "rounded-sm", "border", "border-base-300", "p-4"], ["page", "", 1, "mx-auto", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "space-y-2", "rounded-sm", "border", "border-base-300", "p-4", 3, "formGroup"], [1, "text-lg", "font-medium"], [1, "sticky", "bottom-0", "z-10", "mx-auto", "my-2", "flex", "h-16", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "items-center", "justify-end", "space-x-2", "rounded-sm", "border-none", "bg-base-200", "p-2"], ["btn", "", "matRipple", "", 1, "inverse", "w-32", "bg-base-100"], ["btn", "", "matRipple", "", 1, "w-32", 3, "disabled"], ["btn", "", "matRipple", "", 1, "w-32"], [1, "py-2"], [1, "mb-2", "flex", "items-center", "justify-between"], [1, "font-medium"], [1, "rounded-sm", "bg-warning", "px-2", "py-1", "font-mono", "text-[0.625rem]", "text-warning-content"], ["btn-grp", "", 1, "divide-x", "divide-secondary", "py-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "formControlName"], [1, "grid", "grid-cols-1", "sm:grid-cols-2"], ["matRipple", "", 1, "h-12", "w-12", "border-y", "border-secondary", "first:rounded-l", "first:border-l", "last:rounded-r", "last:border-r!", 3, "bg-secondary", "text-secondary-content"], ["matRipple", "", 1, "h-12", "w-12", "border-y", "border-secondary", "first:rounded-l", "first:border-l", "last:rounded-r", "last:border-r!", 3, "click"], ["matInput", "", 3, "formControlName", "placeholder"], [3, "formControlName", "placeholder"], [3, "value"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChanges", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", 1, "inverse", "w-32", "bg-base-100", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], ["diameter", "32"]], template: function SurveyOutletComponent_Template(rf, ctx) {
+_SurveyOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SurveyOutletComponent, selectors: [["survey-outlet"]], inputs: { preview: [1, "preview"], survey_id: [1, "survey_id"], survey: [1, "survey"] }, outputs: { not_found: "not_found", survey_id: "survey_idChange", survey: "surveyChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [[1, "bg-base-100", "h-full", "w-full", "overflow-auto", "px-2"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "min-h-18", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], ["auth", "", "alt", "Logo", 1, "h-12", "sm:block", 3, "source"], ["loading", "", 1, "border-base-300", "mx-auto", "flex", "min-h-64", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "flex-col", "items-center", "justify-center", "space-y-2", "space-y-4", "rounded-sm", "border", "p-4"], ["page", "", 1, "border-base-300", "mx-auto", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "space-y-2", "rounded-sm", "border", "p-4", 3, "formGroup"], [1, "text-lg", "font-medium"], [1, "bg-base-200", "sticky", "bottom-0", "z-10", "mx-auto", "my-2", "flex", "h-16", "w-[calc(100%-1rem)]", "w-full", "max-w-160", "items-center", "justify-end", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "inverse", "bg-base-100", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "disabled"], ["btn", "", "matRipple", "", 1, "w-32"], [1, "py-2"], [1, "mb-2", "flex", "items-center", "justify-between"], [1, "font-medium"], [1, "bg-warning", "text-warning-content", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["btn-grp", "", 1, "divide-secondary", "divide-x", "py-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "formControlName"], [1, "grid", "grid-cols-1", "sm:grid-cols-2"], ["matRipple", "", 1, "border-secondary", "h-12", "w-12", "border-y", "first:rounded-l", "first:border-l", "last:rounded-r", "last:border-r!", 3, "bg-secondary", "text-secondary-content"], ["matRipple", "", 1, "border-secondary", "h-12", "w-12", "border-y", "first:rounded-l", "first:border-l", "last:rounded-r", "last:border-r!", 3, "click"], ["matInput", "", 3, "formControlName", "placeholder"], [3, "formControlName", "placeholder"], [3, "value"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", 1, "inverse", "bg-base-100", "w-32", 3, "click"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"], ["diameter", "32"]], template: function SurveyOutletComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, SurveyOutletComponent_Conditional_0_Template, 7, 3, "div", 0);
   }
@@ -118743,9 +118780,9 @@ var SurveyOutletComponent = _SurveyOutletComponent;
     type: Component,
     args: [{ selector: `survey-outlet`, template: `
         @if (survey()) {
-            <div class="h-full w-full overflow-auto bg-base-100 px-2">
+            <div class="bg-base-100 h-full w-full overflow-auto px-2">
                 <header
-                    class="sticky top-0 z-10 mx-auto my-2 flex min-h-18 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+                    class="bg-base-200 sticky top-0 z-10 mx-auto my-2 flex min-h-18 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
                     <h2 class="text-xl font-medium capitalize">
                         {{ survey().title }}
@@ -118761,7 +118798,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                     @if (success()) {
                         <main
                             loading
-                            class="mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border border-base-300 p-4"
+                            class="border-base-300 mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border p-4"
                         >
                             <p>
                                 {{
@@ -118773,7 +118810,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                         @if (form) {
                             <main
                                 page
-                                class="mx-auto w-[calc(100%-1rem)] w-full max-w-160 space-y-2 rounded-sm border border-base-300 p-4"
+                                class="border-base-300 mx-auto w-[calc(100%-1rem)] w-full max-w-160 space-y-2 rounded-sm border p-4"
                                 [formGroup]="form"
                             >
                                 @let page = survey().pages[active_page()];
@@ -118792,7 +118829,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                 </div>
                                                 @if (question.required) {
                                                     <span
-                                                        class="rounded-sm bg-warning px-2 py-1 font-mono text-[0.625rem] text-warning-content"
+                                                        class="bg-warning text-warning-content rounded-sm px-2 py-1 font-mono text-[0.625rem]"
                                                         >{{
                                                             'COMMON.REQUIRED'
                                                                 | translate
@@ -118804,7 +118841,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                 @case ('rating') {
                                                     <div
                                                         btn-grp
-                                                        class="divide-x divide-secondary py-2"
+                                                        class="divide-secondary divide-x py-2"
                                                     >
                                                         @for (
                                                             idx of question.options;
@@ -118812,7 +118849,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                         ) {
                                                             <button
                                                                 matRipple
-                                                                class="h-12 w-12 border-y border-secondary first:rounded-l first:border-l last:rounded-r last:border-r!"
+                                                                class="border-secondary h-12 w-12 border-y first:rounded-l first:border-l last:rounded-r last:border-r!"
                                                                 [class.bg-secondary]="
                                                                     form.value[
                                                                         question
@@ -118827,7 +118864,8 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                                 "
                                                                 (click)="
                                                                     setRating(
-                                                                        question.id,
+                                                                        '' +
+                                                                            question.id,
                                                                         idx
                                                                     )
                                                                 "
@@ -118946,9 +118984,10 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                                 [ngModelOptions]="{
                                                                     standalone: true,
                                                                 }"
-                                                                (ngModelChanges)="
+                                                                (ngModelChange)="
                                                                     toggleOption(
-                                                                        question.id,
+                                                                        '' +
+                                                                            question.id,
                                                                         choice.text,
                                                                         $event
                                                                     )
@@ -118967,13 +119006,13 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                 }
                             </main>
                             <footer
-                                class="sticky bottom-0 z-10 mx-auto my-2 flex h-16 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-end space-x-2 rounded-sm border-none bg-base-200 p-2"
+                                class="bg-base-200 sticky bottom-0 z-10 mx-auto my-2 flex h-16 w-[calc(100%-1rem)] w-full max-w-160 items-center justify-end space-x-2 rounded-sm border-none p-2"
                             >
                                 @if (active_page() > 0) {
                                     <button
                                         btn
                                         matRipple
-                                        class="inverse w-32 bg-base-100"
+                                        class="inverse bg-base-100 w-32"
                                         (click)="previousPage()"
                                     >
                                         {{ 'COMMON.PREVIOUS' | translate }}
@@ -119007,7 +119046,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                 } @else {
                     <main
                         loading
-                        class="mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border border-base-300 p-4"
+                        class="border-base-300 mx-auto flex min-h-64 w-[calc(100%-1rem)] w-full max-w-160 flex-col items-center justify-center space-y-2 space-y-4 rounded-sm border p-4"
                     >
                         <mat-spinner diameter="32"></mat-spinner>
                         <p>{{ loading() }}</p>
@@ -119032,7 +119071,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SurveyOutletComponent, { className: "SurveyOutletComponent", filePath: "libs/components/src/lib/survey-outlet.component.ts", lineNumber: 341 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SurveyOutletComponent, { className: "SurveyOutletComponent", filePath: "libs/components/src/lib/survey-outlet.component.ts", lineNumber: 343 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -119041,7 +119080,7 @@ var _UnauthorisedComponent = class _UnauthorisedComponent {
 _UnauthorisedComponent.\u0275fac = function UnauthorisedComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UnauthorisedComponent)();
 };
-_UnauthorisedComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 12, vars: 9, consts: [[1, "unauthorised", "m-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
+_UnauthorisedComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UnauthorisedComponent, selectors: [["app-unauthorised"]], decls: 12, vars: 9, consts: [[1, "unauthorised", "border-base-200", "bg-base-100", "m-4", "rounded-sm", "border", "p-4", "text-center", "text-black", "shadow-sm"], [1, "text-4xl"], [1, "py-4"]], template: function UnauthorisedComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h1", 1);
     \u0275\u0275text(2, "403");
@@ -119074,7 +119113,7 @@ var UnauthorisedComponent = _UnauthorisedComponent;
     type: Component,
     args: [{ selector: "app-unauthorised", template: `
         <div
-            class="unauthorised m-4 rounded-sm border border-base-200 bg-base-100 p-4 text-center text-black shadow-sm"
+            class="unauthorised border-base-200 bg-base-100 m-4 rounded-sm border p-4 text-center text-black shadow-sm"
         >
             <h1 class="text-4xl">403</h1>
             <h3>{{ 'COMMON.FORBIDDEN' | translate }}</h3>
@@ -121873,7 +121912,7 @@ var _ImageViewerComponent = class _ImageViewerComponent {
 _ImageViewerComponent.\u0275fac = function ImageViewerComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ImageViewerComponent)();
 };
-_ImageViewerComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageViewerComponent, selectors: [["image-viewer"]], decls: 5, vars: 1, consts: [[1, "h-screen", "w-screen", "bg-base-200"], ["auth", "", 1, "h-full", "w-full", "object-contain", "object-center", 3, "source"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "right-1", "top-1", "bg-base-100"]], template: function ImageViewerComponent_Template(rf, ctx) {
+_ImageViewerComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageViewerComponent, selectors: [["image-viewer"]], decls: 5, vars: 1, consts: [[1, "bg-base-200", "h-screen", "w-screen"], ["auth", "", 1, "h-full", "w-full", "object-contain", "object-center", 3, "source"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-100", "absolute", "top-1", "right-1"]], template: function ImageViewerComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275element(1, "img", 1);
@@ -121891,14 +121930,14 @@ var ImageViewerComponent = _ImageViewerComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ImageViewerComponent, [{
     type: Component,
     args: [{ selector: "image-viewer", template: `
-        <div class="h-screen w-screen bg-base-200">
+        <div class="bg-base-200 h-screen w-screen">
             <img
                 auth
                 class="h-full w-full object-contain object-center"
                 [source]="url"
             />
             <button
-                class="absolute right-1 top-1 bg-base-100"
+                class="bg-base-100 absolute top-1 right-1"
                 icon
                 matRipple
                 mat-dialog-close
@@ -121960,7 +121999,7 @@ var _UploadPermissionsModalComponent = class _UploadPermissionsModalComponent {
 _UploadPermissionsModalComponent.\u0275fac = function UploadPermissionsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UploadPermissionsModalComponent)();
 };
-_UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UploadPermissionsModalComponent, selectors: [["upload-permissions-modal"]], decls: 18, vars: 7, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "min-w-[20rem]", "space-y-2", "px-4", "py-2"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "disabled", "true", "placeholder", "File Name", 3, "ngModel"], [1, "flex", "flex-col", "space-y-2"], [1, "flex", "items-center", "justify-end", "space-x-2", "border-t", "border-base-200", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], ["appearance", "outline"], [3, "ngModelChange", "ngModel"], ["value", "none"], ["value", "support"], ["value", "admin"]], template: function UploadPermissionsModalComponent_Template(rf, ctx) {
+_UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UploadPermissionsModalComponent, selectors: [["upload-permissions-modal"]], decls: 18, vars: 7, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "min-w-[20rem]", "space-y-2", "px-4", "py-2"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "disabled", "true", "placeholder", "File Name", 3, "ngModel"], [1, "flex", "flex-col", "space-y-2"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], ["appearance", "outline"], [3, "ngModelChange", "ngModel"], ["value", "none"], ["value", "support"], ["value", "admin"]], template: function UploadPermissionsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2, "Upload File");
@@ -122015,7 +122054,7 @@ var UploadPermissionsModalComponent = _UploadPermissionsModalComponent;
     type: Component,
     args: [{ selector: "upload-permissions-modal", template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Upload File</h2>
             <button icon matRipple mat-dialog-close>
@@ -122053,7 +122092,7 @@ var UploadPermissionsModalComponent = _UploadPermissionsModalComponent;
             </div> -->
         </main>
         <footer
-            class="flex items-center justify-end space-x-2 border-t border-base-200 px-4 py-2"
+            class="border-base-200 flex items-center justify-end space-x-2 border-t px-4 py-2"
         >
             <button btn matRipple class="inverse w-32" mat-dialog-close>
                 Cancel
@@ -122372,7 +122411,7 @@ _ImageListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     provide: UPLOAD_PERMISSIONS_MODAL,
     useValue: UploadPermissionsModalComponent
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 24, vars: 15, consts: [["image_list", ""], ["file_input", ""], ["chipList", ""], ["images", "", 1, "relative", "mb-2", "flex", "w-full", "items-center", "space-x-2", "overflow-hidden", "py-2", 3, "resize"], ["image", "", 1, "relative", "flex", "h-32", "w-36", "shrink-0", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded-xl", "border-2", "border-dashed", "border-base-200", "hover:border-base-300", "hover:bg-base-200"], [1, "text-4xl", "opacity-60"], [1, "px-4", "text-center", "opacity-60"], ["type", "file", 1, "absolute", "inset-0", "h-32", "w-32", "cursor-pointer", "opacity-0", 3, "change"], ["image", "", 1, "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-base-200", "bg-cover", "bg-center", 3, "transform"], ["upload", "", 1, "border-base-content/10", "/5", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-base-200", "bg-cover", "bg-center", 3, "transform", "matTooltip"], ["icon", "", "matRipple", "", 1, "absolute", "left-0", "top-1/2", "-translate-y-1/2", "transform", "bg-base-100", 3, "disabled"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-1/2", "-translate-y-1/2", "transform", "bg-base-100", 3, "disabled"], ["appearance", "outline", 1, "w-full"], ["aria-label", "Image List"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], ["image", "", 1, "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-base-200", "bg-cover", "bg-center"], ["auth", "", 1, "pointer-events-none", "absolute", "left-1/2", "top-1/2", "z-10", "-translate-x-1/2", "-translate-y-1/2", "object-contain", 3, "source"], ["overlay", "", 1, "absolute", "inset-0", "z-20", "text-base-100"], ["bg", "", 1, "absolute", "inset-0", "bg-black", "opacity-0"], ["actions", "", 1, "absolute", "left-0", "right-0", "top-0", "flex", "items-center", "justify-center", "space-x-2", "opacity-0"], ["icon", "", 3, "click"], ["upload", "", 1, "border-base-content/10", "/5", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-base-200", "bg-cover", "bg-center", 3, "click", "matTooltip"], ["mode", "determinate", 3, "value", "diameter"], [1, "text-6xl", "text-error"], ["overlay", "", 1, "absolute", "inset-0", "flex", "items-center", "justify-center", "text-base-100", "hover:bg-base-content", "hover:bg-opacity-50"], [1, "text-3xl", "opacity-0"], ["icon", "", "matRipple", "", 1, "absolute", "left-0", "top-1/2", "-translate-y-1/2", "transform", "bg-base-100", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-1/2", "-translate-y-1/2", "transform", "bg-base-100", 3, "click", "disabled"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ImageListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 24, vars: 15, consts: [["image_list", ""], ["file_input", ""], ["chipList", ""], ["images", "", 1, "relative", "mb-2", "flex", "w-full", "items-center", "space-x-2", "overflow-hidden", "py-2", 3, "resize"], ["image", "", 1, "border-base-200", "hover:border-base-300", "hover:bg-base-200", "relative", "flex", "h-32", "w-36", "shrink-0", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded-xl", "border-2", "border-dashed"], [1, "text-4xl", "opacity-60"], [1, "px-4", "text-center", "opacity-60"], ["type", "file", 1, "absolute", "inset-0", "h-32", "w-32", "cursor-pointer", "opacity-0", 3, "change"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center", 3, "transform"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "transform", "matTooltip"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "disabled"], ["appearance", "outline", 1, "w-full"], ["aria-label", "Image List"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center"], ["auth", "", 1, "pointer-events-none", "absolute", "top-1/2", "left-1/2", "z-10", "-translate-x-1/2", "-translate-y-1/2", "object-contain", 3, "source"], ["overlay", "", 1, "text-base-100", "absolute", "inset-0", "z-20"], ["bg", "", 1, "absolute", "inset-0", "bg-black", "opacity-0"], ["actions", "", 1, "absolute", "top-0", "right-0", "left-0", "flex", "items-center", "justify-center", "space-x-2", "opacity-0"], ["icon", "", 3, "click"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "click", "matTooltip"], ["mode", "determinate", 3, "value", "diameter"], [1, "text-error", "text-6xl"], ["overlay", "", 1, "text-base-100", "hover:bg-base-content", "hover:bg-opacity-50", "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "text-3xl", "opacity-0"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ImageListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 3, 0);
@@ -122439,6 +122478,8 @@ _ImageListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   MatChipRow,
   MatProgressSpinnerModule,
   MatProgressSpinner,
+  MatTooltipModule,
+  MatTooltip,
   IconComponent,
   CommonModule,
   AsyncPipe,
@@ -122458,7 +122499,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
         >
             <div
                 image
-                class="relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-base-200 hover:border-base-300 hover:bg-base-200"
+                class="border-base-200 hover:border-base-300 hover:bg-base-200 relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed"
                 [style.transform]="'translate(-' + offset + '00%)'"
             >
                 <icon class="text-4xl opacity-60">add</icon>
@@ -122475,22 +122516,22 @@ var ImageListFieldComponent = _ImageListFieldComponent;
             @for (url of list; track url; let i = $index) {
                 <div
                     image
-                    class="relative h-32 w-36 shrink-0 overflow-hidden rounded-sm bg-base-200 bg-cover bg-center"
+                    class="bg-base-200 relative h-32 w-36 shrink-0 overflow-hidden rounded-sm bg-cover bg-center"
                     [style.transform]="'translate(-' + offset + '00%)'"
                 >
                     <img
                         auth
                         [source]="url"
-                        class="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 object-contain"
+                        class="pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 object-contain"
                     />
-                    <div overlay class="absolute inset-0 z-20 text-base-100">
+                    <div overlay class="text-base-100 absolute inset-0 z-20">
                         <div
                             bg
                             class="absolute inset-0 bg-black opacity-0"
                         ></div>
                         <div
                             actions
-                            class="absolute left-0 right-0 top-0 flex items-center justify-center space-x-2 opacity-0"
+                            class="absolute top-0 right-0 left-0 flex items-center justify-center space-x-2 opacity-0"
                         >
                             <button icon (click)="copyLink(url)">
                                 <icon>link</icon>
@@ -122508,7 +122549,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
             @for (item of uploads | async; track item; let i = $index) {
                 <div
                     upload
-                    class="border-base-content/10 /5 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-base-200 bg-cover bg-center"
+                    class="border-base-content/10 /5 bg-base-200 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-cover bg-center"
                     [style.transform]="'translate(-' + offset + '00%)'"
                     [matTooltip]="item.error"
                     (click)="retryUpload(item)"
@@ -122521,12 +122562,12 @@ var ImageListFieldComponent = _ImageListFieldComponent;
                         ></mat-progress-spinner>
                     }
                     @if (item.error) {
-                        <icon class="text-6xl text-error">warning</icon>
+                        <icon class="text-error text-6xl">warning</icon>
                     }
                     @if (item.error) {
                         <div
                             overlay
-                            class="absolute inset-0 flex items-center justify-center text-base-100 hover:bg-base-content hover:bg-opacity-50"
+                            class="text-base-100 hover:bg-base-content hover:bg-opacity-50 absolute inset-0 flex items-center justify-center"
                         >
                             <icon class="text-3xl opacity-0">refresh</icon>
                         </div>
@@ -122538,7 +122579,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
                     icon
                     matRipple
                     [disabled]="offset === 0"
-                    class="absolute left-0 top-1/2 -translate-y-1/2 transform bg-base-100"
+                    class="bg-base-100 absolute top-1/2 left-0 -translate-y-1/2 transform"
                     (click)="offset = offset - 1"
                 >
                     <icon>chevron_left</icon>
@@ -122549,7 +122590,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
                     icon
                     matRipple
                     [disabled]="offset >= length - view_space()"
-                    class="absolute right-0 top-1/2 -translate-y-1/2 transform bg-base-100"
+                    class="bg-base-100 absolute top-1/2 right-0 -translate-y-1/2 transform"
                     (click)="offset = offset + 1"
                 >
                     <icon>chevron_right</icon>
@@ -122592,6 +122633,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
       MatFormFieldModule,
       MatChipsModule,
       MatProgressSpinnerModule,
+      MatTooltipModule,
       IconComponent,
       CommonModule,
       TranslatePipe,
@@ -122600,7 +122642,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageListFieldComponent, { className: "ImageListFieldComponent", filePath: "libs/form-fields/src/lib/image-list-field.component.ts", lineNumber: 238 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageListFieldComponent, { className: "ImageListFieldComponent", filePath: "libs/form-fields/src/lib/image-list-field.component.ts", lineNumber: 240 });
 })();
 
 // node_modules/suneditor/src/assets/defaultIcons.js
@@ -135458,7 +135500,7 @@ _SupportTicketModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompo
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275property("heading", "Raise a support ticket")("loading", ctx.loading)("confirm_text", \u0275\u0275pipeBind1(1, 18, "COMMON.SUBMIT"));
+    \u0275\u0275property("heading", "Raise a support ticket")("loading", ctx.loading ? "true" : "")("confirm_text", \u0275\u0275pipeBind1(1, 18, "COMMON.SUBMIT"));
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(4);
@@ -135526,7 +135568,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
     args: [{ selector: "support-ticket-modal", template: `
         <fullscreen-modal-shell
             [heading]="'Raise a support ticket'"
-            [loading]="loading"
+            [loading]="loading ? 'true' : ''"
             [confirm_text]="'COMMON.SUBMIT' | translate"
             (confirm)="submit()"
         >
@@ -135703,7 +135745,7 @@ function TimeFieldComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275listener("click", function TimeFieldComponent_Conditional_10_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.setValue(ctx_r0.force_time()));
+      return \u0275\u0275resetView(ctx_r0.setValue(ctx_r0.force_time().toString()));
     });
     \u0275\u0275elementStart(1, "div", 9)(2, "div", 10)(3, "div", 11);
     \u0275\u0275text(4);
@@ -135944,7 +135986,7 @@ _TimeFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
     useExisting: forwardRef(() => _TimeFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c120, decls: 14, vars: 11, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "border-neutral", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c120, decls: 14, vars: 11, consts: [["menu", "matMenu"], ["time-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left", 3, "value"], ["mat-menu-item", "", 1, "text-left", 3, "click", "value"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, ""], [1, "text-xs", "opacity-30"], [1, "ml-2", "text-2xl"]], template: function TimeFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -135986,7 +136028,7 @@ var TimeFieldComponent = _TimeFieldComponent;
         <button
             time-field
             matRipple
-            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral px-2"
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             [matMenuTriggerFor]="menu"
@@ -136011,7 +136053,7 @@ var TimeFieldComponent = _TimeFieldComponent;
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
-                    (click)="setValue(force_time())"
+                    (click)="setValue(force_time().toString())"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col leading-tight">
@@ -136464,7 +136506,7 @@ var _WFHSettingsModalComponent = class _WFHSettingsModalComponent {
 _WFHSettingsModalComponent.\u0275fac = function WFHSettingsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _WFHSettingsModalComponent)();
 };
-_WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WFHSettingsModalComponent, selectors: [["wfh-settings-modal"]], decls: 8, vars: 6, consts: [[1, "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "bg-base-200", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "relative", "flex", "max-h-[calc(100vh-9rem)]", "w-160", "max-w-full", "flex-col", "space-y-2", "overflow-y-auto", "overflow-x-hidden", "rounded-sm", "px-2", "py-4", "sm:max-h-[65vh]", "sm:p-4"], ["loading", "", 1, "relative", "flex", "h-72", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "bg-base-100", "text-center"], [1, "flex", "justify-end", "border-t", "border-base-200", "px-4", "py-2"], [1, "relative", "mb-4", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "border-base-300", "p-2"], [1, "flex", "flex-1", "flex-col", "items-center", "pt-2"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "bg-base-100", "px-2"], [1, "relative", "flex", "w-full", "flex-col", "items-center", "justify-between", "space-y-4", "rounded-sm", "border", "border-base-300", "px-2", "pb-4", "pt-6", "sm:px-4"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-4", "px-8", "py-16"], [1, "text-xs", "font-bold", "uppercase"], [3, "ngModelChange", "ngModel"], [1, "absolute", "left-2", "top-0", "m-0!", "-translate-y-1/2", "bg-base-100", "px-2"], [1, "relative", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "border-base-200", "p-2"], [1, "w-1/2", "flex-1", "space-y-2", "pt-2"], [1, "flex", "items-center", "space-x-2"], [1, "absolute", "left-2", "top-0", "-translate-y-1/2", "rounded-sm", "border", "border-base-200", "bg-base-100", "bg-opacity-50", "px-2", "text-sm", "font-medium"], [1, "w-1/4", "flex-1", 3, "ngModelChange", "ngModel", "from", "no_error"], ["appearance", "outline", 1, "no-subscript", "w-1/4", "flex-1"], [3, "value"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-base-400"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-error", "text-error"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-base-400", 3, "click"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "border", "border-error", "text-error", 3, "click"], ["src", "assets/icons/no-results.svg", 1, "m-auto"], [1, "opacity-30"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function WFHSettingsModalComponent_Template(rf, ctx) {
+_WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WFHSettingsModalComponent, selectors: [["wfh-settings-modal"]], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "relative", "flex", "max-h-[calc(100vh-9rem)]", "w-160", "max-w-full", "flex-col", "space-y-2", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "px-2", "py-4", "sm:max-h-[65vh]", "sm:p-4"], ["loading", "", 1, "bg-base-100", "relative", "flex", "h-72", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "text-center"], [1, "border-base-200", "flex", "justify-end", "border-t", "px-4", "py-2"], [1, "border-base-300", "relative", "mb-4", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "flex", "flex-1", "flex-col", "items-center", "pt-2"], [1, "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "px-2"], [1, "border-base-300", "relative", "flex", "w-full", "flex-col", "items-center", "justify-between", "space-y-4", "rounded-sm", "border", "px-2", "pt-6", "pb-4", "sm:px-4"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-4", "px-8", "py-16"], [1, "text-xs", "font-bold", "uppercase"], [3, "ngModelChange", "ngModel"], [1, "bg-base-100", "absolute", "top-0", "left-2", "m-0!", "-translate-y-1/2", "px-2"], [1, "border-base-200", "relative", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "w-1/2", "flex-1", "space-y-2", "pt-2"], [1, "flex", "items-center", "space-x-2"], [1, "border-base-200", "bg-base-100", "bg-opacity-50", "absolute", "top-0", "left-2", "-translate-y-1/2", "rounded-sm", "border", "px-2", "text-sm", "font-medium"], [1, "w-1/4", "flex-1", 3, "ngModelChange", "ngModel", "from", "no_error"], ["appearance", "outline", 1, "no-subscript", "w-1/4", "flex-1"], [3, "value"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["src", "assets/icons/no-results.svg", 1, "m-auto"], [1, "opacity-30"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function WFHSettingsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -136504,7 +136546,9 @@ _WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   FormsModule,
   NgControlStatus,
   NgModel,
-  IconComponent
+  IconComponent,
+  MatProgressSpinnerModule,
+  MatProgressSpinner
 ], encapsulation: 2 });
 var WFHSettingsModalComponent = _WFHSettingsModalComponent;
 (() => {
@@ -136512,7 +136556,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
     type: Component,
     args: [{ selector: `wfh-settings-modal`, template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.WORK_LOCATION_SETTINGS' | translate }}
@@ -136525,10 +136569,10 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
         </header>
         @if (!loading) {
             <main
-                class="relative flex max-h-[calc(100vh-9rem)] w-160 max-w-full flex-col space-y-2 overflow-y-auto overflow-x-hidden rounded-sm px-2 py-4 sm:max-h-[65vh] sm:p-4"
+                class="relative flex max-h-[calc(100vh-9rem)] w-160 max-w-full flex-col space-y-2 overflow-x-hidden overflow-y-auto rounded-sm px-2 py-4 sm:max-h-[65vh] sm:p-4"
             >
                 <div
-                    class="relative mb-4 flex w-full items-center justify-between space-x-2 rounded-sm border border-base-300 p-2"
+                    class="border-base-300 relative mb-4 flex w-full items-center justify-between space-x-2 rounded-sm border p-2"
                 >
                     @for (day of days; track day) {
                         <div class="flex flex-1 flex-col items-center pt-2">
@@ -136545,19 +136589,19 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                         </div>
                     }
                     <h3
-                        class="absolute left-2 top-0 -translate-y-1/2 bg-base-100 px-2"
+                        class="bg-base-100 absolute top-0 left-2 -translate-y-1/2 px-2"
                     >
                         {{ 'COMMON.WORK_DAYS' | translate }}
                     </h3>
                 </div>
                 @if (has_working_days) {
                     <div
-                        class="relative flex w-full flex-col items-center justify-between space-y-4 rounded-sm border border-base-300 px-2 pb-4 pt-6 sm:px-4"
+                        class="border-base-300 relative flex w-full flex-col items-center justify-between space-y-4 rounded-sm border px-2 pt-6 pb-4 sm:px-4"
                     >
                         @for (day of days; track day) {
                             @if (weekdays_enabled[day.getDay()]) {
                                 <div
-                                    class="relative flex w-full items-center justify-between space-x-2 rounded-sm border border-base-200 p-2"
+                                    class="border-base-200 relative flex w-full items-center justify-between space-x-2 rounded-sm border p-2"
                                 >
                                     <div class="w-1/2 flex-1 space-y-2 pt-2">
                                         @for (
@@ -136651,7 +136695,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                                                                 i
                                                             )
                                                         "
-                                                        class="h-12 w-12 rounded-sm border border-base-400"
+                                                        class="border-base-400 h-12 w-12 rounded-sm border"
                                                     >
                                                         <icon>add</icon>
                                                     </button>
@@ -136660,7 +136704,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                                                     <button
                                                         icon
                                                         matRipple
-                                                        class="h-12 w-12 rounded-sm border border-error text-error"
+                                                        class="border-error text-error h-12 w-12 rounded-sm border"
                                                         (click)="
                                                             removeBlock(
                                                                 settings[
@@ -136677,7 +136721,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                                         }
                                     </div>
                                     <h3
-                                        class="absolute left-2 top-0 -translate-y-1/2 rounded-sm border border-base-200 bg-base-100 bg-opacity-50 px-2 text-sm font-medium"
+                                        class="border-base-200 bg-base-100 bg-opacity-50 absolute top-0 left-2 -translate-y-1/2 rounded-sm border px-2 text-sm font-medium"
                                     >
                                         {{ day | date: 'EEEE' }}
                                     </h3>
@@ -136685,7 +136729,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                             }
                         }
                         <h3
-                            class="absolute left-2 top-0 m-0! -translate-y-1/2 bg-base-100 px-2"
+                            class="bg-base-100 absolute top-0 left-2 m-0! -translate-y-1/2 px-2"
                         >
                             {{ 'COMMON.WORK_HOURS' | translate }}
                         </h3>
@@ -136704,7 +136748,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
         } @else {
             <div
                 loading
-                class="relative flex h-72 w-[24rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm bg-base-100 text-center"
+                class="bg-base-100 relative flex h-72 w-[24rem] flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm text-center"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
@@ -136713,7 +136757,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
             </div>
         }
         @if (!loading) {
-            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+            <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple class="w-48" (click)="saveChanges()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
@@ -136729,12 +136773,13 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
       TimeFieldComponent,
       MatCheckboxModule,
       FormsModule,
-      IconComponent
+      IconComponent,
+      MatProgressSpinnerModule
     ] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WFHSettingsModalComponent, { className: "WFHSettingsModalComponent", filePath: "libs/users/src/lib/wfh-settings-modal.component.ts", lineNumber: 256 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WFHSettingsModalComponent, { className: "WFHSettingsModalComponent", filePath: "libs/users/src/lib/wfh-settings-modal.component.ts", lineNumber: 258 });
 })();
 
 // node_modules/@angular/material/fesm2022/slider.mjs
@@ -138813,7 +138858,7 @@ _AccessibilityTooltipComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275AccessibilityTooltipComponent_BaseFactory || (\u0275AccessibilityTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_AccessibilityTooltipComponent)))(__ngFactoryType__ || _AccessibilityTooltipComponent);
   };
 })();
-_AccessibilityTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityTooltipComponent, selectors: [["accessibility-tooltip"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 24, vars: 15, consts: [[1, "relative", "-right-1", "-top-12", "flex", "max-h-[65vh]", "w-[20rem]", "flex-col", "overflow-auto", "rounded-sm", "bg-base-100", "pb-3", "shadow-sm"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "border-b", "border-base-300", "px-2", "py-3", 3, "click"], [1, "text-2xl"], [1, ""], [1, "space-y-2", "p-2"], [3, "ngModel", "toggle"], [3, "ngModelChange", "ngModel", "toggle"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", "text-xl"], [1, "bg-base-200", "px-8", "py-4", "text-center"], [1, "flex", "items-center", "space-x-4", "px-4"], [1, "text-sm"], [1, "w-1/2", "flex-1", "text-[16px]", 3, "min", "max", "step"], ["matSliderThumb", "", 1, "text-[16px]", 3, "ngModelChange", "ngModel"], [1, "my-2", "rounded-sm", "bg-base-300", "px-2", "py-1", "text-base", "text-white"]], template: function AccessibilityTooltipComponent_Template(rf, ctx) {
+_AccessibilityTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AccessibilityTooltipComponent, selectors: [["accessibility-tooltip"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 24, vars: 15, consts: [[1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "max-h-[65vh]", "w-[20rem]", "flex-col", "overflow-auto", "rounded-sm", "pb-3", "shadow-sm"], ["matRipple", "", 1, "border-base-300", "flex", "items-center", "space-x-2", "border-b", "px-2", "py-3", 3, "click"], [1, "text-2xl"], [1, ""], [1, "space-y-2", "p-2"], [3, "ngModel", "toggle"], [3, "ngModelChange", "ngModel", "toggle"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", "text-xl"], [1, "bg-base-200", "px-8", "py-4", "text-center"], [1, "flex", "items-center", "space-x-4", "px-4"], [1, "text-sm"], [1, "w-1/2", "flex-1", "text-[16px]", 3, "min", "max", "step"], ["matSliderThumb", "", 1, "text-[16px]", 3, "ngModelChange", "ngModel"], [1, "bg-base-300", "my-2", "rounded-sm", "px-2", "py-1", "text-base", "text-white"]], template: function AccessibilityTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275listener("click", function AccessibilityTooltipComponent_Template_div_click_1_listener() {
@@ -138889,11 +138934,11 @@ var AccessibilityTooltipComponent = _AccessibilityTooltipComponent;
     type: Component,
     args: [{ selector: "accessibility-tooltip", template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-[20rem] flex-col overflow-auto rounded-sm pb-3 shadow-sm"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
                 (click)="close()"
             >
                 <icon class="text-2xl">arrow_back</icon>
@@ -138956,7 +139001,7 @@ var AccessibilityTooltipComponent = _AccessibilityTooltipComponent;
                     </mat-slider>
                     <span class="text-2xl">A</span>
                     <span
-                        class="my-2 rounded-sm bg-base-300 px-2 py-1 text-base text-white"
+                        class="bg-base-300 my-2 rounded-sm px-2 py-1 text-base text-white"
                     >
                         {{ font_size }}px
                     </span>
@@ -139013,7 +139058,7 @@ var _BuildingSelectComponent = class _BuildingSelectComponent {
 _BuildingSelectComponent.\u0275fac = function BuildingSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _BuildingSelectComponent)();
 };
-_BuildingSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BuildingSelectComponent, selectors: [["building-select"]], decls: 20, vars: 16, consts: [[1, "relative", "-right-1", "-top-12", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "bg-base-100", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "border-b", "border-base-300", "px-2", "py-3"], [1, "text-2xl"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2", "text-xs", "opacity-60"], [1, "flex", "flex-col", "space-y-2", "px-2", 3, "ngModel"], [3, "value"], [3, "click", "value"]], template: function BuildingSelectComponent_Template(rf, ctx) {
+_BuildingSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BuildingSelectComponent, selectors: [["building-select"]], decls: 20, vars: 16, consts: [[1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "border-base-300", "flex", "items-center", "space-x-2", "border-b", "px-2", "py-3"], [1, "text-2xl"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2", "text-xs", "opacity-60"], [1, "flex", "flex-col", "space-y-2", "px-2", 3, "ngModel"], [3, "value"], [3, "click", "value"]], template: function BuildingSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function BuildingSelectComponent_Template_div_click_0_listener() {
@@ -139075,12 +139120,12 @@ var BuildingSelectComponent = _BuildingSelectComponent;
     type: Component,
     args: [{ selector: "building-select", template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">
@@ -139186,7 +139231,7 @@ var _DeskHeightPresetsComponent = class _DeskHeightPresetsComponent {
 _DeskHeightPresetsComponent.\u0275fac = function DeskHeightPresetsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskHeightPresetsComponent)();
 };
-_DeskHeightPresetsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskHeightPresetsComponent, selectors: [["desk-height-presets"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange", close: "close" }, decls: 29, vars: 23, consts: [[1, "relative", "w-[20rem]", "rounded-sm", "bg-base-100", "p-4", "shadow-sm"], [1, "mb-2", "text-lg"], [1, "mb-4", "text-xs", "opacity-60"], [1, "-mx-2", "mb-4", "rounded-sm", "bg-warning", "p-2", "text-xs", "text-warning-content"], [1, "mt-2", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2"], ["min", "60", "max", "80", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], [1, "w-12", "text-right", "text-sm"], [1, "mr-2", "flex", "items-center", "space-x-2"], ["min", "90", "max", "120", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], [1, "mr-2", "w-12", "text-right", "text-sm"], ["btn", "", "matRipple", "", 1, "mt-2", "w-full"], ["btn", "", "matRipple", "", 1, "mt-2", "w-full", 3, "click"]], template: function DeskHeightPresetsComponent_Template(rf, ctx) {
+_DeskHeightPresetsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskHeightPresetsComponent, selectors: [["desk-height-presets"]], inputs: { show_close: [1, "show_close"] }, outputs: { show_close: "show_closeChange", close: "close" }, decls: 29, vars: 23, consts: [[1, "bg-base-100", "relative", "w-[20rem]", "rounded-sm", "p-4", "shadow-sm"], [1, "mb-2", "text-lg"], [1, "mb-4", "text-xs", "opacity-60"], [1, "bg-warning", "text-warning-content", "-mx-2", "mb-4", "rounded-sm", "p-2", "text-xs"], [1, "mt-2", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2"], ["min", "60", "max", "80", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], [1, "w-12", "text-right", "text-sm"], [1, "mr-2", "flex", "items-center", "space-x-2"], ["min", "90", "max", "120", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], [1, "mr-2", "w-12", "text-right", "text-sm"], ["btn", "", "matRipple", "", 1, "mt-2", "w-full"], ["btn", "", "matRipple", "", 1, "mt-2", "w-full", 3, "click"]], template: function DeskHeightPresetsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275text(2);
@@ -139270,7 +139315,7 @@ var DeskHeightPresetsComponent = _DeskHeightPresetsComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DeskHeightPresetsComponent, [{
     type: Component,
     args: [{ selector: "desk-height-presets", template: `
-        <div class="relative w-[20rem] rounded-sm bg-base-100 p-4 shadow-sm">
+        <div class="bg-base-100 relative w-[20rem] rounded-sm p-4 shadow-sm">
             <div class="mb-2 text-lg">
                 {{ 'COMMON.DESK_HEIGHT_TITLE' | translate }}
             </div>
@@ -139279,7 +139324,7 @@ var DeskHeightPresetsComponent = _DeskHeightPresetsComponent;
             </div>
             @if (not_set && show_close()) {
                 <div
-                    class="-mx-2 mb-4 rounded-sm bg-warning p-2 text-xs text-warning-content"
+                    class="bg-warning text-warning-content -mx-2 mb-4 rounded-sm p-2 text-xs"
                 >
                     {{ 'COMMON.DESK_HEIGHT_NOT_SET' | translate }}
                 </div>
@@ -139380,7 +139425,7 @@ var _HelpTooltipComponent = class _HelpTooltipComponent {
 _HelpTooltipComponent.\u0275fac = function HelpTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _HelpTooltipComponent)();
 };
-_HelpTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HelpTooltipComponent, selectors: [["help-tooltip"]], decls: 9, vars: 3, consts: [[1, "relative", "-right-1", "-top-12", "flex", "w-74", "flex-col", "rounded-sm", "bg-base-100", "shadow-sm", 3, "click"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "border-b", "border-base-300", "px-2", "py-4"], [1, "text-2xl"], [1, ""], ["matRipple", "", "target", "_blank", "ref", "noreferer noopener", 1, "w-full", "p-2", "text-left", 3, "href"], [1, "flex", "w-full", "items-center", "space-x-2", "rounded-sm", "p-2", "hover:bg-base-200"], [1, "text-xl", 3, "icon"]], template: function HelpTooltipComponent_Template(rf, ctx) {
+_HelpTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _HelpTooltipComponent, selectors: [["help-tooltip"]], decls: 9, vars: 3, consts: [[1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "w-74", "flex-col", "rounded-sm", "shadow-sm", 3, "click"], ["matRipple", "", 1, "border-base-300", "flex", "items-center", "space-x-2", "border-b", "px-2", "py-4"], [1, "text-2xl"], [1, ""], ["matRipple", "", "target", "_blank", "ref", "noreferer noopener", 1, "w-full", "p-2", "text-left", 3, "href"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-2", "rounded-sm", "p-2"], [1, "text-xl", 3, "icon"]], template: function HelpTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function HelpTooltipComponent_Template_div_click_0_listener() {
@@ -139409,12 +139454,12 @@ var HelpTooltipComponent = _HelpTooltipComponent;
     type: Component,
     args: [{ selector: "help-tooltip", template: `
         <div
-            class="relative -right-1 -top-12 flex w-74 flex-col rounded-sm bg-base-100 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex w-74 flex-col rounded-sm shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-4"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-4"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.CONTROLS_HELP' | translate }}</div>
@@ -139428,7 +139473,7 @@ var HelpTooltipComponent = _HelpTooltipComponent;
                     [href]="tile.link"
                 >
                     <div
-                        class="flex w-full items-center space-x-2 rounded-sm p-2 hover:bg-base-200"
+                        class="hover:bg-base-200 flex w-full items-center space-x-2 rounded-sm p-2"
                     >
                         <icon class="text-xl" [icon]="tile.icon"></icon>
                         <div>{{ tile.name }}</div>
@@ -139509,7 +139554,7 @@ var _LanguageSelectComponent = class _LanguageSelectComponent {
 _LanguageSelectComponent.\u0275fac = function LanguageSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LanguageSelectComponent)();
 };
-_LanguageSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LanguageSelectComponent, selectors: [["language-select"]], decls: 12, vars: 6, consts: [[1, "relative", "-right-1", "-top-12", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "bg-base-100", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "border-b", "border-base-300", "px-2", "py-3"], [1, "text-2xl"], [1, ""], [1, "px-4", "py-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "flex", "h-14", "items-center", "justify-between", "space-x-8", "px-2", "text-left"], ["matRipple", "", 1, "flex", "h-14", "items-center", "justify-between", "space-x-8", "px-2", "text-left", 3, "click"], [1, "flex", "flex-1", "items-center", "justify-between", "rounded-sm", "p-2", "leading-tight", "hover:bg-base-200"], [1, "rounded-sm", "bg-base-300", "px-2", "py-1", "text-xs", "opacity-60"]], template: function LanguageSelectComponent_Template(rf, ctx) {
+_LanguageSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LanguageSelectComponent, selectors: [["language-select"]], decls: 12, vars: 6, consts: [[1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "border-base-300", "flex", "items-center", "space-x-2", "border-b", "px-2", "py-3"], [1, "text-2xl"], [1, ""], [1, "px-4", "py-2", "text-xs", "opacity-60"], ["matRipple", "", 1, "flex", "h-14", "items-center", "justify-between", "space-x-8", "px-2", "text-left"], ["matRipple", "", 1, "flex", "h-14", "items-center", "justify-between", "space-x-8", "px-2", "text-left", 3, "click"], [1, "hover:bg-base-200", "flex", "flex-1", "items-center", "justify-between", "rounded-sm", "p-2", "leading-tight"], [1, "bg-base-300", "rounded-sm", "px-2", "py-1", "text-xs", "opacity-60"]], template: function LanguageSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function LanguageSelectComponent_Template_div_click_0_listener() {
@@ -139544,12 +139589,12 @@ var LanguageSelectComponent = _LanguageSelectComponent;
     type: Component,
     args: [{ selector: "language-select", template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="">{{ 'COMMON.LANGUAGE' | translate }}</div>
@@ -139564,7 +139609,7 @@ var LanguageSelectComponent = _LanguageSelectComponent;
                     class="flex h-14 items-center justify-between space-x-8 px-2 text-left"
                 >
                     <div
-                        class="flex flex-1 items-center justify-between rounded-sm p-2 leading-tight hover:bg-base-200"
+                        class="hover:bg-base-200 flex flex-1 items-center justify-between rounded-sm p-2 leading-tight"
                         [class.mt-2]="(lang.name | translate) !== lang.local"
                         [class.border]="active_locale === lang.id"
                         [class.border-info]="active_locale === lang.id"
@@ -139572,7 +139617,7 @@ var LanguageSelectComponent = _LanguageSelectComponent;
                         <div>{{ lang.name | translate }}</div>
                         @if ((lang.name | translate) !== lang.local) {
                             <div
-                                class="rounded-sm bg-base-300 px-2 py-1 text-xs opacity-60"
+                                class="bg-base-300 rounded-sm px-2 py-1 text-xs opacity-60"
                             >
                                 {{ lang.local }}
                             </div>
@@ -139626,7 +139671,7 @@ var _RegionSelectComponent = class _RegionSelectComponent {
 _RegionSelectComponent.\u0275fac = function RegionSelectComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _RegionSelectComponent)();
 };
-_RegionSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegionSelectComponent, selectors: [["region-select"]], decls: 20, vars: 16, consts: [[1, "relative", "-right-1", "-top-12", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "bg-base-100", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "border-b", "border-base-300", "px-2", "py-3"], [1, "text-2xl"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2", "text-xs", "opacity-60"], [1, "flex", "flex-col", "space-y-2", "px-2", 3, "ngModel"], [3, "value"], [3, "click", "value"]], template: function RegionSelectComponent_Template(rf, ctx) {
+_RegionSelectComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RegionSelectComponent, selectors: [["region-select"]], decls: 20, vars: 16, consts: [[1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "max-h-[65vh]", "w-74", "flex-col", "overflow-auto", "rounded-sm", "pb-3", "shadow-sm", 3, "click"], ["matRipple", "", 1, "border-base-300", "flex", "items-center", "space-x-2", "border-b", "px-2", "py-3"], [1, "text-2xl"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2", "text-xs", "opacity-60"], [1, "flex", "flex-col", "space-y-2", "px-2", 3, "ngModel"], [3, "value"], [3, "click", "value"]], template: function RegionSelectComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function RegionSelectComponent_Template_div_click_0_listener() {
@@ -139688,12 +139733,12 @@ var RegionSelectComponent = _RegionSelectComponent;
     type: Component,
     args: [{ selector: "region-select", template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">
@@ -139761,7 +139806,7 @@ var _UserParkingTooltipComponent = class _UserParkingTooltipComponent {
 _UserParkingTooltipComponent.\u0275fac = function UserParkingTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UserParkingTooltipComponent)();
 };
-_UserParkingTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserParkingTooltipComponent, selectors: [["user-parking-tooltip"]], decls: 14, vars: 13, consts: [[1, "min-w-[20rem]", "space-y-2", "rounded-md", "border", "border-base-300", "bg-base-100", "p-2"], [1, "border-b", "border-base-300", "text-lg", "font-medium"], [1, "flex", "flex-col"], ["for", "plate-number"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function UserParkingTooltipComponent_Template(rf, ctx) {
+_UserParkingTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserParkingTooltipComponent, selectors: [["user-parking-tooltip"]], decls: 14, vars: 13, consts: [[1, "border-base-300", "bg-base-100", "min-w-[20rem]", "space-y-2", "rounded-md", "border", "p-2"], [1, "border-base-300", "border-b", "text-lg", "font-medium"], [1, "flex", "flex-col"], ["for", "plate-number"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function UserParkingTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -139804,9 +139849,9 @@ var UserParkingTooltipComponent = _UserParkingTooltipComponent;
     type: Component,
     args: [{ selector: "user-parking-tooltip", template: `
         <div
-            class="min-w-[20rem] space-y-2 rounded-md border border-base-300 bg-base-100 p-2"
+            class="border-base-300 bg-base-100 min-w-[20rem] space-y-2 rounded-md border p-2"
         >
-            <h3 class="border-b border-base-300 text-lg font-medium">
+            <h3 class="border-base-300 border-b text-lg font-medium">
                 {{ 'COMMON.CONTROLS_PARKING' | translate }}
             </h3>
             <div class="flex flex-col">
@@ -140017,7 +140062,7 @@ var _WorkLocationTooltipComponent = class _WorkLocationTooltipComponent {
 _WorkLocationTooltipComponent.\u0275fac = function WorkLocationTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _WorkLocationTooltipComponent)();
 };
-_WorkLocationTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WorkLocationTooltipComponent, selectors: [["work-location-tooltip"]], decls: 14, vars: 11, consts: [["work_menu", "matMenu"], [1, "relative", "-right-1", "-top-12", "flex", "w-74", "flex-col", "overflow-hidden", "rounded-sm", "bg-base-100", "shadow-sm"], [1, "flex", "items-center", "justify-between", "px-2"], [1, "px-2", "py-4", "font-medium"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], [1, "px-4", "text-sm", "font-medium"], [1, "pb-2"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "opacity-30"], [1, "relative", "flex", "items-center", "px-4", "py-2", 3, "opacity-30"], [1, "relative", "flex", "items-center", "px-4", "py-2"], [1, "z-20", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "text-2xl"], [1, "ml-2", "flex-1"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "rounded-sm", "px-2", "py-1", "font-medium", "hover:bg-base-200", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], [1, "px-2", "text-xs", "opacity-60"], [1, "absolute", "-top-2", "left-7", "h-4", "w-0", "-translate-x-px", "border-l-2", "border-dashed", "border-base-200"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-8"], [1, "text-6xl"], [1, "text-center", "text-sm"]], template: function WorkLocationTooltipComponent_Template(rf, ctx) {
+_WorkLocationTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WorkLocationTooltipComponent, selectors: [["work-location-tooltip"]], decls: 14, vars: 11, consts: [["work_menu", "matMenu"], [1, "bg-base-100", "relative", "-top-12", "-right-1", "flex", "w-74", "flex-col", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "flex", "items-center", "justify-between", "px-2"], [1, "px-2", "py-4", "font-medium"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], [1, "px-4", "text-sm", "font-medium"], [1, "pb-2"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "opacity-30"], [1, "relative", "flex", "items-center", "px-4", "py-2", 3, "opacity-30"], [1, "relative", "flex", "items-center", "px-4", "py-2"], [1, "bg-base-200", "z-20", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "ml-2", "flex-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded-sm", "px-2", "py-1", "font-medium", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], [1, "px-2", "text-xs", "opacity-60"], [1, "border-base-200", "absolute", "-top-2", "left-7", "h-4", "w-0", "-translate-x-px", "border-l-2", "border-dashed"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-8"], [1, "text-6xl"], [1, "text-center", "text-sm"]], template: function WorkLocationTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "h3", 3);
     \u0275\u0275text(3);
@@ -140069,7 +140114,7 @@ var WorkLocationTooltipComponent = _WorkLocationTooltipComponent;
     type: Component,
     args: [{ selector: "work-location-tooltip", template: `
         <div
-            class="relative -right-1 -top-12 flex w-74 flex-col overflow-hidden rounded-sm bg-base-100 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex w-74 flex-col overflow-hidden rounded-sm shadow-sm"
         >
             <div class="flex items-center justify-between px-2">
                 <h3 class="px-2 py-4 font-medium">
@@ -140101,7 +140146,7 @@ var WorkLocationTooltipComponent = _WorkLocationTooltipComponent;
                             [class.opacity-30]="now > timeFrom(block.end_time)"
                         >
                             <div
-                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 z-20 flex h-10 w-10 items-center justify-center rounded-full"
                                 [class.bg-base-200]="
                                     now < timeFrom(block.start_time) ||
                                     now > timeFrom(block.end_time)
@@ -140122,7 +140167,7 @@ var WorkLocationTooltipComponent = _WorkLocationTooltipComponent;
                             <div class="ml-2 flex-1">
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
+                                    class="hover:bg-base-200 flex items-center space-x-2 rounded-sm px-2 py-1 font-medium"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>
@@ -140165,7 +140210,7 @@ var WorkLocationTooltipComponent = _WorkLocationTooltipComponent;
                             </div>
                             @if (i > 0) {
                                 <div
-                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
+                                    class="border-base-200 absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed"
                                 ></div>
                             }
                         </div>
@@ -140201,19 +140246,19 @@ var WorkLocationTooltipComponent = _WorkLocationTooltipComponent;
 })();
 
 // libs/components/src/lib/user-controls.component.ts
-function UserControlsComponent_Conditional_7_For_19_Template(rf, ctx) {
+function UserControlsComponent_Conditional_7_For_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 33);
-    \u0275\u0275listener("click", function UserControlsComponent_Conditional_7_For_19_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 32);
+    \u0275\u0275listener("click", function UserControlsComponent_Conditional_7_For_17_Template_button_click_0_listener() {
       const loc_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r3.setLocation(ctx_r3.active_index, loc_r3.id));
+      return \u0275\u0275resetView(ctx_r3.saveSetting("work_location", loc_r3.id));
     });
-    \u0275\u0275elementStart(1, "div", 34)(2, "icon", 27);
+    \u0275\u0275elementStart(1, "div", 33)(2, "icon", 27);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 35);
+    \u0275\u0275elementStart(4, "div", 34);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -140226,11 +140271,6 @@ function UserControlsComponent_Conditional_7_For_19_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 2, loc_r3.name), " ");
   }
 }
-function UserControlsComponent_Conditional_7_Conditional_24_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 32);
-  }
-}
 function UserControlsComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7)(1, "h3", 23);
@@ -140239,33 +140279,26 @@ function UserControlsComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementStart(3, "div", 24)(4, "div", 25)(5, "div", 26)(6, "icon", 27);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "div", 28);
-    \u0275\u0275text(9);
-    \u0275\u0275pipe(10, "json");
-    \u0275\u0275elementStart(11, "button", 29)(12, "div");
-    \u0275\u0275text(13);
+    \u0275\u0275elementStart(8, "div", 28)(9, "button", 29)(10, "div");
+    \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "icon");
-    \u0275\u0275text(15, "expand_more");
+    \u0275\u0275elementStart(12, "icon");
+    \u0275\u0275text(13, "expand_more");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(16, "mat-menu", null, 1);
-    \u0275\u0275repeaterCreate(18, UserControlsComponent_Conditional_7_For_19_Template, 7, 4, "button", 30, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(14, "mat-menu", null, 1);
+    \u0275\u0275repeaterCreate(16, UserControlsComponent_Conditional_7_For_17_Template, 7, 4, "button", 30, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "div", 31);
-    \u0275\u0275text(21);
-    \u0275\u0275pipe(22, "date");
-    \u0275\u0275pipe(23, "date");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(24, UserControlsComponent_Conditional_7_Conditional_24_Template, 1, 0, "div", 32);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(18, "div", 31);
+    \u0275\u0275text(19);
+    \u0275\u0275pipe(20, "date");
+    \u0275\u0275pipe(21, "date");
+    \u0275\u0275elementEnd()()()()();
   }
   if (rf & 2) {
-    const work_menu_r5 = \u0275\u0275reference(17);
+    const work_menu_r5 = \u0275\u0275reference(15);
     const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance(7);
     \u0275\u0275textInterpolate(ctx_r3.location_icon(ctx_r3.timeFrom(ctx_r3.active_block.start_time)));
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 7, ctx_r3.locations), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("matMenuTriggerFor", work_menu_r5);
     \u0275\u0275advance(2);
@@ -140273,9 +140306,7 @@ function UserControlsComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275repeater(ctx_r3.pref_locations);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(22, 9, ctx_r3.timeFrom(ctx_r3.active_block.start_time), "shortTime"), " \u2013 ", \u0275\u0275pipeBind2(23, 12, ctx_r3.timeFrom(ctx_r3.active_block.end_time), "shortTime"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r3.i > 0 ? 24 : -1);
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(20, 5, ctx_r3.timeFrom(ctx_r3.active_block.start_time), "shortTime"), " \u2013 ", \u0275\u0275pipeBind2(21, 8, ctx_r3.timeFrom(ctx_r3.active_block.end_time), "shortTime"), " ");
   }
 }
 function UserControlsComponent_Conditional_8_Template(rf, ctx) {
@@ -140283,7 +140314,7 @@ function UserControlsComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div", 8)(1, "button", 10)(2, "div", 11)(3, "div", 12)(4, "icon");
     \u0275\u0275text(5, "layers");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 36);
+    \u0275\u0275elementStart(6, "div", 35);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "async");
     \u0275\u0275pipe(9, "async");
@@ -140305,7 +140336,7 @@ function UserControlsComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div", 8)(1, "button", 10)(2, "div", 11)(3, "div", 12)(4, "icon");
     \u0275\u0275text(5, "business");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 36);
+    \u0275\u0275elementStart(6, "div", 35);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "async");
     \u0275\u0275pipe(9, "async");
@@ -140412,7 +140443,7 @@ function UserControlsComponent_Conditional_27_Template(rf, ctx) {
 }
 function UserControlsComponent_Conditional_28_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 38);
+    \u0275\u0275elementStart(0, "div", 37);
     \u0275\u0275text(1, " Language ");
     \u0275\u0275elementEnd();
   }
@@ -140422,14 +140453,14 @@ function UserControlsComponent_Conditional_28_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div", 16)(1, "button", 10)(2, "div", 11)(3, "div", 12)(4, "icon");
     \u0275\u0275text(5, "language");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 37)(7, "div")(8, "div");
+    \u0275\u0275elementStart(6, "div", 36)(7, "div")(8, "div");
     \u0275\u0275text(9);
     \u0275\u0275pipe(10, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(11, UserControlsComponent_Conditional_28_Conditional_11_Template, 2, 0, "div", 38);
+    \u0275\u0275conditionalCreate(11, UserControlsComponent_Conditional_28_Conditional_11_Template, 2, 0, "div", 37);
     \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 39);
+    \u0275\u0275elementStart(13, "div", 38);
     \u0275\u0275pipe(14, "translate");
     \u0275\u0275text(15);
     \u0275\u0275pipe(16, "translate");
@@ -140454,7 +140485,7 @@ function UserControlsComponent_Conditional_28_Template(rf, ctx) {
 function UserControlsComponent_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 40);
+    \u0275\u0275elementStart(0, "button", 39);
     \u0275\u0275listener("click", function UserControlsComponent_Conditional_29_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -140476,7 +140507,7 @@ function UserControlsComponent_Conditional_29_Template(rf, ctx) {
 function UserControlsComponent_Conditional_35_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 41);
+    \u0275\u0275elementStart(0, "button", 40);
     \u0275\u0275listener("click", function UserControlsComponent_Conditional_35_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
@@ -140500,6 +140531,7 @@ var _UserControlsComponent = class _UserControlsComponent {
     this.building = this._org.active_building;
     this.region = this._org.active_region;
     this.regions = this._org.region_list;
+    this.sidebar = input(false);
     this.region_select = RegionSelectComponent;
     this.building_select = BuildingSelectComponent;
     this.help_tooltip = HelpTooltipComponent;
@@ -140618,7 +140650,7 @@ var _UserControlsComponent = class _UserControlsComponent {
 _UserControlsComponent.\u0275fac = function UserControlsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UserControlsComponent)();
 };
-_UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserControlsComponent, selectors: [["user-controls"]], decls: 46, vars: 37, consts: [["desk_height_tooltip", ""], ["work_menu", "matMenu"], [1, "relative", "mt-1", "flex", "max-h-[90vh]", "flex-col", "divide-y", "divide-base-200", "overflow-auto", "rounded-sm", "border", "border-base-300", "bg-base-100", "shadow-sm"], ["avatar", "", 1, "flex", "w-[18rem]", "flex-col", "items-center", "p-2"], [1, "text-2xl", 3, "user", "matTooltip"], [1, ""], [1, "truncate", "text-xs", "opacity-60"], [1, "w-full", "rounded-sm", "border", "border-base-200", "py-2"], ["customTooltip", "", 1, "relative", 3, "content"], ["customTooltip", "", 3, "content"], ["btn", "", "matRipple", "", 1, "clear", "h-14", "w-full", "text-left"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "flex-1"], [1, "text-2xl", "opacity-60"], ["customTooltip", "", 3, "content", "border-b!"], ["customTooltip", "", 1, "border-b!", 3, "content"], [1, "flex", "flex-col", "items-center", "p-4"], [1, "mb-4", "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], ["btn", "", "matRipple", ""], [1, "w-full", "text-xs", "opacity-60"], [1, "m-0", "border-none", "bg-none", "p-0", "text-xs", "underline", 3, "click"], [1, "w-full", "px-4", "pb-2", "text-sm", "font-medium"], [1, "w-full"], [1, "relative", "flex", "items-center", "px-4", "py-2"], [1, "z-20", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-info", "text-info-content"], [1, "text-2xl"], [1, "ml-2", "flex-1"], ["matRipple", "", 1, "flex", "items-center", "space-x-2", "rounded-sm", "px-2", "py-1", "font-medium", "hover:bg-base-200", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], [1, "px-2", "text-xs", "opacity-60"], [1, "absolute", "-top-2", "left-7", "h-4", "w-0", "-translate-x-px", "border-l-2", "border-dashed", "border-base-200"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-8"], [1, "w-px", "flex-1", "truncate"], [1, "flex", "flex-1", "items-center", "justify-between", "space-x-4"], [1, "text-xs", "opacity-30"], [1, "max-w-24", "truncate", "rounded-sm", "bg-base-200", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["btn", "", "matRipple", "", 1, "clear", "h-14", "w-full", "text-left", 3, "click"], ["btn", "", "matRipple", "", 3, "click"]], template: function UserControlsComponent_Template(rf, ctx) {
+_UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserControlsComponent, selectors: [["user-controls"]], inputs: { sidebar: [1, "sidebar"] }, decls: 46, vars: 39, consts: [["desk_height_tooltip", ""], ["work_menu", "matMenu"], [1, "divide-base-200", "border-base-300", "bg-base-100", "relative", "mt-1", "flex", "max-h-[90vh]", "flex-col", "divide-y", "overflow-auto", "rounded-sm", "border", "shadow-sm"], ["avatar", "", 1, "flex", "w-full", "min-w-72", "flex-col", "items-center", "p-2"], [1, "text-2xl", 3, "user", "matTooltip"], [1, ""], [1, "truncate", "text-xs", "opacity-60"], [1, "border-base-200", "w-full", "rounded-sm", "border-y", "py-2"], ["customTooltip", "", 1, "relative", 3, "content"], ["customTooltip", "", 3, "content"], ["btn", "", "matRipple", "", 1, "clear", "h-14", "w-full", "text-left"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "bg-base-200", "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "flex-1"], [1, "text-2xl", "opacity-60"], ["customTooltip", "", 3, "content", "border-b!"], ["customTooltip", "", 1, "border-b!", 3, "content"], [1, "flex", "flex-col", "items-center", "p-4"], [1, "mb-4", "flex", "items-center", "justify-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], ["btn", "", "matRipple", ""], [1, "w-full", "text-xs", "opacity-60"], [1, "m-0", "border-none", "bg-none", "p-0", "text-xs", "underline", 3, "click"], [1, "w-full", "px-4", "pb-2", "text-sm", "font-medium"], [1, "w-full"], [1, "relative", "flex", "items-center", "px-4", "py-2"], [1, "bg-info", "text-info-content", "z-20", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "ml-2", "flex-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded-sm", "px-2", "py-1", "font-medium", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], [1, "px-2", "text-xs", "opacity-60"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-8"], [1, "w-px", "flex-1", "truncate"], [1, "flex", "flex-1", "items-center", "justify-between", "space-x-4"], [1, "text-xs", "opacity-30"], [1, "bg-base-200", "max-w-24", "truncate", "rounded-sm", "px-2", "py-1", "text-sm", 3, "matTooltip"], ["btn", "", "matRipple", "", 1, "clear", "h-14", "w-full", "text-left", 3, "click"], ["btn", "", "matRipple", "", 3, "click"]], template: function UserControlsComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2)(1, "div", 3);
@@ -140629,7 +140661,7 @@ _UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275elementStart(5, "div", 6);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(7, UserControlsComponent_Conditional_7_Template, 25, 15, "div", 7);
+    \u0275\u0275conditionalCreate(7, UserControlsComponent_Conditional_7_Template, 22, 11, "div", 7);
     \u0275\u0275conditionalCreate(8, UserControlsComponent_Conditional_8_Template, 12, 6, "div", 8);
     \u0275\u0275pipe(9, "async");
     \u0275\u0275conditionalCreate(10, UserControlsComponent_Conditional_10_Template, 12, 6, "div", 8);
@@ -140679,6 +140711,7 @@ _UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
+    \u0275\u0275classProp("border", !ctx.sidebar());
     \u0275\u0275advance(2);
     \u0275\u0275property("user", ctx.user)("matTooltip", ctx.groups);
     \u0275\u0275advance(2);
@@ -140688,7 +140721,7 @@ _UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.features.includes("wfh") && ctx.active_block ? 7 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(\u0275\u0275pipeBind1(9, 23, ctx.regions).length ? 8 : -1);
+    \u0275\u0275conditional(\u0275\u0275pipeBind1(9, 25, ctx.regions).length ? 8 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(!ctx.disable_building_select && !ctx.use_region ? 10 : -1);
     \u0275\u0275advance();
@@ -140699,7 +140732,7 @@ _UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275classProp("border-b!", !(ctx.locales == null ? null : ctx.locales.length) || !ctx.desk_height);
     \u0275\u0275property("content", ctx.accessibility_tooltip);
     \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 25, "COMMON.CONTROLS_ACCESSIBILITY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 27, "COMMON.CONTROLS_ACCESSIBILITY"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275conditional(ctx.desk_height ? 24 : -1);
     \u0275\u0275advance(3);
@@ -140709,20 +140742,19 @@ _UserControlsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.features.includes("support-ticket") ? 29 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(34, 27, "COMMON.CONTROLS_SIGN_OUT"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(34, 29, "COMMON.CONTROLS_SIGN_OUT"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.has_new_version ? 35 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 29, "COMMON.CONTROLS_VERSION"), ": ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 31, "COMMON.CONTROLS_VERSION"), ": ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx.version.hash, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(44, 31, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(45, 34, ctx.version.time, "shortTime"), ") ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(44, 33, ctx.version.time, "longDate"), " (", \u0275\u0275pipeBind2(45, 36, ctx.version.time, "shortTime"), ") ");
   }
 }, dependencies: [
   CommonModule,
   AsyncPipe,
-  JsonPipe,
   DatePipe,
   MatDialogModule,
   MatRippleModule,
@@ -140745,9 +140777,10 @@ var UserControlsComponent = _UserControlsComponent;
     type: Component,
     args: [{ selector: "user-controls", template: `
         <div
-            class="relative mt-1 flex max-h-[90vh] flex-col divide-y divide-base-200 overflow-auto rounded-sm border border-base-300 bg-base-100 shadow-sm"
+            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex max-h-[90vh] flex-col divide-y overflow-auto rounded-sm border shadow-sm"
+            [class.border]="!sidebar()"
         >
-            <div avatar class="flex w-[18rem] flex-col items-center p-2">
+            <div avatar class="flex w-full min-w-72 flex-col items-center p-2">
                 <a-user-avatar
                     class="text-2xl"
                     [user]="user"
@@ -140757,14 +140790,14 @@ var UserControlsComponent = _UserControlsComponent;
                 <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
             </div>
             @if (features.includes('wfh') && active_block) {
-                <div class="w-full rounded-sm border border-base-200 py-2">
+                <div class="border-base-200 w-full rounded-sm border-y py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
                     </h3>
                     <div class="w-full">
                         <div class="relative flex items-center px-4 py-2">
                             <div
-                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-info text-info-content"
+                                class="bg-info text-info-content z-20 flex h-10 w-10 items-center justify-center rounded-full"
                             >
                                 <icon class="text-2xl">{{
                                     location_icon(
@@ -140773,10 +140806,9 @@ var UserControlsComponent = _UserControlsComponent;
                                 }}</icon>
                             </div>
                             <div class="ml-2 flex-1">
-                                {{ locations | json }}
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
+                                    class="hover:bg-base-200 flex items-center space-x-2 rounded-sm px-2 py-1 font-medium"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>
@@ -140795,8 +140827,8 @@ var UserControlsComponent = _UserControlsComponent;
                                         <button
                                             mat-menu-item
                                             (click)="
-                                                setLocation(
-                                                    active_index,
+                                                saveSetting(
+                                                    'work_location',
                                                     loc.id
                                                 )
                                             "
@@ -140826,25 +140858,16 @@ var UserControlsComponent = _UserControlsComponent;
                                     }}
                                 </div>
                             </div>
-                            @if (i > 0) {
-                                <div
-                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
-                                ></div>
-                            }
                         </div>
                     </div>
                 </div>
             }
             @if ((regions | async).length) {
                 <div customTooltip [content]="region_select" class="relative">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>layers</icon>
                             </div>
@@ -140863,14 +140886,10 @@ var UserControlsComponent = _UserControlsComponent;
             }
             @if (!disable_building_select && !use_region) {
                 <div customTooltip [content]="building_select" class="relative">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>business</icon>
                             </div>
@@ -140889,14 +140908,10 @@ var UserControlsComponent = _UserControlsComponent;
             }
             @if (features.includes('help')) {
                 <div customTooltip [content]="help_tooltip">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>help</icon>
                             </div>
@@ -140912,14 +140927,10 @@ var UserControlsComponent = _UserControlsComponent;
             }
             @if (features.includes('wfh')) {
                 <div customTooltip [content]="work_location_tooltip">
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>share_location</icon>
                             </div>
@@ -140943,7 +140954,7 @@ var UserControlsComponent = _UserControlsComponent;
                 <button btn matRipple class="clear h-14 w-full text-left">
                     <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                         >
                             <icon>mode_night</icon>
                         </div>
@@ -140960,14 +140971,10 @@ var UserControlsComponent = _UserControlsComponent;
                     [content]="desk_height_tooltip"
                     [class.border-b!]="!locales?.length"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>desk</icon>
                             </div>
@@ -140991,14 +140998,10 @@ var UserControlsComponent = _UserControlsComponent;
                     [content]="parking_tooltip"
                     [class.border-b!]="!locales?.length"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>parking_sign</icon>
                             </div>
@@ -141018,14 +141021,10 @@ var UserControlsComponent = _UserControlsComponent;
                     [content]="language_tooltip"
                     class="border-b!"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="clear h-14 w-full text-left"
-                    >
+                    <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
                             <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                             >
                                 <icon>language</icon>
                             </div>
@@ -141046,7 +141045,7 @@ var UserControlsComponent = _UserControlsComponent;
                                     }
                                 </div>
                                 <div
-                                    class="max-w-24 truncate rounded-sm bg-base-200 px-2 py-1 text-sm"
+                                    class="bg-base-200 max-w-24 truncate rounded-sm px-2 py-1 text-sm"
                                     [matTooltip]="active_locale | translate"
                                 >
                                     {{ active_locale | translate }}
@@ -141069,7 +141068,7 @@ var UserControlsComponent = _UserControlsComponent;
                 >
                     <div class="flex w-full items-center space-x-2">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                         >
                             <icon>support_agent</icon>
                         </div>
@@ -141122,11 +141121,188 @@ var UserControlsComponent = _UserControlsComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsComponent, { className: "UserControlsComponent", filePath: "libs/components/src/lib/user-controls.component.ts", lineNumber: 423 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsComponent, { className: "UserControlsComponent", filePath: "libs/components/src/lib/user-controls.component.ts", lineNumber: 390 });
+})();
+
+// libs/components/src/lib/user-controls-sidebar.component.ts
+var _c040 = ["*"];
+function UserControlsSidebarComponent_ProjectionFallback_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 2);
+    \u0275\u0275text(1, "person");
+    \u0275\u0275elementEnd();
+  }
+}
+function UserControlsSidebarComponent_ng_template_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 3)(1, "div", 4);
+    \u0275\u0275listener("click", function UserControlsSidebarComponent_ng_template_3_Template_div_click_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.close());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "div", 5)(3, "div", 6)(4, "div", 7);
+    \u0275\u0275element(5, "user-controls", 8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "button", 9);
+    \u0275\u0275listener("click", function UserControlsSidebarComponent_ng_template_3_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.close());
+    });
+    \u0275\u0275elementStart(7, "icon", 2);
+    \u0275\u0275text(8, "close");
+    \u0275\u0275elementEnd()()()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275classProp("opacity-50", ctx_r1.is_open())("opacity-0", !ctx_r1.is_open());
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("translate-x-0", ctx_r1.is_open())("translate-x-full", !ctx_r1.is_open());
+    \u0275\u0275advance(2);
+    \u0275\u0275property("sidebar", true);
+  }
+}
+var _UserControlsSidebarComponent = class _UserControlsSidebarComponent {
+  constructor() {
+    this._overlay = inject(Overlay);
+    this._overlay_ref = null;
+    this._portal = viewChild(CdkPortal);
+    this.is_open = signal(false);
+  }
+  ngOnDestroy() {
+    this._close_immediately();
+  }
+  open() {
+    if (this._overlay_ref)
+      return;
+    const portal = this._portal();
+    if (!portal)
+      return;
+    this._overlay_ref = this._overlay.create({
+      hasBackdrop: false,
+      positionStrategy: this._overlay.position().global(),
+      scrollStrategy: this._overlay.scrollStrategies.block()
+    });
+    this._overlay_ref.attach(portal);
+    requestAnimationFrame(() => {
+      this.is_open.set(true);
+    });
+  }
+  close() {
+    this.is_open.set(false);
+    setTimeout(() => {
+      this._close_immediately();
+    }, 200);
+  }
+  _close_immediately() {
+    if (this._overlay_ref) {
+      this._overlay_ref.dispose();
+      this._overlay_ref = null;
+    }
+  }
+};
+_UserControlsSidebarComponent.\u0275fac = function UserControlsSidebarComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _UserControlsSidebarComponent)();
+};
+_UserControlsSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserControlsSidebarComponent, selectors: [["user-controls-sidebar"]], viewQuery: function UserControlsSidebarComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._portal, CdkPortal, 5);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, ngContentSelectors: _c040, decls: 4, vars: 0, consts: [["icon", "", "matRipple", "", "avatar", "", "name", "user-controls", 1, "bg-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", 3, "click"], ["cdk-portal", ""], [1, "text-2xl"], [1, "fixed", "inset-0", "z-9999", "overflow-hidden"], [1, "absolute", "inset-0", "bg-black", "transition-opacity", "duration-200", 3, "click"], [1, "absolute", "inset-y-0", "right-0", "flex", "max-w-full"], [1, "bg-base-100", "relative", "w-80", "shadow-xl", "transition-transform", "duration-200", "ease-in-out"], [1, "h-full", "overflow-auto", "pt-4"], [3, "sidebar"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "absolute", "top-4", "right-4", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", 3, "click"]], template: function UserControlsSidebarComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projectionDef();
+    \u0275\u0275elementStart(0, "button", 0);
+    \u0275\u0275listener("click", function UserControlsSidebarComponent_Template_button_click_0_listener() {
+      return ctx.open();
+    });
+    \u0275\u0275projection(1, 0, null, UserControlsSidebarComponent_ProjectionFallback_1_Template, 2, 0);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(3, UserControlsSidebarComponent_ng_template_3_Template, 9, 9, "ng-template", 1);
+  }
+}, dependencies: [
+  CommonModule,
+  PortalModule,
+  TemplatePortalDirective,
+  MatRippleModule,
+  MatRipple,
+  IconComponent,
+  UserControlsComponent
+], encapsulation: 2 });
+var UserControlsSidebarComponent = _UserControlsSidebarComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserControlsSidebarComponent, [{
+    type: Component,
+    args: [{
+      selector: "user-controls-sidebar",
+      template: `
+        <button
+            icon
+            matRipple
+            avatar
+            name="user-controls"
+            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
+            (click)="open()"
+        >
+            <ng-content>
+                <icon class="text-2xl">person</icon>
+            </ng-content>
+        </button>
+        <ng-template cdk-portal>
+            <div class="fixed inset-0 z-9999 overflow-hidden">
+                <!-- Backdrop -->
+                <div
+                    class="absolute inset-0 bg-black transition-opacity duration-200"
+                    [class.opacity-50]="is_open()"
+                    [class.opacity-0]="!is_open()"
+                    (click)="close()"
+                ></div>
+                <!-- Sidebar panel -->
+                <div class="absolute inset-y-0 right-0 flex max-w-full">
+                    <div
+                        class="bg-base-100 relative w-80 shadow-xl transition-transform duration-200 ease-in-out"
+                        [class.translate-x-0]="is_open()"
+                        [class.translate-x-full]="!is_open()"
+                    >
+                        <div class="h-full overflow-auto pt-4">
+                            <user-controls [sidebar]="true"></user-controls>
+                        </div>
+                        <button
+                            icon
+                            matRipple
+                            class="hover:bg-base-200 absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full"
+                            (click)="close()"
+                        >
+                            <icon class="text-2xl">close</icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    `,
+      imports: [
+        CommonModule,
+        PortalModule,
+        MatRippleModule,
+        IconComponent,
+        UserControlsComponent,
+        TranslatePipe
+      ]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserControlsSidebarComponent, { className: "UserControlsSidebarComponent", filePath: "libs/components/src/lib/user-controls-sidebar.component.ts", lineNumber: 66 });
 })();
 
 // libs/components/src/lib/virtual-keyboard.component.ts
-var _c040 = ["keyboard", ""];
+var _c041 = ["keyboard", ""];
 var _c122 = ["*"];
 var _forTrack05 = ($index, $item) => $item[0];
 function VirtualKeyboardComponent_ng_template_1_For_2_For_2_Conditional_2_Template(rf, ctx) {
@@ -141292,11 +141468,11 @@ _VirtualKeyboardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   if (rf & 1) {
     \u0275\u0275listener("focus", function VirtualKeyboardComponent_focus_HostBindingHandler() {
       return ctx.onFocus();
-    })("blur-sm", function VirtualKeyboardComponent_blur_sm_HostBindingHandler() {
+    })("blur", function VirtualKeyboardComponent_blur_HostBindingHandler() {
       return ctx.onBlur();
     });
   }
-}, inputs: { keyset: [1, "keyset"] }, outputs: { keyset: "keysetChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], attrs: _c040, ngContentSelectors: _c122, decls: 2, vars: 0, consts: [["cdk-portal", ""], ["keyboard-view", "", 1, "flex", "w-screen", "flex-col", "space-y-4", "border-t", "border-base-200", "bg-base-200", "p-2"], ["row", "", 1, "flex", "items-center", "justify-center", "space-x-2"], ["matRipple", "", "tabindex", "0", 1, "relative", "cursor-pointer", "rounded-xl", "border", "border-base-200", "bg-base-100", "p-2", 3, "special", "space"], ["matRipple", "", "tabindex", "0", 1, "relative", "cursor-pointer", "rounded-xl", "border", "border-base-200", "bg-base-100", "p-2", 3, "focus", "click"], ["dot", "", 1, "absolute", "right-2", "top-2", "h-2", "w-2", "rounded-full", "bg-base-200", 3, "bg-success"], ["dot", "", 1, "absolute", "right-2", "top-2", "h-2", "w-2", "rounded-full", "bg-base-200"]], template: function VirtualKeyboardComponent_Template(rf, ctx) {
+}, inputs: { keyset: [1, "keyset"] }, outputs: { keyset: "keysetChange" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], attrs: _c041, ngContentSelectors: _c122, decls: 2, vars: 0, consts: [["cdk-portal", ""], ["keyboard-view", "", 1, "border-base-200", "bg-base-200", "flex", "w-screen", "flex-col", "space-y-4", "border-t", "p-2"], ["row", "", 1, "flex", "items-center", "justify-center", "space-x-2"], ["matRipple", "", "tabindex", "0", 1, "border-base-200", "bg-base-100", "relative", "cursor-pointer", "rounded-xl", "border", "p-2", 3, "special", "space"], ["matRipple", "", "tabindex", "0", 1, "border-base-200", "bg-base-100", "relative", "cursor-pointer", "rounded-xl", "border", "p-2", 3, "focus", "click"], ["dot", "", 1, "bg-base-200", "absolute", "top-2", "right-2", "h-2", "w-2", "rounded-full", 3, "bg-success"], ["dot", "", 1, "bg-base-200", "absolute", "top-2", "right-2", "h-2", "w-2", "rounded-full"]], template: function VirtualKeyboardComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275projection(0);
@@ -141312,7 +141488,7 @@ var VirtualKeyboardComponent = _VirtualKeyboardComponent;
         <ng-template cdk-portal>
             <div
                 keyboard-view
-                class="flex w-screen flex-col space-y-4 border-t border-base-200 bg-base-200 p-2"
+                class="border-base-200 bg-base-200 flex w-screen flex-col space-y-4 border-t p-2"
             >
                 @for (row of keyset(); track row[0]) {
                     <div row class="flex items-center justify-center space-x-2">
@@ -141321,7 +141497,7 @@ var VirtualKeyboardComponent = _VirtualKeyboardComponent;
                                 matRipple
                                 [attr.key]="key"
                                 tabindex="0"
-                                class="relative cursor-pointer rounded-xl border border-base-200 bg-base-100 p-2"
+                                class="border-base-200 bg-base-100 relative cursor-pointer rounded-xl border p-2"
                                 [class.special]="
                                     key[0] === '{' && key.length > 1
                                 "
@@ -141341,7 +141517,7 @@ var VirtualKeyboardComponent = _VirtualKeyboardComponent;
                                 @if (key === '{caps}') {
                                     <div
                                         dot
-                                        class="absolute right-2 top-2 h-2 w-2 rounded-full bg-base-200"
+                                        class="bg-base-200 absolute top-2 right-2 h-2 w-2 rounded-full"
                                         [class.bg-success]="state === 'shift'"
                                     ></div>
                                 }
@@ -141357,7 +141533,7 @@ var VirtualKeyboardComponent = _VirtualKeyboardComponent;
     args: ["focus"]
   }], onBlur: [{
     type: HostListener,
-    args: ["blur-sm"]
+    args: ["blur"]
   }] });
 })();
 (() => {
@@ -141383,6 +141559,38 @@ var BuildingPipe = _BuildingPipe;
     type: Pipe,
     args: [{
       name: "building"
+    }]
+  }], null, null);
+})();
+
+// libs/components/src/lib/duration.pipe.ts
+var _DurationPipe = class _DurationPipe {
+  /**
+   * Format the duration value
+   * @param length Duration to format in minutes
+   * @param shorten Whether to shorten the period names e.g. `hours` as `h`
+   */
+  transform(length, shorten2 = false) {
+    let duration = formatDuration2({
+      hours: Math.floor(length / 60),
+      minutes: length % 60
+    });
+    if (shorten2) {
+      duration = duration.replace(" hour", "h").replace(" minute", "m").replace(/s/gi, "");
+    }
+    return duration;
+  }
+};
+_DurationPipe.\u0275fac = function DurationPipe_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DurationPipe)();
+};
+_DurationPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "duration", type: _DurationPipe, pure: true });
+var DurationPipe = _DurationPipe;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DurationPipe, [{
+    type: Pipe,
+    args: [{
+      name: "duration"
     }]
   }], null, null);
 })();
@@ -141585,7 +141793,7 @@ var _BindingDirective = class _BindingDirective extends AsyncHandler {
   bindVariable() {
     if (Ut() && this.bind() && this.sys() && this.mod() && !this._binding) {
       this.timeout("bind", () => {
-        const module2 = kh(this.sys(), this.mod(), this.index());
+        const module2 = $h(this.sys(), this.mod(), this.index());
         const binding = module2.variable(this.bind());
         this._binding = true;
         this.subscription("on_changes", binding.bindThenSubscribe((value) => {
@@ -141607,7 +141815,7 @@ var _BindingDirective = class _BindingDirective extends AsyncHandler {
   execute() {
     if (Ut() && this.exec() && this.sys() && this.mod() && !this._timers["execute"]) {
       this.timeout("execute", () => {
-        const module2 = kh(this.sys(), this.mod(), this.index());
+        const module2 = $h(this.sys(), this.mod(), this.index());
         let params = this.params();
         if (this.bind())
           params = this.params() || [this.model()];
@@ -141637,7 +141845,7 @@ var BindingDirective = _BindingDirective;
 })();
 
 // libs/components/src/lib/viewport-visibility.component.ts
-var _c041 = ["viewport-only", ""];
+var _c042 = ["viewport-only", ""];
 var _c123 = ["*"];
 function ViewportVisibilityComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -141687,7 +141895,7 @@ var _ViewportVisibilityComponent = class _ViewportVisibilityComponent {
 _ViewportVisibilityComponent.\u0275fac = function ViewportVisibilityComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ViewportVisibilityComponent)();
 };
-_ViewportVisibilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ViewportVisibilityComponent, selectors: [["", "viewport-only", ""]], inputs: { threshold: [1, "threshold"], root_margin: [1, "root_margin"], continuous: [1, "continuous"], visible: [1, "visible"] }, outputs: { visible: "visibleChange" }, attrs: _c041, ngContentSelectors: _c123, decls: 1, vars: 1, template: function ViewportVisibilityComponent_Template(rf, ctx) {
+_ViewportVisibilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ViewportVisibilityComponent, selectors: [["", "viewport-only", ""]], inputs: { threshold: [1, "threshold"], root_margin: [1, "root_margin"], continuous: [1, "continuous"], visible: [1, "visible"] }, outputs: { visible: "visibleChange" }, attrs: _c042, ngContentSelectors: _c123, decls: 1, vars: 1, template: function ViewportVisibilityComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275conditionalCreate(0, ViewportVisibilityComponent_Conditional_0_Template, 1, 0);
@@ -141931,10 +142139,10 @@ function createBooking(data, q4) {
   return G(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, data).pipe(map((item) => new Booking(item)));
 }
 function updateBooking(id, data, method = "patch") {
-  return (method === "patch" ? Xe : Ne)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, data).pipe(map((item) => new Booking(item)));
+  return (method === "patch" ? et : Ne)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, data).pipe(map((item) => new Booking(item)));
 }
 function updateBookingInstance(id, start_time, data, method = "patch") {
-  return (method === "patch" ? Xe : Ne)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, data).pipe(map((item) => new Booking(item)));
+  return (method === "patch" ? et : Ne)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, data).pipe(map((item) => new Booking(item)));
 }
 var saveBooking = (data, q4) => {
   const id = data.id;
@@ -142055,6 +142263,4300 @@ function querySpaceFreeBusy(q4, org) {
   return N(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`).pipe(map((i) => i.map((c) => new Calendar(c))), calendarsToSpaces(org));
 }
 
+// libs/form-fields/src/lib/date-calendar.component.ts
+var _forTrack06 = ($index, $item) => $item.id;
+function DateCalendarComponent_For_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const day_r1 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, day_r1 == null ? null : day_r1.id, "EE"), " ");
+  }
+}
+function DateCalendarComponent_For_18_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 11);
+  }
+}
+function DateCalendarComponent_For_18_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 10);
+    \u0275\u0275listener("click", function DateCalendarComponent_For_18_Template_button_click_0_listener() {
+      const day_r3 = \u0275\u0275restoreView(_r2).$implicit;
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.setValue(day_r3.id));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275conditionalCreate(3, DateCalendarComponent_For_18_Conditional_3_Template, 1, 0, "div", 11);
+    \u0275\u0275element(4, "div", 12);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const day_r3 = ctx.$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("hover:bg-base-100", day_r3.id !== ctx_r3.active_date)("text-base-300!", !day_r3.is_month)("text-secondary-content", day_r3.id === ctx_r3.active_date)("text-base-content", day_r3.id !== ctx_r3.active_date)("bg-secondary", day_r3.id === ctx_r3.active_date)("font-normal", day_r3.id !== ctx_r3.active_date);
+    \u0275\u0275property("disabled", day_r3.id < ctx_r3.from() || day_r3.id > ctx_r3.to());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 15, day_r3.id, "d"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r3.today === day_r3.id ? 3 : -1);
+  }
+}
+var _DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
+  constructor() {
+    super();
+    this._settings = inject(SettingsService);
+    this.from = input(0);
+    this.to = input(Date.now() * 10);
+    this.offset_weekday = input(0);
+    this.today = startOfDay(Date.now()).valueOf();
+    this.date = Date.now();
+    this.active_date = startOfDay(Date.now()).valueOf();
+    this.offset = 0;
+    this.date_list = [];
+    this.registerOnChange = (fn2) => this._onChange = fn2;
+    this.registerOnTouched = (fn2) => this._onTouch = fn2;
+  }
+  ngOnInit() {
+    this.generateDates();
+  }
+  ngOnChanges(changes) {
+    if (changes.offset_weekday) {
+      this.generateDates();
+    }
+  }
+  setValue(new_value) {
+    if (new_value < this.from() || new_value >= this.to())
+      return;
+    const date = new Date(new_value);
+    this.date = set(this.date, {
+      date: date.getDate(),
+      month: date.getMonth(),
+      year: date.getFullYear()
+    }).valueOf();
+    this.active_date = startOfDay(this.date).valueOf();
+    if (this._onChange)
+      this._onChange(new_value);
+  }
+  writeValue(value) {
+    this.date = value;
+    this.active_date = startOfDay(value).valueOf();
+    this.offset = 0;
+    this.generateDates();
+  }
+  changeMonth(change) {
+    this.offset += change;
+    this.generateDates();
+  }
+  setMonthToCurrent() {
+    const diff = differenceInMonths(this.date, startOfMonth(Date.now()));
+    this.offset = -diff;
+    this.generateDates();
+  }
+  generateDates() {
+    const offset = this._settings.get("app.week_start") || this.offset_weekday();
+    const date = addMonths(this.date, this.offset);
+    let start = startOfWeek(startOfMonth(date), {
+      weekStartsOn: offset
+    });
+    const now = startOfDay(Date.now());
+    const list2 = [];
+    while (list2.length < 42) {
+      list2.push({
+        id: start.valueOf(),
+        is_past: isBefore(start, now),
+        is_month: isSameMonth(start, date)
+      });
+      start = addDays(start, 1);
+    }
+    this.date_list = list2;
+  }
+};
+_DateCalendarComponent.\u0275fac = function DateCalendarComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DateCalendarComponent)();
+};
+_DateCalendarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateCalendarComponent, selectors: [["date-calendar"]], inputs: { from: [1, "from"], to: [1, "to"], offset_weekday: [1, "offset_weekday"] }, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _DateCalendarComponent),
+    multi: true
+  }
+]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 19, vars: 10, consts: [[1, "p-2"], [1, "flex", "items-center", "justify-between"], [1, "pr-2", "pl-1.5", "font-medium", 3, "dblclick"], [1, "flex", "items-center"], ["icon", "", "matRipple", "", "name", "schedule-next-month", 3, "click", "disabled"], ["icon", "", "matRipple", "", "name", "schedule-previous-month", 3, "click", "disabled"], [1, "border-base-200", "mb-2", "flex", "items-center", "border-b", "pb-2", "text-sm"], [1, "flex-1", "text-center", "opacity-60"], [1, "flex", "flex-wrap", "items-center", "justify-between"], ["icon", "", "name", "schedule-set-date", 1, "relative", "my-0.5", "h-9", "w-9", "min-w-[14%]", "overflow-visible", 3, "hover:bg-base-100", "text-base-300!", "text-secondary-content", "text-base-content", "bg-secondary", "font-normal", "disabled"], ["icon", "", "name", "schedule-set-date", 1, "relative", "my-0.5", "h-9", "w-9", "min-w-[14%]", "overflow-visible", 3, "click", "disabled"], ["matRipple", "", 1, "border-secondary", "absolute", "-inset-[2px]", "overflow-hidden", "rounded-full", "border"], ["matRipple", "", 1, "absolute", "inset-0", "overflow-hidden", "rounded-full"]], template: function DateCalendarComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
+    \u0275\u0275listener("dblclick", function DateCalendarComponent_Template_button_dblclick_2_listener() {
+      return ctx.setMonthToCurrent();
+    });
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 3)(6, "button", 4);
+    \u0275\u0275listener("click", function DateCalendarComponent_Template_button_click_6_listener() {
+      return ctx.changeMonth(-1);
+    });
+    \u0275\u0275elementStart(7, "icon");
+    \u0275\u0275text(8, "chevron_left");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "button", 5);
+    \u0275\u0275listener("click", function DateCalendarComponent_Template_button_click_9_listener() {
+      return ctx.changeMonth(1);
+    });
+    \u0275\u0275elementStart(10, "icon");
+    \u0275\u0275text(11, "chevron_right");
+    \u0275\u0275elementEnd()()()();
+    \u0275\u0275elementStart(12, "div", 6);
+    \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack06);
+    \u0275\u0275pipe(15, "slice");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "div", 8);
+    \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack06);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 3, (ctx.date_list[6] == null ? null : ctx.date_list[6].id) || ctx.date, "LLLL yyyy"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("disabled", (ctx.date_list[0] == null ? null : ctx.date_list[0].id) < ctx.from());
+    \u0275\u0275advance(3);
+    \u0275\u0275property("disabled", (ctx.date_list[34] == null ? null : ctx.date_list[34].id) > ctx.to());
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(\u0275\u0275pipeBind3(15, 6, ctx.date_list, 0, 7));
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx.date_list);
+  }
+}, dependencies: [CommonModule, SlicePipe, DatePipe, IconComponent], encapsulation: 2 });
+var DateCalendarComponent = _DateCalendarComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DateCalendarComponent, [{
+    type: Component,
+    args: [{ selector: "date-calendar", template: `
+        <div class="p-2">
+            <div class="flex items-center justify-between">
+                <button
+                    class="pr-2 pl-1.5 font-medium"
+                    (dblclick)="setMonthToCurrent()"
+                >
+                    {{ date_list[6]?.id || date | date: 'LLLL yyyy' }}
+                </button>
+                <div class="flex items-center">
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-next-month"
+                        [disabled]="date_list[0]?.id < from()"
+                        (click)="changeMonth(-1)"
+                    >
+                        <icon>chevron_left</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        name="schedule-previous-month"
+                        [disabled]="date_list[34]?.id > to()"
+                        (click)="changeMonth(1)"
+                    >
+                        <icon>chevron_right</icon>
+                    </button>
+                </div>
+            </div>
+            <div
+                class="border-base-200 mb-2 flex items-center border-b pb-2 text-sm"
+            >
+                @for (day of date_list | slice: 0 : 7; track day.id) {
+                    <div class="flex-1 text-center opacity-60">
+                        {{ day?.id | date: 'EE' }}
+                    </div>
+                }
+            </div>
+            <div class="flex flex-wrap items-center justify-between">
+                @for (day of date_list; track day.id) {
+                    <button
+                        icon
+                        name="schedule-set-date"
+                        class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
+                        [class.hover:bg-base-100]="day.id !== active_date"
+                        [class.text-base-300!]="!day.is_month"
+                        [class.text-secondary-content]="day.id === active_date"
+                        [class.text-base-content]="day.id !== active_date"
+                        [class.bg-secondary]="day.id === active_date"
+                        [class.font-normal]="day.id !== active_date"
+                        (click)="setValue(day.id)"
+                        [disabled]="day.id < from() || day.id > to()"
+                    >
+                        {{ day.id | date: 'd' }}
+                        @if (today === day.id) {
+                            <div
+                                class="border-secondary absolute -inset-[2px] overflow-hidden rounded-full border"
+                                matRipple
+                            ></div>
+                        }
+                        <div
+                            class="absolute inset-0 overflow-hidden rounded-full"
+                            matRipple
+                        ></div>
+                    </button>
+                }
+            </div>
+        </div>
+    `, providers: [
+      {
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: forwardRef(() => DateCalendarComponent),
+        multi: true
+      }
+    ], imports: [CommonModule, IconComponent] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateCalendarComponent, { className: "DateCalendarComponent", filePath: "libs/form-fields/src/lib/date-calendar.component.ts", lineNumber: 114 });
+})();
+
+// libs/form-fields/src/lib/date-field.component.ts
+var _c043 = ["*"];
+function DateFieldComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0);
+    \u0275\u0275pipe(1, "date");
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, ctx_r0.date(), ctx_r0.date_format), " ");
+  }
+}
+function DateFieldComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 4);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "FORM.DATE_EMPTY"));
+  }
+}
+function DateFieldComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.start_of_day);
+  }
+}
+function DateFieldComponent_Conditional_5_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1, " - ");
+    \u0275\u0275elementEnd();
+  }
+}
+function DateFieldComponent_Conditional_5_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.end_of_day);
+  }
+}
+function DateFieldComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275conditionalCreate(1, DateFieldComponent_Conditional_5_Conditional_1_Template, 2, 1, "span");
+    \u0275\u0275conditionalCreate(2, DateFieldComponent_Conditional_5_Conditional_2_Template, 2, 0, "span");
+    \u0275\u0275conditionalCreate(3, DateFieldComponent_Conditional_5_Conditional_3_Template, 2, 1, "span");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.range() !== 2 ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.range() === 0 ? 2 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.range() !== 1 ? 3 : -1);
+  }
+}
+function DateFieldComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275projection(1);
+    \u0275\u0275elementEnd();
+  }
+}
+function DateFieldComponent_ng_template_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "date-calendar", 9);
+    \u0275\u0275listener("ngModelChange", function DateFieldComponent_ng_template_11_Template_date_calendar_ngModelChange_1_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.setValue($event));
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("ngModel", ctx_r0.date() || ctx_r0.now)("from", ctx_r0.from.valueOf())("to", ctx_r0.until.valueOf())("offset_weekday", ctx_r0.week_start());
+  }
+}
+var TimezoneDiffRange;
+(function(TimezoneDiffRange2) {
+  TimezoneDiffRange2[TimezoneDiffRange2["Both"] = 0] = "Both";
+  TimezoneDiffRange2[TimezoneDiffRange2["Start"] = 1] = "Start";
+  TimezoneDiffRange2[TimezoneDiffRange2["End"] = 2] = "End";
+})(TimezoneDiffRange || (TimezoneDiffRange = {}));
+var _DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
+  get date_format() {
+    return this.short() ? "MMM d, yyyy" : "MMMM d, yyyy";
+  }
+  get time_format() {
+    return this.use_24hr() ? "HH : mm" : "h : mm a";
+  }
+  get start_of_day() {
+    const start = startOfDay(this.date()).valueOf();
+    const format3 = `MMM d, ${this.time_format}${this.range() === 1 ? " (z)" : ""}`;
+    return this._date_pipe.transform(start, format3, this.tz);
+  }
+  get end_of_day() {
+    const end = endOfDay(this.date()).valueOf();
+    const format3 = `MMM d, ${this.time_format}${this.range() === 1 ? " (z)" : ""}`;
+    return this._date_pipe.transform(end, format3, this.tz);
+  }
+  get has_error() {
+    return this._control?.invalid && this._control?.touched;
+  }
+  get tz() {
+    const tz = this.timezone();
+    if (!tz)
+      return "";
+    const tz_offset = getTimezoneOffsetString(tz);
+    return tz_offset === this._local_tz ? "" : tz_offset;
+  }
+  constructor() {
+    super();
+    this._injector = inject(Injector);
+    this.from_date = input(startOfDay(Date.now()).valueOf(), { alias: "from" });
+    this.to_date = input(void 0, { alias: "to" });
+    this.week_start = input(0);
+    this.use_24hr = input(false);
+    this.disabled = model(void 0);
+    this.short = input(false);
+    this.timezone = input("");
+    this.range = input(TimezoneDiffRange.Both);
+    this.date = signal(Date.now());
+    this.now = Date.now();
+    this._date_pipe = new DatePipe("en");
+    this._local_tz = getTimezoneOffsetString(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    this._tooltip = viewChild(CustomTooltipComponent);
+  }
+  /** First allowed date on the calendar */
+  get from() {
+    return new Date(this.from_date()) || startOfDay(/* @__PURE__ */ new Date());
+  }
+  /** Current date value */
+  get until() {
+    return new Date(this.to_date()) || addYears(endOfDay(/* @__PURE__ */ new Date()), 1);
+  }
+  ngOnInit() {
+    this._control = this._injector.get(NgControl);
+    this.date.set(Date.now());
+  }
+  /**
+   * Update the form field value
+   * @param new_value New value to set on the form field
+   */
+  setValue(new_value) {
+    const old_date = new Date(this.date() || Date.now());
+    let new_date = set(new_value, {
+      hours: old_date.getHours(),
+      minutes: old_date.getMinutes()
+    }).valueOf();
+    if (new_date < this.from.valueOf()) {
+      new_date = this.from.valueOf();
+    }
+    this.date.set(new_date);
+    if (this._onChange)
+      this._onChange(new_date);
+    this._tooltip()?.close();
+  }
+  /* istanbul ignore next */
+  /**
+   * Update local value when form control value is changed
+   * @param value The new value for the component
+   */
+  writeValue(value) {
+    this.date.set(value);
+    this._tooltip()?.close();
+  }
+  /* istanbul ignore next */
+  /**
+   * Registers a callback function that is called when the control's value changes in the UI.
+   * @param fn The callback function to register
+   */
+  registerOnChange(fn2) {
+    this._onChange = fn2;
+  }
+  /* istanbul ignore next */
+  /**
+   * Registers a callback function is called by the forms API on initialization to update the form model on blur.
+   * @param fn The callback function to register
+   */
+  registerOnTouched(fn2) {
+    this._onTouch = fn2;
+  }
+  setDisabledState(disabled) {
+    this.disabled.set(disabled);
+  }
+};
+_DateFieldComponent.\u0275fac = function DateFieldComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _DateFieldComponent)();
+};
+_DateFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateFieldComponent, selectors: [["a-date-field"], ["date-field"]], viewQuery: function DateFieldComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._tooltip, CustomTooltipComponent, 5);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], week_start: [1, "week_start"], use_24hr: [1, "use_24hr"], disabled: [1, "disabled"], short: [1, "short"], timezone: [1, "timezone"], range: [1, "range"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _DateFieldComponent),
+    multi: true
+  }
+]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c043, decls: 13, vars: 7, consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], [1, "error", "text-error", "h-5", "p-1", "text-xs"], [1, "bg-base-100", "relative", "w-[18rem]", "rounded-sm", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275projectionDef();
+    \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
+    \u0275\u0275conditionalCreate(3, DateFieldComponent_Conditional_3_Template, 2, 4)(4, DateFieldComponent_Conditional_4_Template, 3, 3, "span", 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, DateFieldComponent_Conditional_5_Template, 4, 3, "div", 5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 6)(7, "icon");
+    \u0275\u0275text(8, "today");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(9, "div", 7);
+    \u0275\u0275conditionalCreate(10, DateFieldComponent_Conditional_10_Template, 2, 0, "span");
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(11, DateFieldComponent_ng_template_11_Template, 2, 4, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+  }
+  if (rf & 2) {
+    const calendar_picker_r3 = \u0275\u0275reference(12);
+    \u0275\u0275classProp("opacity-30", ctx.disabled());
+    \u0275\u0275property("content", calendar_picker_r3)("disabled", ctx.disabled());
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx.date() ? 3 : 4);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.timezone() && ctx.tz ? 5 : -1);
+    \u0275\u0275advance(5);
+    \u0275\u0275conditional(ctx.has_error ? 10 : -1);
+  }
+}, dependencies: [
+  CommonModule,
+  DatePipe,
+  FormsModule,
+  NgControlStatus,
+  NgModel,
+  DateCalendarComponent,
+  IconComponent,
+  CustomTooltipComponent,
+  TranslatePipe
+], styles: ["\n\n.no-subscript[_nghost-%COMP%]    > .error[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=date-field.component.css.map */"] });
+var DateFieldComponent = _DateFieldComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DateFieldComponent, [{
+    type: Component,
+    args: [{ selector: "a-date-field,date-field", template: `
+        <button
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border"
+            customTooltip
+            [content]="calendar_picker"
+            yPosition="top"
+            [disabled]="disabled()"
+            [class.opacity-30]="disabled()"
+            matRipple
+        >
+            <div
+                class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
+            >
+                <div class="text-base font-normal">
+                    @if (date()) {
+                        {{ date() | date: date_format }}
+                    } @else {
+                        <span class="opacity-30">{{
+                            'FORM.DATE_EMPTY' | translate
+                        }}</span>
+                    }
+                </div>
+                @if (timezone() && tz) {
+                    <div class="truncate text-xs opacity-30">
+                        @if (range() !== 2) {
+                            <span>{{ start_of_day }}</span>
+                        }
+                        @if (range() === 0) {
+                            <span> - </span>
+                        }
+                        @if (range() !== 1) {
+                            <span>{{ end_of_day }}</span>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="flex h-10 w-10 items-center justify-center text-2xl">
+                <icon>today</icon>
+            </div>
+        </button>
+        <div class="error text-error h-5 p-1 text-xs">
+            @if (has_error) {
+                <span><ng-content></ng-content></span>
+            }
+        </div>
+        <ng-template #calendar_picker>
+            <div class="bg-base-100 relative w-[18rem] rounded-sm px-2 py-4">
+                <date-calendar
+                    [ngModel]="date() || now"
+                    [from]="from.valueOf()"
+                    [to]="until.valueOf()"
+                    [offset_weekday]="week_start()"
+                    (ngModelChange)="setValue($event)"
+                ></date-calendar>
+            </div>
+        </ng-template>
+    `, providers: [
+      {
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: forwardRef(() => DateFieldComponent),
+        multi: true
+      }
+    ], imports: [
+      CommonModule,
+      FormsModule,
+      DateCalendarComponent,
+      IconComponent,
+      CustomTooltipComponent,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;4616f4926c682fe7ceb0f98ecb8aa0ceeb383c5318a41af3f61a9c0da602fb9b;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/date-field.component.ts */\n:host.no-subscript > .error {\n  display: none;\n}\n/*# sourceMappingURL=date-field.component.css.map */\n"] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateFieldComponent, { className: "DateFieldComponent", filePath: "libs/form-fields/src/lib/date-field.component.ts", lineNumber: 115 });
+})();
+
+// node_modules/@angular/material/fesm2022/autocomplete.mjs
+var _c044 = ["panel"];
+var _c124 = ["*"];
+function MatAutocomplete_ng_template_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1, 0);
+    \u0275\u0275projection(2);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const formFieldId_r1 = ctx.id;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classMap(ctx_r1._classList);
+    \u0275\u0275classProp("mat-mdc-autocomplete-visible", ctx_r1.showPanel)("mat-mdc-autocomplete-hidden", !ctx_r1.showPanel)("mat-autocomplete-panel-animations-enabled", !ctx_r1._animationsDisabled)("mat-primary", ctx_r1._color === "primary")("mat-accent", ctx_r1._color === "accent")("mat-warn", ctx_r1._color === "warn");
+    \u0275\u0275property("id", ctx_r1.id);
+    \u0275\u0275attribute("aria-label", ctx_r1.ariaLabel || null)("aria-labelledby", ctx_r1._getPanelAriaLabelledby(formFieldId_r1));
+  }
+}
+var MatAutocompleteSelectedEvent = class {
+  source;
+  option;
+  constructor(source, option) {
+    this.source = source;
+    this.option = option;
+  }
+};
+var MAT_AUTOCOMPLETE_DEFAULT_OPTIONS = new InjectionToken("mat-autocomplete-default-options", {
+  providedIn: "root",
+  factory: MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY
+});
+function MAT_AUTOCOMPLETE_DEFAULT_OPTIONS_FACTORY() {
+  return {
+    autoActiveFirstOption: false,
+    autoSelectActiveOption: false,
+    hideSingleSelectionIndicator: false,
+    requireSelection: false,
+    hasBackdrop: false
+  };
+}
+var MatAutocomplete = class _MatAutocomplete {
+  _changeDetectorRef = inject(ChangeDetectorRef);
+  _elementRef = inject(ElementRef);
+  _defaults = inject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS);
+  _animationsDisabled = _animationsDisabled();
+  _activeOptionChanges = Subscription.EMPTY;
+  /** Manages active item in option list based on key events. */
+  _keyManager;
+  /** Whether the autocomplete panel should be visible, depending on option length. */
+  showPanel = false;
+  /** Whether the autocomplete panel is open. */
+  get isOpen() {
+    return this._isOpen && this.showPanel;
+  }
+  _isOpen = false;
+  /** Latest trigger that opened the autocomplete. */
+  _latestOpeningTrigger;
+  /** @docs-private Sets the theme color of the panel. */
+  _setColor(value) {
+    this._color = value;
+    this._changeDetectorRef.markForCheck();
+  }
+  /** @docs-private theme color of the panel */
+  _color;
+  // The @ViewChild query for TemplateRef here needs to be static because some code paths
+  // lead to the overlay being created before change detection has finished for this component.
+  // Notably, another component may trigger `focus` on the autocomplete-trigger.
+  /** @docs-private */
+  template;
+  /** Element for the panel containing the autocomplete options. */
+  panel;
+  /** Reference to all options within the autocomplete. */
+  options;
+  /** Reference to all option groups within the autocomplete. */
+  optionGroups;
+  /** Aria label of the autocomplete. */
+  ariaLabel;
+  /** Input that can be used to specify the `aria-labelledby` attribute. */
+  ariaLabelledby;
+  /** Function that maps an option's control value to its display value in the trigger. */
+  displayWith = null;
+  /**
+   * Whether the first option should be highlighted when the autocomplete panel is opened.
+   * Can be configured globally through the `MAT_AUTOCOMPLETE_DEFAULT_OPTIONS` token.
+   */
+  autoActiveFirstOption;
+  /** Whether the active option should be selected as the user is navigating. */
+  autoSelectActiveOption;
+  /**
+   * Whether the user is required to make a selection when they're interacting with the
+   * autocomplete. If the user moves away from the autocomplete without selecting an option from
+   * the list, the value will be reset. If the user opens the panel and closes it without
+   * interacting or selecting a value, the initial value will be kept.
+   */
+  requireSelection;
+  /**
+   * Specify the width of the autocomplete panel.  Can be any CSS sizing value, otherwise it will
+   * match the width of its host.
+   */
+  panelWidth;
+  /** Whether ripples are disabled within the autocomplete panel. */
+  disableRipple;
+  /** Event that is emitted whenever an option from the list is selected. */
+  optionSelected = new EventEmitter();
+  /** Event that is emitted when the autocomplete panel is opened. */
+  opened = new EventEmitter();
+  /** Event that is emitted when the autocomplete panel is closed. */
+  closed = new EventEmitter();
+  /** Emits whenever an option is activated. */
+  optionActivated = new EventEmitter();
+  /**
+   * Takes classes set on the host mat-autocomplete element and applies them to the panel
+   * inside the overlay container to allow for easy styling.
+   */
+  set classList(value) {
+    this._classList = value;
+    this._elementRef.nativeElement.className = "";
+  }
+  _classList;
+  /** Whether checkmark indicator for single-selection options is hidden. */
+  get hideSingleSelectionIndicator() {
+    return this._hideSingleSelectionIndicator;
+  }
+  set hideSingleSelectionIndicator(value) {
+    this._hideSingleSelectionIndicator = value;
+    this._syncParentProperties();
+  }
+  _hideSingleSelectionIndicator;
+  /** Syncs the parent state with the individual options. */
+  _syncParentProperties() {
+    if (this.options) {
+      for (const option of this.options) {
+        option._changeDetectorRef.markForCheck();
+      }
+    }
+  }
+  /** Unique ID to be used by autocomplete trigger's "aria-owns" property. */
+  id = inject(_IdGenerator).getId("mat-autocomplete-");
+  /**
+   * Tells any descendant `mat-optgroup` to use the inert a11y pattern.
+   * @docs-private
+   */
+  inertGroups;
+  constructor() {
+    const platform = inject(Platform);
+    this.inertGroups = platform?.SAFARI || false;
+    this.autoActiveFirstOption = !!this._defaults.autoActiveFirstOption;
+    this.autoSelectActiveOption = !!this._defaults.autoSelectActiveOption;
+    this.requireSelection = !!this._defaults.requireSelection;
+    this._hideSingleSelectionIndicator = this._defaults.hideSingleSelectionIndicator ?? false;
+  }
+  ngAfterContentInit() {
+    this._keyManager = new ActiveDescendantKeyManager(this.options).withWrap().skipPredicate(this._skipPredicate);
+    this._activeOptionChanges = this._keyManager.change.subscribe((index) => {
+      if (this.isOpen) {
+        this.optionActivated.emit({
+          source: this,
+          option: this.options.toArray()[index] || null
+        });
+      }
+    });
+    this._setVisibility();
+  }
+  ngOnDestroy() {
+    this._keyManager?.destroy();
+    this._activeOptionChanges.unsubscribe();
+  }
+  /**
+   * Sets the panel scrollTop. This allows us to manually scroll to display options
+   * above or below the fold, as they are not actually being focused when active.
+   */
+  _setScrollTop(scrollTop) {
+    if (this.panel) {
+      this.panel.nativeElement.scrollTop = scrollTop;
+    }
+  }
+  /** Returns the panel's scrollTop. */
+  _getScrollTop() {
+    return this.panel ? this.panel.nativeElement.scrollTop : 0;
+  }
+  /** Panel should hide itself when the option list is empty. */
+  _setVisibility() {
+    this.showPanel = !!this.options?.length;
+    this._changeDetectorRef.markForCheck();
+  }
+  /** Emits the `select` event. */
+  _emitSelectEvent(option) {
+    const event = new MatAutocompleteSelectedEvent(this, option);
+    this.optionSelected.emit(event);
+  }
+  /** Gets the aria-labelledby for the autocomplete panel. */
+  _getPanelAriaLabelledby(labelId) {
+    if (this.ariaLabel) {
+      return null;
+    }
+    const labelExpression = labelId ? labelId + " " : "";
+    return this.ariaLabelledby ? labelExpression + this.ariaLabelledby : labelId;
+  }
+  // `skipPredicate` determines if key manager should avoid putting a given option in the tab
+  // order. Allow disabled list items to receive focus via keyboard to align with WAI ARIA
+  // recommendation.
+  //
+  // Normally WAI ARIA's instructions are to exclude disabled items from the tab order, but it
+  // makes a few exceptions for compound widgets.
+  //
+  // From [Developing a Keyboard Interface](
+  // https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/):
+  //   "For the following composite widget elements, keep them focusable when disabled: Options in a
+  //   Listbox..."
+  //
+  // The user can focus disabled options using the keyboard, but the user cannot click disabled
+  // options.
+  _skipPredicate() {
+    return false;
+  }
+  static \u0275fac = function MatAutocomplete_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatAutocomplete)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
+    type: _MatAutocomplete,
+    selectors: [["mat-autocomplete"]],
+    contentQueries: function MatAutocomplete_ContentQueries(rf, ctx, dirIndex) {
+      if (rf & 1) {
+        \u0275\u0275contentQuery(dirIndex, MatOption, 5);
+        \u0275\u0275contentQuery(dirIndex, MAT_OPTGROUP, 5);
+      }
+      if (rf & 2) {
+        let _t4;
+        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx.options = _t4);
+        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx.optionGroups = _t4);
+      }
+    },
+    viewQuery: function MatAutocomplete_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuery(TemplateRef, 7);
+        \u0275\u0275viewQuery(_c044, 5);
+      }
+      if (rf & 2) {
+        let _t4;
+        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx.template = _t4.first);
+        \u0275\u0275queryRefresh(_t4 = \u0275\u0275loadQuery()) && (ctx.panel = _t4.first);
+      }
+    },
+    hostAttrs: [1, "mat-mdc-autocomplete"],
+    inputs: {
+      ariaLabel: [0, "aria-label", "ariaLabel"],
+      ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
+      displayWith: "displayWith",
+      autoActiveFirstOption: [2, "autoActiveFirstOption", "autoActiveFirstOption", booleanAttribute],
+      autoSelectActiveOption: [2, "autoSelectActiveOption", "autoSelectActiveOption", booleanAttribute],
+      requireSelection: [2, "requireSelection", "requireSelection", booleanAttribute],
+      panelWidth: "panelWidth",
+      disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
+      classList: [0, "class", "classList"],
+      hideSingleSelectionIndicator: [2, "hideSingleSelectionIndicator", "hideSingleSelectionIndicator", booleanAttribute]
+    },
+    outputs: {
+      optionSelected: "optionSelected",
+      opened: "opened",
+      closed: "closed",
+      optionActivated: "optionActivated"
+    },
+    exportAs: ["matAutocomplete"],
+    features: [\u0275\u0275ProvidersFeature([{
+      provide: MAT_OPTION_PARENT_COMPONENT,
+      useExisting: _MatAutocomplete
+    }])],
+    ngContentSelectors: _c124,
+    decls: 1,
+    vars: 0,
+    consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
+    template: function MatAutocomplete_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275projectionDef();
+        \u0275\u0275template(0, MatAutocomplete_ng_template_0_Template, 3, 17, "ng-template");
+      }
+    },
+    styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:relative;border-radius:var(--mat-autocomplete-container-shape, var(--mat-sys-corner-extra-small));box-shadow:var(--mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));background-color:var(--mat-autocomplete-background-color, var(--mat-sys-surface-container))}@media(forced-colors: active){div.mat-mdc-autocomplete-panel{outline:solid 1px}}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}@keyframes _mat-autocomplete-enter{from{opacity:0;transform:scaleY(0.8)}to{opacity:1;transform:none}}.mat-autocomplete-panel-animations-enabled{animation:_mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1)}mat-autocomplete{display:none}\n"],
+    encapsulation: 2,
+    changeDetection: 0
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocomplete, [{
+    type: Component,
+    args: [{
+      selector: "mat-autocomplete",
+      encapsulation: ViewEncapsulation.None,
+      changeDetection: ChangeDetectionStrategy.OnPush,
+      exportAs: "matAutocomplete",
+      host: {
+        "class": "mat-mdc-autocomplete"
+      },
+      providers: [{
+        provide: MAT_OPTION_PARENT_COMPONENT,
+        useExisting: MatAutocomplete
+      }],
+      template: `<ng-template let-formFieldId="id">
+  <div
+    class="mat-mdc-autocomplete-panel mdc-menu-surface mdc-menu-surface--open"
+    role="listbox"
+    [id]="id"
+    [class]="_classList"
+    [class.mat-mdc-autocomplete-visible]="showPanel"
+    [class.mat-mdc-autocomplete-hidden]="!showPanel"
+    [class.mat-autocomplete-panel-animations-enabled]="!_animationsDisabled"
+    [class.mat-primary]="_color === 'primary'"
+    [class.mat-accent]="_color === 'accent'"
+    [class.mat-warn]="_color === 'warn'"
+    [attr.aria-label]="ariaLabel || null"
+    [attr.aria-labelledby]="_getPanelAriaLabelledby(formFieldId)"
+    #panel>
+    <ng-content></ng-content>
+  </div>
+</ng-template>
+`,
+      styles: ["div.mat-mdc-autocomplete-panel{width:100%;max-height:256px;visibility:hidden;transform-origin:center top;overflow:auto;padding:8px 0;box-sizing:border-box;position:relative;border-radius:var(--mat-autocomplete-container-shape, var(--mat-sys-corner-extra-small));box-shadow:var(--mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));background-color:var(--mat-autocomplete-background-color, var(--mat-sys-surface-container))}@media(forced-colors: active){div.mat-mdc-autocomplete-panel{outline:solid 1px}}.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel{border-top-left-radius:0;border-top-right-radius:0}.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel{border-bottom-left-radius:0;border-bottom-right-radius:0;transform-origin:center bottom}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible{visibility:visible}div.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden{visibility:hidden;pointer-events:none}@keyframes _mat-autocomplete-enter{from{opacity:0;transform:scaleY(0.8)}to{opacity:1;transform:none}}.mat-autocomplete-panel-animations-enabled{animation:_mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1)}mat-autocomplete{display:none}\n"]
+    }]
+  }], () => [], {
+    template: [{
+      type: ViewChild,
+      args: [TemplateRef, {
+        static: true
+      }]
+    }],
+    panel: [{
+      type: ViewChild,
+      args: ["panel"]
+    }],
+    options: [{
+      type: ContentChildren,
+      args: [MatOption, {
+        descendants: true
+      }]
+    }],
+    optionGroups: [{
+      type: ContentChildren,
+      args: [MAT_OPTGROUP, {
+        descendants: true
+      }]
+    }],
+    ariaLabel: [{
+      type: Input,
+      args: ["aria-label"]
+    }],
+    ariaLabelledby: [{
+      type: Input,
+      args: ["aria-labelledby"]
+    }],
+    displayWith: [{
+      type: Input
+    }],
+    autoActiveFirstOption: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    autoSelectActiveOption: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    requireSelection: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    panelWidth: [{
+      type: Input
+    }],
+    disableRipple: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    optionSelected: [{
+      type: Output
+    }],
+    opened: [{
+      type: Output
+    }],
+    closed: [{
+      type: Output
+    }],
+    optionActivated: [{
+      type: Output
+    }],
+    classList: [{
+      type: Input,
+      args: ["class"]
+    }],
+    hideSingleSelectionIndicator: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var MatAutocompleteOrigin = class _MatAutocompleteOrigin {
+  elementRef = inject(ElementRef);
+  constructor() {
+  }
+  static \u0275fac = function MatAutocompleteOrigin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatAutocompleteOrigin)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MatAutocompleteOrigin,
+    selectors: [["", "matAutocompleteOrigin", ""]],
+    exportAs: ["matAutocompleteOrigin"]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteOrigin, [{
+    type: Directive,
+    args: [{
+      selector: "[matAutocompleteOrigin]",
+      exportAs: "matAutocompleteOrigin"
+    }]
+  }], () => [], null);
+})();
+var MAT_AUTOCOMPLETE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => MatAutocompleteTrigger),
+  multi: true
+};
+function getMatAutocompleteMissingPanelError() {
+  return Error("Attempting to open an undefined instance of `mat-autocomplete`. Make sure that the id passed to the `matAutocomplete` is correct and that you're attempting to open it after the ngAfterContentInit hook.");
+}
+var MAT_AUTOCOMPLETE_SCROLL_STRATEGY = new InjectionToken("mat-autocomplete-scroll-strategy", {
+  providedIn: "root",
+  factory: () => {
+    const injector = inject(Injector);
+    return () => createRepositionScrollStrategy(injector);
+  }
+});
+function MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY(_overlay) {
+  const injector = inject(Injector);
+  return () => createRepositionScrollStrategy(injector);
+}
+var MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER = {
+  provide: MAT_AUTOCOMPLETE_SCROLL_STRATEGY,
+  deps: [],
+  useFactory: MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY
+};
+var MatAutocompleteTrigger = class _MatAutocompleteTrigger {
+  _environmentInjector = inject(EnvironmentInjector);
+  _element = inject(ElementRef);
+  _injector = inject(Injector);
+  _viewContainerRef = inject(ViewContainerRef);
+  _zone = inject(NgZone);
+  _changeDetectorRef = inject(ChangeDetectorRef);
+  _dir = inject(Directionality, {
+    optional: true
+  });
+  _formField = inject(MAT_FORM_FIELD, {
+    optional: true,
+    host: true
+  });
+  _viewportRuler = inject(ViewportRuler);
+  _scrollStrategy = inject(MAT_AUTOCOMPLETE_SCROLL_STRATEGY);
+  _renderer = inject(Renderer2);
+  _animationsDisabled = _animationsDisabled();
+  _defaults = inject(MAT_AUTOCOMPLETE_DEFAULT_OPTIONS, {
+    optional: true
+  });
+  _overlayRef;
+  _portal;
+  _componentDestroyed = false;
+  _initialized = new Subject();
+  _keydownSubscription;
+  _outsideClickSubscription;
+  _cleanupWindowBlur;
+  /** Old value of the native input. Used to work around issues with the `input` event on IE. */
+  _previousValue;
+  /** Value of the input element when the panel was attached (even if there are no options). */
+  _valueOnAttach;
+  /** Value on the previous keydown event. */
+  _valueOnLastKeydown;
+  /** Strategy that is used to position the panel. */
+  _positionStrategy;
+  /** Whether or not the label state is being overridden. */
+  _manuallyFloatingLabel = false;
+  /** The subscription for closing actions (some are bound to document). */
+  _closingActionsSubscription;
+  /** Subscription to viewport size changes. */
+  _viewportSubscription = Subscription.EMPTY;
+  /** Implements BreakpointObserver to be used to detect handset landscape */
+  _breakpointObserver = inject(BreakpointObserver);
+  _handsetLandscapeSubscription = Subscription.EMPTY;
+  /**
+   * Whether the autocomplete can open the next time it is focused. Used to prevent a focused,
+   * closed autocomplete from being reopened if the user switches to another browser tab and then
+   * comes back.
+   */
+  _canOpenOnNextFocus = true;
+  /** Value inside the input before we auto-selected an option. */
+  _valueBeforeAutoSelection;
+  /**
+   * Current option that we have auto-selected as the user is navigating,
+   * but which hasn't been propagated to the model value yet.
+   */
+  _pendingAutoselectedOption;
+  /** Stream of keyboard events that can close the panel. */
+  _closeKeyEventStream = new Subject();
+  /** Classes to apply to the panel. Exposed as a public property for internal usage. */
+  _overlayPanelClass = coerceArray(this._defaults?.overlayPanelClass || []);
+  /**
+   * Event handler for when the window is blurred. Needs to be an
+   * arrow function in order to preserve the context.
+   */
+  _windowBlurHandler = () => {
+    this._canOpenOnNextFocus = this.panelOpen || !this._hasFocus();
+  };
+  /** `View -> model callback called when value changes` */
+  _onChange = () => {
+  };
+  /** `View -> model callback called when autocomplete has been touched` */
+  _onTouched = () => {
+  };
+  /** The autocomplete panel to be attached to this trigger. */
+  autocomplete;
+  /**
+   * Position of the autocomplete panel relative to the trigger element. A position of `auto`
+   * will render the panel underneath the trigger if there is enough space for it to fit in
+   * the viewport, otherwise the panel will be shown above it. If the position is set to
+   * `above` or `below`, the panel will always be shown above or below the trigger. no matter
+   * whether it fits completely in the viewport.
+   */
+  position = "auto";
+  /**
+   * Reference relative to which to position the autocomplete panel.
+   * Defaults to the autocomplete trigger element.
+   */
+  connectedTo;
+  /**
+   * `autocomplete` attribute to be set on the input element.
+   * @docs-private
+   */
+  autocompleteAttribute = "off";
+  /**
+   * Whether the autocomplete is disabled. When disabled, the element will
+   * act as a regular input and the user won't be able to open the panel.
+   */
+  autocompleteDisabled;
+  constructor() {
+  }
+  /** Class to apply to the panel when it's above the input. */
+  _aboveClass = "mat-mdc-autocomplete-panel-above";
+  ngAfterViewInit() {
+    this._initialized.next();
+    this._initialized.complete();
+    this._cleanupWindowBlur = this._renderer.listen("window", "blur", this._windowBlurHandler);
+  }
+  ngOnChanges(changes) {
+    if (changes["position"] && this._positionStrategy) {
+      this._setStrategyPositions(this._positionStrategy);
+      if (this.panelOpen) {
+        this._overlayRef.updatePosition();
+      }
+    }
+  }
+  ngOnDestroy() {
+    this._cleanupWindowBlur?.();
+    this._handsetLandscapeSubscription.unsubscribe();
+    this._viewportSubscription.unsubscribe();
+    this._componentDestroyed = true;
+    this._destroyPanel();
+    this._closeKeyEventStream.complete();
+    this._clearFromModal();
+  }
+  /** Whether or not the autocomplete panel is open. */
+  get panelOpen() {
+    return this._overlayAttached && this.autocomplete.showPanel;
+  }
+  _overlayAttached = false;
+  /** Opens the autocomplete suggestion panel. */
+  openPanel() {
+    this._openPanelInternal();
+  }
+  /** Closes the autocomplete suggestion panel. */
+  closePanel() {
+    this._resetLabel();
+    if (!this._overlayAttached) {
+      return;
+    }
+    if (this.panelOpen) {
+      this._zone.run(() => {
+        this.autocomplete.closed.emit();
+      });
+    }
+    if (this.autocomplete._latestOpeningTrigger === this) {
+      this.autocomplete._isOpen = false;
+      this.autocomplete._latestOpeningTrigger = null;
+    }
+    this._overlayAttached = false;
+    this._pendingAutoselectedOption = null;
+    if (this._overlayRef && this._overlayRef.hasAttached()) {
+      this._overlayRef.detach();
+      this._closingActionsSubscription.unsubscribe();
+    }
+    this._updatePanelState();
+    if (!this._componentDestroyed) {
+      this._changeDetectorRef.detectChanges();
+    }
+    if (this._trackedModal) {
+      removeAriaReferencedId(this._trackedModal, "aria-owns", this.autocomplete.id);
+    }
+  }
+  /**
+   * Updates the position of the autocomplete suggestion panel to ensure that it fits all options
+   * within the viewport.
+   */
+  updatePosition() {
+    if (this._overlayAttached) {
+      this._overlayRef.updatePosition();
+    }
+  }
+  /**
+   * A stream of actions that should close the autocomplete panel, including
+   * when an option is selected, on blur, and when TAB is pressed.
+   */
+  get panelClosingActions() {
+    return merge(this.optionSelections, this.autocomplete._keyManager.tabOut.pipe(filter(() => this._overlayAttached)), this._closeKeyEventStream, this._getOutsideClickStream(), this._overlayRef ? this._overlayRef.detachments().pipe(filter(() => this._overlayAttached)) : of()).pipe(
+      // Normalize the output so we return a consistent type.
+      map((event) => event instanceof MatOptionSelectionChange ? event : null)
+    );
+  }
+  /** Stream of changes to the selection state of the autocomplete options. */
+  optionSelections = defer(() => {
+    const options2 = this.autocomplete ? this.autocomplete.options : null;
+    if (options2) {
+      return options2.changes.pipe(startWith(options2), switchMap(() => merge(...options2.map((option) => option.onSelectionChange))));
+    }
+    return this._initialized.pipe(switchMap(() => this.optionSelections));
+  });
+  /** The currently active option, coerced to MatOption type. */
+  get activeOption() {
+    if (this.autocomplete && this.autocomplete._keyManager) {
+      return this.autocomplete._keyManager.activeItem;
+    }
+    return null;
+  }
+  /** Stream of clicks outside of the autocomplete panel. */
+  _getOutsideClickStream() {
+    return new Observable((observer) => {
+      const listener = (event) => {
+        const clickTarget = _getEventTarget(event);
+        const formField = this._formField ? this._formField.getConnectedOverlayOrigin().nativeElement : null;
+        const customOrigin = this.connectedTo ? this.connectedTo.elementRef.nativeElement : null;
+        if (this._overlayAttached && clickTarget !== this._element.nativeElement && // Normally focus moves inside `mousedown` so this condition will almost always be
+        // true. Its main purpose is to handle the case where the input is focused from an
+        // outside click which propagates up to the `body` listener within the same sequence
+        // and causes the panel to close immediately (see #3106).
+        !this._hasFocus() && (!formField || !formField.contains(clickTarget)) && (!customOrigin || !customOrigin.contains(clickTarget)) && !!this._overlayRef && !this._overlayRef.overlayElement.contains(clickTarget)) {
+          observer.next(event);
+        }
+      };
+      const cleanups = [this._renderer.listen("document", "click", listener), this._renderer.listen("document", "auxclick", listener), this._renderer.listen("document", "touchend", listener)];
+      return () => {
+        cleanups.forEach((current) => current());
+      };
+    });
+  }
+  // Implemented as part of ControlValueAccessor.
+  writeValue(value) {
+    Promise.resolve(null).then(() => this._assignOptionValue(value));
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnChange(fn2) {
+    this._onChange = fn2;
+  }
+  // Implemented as part of ControlValueAccessor.
+  registerOnTouched(fn2) {
+    this._onTouched = fn2;
+  }
+  // Implemented as part of ControlValueAccessor.
+  setDisabledState(isDisabled) {
+    this._element.nativeElement.disabled = isDisabled;
+  }
+  _handleKeydown(e2) {
+    const event = e2;
+    const keyCode = event.keyCode;
+    const hasModifier = hasModifierKey(event);
+    if (keyCode === ESCAPE && !hasModifier) {
+      event.preventDefault();
+    }
+    this._valueOnLastKeydown = this._element.nativeElement.value;
+    if (this.activeOption && keyCode === ENTER && this.panelOpen && !hasModifier) {
+      this.activeOption._selectViaInteraction();
+      this._resetActiveItem();
+      event.preventDefault();
+    } else if (this.autocomplete) {
+      const prevActiveItem = this.autocomplete._keyManager.activeItem;
+      const isArrowKey = keyCode === UP_ARROW || keyCode === DOWN_ARROW;
+      if (keyCode === TAB || isArrowKey && !hasModifier && this.panelOpen) {
+        this.autocomplete._keyManager.onKeydown(event);
+      } else if (isArrowKey && this._canOpen()) {
+        this._openPanelInternal(this._valueOnLastKeydown);
+      }
+      if (isArrowKey || this.autocomplete._keyManager.activeItem !== prevActiveItem) {
+        this._scrollToOption(this.autocomplete._keyManager.activeItemIndex || 0);
+        if (this.autocomplete.autoSelectActiveOption && this.activeOption) {
+          if (!this._pendingAutoselectedOption) {
+            this._valueBeforeAutoSelection = this._valueOnLastKeydown;
+          }
+          this._pendingAutoselectedOption = this.activeOption;
+          this._assignOptionValue(this.activeOption.value);
+        }
+      }
+    }
+  }
+  _handleInput(event) {
+    let target = event.target;
+    let value = target.value;
+    if (target.type === "number") {
+      value = value == "" ? null : parseFloat(value);
+    }
+    if (this._previousValue !== value) {
+      this._previousValue = value;
+      this._pendingAutoselectedOption = null;
+      if (!this.autocomplete || !this.autocomplete.requireSelection) {
+        this._onChange(value);
+      }
+      if (!value) {
+        this._clearPreviousSelectedOption(null, false);
+      } else if (this.panelOpen && !this.autocomplete.requireSelection) {
+        const selectedOption = this.autocomplete.options?.find((option) => option.selected);
+        if (selectedOption) {
+          const display = this._getDisplayValue(selectedOption.value);
+          if (value !== display) {
+            selectedOption.deselect(false);
+          }
+        }
+      }
+      if (this._canOpen() && this._hasFocus()) {
+        const valueOnAttach = this._valueOnLastKeydown ?? this._element.nativeElement.value;
+        this._valueOnLastKeydown = null;
+        this._openPanelInternal(valueOnAttach);
+      }
+    }
+  }
+  _handleFocus() {
+    if (!this._canOpenOnNextFocus) {
+      this._canOpenOnNextFocus = true;
+    } else if (this._canOpen()) {
+      this._previousValue = this._element.nativeElement.value;
+      this._attachOverlay(this._previousValue);
+      this._floatLabel(true);
+    }
+  }
+  _handleClick() {
+    if (this._canOpen() && !this.panelOpen) {
+      this._openPanelInternal();
+    }
+  }
+  /** Whether the input currently has focus. */
+  _hasFocus() {
+    return _getFocusedElementPierceShadowDom() === this._element.nativeElement;
+  }
+  /**
+   * In "auto" mode, the label will animate down as soon as focus is lost.
+   * This causes the value to jump when selecting an option with the mouse.
+   * This method manually floats the label until the panel can be closed.
+   * @param shouldAnimate Whether the label should be animated when it is floated.
+   */
+  _floatLabel(shouldAnimate = false) {
+    if (this._formField && this._formField.floatLabel === "auto") {
+      if (shouldAnimate) {
+        this._formField._animateAndLockLabel();
+      } else {
+        this._formField.floatLabel = "always";
+      }
+      this._manuallyFloatingLabel = true;
+    }
+  }
+  /** If the label has been manually elevated, return it to its normal state. */
+  _resetLabel() {
+    if (this._manuallyFloatingLabel) {
+      if (this._formField) {
+        this._formField.floatLabel = "auto";
+      }
+      this._manuallyFloatingLabel = false;
+    }
+  }
+  /**
+   * This method listens to a stream of panel closing actions and resets the
+   * stream every time the option list changes.
+   */
+  _subscribeToClosingActions() {
+    const initialRender = new Observable((subscriber) => {
+      afterNextRender(() => {
+        subscriber.next();
+      }, {
+        injector: this._environmentInjector
+      });
+    });
+    const optionChanges = this.autocomplete.options?.changes.pipe(
+      tap(() => this._positionStrategy.reapplyLastPosition()),
+      // Defer emitting to the stream until the next tick, because changing
+      // bindings in here will cause "changed after checked" errors.
+      delay(0)
+    ) ?? of();
+    return merge(initialRender, optionChanges).pipe(
+      // create a new stream of panelClosingActions, replacing any previous streams
+      // that were created, and flatten it so our stream only emits closing events...
+      switchMap(() => this._zone.run(() => {
+        const wasOpen = this.panelOpen;
+        this._resetActiveItem();
+        this._updatePanelState();
+        this._changeDetectorRef.detectChanges();
+        if (this.panelOpen) {
+          this._overlayRef.updatePosition();
+        }
+        if (wasOpen !== this.panelOpen) {
+          if (this.panelOpen) {
+            this._emitOpened();
+          } else {
+            this.autocomplete.closed.emit();
+          }
+        }
+        return this.panelClosingActions;
+      })),
+      // when the first closing event occurs...
+      take(1)
+    ).subscribe((event) => this._setValueAndClose(event));
+  }
+  /**
+   * Emits the opened event once it's known that the panel will be shown and stores
+   * the state of the trigger right before the opening sequence was finished.
+   */
+  _emitOpened() {
+    this.autocomplete.opened.emit();
+  }
+  /** Destroys the autocomplete suggestion panel. */
+  _destroyPanel() {
+    if (this._overlayRef) {
+      this.closePanel();
+      this._overlayRef.dispose();
+      this._overlayRef = null;
+    }
+  }
+  /** Given a value, returns the string that should be shown within the input. */
+  _getDisplayValue(value) {
+    const autocomplete = this.autocomplete;
+    return autocomplete && autocomplete.displayWith ? autocomplete.displayWith(value) : value;
+  }
+  _assignOptionValue(value) {
+    const toDisplay = this._getDisplayValue(value);
+    if (value == null) {
+      this._clearPreviousSelectedOption(null, false);
+    }
+    this._updateNativeInputValue(toDisplay != null ? toDisplay : "");
+  }
+  _updateNativeInputValue(value) {
+    if (this._formField) {
+      this._formField._control.value = value;
+    } else {
+      this._element.nativeElement.value = value;
+    }
+    this._previousValue = value;
+  }
+  /**
+   * This method closes the panel, and if a value is specified, also sets the associated
+   * control to that value. It will also mark the control as dirty if this interaction
+   * stemmed from the user.
+   */
+  _setValueAndClose(event) {
+    const panel = this.autocomplete;
+    const toSelect = event ? event.source : this._pendingAutoselectedOption;
+    if (toSelect) {
+      this._clearPreviousSelectedOption(toSelect);
+      this._assignOptionValue(toSelect.value);
+      this._onChange(toSelect.value);
+      panel._emitSelectEvent(toSelect);
+      this._element.nativeElement.focus();
+    } else if (panel.requireSelection && this._element.nativeElement.value !== this._valueOnAttach) {
+      this._clearPreviousSelectedOption(null);
+      this._assignOptionValue(null);
+      this._onChange(null);
+    }
+    this.closePanel();
+  }
+  /**
+   * Clear any previous selected option and emit a selection change event for this option
+   */
+  _clearPreviousSelectedOption(skip2, emitEvent) {
+    this.autocomplete?.options?.forEach((option) => {
+      if (option !== skip2 && option.selected) {
+        option.deselect(emitEvent);
+      }
+    });
+  }
+  _openPanelInternal(valueOnAttach = this._element.nativeElement.value) {
+    this._attachOverlay(valueOnAttach);
+    this._floatLabel();
+    if (this._trackedModal) {
+      const panelId = this.autocomplete.id;
+      addAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+    }
+  }
+  _attachOverlay(valueOnAttach) {
+    if (!this.autocomplete && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw getMatAutocompleteMissingPanelError();
+    }
+    let overlayRef = this._overlayRef;
+    if (!overlayRef) {
+      this._portal = new TemplatePortal(this.autocomplete.template, this._viewContainerRef, {
+        id: this._formField?.getLabelId()
+      });
+      overlayRef = createOverlayRef(this._injector, this._getOverlayConfig());
+      this._overlayRef = overlayRef;
+      this._viewportSubscription = this._viewportRuler.change().subscribe(() => {
+        if (this.panelOpen && overlayRef) {
+          overlayRef.updateSize({
+            width: this._getPanelWidth()
+          });
+        }
+      });
+      this._handsetLandscapeSubscription = this._breakpointObserver.observe(Breakpoints.HandsetLandscape).subscribe((result) => {
+        const isHandsetLandscape = result.matches;
+        if (isHandsetLandscape) {
+          this._positionStrategy.withFlexibleDimensions(true).withGrowAfterOpen(true).withViewportMargin(8);
+        } else {
+          this._positionStrategy.withFlexibleDimensions(false).withGrowAfterOpen(false).withViewportMargin(0);
+        }
+      });
+    } else {
+      this._positionStrategy.setOrigin(this._getConnectedElement());
+      overlayRef.updateSize({
+        width: this._getPanelWidth()
+      });
+    }
+    if (overlayRef && !overlayRef.hasAttached()) {
+      overlayRef.attach(this._portal);
+      this._valueOnAttach = valueOnAttach;
+      this._valueOnLastKeydown = null;
+      this._closingActionsSubscription = this._subscribeToClosingActions();
+    }
+    const wasOpen = this.panelOpen;
+    this.autocomplete._isOpen = this._overlayAttached = true;
+    this.autocomplete._latestOpeningTrigger = this;
+    this.autocomplete._setColor(this._formField?.color);
+    this._updatePanelState();
+    this._applyModalPanelOwnership();
+    if (this.panelOpen && wasOpen !== this.panelOpen) {
+      this._emitOpened();
+    }
+  }
+  /** Handles keyboard events coming from the overlay panel. */
+  _handlePanelKeydown = (event) => {
+    if (event.keyCode === ESCAPE && !hasModifierKey(event) || event.keyCode === UP_ARROW && hasModifierKey(event, "altKey")) {
+      if (this._pendingAutoselectedOption) {
+        this._updateNativeInputValue(this._valueBeforeAutoSelection ?? "");
+        this._pendingAutoselectedOption = null;
+      }
+      this._closeKeyEventStream.next();
+      this._resetActiveItem();
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+  /** Updates the panel's visibility state and any trigger state tied to id. */
+  _updatePanelState() {
+    this.autocomplete._setVisibility();
+    if (this.panelOpen) {
+      const overlayRef = this._overlayRef;
+      if (!this._keydownSubscription) {
+        this._keydownSubscription = overlayRef.keydownEvents().subscribe(this._handlePanelKeydown);
+      }
+      if (!this._outsideClickSubscription) {
+        this._outsideClickSubscription = overlayRef.outsidePointerEvents().subscribe();
+      }
+    } else {
+      this._keydownSubscription?.unsubscribe();
+      this._outsideClickSubscription?.unsubscribe();
+      this._keydownSubscription = this._outsideClickSubscription = null;
+    }
+  }
+  _getOverlayConfig() {
+    return new OverlayConfig({
+      positionStrategy: this._getOverlayPosition(),
+      scrollStrategy: this._scrollStrategy(),
+      width: this._getPanelWidth(),
+      direction: this._dir ?? void 0,
+      hasBackdrop: this._defaults?.hasBackdrop,
+      backdropClass: this._defaults?.backdropClass,
+      panelClass: this._overlayPanelClass,
+      disableAnimations: this._animationsDisabled
+    });
+  }
+  _getOverlayPosition() {
+    const strategy = createFlexibleConnectedPositionStrategy(this._injector, this._getConnectedElement()).withFlexibleDimensions(false).withPush(false);
+    this._setStrategyPositions(strategy);
+    this._positionStrategy = strategy;
+    return strategy;
+  }
+  /** Sets the positions on a position strategy based on the directive's input state. */
+  _setStrategyPositions(positionStrategy) {
+    const belowPositions = [{
+      originX: "start",
+      originY: "bottom",
+      overlayX: "start",
+      overlayY: "top"
+    }, {
+      originX: "end",
+      originY: "bottom",
+      overlayX: "end",
+      overlayY: "top"
+    }];
+    const panelClass = this._aboveClass;
+    const abovePositions = [{
+      originX: "start",
+      originY: "top",
+      overlayX: "start",
+      overlayY: "bottom",
+      panelClass
+    }, {
+      originX: "end",
+      originY: "top",
+      overlayX: "end",
+      overlayY: "bottom",
+      panelClass
+    }];
+    let positions;
+    if (this.position === "above") {
+      positions = abovePositions;
+    } else if (this.position === "below") {
+      positions = belowPositions;
+    } else {
+      positions = [...belowPositions, ...abovePositions];
+    }
+    positionStrategy.withPositions(positions);
+  }
+  _getConnectedElement() {
+    if (this.connectedTo) {
+      return this.connectedTo.elementRef;
+    }
+    return this._formField ? this._formField.getConnectedOverlayOrigin() : this._element;
+  }
+  _getPanelWidth() {
+    return this.autocomplete.panelWidth || this._getHostWidth();
+  }
+  /** Returns the width of the input element, so the panel width can match it. */
+  _getHostWidth() {
+    return this._getConnectedElement().nativeElement.getBoundingClientRect().width;
+  }
+  /**
+   * Reset the active item to -1. This is so that pressing arrow keys will activate the correct
+   * option.
+   *
+   * If the consumer opted-in to automatically activatating the first option, activate the first
+   * *enabled* option.
+   */
+  _resetActiveItem() {
+    const autocomplete = this.autocomplete;
+    if (autocomplete.autoActiveFirstOption) {
+      let firstEnabledOptionIndex = -1;
+      for (let index = 0; index < autocomplete.options.length; index++) {
+        const option = autocomplete.options.get(index);
+        if (!option.disabled) {
+          firstEnabledOptionIndex = index;
+          break;
+        }
+      }
+      autocomplete._keyManager.setActiveItem(firstEnabledOptionIndex);
+    } else {
+      autocomplete._keyManager.setActiveItem(-1);
+    }
+  }
+  /** Determines whether the panel can be opened. */
+  _canOpen() {
+    const element = this._element.nativeElement;
+    return !element.readOnly && !element.disabled && !this.autocompleteDisabled;
+  }
+  /** Scrolls to a particular option in the list. */
+  _scrollToOption(index) {
+    const autocomplete = this.autocomplete;
+    const labelCount = _countGroupLabelsBeforeOption(index, autocomplete.options, autocomplete.optionGroups);
+    if (index === 0 && labelCount === 1) {
+      autocomplete._setScrollTop(0);
+    } else if (autocomplete.panel) {
+      const option = autocomplete.options.toArray()[index];
+      if (option) {
+        const element = option._getHostElement();
+        const newScrollPosition = _getOptionScrollPosition(element.offsetTop, element.offsetHeight, autocomplete._getScrollTop(), autocomplete.panel.nativeElement.offsetHeight);
+        autocomplete._setScrollTop(newScrollPosition);
+      }
+    }
+  }
+  /**
+   * Track which modal we have modified the `aria-owns` attribute of. When the combobox trigger is
+   * inside an aria-modal, we apply aria-owns to the parent modal with the `id` of the options
+   * panel. Track the modal we have changed so we can undo the changes on destroy.
+   */
+  _trackedModal = null;
+  /**
+   * If the autocomplete trigger is inside of an `aria-modal` element, connect
+   * that modal to the options panel with `aria-owns`.
+   *
+   * For some browser + screen reader combinations, when navigation is inside
+   * of an `aria-modal` element, the screen reader treats everything outside
+   * of that modal as hidden or invisible.
+   *
+   * This causes a problem when the combobox trigger is _inside_ of a modal, because the
+   * options panel is rendered _outside_ of that modal, preventing screen reader navigation
+   * from reaching the panel.
+   *
+   * We can work around this issue by applying `aria-owns` to the modal with the `id` of
+   * the options panel. This effectively communicates to assistive technology that the
+   * options panel is part of the same interaction as the modal.
+   *
+   * At time of this writing, this issue is present in VoiceOver.
+   * See https://github.com/angular/components/issues/20694
+   */
+  _applyModalPanelOwnership() {
+    const modal = this._element.nativeElement.closest('body > .cdk-overlay-container [aria-modal="true"]');
+    if (!modal) {
+      return;
+    }
+    const panelId = this.autocomplete.id;
+    if (this._trackedModal) {
+      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+    }
+    addAriaReferencedId(modal, "aria-owns", panelId);
+    this._trackedModal = modal;
+  }
+  /** Clears the references to the listbox overlay element from the modal it was added to. */
+  _clearFromModal() {
+    if (this._trackedModal) {
+      const panelId = this.autocomplete.id;
+      removeAriaReferencedId(this._trackedModal, "aria-owns", panelId);
+      this._trackedModal = null;
+    }
+  }
+  static \u0275fac = function MatAutocompleteTrigger_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatAutocompleteTrigger)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MatAutocompleteTrigger,
+    selectors: [["input", "matAutocomplete", ""], ["textarea", "matAutocomplete", ""]],
+    hostAttrs: [1, "mat-mdc-autocomplete-trigger"],
+    hostVars: 7,
+    hostBindings: function MatAutocompleteTrigger_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("focusin", function MatAutocompleteTrigger_focusin_HostBindingHandler() {
+          return ctx._handleFocus();
+        })("blur", function MatAutocompleteTrigger_blur_HostBindingHandler() {
+          return ctx._onTouched();
+        })("input", function MatAutocompleteTrigger_input_HostBindingHandler($event) {
+          return ctx._handleInput($event);
+        })("keydown", function MatAutocompleteTrigger_keydown_HostBindingHandler($event) {
+          return ctx._handleKeydown($event);
+        })("click", function MatAutocompleteTrigger_click_HostBindingHandler() {
+          return ctx._handleClick();
+        });
+      }
+      if (rf & 2) {
+        \u0275\u0275attribute("autocomplete", ctx.autocompleteAttribute)("role", ctx.autocompleteDisabled ? null : "combobox")("aria-autocomplete", ctx.autocompleteDisabled ? null : "list")("aria-activedescendant", ctx.panelOpen && ctx.activeOption ? ctx.activeOption.id : null)("aria-expanded", ctx.autocompleteDisabled ? null : ctx.panelOpen.toString())("aria-controls", ctx.autocompleteDisabled || !ctx.panelOpen ? null : ctx.autocomplete == null ? null : ctx.autocomplete.id)("aria-haspopup", ctx.autocompleteDisabled ? null : "listbox");
+      }
+    },
+    inputs: {
+      autocomplete: [0, "matAutocomplete", "autocomplete"],
+      position: [0, "matAutocompletePosition", "position"],
+      connectedTo: [0, "matAutocompleteConnectedTo", "connectedTo"],
+      autocompleteAttribute: [0, "autocomplete", "autocompleteAttribute"],
+      autocompleteDisabled: [2, "matAutocompleteDisabled", "autocompleteDisabled", booleanAttribute]
+    },
+    exportAs: ["matAutocompleteTrigger"],
+    features: [\u0275\u0275ProvidersFeature([MAT_AUTOCOMPLETE_VALUE_ACCESSOR]), \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteTrigger, [{
+    type: Directive,
+    args: [{
+      selector: `input[matAutocomplete], textarea[matAutocomplete]`,
+      host: {
+        "class": "mat-mdc-autocomplete-trigger",
+        "[attr.autocomplete]": "autocompleteAttribute",
+        "[attr.role]": 'autocompleteDisabled ? null : "combobox"',
+        "[attr.aria-autocomplete]": 'autocompleteDisabled ? null : "list"',
+        "[attr.aria-activedescendant]": "(panelOpen && activeOption) ? activeOption.id : null",
+        "[attr.aria-expanded]": "autocompleteDisabled ? null : panelOpen.toString()",
+        "[attr.aria-controls]": "(autocompleteDisabled || !panelOpen) ? null : autocomplete?.id",
+        "[attr.aria-haspopup]": 'autocompleteDisabled ? null : "listbox"',
+        // Note: we use `focusin`, as opposed to `focus`, in order to open the panel
+        // a little earlier. This avoids issues where IE delays the focusing of the input.
+        "(focusin)": "_handleFocus()",
+        "(blur)": "_onTouched()",
+        "(input)": "_handleInput($event)",
+        "(keydown)": "_handleKeydown($event)",
+        "(click)": "_handleClick()"
+      },
+      exportAs: "matAutocompleteTrigger",
+      providers: [MAT_AUTOCOMPLETE_VALUE_ACCESSOR]
+    }]
+  }], () => [], {
+    autocomplete: [{
+      type: Input,
+      args: ["matAutocomplete"]
+    }],
+    position: [{
+      type: Input,
+      args: ["matAutocompletePosition"]
+    }],
+    connectedTo: [{
+      type: Input,
+      args: ["matAutocompleteConnectedTo"]
+    }],
+    autocompleteAttribute: [{
+      type: Input,
+      args: ["autocomplete"]
+    }],
+    autocompleteDisabled: [{
+      type: Input,
+      args: [{
+        alias: "matAutocompleteDisabled",
+        transform: booleanAttribute
+      }]
+    }]
+  });
+})();
+var MatAutocompleteModule = class _MatAutocompleteModule {
+  static \u0275fac = function MatAutocompleteModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MatAutocompleteModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _MatAutocompleteModule,
+    imports: [OverlayModule, MatOptionModule, MatCommonModule, MatAutocomplete, MatAutocompleteTrigger, MatAutocompleteOrigin],
+    exports: [CdkScrollableModule, MatAutocomplete, MatOptionModule, MatCommonModule, MatAutocompleteTrigger, MatAutocompleteOrigin]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER],
+    imports: [OverlayModule, MatOptionModule, MatCommonModule, CdkScrollableModule, MatOptionModule, MatCommonModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatAutocompleteModule, [{
+    type: NgModule,
+    args: [{
+      imports: [OverlayModule, MatOptionModule, MatCommonModule, MatAutocomplete, MatAutocompleteTrigger, MatAutocompleteOrigin],
+      exports: [CdkScrollableModule, MatAutocomplete, MatOptionModule, MatCommonModule, MatAutocompleteTrigger, MatAutocompleteOrigin],
+      providers: [MAT_AUTOCOMPLETE_SCROLL_STRATEGY_FACTORY_PROVIDER]
+    }]
+  }], null, null);
+})();
+
+// libs/form-fields/src/lib/user-search-field.component.ts
+var _c045 = ["input"];
+var _c125 = (a0) => ({ name: a0 });
+function UserSearchFieldComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "mat-spinner", 5);
+  }
+}
+function UserSearchFieldComponent_For_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 7)(1, "div", 11);
+    \u0275\u0275element(2, "a-user-avatar", 12);
+    \u0275\u0275elementStart(3, "div", 13)(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 14);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const user_r2 = ctx.$implicit;
+    \u0275\u0275property("value", user_r2);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("user", user_r2);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(user_r2.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", user_r2.email, " ");
+  }
+}
+function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-option", 8)(1, "div", 15);
+    \u0275\u0275listener("mousedown", function UserSearchFieldComponent_Conditional_14_Template_div_mousedown_1_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.stopEvent($event));
+    })("touchstart", function UserSearchFieldComponent_Conditional_14_Template_div_touchstart_1_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.stopEvent($event));
+    })("click", function UserSearchFieldComponent_Conditional_14_Template_div_click_1_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r3 = \u0275\u0275nextContext();
+      const term_r5 = \u0275\u0275readContextLet(11);
+      ctx_r3.setValue(term_r5);
+      return \u0275\u0275resetView(ctx_r3.stopEvent($event));
+    });
+    \u0275\u0275elementStart(2, "div", 16);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const term_r5 = \u0275\u0275readContextLet(11);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c125, term_r5)), " ");
+  }
+}
+function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-option", 17);
+    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_15_Template_mat_option_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.empty_fn()());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    const term_r5 = \u0275\u0275readContextLet(11);
+    \u0275\u0275property("disabled", !ctx_r3.empty_fn());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(2, 3, term_r5 ? "FORM.USER_EMPTY" : ""), " ", ctx_r3.error(), " ");
+  }
+}
+function UserSearchFieldComponent_Conditional_18_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_18_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.clearUser());
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2, "person_cancel");
+    \u0275\u0275elementEnd()();
+  }
+}
+var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._settings = inject(SettingsService);
+    this.search_term = new BehaviorSubject("");
+    this.loading = signal(false);
+    this.user = signal(null);
+    this.disabled = model(void 0);
+    this.placeholder = input("FORM.USER_SEARCH");
+    this.options = input(void 0);
+    this.guests = input(void 0);
+    this.clear = input(false);
+    this.error = input("");
+    this.validate = input(void 0);
+    this.empty_fn = input(void 0);
+    this.filter = input(void 0);
+    this.query_fn = input((q4) => this._settings.get("app.basic_user_search") ? xa({ q: q4, authority_id: Ut()?.id }).pipe(map((_3) => _3.data.map((_4) => new User(_4))), catchError(() => of([]))) : this.guests() ? forkJoin([
+      searchStaff(q4).pipe(catchError(() => of([]))),
+      searchGuests(q4).pipe(catchError(() => of([])))
+    ]) : searchStaff(q4).pipe(catchError(() => of([]))));
+    this.search_results = this.search_term.pipe(debounceTime(300), switchMap((term) => {
+      if (term && typeof term !== "string")
+        return of([term]);
+      if (term === this.user()?.name)
+        return of([this.user()]);
+      this.loading.set(true);
+      const s = (term || "").toLowerCase();
+      return this.options()?.length ? of(this.options().filter((_3) => _3.name.toLowerCase().includes(s) || _3.email.toLowerCase().includes(s))) : s.length > 2 ? this.query_fn()(s) : of([]);
+    }), map((_3) => _3.filter((_4) => !!_4)), tap(() => this.loading.set(false)), startWith([]), shareReplay(1));
+    this.registerOnChange = (fn2) => this._onChange = fn2;
+    this.registerOnTouched = (fn2) => this._onTouch = fn2;
+    this.setDisabledState = (s) => this.disabled.set(s);
+    this._input_el = viewChild("input", { read: ElementRef });
+  }
+  /**
+   * Update the form field value
+   * @param new_value New value to set on the form field
+   */
+  setValue(new_value, email) {
+    const value = typeof new_value === "string" ? new User({ name: new_value, email }) : new_value;
+    this._onChange ? this._onChange(value) : null;
+    this._onTouch ? this._onTouch(value) : null;
+    this.user.set(value);
+    console.log("Set User:", value);
+  }
+  /**
+   * Update local value when form control value is changed
+   * @param value The new value for the component
+   */
+  writeValue(value) {
+    this.user.set(value);
+    this.resetTerm();
+  }
+  displayFn(user) {
+    return user && user.name ? user.name : "";
+  }
+  stopEvent(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  clearUser() {
+    this.user.set(null);
+    this._onChange ? this._onChange(null) : null;
+    this._onTouch ? this._onTouch(null) : null;
+    this.resetTerm();
+  }
+  resetTerm() {
+    this.search_term.next(this.user());
+    const input2 = this._input_el()?.nativeElement;
+    if (input2)
+      input2.value = this.search_term.getValue();
+  }
+};
+_UserSearchFieldComponent.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275UserSearchFieldComponent_BaseFactory;
+  return function UserSearchFieldComponent_Factory(__ngFactoryType__) {
+    return (\u0275UserSearchFieldComponent_BaseFactory || (\u0275UserSearchFieldComponent_BaseFactory = \u0275\u0275getInheritedFactory(_UserSearchFieldComponent)))(__ngFactoryType__ || _UserSearchFieldComponent);
+  };
+})();
+_UserSearchFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._input_el, _c045, 5, ElementRef);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, inputs: { disabled: [1, "disabled"], placeholder: [1, "placeholder"], options: [1, "options"], guests: [1, "guests"], clear: [1, "clear"], error: [1, "error"], validate: [1, "validate"], empty_fn: [1, "empty_fn"], filter: [1, "filter"], query_fn: [1, "query_fn"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => _UserSearchFieldComponent),
+    multi: true
+  }
+]), \u0275\u0275InheritDefinitionFeature], decls: 19, vars: 17, consts: [["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["matInput", "", 3, "ngModelChange", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], [1, "pointer-events-none", "relative"], [3, "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "pointer-events-auto", "absolute", "inset-0", "px-4", 3, "mousedown", "touchstart", "click"], [1, "pointer-events-none"], [3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "mat-form-field", 2)(2, "icon", 3);
+    \u0275\u0275text(3, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "input", 4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function UserSearchFieldComponent_Template_input_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.search_term.next($event));
+    })("blur", function UserSearchFieldComponent_Template_input_blur_4_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.resetTerm());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(6, UserSearchFieldComponent_Conditional_6_Template, 1, 0, "mat-spinner", 5);
+    \u0275\u0275elementStart(7, "mat-autocomplete", 6, 0);
+    \u0275\u0275listener("optionSelected", function UserSearchFieldComponent_Template_mat_autocomplete_optionSelected_7_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.setValue($event.option.value));
+    });
+    \u0275\u0275declareLet(9);
+    \u0275\u0275pipe(10, "async");
+    \u0275\u0275declareLet(11);
+    \u0275\u0275repeaterCreate(12, UserSearchFieldComponent_For_13_Template, 8, 4, "mat-option", 7, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275conditionalCreate(14, UserSearchFieldComponent_Conditional_14_Template, 5, 6, "mat-option", 8);
+    \u0275\u0275conditionalCreate(15, UserSearchFieldComponent_Conditional_15_Template, 3, 5, "mat-option", 9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "mat-error");
+    \u0275\u0275text(17);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(18, UserSearchFieldComponent_Conditional_18_Template, 3, 0, "button", 10);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const auto_r8 = \u0275\u0275reference(8);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("no-subscript", !ctx.error());
+    \u0275\u0275advance(3);
+    \u0275\u0275property("ngModel", ctx.search_term.getValue())("disabled", ctx.disabled())("matAutocomplete", auto_r8)("placeholder", \u0275\u0275pipeBind1(5, 12, ctx.placeholder()));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.loading() ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("displayWith", ctx.displayFn);
+    const user_list_r9 = \u0275\u0275pipeBind1(10, 14, ctx.search_results);
+    \u0275\u0275advance(4);
+    const term_r10 = \u0275\u0275storeLet(ctx.search_term.getValue());
+    \u0275\u0275advance();
+    \u0275\u0275repeater(user_list_r9);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(term_r10 && ctx.validate() && ctx.validate()(term_r10) ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!(user_list_r9 == null ? null : user_list_r9.length) && (ctx.search_term.getValue() || ctx.error()) ? 15 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx.error());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx.clear() ? 18 : -1);
+  }
+}, dependencies: [
+  CommonModule,
+  AsyncPipe,
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgModel,
+  MatFormFieldModule,
+  MatFormField,
+  MatError,
+  MatPrefix,
+  MatSuffix,
+  MatInputModule,
+  MatInput,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  MatAutocompleteModule,
+  MatAutocomplete,
+  MatOption,
+  MatAutocompleteTrigger,
+  MatRippleModule,
+  MatRipple,
+  IconComponent,
+  TranslatePipe,
+  UserAvatarComponent
+], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n}\nicon[_ngcontent-%COMP%] {\n  top: 0.15em;\n  left: -0.15em;\n}\n/*# sourceMappingURL=user-search-field.component.css.map */"] });
+var UserSearchFieldComponent = _UserSearchFieldComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserSearchFieldComponent, [{
+    type: Component,
+    args: [{ selector: "a-user-search-field", template: `
+        <div class="flex w-full space-x-2">
+            <mat-form-field
+                appearance="outline"
+                class="w-1/2 flex-1"
+                [class.no-subscript]="!error()"
+            >
+                <icon
+                    matPrefix
+                    class="block flex w-6 items-center justify-center text-2xl"
+                    >search</icon
+                >
+                <input
+                    matInput
+                    [ngModel]="search_term.getValue()"
+                    (ngModelChange)="search_term.next($event)"
+                    [disabled]="disabled()"
+                    [matAutocomplete]="auto"
+                    [placeholder]="placeholder() | translate"
+                    (blur)="resetTerm()"
+                />
+                @if (loading()) {
+                    <mat-spinner matSuffix diameter="24"></mat-spinner>
+                }
+                <mat-autocomplete
+                    #auto="matAutocomplete"
+                    [displayWith]="displayFn"
+                    (optionSelected)="setValue($event.option.value)"
+                >
+                    @let user_list = search_results | async;
+                    @let term = search_term.getValue();
+                    @for (user of user_list; track $index) {
+                        <mat-option [value]="user">
+                            <div class="flex items-center space-x-2">
+                                <a-user-avatar class="-ml-2" [user]="user" />
+                                <div class="leading-tight">
+                                    <div>{{ user.name }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{ user.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                    @if (term && validate() && validate()(term)) {
+                        <mat-option class="pointer-events-none relative">
+                            <div
+                                class="pointer-events-auto absolute inset-0 px-4"
+                                (mousedown)="stopEvent($event)"
+                                (touchstart)="stopEvent($event)"
+                                (click)="setValue(term); stopEvent($event)"
+                            >
+                                <div class="pointer-events-none">
+                                    {{
+                                        'FORM.USER_ADD_EXTERNAL'
+                                            | translate: { name: term }
+                                    }}
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                    @if (
+                        !user_list?.length &&
+                        (search_term.getValue() || error())
+                    ) {
+                        <mat-option
+                            [disabled]="!empty_fn()"
+                            (click)="empty_fn()()"
+                        >
+                            {{ (term ? 'FORM.USER_EMPTY' : '') | translate }}
+                            {{ error() }}
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+                <mat-error>{{ error() }}</mat-error>
+            </mat-form-field>
+            @if (clear()) {
+                <button
+                    icon
+                    matRipple
+                    class="border-secondary text-secondary h-12 w-12 rounded-sm border"
+                    (click)="clearUser()"
+                >
+                    <icon>person_cancel</icon>
+                </button>
+            }
+        </div>
+    `, providers: [
+      {
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: forwardRef(() => UserSearchFieldComponent),
+        multi: true
+      }
+    ], imports: [
+      CommonModule,
+      FormsModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatProgressSpinnerModule,
+      MatAutocompleteModule,
+      MatRippleModule,
+      IconComponent,
+      TranslatePipe,
+      UserAvatarComponent
+    ], styles: ["/* angular:styles/component:css;d84628be6394a4ab204c469dc548d2d04b7c619d7a49b10690a47d4a374a3d83;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/user-search-field.component.ts */\n:host {\n  display: block;\n}\nicon {\n  top: 0.15em;\n  left: -0.15em;\n}\n/*# sourceMappingURL=user-search-field.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 162 });
+})();
+
+// libs/users/src/lib/find-availability-modal/user-availability.component.ts
+function UserAvailabilityComponent_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 3);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "date");
+    \u0275\u0275pipe(4, "date");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const event_r1 = ctx.$implicit;
+    \u0275\u0275styleProp("left", event_r1.start + "%")("width", event_r1.size + "%");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(3, 6, event_r1.date, "shortTime"), " - ", \u0275\u0275pipeBind2(4, 9, event_r1.date.valueOf() + event_r1.duration * 60 * 1e3, "shortTime"), " ");
+  }
+}
+var _UserAvailabilityComponent = class _UserAvailabilityComponent {
+  constructor() {
+    this.user = input(void 0);
+    this.availability = input([]);
+    this.date = input(Date.now());
+  }
+};
+_UserAvailabilityComponent.\u0275fac = function UserAvailabilityComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _UserAvailabilityComponent)();
+};
+_UserAvailabilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserAvailabilityComponent, selectors: [["user-availability-list"]], inputs: { user: [1, "user"], availability: [1, "availability"], date: [1, "date"] }, decls: 3, vars: 0, consts: [[1, "border-base-300", "relative", "inset-y-0", "h-32", "w-480", "border-b"], ["event", "", 1, "border-error", "bg-error", "absolute", "inset-y-0", "overflow-hidden", "rounded-sm", "border", "p-2", "text-white", 3, "left", "width"], ["event", "", 1, "border-error", "bg-error", "absolute", "inset-y-0", "overflow-hidden", "rounded-sm", "border", "p-2", "text-white"], [1, "max-w-full", "text-xs"]], template: function UserAvailabilityComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275repeaterCreate(1, UserAvailabilityComponent_For_2_Template, 5, 12, "div", 1, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx.availability());
+  }
+}, dependencies: [CommonModule, DatePipe], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n}\n/*# sourceMappingURL=user-availability.component.css.map */"] });
+var UserAvailabilityComponent = _UserAvailabilityComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserAvailabilityComponent, [{
+    type: Component,
+    args: [{ selector: "user-availability-list", template: `
+        <div class="border-base-300 relative inset-y-0 h-32 w-480 border-b">
+            @for (event of availability(); track event) {
+                <div
+                    event
+                    class="border-error bg-error absolute inset-y-0 overflow-hidden rounded-sm border p-2 text-white"
+                    [style.left]="event.start + '%'"
+                    [style.width]="event.size + '%'"
+                >
+                    <div class="max-w-full text-xs">
+                        {{ event.date | date: 'shortTime' }} -
+                        {{
+                            event.date.valueOf() + event.duration * 60 * 1000
+                                | date: 'shortTime'
+                        }}
+                    </div>
+                </div>
+            }
+        </div>
+    `, imports: [CommonModule], styles: ["/* angular:styles/component:css;aca37b045377af9e61ae87ec9ceba230614f528def48741d3190431076d12a3b;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/find-availability-modal/user-availability.component.ts */\n:host {\n  display: block;\n}\n/*# sourceMappingURL=user-availability.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserAvailabilityComponent, { className: "UserAvailabilityComponent", filePath: "libs/users/src/lib/find-availability-modal/user-availability.component.ts", lineNumber: 44 });
+})();
+
+// libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts
+var _c046 = ["container"];
+var _c126 = () => [];
+function FindAvailabilityModalComponent_For_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 31)(1, "span");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "date");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const hr_r2 = ctx.$implicit;
+    const \u0275$index_26_r3 = ctx.$index;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("left", -ctx_r3.offset_x() + "px");
+    \u0275\u0275attribute("disabled", ctx_r3.today() && ctx_r3.current_hour() > \u0275$index_26_r3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(3, 4, hr_r2, "haa"));
+  }
+}
+function FindAvailabilityModalComponent_For_22_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 32);
+    \u0275\u0275element(1, "a-user-avatar", 13);
+    \u0275\u0275elementStart(2, "div", 33);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "button", 34);
+    \u0275\u0275listener("click", function FindAvailabilityModalComponent_For_22_Template_button_click_4_listener() {
+      const user_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.removeUser(user_r6));
+    });
+    \u0275\u0275elementStart(5, "icon");
+    \u0275\u0275text(6, "close");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const user_r6 = ctx.$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("top", -ctx_r3.offset_y() + "px");
+    \u0275\u0275advance();
+    \u0275\u0275property("user", user_r6);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", user_r6.name || ctx_r3.host.email, " ");
+  }
+}
+function FindAvailabilityModalComponent_For_26_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 35);
+  }
+  if (rf & 2) {
+    const \u0275$index_59_r7 = ctx.$index;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("left", -(ctx_r3.offset_x() + 1) + "px");
+    \u0275\u0275attribute("disabled", ctx_r3.today() && ctx_r3.current_hour() > \u0275$index_59_r7);
+  }
+}
+function FindAvailabilityModalComponent_Conditional_34_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, ctx_r3.date(), "shortTime"), " ");
+  }
+}
+function FindAvailabilityModalComponent_For_39_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "user-availability-list", 26);
+  }
+  if (rf & 2) {
+    const user_r8 = ctx.$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275property("user", user_r8)("date", ctx_r3.date())("availability", ctx_r3.availability()[user_r8.email.toLowerCase()] ?? \u0275\u0275pureFunction0(3, _c126));
+  }
+}
+var _FindAvailabilityModalComponent = class _FindAvailabilityModalComponent extends AsyncHandler {
+  constructor() {
+    super();
+    this._data = inject(MAT_DIALOG_DATA);
+    this._renderer = inject(Renderer2);
+    this._dialog_ref = inject(MatDialogRef);
+    this._injector = inject(Injector);
+    this.users = signal([...this._data.users]);
+    this.search = signal("");
+    this.date = signal(this._data.date || Date.now());
+    this.duration = signal(this._data.duration || 60);
+    this.user = signal(void 0);
+    this.offset_y = signal(0);
+    this.offset_x = signal(0);
+    this.move_time = signal(false);
+    this.host = this._data.host;
+    this.hours = new Array(24).fill(0).map((_3, idx) => setHours(startOfDay(Date.now()), idx).valueOf());
+    this._availability$ = toObservable2(this.users, {
+      injector: this._injector
+    }).pipe(debounceTime(300), switchMap((users) => {
+      return queryUserFreeBusy({
+        calendars: [
+          this.host.email,
+          ...users.map((_3) => _3.email.toLowerCase())
+        ].join(","),
+        period_start: getUnixTime(startOfDay(this.date())),
+        period_end: getUnixTime(endOfDay(this.date()))
+      }).pipe(catchError(() => of([])));
+    }), map((availability_list) => {
+      const availability_map = {};
+      for (const item of availability_list) {
+        availability_map[item.id.toLowerCase()] = item.availability.filter((_3) => _3.status === "busy").map((block2) => {
+          const date = fromUnixTime(block2.starts_at);
+          const duration = differenceInMinutes(fromUnixTime(block2.ends_at), fromUnixTime(block2.starts_at));
+          return {
+            date,
+            duration,
+            start: (date.getHours() + date.getMinutes() / 60) / 24 * 100,
+            size: duration / 60 / 24 * 100
+          };
+        });
+      }
+      return availability_map;
+    }), defaultIfEmpty({}), shareReplay(1));
+    this.availability = toSignal(this._availability$, {
+      initialValue: {},
+      injector: this._injector
+    });
+    this._container_el = viewChild.required("container");
+    this.today = computed(() => isSameDay(this.date(), Date.now()));
+    this.current_hour = computed(() => (/* @__PURE__ */ new Date()).getHours());
+    this.selection_left = computed(() => {
+      const d3 = new Date(this.date());
+      return (d3.getHours() + d3.getMinutes() / 60) * 5;
+    });
+    this.selection_width = computed(() => this.duration() / 60 * 5);
+    this._start_time = 0;
+    this._move_last = 0;
+    this._move_size = 80 * 24;
+    toObservable2(this.date, { injector: this._injector }).pipe(debounceTime(300)).subscribe(() => {
+      this.users.update((u3) => [...u3]);
+    });
+  }
+  onDateChange(new_date) {
+    this.date.set(new_date);
+  }
+  addUser(new_user) {
+    if (!new_user)
+      return;
+    this.users.update((current) => [
+      ...current.filter((u3) => u3.email !== new_user.email),
+      new_user
+    ]);
+    this.user.set(void 0);
+  }
+  removeUser(user_to_remove) {
+    this.users.update((current) => current.filter((u3) => u3.email !== user_to_remove.email));
+    this.user.set(void 0);
+  }
+  closeAndUpdate() {
+    this._dialog_ref.close(true);
+  }
+  ngAfterViewInit() {
+    const d3 = new Date(this.date());
+    const hour_width = 80;
+    this.timeout("init", () => {
+      const selected_hour = d3.getHours() + d3.getMinutes() / 60;
+      const scroll_x = Math.max(0, selected_hour * hour_width - 48);
+      this._container_el().nativeElement.scrollTo(scroll_x, 0);
+      this.onScroll();
+    }, 300);
+  }
+  onScroll() {
+    this.offset_x.set(this._container_el().nativeElement.scrollLeft);
+    this.offset_y.set(this._container_el().nativeElement.scrollTop);
+  }
+  startMovePeriod(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._move_last = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    this.move_time.set(true);
+    this._start_time = this.date();
+    event instanceof MouseEvent ? this.subscription("on_move", this._renderer.listen("window", "mousemove", (e2) => this._onMovePeriod(e2))) : this.subscription("on_move", this._renderer.listen("window", "touchmove", (e2) => this._onMovePeriod(e2)));
+    event instanceof MouseEvent ? this.subscription("on_move_end", this._renderer.listen("window", "mouseup", () => this._onMoveEnd())) : this.subscription("on_move_end", this._renderer.listen("window", "touchend", () => this._onMoveEnd()));
+  }
+  startMoveDuration(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._move_last = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    this._start_time = this.duration();
+    event instanceof MouseEvent ? this.subscription("on_move", this._renderer.listen("window", "mousemove", (e2) => this._onMoveDuration(e2))) : this.subscription("on_move", this._renderer.listen("window", "touchmove", (e2) => this._onMoveDuration(e2)));
+    event instanceof MouseEvent ? this.subscription("on_move_end", this._renderer.listen("window", "mouseup", () => this._onMoveEnd())) : this.subscription("on_move_end", this._renderer.listen("window", "touchend", () => this._onMoveEnd()));
+  }
+  _onMovePeriod(event) {
+    const change_px = this._move_last - (event instanceof MouseEvent ? event.clientX : event.touches[0].clientX);
+    const dir = change_px > 0 ? -1 : 1;
+    const change_min = dir * Math.floor(Math.abs(change_px / this._move_size * 24 * 60) / 5) * 5;
+    if (change_min) {
+      const old_date = this.date();
+      const new_date = addMinutes(this._start_time, change_min).valueOf();
+      if (new_date >= Date.now()) {
+        this.date.set(new_date);
+      }
+    }
+  }
+  _onMoveDuration(event) {
+    const change_px = this._move_last - (event instanceof MouseEvent ? event.clientX : event.touches[0].clientX);
+    const dir = change_px > 0 ? -1 : 1;
+    const change_min = dir * Math.floor(Math.abs(change_px / this._move_size * 24 * 60) / 5) * 5;
+    if (change_min) {
+      this.duration.set(Math.max(30, this._start_time + change_min));
+    }
+  }
+  _onMoveEnd() {
+    this.unsub("on_move");
+    this.unsub("on_move_end");
+    this._move_last = 0;
+    this.move_time.set(false);
+  }
+};
+_FindAvailabilityModalComponent.\u0275fac = function FindAvailabilityModalComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _FindAvailabilityModalComponent)();
+};
+_FindAvailabilityModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FindAvailabilityModalComponent, selectors: [["find-availability-modal"]], viewQuery: function FindAvailabilityModalComponent_Query(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275viewQuerySignal(ctx._container_el, _c046, 5);
+  }
+  if (rf & 2) {
+    \u0275\u0275queryAdvance();
+  }
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 48, vars: 25, consts: [["container", ""], [1, "bg-base-100", "fixed", "inset-0", "flex", "flex-col", "space-y-2", "p-2"], [1, "bg-base-200", "flex", "h-14", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "border-base-300", "flex", "h-[calc(100vh-9rem)]", "flex-1", "flex-col", "overflow-hidden", "rounded-sm", "border", "sm:h-[65vh]"], [1, "flex", "w-full", "flex-col", "space-y-2", "p-2", "sm:flex-row", "sm:space-y-0", "sm:space-x-2"], [1, "max-h-13", "flex-1", 3, "ngModelChange", "ngModel"], [1, "divide-base-300", "border-base-300", "relative", "grid", "h-1/2", "w-full", "max-w-full", "flex-1", "divide-x", "divide-y", "overflow-hidden", "border-t"], ["times", "", 1, "border-base-300", "col-start-2", "flex", "h-10", "overflow-hidden", "border-l"], ["hour", "", 1, "border-base-300", "relative", "h-10", "min-w-20", "border-r", "p-2", "text-sm", 3, "left"], ["users", "", 1, "!border-l-none", "row-start-2", "w-24", "overflow-hidden"], ["host", "", 1, "border-base-300", "relative", "flex", "h-32", "w-24", "flex-col", "items-center", "justify-center", "border-b", "py-2"], [1, "text-2xl", 3, "user"], [1, "max-w-full", "overflow-hidden", "px-2", "text-center", "text-xs", "wrap-break-word"], ["person", "", 1, "border-base-300", "relative", "flex", "h-32", "w-24", "flex-col", "items-center", "justify-center", "border-b", "py-2", 3, "top"], ["blocks", "", 1, "relative", "row-start-2", "overflow-hidden"], ["fixed", "", 1, "absolute", "inset-0", "flex", "overflow-hidden"], ["divider", "", 1, "border-base-300", "relative", "h-full", "min-w-20", "border-l", 3, "left"], ["selection", "", 1, "border-info!", "absolute", "inset-y-0", "z-20", "cursor-grab", "border-x-2!", "active:cursor-grabbing", 3, "mousedown", "touchstart"], [1, "bg-info", "absolute", "inset-0", "opacity-30"], ["handle", "", 1, "bg-info", "absolute", "top-1/2", "-left-px", "h-3", "w-3", "-translate-x-1/2", "-translate-y-1/2", "rounded-full"], ["handle", "", 1, "bg-info", "active:bg-secondary", "absolute", "top-1/2", "-right-px", "h-3", "w-3", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "hover:h-4", "hover:w-4", 3, "mousedown", "touchstart"], [1, "border-base-300", "bg-base-100", "absolute", "top-2", "left-1/2", "-translate-x-1/2", "rounded-sm", "border", "p-2", "text-xs", "whitespace-nowrap", "shadow-sm"], [1, "border-base-300", "bg-base-100", "absolute", "top-12", "left-1/2", "-translate-x-1/2", "rounded-sm", "border", "p-2", "text-xs", "whitespace-nowrap", "shadow-sm"], ["scroll", "", 1, "absolute", "inset-0", "overflow-auto", 3, "scroll"], [1, "pointer-events-none", 3, "user", "date", "availability"], ["btn", "", "matRipple", "", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], ["hour", "", 1, "border-base-300", "relative", "h-10", "min-w-20", "border-r", "p-2", "text-sm"], ["person", "", 1, "border-base-300", "relative", "flex", "h-32", "w-24", "flex-col", "items-center", "justify-center", "border-b", "py-2"], [1, "max-w-full", "px-2", "text-center", "text-xs", "wrap-break-word"], ["icon", "", 1, "absolute", "-top-1", "-left-1", 3, "click"], ["divider", "", 1, "border-base-300", "relative", "h-full", "min-w-20", "border-l"]], template: function FindAvailabilityModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h2", 3);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "button", 4)(6, "icon");
+    \u0275\u0275text(7, "close");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(8, "main", 5)(9, "div", 6)(10, "a-date-field", 7);
+    \u0275\u0275listener("ngModelChange", function FindAvailabilityModalComponent_Template_a_date_field_ngModelChange_10_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.onDateChange($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "a-user-search-field", 7);
+    \u0275\u0275listener("ngModelChange", function FindAvailabilityModalComponent_Template_a_user_search_field_ngModelChange_11_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.addUser($event));
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(12, "div", 8)(13, "div", 9);
+    \u0275\u0275repeaterCreate(14, FindAvailabilityModalComponent_For_15_Template, 4, 7, "div", 10, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "div", 11)(17, "div", 12);
+    \u0275\u0275element(18, "a-user-avatar", 13);
+    \u0275\u0275elementStart(19, "div", 14);
+    \u0275\u0275text(20);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275repeaterCreate(21, FindAvailabilityModalComponent_For_22_Template, 7, 4, "div", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(23, "div", 16)(24, "div", 17);
+    \u0275\u0275repeaterCreate(25, FindAvailabilityModalComponent_For_26_Template, 1, 3, "div", 18, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(27, "div", 19);
+    \u0275\u0275listener("mousedown", function FindAvailabilityModalComponent_Template_div_mousedown_27_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.startMovePeriod($event));
+    })("touchstart", function FindAvailabilityModalComponent_Template_div_touchstart_27_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.startMovePeriod($event));
+    });
+    \u0275\u0275element(28, "div", 20)(29, "div", 21);
+    \u0275\u0275elementStart(30, "div", 22);
+    \u0275\u0275listener("mousedown", function FindAvailabilityModalComponent_Template_div_mousedown_30_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.startMoveDuration($event));
+    })("touchstart", function FindAvailabilityModalComponent_Template_div_touchstart_30_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.startMoveDuration($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(31, "div", 23);
+    \u0275\u0275text(32);
+    \u0275\u0275pipe(33, "duration");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(34, FindAvailabilityModalComponent_Conditional_34_Template, 3, 4, "div", 24);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(35, "div", 25, 0);
+    \u0275\u0275listener("scroll", function FindAvailabilityModalComponent_Template_div_scroll_35_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.onScroll());
+    });
+    \u0275\u0275element(37, "user-availability-list", 26);
+    \u0275\u0275repeaterCreate(38, FindAvailabilityModalComponent_For_39_Template, 1, 4, "user-availability-list", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd()()()();
+    \u0275\u0275elementStart(40, "footer", 2)(41, "button", 27)(42, "div", 28)(43, "icon", 29);
+    \u0275\u0275text(44, "arrow_back");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(45, "div", 30);
+    \u0275\u0275text(46);
+    \u0275\u0275pipe(47, "translate");
+    \u0275\u0275elementEnd()()()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 18, "CALENDAR_EVENT.FIND_AVAILABILITY"), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275property("ngModel", ctx.date());
+    \u0275\u0275advance();
+    \u0275\u0275property("ngModel", ctx.user());
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx.hours);
+    \u0275\u0275advance(3);
+    \u0275\u0275styleProp("top", -ctx.offset_y() + "px");
+    \u0275\u0275advance();
+    \u0275\u0275property("user", ctx.host);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx.host.name || ctx.host.email, " ");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx.users());
+    \u0275\u0275advance(4);
+    \u0275\u0275repeater(ctx.hours);
+    \u0275\u0275advance(2);
+    \u0275\u0275styleProp("left", "calc(" + ctx.selection_left() + "rem - " + ctx.offset_x() + "px)")("width", ctx.selection_width() + "rem");
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(33, 20, ctx.duration()), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.move_time() ? 34 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("user", ctx.host)("date", ctx.date())("availability", ctx.availability()[ctx.host.email] ?? \u0275\u0275pureFunction0(24, _c126));
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx.users());
+    \u0275\u0275advance(3);
+    \u0275\u0275property("mat-dialog-close", true);
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(47, 22, "COMMON.BACK_TO_FORM"), " ");
+  }
+}, dependencies: [
+  CommonModule,
+  DatePipe,
+  MatRippleModule,
+  MatRipple,
+  TranslatePipe,
+  UserAvailabilityComponent,
+  UserAvatarComponent,
+  UserSearchFieldComponent,
+  DateFieldComponent,
+  IconComponent,
+  MatDialogModule,
+  MatDialogClose,
+  DurationPipe,
+  FormsModule,
+  NgControlStatus,
+  NgModel
+], styles: ["\n\n.grid[_ngcontent-%COMP%] {\n  grid-template-columns: 6rem 1fr;\n  grid-template-rows: 2.5rem minmax(0, 1fr);\n}\n[disabled=true][_ngcontent-%COMP%], \n[disabled=true][_ngcontent-%COMP%]   [header][_ngcontent-%COMP%] {\n  background: var(--base-200) !important;\n  pointer-events: none;\n}\n[disabled=true][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n/*# sourceMappingURL=find-availability-modal.component.css.map */"] });
+var FindAvailabilityModalComponent = _FindAvailabilityModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FindAvailabilityModalComponent, [{
+    type: Component,
+    args: [{ selector: "find-availability-modal", template: `
+        <div class="bg-base-100 fixed inset-0 flex flex-col space-y-2 p-2">
+            <header
+                class="bg-base-200 flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+            >
+                <h2 class="flex-1 px-2 text-xl font-medium capitalize">
+                    {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
+                </h2>
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            </header>
+            <main
+                class="border-base-300 flex h-[calc(100vh-9rem)] flex-1 flex-col overflow-hidden rounded-sm border sm:h-[65vh]"
+            >
+                <div
+                    class="flex w-full flex-col space-y-2 p-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                >
+                    <a-date-field
+                        [ngModel]="date()"
+                        (ngModelChange)="onDateChange($event)"
+                        class="max-h-13 flex-1"
+                    ></a-date-field>
+                    <a-user-search-field
+                        [ngModel]="user()"
+                        (ngModelChange)="addUser($event)"
+                        class="max-h-13 flex-1"
+                    ></a-user-search-field>
+                </div>
+                <div
+                    class="divide-base-300 border-base-300 relative grid h-1/2 w-full max-w-full flex-1 divide-x divide-y overflow-hidden border-t"
+                >
+                    <div
+                        times
+                        class="border-base-300 col-start-2 flex h-10 overflow-hidden border-l"
+                    >
+                        @for (hr of hours; track hr; let hour = $index) {
+                            <div
+                                hour
+                                class="border-base-300 relative h-10 min-w-20 border-r p-2 text-sm"
+                                [attr.disabled]="
+                                    today() && current_hour() > hour
+                                "
+                                [style.left]="-offset_x() + 'px'"
+                            >
+                                <span>{{ hr | date: 'haa' }}</span>
+                            </div>
+                        }
+                    </div>
+                    <div
+                        users
+                        class="!border-l-none row-start-2 w-24 overflow-hidden"
+                    >
+                        <div
+                            host
+                            class="border-base-300 relative flex h-32 w-24 flex-col items-center justify-center border-b py-2"
+                            [style.top]="-offset_y() + 'px'"
+                        >
+                            <a-user-avatar
+                                class="text-2xl"
+                                [user]="host"
+                            ></a-user-avatar>
+                            <div
+                                class="max-w-full overflow-hidden px-2 text-center text-xs wrap-break-word"
+                            >
+                                {{ host.name || host.email }}
+                            </div>
+                        </div>
+                        @for (user of users(); track user) {
+                            <div
+                                person
+                                class="border-base-300 relative flex h-32 w-24 flex-col items-center justify-center border-b py-2"
+                                [style.top]="-offset_y() + 'px'"
+                            >
+                                <a-user-avatar
+                                    class="text-2xl"
+                                    [user]="user"
+                                ></a-user-avatar>
+                                <div
+                                    class="max-w-full px-2 text-center text-xs wrap-break-word"
+                                >
+                                    {{ user.name || host.email }}
+                                </div>
+                                <button
+                                    icon
+                                    class="absolute -top-1 -left-1"
+                                    (click)="removeUser(user)"
+                                >
+                                    <icon>close</icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    <div blocks class="relative row-start-2 overflow-hidden">
+                        <div
+                            fixed
+                            class="absolute inset-0 flex overflow-hidden"
+                        >
+                            @for (_ of hours; track _; let h = $index) {
+                                <div
+                                    divider
+                                    class="border-base-300 relative h-full min-w-20 border-l"
+                                    [style.left]="-(offset_x() + 1) + 'px'"
+                                    [attr.disabled]="
+                                        today() && current_hour() > h
+                                    "
+                                ></div>
+                            }
+                            <div
+                                selection
+                                class="border-info! absolute inset-y-0 z-20 cursor-grab border-x-2! active:cursor-grabbing"
+                                [style.left]="
+                                    'calc(' +
+                                    selection_left() +
+                                    'rem - ' +
+                                    offset_x() +
+                                    'px)'
+                                "
+                                [style.width]="selection_width() + 'rem'"
+                                (mousedown)="startMovePeriod($event)"
+                                (touchstart)="startMovePeriod($event)"
+                            >
+                                <div
+                                    class="bg-info absolute inset-0 opacity-30"
+                                ></div>
+                                <div
+                                    handle
+                                    class="bg-info absolute top-1/2 -left-px h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                                ></div>
+                                <div
+                                    handle
+                                    class="bg-info active:bg-secondary absolute top-1/2 -right-px h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full hover:h-4 hover:w-4"
+                                    (mousedown)="startMoveDuration($event)"
+                                    (touchstart)="startMoveDuration($event)"
+                                ></div>
+                                <div
+                                    class="border-base-300 bg-base-100 absolute top-2 left-1/2 -translate-x-1/2 rounded-sm border p-2 text-xs whitespace-nowrap shadow-sm"
+                                >
+                                    {{ duration() | duration }}
+                                </div>
+                                @if (move_time()) {
+                                    <div
+                                        class="border-base-300 bg-base-100 absolute top-12 left-1/2 -translate-x-1/2 rounded-sm border p-2 text-xs whitespace-nowrap shadow-sm"
+                                    >
+                                        {{ date() | date: 'shortTime' }}
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div
+                            scroll
+                            #container
+                            class="absolute inset-0 overflow-auto"
+                            (scroll)="onScroll()"
+                        >
+                            <user-availability-list
+                                class="pointer-events-none"
+                                [user]="host"
+                                [date]="date()"
+                                [availability]="
+                                    availability()[host.email] ?? []
+                                "
+                            ></user-availability-list>
+                            @for (user of users(); track user) {
+                                <user-availability-list
+                                    class="pointer-events-none"
+                                    [user]="user"
+                                    [date]="date()"
+                                    [availability]="
+                                        availability()[
+                                            user.email.toLowerCase()
+                                        ] ?? []
+                                    "
+                                ></user-availability-list>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer
+                class="bg-base-200 flex h-14 w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+            >
+                <button
+                    btn
+                    matRipple
+                    [mat-dialog-close]="true"
+                    class="clear text-secondary"
+                >
+                    <div class="flex items-center">
+                        <icon class="text-xl">arrow_back</icon>
+                        <div class="mr-1 underline">
+                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                        </div>
+                    </div>
+                </button>
+            </footer>
+        </div>
+    `, imports: [
+      CommonModule,
+      MatRippleModule,
+      TranslatePipe,
+      UserAvailabilityComponent,
+      UserAvatarComponent,
+      UserSearchFieldComponent,
+      DateFieldComponent,
+      IconComponent,
+      MatDialogModule,
+      DurationPipe,
+      FormsModule
+    ], styles: ["/* angular:styles/component:css;888dbc5d227535aa4dc78103e3874c11f0661b1fbddbdf0c44c8b6afe46623ee;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts */\n.grid {\n  grid-template-columns: 6rem 1fr;\n  grid-template-rows: 2.5rem minmax(0, 1fr);\n}\n[disabled=true],\n[disabled=true] [header] {\n  background: var(--base-200) !important;\n  pointer-events: none;\n}\n[disabled=true] > * {\n  opacity: 0.3;\n}\n/*# sourceMappingURL=find-availability-modal.component.css.map */\n"] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FindAvailabilityModalComponent, { className: "FindAvailabilityModalComponent", filePath: "libs/users/src/lib/find-availability-modal/find-availability-modal.component.ts", lineNumber: 290 });
+})();
+
+// libs/users/src/lib/guests.fn.ts
+var GUEST_ENDPOINT = "/api/staff/v1/guests";
+function searchGuests(q4) {
+  const query2 = toQueryString({ q: q4 });
+  return N(`${GUEST_ENDPOINT}${q4 ? "?" + query2 : ""}`).pipe(map((list2) => list2.map((item) => new GuestUser(item))));
+}
+function showGuest(id) {
+  return N(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`).pipe(map((item) => new GuestUser(item)));
+}
+
+// libs/users/src/lib/location.class.ts
+var MapLocation = class {
+  constructor(_data = {}) {
+    this.type = _data.type || _data.location || "other";
+    this.position = _data.position || _data.map_id || _data.asset_id || {
+      x: _data.x / _data.map_width || 0,
+      y: _data.y / _data.map_height || 0
+    };
+    this.variance = _data.variance || 0;
+    this.last_seen = _data.last_seen || getUnixTime(/* @__PURE__ */ new Date());
+    this.level = _data.level;
+    this.building = _data.building;
+    this.at_location = !!_data.at_location;
+    this.coordinates_from = _data.coordinates_from || "top-left";
+  }
+};
+
+// libs/users/src/lib/user-form.component.ts
+function UserFormComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "label", 2);
+    \u0275\u0275text(2, " Name");
+    \u0275\u0275elementStart(3, "span");
+    \u0275\u0275text(4, "*");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(5, ": ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "mat-form-field", 3);
+    \u0275\u0275element(7, "input", 4);
+    \u0275\u0275elementStart(8, "mat-error");
+    \u0275\u0275text(9, "Name is required");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("error", ctx_r0.hasError("name"));
+  }
+}
+function UserFormComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "label", 5);
+    \u0275\u0275text(2, " Email");
+    \u0275\u0275elementStart(3, "span");
+    \u0275\u0275text(4, "*");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(5, ": ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "mat-form-field", 3);
+    \u0275\u0275element(7, "input", 6);
+    \u0275\u0275elementStart(8, "mat-error");
+    \u0275\u0275text(9, "A valid email is required");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("error", ctx_r0.hasError("email"));
+  }
+}
+function UserFormComponent_Conditional_0_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "label", 7);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementStart(4, "span");
+    \u0275\u0275text(5, "*");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(6, ": ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-form-field", 3);
+    \u0275\u0275element(8, "input", 8);
+    \u0275\u0275elementStart(9, "mat-error");
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("error", ctx_r0.hasError("organisation"));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "COMMON.ORGANISATION"));
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 6, "COMMON.ORGANISATION"), " is required ");
+  }
+}
+function UserFormComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "label", 9);
+    \u0275\u0275text(2, " Phone: ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 3);
+    \u0275\u0275element(4, "input", 10);
+    \u0275\u0275elementStart(5, "mat-error");
+    \u0275\u0275text(6, "Phone format is invalid");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("error", ctx_r0.hasError("phone"));
+  }
+}
+function UserFormComponent_Conditional_0_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "mat-checkbox", 11);
+    \u0275\u0275text(2, " Assistance required ");
+    \u0275\u0275elementEnd()();
+  }
+}
+function UserFormComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "mat-checkbox", 12);
+    \u0275\u0275text(2, " Visit expected ");
+    \u0275\u0275elementEnd()();
+  }
+}
+function UserFormComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "form", 0);
+    \u0275\u0275conditionalCreate(1, UserFormComponent_Conditional_0_Conditional_1_Template, 10, 2, "div", 1);
+    \u0275\u0275conditionalCreate(2, UserFormComponent_Conditional_0_Conditional_2_Template, 10, 2, "div", 1);
+    \u0275\u0275conditionalCreate(3, UserFormComponent_Conditional_0_Conditional_3_Template, 12, 8, "div", 1);
+    \u0275\u0275conditionalCreate(4, UserFormComponent_Conditional_0_Conditional_4_Template, 7, 2, "div", 1);
+    \u0275\u0275conditionalCreate(5, UserFormComponent_Conditional_0_Conditional_5_Template, 3, 0, "div", 1);
+    \u0275\u0275conditionalCreate(6, UserFormComponent_Conditional_0_Conditional_6_Template, 3, 0, "div", 1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("formGroup", ctx_r0.form());
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.name ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.email ? 2 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.organisation ? 3 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.phone ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.assistance_required ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.form().controls.visit_expected ? 6 : -1);
+  }
+}
+var _UserFormComponent = class _UserFormComponent {
+  constructor() {
+    this.form = input(void 0);
+  }
+  hasError(name2) {
+    const { invalid, touched } = this.form()?.controls[name2] || {};
+    return invalid && touched;
+  }
+};
+_UserFormComponent.\u0275fac = function UserFormComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _UserFormComponent)();
+};
+_UserFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserFormComponent, selectors: [["user-form"]], inputs: { form: [1, "form"] }, decls: 1, vars: 1, consts: [["user-form", "", 1, "w-full", 3, "formGroup"], [1, "flex", "w-full", "flex-col"], ["for", "name"], ["appearance", "outline"], ["matInput", "", "name", "name", "placeholder", "Name", "formControlName", "name"], ["for", "email"], ["matInput", "", "name", "email", "placeholder", "Email Address", "formControlName", "email"], ["for", "org"], ["matInput", "", "name", "org", "placeholder", "e.g. Conteso", "formControlName", "organisation"], ["for", "phone"], ["matInput", "", "name", "phone", "type", "tel", "placeholder", "Phone", "formControlName", "phone"], ["name", "assistance-required", "color", "primary", "formControlName", "assistance_required"], ["name", "visit-expected", "color", "primary", "formControlName", "visit_expected"]], template: function UserFormComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, UserFormComponent_Conditional_0_Template, 7, 7, "form", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(ctx.form() ? 0 : -1);
+  }
+}, dependencies: [MatCheckboxModule, MatCheckbox, MatFormFieldModule, MatFormField, MatError, MatInputModule, MatInput, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, TranslatePipe], styles: ["\n\n[_nghost-%COMP%], \nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=user-form.component.css.map */"] });
+var UserFormComponent = _UserFormComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserFormComponent, [{
+    type: Component,
+    args: [{ selector: "user-form", template: `
+        @if (form()) {
+            <form user-form [formGroup]="form()" class="w-full">
+                @if (form().controls.name) {
+                    <div class="flex w-full flex-col">
+                        <label for="name" [class.error]="hasError('name')">
+                            Name<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="name"
+                                placeholder="Name"
+                                formControlName="name"
+                            />
+                            <mat-error>Name is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form().controls.email) {
+                    <div class="flex w-full flex-col">
+                        <label for="email" [class.error]="hasError('email')">
+                            Email<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="email"
+                                placeholder="Email Address"
+                                formControlName="email"
+                            />
+                            <mat-error>A valid email is required</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form().controls.organisation) {
+                    <div class="flex w-full flex-col">
+                        <label
+                            for="org"
+                            [class.error]="hasError('organisation')"
+                        >
+                            {{ 'COMMON.ORGANISATION' | translate
+                            }}<span>*</span>:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="org"
+                                placeholder="e.g. Conteso"
+                                formControlName="organisation"
+                            />
+                            <mat-error>
+                                {{ 'COMMON.ORGANISATION' | translate }} is
+                                required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form().controls.phone) {
+                    <div class="flex w-full flex-col">
+                        <label for="phone" [class.error]="hasError('phone')">
+                            Phone:
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="phone"
+                                type="tel"
+                                placeholder="Phone"
+                                formControlName="phone"
+                            />
+                            <mat-error>Phone format is invalid</mat-error>
+                        </mat-form-field>
+                    </div>
+                }
+                @if (form().controls.assistance_required) {
+                    <div class="flex w-full flex-col">
+                        <mat-checkbox
+                            name="assistance-required"
+                            color="primary"
+                            formControlName="assistance_required"
+                        >
+                            Assistance required
+                        </mat-checkbox>
+                    </div>
+                }
+                @if (form().controls.visit_expected) {
+                    <div class="flex w-full flex-col">
+                        <mat-checkbox
+                            name="visit-expected"
+                            color="primary"
+                            formControlName="visit_expected"
+                        >
+                            Visit expected
+                        </mat-checkbox>
+                    </div>
+                }
+            </form>
+        }
+    `, imports: [
+      MatCheckboxModule,
+      MatFormFieldModule,
+      MatInputModule,
+      ReactiveFormsModule,
+      TranslatePipe
+    ], styles: ["/* angular:styles/component:css;fd077178d2e8a022e17f68cb6befbd424b2439b93e8476c2dd172ca203446823;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-form.component.ts */\n:host,\nmat-form-field {\n  width: 100%;\n}\n/*# sourceMappingURL=user-form.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserFormComponent, { className: "UserFormComponent", filePath: "libs/users/src/lib/user-form.component.ts", lineNumber: 127 });
+})();
+
+// libs/users/src/lib/new-user-modal.component.ts
+function NewUserModalComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 2)(1, "icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
+function NewUserModalComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "main", 3);
+    \u0275\u0275element(1, "user-form", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("form", ctx_r0.form);
+  }
+}
+function NewUserModalComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "main", 4);
+    \u0275\u0275element(1, "mat-spinner", 7);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 1, "COMMON.USER_SAVING"));
+  }
+}
+function NewUserModalComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "footer", 5)(1, "button", 8);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "button", 9);
+    \u0275\u0275listener("click", function NewUserModalComponent_Conditional_7_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.saveChanges());
+    });
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "COMMON.CANCEL"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 4, "COMMON.SAVE"), " ");
+  }
+}
+var _NewUserModalComponent = class _NewUserModalComponent extends AsyncHandler {
+  constructor() {
+    super();
+    this._data = inject(MAT_DIALOG_DATA);
+    this.event = new EventEmitter();
+    this.form = generateUserForm(this.user || new User());
+    this.loading = false;
+    this.user = this._data.user || {};
+    this.form = generateUserForm(this.user);
+  }
+  ngOnInit() {
+  }
+  saveChanges() {
+    if (!this.form)
+      return;
+    this.form.markAllAsTouched();
+    if (this.form.valid) {
+      const new_user = new User(__spreadProps(__spreadValues({}, this.form.value), {
+        is_external: true
+      }));
+      this.event.emit({ reason: "done", metadata: new_user });
+    }
+  }
+};
+_NewUserModalComponent.\u0275fac = function NewUserModalComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _NewUserModalComponent)();
+};
+_NewUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewUserModalComponent, selectors: [["new-user-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "w-full", "min-w-[24rem]", "flex-col", "items-center", "px-4"], [1, "flex", "w-full", "flex-col", "items-center", "space-y-2", "p-2"], [1, "border-base-200", "flex", "w-full", "items-center", "justify-end", "space-x-2", "border-t", "p-2"], [3, "form"], ["diameter", "32"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse"], ["btn", "", "matRipple", "", 3, "click"]], template: function NewUserModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(4, NewUserModalComponent_Conditional_4_Template, 3, 0, "button", 2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, NewUserModalComponent_Conditional_5_Template, 2, 1, "main", 3)(6, NewUserModalComponent_Conditional_6_Template, 5, 3, "main", 4);
+    \u0275\u0275conditionalCreate(7, NewUserModalComponent_Conditional_7_Template, 7, 6, "footer", 5);
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, (ctx.user == null ? null : ctx.user.id) ? "COMMON.USER_EDIT" : "COMMON.USER_NEW"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx.loading ? 4 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx.loading ? 5 : 6);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx.loading ? 7 : -1);
+  }
+}, dependencies: [
+  TranslatePipe,
+  MatRippleModule,
+  MatRipple,
+  UserFormComponent,
+  MatDialogModule,
+  MatDialogClose,
+  IconComponent,
+  MatProgressSpinnerModule,
+  MatProgressSpinner
+], styles: ["\n\nmain[_ngcontent-%COMP%] {\n  min-height: 20em !important;\n  width: 100%;\n}\nfooter[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  min-width: 8em;\n}\n/*# sourceMappingURL=new-user-modal.component.css.map */"] });
+var NewUserModalComponent = _NewUserModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NewUserModalComponent, [{
+    type: Component,
+    args: [{ selector: "new-user-modal", template: `
+        <header
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{
+                    (user?.id ? 'COMMON.USER_EDIT' : 'COMMON.USER_NEW')
+                        | translate
+                }}
+            </h2>
+            @if (!loading) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
+        </header>
+        @if (!loading) {
+            <main class="flex w-full min-w-[24rem] flex-col items-center px-4">
+                <user-form [form]="form"></user-form>
+            </main>
+        } @else {
+            <main class="flex w-full flex-col items-center space-y-2 p-2">
+                <mat-spinner diameter="32"></mat-spinner>
+                <p>{{ 'COMMON.USER_SAVING' | translate }}</p>
+            </main>
+        }
+        @if (!loading) {
+            <footer
+                class="border-base-200 flex w-full items-center justify-end space-x-2 border-t p-2"
+            >
+                <button btn matRipple class="inverse" mat-dialog-close>
+                    {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button btn matRipple (click)="saveChanges()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        }
+    `, imports: [
+      TranslatePipe,
+      MatRippleModule,
+      UserFormComponent,
+      MatDialogModule,
+      IconComponent,
+      MatProgressSpinnerModule
+    ], styles: ["/* angular:styles/component:css;d1500f659b91dd2b74c0cb226624db0e8f324134dbaaf267a69f046570069bff;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/new-user-modal.component.ts */\nmain {\n  min-height: 20em !important;\n  width: 100%;\n}\nfooter button {\n  min-width: 8em;\n}\n/*# sourceMappingURL=new-user-modal.component.css.map */\n"] }]
+  }], () => [], { event: [{
+    type: Output
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewUserModalComponent, { className: "NewUserModalComponent", filePath: "libs/users/src/lib/new-user-modal.component.ts", lineNumber: 74 });
+})();
+
+// libs/users/src/lib/select-user-modal.component.ts
+function SelectUserModalComponent_For_16_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275listener("click", function SelectUserModalComponent_For_16_Template_button_click_0_listener() {
+      const user_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.select(user_r2));
+    });
+    \u0275\u0275elementStart(1, "div");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 12);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const user_r2 = ctx.$implicit;
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(user_r2.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(user_r2.email);
+  }
+}
+function SelectUserModalComponent_Conditional_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, ctx_r2.search.value ? "COMMON.SELECT_USER_EMPTY_MATCHES" : "COMMON.SELECT_USER_EMPTY"), " ");
+  }
+}
+var _SelectUserModalComponent = class _SelectUserModalComponent {
+  constructor() {
+    this._dialog_ref = inject(MatDialogRef);
+    this.search = new BehaviorSubject("");
+    this.users = this.search.pipe(debounceTime(300), switchMap((s) => xa({ q: s }).pipe(map((o) => o.data), catchError(() => of([])))), startWith([]));
+  }
+  select(user) {
+    this._dialog_ref.close(user);
+  }
+};
+_SelectUserModalComponent.\u0275fac = function SelectUserModalComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SelectUserModalComponent)();
+};
+_SelectUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SelectUserModalComponent, selectors: [["select-user-modal"]], decls: 20, vars: 12, consts: [[1, "w-md"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "h-[60vh]", "overflow-auto", "px-2", "pb-2"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "mb-2", "w-full"], ["matPrefix", "", 1, "relative", "-left-2", "text-2xl"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "relative", "z-0", "w-full", "space-y-2"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left"], [1, "flex", "h-32", "w-full", "items-center", "justify-center", "p-8", "opacity-30"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left", 3, "click"], [1, "text-xs", "opacity-30"]], template: function SelectUserModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "button", 3)(6, "icon");
+    \u0275\u0275text(7, "close");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(8, "main", 4)(9, "mat-form-field", 5)(10, "icon", 6);
+    \u0275\u0275text(11, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "input", 7);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275listener("ngModelChange", function SelectUserModalComponent_Template_input_ngModelChange_12_listener($event) {
+      return ctx.search.next($event);
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(14, "div", 8);
+    \u0275\u0275repeaterCreate(15, SelectUserModalComponent_For_16_Template, 5, 2, "button", 9, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(17, "async");
+    \u0275\u0275conditionalCreate(18, SelectUserModalComponent_Conditional_18_Template, 3, 3, "div", 10);
+    \u0275\u0275pipe(19, "async");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.SELECT_USER_TITLE"), " ");
+    \u0275\u0275advance(9);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(13, 6, "COMMON.SELECT_USER_SEARCH"))("ngModel", ctx.search.value);
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(17, 8, ctx.users));
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(!\u0275\u0275pipeBind1(19, 10, ctx.users).length ? 18 : -1);
+  }
+}, dependencies: [
+  CommonModule,
+  AsyncPipe,
+  TranslatePipe,
+  MatRippleModule,
+  MatRipple,
+  MatFormFieldModule,
+  MatFormField,
+  MatPrefix,
+  MatInputModule,
+  MatInput,
+  MatDialogModule,
+  MatDialogClose,
+  FormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgModel,
+  IconComponent
+], encapsulation: 2 });
+var SelectUserModalComponent = _SelectUserModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SelectUserModalComponent, [{
+    type: Component,
+    args: [{ selector: `select-user-modal`, template: ` <div class="w-md">
+        <header
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'COMMON.SELECT_USER_TITLE' | translate }}
+            </h2>
+            <button icon matRipple mat-dialog-close>
+                <icon>close</icon>
+            </button>
+        </header>
+        <main class="h-[60vh] overflow-auto px-2 pb-2">
+            <mat-form-field
+                class="no-subscript bg-base-100 sticky top-0 z-10 mb-2 w-full"
+                appearance="outline"
+            >
+                <icon class="relative -left-2 text-2xl" matPrefix>search</icon>
+                <input
+                    matInput
+                    [placeholder]="'COMMON.SELECT_USER_SEARCH' | translate"
+                    [ngModel]="search.value"
+                    (ngModelChange)="search.next($event)"
+                />
+            </mat-form-field>
+            <div class="relative z-0 w-full space-y-2">
+                @for (user of users | async; track user) {
+                    <button
+                        class="border-base-300 hover:bg-base-200 w-full rounded-sm border p-2 text-left"
+                        matRipple
+                        (click)="select(user)"
+                    >
+                        <div>{{ user.name }}</div>
+                        <div class="text-xs opacity-30">{{ user.email }}</div>
+                    </button>
+                }
+                @if (!(users | async).length) {
+                    <div
+                        class="flex h-32 w-full items-center justify-center p-8 opacity-30"
+                    >
+                        {{
+                            (search.value
+                                ? 'COMMON.SELECT_USER_EMPTY_MATCHES'
+                                : 'COMMON.SELECT_USER_EMPTY'
+                            ) | translate
+                        }}
+                    </div>
+                }
+            </div>
+        </main>
+    </div>`, imports: [
+      CommonModule,
+      TranslatePipe,
+      MatRippleModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatDialogModule,
+      FormsModule,
+      IconComponent
+    ] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SelectUserModalComponent, { className: "SelectUserModalComponent", filePath: "libs/users/src/lib/select-user-modal.component.ts", lineNumber: 85 });
+})();
+
+// libs/users/src/lib/user-label.component.ts
+var _c047 = (a0) => ({ title: a0 });
+var _c127 = (a0) => ({ host_name: a0 });
+var _c211 = (a0) => ({ location: a0 });
+function UserLabelComponent_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275nextContext();
+    const level_r1 = \u0275\u0275readContextLet(17);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "APP.VISITOR_KIOSK.LABEL_LOCATION", \u0275\u0275pureFunction1(4, _c211, level_r1.display_name || level_r1.name)), " ");
+  }
+}
+function UserLabelComponent_Conditional_22_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "pre", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_2_0;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((tmp_2_0 = ctx_r1.user()) == null ? null : tmp_2_0.pass_number);
+  }
+}
+function UserLabelComponent_Conditional_32_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 14);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("src", ctx_r1.user().qr_code, \u0275\u0275sanitizeUrl);
+  }
+}
+var _UserLabelComponent = class _UserLabelComponent {
+  constructor() {
+    this._settings = inject(SettingsService);
+    this.user = input({});
+    this.width = input(25);
+    this.height = input(15);
+    this.landscape = computed(() => this.width() > this.height());
+  }
+  get logo() {
+    return this._settings.theme === "dark" ? this._settings.get("app.logo_dark") : this._settings.get("app.logo_light");
+  }
+  print() {
+    console.log("Printing user label...");
+  }
+};
+_UserLabelComponent.\u0275fac = function UserLabelComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _UserLabelComponent)();
+};
+_UserLabelComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserLabelComponent, selectors: [["user-label"]], inputs: { user: [1, "user"], width: [1, "width"], height: [1, "height"] }, decls: 33, vars: 45, consts: [[1, "user-label", "border-neutral", "bg-base-100", "relative", "m-[0.5em]", "rounded-[0.75em]", "border", "p-[1em]"], [1, "flex", "h-full", "flex-col", "leading-tight"], [1, "border-base-400", "bg-base-200", "mb-[0.25em]", "flex", "h-[5em]", "w-[5em]", "items-center", "justify-center", "overflow-hidden", "rounded-full", "border"], [1, "text-[2.25em]", 3, "user"], [1, "mb-[0.25em]", "text-[1.5em]"], [1, "opacity-60"], [1, "absolute", "bottom-[1em]", "left-[1em]", "mt-[0.5em]", "w-[8em]", "rounded-[0.5em]", "border", "border-black", "px-[0.5em]", "py-[0.25em]", "text-center", "font-medium", "text-black", "uppercase"], [1, "absolute", "top-[1em]", "right-[1em]", "flex", "flex-col", "items-end", "space-y-[0.5em]"], ["auth", "", "alt", "Logo", 1, "h-[3em]", "object-contain", 3, "src"], [1, "text-right", "text-[0.75em]"], [1, "text-right"], [1, "absolute", "right-[1em]", "bottom-[1em]", "flex", "items-end"], [1, "text-right", "leading-tight", "font-medium"], [1, "border-base-200", "relative", "flex", "h-[4em]", "w-[4em]", "items-center", "justify-center", "rounded-[0.5em]", "border"], [1, "h-[3.5em]", "w-[3.5em]", "object-contain", "object-center", 3, "src"]], template: function UserLabelComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
+    \u0275\u0275element(3, "a-user-avatar", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 4);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div");
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "div", 5);
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(12, "div", 6);
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(15, "div", 7);
+    \u0275\u0275element(16, "img", 8);
+    \u0275\u0275declareLet(17);
+    \u0275\u0275pipe(18, "level");
+    \u0275\u0275conditionalCreate(19, UserLabelComponent_Conditional_19_Template, 3, 6, "div", 9);
+    \u0275\u0275elementStart(20, "pre", 10);
+    \u0275\u0275text(21);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(22, UserLabelComponent_Conditional_22_Template, 2, 1, "pre", 9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(23, "div", 11)(24, "div", 12)(25, "div");
+    \u0275\u0275text(26);
+    \u0275\u0275pipe(27, "date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(28, "div");
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "date");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(31, "div", 13);
+    \u0275\u0275conditionalCreate(32, UserLabelComponent_Conditional_32_Template, 1, 1, "img", 14);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    let tmp_4_0;
+    let tmp_5_0;
+    let tmp_11_0;
+    let tmp_12_0;
+    \u0275\u0275styleProp("width", ctx.width() + "em")("height", ctx.height() + "em");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("user", ctx.user());
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx.user().name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 24, "APP.VISITOR_KIOSK.LABEL_FOR", \u0275\u0275pureFunction1(41, _c047, (tmp_4_0 = ctx.user()) == null ? null : tmp_4_0.title)), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 27, "APP.VISITOR_KIOSK.LABEL_HOST", \u0275\u0275pureFunction1(43, _c127, (tmp_5_0 = ctx.user()) == null ? null : tmp_5_0.host)), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 30, "APP.VISITOR_KIOSK.VISITOR"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275styleProp("max-width", ctx.landscape ? "8em" : "");
+    \u0275\u0275property("src", (ctx.logo == null ? null : ctx.logo.src) || ctx.logo, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance();
+    const level_r3 = \u0275\u0275storeLet(\u0275\u0275pipeBind1(18, 32, ctx.user().zones));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(level_r3 ? 19 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((tmp_11_0 = ctx.user()) == null ? null : tmp_11_0.extra_details);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((tmp_12_0 = ctx.user()) == null ? null : tmp_12_0.pass_number) ? 22 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("space-x-[0", !ctx.landscape())("space-y-[0", ctx.landscape())("flex-col", ctx.landscape());
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(27, 35, ctx.user().date, "shortTime"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(30, 38, ctx.user().date, "mediumDate"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx.user().qr_code ? 32 : -1);
+  }
+}, dependencies: [
+  CommonModule,
+  DatePipe,
+  UserAvatarComponent,
+  TranslatePipe,
+  LevelPipe,
+  AuthenticatedImageDirective
+], styles: ["/* angular:styles/component:css;725153a99cf1545964099fddfcea602bed4f1c33b32c3fcd6d11ef23d4316b5e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-label.component.ts */\n:host {\n  font-size: 1rem;\n}\n/*# sourceMappingURL=user-label.component.css.map */\n"], encapsulation: 2 });
+var UserLabelComponent = _UserLabelComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserLabelComponent, [{
+    type: Component,
+    args: [{ selector: `user-label`, template: `
+        <div
+            class="user-label border-neutral bg-base-100 relative m-[0.5em] rounded-[0.75em] border p-[1em]"
+            [style.width]="width() + 'em'"
+            [style.height]="height() + 'em'"
+        >
+            <div class="flex h-full flex-col leading-tight">
+                <div
+                    class="border-base-400 bg-base-200 mb-[0.25em] flex h-[5em] w-[5em] items-center justify-center overflow-hidden rounded-full border"
+                >
+                    <a-user-avatar
+                        class="text-[2.25em]"
+                        [user]="user()"
+                    ></a-user-avatar>
+                </div>
+                <div class="mb-[0.25em] text-[1.5em]">{{ user().name }}</div>
+                <div>
+                    {{
+                        'APP.VISITOR_KIOSK.LABEL_FOR'
+                            | translate: { title: user()?.title }
+                    }}
+                </div>
+                <div class="opacity-60">
+                    {{
+                        'APP.VISITOR_KIOSK.LABEL_HOST'
+                            | translate
+                                : {
+                                      host_name: user()?.host,
+                                  }
+                    }}
+                </div>
+            </div>
+            <div
+                class="absolute bottom-[1em] left-[1em] mt-[0.5em] w-[8em] rounded-[0.5em] border border-black px-[0.5em] py-[0.25em] text-center font-medium text-black uppercase"
+            >
+                {{ 'APP.VISITOR_KIOSK.VISITOR' | translate }}
+            </div>
+            <div
+                class="absolute top-[1em] right-[1em] flex flex-col items-end space-y-[0.5em]"
+            >
+                <img
+                    auth
+                    class="h-[3em] object-contain"
+                    [style.max-width]="landscape ? '8em' : ''"
+                    alt="Logo"
+                    [src]="logo?.src || logo"
+                />
+                @let level = user().zones | level;
+                @if (level) {
+                    <div class="text-right text-[0.75em]">
+                        {{
+                            'APP.VISITOR_KIOSK.LABEL_LOCATION'
+                                | translate
+                                    : {
+                                          location:
+                                              level.display_name || level.name,
+                                      }
+                        }}
+                    </div>
+                }
+                <pre class="text-right">{{ user()?.extra_details }}</pre>
+                @if (user()?.pass_number) {
+                    <pre class="text-right text-[0.75em]">{{
+                        user()?.pass_number
+                    }}</pre>
+                }
+            </div>
+            <div
+                class="absolute right-[1em] bottom-[1em] flex items-end"
+                [class.space-x-[0.5em]]="!landscape()"
+                [class.space-y-[0.5em]]="landscape()"
+                [class.flex-col]="landscape()"
+            >
+                <div class="text-right leading-tight font-medium">
+                    <div>
+                        {{ user().date | date: 'shortTime' }}
+                    </div>
+                    <div>
+                        {{ user().date | date: 'mediumDate' }}
+                    </div>
+                </div>
+                <div
+                    class="border-base-200 relative flex h-[4em] w-[4em] items-center justify-center rounded-[0.5em] border"
+                >
+                    @if (user().qr_code) {
+                        <img
+                            class="h-[3.5em] w-[3.5em] object-contain object-center"
+                            [src]="user().qr_code"
+                        />
+                    }
+                </div>
+            </div>
+        </div>
+    `, encapsulation: ViewEncapsulation.None, imports: [
+      CommonModule,
+      UserAvatarComponent,
+      TranslatePipe,
+      LevelPipe,
+      AuthenticatedImageDirective
+    ], styles: ["/* angular:styles/component:css;725153a99cf1545964099fddfcea602bed4f1c33b32c3fcd6d11ef23d4316b5e;/home/runner/work/user-interfaces/user-interfaces/libs/users/src/lib/user-label.component.ts */\n:host {\n  font-size: 1rem;\n}\n/*# sourceMappingURL=user-label.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserLabelComponent, { className: "UserLabelComponent", filePath: "libs/users/src/lib/user-label.component.ts", lineNumber: 143 });
+})();
+
+// libs/form-fields/src/lib/counter.component.ts
+function CounterComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r0.render_fn() ? ctx_r0.render_fn()(ctx_r0.value) : ctx_r0.value) || "0", " ");
+  }
+}
+var _CounterComponent = class _CounterComponent {
+  constructor() {
+    this.step = input(1);
+    this.max = input(999);
+    this.min = input(0);
+    this.render_fn = input(void 0);
+    this.disabled = model(void 0);
+    this.focused = false;
+    this.registerOnChange = (fn2) => this._onChange = fn2;
+    this.registerOnTouched = (fn2) => this._onTouch = fn2;
+    this.setDisabledState = (d3) => this.disabled.set(d3);
+  }
+  /**
+   * Add the `step` to the current value
+   */
+  add() {
+    if (!this.value) {
+      this.value = this.min() || 0;
+    }
+    const step = this.ctrl_key ? 100 * this.step() : this.shift_key ? 10 * this.step() : this.step() || 1;
+    this.value += step;
+    if (this.value > this.max()) {
+      this.value = this.max() || 10;
+    }
+    this.setValue(this.value);
+  }
+  /** Remove the `step` from the current value */
+  remove() {
+    if (!this.value) {
+      this.value = this.min() || 0;
+    }
+    const step = this.ctrl_key ? 100 * this.step() : this.shift_key ? 10 * this.step() : this.step() || 1;
+    this.value -= step;
+    if (this.value < this.min()) {
+      this.value = this.min() || 0;
+    }
+    this.setValue(this.value);
+  }
+  /**
+   * Update the form field value
+   * @param new_value New value to set on the form field
+   */
+  setValue(new_value) {
+    if (new_value < this.min())
+      new_value = this.min();
+    if (new_value > this.max())
+      new_value = this.max();
+    if (new_value / this.step() % 1 !== 0) {
+      new_value = Math.round(new_value * (1 / this.step())) / (1 / this.step());
+    }
+    this.value = new_value;
+    if (this._onChange) {
+      this._onChange(new_value);
+    }
+  }
+  /**
+   * Update local value when form control value is changed
+   * @param value The new value for the component
+   */
+  writeValue(value) {
+    this.value = value;
+  }
+};
+_CounterComponent.\u0275fac = function CounterComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _CounterComponent)();
+};
+_CounterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CounterComponent, selectors: [["a-counter"]], inputs: { step: [1, "step"], max: [1, "max"], min: [1, "min"], render_fn: [1, "render_fn"], disabled: [1, "disabled"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
+  {
+    provide: NG_VALUE_ACCESSOR,
+    /* istanbul ignore next */
+    useExisting: forwardRef(() => _CounterComponent),
+    multi: true
+  }
+])], decls: 10, vars: 6, consts: [["counter", "", 1, "flex", "items-center", "text-base", 3, "keydown.shift", "keydown.control", "keydown.meta", "keyup.shift", "keyup.control", "keyup.meta"], ["decrease", "", "icon", "", "matRipple", "", "type", "button", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l", "rounded-r-none", "border", 3, "click", "disabled"], ["value", "", 1, "border-secondary", "relative", "z-0", "-mx-px", "flex", "h-12", "min-w-16", "flex-1", "items-center", "justify-center", "rounded-none", "border", "p-2", "focus-within:z-20"], ["type", "text", "limitInput", "", 1, "absolute", "inset-0", "rounded-none", "p-2", "opacity-0", "focus:opacity-100", 3, "ngModelChange", "focus", "blur", "ngModel"], ["increase", "", "icon", "", "matRipple", "", "type", "button", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l-none", "rounded-r", "border", 3, "click", "disabled"]], template: function CounterComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275listener("keydown.shift", function CounterComponent_Template_div_keydown_shift_0_listener() {
+      return ctx.shift_key = true;
+    }, \u0275\u0275resolveWindow)("keydown.control", function CounterComponent_Template_div_keydown_control_0_listener() {
+      return ctx.ctrl_key = true;
+    }, \u0275\u0275resolveWindow)("keydown.meta", function CounterComponent_Template_div_keydown_meta_0_listener() {
+      return ctx.ctrl_key = true;
+    }, \u0275\u0275resolveWindow)("keyup.shift", function CounterComponent_Template_div_keyup_shift_0_listener() {
+      return ctx.shift_key = false;
+    }, \u0275\u0275resolveWindow)("keyup.control", function CounterComponent_Template_div_keyup_control_0_listener() {
+      return ctx.ctrl_key = false;
+    }, \u0275\u0275resolveWindow)("keyup.meta", function CounterComponent_Template_div_keyup_meta_0_listener() {
+      return ctx.ctrl_key = false;
+    }, \u0275\u0275resolveWindow);
+    \u0275\u0275elementStart(1, "button", 1);
+    \u0275\u0275listener("click", function CounterComponent_Template_button_click_1_listener() {
+      return ctx.remove();
+    });
+    \u0275\u0275elementStart(2, "icon");
+    \u0275\u0275text(3, "remove");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 2);
+    \u0275\u0275conditionalCreate(5, CounterComponent_Conditional_5_Template, 2, 1, "span");
+    \u0275\u0275elementStart(6, "input", 3);
+    \u0275\u0275twoWayListener("ngModelChange", function CounterComponent_Template_input_ngModelChange_6_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.value, $event) || (ctx.value = $event);
+      return $event;
+    });
+    \u0275\u0275listener("focus", function CounterComponent_Template_input_focus_6_listener() {
+      return ctx.focused = true;
+    })("blur", function CounterComponent_Template_input_blur_6_listener() {
+      ctx.setValue(+ctx.value);
+      return ctx.focused = false;
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 4);
+    \u0275\u0275listener("click", function CounterComponent_Template_button_click_7_listener() {
+      return ctx.add();
+    });
+    \u0275\u0275elementStart(8, "icon");
+    \u0275\u0275text(9, "add");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275classProp("disabled", ctx.disabled());
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx.value || ctx.value === ctx.min());
+    \u0275\u0275advance(4);
+    \u0275\u0275conditional(!ctx.focused ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("ngModel", ctx.value);
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", ctx.value === ctx.max());
+  }
+}, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, IconComponent], styles: ["\n\n[counter].disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n  opacity: 30%;\n}\n\n\n/*# sourceMappingURL=counter.component.css.map */"] });
+var CounterComponent = _CounterComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CounterComponent, [{
+    type: Component,
+    args: [{ selector: "a-counter", template: `
+        <div
+            counter
+            class="flex items-center text-base"
+            (window:keydown.shift)="shift_key = true"
+            (window:keydown.control)="ctrl_key = true"
+            (window:keydown.meta)="ctrl_key = true"
+            (window:keyup.shift)="shift_key = false"
+            (window:keyup.control)="ctrl_key = false"
+            (window:keyup.meta)="ctrl_key = false"
+            [class.disabled]="disabled()"
+        >
+            <button
+                decrease
+                icon
+                matRipple
+                type="button"
+                class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
+                [disabled]="!value || value === min()"
+                (click)="remove()"
+            >
+                <icon>remove</icon>
+            </button>
+            <div
+                value
+                class="border-secondary relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-none border p-2 focus-within:z-20"
+            >
+                @if (!focused) {
+                    <span>
+                        {{ (render_fn() ? render_fn()(value) : value) || '0' }}
+                    </span>
+                }
+                <input
+                    type="text"
+                    class="absolute inset-0 rounded-none p-2 opacity-0 focus:opacity-100"
+                    [(ngModel)]="value"
+                    (focus)="focused = true"
+                    (blur)="setValue(+value); focused = false"
+                    limitInput
+                />
+            </div>
+            <button
+                increase
+                icon
+                matRipple
+                type="button"
+                class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
+                [disabled]="value === max()"
+                (click)="add()"
+            >
+                <icon>add</icon>
+            </button>
+        </div>
+    `, providers: [
+      {
+        provide: NG_VALUE_ACCESSOR,
+        /* istanbul ignore next */
+        useExisting: forwardRef(() => CounterComponent),
+        multi: true
+      }
+    ], imports: [FormsModule, IconComponent], styles: ["/* angular:styles/component:css;a6b2eba167820a19f3bfe4858772015401d059291041c0f38f39de4e622992d8;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/counter.component.ts */\n[counter].disabled {\n  pointer-events: none;\n  opacity: 30%;\n}\n/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */\n/*# sourceMappingURL=counter.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CounterComponent, { className: "CounterComponent", filePath: "libs/form-fields/src/lib/counter.component.ts", lineNumber: 82 });
+})();
+
+// libs/users/src/lib/user-label-modal.component.ts
+function UserLabelModalComponent_ng_template_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "user-label", 4);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("font-size", ctx_r1.scale() + "mm");
+    \u0275\u0275property("user", ctx_r1.details)("width", ctx_r1.width())("height", ctx_r1.height());
+  }
+}
+var _UserLabelModalComponent = class _UserLabelModalComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this.STORAGE_KEY = "PlaceOS.User.LabelSettings";
+    this.details = inject(MAT_DIALOG_DATA);
+    this.scale = signal(4);
+    this.width = signal(25);
+    this.height = signal(15);
+    this.format_mm = (value) => `${Math.floor(value * 10) / 10}mm`;
+    this.print = () => {
+      this.saveSettings();
+      this.timeout("print", () => window.print());
+    };
+  }
+  ngOnInit() {
+    this.loadSettings();
+  }
+  loadSettings() {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const settings = JSON.parse(stored);
+        this.scale.set(settings.scale);
+        this.width.set(settings.width);
+        this.height.set(settings.height);
+      }
+    } catch (error) {
+      console.warn("Failed to load user label settings from localStorage:", error);
+    }
+  }
+  saveSettings() {
+    try {
+      const settings = {
+        scale: this.scale(),
+        width: this.width(),
+        height: this.height()
+      };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn("Failed to save user label settings to localStorage:", error);
+    }
+  }
+};
+_UserLabelModalComponent.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275UserLabelModalComponent_BaseFactory;
+  return function UserLabelModalComponent_Factory(__ngFactoryType__) {
+    return (\u0275UserLabelModalComponent_BaseFactory || (\u0275UserLabelModalComponent_BaseFactory = \u0275\u0275getInheritedFactory(_UserLabelModalComponent)))(__ngFactoryType__ || _UserLabelModalComponent);
+  };
+})();
+_UserLabelModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserLabelModalComponent, selectors: [["user-label-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 41, vars: 20, consts: [["print_content", ""], [1, "bg-base-200", "relative", "flex", "h-screen", "w-screen", "flex-col", "items-center", "space-y-4", "overflow-auto", "print:hidden"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "border"], [1, "border-base-300", "bg-base-100", "rounded-lg", "border", "p-2"], [3, "user", "width", "height"], ["printable", "", 1, "print-only", 3, "content"], [1, "border-base-300", "bg-base-100", "rounded-lg", "border"], [1, "space-y-4", "p-4"], [1, "text-xl", "font-medium"], [1, ""], [3, "ngModelChange", "ngModel", "min", "step", "render_fn"], [1, "flex", "space-x-4"], [3, "ngModelChange", "ngModel", "min", "max", "step"], [1, "font-medium"], [1, "flex", "space-x-4", "p-2"], [1, "border-base-300", "flex", "justify-end", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click"]], template: function UserLabelModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 1)(1, "button", 2)(2, "icon");
+    \u0275\u0275text(3, "close");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "div", 3);
+    \u0275\u0275element(5, "user-label", 4);
+    \u0275\u0275elementStart(6, "div", 5);
+    \u0275\u0275template(7, UserLabelModalComponent_ng_template_7_Template, 1, 5, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "div", 6)(10, "div", 7)(11, "h3", 8);
+    \u0275\u0275text(12, "Label Properties");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "div", 9)(14, "label");
+    \u0275\u0275text(15, "Unit Size");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "a-counter", 10);
+    \u0275\u0275twoWayListener("ngModelChange", function UserLabelModalComponent_Template_a_counter_ngModelChange_16_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.scale, $event) || (ctx.scale = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(17, "div", 11)(18, "div", 9)(19, "label");
+    \u0275\u0275text(20, "Width");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(21, "a-counter", 12);
+    \u0275\u0275twoWayListener("ngModelChange", function UserLabelModalComponent_Template_a_counter_ngModelChange_21_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.width, $event) || (ctx.width = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(22, "div", 9)(23, "label");
+    \u0275\u0275text(24, "Height");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(25, "a-counter", 12);
+    \u0275\u0275twoWayListener("ngModelChange", function UserLabelModalComponent_Template_a_counter_ngModelChange_25_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      \u0275\u0275twoWayBindingSet(ctx.height, $event) || (ctx.height = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(26, "div")(27, "h3", 13);
+    \u0275\u0275text(28, "Output size");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(29, "div", 14)(30, "div", 9)(31, "label");
+    \u0275\u0275text(32, "Width:");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(33);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(34, "div", 9)(35, "label");
+    \u0275\u0275text(36, "Height:");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(37);
+    \u0275\u0275elementEnd()()()();
+    \u0275\u0275elementStart(38, "div", 15)(39, "button", 16);
+    \u0275\u0275listener("click", function UserLabelModalComponent_Template_button_click_39_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.print());
+    });
+    \u0275\u0275text(40, " Print ");
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const print_content_r3 = \u0275\u0275reference(8);
+    \u0275\u0275advance(5);
+    \u0275\u0275styleProp("font-size", ctx.scale() + "mm");
+    \u0275\u0275property("user", ctx.details)("width", ctx.width())("height", ctx.height());
+    \u0275\u0275advance();
+    \u0275\u0275property("content", print_content_r3);
+    \u0275\u0275advance(10);
+    \u0275\u0275twoWayProperty("ngModel", ctx.scale);
+    \u0275\u0275property("min", 1)("step", 0.1)("render_fn", ctx.format_mm);
+    \u0275\u0275advance(5);
+    \u0275\u0275twoWayProperty("ngModel", ctx.width);
+    \u0275\u0275property("min", 1)("max", 100)("step", 1);
+    \u0275\u0275advance(4);
+    \u0275\u0275twoWayProperty("ngModel", ctx.height);
+    \u0275\u0275property("min", 1)("max", 100)("step", 1);
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate1(" ", ctx.format_mm(ctx.width() * ctx.scale()), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", ctx.format_mm(ctx.height() * ctx.scale()), " ");
+  }
+}, dependencies: [
+  CommonModule,
+  UserLabelComponent,
+  MatDialogModule,
+  MatDialogClose,
+  FormsModule,
+  NgControlStatus,
+  NgModel,
+  MatRippleModule,
+  MatRipple,
+  CounterComponent,
+  IconComponent,
+  PrintableComponent
+], encapsulation: 2 });
+var UserLabelModalComponent = _UserLabelModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserLabelModalComponent, [{
+    type: Component,
+    args: [{ selector: `user-label-modal`, template: `
+        <div
+            class="bg-base-200 relative flex h-screen w-screen flex-col items-center space-y-4 overflow-auto print:hidden"
+        >
+            <button
+                icon
+                matRipple
+                mat-dialog-close
+                class="border-base-300 bg-base-100 absolute top-2 right-2 border"
+            >
+                <icon>close</icon>
+            </button>
+            <div class="border-base-300 bg-base-100 rounded-lg border p-2">
+                <user-label
+                    [user]="details"
+                    [width]="width()"
+                    [height]="height()"
+                    [style.font-size]="scale() + 'mm'"
+                />
+                <div printable class="print-only" [content]="print_content">
+                    <ng-template #print_content>
+                        <user-label
+                            [user]="details"
+                            [width]="width()"
+                            [height]="height()"
+                            [style.font-size]="scale() + 'mm'"
+                        />
+                    </ng-template>
+                </div>
+            </div>
+            <div class="border-base-300 bg-base-100 rounded-lg border">
+                <div class="space-y-4 p-4">
+                    <h3 class="text-xl font-medium">Label Properties</h3>
+                    <div class="">
+                        <label>Unit Size</label>
+                        <a-counter
+                            [(ngModel)]="scale"
+                            [min]="1"
+                            [step]="0.1"
+                            [render_fn]="format_mm"
+                        />
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="">
+                            <label>Width</label>
+                            <a-counter
+                                [(ngModel)]="width"
+                                [min]="1"
+                                [max]="100"
+                                [step]="1"
+                            />
+                        </div>
+                        <div class="">
+                            <label>Height</label>
+                            <a-counter
+                                [(ngModel)]="height"
+                                [min]="1"
+                                [max]="100"
+                                [step]="1"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium">Output size</h3>
+                        <div class="flex space-x-4 p-2">
+                            <div class="">
+                                <label>Width:</label>
+                                {{ format_mm(width() * scale()) }}
+                            </div>
+                            <div class="">
+                                <label>Height:</label>
+                                {{ format_mm(height() * scale()) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="border-base-300 flex justify-end border-t px-4 py-2"
+                >
+                    <button btn matRipple class="w-32" (click)="print()">
+                        Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    `, imports: [
+      CommonModule,
+      UserLabelComponent,
+      MatDialogModule,
+      FormsModule,
+      MatRippleModule,
+      CounterComponent,
+      IconComponent,
+      PrintableComponent
+    ] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserLabelModalComponent, { className: "UserLabelModalComponent", filePath: "libs/users/src/lib/user-label-modal.component.ts", lineNumber: 119 });
+})();
+
+// libs/users/src/lib/user.pipe.ts
+var USER_LIST = [];
+var EMPTY_USER2 = {};
+var _UserPipe = class _UserPipe {
+  /**
+   * Get details of the user with the given ID
+   * @param user_id ID or Email of the user
+   */
+  async transform(user_id) {
+    if (!user_id)
+      return EMPTY_USER2;
+    let user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
+    if (user)
+      return user;
+    user = await lastValueFrom(showStaff(user_id)).catch(() => null);
+    if (user) {
+      USER_LIST.push(user);
+      return user;
+    }
+    user = await lastValueFrom(showGuest(user_id)).catch(() => null);
+    if (user) {
+      USER_LIST.push(user);
+      return user;
+    }
+    return EMPTY_USER2;
+  }
+};
+_UserPipe.\u0275fac = function UserPipe_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _UserPipe)();
+};
+_UserPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "user", type: _UserPipe, pure: true });
+var UserPipe = _UserPipe;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserPipe, [{
+    type: Pipe,
+    args: [{
+      name: "user"
+    }]
+  }], null, null);
+})();
+
 // libs/events/src/lib/events.fn.ts
 var EVENTS_ENDPOINT = `/api/staff/v1/events`;
 function queryEvents(q4) {
@@ -142066,7 +146568,7 @@ function createEvent(data) {
 }
 function updateEvent(id, data, q4 = {}, method = "patch") {
   const query2 = toQueryString(q4);
-  return (method === "patch" ? Xe : Ne)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(data).toJSON()).pipe(map((item) => new CalendarEvent(item)));
+  return (method === "patch" ? et : Ne)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(data).toJSON()).pipe(map((item) => new CalendarEvent(item)));
 }
 var saveEvent = (data, q4) => {
   const id = data.update_master ? data.recurring_event_id || data.id : data.id;
@@ -142101,7 +146603,7 @@ function showEventMetadata(id, system_id, query2 = {}) {
 }
 function updateEventMetadata(id, system_id, metadata, query2 = {}) {
   const q4 = toQueryString(__spreadValues({}, query2));
-  return Xe(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q4 ? "?" + q4 : ""}`, metadata).pipe(map((item) => item));
+  return et(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q4 ? "?" + q4 : ""}`, metadata).pipe(map((item) => item));
 }
 function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
   const end = addMinutes(start, duration).valueOf();
@@ -142130,14 +146632,14 @@ function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_p
 
 // libs/assets/src/lib/assets.fn.ts
 function queryAssetCategories(query2 = {}) {
-  return Nl(query2).pipe(map((res) => res.data));
+  return jl(query2).pipe(map((res) => res.data));
 }
 var groups_cache = /* @__PURE__ */ new Map();
 function queryAssetGroupsExtended(query2 = {}) {
   if (groups_cache.has(query2.zones)) {
     return of(groups_cache.get(query2.zones));
   }
-  return Ul(query2).pipe(map((res) => res.data), switchMap((list2) => list2.length ? forkJoin(list2.map((group2) => queryAssets(__spreadProps(__spreadValues({
+  return Rl(query2).pipe(map((res) => res.data), switchMap((list2) => list2.length ? forkJoin(list2.map((group2) => queryAssets(__spreadProps(__spreadValues({
     limit: 200
   }, query2), {
     type_id: group2.id
@@ -142147,10 +146649,10 @@ function queryAssetGroupsExtended(query2 = {}) {
   }));
 }
 function showAssetGroup(id) {
-  return Rl(id).pipe(map((_3) => _3));
+  return Ml(id).pipe(map((_3) => _3));
 }
 function queryAssets(query2 = {}) {
-  return Al(query2).pipe(map((res) => res.data));
+  return wl(query2).pipe(map((res) => res.data));
 }
 function queryGroupAvailability(query2, ignore = []) {
   query2.type = "asset-request";
@@ -142585,7 +147087,7 @@ var _EventLinkModalComponent = class _EventLinkModalComponent {
 _EventLinkModalComponent.\u0275fac = function EventLinkModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _EventLinkModalComponent)();
 };
-_EventLinkModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventLinkModalComponent, selectors: [["event-link-modal"]], decls: 29, vars: 28, consts: [[1, "w-full", "p-4", "pb-2"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "click", "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["src", "assets/icons/gcal.svg", 1, "w-6"], [1, "text-xl"], ["btn", "", "matRipple", "", 1, "w-64", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "right-0", "top-2", 3, "mat-dialog-close"]], template: function EventLinkModalComponent_Template(rf, ctx) {
+_EventLinkModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventLinkModalComponent, selectors: [["event-link-modal"]], decls: 29, vars: 28, consts: [[1, "w-full", "p-4", "pb-2"], [1, "relative", "flex", "flex-col", "items-center", "space-y-4", "p-4"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferer", 1, "inverse", "flex", "w-64", "items-center", "space-x-2", "rounded-sm", "p-2", "pr-4", 3, "click", "href"], ["src", "assets/icons/outlook.svg", 1, "w-6"], ["src", "assets/icons/gcal.svg", 1, "w-6"], [1, "text-xl"], ["btn", "", "matRipple", "", 1, "w-64", 3, "click"], ["icon", "", "matRipple", "", 1, "absolute", "top-2", "right-0", 3, "mat-dialog-close"]], template: function EventLinkModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275text(1);
@@ -142717,7 +147219,7 @@ var EventLinkModalComponent = _EventLinkModalComponent;
             icon
             matRipple
             [mat-dialog-close]="has_actioned"
-            class="absolute right-0 top-2"
+            class="absolute top-2 right-0"
         >
             <icon>close</icon>
         </button>
@@ -143340,7 +147842,7 @@ var EventFormService = _EventFormService;
 })();
 
 // libs/components/src/lib/status-pill.component.ts
-var _c042 = ["*"];
+var _c048 = ["*"];
 function StatusPillComponent_Case_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " check_circle ");
@@ -143374,7 +147876,7 @@ var _StatusPillComponent = class _StatusPillComponent {
 _StatusPillComponent.\u0275fac = function StatusPillComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _StatusPillComponent)();
 };
-_StatusPillComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c042, decls: 10, vars: 25, consts: [[1, "flex", "items-center", "space-x-2", "rounded-full", "border", "border-base-200", "bg-opacity-30", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
+_StatusPillComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c048, decls: 10, vars: 25, consts: [[1, "border-base-200", "bg-opacity-30", "flex", "items-center", "space-x-2", "rounded-full", "border", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "icon", 2);
@@ -143401,7 +147903,7 @@ var StatusPillComponent = _StatusPillComponent;
     type: Component,
     args: [{ selector: "status-pill", template: `
         <div
-            class="flex items-center space-x-2 rounded-full border border-base-200 bg-opacity-30 px-2 py-1 text-base font-medium text-black"
+            class="border-base-200 bg-opacity-30 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium text-black"
             [class.bg-success-light]="status() === 'success'"
             [class.bg-warning-light]="status() === 'warning'"
             [class.bg-error-light]="status() === 'error'"
@@ -143448,59 +147950,8 @@ var StatusPillComponent = _StatusPillComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StatusPillComponent, { className: "StatusPillComponent", filePath: "libs/components/src/lib/status-pill.component.ts", lineNumber: 54 });
 })();
 
-// libs/users/src/lib/guests.fn.ts
-var GUEST_ENDPOINT = "/api/staff/v1/guests";
-function searchGuests(q4) {
-  const query2 = toQueryString({ q: q4 });
-  return N(`${GUEST_ENDPOINT}${q4 ? "?" + query2 : ""}`).pipe(map((list2) => list2.map((item) => new GuestUser(item))));
-}
-function showGuest(id) {
-  return N(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`).pipe(map((item) => new GuestUser(item)));
-}
-
-// libs/users/src/lib/user.pipe.ts
-var USER_LIST = [];
-var EMPTY_USER2 = {};
-var _UserPipe = class _UserPipe {
-  /**
-   * Get details of the user with the given ID
-   * @param user_id ID or Email of the user
-   */
-  async transform(user_id) {
-    if (!user_id)
-      return EMPTY_USER2;
-    let user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
-    if (user)
-      return user;
-    user = await lastValueFrom(showStaff(user_id)).catch(() => null);
-    if (user) {
-      USER_LIST.push(user);
-      return user;
-    }
-    user = await lastValueFrom(showGuest(user_id)).catch(() => null);
-    if (user) {
-      USER_LIST.push(user);
-      return user;
-    }
-    return EMPTY_USER2;
-  }
-};
-_UserPipe.\u0275fac = function UserPipe_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _UserPipe)();
-};
-_UserPipe.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "user", type: _UserPipe, pure: true });
-var UserPipe = _UserPipe;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserPipe, [{
-    type: Pipe,
-    args: [{
-      name: "user"
-    }]
-  }], null, null);
-})();
-
 // libs/events/src/lib/attendee-list.component.ts
-var _c043 = (a0) => ({ count: a0 });
+var _c049 = (a0) => ({ count: a0 });
 function AttendeeListComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -143584,7 +148035,7 @@ var _AttendeeListComponent = class _AttendeeListComponent {
 _AttendeeListComponent.\u0275fac = function AttendeeListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _AttendeeListComponent)();
 };
-_AttendeeListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AttendeeListComponent, selectors: [["attendee-list"]], inputs: { host: [1, "host"], show_host: [1, "show_host"], list: [1, "list"], hide_close: [1, "hide_close"], custom_title: [1, "custom_title"] }, outputs: { close: "close" }, decls: 10, vars: 9, consts: [[1, "flex", "h-full", "w-full", "flex-col", "overflow-hidden", "bg-base-100"], [1, "flex", "min-h-12", "items-center", "border-b", "border-base-200", "p-2"], ["close", "", "icon", "", "matRipple", ""], [1, "flex-1", "text-center", "font-medium"], [1, "w-12"], [1, "w-full", "flex-1", "overflow-auto"], ["close", "", "icon", "", "matRipple", "", 3, "click"], ["attendee", "", 1, "flex", "items-center", "space-x-2", "p-2", "hover:bg-base-200"], [3, "user"], [1, "w-1/2", "flex-1"], [1, "truncate"], [1, "text-sm", "opacity-60"], [1, "p-2"], [1, "h-3", "w-3", "rounded-full", 3, "matTooltip"]], template: function AttendeeListComponent_Template(rf, ctx) {
+_AttendeeListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AttendeeListComponent, selectors: [["attendee-list"]], inputs: { host: [1, "host"], show_host: [1, "show_host"], list: [1, "list"], hide_close: [1, "hide_close"], custom_title: [1, "custom_title"] }, outputs: { close: "close" }, decls: 10, vars: 9, consts: [[1, "bg-base-100", "flex", "h-full", "w-full", "flex-col", "overflow-hidden"], [1, "border-base-200", "flex", "min-h-12", "items-center", "border-b", "p-2"], ["close", "", "icon", "", "matRipple", ""], [1, "flex-1", "text-center", "font-medium"], [1, "w-12"], [1, "w-full", "flex-1", "overflow-auto"], ["close", "", "icon", "", "matRipple", "", 3, "click"], ["attendee", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "p-2"], [3, "user"], [1, "w-1/2", "flex-1"], [1, "truncate"], [1, "text-sm", "opacity-60"], [1, "p-2"], [1, "h-3", "w-3", "rounded-full", 3, "matTooltip"]], template: function AttendeeListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, AttendeeListComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -143602,7 +148053,7 @@ _AttendeeListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275advance(2);
     \u0275\u0275conditional(!ctx.hide_close() ? 2 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", ctx.custom_title() ? ctx.custom_title() : \u0275\u0275pipeBind3(5, 3, "CALENDAR_EVENT.ATTENDEES_COUNT", \u0275\u0275pureFunction1(7, _c043, ctx.final_list().length), ctx.final_list().length), " ");
+    \u0275\u0275textInterpolate1(" ", ctx.custom_title() ? ctx.custom_title() : \u0275\u0275pipeBind3(5, 3, "CALENDAR_EVENT.ATTENDEES_COUNT", \u0275\u0275pureFunction1(7, _c049, ctx.final_list().length), ctx.final_list().length), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(!ctx.hide_close() ? 6 : -1);
     \u0275\u0275advance(2);
@@ -143623,9 +148074,9 @@ var AttendeeListComponent = _AttendeeListComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AttendeeListComponent, [{
     type: Component,
     args: [{ selector: "attendee-list", template: `
-        <div class="flex h-full w-full flex-col overflow-hidden bg-base-100">
+        <div class="bg-base-100 flex h-full w-full flex-col overflow-hidden">
             <div
-                class="flex min-h-12 items-center border-b border-base-200 p-2"
+                class="border-base-200 flex min-h-12 items-center border-b p-2"
             >
                 @if (!hide_close()) {
                     <button close icon matRipple (click)="close.emit()">
@@ -143653,7 +148104,7 @@ var AttendeeListComponent = _AttendeeListComponent;
                     ) {
                         <div
                             attendee
-                            class="flex items-center space-x-2 p-2 hover:bg-base-200"
+                            class="hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <div class="w-1/2 flex-1">
@@ -143697,9 +148148,9 @@ var AttendeeListComponent = _AttendeeListComponent;
 })();
 
 // libs/events/src/lib/event-details-modal.component.ts
-var _c044 = (a0) => ({ time: a0 });
-var _c124 = (a0, a1) => ({ count: a0, cost: a1 });
-var _c211 = (a0) => ({ count: a0 });
+var _c050 = (a0) => ({ time: a0 });
+var _c128 = (a0, a1) => ({ count: a0, cost: a1 });
+var _c212 = (a0) => ({ count: a0 });
 var _c38 = () => ({ disable_pan: true, disable_zoom: true });
 function EventDetailsModalComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -143806,7 +148257,7 @@ function EventDetailsModalComponent_Conditional_28_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, ctx_r1.event().date, "EEEE, dd LLLL y (z)", ctx_r1.tz), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, ctx_r1.event().date, "EEEE, dd LLLL y (z)", ctx_r1.tz()), " ");
   }
 }
 function EventDetailsModalComponent_Conditional_35_Template(rf, ctx) {
@@ -143855,13 +148306,14 @@ function EventDetailsModalComponent_Conditional_43_Template(rf, ctx) {
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "user");
+    \u0275\u0275pipe(6, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_2_0;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", ((tmp_2_0 = \u0275\u0275pipeBind1(5, 1, ctx_r1.event().creator)) == null ? null : tmp_2_0.name) || ctx_r1.event().creator, " ");
+    \u0275\u0275textInterpolate1(" ", ((tmp_2_0 = \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r1.event().creator))) == null ? null : tmp_2_0.name) || ctx_r1.event().creator, " ");
   }
 }
 function EventDetailsModalComponent_Conditional_44_Template(rf, ctx) {
@@ -143938,7 +148390,7 @@ function EventDetailsModalComponent_Conditional_85_For_6_For_18_Conditional_4_Te
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275property("matTooltip", ctx_r1.optionList(item_r8));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 2, "CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT", \u0275\u0275pureFunction1(5, _c211, (item_r8.option_list == null ? null : item_r8.option_list.length) || "0")), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 2, "CALENDAR_EVENT.CATERING_ORDER_OPTION_COUNT", \u0275\u0275pureFunction1(5, _c212, (item_r8.option_list == null ? null : item_r8.option_list.length) || "0")), " ");
   }
 }
 function EventDetailsModalComponent_Conditional_85_For_6_For_18_Template(rf, ctx) {
@@ -144001,9 +148453,9 @@ function EventDetailsModalComponent_Conditional_85_For_6_Template(rf, ctx) {
     const order_r7 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 9, "CALENDAR_EVENT.CATERING_ORDER_AT", \u0275\u0275pureFunction1(18, _c044, \u0275\u0275pipeBind2(5, 6, order_r7.deliver_at, "MMM d, " + ctx_r1.time_format))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 9, "CALENDAR_EVENT.CATERING_ORDER_AT", \u0275\u0275pureFunction1(18, _c050, \u0275\u0275pipeBind2(5, 6, order_r7.deliver_at, "MMM d, " + ctx_r1.time_format))), " ");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 15, "CALENDAR_EVENT.CATERING_ORDER_DETAILS", \u0275\u0275pureFunction2(20, _c124, order_r7.item_count, \u0275\u0275pipeBind2(10, 12, order_r7.total_cost / 100, ctx_r1.currency_code))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 15, "CALENDAR_EVENT.CATERING_ORDER_DETAILS", \u0275\u0275pureFunction2(20, _c128, order_r7.item_count, \u0275\u0275pipeBind2(10, 12, order_r7.total_cost / 100, ctx_r1.currency_code))), " ");
     \u0275\u0275advance(3);
     \u0275\u0275conditional(order_r7.caterer ? 12 : -1);
     \u0275\u0275advance();
@@ -144116,7 +148568,7 @@ function EventDetailsModalComponent_Conditional_89_For_6_Template(rf, ctx) {
     const request_r10 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "CALENDAR_EVENT.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c044, \u0275\u0275pipeBind2(5, 17, request_r10.deliver_at, "MMM d, " + ctx_r1.time_format))), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 20, "CALENDAR_EVENT.ASSETS_REQUESTED_FOR", \u0275\u0275pureFunction1(23, _c050, \u0275\u0275pipeBind2(5, 17, request_r10.deliver_at, "MMM d, " + ctx_r1.time_format))), " ");
     \u0275\u0275advance(3);
     \u0275\u0275classProp("bg-success", request_r10.state === "approved")("text-success-content", request_r10.state === "approved")("bg-warning", request_r10.state !== "approved" && request_r10.state !== "rejected")("text-warning-content", request_r10.state !== "approved" && request_r10.state !== "rejected")("bg-error", request_r10.state === "rejected")("text-error-content", request_r10.state === "rejected");
     \u0275\u0275property("matTooltip", request_r10.state || "Tentative");
@@ -144310,9 +148762,7 @@ var _EventDetailsModalComponent = class _EventDetailsModalComponent {
     this.pending_count = computed(() => this.event().attendees.reduce((count, user) => count += user.response_status === "tentative" || user.response_status === "needsAction" ? 1 : 0, 0));
     this.body = computed(() => (this.event().body || "").replace(/\\n\\n\[ID\|.*\]/gm, ""));
     this.allow_edit = computed(() => !settingSignal("events.booking_unavailable")());
-    this.custom_actions = computed(() => {
-      return settingSignal("events.custom_actions")() || EMPTY_ACTIONS;
-    });
+    this.custom_actions = settingSignal("events.custom_actions", EMPTY_ACTIONS);
     this.event_status = computed(() => {
       if (this.event()?.state === "done")
         return "neutral";
@@ -144334,6 +148784,9 @@ var _EventDetailsModalComponent = class _EventDetailsModalComponent {
   }
   get time_format() {
     return this._settings.time_format;
+  }
+  get currency_code() {
+    return this._org.currency_code;
   }
   ngOnInit() {
     const doc = new DOMParser().parseFromString(this.event().body, "text/html");
@@ -144365,7 +148818,7 @@ var _EventDetailsModalComponent = class _EventDetailsModalComponent {
     return formatRecurrence(fromEventRecurrence(this.event().recurrence)) || i18n("CALENDAR_EVENT.RECURRING_TOOLTIP");
   }
   async checkin() {
-    const mod2 = kh(this.space()?.id, "Bookings");
+    const mod2 = $h(this.space()?.id, "Bookings");
     if (!mod2)
       return;
     await mod2.execute("checkin", [getUnixTime(this.event().date)]).catch((e2) => notifyError(`Error checking in booking. ${e2}`));
@@ -144411,7 +148864,7 @@ var _EventDetailsModalComponent = class _EventDetailsModalComponent {
 _EventDetailsModalComponent.\u0275fac = function EventDetailsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _EventDetailsModalComponent)();
 };
-_EventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventDetailsModalComponent, selectors: [["event-details-modal"]], outputs: { action: "action" }, features: [\u0275\u0275ProvidersFeature([SpacePipe])], decls: 108, vars: 65, consts: [["menu", "matMenu"], [1, "h-screen", "w-screen", "space-y-2", "overflow-auto", "bg-base-100", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm", "sm:bg-base-200", "print:min-h-screen", "print:w-screen", "print:overflow-visible"], [1, "max-h-screen", "flex-col", "items-center", "border-base-200", "bg-base-100", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16", "print:border-none"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "h-64", "w-full", "overflow-hidden", "bg-neutral", "sm:rounded-b", "print:hidden"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2", "print:hidden"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "min-w-1/3", "grow-3", "space-y-2", "rounded-sm", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], [1, "mb-2", "mt-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], [1, "min-w-1/3", "mt-4", "grow-3", "rounded-sm", "border-base-200", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:bg-base-100", "sm:p-4"], [1, "mx-3", "flex", "items-center", "justify-between", "border-t", "border-base-200", "sm:border-none"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", "print:hidden", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "hidden", "print:block"], [1, "mx-3", "mt-2", "border-t", "border-base-200", "pt-2", "text-lg", "font-medium"], ["host", "", 1, "flex", "items-center", "space-x-2", "px-2"], [3, "user"], [1, "w-px", "flex-1", "text-sm"], [1, "w-full", "truncate"], [1, "w-full", "truncate", "opacity-60", 3, "title"], ["map", "", 1, "min-w-1/3", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "grow-3", "overflow-hidden", "rounded-sm", "border", "border-base-200", "p-2", "sm:mt-2", "sm:h-48", "sm:w-[16rem]", "sm:bg-base-100", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "left-2", "top-2", "bg-neutral", "text-white", "print:hidden"], [1, "absolute", "inset-0", "z-50"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2", "text-base"], [1, "text-2xl", "text-error"], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "bg-success", "border-none", "pointer-events-none"], ["icon", "", "matRipple", "", 1, "h-12", "w-12", "rounded-sm", "bg-secondary", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "pr-4"], ["matTooltip", "Created By"], ["matTooltip", "Visibility"], ["attendee", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", 1, "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "flex", "items-center", "space-x-2"], [1, "text-xs", "opacity-60"], [1, "rounded-sm", "bg-base-200", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", 1, "print:hidden", 3, "click", "matTooltip"], [1, "flex", "flex-col", "divide-y", "divide-base-100", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "rounded-sm", "bg-success", "px-2", "py-1", "text-xs", "text-success-content"], [1, "rounded-sm", "bg-info", "px-2", "py-1", "text-xs", "text-info-content"], [1, "mx-3", "border-t", "border-base-200", "text-lg", "font-medium", "sm:border-none"], ["notes", "", 1, "mx-4", "max-w-full", "overflow-hidden", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", 1, "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]], template: function EventDetailsModalComponent_Template(rf, ctx) {
+_EventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventDetailsModalComponent, selectors: [["event-details-modal"]], outputs: { action: "action" }, features: [\u0275\u0275ProvidersFeature([SpacePipe])], decls: 108, vars: 65, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm", "print:min-h-screen", "print:w-screen", "print:overflow-visible"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16", "print:border-none"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b", "print:hidden"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2", "print:hidden"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-3", "space-y-2", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "border-base-200", "mx-3", "flex", "items-center", "justify-between", "border-t", "sm:border-none"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", "print:hidden", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "hidden", "print:block"], [1, "border-base-200", "mx-3", "mt-2", "border-t", "pt-2", "text-lg", "font-medium"], ["host", "", 1, "flex", "items-center", "space-x-2", "px-2"], [3, "user"], [1, "w-px", "flex-1", "text-sm"], [1, "w-full", "truncate"], [1, "w-full", "truncate", "opacity-60", 3, "title"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:mt-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-neutral", "absolute", "top-2", "left-2", "text-white", "print:hidden"], [1, "absolute", "inset-0", "z-50"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2", "text-base"], [1, "text-error", "text-2xl"], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "bg-success", "border-none", "pointer-events-none"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "pr-4"], ["matTooltip", "Created By"], ["matTooltip", "Visibility"], ["attendee", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "flex", "items-center", "space-x-2"], [1, "text-xs", "opacity-60"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", 1, "print:hidden", 3, "click", "matTooltip"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "bg-info", "text-info-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mx-3", "border-t", "text-lg", "font-medium", "sm:border-none"], ["notes", "", 1, "mx-4", "max-w-full", "overflow-hidden", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"]], template: function EventDetailsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "i", 3);
@@ -144464,7 +148917,7 @@ _EventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275text(41);
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(42, EventDetailsModalComponent_Conditional_42_Template, 5, 2, "div", 17);
-    \u0275\u0275conditionalCreate(43, EventDetailsModalComponent_Conditional_43_Template, 6, 3, "div", 17);
+    \u0275\u0275conditionalCreate(43, EventDetailsModalComponent_Conditional_43_Template, 7, 5, "div", 17);
     \u0275\u0275conditionalCreate(44, EventDetailsModalComponent_Conditional_44_Template, 7, 5, "div", 17);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(45, "div", 18)(46, "div", 19)(47, "h3", 20);
@@ -144650,6 +149103,7 @@ _EventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   }
 }, dependencies: [
   CommonModule,
+  AsyncPipe,
   UpperCasePipe,
   CurrencyPipe,
   DatePipe,
@@ -144680,10 +149134,10 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
     type: Component,
     args: [{ selector: "event-details-modal", template: `
         <div
-            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm sm:bg-base-200 print:min-h-screen print:w-screen print:overflow-visible"
+            class="bg-base-100 sm:bg-base-200 h-screen w-screen space-y-2 overflow-auto pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm print:min-h-screen print:w-screen print:overflow-visible"
         >
             <div
-                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
+                class="border-base-200 bg-base-100 max-h-screen flex-col items-center pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16 print:border-none"
             >
                 <i
                     binding
@@ -144697,7 +149151,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                 }
                 @if (event()?.system?.images?.length) {
                     <div
-                        class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b print:hidden"
+                        class="bg-neutral h-64 w-full overflow-hidden sm:rounded-b print:hidden"
                     >
                         <image-carousel
                             [images]="event()?.system?.images"
@@ -144782,7 +149236,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                     icon
                                     matRipple
                                     [matMenuTriggerFor]="menu"
-                                    class="h-12 w-12 rounded-sm bg-secondary text-white"
+                                    class="bg-secondary h-12 w-12 rounded-sm text-white"
                                 >
                                     <icon>more_horiz</icon>
                                 </button>
@@ -144793,9 +149247,9 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="min-w-1/3 grow-3 space-y-2 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="border-base-200 sm:bg-base-100 min-w-1/3 grow-3 space-y-2 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
-                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
+                    <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
                         {{ 'CALENDAR_EVENT.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
@@ -144808,7 +149262,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                 <div class="text-xs opacity-30">
                                     {{
                                         event().date
-                                            | date: 'EEEE, dd LLLL y (z)' : tz
+                                            | date: 'EEEE, dd LLLL y (z)' : tz()
                                     }}
                                 </div>
                             }
@@ -144855,7 +149309,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                             <icon matTooltip="Created By">person</icon>
                             <div>
                                 {{
-                                    (event().creator | user)?.name ||
+                                    (event().creator | user | async)?.name ||
                                         event().creator
                                 }}
                             </div>
@@ -144877,10 +149331,10 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                     }
                 </div>
                 <div
-                    class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <div
-                        class="mx-3 flex items-center justify-between border-t border-base-200 sm:border-none"
+                        class="border-base-200 mx-3 flex items-center justify-between border-t sm:border-none"
                     >
                         <h3 class="text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ATTENDEES' | translate }}
@@ -144950,7 +149404,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                         }
                     </div>
                     <h3
-                        class="mx-3 mt-2 border-t border-base-200 pt-2 text-lg font-medium"
+                        class="border-base-200 mx-3 mt-2 border-t pt-2 text-lg font-medium"
                     >
                         {{ 'FORM.HOST' | translate }}
                     </h3>
@@ -144973,7 +149427,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                 </div>
                 @if (has_catering()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 my-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.CATERING' | translate }}
@@ -144985,7 +149439,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                             ) {
                                 <div
                                     order
-                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                    class="border-base-300 bg-base-100 overflow-hidden rounded-xl border"
                                 >
                                     <div
                                         class="flex items-center space-x-2 p-3"
@@ -145023,7 +149477,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                                 </div>
                                                 @if (order.caterer) {
                                                     <div
-                                                        class="rounded-sm bg-base-200 px-2 py-1 text-xs"
+                                                        class="bg-base-200 rounded-sm px-2 py-1 text-xs"
                                                     >
                                                         {{ order.caterer }}
                                                     </div>
@@ -145054,7 +149508,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                         </button>
                                     </div>
                                     <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
                                             print || show_order[order.id]
                                                 ? 'show'
@@ -145095,12 +149549,12 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                                     }
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-info px-2 py-1 text-xs text-info-content"
+                                                    class="bg-info text-info-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     {{
                                                         item.unit_price_with_options /
@@ -145120,7 +149574,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                 }
                 <button
                     map
-                    class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] grow-3 overflow-hidden rounded-sm border border-base-200 p-2 sm:mt-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
+                    class="border-base-200 sm:bg-base-100 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] min-w-1/3 grow-3 overflow-hidden rounded-sm border p-2 sm:mt-2 sm:h-48 sm:w-[16rem]"
                     (click)="viewLocation()"
                 >
                     @if (!hide_map()) {
@@ -145137,10 +149591,10 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                 </button>
                 @if (raw_body()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3
-                            class="mx-3 border-t border-base-200 text-lg font-medium sm:border-none"
+                            class="border-base-200 mx-3 border-t text-lg font-medium sm:border-none"
                         >
                             {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                         </h3>
@@ -145155,7 +149609,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                 }
                 @if (has_assets()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 pt-2 text-lg font-medium">
                             {{ 'CALENDAR_EVENT.ASSETS_HEADER' | translate }} ({{
@@ -145169,7 +149623,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                             ) {
                                 <div
                                     request
-                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                    class="border-base-300 bg-base-100 overflow-hidden rounded-xl border"
                                 >
                                     <button
                                         matRipple
@@ -145244,7 +149698,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                         </div>
                                     </button>
                                     <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
                                             print || show_request[request.id]
                                                 ? 'show'
@@ -145266,7 +149720,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                                                     }}</span>
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
@@ -145282,7 +149736,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                     icon
                     matRipple
                     mat-dialog-close
-                    class="absolute left-2 top-2 bg-neutral text-white print:hidden"
+                    class="bg-neutral absolute top-2 left-2 text-white print:hidden"
                 >
                     <icon>close</icon>
                 </button>
@@ -145318,7 +149772,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                     (click)="remove ? remove(event(), false) : ''"
                 >
                     <div class="flex items-center space-x-2 pr-2 text-base">
-                        <icon class="text-2xl text-error">delete</icon>
+                        <icon class="text-error text-2xl">delete</icon>
                         <div>
                             {{ 'CALENDAR_EVENT.ACTION_DELETE' | translate }}
                         </div>
@@ -145340,7 +149794,7 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
                         (click)="remove ? remove(event(), true) : ''"
                     >
                         <div class="flex items-center space-x-2 pr-2 text-base">
-                            <icon class="text-2xl text-error">delete</icon>
+                            <icon class="text-error text-2xl">delete</icon>
                             <div>
                                 {{
                                     'CALENDAR_EVENT.ACTION_DELETE_SERIES'
@@ -145384,8 +149838,8 @@ var EventDetailsModalComponent = _EventDetailsModalComponent;
 })();
 
 // libs/events/src/lib/group-event-details-modal.component.ts
-var _c045 = (a0) => ({ name: a0 });
-var _c125 = (a0, a1) => ({ going: a0, interested: a1 });
+var _c051 = (a0) => ({ name: a0 });
+var _c129 = (a0, a1) => ({ going: a0, interested: a1 });
 function GroupEventDetailsModalComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 4);
@@ -145779,7 +150233,7 @@ var _GroupEventDetailsModalComponent = class _GroupEventDetailsModalComponent {
 _GroupEventDetailsModalComponent.\u0275fac = function GroupEventDetailsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _GroupEventDetailsModalComponent)();
 };
-_GroupEventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventDetailsModalComponent, selectors: [["group-event-details-modal"]], inputs: { event: [1, "event"] }, outputs: { event: "eventChange" }, decls: 109, vars: 74, consts: [["concierge_menu", "matMenu"], ["menu", "matMenu"], [1, "relative", "max-h-[80vh]", "w-3xl", "max-w-[calc(100vw-1rem)]", "overflow-hidden"], [1, "relative", "flex", "h-52", "w-full", "items-center", "justify-between", "overflow-hidden", "bg-base-200"], ["auth", "", 1, "absolute", "left-1/2", "top-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover", 3, "source"], [1, "absolute", "left-0", "top-0", "flex", "items-center", "space-x-2", "rounded-br", "bg-info", "py-2", "pl-2", "pr-4", "text-sm", "text-info-content"], ["icon", "", "mat-dialog-close", "", 1, "absolute", "right-1", "top-1", "overflow-hidden"], [1, "flex", "items-center", "justify-between", "border-b", "border-base-200", "px-8", "py-4"], [1, "text-left", "text-xl"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "w-11", "bg-base-200", "text-base-content", 3, "disabled", "matMenuTriggerFor"], [1, "text-2xl"], ["mat-menu-item", "", 3, "disabled"], [1, "mr-2"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], ["mat-menu-item", "", 3, "click"], [1, "text-2xl", "text-error"], ["mat-menu-item", "", 1, "flex", "items-center", "space-x-2", 3, "click"], [1, "flex", "max-h-[calc(80vh-18rem)]", "flex-1", "space-x-6", "overflow-y-auto", "overflow-x-hidden", "p-8"], [1, "flex", "w-1/3", "flex-1", "flex-col", "space-y-2"], [1, "flex", "items-center", "space-x-4"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-200"], [1, "pt-4", "font-medium"], [1, "flex", "flex-col"], [1, "text-sm"], [1, "text-sm", "opacity-30"], [1, "flex", "flex-col", "text-sm"], [1, "opacity-30"], ["matRipple", "", 1, "flex", "min-h-12", "items-center", "space-x-4", "rounded-sm", 3, "click"], [1, "pb-4", "text-sm"], ["event-details", "", 3, "innerHTML"], [1, "flex", "w-[20rem]"], [1, "absolute", "inset-0", "z-50"], [1, "text-base"], [1, "uppercase"], [1, "absolute", "inset-0", "z-0", "bg-base-100", "opacity-30"], [1, "z-10"], ["btn", "", 1, "flex", "h-10", "items-center", "space-x-2", "rounded-sm", "px-4"], [1, "pr-2"], [1, "w-full", "border", "border-base-300"], ["matRipple", "", 1, "relative", "h-40", "w-full", "bg-base-200", 3, "click"], [3, "src", "features", "styles"], [1, "space-y-2", "p-4"], [1, "mt-0!", "text-sm", "opacity-30"], ["target", "_blank", "rel", "noopener noreferrer", 1, "mt-4", "opacity-30", 3, "underline", "href"], ["target", "_blank", "rel", "noopener noreferrer", 1, "mt-4", "opacity-30", 3, "href"], [1, "absolute", "inset-0", "bg-base-content", "opacity-60", 3, "click"], [1, "absolute", "inset-y-8", "left-1/2", "w-[24rem]", "-translate-x-1/2", "overflow-hidden", "rounded-sm", "shadow-sm"], [3, "click", "show_host", "list", "host"]], template: function GroupEventDetailsModalComponent_Template(rf, ctx) {
+_GroupEventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventDetailsModalComponent, selectors: [["group-event-details-modal"]], inputs: { event: [1, "event"] }, outputs: { event: "eventChange" }, decls: 109, vars: 74, consts: [["concierge_menu", "matMenu"], ["menu", "matMenu"], [1, "relative", "max-h-[80vh]", "w-3xl", "max-w-[calc(100vw-1rem)]", "overflow-hidden"], [1, "bg-base-200", "relative", "flex", "h-52", "w-full", "items-center", "justify-between", "overflow-hidden"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover", 3, "source"], [1, "bg-info", "text-info-content", "absolute", "top-0", "left-0", "flex", "items-center", "space-x-2", "rounded-br", "py-2", "pr-4", "pl-2", "text-sm"], ["icon", "", "mat-dialog-close", "", 1, "absolute", "top-1", "right-1", "overflow-hidden"], [1, "border-base-200", "flex", "items-center", "justify-between", "border-b", "px-8", "py-4"], [1, "text-left", "text-xl"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", 1, "clear", "bg-base-200", "text-base-content", "w-11", 3, "disabled", "matMenuTriggerFor"], [1, "text-2xl"], ["mat-menu-item", "", 3, "disabled"], [1, "mr-2"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], ["mat-menu-item", "", 3, "click"], [1, "text-error", "text-2xl"], ["mat-menu-item", "", 1, "flex", "items-center", "space-x-2", 3, "click"], [1, "flex", "max-h-[calc(80vh-18rem)]", "flex-1", "space-x-6", "overflow-x-hidden", "overflow-y-auto", "p-8"], [1, "flex", "w-1/3", "flex-1", "flex-col", "space-y-2"], [1, "flex", "items-center", "space-x-4"], [1, "bg-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full"], [1, "pt-4", "font-medium"], [1, "flex", "flex-col"], [1, "text-sm"], [1, "text-sm", "opacity-30"], [1, "flex", "flex-col", "text-sm"], [1, "opacity-30"], ["matRipple", "", 1, "flex", "min-h-12", "items-center", "space-x-4", "rounded-sm", 3, "click"], [1, "pb-4", "text-sm"], ["event-details", "", 3, "innerHTML"], [1, "flex", "w-[20rem]"], [1, "absolute", "inset-0", "z-50"], [1, "text-base"], [1, "uppercase"], [1, "bg-base-100", "absolute", "inset-0", "z-0", "opacity-30"], [1, "z-10"], ["btn", "", 1, "flex", "h-10", "items-center", "space-x-2", "rounded-sm", "px-4"], [1, "pr-2"], [1, "border-base-300", "w-full", "border"], ["matRipple", "", 1, "bg-base-200", "relative", "h-40", "w-full", 3, "click"], [3, "src", "features", "styles"], [1, "space-y-2", "p-4"], [1, "mt-0!", "text-sm", "opacity-30"], ["target", "_blank", "rel", "noopener noreferrer", 1, "mt-4", "opacity-30", 3, "underline", "href"], ["target", "_blank", "rel", "noopener noreferrer", 1, "mt-4", "opacity-30", 3, "href"], [1, "bg-base-content", "absolute", "inset-0", "opacity-60", 3, "click"], [1, "absolute", "inset-y-8", "left-1/2", "w-[24rem]", "-translate-x-1/2", "overflow-hidden", "rounded-sm", "shadow-sm"], [3, "click", "show_host", "list", "host"]], template: function GroupEventDetailsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2)(1, "div", 3);
@@ -145953,7 +150407,7 @@ _GroupEventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(58, 44, ctx.is_going() ? "CALENDAR_EVENT.GROUP_GOING_REMOVE" : "CALENDAR_EVENT.GROUP_GOING_ADD"), " ");
     \u0275\u0275advance(9);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(67, 46, "CALENDAR_EVENT.GROUP_HOST", \u0275\u0275pureFunction1(69, _c045, ((tmp_19_0 = ctx.event().organiser) == null ? null : tmp_19_0.name) || ctx.event().host)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(67, 46, "CALENDAR_EVENT.GROUP_HOST", \u0275\u0275pureFunction1(69, _c051, ((tmp_19_0 = ctx.event().organiser) == null ? null : tmp_19_0.name) || ctx.event().host)), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(70, 49, "CALENDAR_EVENT.GROUP_WHEN_WHERE"), " ");
     \u0275\u0275advance(8);
@@ -145967,7 +150421,7 @@ _GroupEventDetailsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.is_online() ? 91 : -1);
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(98, 62, "CALENDAR_EVENT.GROUP_ATTENDEES", \u0275\u0275pureFunction2(71, _c125, ctx.attendance(), ctx.attendees())), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(98, 62, "CALENDAR_EVENT.GROUP_ATTENDEES", \u0275\u0275pureFunction2(71, _c129, ctx.attendance(), ctx.attendees())), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(101, 65, "CALENDAR_EVENT.GROUP_ABOUT"), " ");
     \u0275\u0275advance(3);
@@ -146006,20 +150460,20 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
             class="relative max-h-[80vh] w-3xl max-w-[calc(100vw-1rem)] overflow-hidden"
         >
             <div
-                class="relative flex h-52 w-full items-center justify-between overflow-hidden bg-base-200"
+                class="bg-base-200 relative flex h-52 w-full items-center justify-between overflow-hidden"
             >
                 @if (event().extension_data?.images?.length) {
                     <img
                         auth
                         [source]="event().extension_data?.images[0]"
-                        class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                        class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                     />
                 }
             </div>
 
             @if (featured()) {
                 <div
-                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br bg-info py-2 pl-2 pr-4 text-sm text-info-content"
+                    class="bg-info text-info-content absolute top-0 left-0 flex items-center space-x-2 rounded-br py-2 pr-4 pl-2 text-sm"
                 >
                     <icon class="text-base">star</icon>
                     <div class="uppercase">
@@ -146031,16 +150485,16 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                 <button
                     icon
                     mat-dialog-close
-                    class="absolute right-1 top-1 overflow-hidden"
+                    class="absolute top-1 right-1 overflow-hidden"
                 >
                     <div
-                        class="absolute inset-0 z-0 bg-base-100 opacity-30"
+                        class="bg-base-100 absolute inset-0 z-0 opacity-30"
                     ></div>
                     <icon class="z-10">close</icon>
                 </button>
             }
             <div
-                class="flex items-center justify-between border-b border-base-200 px-8 py-4"
+                class="border-base-200 flex items-center justify-between border-b px-8 py-4"
             >
                 <h3 class="text-left text-xl">
                     {{ event().title }}
@@ -146091,7 +150545,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                     <button
                         btn
                         matRipple
-                        class="clear w-11 bg-base-200 text-base-content"
+                        class="clear bg-base-200 text-base-content w-11"
                         [disabled]="event().state === 'done'"
                         [matMenuTriggerFor]="
                             concierge() ? concierge_menu : menu
@@ -146143,7 +150597,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                             (click)="remove ? remove(event(), false) : ''"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon class="text-2xl text-error">
+                                <icon class="text-error text-2xl">
                                     delete
                                 </icon>
                                 <div class="mr-2">
@@ -146194,12 +150648,12 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                 </div>
             </div>
             <div
-                class="flex max-h-[calc(80vh-18rem)] flex-1 space-x-6 overflow-y-auto overflow-x-hidden p-8"
+                class="flex max-h-[calc(80vh-18rem)] flex-1 space-x-6 overflow-x-hidden overflow-y-auto p-8"
             >
                 <div class="flex w-1/3 flex-1 flex-col space-y-2">
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>person</icon>
                         </div>
@@ -146220,7 +150674,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                     </h3>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>calendar_today</icon>
                         </div>
@@ -146242,7 +150696,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                     </div>
                     <div class="flex items-center space-x-4">
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>place</icon>
                         </div>
@@ -146278,7 +150732,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                         class="flex min-h-12 items-center space-x-4 rounded-sm"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
                         >
                             <icon>person</icon>
                         </div>
@@ -146314,10 +150768,10 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
                 <div>
                     @if (level()) {
                         <div class="flex w-[20rem]">
-                            <div class="w-full border border-base-300">
+                            <div class="border-base-300 w-full border">
                                 <button
                                     matRipple
-                                    class="relative h-40 w-full bg-base-200"
+                                    class="bg-base-200 relative h-40 w-full"
                                     (click)="viewLocation()"
                                 >
                                     @if (!showing_map()) {
@@ -146392,7 +150846,7 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
         @if (show_attendees()) {
             <div class="absolute inset-0 z-50">
                 <button
-                    class="absolute inset-0 bg-base-content opacity-60"
+                    class="bg-base-content absolute inset-0 opacity-60"
                     (click)="show_attendees.set(false)"
                 ></button>
                 <div
@@ -146427,10 +150881,10 @@ var GroupEventDetailsModalComponent = _GroupEventDetailsModalComponent;
 })();
 
 // libs/events/src/lib/event-card.component.ts
-var _c046 = () => ["./"];
-var _c126 = (a0) => ({ event: a0 });
-var _c212 = (a0) => ({ count: a0 });
-var _forTrack06 = ($index, $item) => $item.id || $item.email;
+var _c052 = () => ["./"];
+var _c130 = (a0) => ({ event: a0 });
+var _c213 = (a0) => ({ count: a0 });
+var _forTrack07 = ($index, $item) => $item.id || $item.email;
 function EventCardComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 2);
@@ -146532,7 +150986,7 @@ function EventCardComponent_Conditional_1_Conditional_32_Conditional_4_Template(
 function EventCardComponent_Conditional_1_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_32_For_2_Template, 2, 1, "div", 19, _forTrack06);
+    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_32_For_2_Template, 2, 1, "div", 19, _forTrack07);
     \u0275\u0275pipe(3, "slice");
     \u0275\u0275conditionalCreate(4, EventCardComponent_Conditional_1_Conditional_32_Conditional_4_Template, 3, 1, "div", 20);
     \u0275\u0275elementEnd();
@@ -146601,7 +151055,7 @@ function EventCardComponent_Conditional_1_Template(rf, ctx) {
     let tmp_13_0;
     let tmp_14_0;
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(20, _c046))("queryParams", \u0275\u0275pureFunction1(21, _c126, (tmp_2_0 = ctx_r0.event()) == null ? null : tmp_2_0.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(20, _c052))("queryParams", \u0275\u0275pureFunction1(21, _c130, (tmp_2_0 = ctx_r0.event()) == null ? null : tmp_2_0.id));
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((tmp_3_0 = ctx_r0.event()) == null ? null : tmp_3_0.title);
     \u0275\u0275advance(2);
@@ -146623,7 +151077,7 @@ function EventCardComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(((tmp_12_0 = ctx_r0.event()) == null ? null : (tmp_12_0 = tmp_12_0.ext("catering")) == null ? null : tmp_12_0.length) ? 23 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(29, 17, "CALENDAR_EVENT.ATTENDEE_COUNT", \u0275\u0275pureFunction1(23, _c212, ((tmp_13_0 = ctx_r0.event()) == null ? null : tmp_13_0.attendees == null ? null : tmp_13_0.attendees.length) || 0)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(29, 17, "CALENDAR_EVENT.ATTENDEE_COUNT", \u0275\u0275pureFunction1(23, _c213, ((tmp_13_0 = ctx_r0.event()) == null ? null : tmp_13_0.attendees == null ? null : tmp_13_0.attendees.length) || 0)), " ");
     \u0275\u0275advance(4);
     \u0275\u0275conditional(((tmp_14_0 = ctx_r0.event()) == null ? null : tmp_14_0.attendees == null ? null : tmp_14_0.attendees.length) ? 32 : -1);
   }
@@ -146753,7 +151207,7 @@ var _EventCardComponent = class _EventCardComponent extends AsyncHandler {
 _EventCardComponent.\u0275fac = function EventCardComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _EventCardComponent)();
 };
-_EventCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventCardComponent, selectors: [["event-card"]], inputs: { event: [1, "event"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"] }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 2, consts: [["date", "", 1, "mb-2", "flex", "items-center"], ["name", "view-event-details", 1, "relative", "w-full", "cursor-pointer", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-event-details", 1, "relative", "w-full", "cursor-pointer", 3, "click", "routerLink", "queryParams"], [1, "relative", "w-full", "rounded-xl", "border", "border-base-300", "bg-base-100", "py-4", "shadow-sm"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "items-center", "px-4"], ["matTooltipPosition", "right", 3, "matTooltip"], [1, "mx-2", "truncate"], [1, "mx-2"], [1, "absolute", "right-1", "top-1/2", "-translate-y-1/2", "text-4xl"], [1, "absolute", "bottom-2", "right-2", "flex", "items-center", "pr-4", "text-sm", "sm:bottom-auto", "sm:top-2", "sm:text-base"], [1, "z-10", "h-10", "w-6"], [1, "h-10", "w-6"], [3, "user"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "border-2", "border-base-100", "bg-secondary", "text-secondary-content"]], template: function EventCardComponent_Template(rf, ctx) {
+_EventCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventCardComponent, selectors: [["event-card"]], inputs: { event: [1, "event"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"] }, features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 2, vars: 2, consts: [["date", "", 1, "mb-2", "flex", "items-center"], ["name", "view-event-details", 1, "relative", "w-full", "cursor-pointer", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-event-details", 1, "relative", "w-full", "cursor-pointer", 3, "click", "routerLink", "queryParams"], [1, "border-base-300", "bg-base-100", "relative", "w-full", "rounded-xl", "border", "py-4", "shadow-sm"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "items-center", "px-4"], ["matTooltipPosition", "right", 3, "matTooltip"], [1, "mx-2", "truncate"], [1, "mx-2"], [1, "absolute", "top-1/2", "right-1", "-translate-y-1/2", "text-4xl"], [1, "absolute", "right-2", "bottom-2", "flex", "items-center", "pr-4", "text-sm", "sm:top-2", "sm:bottom-auto", "sm:text-base"], [1, "z-10", "h-10", "w-6"], [1, "h-10", "w-6"], [3, "user"], [1, "border-base-100", "bg-secondary", "text-secondary-content", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "border-2"]], template: function EventCardComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, EventCardComponent_Conditional_0_Template, 7, 9, "h4", 0);
     \u0275\u0275conditionalCreate(1, EventCardComponent_Conditional_1_Template, 33, 25, "a", 1);
@@ -146802,7 +151256,7 @@ var EventCardComponent = _EventCardComponent;
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
+                    class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <h4 class="px-4 text-lg">{{ event()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
@@ -146871,13 +151325,13 @@ var EventCardComponent = _EventCardComponent;
                         </div>
                     </div>
                     <icon
-                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
+                        class="absolute top-1/2 right-1 -translate-y-1/2 text-4xl"
                     >
                         chevron_right
                     </icon>
                     @if (event()?.attendees?.length) {
                         <div
-                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:top-2 sm:text-base"
+                            class="absolute right-2 bottom-2 flex items-center pr-4 text-sm sm:top-2 sm:bottom-auto sm:text-base"
                         >
                             @for (
                                 user of event()?.attendees
@@ -146897,7 +151351,7 @@ var EventCardComponent = _EventCardComponent;
                             @if (event()?.attendees?.length > 6) {
                                 <div class="h-10 w-6">
                                     <div
-                                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-base-100 bg-secondary text-secondary-content"
+                                        class="border-base-100 bg-secondary text-secondary-content flex h-10 w-10 items-center justify-center rounded-full border-2"
                                     >
                                         +{{ event()?.attendees?.length - 5 }}
                                     </div>
@@ -146925,7 +151379,7 @@ var EventCardComponent = _EventCardComponent;
 })();
 
 // libs/events/src/lib/group-event-card.component.ts
-var _c047 = (a0) => ({ count: a0 });
+var _c053 = (a0) => ({ count: a0 });
 function GroupEventCardComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 4);
@@ -147046,7 +151500,7 @@ function GroupEventCardComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r1.is_onsite() ? 19 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(25, 17, "CALENDAR_EVENT.GROUP_ATTENDING", \u0275\u0275pureFunction1(20, _c047, ((tmp_10_0 = ctx_r1.event().attendees) == null ? null : tmp_10_0.length) || "0")), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(25, 17, "CALENDAR_EVENT.GROUP_ATTENDING", \u0275\u0275pureFunction1(20, _c053, ((tmp_10_0 = ctx_r1.event().attendees) == null ? null : tmp_10_0.length) || "0")), " ");
   }
 }
 function GroupEventCardComponent_Conditional_1_Conditional_2_Template(rf, ctx) {
@@ -147182,9 +151636,9 @@ function GroupEventCardComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate3(" ", \u0275\u0275pipeBind2(22, 23, ctx_r1.event().date, "EEEE"), " ", \u0275\u0275pipeBind2(23, 26, ctx_r1.event().date, ctx_r1.time_format), " - ", \u0275\u0275pipeBind2(24, 29, ctx_r1.event().date + ctx_r1.event().duration * 60 * 1e3, ctx_r1.time_format), " ");
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(ctx_r1.raw_description);
+    \u0275\u0275textInterpolate(ctx_r1.raw_description());
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r1.raw_description.trim() ? 28 : -1);
+    \u0275\u0275conditional(!ctx_r1.raw_description().trim() ? 28 : -1);
     \u0275\u0275advance(4);
     \u0275\u0275conditional(ctx_r1.is_onsite() && ctx_r1.has_space() ? 32 : -1);
     \u0275\u0275advance();
@@ -147192,7 +151646,7 @@ function GroupEventCardComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r1.is_onsite() ? 34 : -1);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(40, 32, "CALENDAR_EVENT.GROUP_ATTENDING", \u0275\u0275pureFunction1(37, _c047, ctx_r1.attendee_count() || "0")), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(40, 32, "CALENDAR_EVENT.GROUP_ATTENDING", \u0275\u0275pureFunction1(37, _c053, ctx_r1.attendee_count() || "0")), " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(43, 35, "COMMON.VIEW_DETAILS"), " ");
   }
@@ -147235,7 +151689,7 @@ var _GroupEventCardComponent = class _GroupEventCardComponent {
 _GroupEventCardComponent.\u0275fac = function GroupEventCardComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _GroupEventCardComponent)();
 };
-_GroupEventCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventCardComponent, selectors: [["group-event-card"]], inputs: { event: [1, "event"], featured: [1, "featured"] }, decls: 2, vars: 1, consts: [["matRipple", "", 1, "flex", "h-80", "w-60", "flex-col", "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100", "shadow-sm", "hover:border-info", "hover:shadow-2xl"], ["matRipple", "", 1, "mx-auto", "flex", "h-56", "w-252", "max-w-full", "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100", "shadow-sm", "hover:border-info", "hover:shadow-2xl"], ["matRipple", "", 1, "flex", "h-80", "w-60", "flex-col", "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100", "shadow-sm", "hover:border-info", "hover:shadow-2xl", 3, "click"], [1, "relative", "flex", "h-28", "min-h-28", "w-full", "items-center", "justify-between", "overflow-hidden", "border-b", "border-base-200", "bg-base-200"], ["auth", "", 1, "absolute", "left-0", "top-0", "h-full", "w-full", "object-cover", "object-center", 3, "source"], [1, "h-1/2", "w-full", "flex-1", "p-4"], [1, "text-left", "text-sm", "opacity-60"], [1, "mb-2", "w-full", "truncate", "text-left", "text-xl", 3, "title"], [1, "mb-2", "h-18", "flex-1", "overflow-hidden", "text-left", "text-xs", "opacity-60"], [1, "line-clamp-4"], [1, "opacity-30"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, ""], ["matRipple", "", 1, "mx-auto", "flex", "h-56", "w-252", "max-w-full", "overflow-hidden", "rounded-xl", "border", "border-base-300", "bg-base-100", "shadow-sm", "hover:border-info", "hover:shadow-2xl", 3, "click"], [1, "relative", "flex", "h-full", "w-1/2", "max-w-[18rem]", "items-center", "justify-between", "overflow-hidden", "border-r", "border-base-200", "bg-base-200"], [1, "absolute", "left-0", "top-0", "flex", "items-center", "space-x-2", "rounded-br-xl", "bg-info", "py-2", "pl-2", "pr-4", "text-sm", "text-info-content"], [1, "text-base"], [1, "uppercase"], ["details", "", 1, "flex", "w-1/2", "max-w-[calc(100%-18rem)]", "flex-1", "space-x-4", "overflow-hidden", "px-4", "py-4"], [1, "flex", "flex-col", "items-center"], [1, "text-sm", "opacity-30"], [1, "text-lg"], [1, "flex", "w-px", "flex-1", "flex-col", "space-y-2"], [1, "text-left"], ["time", "", 1, "text-left", "text-sm", "opacity-30"], [1, "h-20", "overflow-hidden", "text-left"], [1, "line-clamp-3"], [1, "absolute", "right-4", "top-4", "w-32", "truncate", "rounded-sm", "bg-secondary", "px-4", "py-2", "text-center", "text-secondary-content"]], template: function GroupEventCardComponent_Template(rf, ctx) {
+_GroupEventCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GroupEventCardComponent, selectors: [["group-event-card"]], inputs: { event: [1, "event"], featured: [1, "featured"] }, decls: 2, vars: 1, consts: [["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "h-80", "w-60", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "hover:shadow-2xl"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "mx-auto", "flex", "h-56", "w-252", "max-w-full", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "hover:shadow-2xl"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "h-80", "w-60", "flex-col", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "hover:shadow-2xl", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "flex", "h-28", "min-h-28", "w-full", "items-center", "justify-between", "overflow-hidden", "border-b"], ["auth", "", 1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-cover", "object-center", 3, "source"], [1, "h-1/2", "w-full", "flex-1", "p-4"], [1, "text-left", "text-sm", "opacity-60"], [1, "mb-2", "w-full", "truncate", "text-left", "text-xl", 3, "title"], [1, "mb-2", "h-18", "flex-1", "overflow-hidden", "text-left", "text-xs", "opacity-60"], [1, "line-clamp-4"], [1, "opacity-30"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, ""], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "mx-auto", "flex", "h-56", "w-252", "max-w-full", "overflow-hidden", "rounded-xl", "border", "shadow-sm", "hover:shadow-2xl", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "flex", "h-full", "w-1/2", "max-w-[18rem]", "items-center", "justify-between", "overflow-hidden", "border-r"], [1, "bg-info", "text-info-content", "absolute", "top-0", "left-0", "flex", "items-center", "space-x-2", "rounded-br-xl", "py-2", "pr-4", "pl-2", "text-sm"], [1, "text-base"], [1, "uppercase"], ["details", "", 1, "flex", "w-1/2", "max-w-[calc(100%-18rem)]", "flex-1", "space-x-4", "overflow-hidden", "px-4", "py-4"], [1, "flex", "flex-col", "items-center"], [1, "text-sm", "opacity-30"], [1, "text-lg"], [1, "flex", "w-px", "flex-1", "flex-col", "space-y-2"], [1, "text-left"], ["time", "", 1, "text-left", "text-sm", "opacity-30"], [1, "h-20", "overflow-hidden", "text-left"], [1, "line-clamp-3"], [1, "bg-secondary", "text-secondary-content", "absolute", "top-4", "right-4", "w-32", "truncate", "rounded-sm", "px-4", "py-2", "text-center"]], template: function GroupEventCardComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, GroupEventCardComponent_Conditional_0_Template, 26, 22, "button", 0)(1, GroupEventCardComponent_Conditional_1_Template, 44, 39, "button", 1);
   }
@@ -147262,16 +151716,16 @@ var GroupEventCardComponent = _GroupEventCardComponent;
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="flex h-80 w-60 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info hover:shadow-2xl"
+                class="border-base-300 bg-base-100 hover:border-info flex h-80 w-60 flex-col overflow-hidden rounded-xl border shadow-sm hover:shadow-2xl"
             >
                 <div
-                    class="relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 relative flex h-28 min-h-28 w-full items-center justify-between overflow-hidden border-b"
                 >
                     @if (event().images?.length) {
                         <img
                             auth
                             [source]="event().images[0]"
-                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                            class="absolute top-0 left-0 h-full w-full object-cover object-center"
                         />
                     }
                 </div>
@@ -147340,21 +151794,21 @@ var GroupEventCardComponent = _GroupEventCardComponent;
             <button
                 matRipple
                 (click)="viewDetails()"
-                class="mx-auto flex h-56 w-252 max-w-full overflow-hidden rounded-xl border border-base-300 bg-base-100 shadow-sm hover:border-info hover:shadow-2xl"
+                class="border-base-300 bg-base-100 hover:border-info mx-auto flex h-56 w-252 max-w-full overflow-hidden rounded-xl border shadow-sm hover:shadow-2xl"
             >
                 <div
-                    class="relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 relative flex h-full w-1/2 max-w-[18rem] items-center justify-between overflow-hidden border-r"
                 >
                     @if (event().images?.length) {
                         <img
                             auth
                             [source]="event().images[0]"
-                            class="absolute left-0 top-0 h-full w-full object-cover object-center"
+                            class="absolute top-0 left-0 h-full w-full object-cover object-center"
                         />
                     }
                 </div>
                 <div
-                    class="absolute left-0 top-0 flex items-center space-x-2 rounded-br-xl bg-info py-2 pl-2 pr-4 text-sm text-info-content"
+                    class="bg-info text-info-content absolute top-0 left-0 flex items-center space-x-2 rounded-br-xl py-2 pr-4 pl-2 text-sm"
                 >
                     <icon class="text-base">star</icon>
                     <div class="uppercase">
@@ -147384,8 +151838,8 @@ var GroupEventCardComponent = _GroupEventCardComponent;
                             }}
                         </div>
                         <div class="h-20 overflow-hidden text-left">
-                            <p class="line-clamp-3">{{ raw_description }}</p>
-                            @if (!raw_description.trim()) {
+                            <p class="line-clamp-3">{{ raw_description() }}</p>
+                            @if (!raw_description().trim()) {
                                 <p class="opacity-30">
                                     {{
                                         'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
@@ -147438,7 +151892,7 @@ var GroupEventCardComponent = _GroupEventCardComponent;
                     </div>
                 </div>
                 <div
-                    class="absolute right-4 top-4 w-32 truncate rounded-sm bg-secondary px-4 py-2 text-center text-secondary-content"
+                    class="bg-secondary text-secondary-content absolute top-4 right-4 w-32 truncate rounded-sm px-4 py-2 text-center"
                 >
                     {{ 'COMMON.VIEW_DETAILS' | translate }}
                 </div>
@@ -147460,8 +151914,8 @@ var GroupEventCardComponent = _GroupEventCardComponent;
 })();
 
 // libs/events/src/lib/space-select-modal/space-details.component.ts
-var _c048 = (a0) => ({ count: a0 });
-var _c127 = () => ({ disable_pan: true, disable_zoom: true });
+var _c054 = (a0) => ({ count: a0 });
+var _c131 = () => ({ disable_pan: true, disable_zoom: true });
 function SpaceDetailsComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "image-carousel", 2);
@@ -147522,7 +151976,7 @@ function SpaceDetailsComponent_Conditional_0_Conditional_36_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r1.map_url)("focus", ctx_r1.space().map_id)("features", ctx_r1.features)("options", \u0275\u0275pureFunction0(4, _c127));
+    \u0275\u0275property("src", ctx_r1.map_url)("focus", ctx_r1.space().map_id)("features", ctx_r1.features)("options", \u0275\u0275pureFunction0(4, _c131));
   }
 }
 function SpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
@@ -147584,8 +152038,7 @@ function SpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275listener("click", function SpaceDetailsComponent_Conditional_0_Template_button_click_38_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      ctx_r1.active = !ctx_r1.active();
-      return \u0275\u0275resetView(ctx_r1.activeChange.emit(ctx_r1.active()));
+      return \u0275\u0275resetView(ctx_r1.activeChange.emit(!ctx_r1.active()));
     });
     \u0275\u0275elementStart(39, "div", 16)(40, "icon", 17);
     \u0275\u0275text(41);
@@ -147618,7 +152071,7 @@ function SpaceDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 28, "CALENDAR_EVENT.DETAILS"), " ");
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 30, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(35, _c048, ctx_r1.space().capacity)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 30, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(35, _c054, ctx_r1.space().capacity)), " ");
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", (ctx_r1.level == null ? null : ctx_r1.level.display_name) || (ctx_r1.level == null ? null : ctx_r1.level.name), " ");
     \u0275\u0275advance(5);
@@ -147686,7 +152139,7 @@ var _SpaceDetailsComponent = class _SpaceDetailsComponent {
 _SpaceDetailsComponent.\u0275fac = function SpaceDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceDetailsComponent)();
 };
-_SpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceDetailsComponent, selectors: [["space-details"]], inputs: { space: [1, "space"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"], alert: [1, "alert"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "relative", "w-full", "bg-neutral"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-space-details", 1, "absolute", "left-2", "top-2", "bg-neutral", "text-white", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite-details", 1, "absolute", "right-2", "top-2", "bg-neutral", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0"], [1, "mb-2", "mt-4", "text-xl", "font-medium"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "space-y-2"], ["map", "", 1, "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "border", "border-base-200", "sm:h-48"], [1, "border-t", "border-base-200", "px-2", "pb-22", "pt-2", "shadow-sm", "sm:hidden"], ["btn", "", "matRipple", "", "name", "toggle-space-details", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function SpaceDetailsComponent_Template(rf, ctx) {
+_SpaceDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceDetailsComponent, selectors: [["space-details"]], inputs: { space: [1, "space"], fav: [1, "fav"], active: [1, "active"], hide_map: [1, "hide_map"], alert: [1, "alert"] }, outputs: { activeChange: "activeChange", close: "close", toggleFav: "toggleFav" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "bg-neutral", "relative", "w-full"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-space-details", 1, "bg-neutral", "absolute", "top-2", "left-2", "text-white", "sm:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite-details", 1, "bg-neutral", "absolute", "top-2", "right-2", 3, "click"], [1, "h-1/2", "flex-1", "space-y-2", "overflow-auto", "p-2"], ["actions", "", 1, "z-0"], [1, "mt-4", "mb-2", "text-xl", "font-medium"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], ["details", "", 1, "space-y-2"], [1, "text-xl", "font-medium"], [1, "flex", "items-center", "space-x-2"], ["facilities", "", 1, "space-y-2"], ["map", "", 1, "border-base-200", "relative", "mx-auto", "h-64", "w-full", "overflow-hidden", "rounded-sm", "border", "sm:h-48"], [1, "border-base-200", "border-t", "px-2", "pt-2", "pb-22", "shadow-sm", "sm:hidden"], ["btn", "", "matRipple", "", "name", "toggle-space-details", 1, "w-full", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "text-2xl"], [1, "my-2", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], [1, "text-center", "opacity-30"]], template: function SpaceDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, SpaceDetailsComponent_Conditional_0_Template, 45, 37)(1, SpaceDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -147709,7 +152162,7 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
         @if (space()) {
             <section
                 image
-                class="relative w-full bg-neutral"
+                class="bg-neutral relative w-full"
                 [class.sm:h-64]="space().images?.length"
                 [class.h-40]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
@@ -147727,7 +152180,7 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
                     matRipple
                     name="close-space-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-neutral text-white sm:hidden"
+                    class="bg-neutral absolute top-2 left-2 text-white sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -147738,14 +152191,14 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
                     [class.text-white]="!fav()"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-neutral"
+                    class="bg-neutral absolute top-2 right-2"
                 >
                     <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0">
-                    <h2 class="mb-2 mt-4 text-xl font-medium">
+                    <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
                     </h2>
                 </section>
@@ -147810,7 +152263,7 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
+                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -147826,7 +152279,7 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
                 }
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
+                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
             >
                 <button
                     btn
@@ -147834,7 +152287,7 @@ var SpaceDetailsComponent = _SpaceDetailsComponent;
                     name="toggle-space-details"
                     [class.inverse]="active()"
                     class="w-full"
-                    (click)="active = !active(); activeChange.emit(active())"
+                    (click)="activeChange.emit(!active())"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
@@ -148268,603 +152721,8 @@ var MatBottomSheetModule = class _MatBottomSheetModule {
   }], null, null);
 })();
 
-// libs/form-fields/src/lib/date-calendar.component.ts
-var _forTrack07 = ($index, $item) => $item.id;
-function DateCalendarComponent_For_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const day_r1 = ctx.$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, day_r1 == null ? null : day_r1.id, "EE"), " ");
-  }
-}
-function DateCalendarComponent_For_18_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 11);
-  }
-}
-function DateCalendarComponent_For_18_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 10);
-    \u0275\u0275listener("click", function DateCalendarComponent_For_18_Template_button_click_0_listener() {
-      const day_r3 = \u0275\u0275restoreView(_r2).$implicit;
-      const ctx_r3 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r3.setValue(day_r3.id));
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275conditionalCreate(3, DateCalendarComponent_For_18_Conditional_3_Template, 1, 0, "div", 11);
-    \u0275\u0275element(4, "div", 12);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const day_r3 = ctx.$implicit;
-    const ctx_r3 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("hover:bg-base-100", day_r3.id !== ctx_r3.active_date)("text-base-300!", !day_r3.is_month)("text-secondary-content", day_r3.id === ctx_r3.active_date)("text-base-content", day_r3.id !== ctx_r3.active_date)("bg-secondary", day_r3.id === ctx_r3.active_date)("font-normal", day_r3.id !== ctx_r3.active_date);
-    \u0275\u0275property("disabled", day_r3.id < ctx_r3.from() || day_r3.id > ctx_r3.to());
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 15, day_r3.id, "d"), " ");
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r3.today === day_r3.id ? 3 : -1);
-  }
-}
-var _DateCalendarComponent = class _DateCalendarComponent extends AsyncHandler {
-  constructor() {
-    super();
-    this._settings = inject(SettingsService);
-    this.from = input(0);
-    this.to = input(Date.now() * 10);
-    this.offset_weekday = input(0);
-    this.today = startOfDay(Date.now()).valueOf();
-    this.date = Date.now();
-    this.active_date = startOfDay(Date.now()).valueOf();
-    this.offset = 0;
-    this.date_list = [];
-    this.registerOnChange = (fn2) => this._onChange = fn2;
-    this.registerOnTouched = (fn2) => this._onTouch = fn2;
-  }
-  ngOnInit() {
-    this.generateDates();
-  }
-  ngOnChanges(changes) {
-    if (changes.offset_weekday) {
-      this.generateDates();
-    }
-  }
-  setValue(new_value) {
-    if (new_value < this.from() || new_value >= this.to())
-      return;
-    const date = new Date(new_value);
-    this.date = set(this.date, {
-      date: date.getDate(),
-      month: date.getMonth(),
-      year: date.getFullYear()
-    }).valueOf();
-    this.active_date = startOfDay(this.date).valueOf();
-    if (this._onChange)
-      this._onChange(new_value);
-  }
-  writeValue(value) {
-    this.date = value;
-    this.active_date = startOfDay(value).valueOf();
-    this.offset = 0;
-    this.generateDates();
-  }
-  changeMonth(change) {
-    this.offset += change;
-    this.generateDates();
-  }
-  setMonthToCurrent() {
-    const diff = differenceInMonths(this.date, startOfMonth(Date.now()));
-    this.offset = -diff;
-    this.generateDates();
-  }
-  generateDates() {
-    const offset = this._settings.get("app.week_start") || this.offset_weekday();
-    const date = addMonths(this.date, this.offset);
-    let start = startOfWeek(startOfMonth(date), {
-      weekStartsOn: offset
-    });
-    const now = startOfDay(Date.now());
-    const list2 = [];
-    while (list2.length < 42) {
-      list2.push({
-        id: start.valueOf(),
-        is_past: isBefore(start, now),
-        is_month: isSameMonth(start, date)
-      });
-      start = addDays(start, 1);
-    }
-    this.date_list = list2;
-  }
-};
-_DateCalendarComponent.\u0275fac = function DateCalendarComponent_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _DateCalendarComponent)();
-};
-_DateCalendarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateCalendarComponent, selectors: [["date-calendar"]], inputs: { from: [1, "from"], to: [1, "to"], offset_weekday: [1, "offset_weekday"] }, features: [\u0275\u0275ProvidersFeature([
-  {
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => _DateCalendarComponent),
-    multi: true
-  }
-]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 19, vars: 10, consts: [[1, "p-2"], [1, "flex", "items-center", "justify-between"], [1, "pl-1.5", "pr-2", "font-medium", 3, "dblclick"], [1, "flex", "items-center"], ["icon", "", "matRipple", "", "name", "schedule-next-month", 3, "click", "disabled"], ["icon", "", "matRipple", "", "name", "schedule-previous-month", 3, "click", "disabled"], [1, "mb-2", "flex", "items-center", "border-b", "border-base-200", "pb-2", "text-sm"], [1, "flex-1", "text-center", "opacity-60"], [1, "flex", "flex-wrap", "items-center", "justify-between"], ["icon", "", "name", "schedule-set-date", 1, "relative", "my-0.5", "h-9", "w-9", "min-w-[14%]", "overflow-visible", 3, "hover:bg-base-100", "text-base-300!", "text-secondary-content", "text-base-content", "bg-secondary", "font-normal", "disabled"], ["icon", "", "name", "schedule-set-date", 1, "relative", "my-0.5", "h-9", "w-9", "min-w-[14%]", "overflow-visible", 3, "click", "disabled"], ["matRipple", "", 1, "absolute", "-inset-[2px]", "overflow-hidden", "rounded-full", "border", "border-secondary"], ["matRipple", "", 1, "absolute", "inset-0", "overflow-hidden", "rounded-full"]], template: function DateCalendarComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
-    \u0275\u0275listener("dblclick", function DateCalendarComponent_Template_button_dblclick_2_listener() {
-      return ctx.setMonthToCurrent();
-    });
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "date");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 3)(6, "button", 4);
-    \u0275\u0275listener("click", function DateCalendarComponent_Template_button_click_6_listener() {
-      return ctx.changeMonth(-1);
-    });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8, "chevron_left");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "button", 5);
-    \u0275\u0275listener("click", function DateCalendarComponent_Template_button_click_9_listener() {
-      return ctx.changeMonth(1);
-    });
-    \u0275\u0275elementStart(10, "icon");
-    \u0275\u0275text(11, "chevron_right");
-    \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(12, "div", 6);
-    \u0275\u0275repeaterCreate(13, DateCalendarComponent_For_14_Template, 3, 4, "div", 7, _forTrack07);
-    \u0275\u0275pipe(15, "slice");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div", 8);
-    \u0275\u0275repeaterCreate(17, DateCalendarComponent_For_18_Template, 5, 18, "button", 9, _forTrack07);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 3, (ctx.date_list[6] == null ? null : ctx.date_list[6].id) || ctx.date, "LLLL yyyy"), " ");
-    \u0275\u0275advance(3);
-    \u0275\u0275property("disabled", (ctx.date_list[0] == null ? null : ctx.date_list[0].id) < ctx.from());
-    \u0275\u0275advance(3);
-    \u0275\u0275property("disabled", (ctx.date_list[34] == null ? null : ctx.date_list[34].id) > ctx.to());
-    \u0275\u0275advance(4);
-    \u0275\u0275repeater(\u0275\u0275pipeBind3(15, 6, ctx.date_list, 0, 7));
-    \u0275\u0275advance(4);
-    \u0275\u0275repeater(ctx.date_list);
-  }
-}, dependencies: [CommonModule, SlicePipe, DatePipe, IconComponent], encapsulation: 2 });
-var DateCalendarComponent = _DateCalendarComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DateCalendarComponent, [{
-    type: Component,
-    args: [{ selector: "date-calendar", template: `
-        <div class="p-2">
-            <div class="flex items-center justify-between">
-                <button
-                    class="pl-1.5 pr-2 font-medium"
-                    (dblclick)="setMonthToCurrent()"
-                >
-                    {{ date_list[6]?.id || date | date: 'LLLL yyyy' }}
-                </button>
-                <div class="flex items-center">
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-next-month"
-                        [disabled]="date_list[0]?.id < from()"
-                        (click)="changeMonth(-1)"
-                    >
-                        <icon>chevron_left</icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        name="schedule-previous-month"
-                        [disabled]="date_list[34]?.id > to()"
-                        (click)="changeMonth(1)"
-                    >
-                        <icon>chevron_right</icon>
-                    </button>
-                </div>
-            </div>
-            <div
-                class="mb-2 flex items-center border-b border-base-200 pb-2 text-sm"
-            >
-                @for (day of date_list | slice: 0 : 7; track day.id) {
-                    <div class="flex-1 text-center opacity-60">
-                        {{ day?.id | date: 'EE' }}
-                    </div>
-                }
-            </div>
-            <div class="flex flex-wrap items-center justify-between">
-                @for (day of date_list; track day.id) {
-                    <button
-                        icon
-                        name="schedule-set-date"
-                        class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
-                        [class.hover:bg-base-100]="day.id !== active_date"
-                        [class.text-base-300!]="!day.is_month"
-                        [class.text-secondary-content]="day.id === active_date"
-                        [class.text-base-content]="day.id !== active_date"
-                        [class.bg-secondary]="day.id === active_date"
-                        [class.font-normal]="day.id !== active_date"
-                        (click)="setValue(day.id)"
-                        [disabled]="day.id < from() || day.id > to()"
-                    >
-                        {{ day.id | date: 'd' }}
-                        @if (today === day.id) {
-                            <div
-                                class="absolute -inset-[2px] overflow-hidden rounded-full border border-secondary"
-                                matRipple
-                            ></div>
-                        }
-                        <div
-                            class="absolute inset-0 overflow-hidden rounded-full"
-                            matRipple
-                        ></div>
-                    </button>
-                }
-            </div>
-        </div>
-    `, providers: [
-      {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => DateCalendarComponent),
-        multi: true
-      }
-    ], imports: [CommonModule, IconComponent] }]
-  }], () => [], null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateCalendarComponent, { className: "DateCalendarComponent", filePath: "libs/form-fields/src/lib/date-calendar.component.ts", lineNumber: 114 });
-})();
-
-// libs/form-fields/src/lib/date-field.component.ts
-var _c049 = ["*"];
-function DateFieldComponent_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0);
-    \u0275\u0275pipe(1, "date");
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(1, 1, ctx_r0.date(), ctx_r0.date_format), " ");
-  }
-}
-function DateFieldComponent_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 4);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "FORM.DATE_EMPTY"));
-  }
-}
-function DateFieldComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.start_of_day);
-  }
-}
-function DateFieldComponent_Conditional_5_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275text(1, " - ");
-    \u0275\u0275elementEnd();
-  }
-}
-function DateFieldComponent_Conditional_5_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.end_of_day);
-  }
-}
-function DateFieldComponent_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275conditionalCreate(1, DateFieldComponent_Conditional_5_Conditional_1_Template, 2, 1, "span");
-    \u0275\u0275conditionalCreate(2, DateFieldComponent_Conditional_5_Conditional_2_Template, 2, 0, "span");
-    \u0275\u0275conditionalCreate(3, DateFieldComponent_Conditional_5_Conditional_3_Template, 2, 1, "span");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.range() !== 2 ? 1 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.range() === 0 ? 2 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.range() !== 1 ? 3 : -1);
-  }
-}
-function DateFieldComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span");
-    \u0275\u0275projection(1);
-    \u0275\u0275elementEnd();
-  }
-}
-function DateFieldComponent_ng_template_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "date-calendar", 9);
-    \u0275\u0275listener("ngModelChange", function DateFieldComponent_ng_template_11_Template_date_calendar_ngModelChange_1_listener($event) {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.setValue($event));
-    });
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r0.date() || ctx_r0.now)("from", ctx_r0.from)("to", ctx_r0.until)("offset_weekday", ctx_r0.week_start());
-  }
-}
-var TimezoneDiffRange;
-(function(TimezoneDiffRange2) {
-  TimezoneDiffRange2[TimezoneDiffRange2["Both"] = 0] = "Both";
-  TimezoneDiffRange2[TimezoneDiffRange2["Start"] = 1] = "Start";
-  TimezoneDiffRange2[TimezoneDiffRange2["End"] = 2] = "End";
-})(TimezoneDiffRange || (TimezoneDiffRange = {}));
-var _DateFieldComponent = class _DateFieldComponent extends AsyncHandler {
-  get date_format() {
-    return this.short() ? "MMM d, yyyy" : "MMMM d, yyyy";
-  }
-  get time_format() {
-    return this.use_24hr() ? "HH : mm" : "h : mm a";
-  }
-  get start_of_day() {
-    const start = startOfDay(this.date()).valueOf();
-    const format3 = `MMM d, ${this.time_format}${this.range() === 1 ? " (z)" : ""}`;
-    return this._date_pipe.transform(start, format3, this.tz);
-  }
-  get end_of_day() {
-    const end = endOfDay(this.date()).valueOf();
-    const format3 = `MMM d, ${this.time_format}${this.range() === 1 ? " (z)" : ""}`;
-    return this._date_pipe.transform(end, format3, this.tz);
-  }
-  get has_error() {
-    return this._control?.invalid && this._control?.touched;
-  }
-  get tz() {
-    const tz = this.timezone();
-    if (!tz)
-      return "";
-    const tz_offset = getTimezoneOffsetString(tz);
-    return tz_offset === this._local_tz ? "" : tz_offset;
-  }
-  constructor() {
-    super();
-    this._injector = inject(Injector);
-    this.from_date = input(startOfDay(Date.now()).valueOf(), { alias: "from" });
-    this.to_date = input(void 0, { alias: "to" });
-    this.week_start = input(0);
-    this.use_24hr = input(false);
-    this.disabled = model(void 0);
-    this.short = input(false);
-    this.timezone = input("");
-    this.range = input(TimezoneDiffRange.Both);
-    this.date = signal(Date.now());
-    this.now = Date.now();
-    this._date_pipe = new DatePipe("en");
-    this._local_tz = getTimezoneOffsetString(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    this._tooltip = viewChild(CustomTooltipComponent);
-  }
-  /** First allowed date on the calendar */
-  get from() {
-    return new Date(this.from_date()) || startOfDay(/* @__PURE__ */ new Date());
-  }
-  /** Current date value */
-  get until() {
-    return new Date(this.to_date()) || addYears(endOfDay(/* @__PURE__ */ new Date()), 1);
-  }
-  ngOnInit() {
-    this._control = this._injector.get(NgControl);
-    this.date.set(Date.now());
-  }
-  /**
-   * Update the form field value
-   * @param new_value New value to set on the form field
-   */
-  setValue(new_value) {
-    const old_date = new Date(this.date() || Date.now());
-    let new_date = set(new_value, {
-      hours: old_date.getHours(),
-      minutes: old_date.getMinutes()
-    }).valueOf();
-    if (new_date < this.from.valueOf()) {
-      new_date = this.from.valueOf();
-    }
-    this.date.set(new_date);
-    if (this._onChange)
-      this._onChange(new_date);
-    this._tooltip()?.close();
-  }
-  /* istanbul ignore next */
-  /**
-   * Update local value when form control value is changed
-   * @param value The new value for the component
-   */
-  writeValue(value) {
-    this.date.set(value);
-    this._tooltip()?.close();
-  }
-  /* istanbul ignore next */
-  /**
-   * Registers a callback function that is called when the control's value changes in the UI.
-   * @param fn The callback function to register
-   */
-  registerOnChange(fn2) {
-    this._onChange = fn2;
-  }
-  /* istanbul ignore next */
-  /**
-   * Registers a callback function is called by the forms API on initialization to update the form model on blur.
-   * @param fn The callback function to register
-   */
-  registerOnTouched(fn2) {
-    this._onTouch = fn2;
-  }
-  setDisabledState(disabled) {
-    this.disabled.set(disabled);
-  }
-};
-_DateFieldComponent.\u0275fac = function DateFieldComponent_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _DateFieldComponent)();
-};
-_DateFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DateFieldComponent, selectors: [["a-date-field"], ["date-field"]], viewQuery: function DateFieldComponent_Query(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275viewQuerySignal(ctx._tooltip, CustomTooltipComponent, 5);
-  }
-  if (rf & 2) {
-    \u0275\u0275queryAdvance();
-  }
-}, inputs: { from_date: [1, "from", "from_date"], to_date: [1, "to", "to_date"], week_start: [1, "week_start"], use_24hr: [1, "use_24hr"], disabled: [1, "disabled"], short: [1, "short"], timezone: [1, "timezone"], range: [1, "range"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
-  {
-    provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => _DateFieldComponent),
-    multi: true
-  }
-]), \u0275\u0275InheritDefinitionFeature], ngContentSelectors: _c049, decls: 13, vars: 7, consts: [["calendar_picker", ""], ["customTooltip", "", "yPosition", "top", "matRipple", "", 1, "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "border-neutral", 3, "content", "disabled"], [1, "flex", "w-1/2", "flex-1", "flex-col", "truncate", "px-4", "py-2", "text-left", "leading-tight"], [1, "text-base", "font-normal"], [1, "opacity-30"], [1, "truncate", "text-xs", "opacity-30"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "text-2xl"], [1, "error", "h-5", "p-1", "text-xs", "text-error"], [1, "relative", "w-[18rem]", "rounded-sm", "bg-base-100", "px-2", "py-4"], [3, "ngModelChange", "ngModel", "from", "to", "offset_weekday"]], template: function DateFieldComponent_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275projectionDef();
-    \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
-    \u0275\u0275conditionalCreate(3, DateFieldComponent_Conditional_3_Template, 2, 4)(4, DateFieldComponent_Conditional_4_Template, 3, 3, "span", 4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, DateFieldComponent_Conditional_5_Template, 4, 3, "div", 5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 6)(7, "icon");
-    \u0275\u0275text(8, "today");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(9, "div", 7);
-    \u0275\u0275conditionalCreate(10, DateFieldComponent_Conditional_10_Template, 2, 0, "span");
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(11, DateFieldComponent_ng_template_11_Template, 2, 4, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-  }
-  if (rf & 2) {
-    const calendar_picker_r3 = \u0275\u0275reference(12);
-    \u0275\u0275classProp("opacity-30", ctx.disabled());
-    \u0275\u0275property("content", calendar_picker_r3)("disabled", ctx.disabled());
-    \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx.date() ? 3 : 4);
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.timezone() && ctx.tz ? 5 : -1);
-    \u0275\u0275advance(5);
-    \u0275\u0275conditional(ctx.has_error ? 10 : -1);
-  }
-}, dependencies: [
-  CommonModule,
-  DatePipe,
-  FormsModule,
-  NgControlStatus,
-  NgModel,
-  DateCalendarComponent,
-  IconComponent,
-  CustomTooltipComponent,
-  TranslatePipe
-], styles: ["\n\n.no-subscript[_nghost-%COMP%]    > .error[_ngcontent-%COMP%] {\n  display: none;\n}\n/*# sourceMappingURL=date-field.component.css.map */"] });
-var DateFieldComponent = _DateFieldComponent;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DateFieldComponent, [{
-    type: Component,
-    args: [{ selector: "a-date-field,date-field", template: `
-        <button
-            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral"
-            customTooltip
-            [content]="calendar_picker"
-            yPosition="top"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
-            matRipple
-        >
-            <div
-                class="flex w-1/2 flex-1 flex-col truncate px-4 py-2 text-left leading-tight"
-            >
-                <div class="text-base font-normal">
-                    @if (date()) {
-                        {{ date() | date: date_format }}
-                    } @else {
-                        <span class="opacity-30">{{
-                            'FORM.DATE_EMPTY' | translate
-                        }}</span>
-                    }
-                </div>
-                @if (timezone() && tz) {
-                    <div class="truncate text-xs opacity-30">
-                        @if (range() !== 2) {
-                            <span>{{ start_of_day }}</span>
-                        }
-                        @if (range() === 0) {
-                            <span> - </span>
-                        }
-                        @if (range() !== 1) {
-                            <span>{{ end_of_day }}</span>
-                        }
-                    </div>
-                }
-            </div>
-            <div class="flex h-10 w-10 items-center justify-center text-2xl">
-                <icon>today</icon>
-            </div>
-        </button>
-        <div class="error h-5 p-1 text-xs text-error">
-            @if (has_error) {
-                <span><ng-content></ng-content></span>
-            }
-        </div>
-        <ng-template #calendar_picker>
-            <div class="relative w-[18rem] rounded-sm bg-base-100 px-2 py-4">
-                <date-calendar
-                    [ngModel]="date() || now"
-                    [from]="from"
-                    [to]="until"
-                    [offset_weekday]="week_start()"
-                    (ngModelChange)="setValue($event)"
-                ></date-calendar>
-            </div>
-        </ng-template>
-    `, providers: [
-      {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => DateFieldComponent),
-        multi: true
-      }
-    ], imports: [
-      CommonModule,
-      FormsModule,
-      DateCalendarComponent,
-      IconComponent,
-      CustomTooltipComponent,
-      TranslatePipe
-    ], styles: ["/* angular:styles/component:css;4616f4926c682fe7ceb0f98ecb8aa0ceeb383c5318a41af3f61a9c0da602fb9b;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/date-field.component.ts */\n:host.no-subscript > .error {\n  display: none;\n}\n/*# sourceMappingURL=date-field.component.css.map */\n"] }]
-  }], () => [], null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DateFieldComponent, { className: "DateFieldComponent", filePath: "libs/form-fields/src/lib/date-field.component.ts", lineNumber: 115 });
-})();
-
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c050 = ["*"];
+var _c055 = ["*"];
 var _forTrack08 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
@@ -149072,7 +152930,7 @@ _DurationFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DurationFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c050, decls: 14, vars: 11, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "border-neutral", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c055, decls: 14, vars: 11, consts: [["menu", "matMenu"], ["duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
@@ -149110,7 +152968,7 @@ var DurationFieldComponent = _DurationFieldComponent;
     args: [{ selector: "a-duration-field,duration-field", template: `
         <button
             duration-field
-            class="flex h-12 w-full items-center justify-between rounded-sm border border-neutral px-2"
+            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
             matRipple
@@ -149196,7 +153054,7 @@ var DurationFieldComponent = _DurationFieldComponent;
 })();
 
 // libs/events/src/lib/space-select-modal/space-filters.component.ts
-var _c051 = () => ({ standalone: true });
+var _c056 = () => ({ standalone: true });
 function SpaceFiltersComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
@@ -149241,12 +153099,12 @@ function SpaceFiltersComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c051))("placeholder", \u0275\u0275pipeBind1(2, 3, "CALENDAR_EVENT.SPACE_REGION_ANY"));
+    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c056))("placeholder", \u0275\u0275pipeBind1(2, 3, "CALENDAR_EVENT.SPACE_REGION_ANY"));
     \u0275\u0275advance(2);
     \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r2.regions));
   }
 }
-function SpaceFiltersComponent_Conditional_18_For_6_Template(rf, ctx) {
+function SpaceFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 23);
     \u0275\u0275text(1);
@@ -149263,25 +153121,21 @@ function SpaceFiltersComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 24);
-    \u0275\u0275pipe(2, "async");
-    \u0275\u0275pipe(3, "async");
-    \u0275\u0275pipe(4, "async");
     \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setBuilding($event));
     });
-    \u0275\u0275repeaterCreate(5, SpaceFiltersComponent_Conditional_18_For_6_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(7, "async");
+    \u0275\u0275repeaterCreate(2, SpaceFiltersComponent_Conditional_18_For_3_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(4, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_4_0;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(2, 3, ctx_r2.building))("ngModelOptions", \u0275\u0275pureFunction0(11, _c051))("placeholder", ((tmp_4_0 = \u0275\u0275pipeBind1(3, 5, ctx_r2.building)) == null ? null : tmp_4_0.display_name) || ((tmp_4_0 = \u0275\u0275pipeBind1(4, 7, ctx_r2.building)) == null ? null : tmp_4_0.name));
-    \u0275\u0275advance(4);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 9, ctx_r2.buildings));
+    \u0275\u0275property("ngModel", ctx_r2.bld)("ngModelOptions", \u0275\u0275pureFunction0(5, _c056))("placeholder", (ctx_r2.bld == null ? null : ctx_r2.bld.display_name) || (ctx_r2.bld == null ? null : ctx_r2.bld.name));
+    \u0275\u0275advance();
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r2.buildings));
   }
 }
 function SpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, ctx) {
@@ -149337,7 +153191,7 @@ function SpaceFiltersComponent_Conditional_20_Template(rf, ctx) {
     let tmp_2_0;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 4, ctx_r2.options)) == null ? null : tmp_2_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(10, _c051))("placeholder", \u0275\u0275pipeBind1(3, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 4, ctx_r2.options)) == null ? null : tmp_2_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(10, _c056))("placeholder", \u0275\u0275pipeBind1(3, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
     \u0275\u0275advance(3);
     \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 8, ctx_r2.levels));
   }
@@ -149366,7 +153220,7 @@ function SpaceFiltersComponent_Conditional_31_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 9, "FORM.DATE_END"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r2.form.getRawValue().date_end)("ngModelOptions", \u0275\u0275pureFunction0(13, _c051))("from", ctx_r2.start_date)("to", ctx_r2.end_date)("short", true)("timezone", ctx_r2.timezone)("range", 2);
+    \u0275\u0275property("ngModel", ctx_r2.form.getRawValue().date_end)("ngModelOptions", \u0275\u0275pureFunction0(13, _c056))("from", ctx_r2.start_date)("to", ctx_r2.end_date)("short", true)("timezone", ctx_r2.timezone)("range", 2);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 11, "FORM.DATE_ERROR"), " ");
   }
@@ -149406,7 +153260,7 @@ function SpaceFiltersComponent_Conditional_33_Conditional_8_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "FORM.TIME_END"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r2.form.value.date_end)("ngModelOptions", \u0275\u0275pureFunction0(8, _c051))("from", ctx_r2.form == null ? null : (tmp_6_0 = ctx_r2.form.getRawValue()) == null ? null : tmp_6_0.date)("use_24hr", ctx_r2.use_24hr)("timezone", ctx_r2.timezone);
+    \u0275\u0275property("ngModel", ctx_r2.form.value.date_end)("ngModelOptions", \u0275\u0275pureFunction0(8, _c056))("from", ctx_r2.form == null ? null : (tmp_6_0 = ctx_r2.form.getRawValue()) == null ? null : tmp_6_0.date)("use_24hr", ctx_r2.use_24hr)("timezone", ctx_r2.timezone);
   }
 }
 function SpaceFiltersComponent_Conditional_33_Conditional_9_Template(rf, ctx) {
@@ -149454,7 +153308,7 @@ function SpaceFiltersComponent_Conditional_33_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 7, "FORM.TIME_START"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r2.form.getRawValue().date)("ngModelOptions", \u0275\u0275pureFunction0(9, _c051))("use_24hr", ctx_r2.use_24hr)("timezone", ctx_r2.timezone);
+    \u0275\u0275property("ngModel", ctx_r2.form.getRawValue().date)("ngModelOptions", \u0275\u0275pureFunction0(9, _c056))("use_24hr", ctx_r2.use_24hr)("timezone", ctx_r2.timezone);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.multiday() ? 8 : -1);
     \u0275\u0275advance();
@@ -149484,7 +153338,7 @@ function SpaceFiltersComponent_Conditional_36_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "COMMON.FAVOURITES"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", (tmp_4_0 = \u0275\u0275pipeBind1(7, 8, ctx_r2.options)) == null ? null : tmp_4_0.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(10, _c051));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(6, 6, "COMMON.FAVOURITES_ONLY"))("ngModel", (tmp_4_0 = \u0275\u0275pipeBind1(7, 8, ctx_r2.filters)) == null ? null : tmp_4_0.show_fav)("ngModelOptions", \u0275\u0275pureFunction0(10, _c056));
   }
 }
 function SpaceFiltersComponent_Conditional_37_For_4_Conditional_0_Template(rf, ctx) {
@@ -149505,7 +153359,7 @@ function SpaceFiltersComponent_Conditional_37_For_4_Conditional_0_Template(rf, c
     const feat_r15 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("name", ctx_r2.feature_display[feat_r15] || feat_r15)("ngModel", (tmp_14_0 = \u0275\u0275pipeBind1(2, 3, ctx_r2.options)) == null ? null : tmp_14_0.features == null ? null : tmp_14_0.features.includes(feat_r15))("ngModelOptions", \u0275\u0275pureFunction0(5, _c051));
+    \u0275\u0275property("name", ctx_r2.feature_display[feat_r15] || feat_r15)("ngModel", (tmp_14_0 = \u0275\u0275pipeBind1(2, 3, ctx_r2.filters)) == null ? null : tmp_14_0.features == null ? null : tmp_14_0.features.includes(feat_r15))("ngModelOptions", \u0275\u0275pureFunction0(5, _c056));
   }
 }
 function SpaceFiltersComponent_Conditional_37_For_4_Template(rf, ctx) {
@@ -149586,7 +153440,7 @@ var _SpaceFiltersComponent = class _SpaceFiltersComponent {
     return startOfDay(this.form.getRawValue().date).valueOf();
   }
   get end_date() {
-    return endOfDay(addDays(Date.now(), this._settings.get("app.events.allowed_future_days") || 180));
+    return endOfDay(addDays(Date.now(), this._settings.get("app.events.allowed_future_days") || 180)).valueOf();
   }
   constructor() {
     this._bsheet_ref = inject(MatBottomSheetRef, { optional: true });
@@ -149600,6 +153454,7 @@ var _SpaceFiltersComponent = class _SpaceFiltersComponent {
     this.viewing_map = input(void 0);
     this.can_close = false;
     this.options = this._event_form.options$;
+    this.filters = this._event_form.filters$;
     this.building = this._org.active_building;
     this.buildings = this._org.active_buildings;
     this.levels = combineLatest([
@@ -149637,7 +153492,7 @@ var _SpaceFiltersComponent = class _SpaceFiltersComponent {
 _SpaceFiltersComponent.\u0275fac = function SpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceFiltersComponent)();
 };
-_SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 40, vars: 41, consts: [[1, "flex", "items-center", "border-b", "border-base-200", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters"], [1, "flex-2", "text-center", "text-xl", "font-medium"], [1, "flex-1"], [1, "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "divide-base-200", "overflow-y-auto", "overflow-x-hidden", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "w-full", "border-t", "border-base-200", "px-2", "pt-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
+_SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 40, vars: 41, consts: [[1, "border-base-200", "flex", "items-center", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters"], [1, "flex-2", "text-center", "text-xl", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
@@ -149659,7 +153514,7 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(16, SpaceFiltersComponent_Conditional_16_Template, 6, 8, "mat-form-field", 10);
     \u0275\u0275pipe(17, "async");
-    \u0275\u0275conditionalCreate(18, SpaceFiltersComponent_Conditional_18_Template, 8, 12, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(18, SpaceFiltersComponent_Conditional_18_Template, 5, 6, "mat-form-field", 10);
     \u0275\u0275pipe(19, "async");
     \u0275\u0275conditionalCreate(20, SpaceFiltersComponent_Conditional_20_Template, 7, 11, "mat-form-field", 10);
     \u0275\u0275elementEnd();
@@ -149713,7 +153568,7 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(25, 32, "FORM.DATE"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx.form.getRawValue().date)("ngModelOptions", \u0275\u0275pureFunction0(40, _c051))("to", ctx.end_date)("short", true)("timezone", ctx.timezone)("range", ctx.multiday() ? 1 : 0);
+    \u0275\u0275property("ngModel", ctx.form.getRawValue().date)("ngModelOptions", \u0275\u0275pureFunction0(40, _c056))("to", ctx.end_date)("short", true)("timezone", ctx.timezone)("range", ctx.multiday() ? 1 : 0);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(30, 34, "FORM.DATE_ERROR"), " ");
     \u0275\u0275advance(2);
@@ -149755,14 +153610,15 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   ReactiveFormsModule,
   FormGroupDirective,
   FormControlName,
-  IconComponent
+  IconComponent,
+  BuildingPipe
 ], styles: ["\n\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 100vw;\n}\n/*# sourceMappingURL=space-filters.component.css.map */"] });
 var SpaceFiltersComponent = _SpaceFiltersComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpaceFiltersComponent, [{
     type: Component,
     args: [{ selector: `space-filters`, template: `
-        <div class="flex items-center border-b border-base-200 pb-2 sm:hidden">
+        <div class="border-base-200 flex items-center border-b pb-2 sm:hidden">
             <div class="flex-1 pl-2">
                 @if (can_close) {
                     <button
@@ -149781,7 +153637,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
             <div class="flex-1"></div>
         </div>
         <form
-            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
+            class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
             [formGroup]="form"
         >
             <section details>
@@ -149816,13 +153672,10 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
-                                [ngModel]="building | async"
+                                [ngModel]="bld"
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    (building | async)?.display_name ||
-                                    (building | async)?.name
-                                "
+                                [placeholder]="bld?.display_name || bld?.name"
                             >
                                 @for (bld of buildings | async; track bld) {
                                     <mat-option [value]="bld">
@@ -149987,7 +153840,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                         <settings-toggle
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                            [ngModel]="(options | async)?.show_fav"
+                            [ngModel]="(filters | async)?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
@@ -150008,7 +153861,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                                     class="w-full"
                                     [name]="feature_display[feat] || feat"
                                     [ngModel]="
-                                        (options | async)?.features?.includes(
+                                        (filters | async)?.features?.includes(
                                             feat
                                         )
                                     "
@@ -150024,7 +153877,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
             }
         </form>
         @if (can_close) {
-            <div class="w-full border-t border-base-200 px-2 pt-2">
+            <div class="border-base-200 w-full border-t px-2 pt-2">
                 <button
                     btn
                     matRipple
@@ -150049,16 +153902,17 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
       MatSelectModule,
       FormsModule,
       ReactiveFormsModule,
-      IconComponent
+      IconComponent,
+      BuildingPipe
     ], styles: ["/* angular:styles/component:css;23008f9198b39e4d3c7440c4c7714beae90c2987553e297566829416db332df8;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/space-select-modal/space-filters.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 100vw;\n}\n/*# sourceMappingURL=space-filters.component.css.map */\n"] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 335 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 334 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-filters-display.component.ts
-var _c052 = (a0) => ({ count: a0 });
+var _c057 = (a0) => ({ count: a0 });
 function SpaceFiltersDisplayComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -150154,6 +154008,7 @@ var _SpaceFiltersDisplayComponent = class _SpaceFiltersDisplayComponent extends 
     this.view = model("list");
     this.viewChange = output();
     this.options = this._event_form.options$;
+    this.filters = this._event_form.filters$;
     this.location = "";
     this.editFilters = () => this._bsheet.open(SpaceFiltersComponent);
   }
@@ -150178,7 +154033,7 @@ var _SpaceFiltersDisplayComponent = class _SpaceFiltersDisplayComponent extends 
 _SpaceFiltersDisplayComponent.\u0275fac = function SpaceFiltersDisplayComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceFiltersDisplayComponent)();
 };
-_SpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersDisplayComponent, selectors: [["space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 33, consts: [["actions", "", 1, "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-space-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-space-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-space-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-140", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-140"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-8"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mb-2", "mr-2", "min-h-8", 3, "click"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]], template: function SpaceFiltersDisplayComponent_Template(rf, ctx) {
+_SpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersDisplayComponent, selectors: [["space-filters-display"]], inputs: { view: [1, "view"] }, outputs: { view: "viewChange", viewChange: "viewChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 33, consts: [["actions", "", 1, "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "edit-space-filters", 1, "w-1/2", "flex-1", 3, "click"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "view-space-map", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "name", "view-space-list", 1, "rounded-l-none", "rounded-r", 3, "click"], ["filters", "", 1, "flex", "w-140", "max-w-full", "flex-wrap", "items-center", "p-2", "sm:max-w-140"], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mr-2", "mb-2", "min-h-8"], ["filter-item", "", "zone", ""], ["filter-item", "", "date", ""], ["filter-item", "", "time", ""], ["filter-item", "", "count", ""], ["filter-item", ""], ["btn", "", "matRipple", "", "name", "clear-space-filters", 1, "mr-2", "mb-2", "min-h-8", 3, "click"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "remove-space-filter", 1, "-mr-4", 3, "click"]], template: function SpaceFiltersDisplayComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "section", 0)(1, "button", 1);
     \u0275\u0275listener("click", function SpaceFiltersDisplayComponent_Template_button_click_1_listener() {
@@ -150239,7 +154094,7 @@ _SpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 17, "COMMON.LIST"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(((tmp_5_0 = \u0275\u0275pipeBind1(13, 19, ctx.options)) == null ? null : tmp_5_0.features == null ? null : tmp_5_0.features.length) > 1 ? 12 : -1);
+    \u0275\u0275conditional(((tmp_5_0 = \u0275\u0275pipeBind1(13, 19, ctx.filters)) == null ? null : tmp_5_0.features == null ? null : tmp_5_0.features.length) > 1 ? 12 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.location ? 14 : -1);
     \u0275\u0275advance(2);
@@ -150249,9 +154104,9 @@ _SpaceFiltersDisplayComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.all_day ? 20 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(24, 26, "CALENDAR_EVENT.SPACE_SELECT_SIZE_X", \u0275\u0275pureFunction1(31, _c052, ((tmp_10_0 = \u0275\u0275pipeBind1(23, 24, ctx.options)) == null ? null : tmp_10_0.capacity) || 2)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(24, 26, "CALENDAR_EVENT.SPACE_SELECT_SIZE_X", \u0275\u0275pureFunction1(31, _c057, ((tmp_10_0 = \u0275\u0275pipeBind1(23, 24, ctx.filters)) == null ? null : tmp_10_0.capacity) || 2)), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275repeater((tmp_11_0 = \u0275\u0275pipeBind1(27, 29, ctx.options)) == null ? null : tmp_11_0.features);
+    \u0275\u0275repeater((tmp_11_0 = \u0275\u0275pipeBind1(27, 29, ctx.filters)) == null ? null : tmp_11_0.features);
   }
 }, dependencies: [CommonModule, AsyncPipe, DatePipe, MatRippleModule, MatRipple, TranslatePipe, IconComponent], styles: ["\n\n[filter-item][_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  padding: 0 1rem;\n  min-height: 2rem;\n  font-size: 0.875rem;\n  border: 1px solid rgba(0, 0, 0, 0.2);\n  border-radius: 1.25rem;\n  margin-right: 0.5rem;\n  margin-bottom: 0.5rem;\n  max-width: 100%;\n  text-align: center;\n}\n[filter-item][_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n[filter-item][_ngcontent-%COMP%]    > *[_ngcontent-%COMP%]    + *[_ngcontent-%COMP%] {\n  margin-left: 0.5rem;\n}\n/*# sourceMappingURL=space-filters-display.component.css.map */"] });
 var SpaceFiltersDisplayComponent = _SpaceFiltersDisplayComponent;
@@ -150296,12 +154151,12 @@ var SpaceFiltersDisplayComponent = _SpaceFiltersDisplayComponent;
             filters
             class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
-            @if ((options | async)?.features?.length > 1) {
+            @if ((filters | async)?.features?.length > 1) {
                 <button
                     btn
                     matRipple
                     name="clear-space-filters"
-                    class="mb-2 mr-2 min-h-8"
+                    class="mr-2 mb-2 min-h-8"
                     (click)="removeAllFeatures()"
                 >
                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
@@ -150327,10 +154182,10 @@ var SpaceFiltersDisplayComponent = _SpaceFiltersDisplayComponent;
             <div filter-item count>
                 {{
                     'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (options | async)?.capacity || 2 }
+                        | translate: { count: (filters | async)?.capacity || 2 }
                 }}
             </div>
-            @for (feat of (options | async)?.features; track feat) {
+            @for (feat of (filters | async)?.features; track feat) {
                 <div filter-item>
                     <p class="truncate">{{ feat }}</p>
                     <button
@@ -150353,7 +154208,7 @@ var SpaceFiltersDisplayComponent = _SpaceFiltersDisplayComponent;
 })();
 
 // libs/events/src/lib/space-select-modal/space-list.component.ts
-var _c053 = (a0) => ({ count: a0 });
+var _c058 = (a0) => ({ count: a0 });
 function SpaceListComponent_Conditional_6_Conditional_0_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9)(1, "icon");
@@ -150483,7 +154338,7 @@ function SpaceListComponent_Conditional_6_Conditional_0_For_2_Template(rf, ctx) 
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", space_r2.location || ((tmp_19_0 = ctx_r2.level(space_r2.zones)) == null ? null : tmp_19_0.display_name) || ((tmp_19_0 = ctx_r2.level(space_r2.zones)) == null ? null : tmp_19_0.name), " ");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(25, 26, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(29, _c053, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(25, 26, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(29, _c058, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("text-info", ctx_r2.isFavourite(space_r2.id));
     \u0275\u0275advance(2);
@@ -150574,7 +154429,7 @@ var _SpaceListComponent = class _SpaceListComponent {
 _SpaceListComponent.\u0275fac = function SpaceListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceListComponent)();
 };
-_SpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceListComponent, selectors: [["space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 9, vars: 9, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "border-info!", "bg-error-light!"], ["space", "", 1, "relative", "w-full", "rounded-lg", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["matRipple", "", "name", "select-space", 1, "flex", "h-full", "w-full", "items-center", "rounded-sm", 3, "click"], [1, "relative", "mr-4", "flex", "h-20", "w-20", "min-w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "bg-base-200"], [1, "absolute", "left-1", "top-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-neutral", "bg-base-200", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip", "bg-error", "bg-info", "bg-warning", "text-error-content", "text-info-content", "text-warning-content"], [1, "space-y-2"], [1, "mr-10", "truncate", "text-left", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "right-1", "top-1", 3, "click"], [1, "absolute", "bottom-1", "right-1", "rounded-sm", "bg-warning", "px-2", "py-1", "text-[0.625rem]", "font-medium", "text-warning-content"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "click", "matTooltip"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function SpaceListComponent_Template(rf, ctx) {
+_SpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceListComponent, selectors: [["space-list"]], inputs: { active: [1, "active"], selected: [1, "selected"], favorites: [1, "favorites"] }, outputs: { onSelect: "onSelect", toggleFav: "toggleFav" }, decls: 9, vars: 9, consts: [[1, "font-bold"], ["count", "", 1, "mb-4", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["space", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm", 3, "border-info!", "bg-error-light!"], ["space", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm"], ["matRipple", "", "name", "select-space", 1, "flex", "h-full", "w-full", "items-center", "rounded-sm", 3, "click"], [1, "bg-base-200", "relative", "mr-4", "flex", "h-20", "w-20", "min-w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl"], [1, "border-neutral", "bg-base-200", "absolute", "top-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "text-white"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip", "bg-error", "bg-info", "bg-warning", "text-error-content", "text-info-content", "text-warning-content"], [1, "space-y-2"], [1, "mr-10", "truncate", "text-left", "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-info"], [1, "truncate"], ["icon", "", "matRipple", "", "name", "toggle-space-favourite", 1, "absolute", "top-1", "right-1", 3, "click"], [1, "bg-warning", "text-warning-content", "absolute", "right-1", "bottom-1", "rounded-sm", "px-2", "py-1", "text-[0.625rem]", "font-medium"], [1, "pointer-events-auto", "absolute", "bottom-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "click", "matTooltip"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function SpaceListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -150606,7 +154461,9 @@ _SpaceListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   IconComponent,
   MatProgressSpinnerModule,
   MatProgressSpinner,
-  AuthenticatedImageDirective
+  AuthenticatedImageDirective,
+  MatTooltipModule,
+  MatTooltip
 ], styles: ["\n\n[_nghost-%COMP%] {\n  width: 100%;\n  height: 100%;\n  padding: 0.5rem;\n  overflow: auto;\n}\n/*# sourceMappingURL=space-list.component.css.map */"] });
 var SpaceListComponent = _SpaceListComponent;
 (() => {
@@ -150624,7 +154481,7 @@ var SpaceListComponent = _SpaceListComponent;
                         <li
                             space
                             [class.border-info!]="active() === space.id"
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
                             [class.bg-error-light!]="
                                 (room_alerts | async)[space.id]
                                     ? (room_alerts | async)[space.id][0] ===
@@ -150645,11 +154502,11 @@ var SpaceListComponent = _SpaceListComponent;
                                 "
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                                    class="bg-base-200 relative mr-4 flex h-20 w-20 min-w-20 items-center justify-center overflow-hidden rounded-xl"
                                 >
                                     @if (selected().includes(space.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -150767,7 +154624,7 @@ var SpaceListComponent = _SpaceListComponent;
                                 icon
                                 matRipple
                                 name="toggle-space-favourite"
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="isFavourite(space.id)"
                                 (click)="toggleFav.emit(space)"
                             >
@@ -150779,7 +154636,7 @@ var SpaceListComponent = _SpaceListComponent;
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="absolute bottom-1 right-1 rounded-sm bg-warning px-2 py-1 text-[0.625rem] font-medium text-warning-content"
+                                    class="bg-warning text-warning-content absolute right-1 bottom-1 rounded-sm px-2 py-1 text-[0.625rem] font-medium"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>
@@ -150816,16 +154673,1560 @@ var SpaceListComponent = _SpaceListComponent;
       TranslatePipe,
       IconComponent,
       MatProgressSpinnerModule,
-      AuthenticatedImageDirective
+      AuthenticatedImageDirective,
+      MatTooltipModule
     ], styles: ["/* angular:styles/component:css;24f101a51156c4881e8f3ec7d9a4da55f6e3c3a951b1bce21fa7949a1a188821;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/space-select-modal/space-list.component.ts */\n:host {\n  width: 100%;\n  height: 100%;\n  padding: 0.5rem;\n  overflow: auto;\n}\n/*# sourceMappingURL=space-list.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceListComponent, { className: "SpaceListComponent", filePath: "libs/events/src/lib/space-select-modal/space-list.component.ts", lineNumber: 233 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceListComponent, { className: "SpaceListComponent", filePath: "libs/events/src/lib/space-select-modal/space-list.component.ts", lineNumber: 235 });
+})();
+
+// libs/explore/src/lib/explore-book-qr.component.ts
+var _c059 = (a0) => ({ name: a0 });
+var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
+var _ExploreBookQrComponent = class _ExploreBookQrComponent {
+  constructor() {
+    this._data = inject(MAT_DIALOG_DATA);
+    this._settings = inject(SettingsService);
+    this.space = this._data.space;
+    this.qr_code = generateQRCode(`${location.origin}${(this._settings.get("app.booking_qr_path") || DEFAULT_PATH).replace("{{id}}", this._data.space?.email)}`);
+  }
+};
+_ExploreBookQrComponent.\u0275fac = function ExploreBookQrComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ExploreBookQrComponent)();
+};
+_ExploreBookQrComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookQrComponent, selectors: [["explore-book-qr"]], decls: 10, vars: 7, consts: [[1, "truncate"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "p-4"], [1, "m-auto", "h-64", "w-64", 3, "src"]], template: function ExploreBookQrComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "header")(1, "h2", 0);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(4, "div", 1);
+    \u0275\u0275elementStart(5, "button", 2)(6, "icon");
+    \u0275\u0275text(7, "close");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(8, "main", 3);
+    \u0275\u0275element(9, "img", 4);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c059, ctx.space == null ? null : ctx.space.name)), " ");
+    \u0275\u0275advance(7);
+    \u0275\u0275property("src", ctx.qr_code, \u0275\u0275sanitizeUrl);
+  }
+}, dependencies: [TranslatePipe, MatRippleModule, MatRipple, IconComponent], encapsulation: 2 });
+var ExploreBookQrComponent = _ExploreBookQrComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreBookQrComponent, [{
+    type: Component,
+    args: [{ selector: "explore-book-qr", template: `
+        <header>
+            <h2 class="truncate">
+                {{ 'EXPLORE.BOOK_RESOURCE' | translate: { name: space?.name } }}
+            </h2>
+            <div class="flex-1"></div>
+            <button icon matRipple mat-dialog-close>
+                <icon>close</icon>
+            </button>
+        </header>
+        <main class="p-4">
+            <img class="m-auto h-64 w-64" [src]="qr_code" />
+        </main>
+    `, imports: [TranslatePipe, MatRippleModule, IconComponent] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookQrComponent, { className: "ExploreBookQrComponent", filePath: "libs/explore/src/lib/explore-book-qr.component.ts", lineNumber: 30 });
+})();
+
+// libs/explore/src/lib/explore-booking-modal.component.ts
+function ExploreBookingModalComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 3)(1, "icon");
+    \u0275\u0275text(2, "close");
+    \u0275\u0275elementEnd()();
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 8)(1, "label", 18);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementStart(4, "span");
+    \u0275\u0275text(5, "*");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(6, ":");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(7, "a-user-search-field", 19);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 1, "FORM.HOST"));
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275classProp("bg-info", ctx_r1.alert()[0] === "info")("text-info-content", ctx_r1.alert()[0] === "info")("bg-warning", ctx_r1.alert()[0] === "warn")("text-warning-content", ctx_r1.alert()[0] === "warn")("bg-error", ctx_r1.alert()[0] === "closed")("text-error-content", ctx_r1.alert()[0] === "closed");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.alert()[1], " ");
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0);
+    \u0275\u0275pipe(1, "date");
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(4);
+    \u0275\u0275textInterpolate1(" at ", \u0275\u0275pipeBind2(1, 1, ctx_r1.form.value.date, ctx_r1.time_format), " ");
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15)(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 21);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "date");
+    \u0275\u0275conditionalCreate(7, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template, 2, 4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 3, "FORM.DATE"), ":");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 5, ctx_r1.form.value.date, "mediumDate"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r1.form.value.all_day ? 7 : -1);
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 16)(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(4, "a-duration-field", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 4, "FORM.DURATION"), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("time", ctx_r1.form.value.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr_time);
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 17)(1, "mat-checkbox", 23);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "main", 5)(1, "div", 8)(2, "label", 9);
+    \u0275\u0275text(3, "Title");
+    \u0275\u0275elementStart(4, "span");
+    \u0275\u0275text(5, "*");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(6, ":");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-form-field", 10);
+    \u0275\u0275element(8, "input", 11);
+    \u0275\u0275elementStart(9, "mat-error");
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(12, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template, 8, 3, "div", 8);
+    \u0275\u0275elementStart(13, "div", 8)(14, "label");
+    \u0275\u0275text(15);
+    \u0275\u0275pipe(16, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(17, "div", 12);
+    \u0275\u0275text(18);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(19, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template, 2, 13, "div", 13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "div", 14);
+    \u0275\u0275conditionalCreate(21, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template, 8, 8, "div", 15);
+    \u0275\u0275conditionalCreate(22, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template, 5, 6, "div", 16);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(23, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template, 4, 3, "div", 17);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    let tmp_7_0;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("formGroup", ctx_r1.form);
+    \u0275\u0275advance(10);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 9, "EXPLORE.BOOKING_TITLE_REQUIRED"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.can_book_for_others ? 12 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(16, 11, "EXPLORE.BOOKING_SPACE"), ":");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", (ctx_r1.form.controls.resources == null ? null : ctx_r1.form.controls.resources.value[0] == null ? null : ctx_r1.form.controls.resources.value[0].display_name) || (ctx_r1.form.controls.resources == null ? null : ctx_r1.form.controls.resources.value[0] == null ? null : ctx_r1.form.controls.resources.value[0].name), " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(((tmp_7_0 = ctx_r1.alert()) == null ? null : tmp_7_0[0]) ? 19 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.form.controls.date ? 21 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.form.controls.duration ? 22 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.allow_all_day ? 23 : -1);
+  }
+}
+function ExploreBookingModalComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275conditionalCreate(0, ExploreBookingModalComponent_Conditional_6_Conditional_0_Template, 24, 13, "main", 5);
+    \u0275\u0275elementStart(1, "footer", 6)(2, "button", 7);
+    \u0275\u0275listener("click", function ExploreBookingModalComponent_Conditional_6_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.save());
+    });
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r1.form ? 0 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "COMMON.SAVE"), " ");
+  }
+}
+function ExploreBookingModalComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275element(1, "mat-spinner", 24);
+    \u0275\u0275elementStart(2, "p");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 48);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 2, "CALENDAR_EVENT.CHECKING_AVAILABILITY"));
+  }
+}
+var _ExploreBookingModalComponent = class _ExploreBookingModalComponent {
+  constructor() {
+    this._data = inject(MAT_DIALOG_DATA);
+    this._settings = inject(SettingsService);
+    this._event_form = inject(EventFormService);
+    this._dialog_ref = inject(MatDialogRef);
+    this._router = inject(Router);
+    this.loading = toSignal(this._event_form.loading$);
+    this.alert = signal(this._data.alert);
+  }
+  get form() {
+    return this._event_form.form;
+  }
+  get max_duration() {
+    return this._settings.get("app.events.max_duration") || 4 * 60;
+  }
+  get can_book_for_others() {
+    return this._settings.get("app.events.can_book_for_others");
+  }
+  get use_24hr_time() {
+    return this._settings.get("app.use_24_hour_time");
+  }
+  get time_format() {
+    return this._settings.time_format;
+  }
+  get allow_all_day() {
+    return this._settings.get("app.events.allow_all_day");
+  }
+  ngOnInit() {
+    this._event_form.newForm();
+    this.form.patchValue({
+      resources: [this._data.space],
+      host: currentUser().email,
+      organiser: currentUser()
+    });
+    this.form.valueChanges.subscribe((v2) => {
+      this._checkAllDay(v2.all_day);
+    });
+    this._checkAllDay(this.form.value.all_day);
+  }
+  async save() {
+    await this._event_form.postForm().catch((_3) => {
+      notifyError(_3);
+      throw _3;
+    });
+    if (this._settings.app_name.toLowerCase().includes("workplace")) {
+      this._router.navigate(["/book", "meeting", "success"]);
+    } else {
+      notifySuccess(i18n("EXPLORE.BOOKING_SUCCESS"));
+    }
+    this._dialog_ref.close();
+  }
+  _checkAllDay(value) {
+    if (value) {
+      this.form.controls.duration.disable({ emitEvent: false });
+    } else {
+      this.form.controls.duration.enable({ emitEvent: false });
+    }
+  }
+};
+_ExploreBookingModalComponent.\u0275fac = function ExploreBookingModalComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ExploreBookingModalComponent)();
+};
+_ExploreBookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookingModalComponent, selectors: [["explore-booking-modal"]], decls: 8, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["load", "", 1, "flex", "h-64", "flex-col", "items-center", "justify-center"], [1, "max-w-[85vw]", "px-4", 3, "formGroup"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "click"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "Booking Title"], ["name", "space", 1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], [1, "flex", "flex-wrap", "sm:space-x-4"], [1, "flex", "w-full", "min-w-48", "flex-1", "flex-col", "sm:w-auto"], [1, "flex", "w-full", "flex-col", "sm:w-auto"], [1, "-mt-2", "mb-2", "flex", "justify-end"], ["for", "host"], ["name", "host", "formControlName", "organiser", 1, "mb-4"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "duration", 1, "w-full", 3, "time", "max", "use_24hr"], ["formControlName", "all_day"], [1, "m-4", 3, "diameter"]], template: function ExploreBookingModalComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(4, "div", 2);
+    \u0275\u0275conditionalCreate(5, ExploreBookingModalComponent_Conditional_5_Template, 3, 0, "button", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(6, ExploreBookingModalComponent_Conditional_6_Template, 5, 4)(7, ExploreBookingModalComponent_Conditional_7_Template, 5, 4, "div", 4);
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "EXPLORE.BOOKING_HEADER"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(!ctx.loading() ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx.loading() ? 6 : 7);
+  }
+}, dependencies: [
+  DatePipe,
+  TranslatePipe,
+  MatRippleModule,
+  MatRipple,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  MatCheckboxModule,
+  MatCheckbox,
+  DurationFieldComponent,
+  UserSearchFieldComponent,
+  MatFormFieldModule,
+  MatFormField,
+  MatError,
+  MatInputModule,
+  MatInput,
+  ReactiveFormsModule,
+  DefaultValueAccessor,
+  NgControlStatus,
+  NgControlStatusGroup,
+  FormGroupDirective,
+  FormControlName,
+  IconComponent,
+  MatDialogModule,
+  MatDialogClose
+], styles: ["\n\nheader[_ngcontent-%COMP%] {\n  max-width: calc(100vw + 100%);\n}\n[load][_ngcontent-%COMP%] {\n  width: 32rem;\n  max-width: calc(100vw - 2rem);\n}\n/*# sourceMappingURL=explore-booking-modal.component.css.map */"] });
+var ExploreBookingModalComponent = _ExploreBookingModalComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreBookingModalComponent, [{
+    type: Component,
+    args: [{ selector: "explore-booking-modal", template: `
+        <header
+            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+        >
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'EXPLORE.BOOKING_HEADER' | translate }}
+            </h2>
+            <div class="flex-1"></div>
+            @if (!loading()) {
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            }
+        </header>
+        @if (!loading()) {
+            @if (form) {
+                <main [formGroup]="form" class="max-w-[85vw] px-4">
+                    <div class="flex flex-col">
+                        <label for="title">Title<span>*</span>:</label>
+                        <mat-form-field appearance="outline">
+                            <input
+                                matInput
+                                name="title"
+                                formControlName="title"
+                                placeholder="Booking Title"
+                            />
+                            <mat-error>{{
+                                'EXPLORE.BOOKING_TITLE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    </div>
+                    @if (can_book_for_others) {
+                        <div class="flex flex-col">
+                            <label for="host"
+                                >{{ 'FORM.HOST' | translate
+                                }}<span>*</span>:</label
+                            >
+                            <a-user-search-field
+                                name="host"
+                                formControlName="organiser"
+                                class="mb-4"
+                            ></a-user-search-field>
+                        </div>
+                    }
+                    <div class="flex flex-col">
+                        <label
+                            >{{ 'EXPLORE.BOOKING_SPACE' | translate }}:</label
+                        >
+                        <div
+                            name="space"
+                            class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
+                        >
+                            {{
+                                form.controls.resources?.value[0]
+                                    ?.display_name ||
+                                    form.controls.resources?.value[0]?.name
+                            }}
+                        </div>
+                        @if (alert()?.[0]) {
+                            <div
+                                class="-mt-2 mb-4 rounded-sm px-2 py-1 text-xs"
+                                [class.bg-info]="alert()[0] === 'info'"
+                                [class.text-info-content]="
+                                    alert()[0] === 'info'
+                                "
+                                [class.bg-warning]="alert()[0] === 'warn'"
+                                [class.text-warning-content]="
+                                    alert()[0] === 'warn'
+                                "
+                                [class.bg-error]="alert()[0] === 'closed'"
+                                [class.text-error-content]="
+                                    alert()[0] === 'closed'
+                                "
+                            >
+                                {{ alert()[1] }}
+                            </div>
+                        }
+                    </div>
+                    <div class="flex flex-wrap sm:space-x-4">
+                        @if (form.controls.date) {
+                            <div
+                                class="flex w-full min-w-48 flex-1 flex-col sm:w-auto"
+                            >
+                                <label>{{ 'FORM.DATE' | translate }}:</label>
+                                <div
+                                    class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
+                                >
+                                    {{ form.value.date | date: 'mediumDate' }}
+                                    @if (!form.value.all_day) {
+                                        at
+                                        {{
+                                            form.value.date | date: time_format
+                                        }}
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (form.controls.duration) {
+                            <div class="flex w-full flex-col sm:w-auto">
+                                <label
+                                    >{{ 'FORM.DURATION' | translate }}:</label
+                                >
+                                <a-duration-field
+                                    formControlName="duration"
+                                    [time]="form.value.date"
+                                    [max]="max_duration"
+                                    class="w-full"
+                                    [use_24hr]="use_24hr_time"
+                                ></a-duration-field>
+                            </div>
+                        }
+                    </div>
+                    @if (allow_all_day) {
+                        <div class="-mt-2 mb-2 flex justify-end">
+                            <mat-checkbox formControlName="all_day">
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </mat-checkbox>
+                        </div>
+                    }
+                </main>
+            }
+            <footer class="border-base-300 flex justify-end border-t p-2">
+                <button btn matRipple class="mx-2 w-32" (click)="save()">
+                    {{ 'COMMON.SAVE' | translate }}
+                </button>
+            </footer>
+        } @else {
+            <div load class="flex h-64 flex-col items-center justify-center">
+                <mat-spinner class="m-4" [diameter]="48"></mat-spinner>
+                <p>{{ 'CALENDAR_EVENT.CHECKING_AVAILABILITY' | translate }}</p>
+            </div>
+        }
+    `, imports: [
+      DatePipe,
+      TranslatePipe,
+      MatRippleModule,
+      MatProgressSpinnerModule,
+      MatCheckboxModule,
+      DurationFieldComponent,
+      UserSearchFieldComponent,
+      MatFormFieldModule,
+      MatInputModule,
+      ReactiveFormsModule,
+      IconComponent,
+      MatDialogModule
+    ], styles: ["/* angular:styles/component:css;92dc203883c2e157fe6d9f315fef4a02ef7ca3572d438813349331b81da507b4;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-booking-modal.component.ts */\nheader {\n  max-width: calc(100vw + 100%);\n}\n[load] {\n  width: 32rem;\n  max-width: calc(100vw - 2rem);\n}\n/*# sourceMappingURL=explore-booking-modal.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookingModalComponent, { className: "ExploreBookingModalComponent", filePath: "libs/explore/src/lib/explore-booking-modal.component.ts", lineNumber: 199 });
+})();
+
+// libs/explore/src/lib/explore-icon.component.ts
+var _ExploreIconComponent = class _ExploreIconComponent {
+  constructor() {
+    this._details = inject(MAP_FEATURE_DATA);
+    this.icon = this._details.icon || { content: "done" };
+    this.color = this._details.color || "var(--info)";
+    this.text_color = this._details.text_color || "var(--info-content)";
+  }
+};
+_ExploreIconComponent.\u0275fac = function ExploreIconComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ExploreIconComponent)();
+};
+_ExploreIconComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreIconComponent, selectors: [["explore-icon"]], decls: 2, vars: 5, consts: [[1, "border-base-200", "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "border", "shadow-sm"], [1, "text-xl", 3, "icon"]], template: function ExploreIconComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275element(1, "icon", 1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275styleProp("background-color", ctx.color)("color", ctx.text_color);
+    \u0275\u0275advance();
+    \u0275\u0275property("icon", ctx.icon);
+  }
+}, dependencies: [IconComponent], styles: ["\n\n[_nghost-%COMP%] {\n  display: flex;\n  height: 100%;\n  width: 100%;\n  align-items: end;\n  justify-content: end;\n}\n/*# sourceMappingURL=explore-icon.component.css.map */"] });
+var ExploreIconComponent = _ExploreIconComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreIconComponent, [{
+    type: Component,
+    args: [{ selector: `explore-icon`, template: `
+        <div
+            class="border-base-200 flex h-8 w-8 items-center justify-center rounded-full border shadow-sm"
+            [style.background-color]="color"
+            [style.color]="text_color"
+        >
+            <icon [icon]="icon" class="text-xl"></icon>
+        </div>
+    `, imports: [IconComponent], styles: ["/* angular:styles/component:css;8d603d396af10dde7f45bddce919375913a5c5b09729ee8e6482881d125d62c7;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-icon.component.ts */\n:host {\n  display: flex;\n  height: 100%;\n  width: 100%;\n  align-items: end;\n  justify-content: end;\n}\n/*# sourceMappingURL=explore-icon.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreIconComponent, { className: "ExploreIconComponent", filePath: "libs/explore/src/lib/explore-icon.component.ts", lineNumber: 30 });
+})();
+
+// libs/explore/src/lib/explore-space-info.component.ts
+var _c060 = (a0) => ({ count: a0 });
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 7);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("source", ctx_r1.space.images[0]);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 8);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.available_until, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 14)(1, "icon");
+    \u0275\u0275text(2, "group");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div");
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c060, ctx_r1.space.capacity), ctx_r1.space.capacity), " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "li", 17);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const feature_r3 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", feature_r3, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "ul", 15);
+    \u0275\u0275repeaterCreate(1, ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template, 2, 1, "li", 17, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.space.features);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275declareLet(0);
+    \u0275\u0275pipe(1, "user");
+    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(3, "div", 18);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 19)(6, "h3");
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 20);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    const host_r4 = \u0275\u0275pipeBind1(2, 5, \u0275\u0275pipeBind1(1, 3, ctx_r1.next().host));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.current() ? "Current" : "Upcoming", " booking ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.next().title);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", (host_r4 == null ? null : host_r4.name) || ctx_r1.next().host, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 16)(1, "icon");
+    \u0275\u0275text(2, "alarm");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div");
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "date");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate2(" Free ", ctx_r1.next().date > ctx_r1.now() ? "until" : "at", " ", \u0275\u0275pipeBind2(5, 2, ctx_r1.next().date > ctx_r1.now() ? ctx_r1.next().date : ctx_r1.next().date_end, "shortTime"), " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275element(1, "div", 4);
+    \u0275\u0275elementStart(2, "div", 5)(3, "div", 6);
+    \u0275\u0275conditionalCreate(4, ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template, 1, 1, "img", 7)(5, ExploreSpaceInfoComponent_ng_template_2_Conditional_5_Template, 1, 0, "div", 8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 9)(7, "div", 10);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "uppercase");
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(11, ExploreSpaceInfoComponent_ng_template_2_Conditional_11_Template, 2, 1, "div", 11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "div", 12)(13, "h4", 13);
+    \u0275\u0275text(14);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(15, ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template, 6, 7, "div", 14);
+    \u0275\u0275conditionalCreate(16, ExploreSpaceInfoComponent_ng_template_2_Conditional_16_Template, 3, 0, "ul", 15);
+    \u0275\u0275conditionalCreate(17, ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template, 10, 7);
+    \u0275\u0275conditionalCreate(18, ExploreSpaceInfoComponent_ng_template_2_Conditional_18_Template, 6, 5, "div", 16);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("-translate-x-full", ctx_r1.x_pos === "end")("-translate-y-full", ctx_r1.y_pos === "bottom");
+    \u0275\u0275property("id", ctx_r1.space == null ? null : ctx_r1.space.id);
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("bg-neutral", ctx_r1.space.images[0])("h-32", ctx_r1.space.images[0])("h-8", !ctx_r1.space.images[0]);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.space.images[0] ? 4 : 5);
+    \u0275\u0275advance(3);
+    \u0275\u0275classMap("text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm " + ctx_r1.status);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 23, ctx_r1.status === "not-bookable" ? "COMMON.STATUS_NOT_BOOKABLE" : "COMMON.STATUS_" + \u0275\u0275pipeBind1(9, 21, ctx_r1.status)), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r1.status !== "not-bookable" ? 11 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.space.display_name || ctx_r1.space.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.space.capacity >= 0 ? 15 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional((ctx_r1.space.features == null ? null : ctx_r1.space.features.length) > 0 && !ctx_r1.hide_features() ? 16 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.show_event_details() && ctx_r1.next() ? 17 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.next() ? 18 : -1);
+  }
+}
+var _ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._details = inject(MAP_FEATURE_DATA);
+    this._element = inject(ElementRef);
+    this.space = this._details.space;
+    this.events = this._details.events;
+    this.now = signal(Date.now());
+    this.next = signal(null);
+    this.current = computed(() => this.next() ? this.next()?.date <= Date.now() && this.next()?.date_end > Date.now() : false);
+    this.show_event_details = settingSignal("explore.show_event_details", true);
+    this.status = this._details.status;
+    this.hide_features = settingSignal("spaces.hide_features", false);
+  }
+  ngOnInit() {
+    this.timeout("update_offset", () => this.updateOffset(), 200);
+    const events2 = this.events.sort((a, b3) => a.date - b3.date).filter((i) => i.date_end > Date.now() && isSameDay(i.date, Date.now()));
+    this.next.set(events2[0]);
+    this.interval("time", () => this.now.set(Date.now()), 5e3);
+  }
+  updateOffset() {
+    const pos = this._element.nativeElement.getBoundingClientRect();
+    this.x_pos = pos.x < document.body.clientWidth / 2 ? "start" : "end";
+    this.y_pos = pos.y < document.body.clientHeight / 2 ? "top" : "bottom";
+  }
+  get available_until() {
+    return "";
+  }
+};
+_ExploreSpaceInfoComponent.\u0275fac = /* @__PURE__ */ (() => {
+  let \u0275ExploreSpaceInfoComponent_BaseFactory;
+  return function ExploreSpaceInfoComponent_Factory(__ngFactoryType__) {
+    return (\u0275ExploreSpaceInfoComponent_BaseFactory || (\u0275ExploreSpaceInfoComponent_BaseFactory = \u0275\u0275getInheritedFactory(_ExploreSpaceInfoComponent)))(__ngFactoryType__ || _ExploreSpaceInfoComponent);
+  };
+})();
+_ExploreSpaceInfoComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSpaceInfoComponent, selectors: [["explore-space-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 4, vars: 6, consts: [["tooltip", ""], ["space_tooltip", ""], ["customTooltip", "", 1, "pointer-events-auto", "relative", "hidden", "h-full", "w-full", "cursor-pointer", "sm:block", 3, "mouseenter", "content", "backdrop", "xPosition", "yPosition", "hover"], ["name", "space-info", 1, "border-base-300", "bg-base-100", "pointer-events-none", "absolute", "top-0", "left-0", "w-64", "transform", "overflow-hidden", "rounded-sm", "border", "shadow-sm", 3, "id"], [1, "arrow"], [1, "relative"], [1, "bg-opacity-20", "relative", "flex", "w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "min-h-full", "min-w-full", "object-cover", 3, "source"], [1, "bg-base-200", "absolute", "inset-0", "opacity-30"], [1, "absolute", "top-2", "left-2", "flex", "flex-wrap", "text-sm"], ["status", ""], ["available-until", ""], [1, "flex", "flex-col", "px-2", "py-4"], [1, "mb-2", "px-2", "text-xl", "font-medium"], ["capacity", "", 1, "mb-2", "flex", "items-center", "space-x-2", "px-2", "text-base"], [1, "flex", "flex-wrap"], [1, "mt-1", "flex", "items-center", "space-x-2", "px-2", "text-base"], [1, "bg-base-200", "m-1", "rounded-2xl", "px-2", "py-1", "text-xs", "font-medium"], [1, "rounded-sm", "px-2", "pb-1", "text-xs", "opacity-30"], [1, "border-base-300", "mb-1", "flex", "flex-col", "rounded-lg", "border", "p-2"], [1, "text-xs", "opacity-50"]], template: function ExploreSpaceInfoComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 2, 0);
+    \u0275\u0275listener("mouseenter", function ExploreSpaceInfoComponent_Template_div_mouseenter_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      return \u0275\u0275resetView(ctx.updateOffset());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(2, ExploreSpaceInfoComponent_ng_template_2_Template, 19, 25, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
+  }
+  if (rf & 2) {
+    const space_tooltip_r5 = \u0275\u0275reference(3);
+    \u0275\u0275property("content", space_tooltip_r5)("backdrop", false)("xPosition", "center")("yPosition", "center")("hover", true);
+    \u0275\u0275attribute("id", (ctx.space == null ? null : ctx.space.map_id) || (ctx.space == null ? null : ctx.space.id));
+  }
+}, dependencies: [
+  AsyncPipe,
+  DatePipe,
+  UpperCasePipe,
+  IconComponent,
+  CustomTooltipComponent,
+  TranslatePipe,
+  AuthenticatedImageDirective,
+  UserPipe
+], styles: ["\n\n[status][_ngcontent-%COMP%] {\n  background-color: var(--success);\n  color: var(--success-content);\n}\n[status].busy[_ngcontent-%COMP%] {\n  background-color: var(--error);\n  color: var(--error-content);\n}\n[status].pending[_ngcontent-%COMP%] {\n  background-color: var(--warn);\n  color: var(--warn-content);\n}\n[status].not-bookable[_ngcontent-%COMP%] {\n  background-color: var(--base-300);\n}\n/*# sourceMappingURL=explore-space-info.component.css.map */"] });
+var ExploreSpaceInfoComponent = _ExploreSpaceInfoComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreSpaceInfoComponent, [{
+    type: Component,
+    args: [{ selector: "explore-space-info", template: `
+        <div
+            #tooltip
+            customTooltip
+            [content]="space_tooltip"
+            [backdrop]="false"
+            [xPosition]="'center'"
+            [yPosition]="'center'"
+            [hover]="true"
+            [attr.id]="space?.map_id || space?.id"
+            (mouseenter)="updateOffset()"
+            class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
+        ></div>
+        <ng-template #space_tooltip>
+            <div
+                name="space-info"
+                [id]="space?.id"
+                class="border-base-300 bg-base-100 pointer-events-none absolute top-0 left-0 w-64 transform overflow-hidden rounded-sm border shadow-sm"
+                [class.-translate-x-full]="x_pos === 'end'"
+                [class.-translate-y-full]="y_pos === 'bottom'"
+            >
+                <div class="arrow"></div>
+                <div class="relative">
+                    <div
+                        class="bg-opacity-20 relative flex w-full items-center justify-center overflow-hidden"
+                        [class.bg-neutral]="space.images[0]"
+                        [class.h-32]="space.images[0]"
+                        [class.h-8]="!space.images[0]"
+                    >
+                        @if (space.images[0]) {
+                            <img
+                                auth
+                                [source]="space.images[0]"
+                                class="min-h-full min-w-full object-cover"
+                            />
+                        } @else {
+                            <div
+                                class="bg-base-200 absolute inset-0 opacity-30"
+                            ></div>
+                        }
+                    </div>
+                    <div class="absolute top-2 left-2 flex flex-wrap text-sm">
+                        <div
+                            status
+                            [class]="
+                                'text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm ' +
+                                status
+                            "
+                        >
+                            {{
+                                (status === 'not-bookable'
+                                    ? 'COMMON.STATUS_NOT_BOOKABLE'
+                                    : 'COMMON.STATUS_' + (status | uppercase)
+                                ) | translate
+                            }}
+                        </div>
+                        @if (status !== 'not-bookable') {
+                            <div available-until>
+                                {{ available_until }}
+                            </div>
+                        }
+                    </div>
+                    <div class="flex flex-col px-2 py-4">
+                        <h4 class="mb-2 px-2 text-xl font-medium">
+                            {{ space.display_name || space.name }}
+                        </h4>
+                        @if (space.capacity >= 0) {
+                            <div
+                                capacity
+                                class="mb-2 flex items-center space-x-2 px-2 text-base"
+                            >
+                                <icon>group</icon>
+                                <div>
+                                    {{
+                                        'COMMON.PEOPLE_COUNT'
+                                            | translate
+                                                : { count: space.capacity }
+                                                : space.capacity
+                                    }}
+                                </div>
+                            </div>
+                        }
+                        @if (space.features?.length > 0 && !hide_features()) {
+                            <ul class="flex flex-wrap">
+                                @for (
+                                    feature of space.features;
+                                    track feature
+                                ) {
+                                    <li
+                                        class="bg-base-200 m-1 rounded-2xl px-2 py-1 text-xs font-medium"
+                                    >
+                                        {{ feature }}
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        @if (show_event_details() && next()) {
+                            @let host = next().host | user | async;
+                            <div
+                                class="rounded-sm px-2 pb-1 text-xs opacity-30"
+                            >
+                                {{ current() ? 'Current' : 'Upcoming' }}
+                                booking
+                            </div>
+                            <div
+                                class="border-base-300 mb-1 flex flex-col rounded-lg border p-2"
+                            >
+                                <h3>{{ next().title }}</h3>
+                                <div class="text-xs opacity-50">
+                                    {{ host?.name || next().host }}
+                                </div>
+                            </div>
+                        }
+                        @if (next()) {
+                            <div
+                                class="mt-1 flex items-center space-x-2 px-2 text-base"
+                            >
+                                <icon>alarm</icon>
+                                <div>
+                                    Free
+                                    {{ next().date > now() ? 'until' : 'at' }}
+                                    {{
+                                        (next().date > now()
+                                            ? next().date
+                                            : next().date_end
+                                        ) | date: 'shortTime'
+                                    }}
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+    `, imports: [
+      AsyncPipe,
+      DatePipe,
+      UpperCasePipe,
+      IconComponent,
+      CustomTooltipComponent,
+      TranslatePipe,
+      AuthenticatedImageDirective,
+      UserPipe
+    ], styles: ["/* angular:styles/component:css;49d3d38e3c811a7af0b23c1a4eab605a060569aead88ea7b8da86c409617cda8;/home/runner/work/user-interfaces/user-interfaces/libs/explore/src/lib/explore-space-info.component.ts */\n[status] {\n  background-color: var(--success);\n  color: var(--success-content);\n}\n[status].busy {\n  background-color: var(--error);\n  color: var(--error-content);\n}\n[status].pending {\n  background-color: var(--warn);\n  color: var(--warn-content);\n}\n[status].not-bookable {\n  background-color: var(--base-300);\n}\n/*# sourceMappingURL=explore-space-info.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSpaceInfoComponent, { className: "ExploreSpaceInfoComponent", filePath: "libs/explore/src/lib/explore-space-info.component.ts", lineNumber: 209 });
+})();
+
+// libs/explore/src/lib/explore-spaces.service.ts
+var DEFAULT_COLOURS = {
+  free: "#43a047",
+  pending: "#ffb300",
+  reserved: "#e65100",
+  busy: "#e53935",
+  "signs-of-life": "#1565c0",
+  "not-bookable": "#757575",
+  unknown: "#757575"
+};
+var _ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
+  constructor() {
+    super();
+    this._state = inject(ExploreStateService);
+    this._settings = inject(SettingsService);
+    this._event_form = inject(EventFormService);
+    this._dialog = inject(MatDialog);
+    this._org = inject(OrganisationService);
+    this._bookings = {};
+    this._statuses = {};
+    this._presence = {};
+    this._panning = true;
+    this._last_action = "";
+    this.booking_rules = this._org.active_building.pipe(filter((bld) => !!bld), switchMap((bld) => Xu(bld.id, `room_booking_rules`).pipe(catchError(() => of({ details: [] })))), map((_3) => _3?.details instanceof Array ? _3.details : []), shareReplay(1));
+    this.room_alerts = this._org.active_building.pipe(filter((bld) => !!bld), switchMap(() => Xu(this._org.organisation.id, `room_alerts`).pipe(catchError(() => of({ details: {} })))), map((_3) => _3.details || {}), shareReplay(1));
+    this._bind = combineLatest([
+      this._state.spaces,
+      this._state.options
+    ]).pipe(filter(([_3, { is_public }]) => !is_public), map(([list2]) => {
+      this.unsubWith("b-");
+      this.unsubWith("s-");
+      this.unsubWith("c-");
+      this._statuses = {};
+      if (!list2?.length)
+        return;
+      for (const space of list2) {
+        const mod2 = $h(space.id, "Bookings");
+        let binding = mod2.variable("bookings");
+        this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d3) => this.handleBookingsChange(list2, space, d3)));
+        binding = mod2.variable("status");
+        this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d3) => this.handleStatusChange(list2, space, d3)));
+        binding = mod2.variable("presence");
+        this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d3) => this.handlePresenceChange(list2, space, d3)));
+      }
+      this.updateActions(list2);
+      this._updateHoverElements(list2);
+    }));
+    this.subscription("spaces", this._bind.subscribe());
+  }
+  async bookSpace(space, force = false) {
+    if (this._panning && this._last_action === "down")
+      return;
+    const booking_rules = await nextValueFrom(this.booking_rules);
+    const room_alerts = await nextValueFrom(this.room_alerts);
+    const { hidden } = rulesForResource({
+      date: Date.now(),
+      duration: 60,
+      resource: space,
+      host: currentUser()
+    }, booking_rules) || {};
+    if (hidden) {
+      return notifyError(i18n("EXPLORE.SPACES_PERMISSIONS_ERROR"));
+    }
+    if (this._statuses[space.id] !== "free" && !force || !space.bookable) {
+      return notifyError(i18n("EXPLORE.SPACES_UNAVAILABLE_ERROR", {
+        name: space.display_name || space.name
+      }));
+    }
+    this._event_form.newForm();
+    this._event_form.form.patchValue({
+      host: currentUser()?.email,
+      resources: [space]
+    });
+    if (room_alerts[space.id]?.[0] === "closed") {
+      return notifyError(`${room_alerts[space.id][1]}`);
+    }
+    if (this._settings.get("app.events.booking_unavailable")) {
+      return this._event_form.openEventLinkModal();
+    }
+    if (space.room_booking_url) {
+      const [email_start, email_end] = space.email.split("@");
+      const url = space.room_booking_url.replace(/\{id\}/g, encodeURIComponent(space.id)).replace(/\{name\}/g, encodeURIComponent(space.display_name || space.name)).replace(/\{map_id\}/g, encodeURIComponent(space.map_id)).replace(/\{email\}/g, encodeURIComponent(space.email)).replace(/\{email_start\}/g, encodeURIComponent(email_start || "")).replace(/\{email_end\}/g, encodeURIComponent(email_end || ""));
+      window.open(url, "_blank", "noopener noreferer");
+      return;
+    }
+    this._dialog.open(this._settings.get("app.explore.show_booking_qr") ? ExploreBookQrComponent : ExploreBookingModalComponent, {
+      data: { space, alert: room_alerts[space.id] }
+    });
+  }
+  handleBookingsChange(spaces, space, bookings) {
+    if (!bookings)
+      return;
+    this._bookings[space.id] = bookings.map((i) => new CalendarEvent(i));
+    this.timeout("update_hover_els", () => this._updateHoverElements(spaces), 100);
+  }
+  handleStatusChange(spaces, space, status) {
+    if (space.bookable)
+      this._statuses[space.id] = status || "free";
+    else
+      delete this._statuses[space.id];
+    this.timeout("update_statuses", () => {
+      this.clearTimeout("update_hover_els");
+      this._updateStatus(spaces);
+      this._updateHoverElements(spaces);
+    }, 100);
+  }
+  handlePresenceChange(spaces, space, presence) {
+    this._presence[space.id] = presence;
+    this.timeout("update_icons", () => this._updateIcons(spaces), 100);
+  }
+  async _updateStatus(spaces) {
+    const style_map = {};
+    const colours = this._settings.get("app.explore.colors") || {};
+    for (const space of spaces) {
+      if (!this._statuses[space.id])
+        continue;
+      const status = this._statuses[space.id];
+      style_map[`#${space.map_id}`] = {
+        fill: colours[`space-${status}`] || colours[`${status}`] || DEFAULT_COLOURS[`${status}`],
+        opacity: 0.6
+      };
+    }
+    this._state.setStyles("spaces", style_map);
+  }
+  _updateHoverElements(spaces) {
+    const features = [];
+    for (const space of spaces) {
+      if (!space.map_id)
+        continue;
+      features.push({
+        location: space.map_id,
+        full_size: true,
+        no_scale: true,
+        content: ExploreSpaceInfoComponent,
+        z_index: 10,
+        data: {
+          space: new Space(space),
+          events: this._bookings[space.id],
+          status: this._statuses[space.id] || "not-bookable"
+        }
+      });
+    }
+    this._state.setFeatures("spaces", features);
+  }
+  _updateIcons(spaces) {
+    if (!this._settings.get("app.show_presence_indicators"))
+      return;
+    const features = [];
+    for (const space of spaces) {
+      if (!space.map_id)
+        continue;
+      features.push({
+        location: space.map_id,
+        content: ExploreIconComponent,
+        data: {
+          icon: {
+            class: "material-symbols-rounded",
+            content: "sensor_occupied"
+          },
+          color: this._presence[space.id] ? "var(--success)" : "var(--base-content)",
+          text_color: this._presence[space.id] ? "var(--success-content)" : "var(--base-100)"
+        },
+        z_index: 98
+      });
+    }
+    this._state.setFeatures("spaces-presence", features);
+  }
+  updateActions(spaces) {
+    const actions = [];
+    for (const space of spaces) {
+      if (!space.map_id)
+        continue;
+      for (const action of ["mousedown", "touchstart"]) {
+        actions.push({
+          id: space.map_id,
+          action,
+          priority: 5,
+          callback: () => {
+            this._panning = false;
+            this.timeout("panning", () => this._panning = true, 300);
+            this._last_action = "down";
+          }
+        });
+      }
+      for (const action of ["mouseup", "touchend"]) {
+        actions.push({
+          id: space.map_id,
+          action,
+          priority: 5,
+          callback: () => {
+            this.bookSpace(space);
+            this._last_action = "up";
+          }
+        });
+      }
+    }
+    this.timeout("set-actions", () => this._state.setActions("spaces", actions), 50);
+  }
+};
+_ExploreSpacesService.\u0275fac = function ExploreSpacesService_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ExploreSpacesService)();
+};
+_ExploreSpacesService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ExploreSpacesService, factory: _ExploreSpacesService.\u0275fac });
+var ExploreSpacesService = _ExploreSpacesService;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreSpacesService, [{
+    type: Injectable
+  }], () => [], null);
+})();
+
+// libs/events/src/lib/space-select-modal/space-location-pin.component.ts
+function SpaceLocationPinComponent_div_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 16);
+  }
+}
+function SpaceLocationPinComponent_icon_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 17);
+    \u0275\u0275text(1, " done ");
+    \u0275\u0275elementEnd();
+  }
+}
+var _SpaceLocationPinComponent = class _SpaceLocationPinComponent {
+  constructor() {
+    this._data = inject(MAP_FEATURE_DATA);
+    this.selected = this._data.selected === true;
+    this.active = this._data.active === true;
+  }
+  get color() {
+    return this.active ? "#F4511E" : this.selected ? "#D32F2F" : "#309251";
+  }
+};
+_SpaceLocationPinComponent.\u0275fac = function SpaceLocationPinComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpaceLocationPinComponent)();
+};
+_SpaceLocationPinComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceLocationPinComponent, selectors: [["space-location-pin"]], decls: 17, vars: 3, consts: [[1, "absolute", "bottom-0", "left-1/2", "-translate-x-1/2"], ["width", "44", "height", "60", "viewBox", "0 0 66 80", "fill", "none", "xmlns", "http://www.w3.org/2000/svg"], ["filter", "url(#filter0_d_1065_10313)"], ["d", "M19.724 53.0408C25.0871 60.3435 30.5582 65.8583 31.0184 66.3178C31.4558 66.755 32.0489 67.0007 32.6674 67.0008H32.6678C33.2863 67.0007 33.8795 66.755 34.3169 66.3178C34.7771 65.8583 40.2481 60.3435 45.6112 53.0408C48.2928 49.3894 50.963 45.2701 52.9663 41.0957C54.9629 36.935 56.3331 32.6459 56.3342 28.6724C56.364 25.5564 55.7725 22.4657 54.5941 19.5809C53.415 16.6946 51.6722 14.0724 49.4675 11.8677C47.2629 9.66308 44.6407 7.92024 41.7544 6.74121C38.8711 5.5634 35.782 4.97184 32.6676 5.00103C29.5533 4.97184 26.4642 5.5634 23.5809 6.74121C20.6946 7.92024 18.0724 9.66308 15.8677 11.8677C13.6631 14.0724 11.9202 16.6946 10.7412 19.5809C9.56278 22.4657 8.97122 25.5565 9.00108 28.6726C9.0022 32.646 10.3724 36.9351 12.369 41.0957C14.3723 45.2701 17.0425 49.3894 19.724 53.0408Z", "stroke", "#0B421D", "stroke-width", "2"], ["id", "filter0_d_1065_10313", "x", "0", "y", "0", "width", "65.3353", "height", "80.001", "filterUnits", "userSpaceOnUse", "color-interpolation-filters", "sRGB"], ["flood-opacity", "0", "result", "BackgroundImageFix"], ["in", "SourceAlpha", "type", "matrix", "values", "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", "result", "hardAlpha"], ["dy", "4"], ["stdDeviation", "4"], ["in2", "hardAlpha", "operator", "out"], ["type", "matrix", "values", "0 0 0 0 0.0196078 0 0 0 0 0.109804 0 0 0 0 0.172549 0 0 0 0.2 0"], ["mode", "normal", "in2", "BackgroundImageFix", "result", "effect1_dropShadow_1065_10313"], ["mode", "normal", "in", "SourceGraphic", "in2", "effect1_dropShadow_1065_10313", "result", "shape"], [1, "absolute", "top-0", "left-0", "flex", "h-3/4", "w-full", "items-center", "justify-center"], ["class", "bg-base-100 relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D]", 4, "ngIf"], ["class", "relative z-10 text-2xl text-white", 4, "ngIf"], [1, "bg-base-100", "relative", "z-10", "h-4", "w-4", "rounded-full", "border-2", "border-[#0B421D]"], [1, "relative", "z-10", "text-2xl", "text-white"]], template: function SpaceLocationPinComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275namespaceSVG();
+    \u0275\u0275elementStart(1, "svg", 1)(2, "g", 2);
+    \u0275\u0275element(3, "path", 3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "defs")(5, "filter", 4);
+    \u0275\u0275element(6, "feFlood", 5)(7, "feColorMatrix", 6)(8, "feOffset", 7)(9, "feGaussianBlur", 8)(10, "feComposite", 9)(11, "feColorMatrix", 10)(12, "feBlend", 11)(13, "feBlend", 12);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275namespaceHTML();
+    \u0275\u0275elementStart(14, "div", 13);
+    \u0275\u0275template(15, SpaceLocationPinComponent_div_15_Template, 1, 0, "div", 14)(16, SpaceLocationPinComponent_icon_16_Template, 2, 0, "icon", 15);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(3);
+    \u0275\u0275attribute("fill", ctx.color);
+    \u0275\u0275advance(12);
+    \u0275\u0275property("ngIf", !ctx.selected);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx.selected);
+  }
+}, dependencies: [CommonModule, NgIf, IconComponent], encapsulation: 2 });
+var SpaceLocationPinComponent = _SpaceLocationPinComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpaceLocationPinComponent, [{
+    type: Component,
+    args: [{ selector: "space-location-pin", template: `
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
+            <svg
+                width="44"
+                height="60"
+                viewBox="0 0 66 80"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <g filter="url(#filter0_d_1065_10313)">
+                    <path
+                        d="M19.724 53.0408C25.0871 60.3435 30.5582 65.8583 31.0184 66.3178C31.4558 66.755 32.0489 67.0007 32.6674 67.0008H32.6678C33.2863 67.0007 33.8795 66.755 34.3169 66.3178C34.7771 65.8583 40.2481 60.3435 45.6112 53.0408C48.2928 49.3894 50.963 45.2701 52.9663 41.0957C54.9629 36.935 56.3331 32.6459 56.3342 28.6724C56.364 25.5564 55.7725 22.4657 54.5941 19.5809C53.415 16.6946 51.6722 14.0724 49.4675 11.8677C47.2629 9.66308 44.6407 7.92024 41.7544 6.74121C38.8711 5.5634 35.782 4.97184 32.6676 5.00103C29.5533 4.97184 26.4642 5.5634 23.5809 6.74121C20.6946 7.92024 18.0724 9.66308 15.8677 11.8677C13.6631 14.0724 11.9202 16.6946 10.7412 19.5809C9.56278 22.4657 8.97122 25.5565 9.00108 28.6726C9.0022 32.646 10.3724 36.9351 12.369 41.0957C14.3723 45.2701 17.0425 49.3894 19.724 53.0408Z"
+                        [attr.fill]="color"
+                        stroke="#0B421D"
+                        stroke-width="2"
+                    />
+                </g>
+                <defs>
+                    <filter
+                        id="filter0_d_1065_10313"
+                        x="0"
+                        y="0"
+                        width="65.3353"
+                        height="80.001"
+                        filterUnits="userSpaceOnUse"
+                        color-interpolation-filters="sRGB"
+                    >
+                        <feFlood
+                            flood-opacity="0"
+                            result="BackgroundImageFix"
+                        />
+                        <feColorMatrix
+                            in="SourceAlpha"
+                            type="matrix"
+                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                            result="hardAlpha"
+                        />
+                        <feOffset dy="4" />
+                        <feGaussianBlur stdDeviation="4" />
+                        <feComposite in2="hardAlpha" operator="out" />
+                        <feColorMatrix
+                            type="matrix"
+                            values="0 0 0 0 0.0196078 0 0 0 0 0.109804 0 0 0 0 0.172549 0 0 0 0.2 0"
+                        />
+                        <feBlend
+                            mode="normal"
+                            in2="BackgroundImageFix"
+                            result="effect1_dropShadow_1065_10313"
+                        />
+                        <feBlend
+                            mode="normal"
+                            in="SourceGraphic"
+                            in2="effect1_dropShadow_1065_10313"
+                            result="shape"
+                        />
+                    </filter>
+                </defs>
+            </svg>
+            <div
+                class="absolute top-0 left-0 flex h-3/4 w-full items-center justify-center"
+            >
+                <div
+                    class="bg-base-100 relative z-10 h-4 w-4 rounded-full border-2 border-[#0B421D]"
+                    *ngIf="!selected"
+                ></div>
+                <icon
+                    class="relative z-10 text-2xl text-white"
+                    *ngIf="selected"
+                >
+                    done
+                </icon>
+            </div>
+        </div>
+    `, imports: [CommonModule, IconComponent] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceLocationPinComponent, { className: "SpaceLocationPinComponent", filePath: "libs/events/src/lib/space-select-modal/space-location-pin.component.ts", lineNumber: 85 });
+})();
+
+// libs/events/src/lib/space-select-modal/space-map.component.ts
+var _c061 = () => ({ controls: true });
+var _c132 = () => ({ standalone: true });
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_div_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "building");
+    \u0275\u0275elementStart(3, "span", 11);
+    \u0275\u0275text(4, " - ");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_4_0;
+    const lvl_r3 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (tmp_4_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_4_0.display_name, " ");
+  }
+}
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 7)(1, "div", 8);
+    \u0275\u0275template(2, SpaceSelectMapComponent_mat_form_field_1_mat_option_3_div_2_Template, 5, 3, "div", 9);
+    \u0275\u0275elementStart(3, "div");
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const lvl_r3 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("value", lvl_r3);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", ctx_r1.use_region);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", lvl_r3.display_name || lvl_r3.name, " ");
+  }
+}
+function SpaceSelectMapComponent_mat_form_field_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "mat-form-field", 4)(1, "mat-select", 5);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275listener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
+    });
+    \u0275\u0275template(3, SpaceSelectMapComponent_mat_form_field_1_mat_option_3_Template, 5, 3, "mat-option", 6);
+    \u0275\u0275pipe(4, "async");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(8, _c132))("placeholder", \u0275\u0275pipeBind1(2, 4, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", \u0275\u0275pipeBind1(4, 6, ctx_r1.levels));
+  }
+}
+var _SpaceSelectMapComponent = class _SpaceSelectMapComponent extends AsyncHandler {
+  get map_url() {
+    return this.level?.map_id || "";
+  }
+  get use_region() {
+    return !!this._settings.get("app.use_region");
+  }
+  constructor() {
+    super();
+    this._event_form = inject(EventFormService);
+    this._org = inject(OrganisationService);
+    this._settings = inject(SettingsService);
+    this.selected = [];
+    this.is_displayed = false;
+    this.onSelect = new EventEmitter();
+    this.zoom = 1;
+    this.center = { x: 0.5, y: 0.5 };
+    this.coordinates = void 0;
+    this._seletedSpace = (s) => () => {
+      this.onSelect.emit(s);
+      this._change.next(Date.now());
+    };
+    this.level = null;
+    this._change = new BehaviorSubject(0);
+    this.levels = combineLatest([
+      this._org.active_region,
+      this._org.active_building
+    ]).pipe(map(([region, bld]) => {
+      const level_list = this.use_region ? this._org.levelsForRegion(region) : this._org.levelsForBuilding(bld);
+      const viewable_levels = level_list.filter((lvl) => !lvl.tags.includes("parking"));
+      return viewable_levels.sort((a, b3) => a.parent_id.localeCompare(b3.parent_id) || (a.display_name || "").localeCompare(b3.display_name || ""));
+    }));
+    this.setOptions = (o) => this._event_form.setOptions(o);
+    this.features = combineLatest([
+      this._event_form.available_spaces,
+      this._change
+    ]).pipe(debounceTime(300), map(([l2]) => l2.map((space) => ({
+      location: space.map_id,
+      content: SpaceLocationPinComponent,
+      data: __spreadProps(__spreadValues({}, space), {
+        active: this.active === space.id,
+        selected: this.selected.includes(space.id)
+      })
+    }))));
+    this.actions = this._event_form.available_spaces.pipe(map((l2) => l2.map((space) => ({
+      id: space.map_id,
+      action: ["touchend", "mouseup"],
+      callback: this._seletedSpace(space)
+    }))));
+    this.styles = combineLatest([
+      this._event_form.spaces$,
+      this._event_form.available_spaces
+    ]).pipe(map(([spaces, free_spaces]) => spaces.reduce((styles, space) => {
+      const colours = this._settings.get("app.explore.colors") || {};
+      const status = free_spaces.find((_3) => _3.id === space.id) ? "free" : "busy";
+      styles[`#${space.map_id || space.id}`] = {
+        fill: colours[`space-${status}`] || colours[`${status}`] || DEFAULT_COLOURS[`${status}`]
+      };
+      return styles;
+    }, {})));
+  }
+  ngOnInit() {
+    this.subscription("levels_update", this._event_form.options$.subscribe(({ zones }) => {
+      const level = this._org.levelWithID(zones);
+      if (level)
+        this.level = level;
+    }));
+  }
+  setLevel(level) {
+    this.setOptions({ zone_ids: [level?.id] });
+    const bld = this._org.buildings.find((_3) => _3.id === level?.parent_id);
+    if (bld) {
+      const [latitude, longitude] = (level.location || bld.location).split(",").map((_3) => parseFloat(_3));
+      this.coordinates = { latitude, longitude };
+    }
+    this.level = level;
+  }
+  setZoom(new_zoom) {
+    this.zoom = Math.max(0.5, Math.min(10, new_zoom));
+  }
+  resetMap() {
+    this.zoom = 1;
+    this.center = { x: 0.5, y: 0.5 };
+  }
+};
+_SpaceSelectMapComponent.\u0275fac = function SpaceSelectMapComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _SpaceSelectMapComponent)();
+};
+_SpaceSelectMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceSelectMapComponent, selectors: [["space-map"]], inputs: { selected: "selected", active: "active", is_displayed: "is_displayed" }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["appearance", "outline", 1, "w-full"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function SpaceSelectMapComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275template(1, SpaceSelectMapComponent_mat_form_field_1_Template, 5, 9, "mat-form-field", 1);
+    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "async");
+    \u0275\u0275pipe(7, "async");
+    \u0275\u0275twoWayListener("zoomChange", function SpaceSelectMapComponent_Template_interactive_map_zoomChange_4_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.zoom, $event) || (ctx.zoom = $event);
+      return $event;
+    })("centerChange", function SpaceSelectMapComponent_Template_interactive_map_centerChange_4_listener($event) {
+      \u0275\u0275twoWayBindingSet(ctx.center, $event) || (ctx.center = $event);
+      return $event;
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    let tmp_0_0;
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", (tmp_0_0 = \u0275\u0275pipeBind1(2, 8, ctx.levels)) == null ? null : tmp_0_0.length);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("src", ctx.map_url);
+    \u0275\u0275twoWayProperty("zoom", ctx.zoom)("center", ctx.center);
+    \u0275\u0275property("styles", \u0275\u0275pipeBind1(5, 10, ctx.styles))("features", \u0275\u0275pipeBind1(6, 12, ctx.features))("actions", \u0275\u0275pipeBind1(7, 14, ctx.actions))("options", \u0275\u0275pureFunction0(16, _c061));
+  }
+}, dependencies: [
+  CommonModule,
+  NgForOf,
+  NgIf,
+  AsyncPipe,
+  InteractiveMapComponent,
+  MatFormFieldModule,
+  MatFormField,
+  MatSelectModule,
+  MatSelect,
+  MatOption,
+  FormsModule,
+  NgControlStatus,
+  NgModel,
+  TranslatePipe,
+  BuildingPipe
+], styles: ["\n\n[_nghost-%COMP%] {\n  position: relative;\n  background: rgba(0, 0, 0, 0.05);\n  display: flex;\n  flex-direction: column;\n}\nbutton[_ngcontent-%COMP%] {\n  border-radius: 0;\n}\n/*# sourceMappingURL=space-map.component.css.map */"] });
+var SpaceSelectMapComponent = _SpaceSelectMapComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpaceSelectMapComponent, [{
+    type: Component,
+    args: [{ selector: `space-map`, template: `
+        <div class="border-base-200 bg-base-100 w-full border-b p-2">
+            <mat-form-field
+                appearance="outline"
+                class="w-full"
+                *ngIf="(levels | async)?.length"
+            >
+                <mat-select
+                    name="location"
+                    [(ngModel)]="level"
+                    (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                    [ngModelOptions]="{ standalone: true }"
+                    [placeholder]="'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate"
+                >
+                    <mat-option
+                        *ngFor="let lvl of levels | async"
+                        [value]="lvl"
+                    >
+                        <div class="flex flex-col-reverse">
+                            <div class="text-xs opacity-30" *ngIf="use_region">
+                                {{ (lvl.parent_id | building)?.display_name }}
+                                <span class="opacity-0"> - </span>
+                            </div>
+                            <div>
+                                {{ lvl.display_name || lvl.name }}
+                            </div>
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="relative w-full flex-1">
+            <interactive-map
+                [src]="map_url"
+                [(zoom)]="zoom"
+                [(center)]="center"
+                [styles]="styles | async"
+                [features]="features | async"
+                [actions]="actions | async"
+                [options]="{ controls: true }"
+            ></interactive-map>
+        </div>
+    `, imports: [
+      CommonModule,
+      InteractiveMapComponent,
+      MatFormFieldModule,
+      MatSelectModule,
+      FormsModule,
+      TranslatePipe,
+      BuildingPipe
+    ], styles: ["/* angular:styles/component:css;3e52039fa2b2dc4b43d4f232e06fb31261aaccd73f5b7c706cba74f59e7ddeb1;/home/runner/work/user-interfaces/user-interfaces/libs/events/src/lib/space-select-modal/space-map.component.ts */\n:host {\n  position: relative;\n  background: rgba(0, 0, 0, 0.05);\n  display: flex;\n  flex-direction: column;\n}\nbutton {\n  border-radius: 0;\n}\n/*# sourceMappingURL=space-map.component.css.map */\n"] }]
+  }], () => [], { selected: [{
+    type: Input
+  }], active: [{
+    type: Input
+  }], is_displayed: [{
+    type: Input
+  }], onSelect: [{
+    type: Output
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceSelectMapComponent, { className: "SpaceSelectMapComponent", filePath: "libs/events/src/lib/space-select-modal/space-map.component.ts", lineNumber: 95 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-select-modal.component.ts
-var _c054 = (a0) => ({ count: a0 });
+var _c062 = (a0) => ({ count: a0 });
 function SpaceSelectModalComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -150859,7 +156260,7 @@ function SpaceSelectModalComponent_Conditional_20_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("selected", ctx_r1.selected_ids)("is_displayed", !!ctx_r1.displayed)("active", ctx_r1.displayed == null ? null : ctx_r1.displayed.id);
+    \u0275\u0275property("selected", ctx_r1.selected_ids_list)("is_displayed", !!ctx_r1.displayed)("active", ctx_r1.displayed == null ? null : ctx_r1.displayed.id);
   }
 }
 function SpaceSelectModalComponent_Conditional_24_Template(rf, ctx) {
@@ -150883,6 +156284,9 @@ function SpaceSelectModalComponent_Conditional_24_Template(rf, ctx) {
 var _SpaceSelectModalComponent = class _SpaceSelectModalComponent {
   get selected_ids() {
     return this.selected.map((_3) => _3.id).join(",");
+  }
+  get selected_ids_list() {
+    return this.selected.map((_3) => _3.id);
   }
   get favorites() {
     return this._settings.get("favourite_spaces") || [];
@@ -150930,7 +156334,7 @@ var _SpaceSelectModalComponent = class _SpaceSelectModalComponent {
 _SpaceSelectModalComponent.\u0275fac = function SpaceSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceSelectModalComponent)();
 };
-_SpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceSelectModalComponent, selectors: [["space-select-modal"]], decls: 46, vars: 53, consts: [[1, "flex", "h-screen", "w-screen", "flex-col", "bg-base-100", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "list", "", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "divide-base-200", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "multiday", "hide_levels", "viewing_map"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "w-full", "border-b", "border-base-200", 3, "viewChange", "view"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "selected", "is_displayed", "active"], [1, "absolute", "z-20", "flex", "h-full", "w-full", "min-w-[20rem]", "bg-base-100", "sm:relative", "sm:h-[65vh]", "sm:max-w-[20rem]", "sm:flex-col", 3, "activeChange", "toggleFav", "close", "space", "alert", "hide_map", "active", "fav"], [1, "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "border-base-200", "px-2", "pb-22", "pt-2", "sm:hidden"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-spaces", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "hidden", "w-full", "items-center", "justify-between", "border-t", "border-base-200", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "toggle-space", 3, "click", "disabled"], [1, "mr-1"], [1, "h-1/2", "flex-1", "bg-base-200", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "selected", "is_displayed", "active"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function SpaceSelectModalComponent_Template(rf, ctx) {
+_SpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceSelectModalComponent, selectors: [["space-select-modal"]], decls: 46, vars: 53, consts: [[1, "bg-base-100", "flex", "h-screen", "w-screen", "flex-col", "sm:relative", "sm:h-auto", "sm:w-auto"], [1, "flex", "w-full", "items-center", "space-x-4"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "hidden", "flex-1", "items-center", "justify-end", "sm:flex"], ["btn", "", "matRipple", "", "map", "", 1, "rounded-l", "rounded-r-none", 3, "click"], ["btn", "", "matRipple", "", "list", "", 1, "rounded-l-none", "rounded-r", 3, "click"], [1, "divide-base-200", "flex", "h-[65vh]", "min-h-[65vh]", "w-full", "flex-1", "items-center", "divide-x", "overflow-hidden", "sm:max-h-[65vh]", "sm:max-w-[95vw]"], [1, "hidden", "h-full", "max-w-[20rem]", "sm:flex", "sm:h-[65vh]", "sm:max-h-full", 3, "multiday", "hide_levels", "viewing_map"], [1, "flex", "h-full", "w-1/2", "flex-1", "flex-col", "items-center", "sm:h-[65vh]"], [1, "border-base-200", "w-full", "border-b", 3, "viewChange", "view"], [1, "bg-base-200", "h-1/2", "flex-1", 3, "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "selected", "is_displayed", "active"], [1, "bg-base-100", "absolute", "z-20", "flex", "h-full", "w-full", "min-w-[20rem]", "sm:relative", "sm:h-[65vh]", "sm:max-w-[20rem]", "sm:flex-col", 3, "activeChange", "toggleFav", "close", "space", "alert", "hide_map", "active", "fav"], [1, "border-base-200", "flex", "w-full", "flex-col-reverse", "items-center", "justify-end", "border-t", "px-2", "pt-2", "pb-22", "sm:hidden"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "inverse", "w-full", "sm:hidden"], ["btn", "", "matRipple", "", "name", "save-spaces", 1, "w-full", "sm:mb-0", "sm:w-32", 3, "mat-dialog-close"], [1, "border-base-200", "hidden", "w-full", "items-center", "justify-between", "border-t", "p-2", "sm:flex"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "clear", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center"], [1, "text-xl"], [1, "mr-1", "underline"], [1, "text-sm", "opacity-60"], ["btn", "", "matRipple", "", "name", "toggle-space", 3, "click", "disabled"], [1, "mr-1"], [1, "bg-base-200", "h-1/2", "flex-1", 3, "toggleFav", "onSelect", "active", "selected", "favorites"], [1, "h-1/2", "w-full", "flex-1", 3, "onSelect", "selected", "is_displayed", "active"], ["btn", "", "matRipple", "", "name", "spaces-return", 1, "inverse", "w-full", "sm:hidden", 3, "click"]], template: function SpaceSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "button", 2)(3, "icon");
     \u0275\u0275text(4, "close");
@@ -151034,7 +156438,7 @@ _SpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(35, 44, "COMMON.BACK_TO_FORM"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(38, 46, "CALENDAR_EVENT.SPACE_SELECT_COUNT", \u0275\u0275pureFunction1(51, _c054, ctx.selected.length)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(38, 46, "CALENDAR_EVENT.SPACE_SELECT_COUNT", \u0275\u0275pureFunction1(51, _c062, ctx.selected.length)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("inverse", ctx.isSelected(ctx.displayed == null ? null : ctx.displayed.id));
     \u0275\u0275property("disabled", !ctx.displayed);
@@ -151055,7 +156459,8 @@ _SpaceSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   SpaceFiltersDisplayComponent,
   IconComponent,
   MatDialogModule,
-  MatDialogClose
+  MatDialogClose,
+  SpaceSelectMapComponent
 ], encapsulation: 2 });
 var SpaceSelectModalComponent = _SpaceSelectModalComponent;
 (() => {
@@ -151063,7 +156468,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
     type: Component,
     args: [{ selector: "space-select-modal", template: `
         <div
-            class="flex h-screen w-screen flex-col bg-base-100 sm:relative sm:h-auto sm:w-auto"
+            class="bg-base-100 flex h-screen w-screen flex-col sm:relative sm:h-auto sm:w-auto"
         >
             <header class="flex w-full items-center space-x-4">
                 <button icon matRipple mat-dialog-close class="bg-base-200">
@@ -151094,7 +156499,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                 </div>
             </header>
             <main
-                class="flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x divide-base-200 overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
+                class="divide-base-200 flex h-[65vh] min-h-[65vh] w-full flex-1 items-center divide-x overflow-hidden sm:max-h-[65vh] sm:max-w-[95vw]"
             >
                 <space-filters
                     class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
@@ -151106,7 +156511,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                     class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
                 >
                     <space-filters-display
-                        class="w-full border-b border-base-200"
+                        class="border-base-200 w-full border-b"
                         [(view)]="view"
                     ></space-filters-display>
                     @if (view === 'list') {
@@ -151116,12 +156521,12 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                             [favorites]="favorites"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed = $event"
-                            class="h-1/2 flex-1 bg-base-200"
+                            class="bg-base-200 h-1/2 flex-1"
                         ></space-list>
                     } @else {
                         <space-map
                             class="h-1/2 w-full flex-1"
-                            [selected]="selected_ids"
+                            [selected]="selected_ids_list"
                             [is_displayed]="!!displayed"
                             [active]="displayed?.id"
                             (onSelect)="displayed = $event"
@@ -151132,7 +156537,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                 <space-details
                     [space]="displayed"
                     [alert]="(room_alerts | async)[displayed?.id]"
-                    class="absolute z-20 flex h-full w-full min-w-[20rem] bg-base-100 sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
+                    class="bg-base-100 absolute z-20 flex h-full w-full min-w-[20rem] sm:relative sm:h-[65vh] sm:max-w-[20rem] sm:flex-col"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [hide_map]="view === 'map'"
@@ -151144,7 +156549,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                 ></space-details>
             </main>
             <footer
-                class="flex w-full flex-col-reverse items-center justify-end border-t border-base-200 px-2 pb-22 pt-2 sm:hidden"
+                class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
             >
                 @if (displayed) {
                     <button
@@ -151169,7 +156574,7 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
                 </button>
             </footer>
             <footer
-                class="hidden w-full items-center justify-between border-t border-base-200 p-2 sm:flex"
+                class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
                 <button
                     btn
@@ -151224,16 +156629,17 @@ var SpaceSelectModalComponent = _SpaceSelectModalComponent;
       SpaceFiltersComponent,
       SpaceFiltersDisplayComponent,
       IconComponent,
-      MatDialogModule
+      MatDialogModule,
+      SpaceSelectMapComponent
     ] }]
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceSelectModalComponent, { className: "SpaceSelectModalComponent", filePath: "libs/events/src/lib/space-select-modal/space-select-modal.component.ts", lineNumber: 191 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceSelectModalComponent, { className: "SpaceSelectModalComponent", filePath: "libs/events/src/lib/space-select-modal/space-select-modal.component.ts", lineNumber: 193 });
 })();
 
 // libs/events/src/lib/setup-breakdown-modal.component.ts
-var _c055 = () => [5, 10];
+var _c063 = () => [5, 10];
 function SetupBreakdownModalComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "button", 1)(1, "icon");
@@ -151262,11 +156668,11 @@ function SetupBreakdownModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 7, "CALENDAR_EVENT.SETUP_DURATION"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("min", 0)("custom_options", \u0275\u0275pureFunction0(11, _c055));
+    \u0275\u0275property("min", 0)("custom_options", \u0275\u0275pureFunction0(11, _c063));
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 9, "CALENDAR_EVENT.BREAKDOWN_DURATION"), "Breakdown Duration");
     \u0275\u0275advance(2);
-    \u0275\u0275property("min", 0)("custom_options", \u0275\u0275pureFunction0(12, _c055));
+    \u0275\u0275property("min", 0)("custom_options", \u0275\u0275pureFunction0(12, _c063));
   }
 }
 function SetupBreakdownModalComponent_Conditional_6_Template(rf, ctx) {
@@ -151345,7 +156751,7 @@ var _SetupBreakdownModalComponent = class _SetupBreakdownModalComponent {
 _SetupBreakdownModalComponent.\u0275fac = function SetupBreakdownModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SetupBreakdownModalComponent)();
 };
-_SetupBreakdownModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetupBreakdownModalComponent, selectors: [["setup-breakdown-modal"]], decls: 8, vars: 6, consts: [[1, "min-h-16", "space-x-4"], ["btn", "", "icon", "", "mat-dialog-close", "", "matRipple", ""], [1, "w-full", "min-w-[20rem]", "p-4", 3, "formGroup"], [1, "flex", "h-64", "w-64", "flex-col", "items-center", "justify-center"], [1, "flex", "justify-end", "border-t", "border-base-200", "px-4", "py-2"], [1, "flex", "flex-col", "space-y-2"], ["for", "setup"], ["name", "setup", "formControlName", "setup", 3, "min", "custom_options"], ["for", "breakdown"], ["name", "breakdown", "formControlName", "breakdown", 3, "min", "custom_options"], [3, "diameter"], [1, "p-4", "text-center"], ["btn", "", "matRipple", "", 3, "click"]], template: function SetupBreakdownModalComponent_Template(rf, ctx) {
+_SetupBreakdownModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetupBreakdownModalComponent, selectors: [["setup-breakdown-modal"]], decls: 8, vars: 6, consts: [[1, "min-h-16", "space-x-4"], ["btn", "", "icon", "", "mat-dialog-close", "", "matRipple", ""], [1, "w-full", "min-w-[20rem]", "p-4", 3, "formGroup"], [1, "flex", "h-64", "w-64", "flex-col", "items-center", "justify-center"], [1, "border-base-200", "flex", "justify-end", "border-t", "px-4", "py-2"], [1, "flex", "flex-col", "space-y-2"], ["for", "setup"], ["name", "setup", "formControlName", "setup", 3, "min", "custom_options"], ["for", "breakdown"], ["name", "breakdown", "formControlName", "breakdown", 3, "min", "custom_options"], [3, "diameter"], [1, "p-4", "text-center"], ["btn", "", "matRipple", "", 3, "click"]], template: function SetupBreakdownModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2");
     \u0275\u0275text(2);
@@ -151366,7 +156772,22 @@ _SetupBreakdownModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275advance(2);
     \u0275\u0275conditional(!ctx.loading ? 7 : -1);
   }
-}, dependencies: [MatRippleModule, MatRipple, TranslatePipe, IconComponent, MatDialogModule, MatDialogClose], encapsulation: 2 });
+}, dependencies: [
+  MatRippleModule,
+  MatRipple,
+  TranslatePipe,
+  IconComponent,
+  MatDialogModule,
+  MatDialogClose,
+  DurationFieldComponent,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  ReactiveFormsModule,
+  NgControlStatus,
+  NgControlStatusGroup,
+  FormGroupDirective,
+  FormControlName
+], encapsulation: 2 });
 var SetupBreakdownModalComponent = _SetupBreakdownModalComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SetupBreakdownModalComponent, [{
@@ -151416,17 +156837,25 @@ var SetupBreakdownModalComponent = _SetupBreakdownModalComponent;
             </div>
         }
         @if (!loading) {
-            <footer class="flex justify-end border-t border-base-200 px-4 py-2">
+            <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </footer>
         }
-    `, imports: [MatRippleModule, TranslatePipe, IconComponent, MatDialogModule] }]
+    `, imports: [
+      MatRippleModule,
+      TranslatePipe,
+      IconComponent,
+      MatDialogModule,
+      DurationFieldComponent,
+      MatProgressSpinnerModule,
+      ReactiveFormsModule
+    ] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetupBreakdownModalComponent, { className: "SetupBreakdownModalComponent", filePath: "libs/events/src/lib/setup-breakdown-modal.component.ts", lineNumber: 72 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetupBreakdownModalComponent, { className: "SetupBreakdownModalComponent", filePath: "libs/events/src/lib/setup-breakdown-modal.component.ts", lineNumber: 83 });
 })();
 
 // libs/events/src/lib/calendar.service.ts
@@ -151513,7 +156942,6 @@ export {
   lastValueFrom,
   map,
   combineLatest,
-  defer,
   forkJoin,
   timer,
   interval,
@@ -151521,9 +156949,6 @@ export {
   filter,
   catchError,
   debounceTime,
-  defaultIfEmpty,
-  take,
-  delay,
   distinctUntilChanged,
   distinctUntilKeyChanged,
   first,
@@ -151541,7 +156966,6 @@ export {
   InjectionToken,
   ɵɵinject,
   inject,
-  EnvironmentInjector,
   ɵɵrestoreView,
   ɵɵresetView,
   ɵɵnamespaceSVG,
@@ -151669,29 +157093,17 @@ export {
   DomRendererFactory2,
   platformBrowser,
   BrowserModule,
-  TAB,
   ENTER,
-  ESCAPE,
   SPACE,
-  UP_ARROW,
-  DOWN_ARROW,
   COMMA,
-  _getFocusedElementPierceShadowDom,
-  _getEventTarget,
   Platform,
   FocusMonitor,
   CdkMonitorFocus,
   _CdkPrivateStyleLoader,
-  coerceArray,
-  BreakpointObserver,
   CdkObserveContent,
   _IdGenerator,
   hasModifierKey,
-  ActiveDescendantKeyManager,
   FocusKeyManager,
-  addAriaReferencedId,
-  removeAriaReferencedId,
-  Breakpoints,
   _animationsDisabled,
   MAT_RIPPLE_GLOBAL_OPTIONS,
   MatRipple,
@@ -151704,12 +157116,6 @@ export {
   CdkPortalOutlet,
   CdkScrollable,
   ViewportRuler,
-  CdkScrollableModule,
-  createRepositionScrollStrategy,
-  OverlayConfig,
-  createFlexibleConnectedPositionStrategy,
-  createOverlayRef,
-  OverlayModule,
   MatSnackBarModule,
   AnimationMetadataType,
   AUTO_STYLE,
@@ -151726,7 +157132,6 @@ export {
   RouterLinkActive,
   RouterModule,
   ServiceWorkerModule,
-  toDate2 as toDate,
   addDays,
   addMonths,
   addHours,
@@ -151791,9 +157196,9 @@ export {
   Kc,
   xa,
   Aa,
-  yh,
+  gh,
   $o,
-  kh,
+  $h,
   i18n,
   LocaleService,
   unique,
@@ -151834,7 +157239,6 @@ export {
   BuildingLevel,
   Building,
   OrganisationService,
-  generateQRCode,
   scanForQRCode,
   NO_RECURR,
   fromEventRecurrence,
@@ -151860,13 +157264,7 @@ export {
   Desk,
   CalendarEvent,
   _MatInternalFormField,
-  MAT_OPTION_PARENT_COMPONENT,
-  MAT_OPTGROUP,
-  MatOptionSelectionChange,
   MatOption,
-  _countGroupLabelsBeforeOption,
-  _getOptionScrollPosition,
-  MatOptionModule,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   SafePipe,
@@ -151875,7 +157273,6 @@ export {
   MatError,
   MatPrefix,
   MatSuffix,
-  MAT_FORM_FIELD,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -151895,7 +157292,6 @@ export {
   AttachedResourceConfigModalComponent,
   AuthenticatedImageDirective,
   USER_DOMAIN2 as USER_DOMAIN,
-  generateUserForm,
   SpacePipe,
   requestSpacesForZone,
   generateMockSpace,
@@ -151913,11 +157309,9 @@ export {
   InteractiveMapComponent,
   MapPinComponent,
   MapLocateModalComponent,
-  toObservable2 as toObservable,
   toSignal,
   MapRadiusComponent,
   MisconfiguredComponent,
-  PrintableComponent,
   RedirectComponent,
   SimpleTableComponent,
   MatRadioGroup,
@@ -151928,6 +157322,7 @@ export {
   MatChipRemove,
   MatChip,
   MatChipRow,
+  MatChipSet,
   MatChipGrid,
   MatChipInput,
   MatChipsModule,
@@ -151939,7 +157334,7 @@ export {
   MatSliderThumb,
   MatSliderModule,
   DeskHeightPresetsComponent,
-  UserControlsComponent,
+  UserControlsSidebarComponent,
   VirtualKeyboardComponent,
   BuildingPipe,
   LevelPipe,
@@ -151964,12 +157359,20 @@ export {
   DateCalendarComponent,
   DateFieldComponent,
   DurationFieldComponent,
+  MatAutocomplete,
+  MatAutocompleteOrigin,
+  MatAutocompleteTrigger,
+  MatAutocompleteModule,
   queryCalendars,
-  queryUserFreeBusy,
+  FindAvailabilityModalComponent,
   searchGuests,
+  MapLocation,
+  NewUserModalComponent,
   searchStaff,
   showStaff,
+  CounterComponent,
   UserPipe,
+  UserSearchFieldComponent,
   queryEvents,
   removeEvent,
   checkinEventGuest,
@@ -151977,6 +157380,12 @@ export {
   updateEventMetadata,
   newCalendarEventFromBooking,
   EventFormService,
+  ExploreBookQrComponent,
+  ExploreBookingModalComponent,
+  ExploreIconComponent,
+  ExploreSpaceInfoComponent,
+  DEFAULT_COLOURS,
+  ExploreSpacesService,
   StatusPillComponent,
   GroupEventDetailsModalComponent,
   MatBottomSheetRef,
@@ -152068,4 +157477,4 @@ qr/esm/decode.js:
   limitations under the License.
   *)
 */
-//# sourceMappingURL=chunk-WSBVRI5L.js.map
+//# sourceMappingURL=chunk-2I6M3YMW.js.map

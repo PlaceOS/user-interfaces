@@ -1,11 +1,11 @@
-import "./chunk-OUL5KCBM.js";
+import "./chunk-GUH6QSFR.js";
 import {
   BookingCardComponent,
   BookingFormService,
   FooterMenuComponent,
   ScheduleStateService,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
   AsyncHandler,
   AsyncPipe,
@@ -32,6 +32,8 @@ import {
   MatRippleModule,
   MatSelect,
   MatSelectModule,
+  MatTooltip,
+  MatTooltipModule,
   NG_VALUE_ACCESSOR,
   NgControlStatus,
   NgModel,
@@ -101,7 +103,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/schedule/schedule-filter-card.component.ts
 function ScheduleFilterCardComponent_Conditional_9_Template(rf, ctx) {
@@ -330,7 +332,7 @@ var _ScheduleFilterCardComponent = class _ScheduleFilterCardComponent {
 _ScheduleFilterCardComponent.\u0275fac = function ScheduleFilterCardComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ScheduleFilterCardComponent)();
 };
-_ScheduleFilterCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleFilterCardComponent, selectors: [["schedule-filter-card"]], decls: 19, vars: 12, consts: [[1, "mb-4", "flex", "items-center", "space-x-2", "border-b", "border-base-200", "text-xl"], ["icon", "", "matRipple", "", 3, "click"], [1, "w-1/2", "flex-1", "text-center"], [1, "mb-4", "space-y-4", "border-b", "border-base-200", "px-2", "pb-4"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], [1, "px-2", "pb-2"], ["btn", "", "matRipple", "", "name", "schedule-apply-filter", 1, "w-full", 3, "click"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-200", "text-2xl"], [1, "flex-1"], [1, ""], [1, "text-sm", "opacity-60"], [3, "ngModel"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["src", "assets/icons/desk-outline.svg", 1, "w-6"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"]], template: function ScheduleFilterCardComponent_Template(rf, ctx) {
+_ScheduleFilterCardComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleFilterCardComponent, selectors: [["schedule-filter-card"]], decls: 19, vars: 12, consts: [[1, "border-base-200", "mb-4", "flex", "items-center", "space-x-2", "border-b", "text-xl"], ["icon", "", "matRipple", "", 3, "click"], [1, "w-1/2", "flex-1", "text-center"], [1, "border-base-200", "mb-4", "space-y-4", "border-b", "px-2", "pb-4"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], [1, "px-2", "pb-2"], ["btn", "", "matRipple", "", "name", "schedule-apply-filter", 1, "w-full", 3, "click"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], [1, "bg-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "text-2xl"], [1, "flex-1"], [1, ""], [1, "text-sm", "opacity-60"], [3, "ngModel"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["src", "assets/icons/desk-outline.svg", 1, "w-6"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"]], template: function ScheduleFilterCardComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "button", 1);
     \u0275\u0275listener("click", function ScheduleFilterCardComponent_Template_button_click_1_listener() {
@@ -398,7 +400,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
     type: Component,
     args: [{ selector: "schedule-filter-card", template: `
         <div
-            class="mb-4 flex items-center space-x-2 border-b border-base-200 text-xl"
+            class="border-base-200 mb-4 flex items-center space-x-2 border-b text-xl"
         >
             <button icon matRipple (click)="dismiss()">
                 <icon>chevron_left</icon>
@@ -408,7 +410,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
             </h2>
             <icon></icon>
         </div>
-        <div class="mb-4 space-y-4 border-b border-base-200 px-2 pb-4">
+        <div class="border-base-200 mb-4 space-y-4 border-b px-2 pb-4">
             @if (hasFeature('spaces')) {
                 <button
                     matRipple
@@ -417,7 +419,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('event')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>place</icon>
                     </div>
@@ -445,7 +447,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('desk')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <img src="assets/icons/desk-outline.svg" class="w-6" />
                     </div>
@@ -473,7 +475,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('parking')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>drive_eta</icon>
                     </div>
@@ -501,7 +503,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('visitor')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>people</icon>
                     </div>
@@ -531,7 +533,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('locker')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>door_back</icon>
                     </div>
@@ -561,7 +563,7 @@ var ScheduleFilterCardComponent = _ScheduleFilterCardComponent;
                     (click)="toggleType('group-event')"
                 >
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                        class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                     >
                         <icon>door_back</icon>
                     </div>
@@ -894,7 +896,7 @@ var _ScheduleFiltersComponent = class _ScheduleFiltersComponent {
 _ScheduleFiltersComponent.\u0275fac = function ScheduleFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ScheduleFiltersComponent)();
 };
-_ScheduleFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleFiltersComponent, selectors: [["schedule-filters"]], decls: 34, vars: 39, consts: [[1, "hidden", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "sm:block"], [1, "mb-2", "font-medium"], [1, "flex", "flex-wrap"], [1, "m-1", "flex", "items-center", "rounded-3xl", "border", "border-base-200"], [1, "flex", "items-center", "space-x-2", "overflow-auto", "sm:hidden"], ["btn", "", "matRipple", "", "name", "schedule-open-filter-edit", 1, "min-w-12", "sm:w-24", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-xl"], [1, "flex", "items-center", "rounded-3xl", "border", "border-base-200", "bg-base-100", "pl-2", "text-sm"], [1, "px-2"], ["icon", "", "matRipple", "", "name", "schedule-remove-event-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-desk-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-parking-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-visitor-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-locker-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-event-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-desk-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-parking-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-visitor-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-locker-filter-mobile", 3, "click"]], template: function ScheduleFiltersComponent_Template(rf, ctx) {
+_ScheduleFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleFiltersComponent, selectors: [["schedule-filters"]], decls: 34, vars: 39, consts: [[1, "border-base-200", "bg-base-100", "hidden", "rounded-sm", "border", "p-2", "sm:block"], [1, "mb-2", "font-medium"], [1, "flex", "flex-wrap"], [1, "border-base-200", "m-1", "flex", "items-center", "rounded-3xl", "border"], [1, "flex", "items-center", "space-x-2", "overflow-auto", "sm:hidden"], ["btn", "", "matRipple", "", "name", "schedule-open-filter-edit", 1, "min-w-12", "sm:w-24", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-xl"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "rounded-3xl", "border", "pl-2", "text-sm"], [1, "px-2"], ["icon", "", "matRipple", "", "name", "schedule-remove-event-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-desk-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-parking-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-visitor-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-locker-filter", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-event-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-desk-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-parking-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-visitor-filter-mobile", 3, "click"], ["icon", "", "matRipple", "", "name", "schedule-remove-locker-filter-mobile", 3, "click"]], template: function ScheduleFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -982,7 +984,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
     type: Component,
     args: [{ selector: "schedule-filters", template: `
         <div
-            class="hidden rounded-sm border border-base-200 bg-base-100 p-2 sm:block"
+            class="border-base-200 bg-base-100 hidden rounded-sm border p-2 sm:block"
         >
             <h3 class="mb-2 font-medium">
                 {{
@@ -995,7 +997,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('spaces')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.ROOMS' | translate }}
@@ -1015,7 +1017,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('desks')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.DESKS' | translate }}
@@ -1035,7 +1037,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('parking')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.PARKING' | translate }}
@@ -1055,7 +1057,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('visitor-invite')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.VISITORS' | translate }}
@@ -1075,7 +1077,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('lockers')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.LOCKERS' | translate }}
@@ -1095,7 +1097,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                     hasFeature('group-events')
                 ) {
                     <div
-                        class="m-1 flex items-center rounded-3xl border border-base-200"
+                        class="border-base-200 m-1 flex items-center rounded-3xl border"
                     >
                         <div class="px-2">
                             {{ 'RESOURCE.EVENTS' | translate }}
@@ -1130,7 +1132,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('spaces')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.ROOMS' | translate }}</div>
                     <button
@@ -1148,7 +1150,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('desks')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.DESKS' | translate }}</div>
                     <button
@@ -1166,7 +1168,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('parking')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.PARKING' | translate }}</div>
                     <button
@@ -1184,7 +1186,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('visitor-invite')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.VISITORS' | translate }}</div>
                     <button
@@ -1202,7 +1204,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('lockers')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.LOCKERS' | translate }}</div>
                     <button
@@ -1220,7 +1222,7 @@ var ScheduleFiltersComponent = _ScheduleFiltersComponent;
                 hasFeature('group-events')
             ) {
                 <div
-                    class="flex items-center rounded-3xl border border-base-200 bg-base-100 pl-2 text-sm"
+                    class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"
                 >
                     <div>{{ 'RESOURCE.EVENTS' | translate }}</div>
                     <button
@@ -1366,7 +1368,7 @@ _ScheduleMobileCalendarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
     useExisting: forwardRef(() => _ScheduleMobileCalendarComponent),
     multi: true
   }
-])], decls: 21, vars: 8, consts: [[1, "p-2"], [1, "flex", "items-center", "justify-between"], ["btn", "", "matRipple", "", 1, "clear", "font-medium", 3, "click"], [1, "flex", "items-center"], ["icon", "", "matRipple", "", 3, "click"], [1, "mb-2", "grid", "grid-cols-7", "gap-2"], [1, "mx-2", "w-10", "text-center", "opacity-60"], ["icon", "", "matRipple", "", 1, "mx-2", "h-9", "min-w-[calc(14%-1rem)]", "flex-1", "overflow-visible", 3, "text-opacity-30", "text-white", "text-black", "bg-primary", "font-normal"], ["icon", "", "matRipple", "", 1, "mx-2", "h-9", "min-w-[calc(14%-1rem)]", "flex-1", "overflow-visible", 3, "click"], [1, "absolute", "-inset-0.5", "rounded-full", "border", "border-primary"]], template: function ScheduleMobileCalendarComponent_Template(rf, ctx) {
+])], decls: 21, vars: 8, consts: [[1, "p-2"], [1, "flex", "items-center", "justify-between"], ["btn", "", "matRipple", "", 1, "clear", "font-medium", 3, "click"], [1, "flex", "items-center"], ["icon", "", "matRipple", "", 3, "click"], [1, "mb-2", "grid", "grid-cols-7", "gap-2"], [1, "mx-2", "w-10", "text-center", "opacity-60"], ["icon", "", "matRipple", "", 1, "mx-2", "h-9", "min-w-[calc(14%-1rem)]", "flex-1", "overflow-visible", 3, "text-opacity-30", "text-white", "text-black", "bg-primary", "font-normal"], ["icon", "", "matRipple", "", 1, "mx-2", "h-9", "min-w-[calc(14%-1rem)]", "flex-1", "overflow-visible", 3, "click"], [1, "border-primary", "absolute", "-inset-0.5", "rounded-full", "border"]], template: function ScheduleMobileCalendarComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
     \u0275\u0275listener("click", function ScheduleMobileCalendarComponent_Template_button_click_2_listener() {
@@ -1462,7 +1464,7 @@ var ScheduleMobileCalendarComponent = _ScheduleMobileCalendarComponent;
                     >
                         @if (day.is_today) {
                             <div
-                                class="absolute -inset-0.5 rounded-full border border-primary"
+                                class="border-primary absolute -inset-0.5 rounded-full border"
                             ></div>
                         }
                         {{ day.id | date: 'd' }}
@@ -1826,7 +1828,7 @@ _ScheduleSidebarComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275ScheduleSidebarComponent_BaseFactory || (\u0275ScheduleSidebarComponent_BaseFactory = \u0275\u0275getInheritedFactory(_ScheduleSidebarComponent)))(__ngFactoryType__ || _ScheduleSidebarComponent);
   };
 })();
-_ScheduleSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleSidebarComponent, selectors: [["schedule-sidebar"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 22, consts: [[1, "bg-base-100[#1F2021]", "flex", "h-full", "w-[18rem]", "flex-col", "overflow-hidden", "border-r", "border-base-200"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "w-full", "px-2"], [1, "border-b", "border-base-200", 3, "ngModel", "offset_weekday"], [1, "mx-4", "mt-4", "font-medium"], [1, "h-1/2", "flex-1", "space-y-4", "overflow-auto", "p-4"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["btn", "", "matRipple", "", 1, "inverse", "w-full", 3, "click"], [1, "border-b", "border-base-200", 3, "ngModelChange", "ngModel", "offset_weekday"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["placeholder", "Select Week...", 3, "ngModelChange", "ngModel"], [1, "leading-tight", 3, "value"], [1, "px-1", "text-xs", "text-info", 3, "matTooltip"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], [1, "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "bg-base-200", "text-2xl"], [1, "flex-1"], [1, ""], [1, "text-sm", "opacity-60"], [3, "ngModel"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["src", "assets/icons/desk-outline.svg", 1, "w-6"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"]], template: function ScheduleSidebarComponent_Template(rf, ctx) {
+_ScheduleSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleSidebarComponent, selectors: [["schedule-sidebar"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 22, consts: [[1, "bg-base-100[#1F2021]", "border-base-200", "flex", "h-full", "w-[18rem]", "flex-col", "overflow-hidden", "border-r"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "w-full", "px-2"], [1, "border-base-200", "border-b", 3, "ngModel", "offset_weekday"], [1, "mx-4", "mt-4", "font-medium"], [1, "h-1/2", "flex-1", "space-y-4", "overflow-auto", "p-4"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left"], ["btn", "", "matRipple", "", 1, "inverse", "w-full", 3, "click"], [1, "border-base-200", "border-b", 3, "ngModelChange", "ngModel", "offset_weekday"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["placeholder", "Select Week...", 3, "ngModelChange", "ngModel"], [1, "leading-tight", 3, "value"], [1, "text-info", "px-1", "text-xs", 3, "matTooltip"], ["matRipple", "", "name", "schedule-toggle-event-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], [1, "bg-base-200", "flex", "h-10", "w-10", "items-center", "justify-center", "rounded-full", "text-2xl"], [1, "flex-1"], [1, ""], [1, "text-sm", "opacity-60"], [3, "ngModel"], ["matRipple", "", "name", "schedule-toggle-desk-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["src", "assets/icons/desk-outline.svg", 1, "w-6"], ["matRipple", "", "name", "schedule-toggle-parking-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-visitor-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"], ["matRipple", "", "name", "schedule-toggle-locker-filter", 1, "flex", "w-full", "items-center", "space-x-2", "text-left", 3, "click"]], template: function ScheduleSidebarComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
     \u0275\u0275listener("click", function ScheduleSidebarComponent_Template_button_click_2_listener() {
@@ -1905,6 +1907,8 @@ _ScheduleSidebarComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   MatSelectModule,
   MatSelect,
   MatOption,
+  MatTooltipModule,
+  MatTooltip,
   DateCalendarComponent
 ], styles: ["\n\nmat-checkbox[_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n/*# sourceMappingURL=schedule-sidebar.component.css.map */"] });
 var ScheduleSidebarComponent = _ScheduleSidebarComponent;
@@ -1913,7 +1917,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
     type: Component,
     args: [{ selector: "schedule-sidebar", template: `
         <div
-            class="bg-base-100[#1F2021] flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-200"
+            class="bg-base-100[#1F2021] border-base-200 flex h-full w-[18rem] flex-col overflow-hidden border-r"
         >
             <div class="flex items-center space-x-2 p-2">
                 <button
@@ -1949,7 +1953,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
             }
             @if (period === 'day') {
                 <date-calendar
-                    class="border-b border-base-200"
+                    class="border-base-200 border-b"
                     [ngModel]="date | async"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
@@ -1977,7 +1981,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                                     {{ option.name }}
                                     @if (option.this_week) {
                                         <span
-                                            class="px-1 text-xs text-info"
+                                            class="text-info px-1 text-xs"
                                             [matTooltip]="
                                                 'COMMON.WEEK_THIS' | translate
                                             "
@@ -2002,7 +2006,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('event')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>place</icon>
                         </div>
@@ -2034,7 +2038,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('desk')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <img
                                 src="assets/icons/desk-outline.svg"
@@ -2067,7 +2071,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('parking')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>drive_eta</icon>
                         </div>
@@ -2099,7 +2103,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('visitor')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>people</icon>
                         </div>
@@ -2131,7 +2135,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('locker')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>lock</icon>
                         </div>
@@ -2163,7 +2167,7 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
                         (click)="toggleType('group-event')"
                     >
                         <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-base-200 text-2xl"
+                            class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full text-2xl"
                         >
                             <icon>event_available</icon>
                         </div>
@@ -2198,12 +2202,13 @@ var ScheduleSidebarComponent = _ScheduleSidebarComponent;
       FormsModule,
       MatFormFieldModule,
       MatSelectModule,
+      MatTooltipModule,
       DateCalendarComponent
     ], styles: ["/* angular:styles/component:css;c8f9d18253326e4ed43aff56311c0651df3afa940b60387869cba90c71ede5e2;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/schedule/schedule-sidebar.component.ts */\nmat-checkbox {\n  pointer-events: none;\n}\n/*# sourceMappingURL=schedule-sidebar.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleSidebarComponent, { className: "ScheduleSidebarComponent", filePath: "apps/workplace/src/app/schedule/schedule-sidebar.component.ts", lineNumber: 322 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleSidebarComponent, { className: "ScheduleSidebarComponent", filePath: "apps/workplace/src/app/schedule/schedule-sidebar.component.ts", lineNumber: 324 });
 })();
 
 // apps/workplace/src/app/schedule/schedule.component.ts
@@ -2531,7 +2536,7 @@ _ScheduleComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275ScheduleComponent_BaseFactory || (\u0275ScheduleComponent_BaseFactory = \u0275\u0275getInheritedFactory(_ScheduleComponent)))(__ngFactoryType__ || _ScheduleComponent);
   };
 })();
-_ScheduleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleComponent, selectors: [["app-schedule"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 20, consts: [[1, "relative", "flex", "h-1/2", "flex-1", "flex-col", "bg-base-200", "sm:flex-row"], [1, "hidden", "bg-base-100", "sm:block"], [1, "w-full", "border-b", "border-neutral", "bg-base-100", "sm:hidden"], [1, "flex", "items-center", "space-x-2", "px-2", "pt-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [3, "ngModel"], [1, "my-2", "w-full", "px-2"], [1, "h-full", "flex-1", "space-y-2", "overflow-auto", "p-4"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], ["mode", "indeterminate", 1, "absolute", "inset-x-0", "bottom-0"], [3, "ngModelChange", "ngModel"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], [1, "leading-tight", 3, "value"], [1, "px-1", "text-xs", "text-info", 3, "matTooltip"], [1, "my-2", "font-medium"], [3, "event", "edit_fn", "remove_fn"], [3, "booking", "edit_fn", "remove_fn", "end_fn"], ["src", "assets/img/no-events.svg", 1, "mr-4"], [1, "opacity-30"]], template: function ScheduleComponent_Template(rf, ctx) {
+_ScheduleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ScheduleComponent, selectors: [["app-schedule"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 20, consts: [[1, "bg-base-200", "relative", "flex", "h-1/2", "flex-1", "flex-col", "sm:flex-row"], [1, "bg-base-100", "hidden", "sm:block"], [1, "border-neutral", "bg-base-100", "w-full", "border-b", "sm:hidden"], [1, "flex", "items-center", "space-x-2", "px-2", "pt-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [3, "ngModel"], [1, "my-2", "w-full", "px-2"], [1, "h-full", "flex-1", "space-y-2", "overflow-auto", "p-4"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], ["mode", "indeterminate", 1, "absolute", "inset-x-0", "bottom-0"], [3, "ngModelChange", "ngModel"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], [1, "leading-tight", 3, "value"], [1, "text-info", "px-1", "text-xs", 3, "matTooltip"], [1, "my-2", "font-medium"], [3, "event", "edit_fn", "remove_fn"], [3, "booking", "edit_fn", "remove_fn", "end_fn"], ["src", "assets/img/no-events.svg", 1, "mr-4"], [1, "opacity-30"]], template: function ScheduleComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ScheduleComponent_Conditional_0_Template, 1, 0, "topbar");
     \u0275\u0275elementStart(1, "div", 0);
@@ -2602,6 +2607,8 @@ _ScheduleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
   MatSelectModule,
   MatSelect,
   MatOption,
+  MatTooltipModule,
+  MatTooltip,
   TranslatePipe,
   FooterMenuComponent,
   BookingCardComponent,
@@ -2620,12 +2627,12 @@ var ScheduleComponent = _ScheduleComponent;
             <topbar />
         }
         <div
-            class="relative flex h-1/2 flex-1 flex-col bg-base-200 sm:flex-row"
+            class="bg-base-200 relative flex h-1/2 flex-1 flex-col sm:flex-row"
         >
             <schedule-sidebar
-                class="hidden bg-base-100 sm:block"
+                class="bg-base-100 hidden sm:block"
             ></schedule-sidebar>
-            <div class="w-full border-b border-neutral bg-base-100 sm:hidden">
+            <div class="border-neutral bg-base-100 w-full border-b sm:hidden">
                 <div class="flex items-center space-x-2 px-2 pt-2">
                     <button
                         btn
@@ -2674,7 +2681,7 @@ var ScheduleComponent = _ScheduleComponent;
                                         {{ option.name }}
                                         @if (option.this_week) {
                                             <span
-                                                class="px-1 text-xs text-info"
+                                                class="text-info px-1 text-xs"
                                                 [matTooltip]="
                                                     'COMMON.WEEK_THIS'
                                                         | translate
@@ -2750,6 +2757,7 @@ var ScheduleComponent = _ScheduleComponent;
       MatProgressBarModule,
       MatFormFieldModule,
       MatSelectModule,
+      MatTooltipModule,
       TranslatePipe,
       FooterMenuComponent,
       BookingCardComponent,
@@ -2762,7 +2770,7 @@ var ScheduleComponent = _ScheduleComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleComponent, { className: "ScheduleComponent", filePath: "apps/workplace/src/app/schedule/schedule.component.ts", lineNumber: 205 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ScheduleComponent, { className: "ScheduleComponent", filePath: "apps/workplace/src/app/schedule/schedule.component.ts", lineNumber: 207 });
 })();
 
 // apps/workplace/src/app/schedule/schedule.module.ts
@@ -2790,4 +2798,4 @@ var AppScheduleModule = _AppScheduleModule;
 export {
   AppScheduleModule
 };
-//# sourceMappingURL=schedule.module-FOOGX5CV.js.map
+//# sourceMappingURL=schedule.module-YXJAZKTV.js.map

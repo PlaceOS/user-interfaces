@@ -1,6 +1,6 @@
 import {
   subMinutes
-} from "./chunk-VFKOWGTZ.js";
+} from "./chunk-EALZPFQX.js";
 import {
   $o,
   ANIMATION_MODULE_TYPE,
@@ -49,6 +49,7 @@ import {
   enableProdMode,
   generateMockSpace,
   getUnixTime,
+  gh,
   inject,
   isBefore,
   padString,
@@ -68,7 +69,6 @@ import {
   style,
   timePeriodsIntersect,
   unique,
-  yh,
   ɵPRE_STYLE,
   ɵsetClassDebugInfo,
   ɵɵadvance,
@@ -82,7 +82,7 @@ import {
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵinject
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // node_modules/@angular/animations/fesm2022/util-CPU6TNml.mjs
 var LINE_START = "\n - ";
@@ -4512,49 +4512,49 @@ var routes = [
     path: "landing",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./landing.module-7WQUY2IZ.js").then((m) => m.AppLandingModule)
+    loadChildren: () => import("./landing.module-Q6S7WP5K.js").then((m) => m.AppLandingModule)
   },
   {
     path: "book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.module-IPIF4HNZ.js").then((m) => m.BookModule)
+    loadChildren: () => import("./book.module-NSSHHCQK.js").then((m) => m.BookModule)
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.module-46NJ4U6O.js").then((m) => m.ExploreModule)
+    loadChildren: () => import("./explore.module-P5Y4JIWM.js").then((m) => m.ExploreModule)
   },
   {
     path: "control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.module-PHFBGDCY.js").then((m) => m.ControlModule)
+    loadChildren: () => import("./control.module-CVTX7FRF.js").then((m) => m.ControlModule)
   },
   {
     path: "directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.module-57I7ZR66.js").then((m) => m.DirectoryModule)
+    loadChildren: () => import("./directory.module-IOESZDFF.js").then((m) => m.DirectoryModule)
   },
   {
     path: "your-bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.module-FOOGX5CV.js").then((m) => m.AppScheduleModule)
+    loadChildren: () => import("./schedule.module-YXJAZKTV.js").then((m) => m.AppScheduleModule)
   },
   {
     path: "group-events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.module-TXSIG7UC.js").then((m) => m.GroupEventsModule)
+    loadChildren: () => import("./group-events.module-V65EQWWX.js").then((m) => m.GroupEventsModule)
   },
   {
     path: "deals-n-offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.module-2XHL3A2P.js").then((m) => m.DealsModule)
+    loadChildren: () => import("./deals.module-XACWTWEY.js").then((m) => m.DealsModule)
   },
   { path: "**", redirectTo: "-", pathMatch: "full" }
 ];
@@ -10571,7 +10571,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  yh(space.id, {
+  gh(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],

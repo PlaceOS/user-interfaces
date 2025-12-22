@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
   AsyncHandler,
   AsyncPipe,
@@ -22,6 +22,7 @@ import {
   NgControlStatus,
   NgModel,
   NgModule,
+  RouterLink,
   RouterModule,
   SafePipe,
   SettingsService,
@@ -72,7 +73,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/directory/user-list.component.ts
 var _c0 = ["a-directory-user-list", ""];
@@ -238,7 +239,7 @@ _DirectoryUserListComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275DirectoryUserListComponent_BaseFactory || (\u0275DirectoryUserListComponent_BaseFactory = \u0275\u0275getInheritedFactory(_DirectoryUserListComponent)))(__ngFactoryType__ || _DirectoryUserListComponent);
   };
 })();
-_DirectoryUserListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DirectoryUserListComponent, selectors: [["", "a-directory-user-list", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c0, decls: 17, vars: 8, consts: [[1, "flex", "h-1/2", "flex-1", "flex-col-reverse", "sm:flex-row"], [1, "relative", "z-0", "flex", "h-1/2", "flex-1", "flex-col", "overflow-hidden", "sm:h-auto"], [1, "flex", "w-full", "items-center", "justify-center", "p-2"], ["overlay", "", "appearance", "outline", 1, "rounded-sm"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", "placeholder", "Search for a person...", 3, "ngModelChange", "ngModel"], ["matSuffix", "", 1, "top-2", 3, "diameter"], [1, "h-1/2", "w-full", "flex-1"], [1, "flex", "flex-col", "items-center", "p-8"], [1, "px-4", "py-2", "font-medium"], ["user", "", 1, "mb-2", "flex", "flex-wrap", "items-center", "overflow-hidden", "bg-base-100", "p-4", "hover:bg-base-200", "sm:space-x-4", 3, "with-image"], ["user", "", 1, "mb-2", "flex", "flex-wrap", "items-center", "overflow-hidden", "bg-base-100", "p-4", "hover:bg-base-200", "sm:space-x-4"], [3, "user"], [1, "ml-4", "flex", "w-1/2", "flex-1", "flex-col", "sm:ml-0"], [1, "name"], ["name", "email", 1, "text-sm", "underline", 3, "href"], [1, "mt-4", "flex", "w-full", "items-center", "space-x-2", "sm:mt-0", "sm:w-auto", "sm:flex-col", "sm:space-x-0", "sm:space-y-2"], ["btn", "", "matRipple", "", 1, "w-32", "flex-1", "sm:flex-none", 3, "routerLink", "queryParams"], ["btn", "", "matRipple", "", 1, "sm:flex-nones", "w-32", "flex-1", 3, "href"], [1, "text-5xl"], [1, "text"]], template: function DirectoryUserListComponent_Template(rf, ctx) {
+_DirectoryUserListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DirectoryUserListComponent, selectors: [["", "a-directory-user-list", ""]], features: [\u0275\u0275InheritDefinitionFeature], attrs: _c0, decls: 17, vars: 8, consts: [[1, "flex", "h-1/2", "flex-1", "flex-col-reverse", "sm:flex-row"], [1, "relative", "z-0", "flex", "h-1/2", "flex-1", "flex-col", "overflow-hidden", "sm:h-auto"], [1, "flex", "w-full", "items-center", "justify-center", "p-2"], ["overlay", "", "appearance", "outline", 1, "rounded-sm"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", "placeholder", "Search for a person...", 3, "ngModelChange", "ngModel"], ["matSuffix", "", 1, "top-2", 3, "diameter"], [1, "h-1/2", "w-full", "flex-1"], [1, "flex", "flex-col", "items-center", "p-8"], [1, "px-4", "py-2", "font-medium"], ["user", "", 1, "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "flex-wrap", "items-center", "overflow-hidden", "p-4", "sm:space-x-4", 3, "with-image"], ["user", "", 1, "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "flex-wrap", "items-center", "overflow-hidden", "p-4", "sm:space-x-4"], [3, "user"], [1, "ml-4", "flex", "w-1/2", "flex-1", "flex-col", "sm:ml-0"], [1, "name"], ["name", "email", 1, "text-sm", "underline", 3, "href"], [1, "mt-4", "flex", "w-full", "items-center", "space-x-2", "sm:mt-0", "sm:w-auto", "sm:flex-col", "sm:space-y-2", "sm:space-x-0"], ["btn", "", "matRipple", "", 1, "w-32", "flex-1", "sm:flex-none", 3, "routerLink", "queryParams"], ["btn", "", "matRipple", "", 1, "sm:flex-nones", "w-32", "flex-1", 3, "href"], [1, "text-5xl"], [1, "text"]], template: function DirectoryUserListComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275element(0, "topbar");
@@ -292,7 +293,9 @@ _DirectoryUserListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   FormsModule,
   DefaultValueAccessor,
   NgControlStatus,
-  NgModel
+  NgModel,
+  RouterModule,
+  RouterLink
 ], styles: ["\n\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background: #f0f0f0;\n}\nmat-form-field[_ngcontent-%COMP%] {\n  width: 48rem;\n  max-width: calc(100% - 2rem);\n}\n/*# sourceMappingURL=user-list.component.css.map */"] });
 var DirectoryUserListComponent = _DirectoryUserListComponent;
 (() => {
@@ -341,7 +344,7 @@ var DirectoryUserListComponent = _DirectoryUserListComponent;
                                 ) {
                                     <div
                                         user
-                                        class="mb-2 flex flex-wrap items-center overflow-hidden bg-base-100 p-4 hover:bg-base-200 sm:space-x-4"
+                                        class="bg-base-100 hover:bg-base-200 mb-2 flex flex-wrap items-center overflow-hidden p-4 sm:space-x-4"
                                         [class.with-image]="show_image"
                                     >
                                         @if (show_image) {
@@ -367,7 +370,7 @@ var DirectoryUserListComponent = _DirectoryUserListComponent;
                                             </a>
                                         </div>
                                         <div
-                                            class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-x-0 sm:space-y-2"
+                                            class="mt-4 flex w-full items-center space-x-2 sm:mt-0 sm:w-auto sm:flex-col sm:space-y-2 sm:space-x-0"
                                         >
                                             <a
                                                 btn
@@ -429,12 +432,13 @@ var DirectoryUserListComponent = _DirectoryUserListComponent;
       MatFormFieldModule,
       MatProgressSpinnerModule,
       MatInputModule,
-      FormsModule
+      FormsModule,
+      RouterModule
     ], styles: ["/* angular:styles/component:css;e2b40681428f504e90765c9b1d0c08e56afefc9250e31ac0ea417debac9edbfd;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/directory/user-list.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background: #f0f0f0;\n}\nmat-form-field {\n  width: 48rem;\n  max-width: calc(100% - 2rem);\n}\n/*# sourceMappingURL=user-list.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DirectoryUserListComponent, { className: "DirectoryUserListComponent", filePath: "apps/workplace/src/app/directory/user-list.component.ts", lineNumber: 184 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DirectoryUserListComponent, { className: "DirectoryUserListComponent", filePath: "apps/workplace/src/app/directory/user-list.component.ts", lineNumber: 186 });
 })();
 
 // apps/workplace/src/app/directory/directory.module.ts
@@ -459,4 +463,4 @@ var DirectoryModule = _DirectoryModule;
 export {
   DirectoryModule
 };
-//# sourceMappingURL=directory.module-57I7ZR66.js.map
+//# sourceMappingURL=directory.module-IOESZDFF.js.map

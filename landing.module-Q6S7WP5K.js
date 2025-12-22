@@ -1,15 +1,15 @@
 import {
   BookingCardComponent,
   BookingFormService,
-  ExploreSpacesService,
   FAV_DESK_KEY,
   FAV_LOCKER_KEY,
   FAV_PARKING_KEY,
   FooterMenuComponent,
   ScheduleStateService,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
+  $h,
   Aa,
   AsyncHandler,
   AsyncPipe,
@@ -26,6 +26,7 @@ import {
   DefaultValueAccessor,
   EventCardComponent,
   EventFormService,
+  ExploreSpacesService,
   FormsModule,
   IconComponent,
   Injectable,
@@ -39,6 +40,8 @@ import {
   MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
+  MatTooltip,
+  MatTooltipModule,
   NgControlStatus,
   NgModel,
   NgModule,
@@ -70,7 +73,6 @@ import {
   i18n,
   inject,
   isSameDay,
-  kh,
   lastValueFrom,
   map,
   nextValueFrom,
@@ -136,7 +138,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/landing/landing-state.service.ts
 var _LandingStateService = class _LandingStateService extends AsyncHandler {
@@ -163,7 +165,7 @@ var _LandingStateService = class _LandingStateService extends AsyncHandler {
       resource: null
     }, rules)));
     this._space_statuses = this._filtered_spaces.pipe(tap((_) => this.unsubWith("bind:")), switchMap((list) => combineLatest((list || []).map((_) => {
-      const binding = kh(_.id, "Bookings").variable("status");
+      const binding = $h(_.id, "Bookings").variable("status");
       const obs = binding.listen();
       this.subscription(`bind:${_.id}`, binding.bind());
       return obs;
@@ -251,7 +253,7 @@ var _LandingStateService = class _LandingStateService extends AsyncHandler {
     if (!occupancy)
       return;
     const { sys, module, index } = occupancy;
-    const mod = kh(sys, module, index);
+    const mod = $h(sys, module, index);
     if (!mod)
       return;
     this._occupancy_binding = mod.variable("occupancy");
@@ -505,7 +507,7 @@ var _LandingAvailabilityComponent = class _LandingAvailabilityComponent {
 _LandingAvailabilityComponent.\u0275fac = function LandingAvailabilityComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LandingAvailabilityComponent)();
 };
-_LandingAvailabilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingAvailabilityComponent, selectors: [["landing-availability"]], features: [\u0275\u0275ProvidersFeature([ExploreSpacesService])], decls: 6, vars: 5, consts: [[1, "py-2"], [1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "flex", "items-center", "space-x-2", "px-4", "text-sm", "sm:text-base"], [1, "mx-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "items-center", "space-x-2", "overflow-auto", "py-2", 3, "mb-4"], [1, "mx-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "items-center", "space-x-2", "overflow-auto", "py-2"], ["name", "landing-view-space", "matRipple", "", 1, "flex", "w-64", "snap-start", "items-center", "space-x-2", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "routerLink", "queryParams"], [1, "mb-2", "text-sm", "opacity-60"], [1, "flex", "h-16", "w-16", "min-w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm", "bg-base-200"], ["auth", "", 1, "h-full", "w-full", "object-cover", "object-center", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "w-1/2", "flex-1", "space-y-1", "text-left"], [1, "max-w-full", "truncate", "px-1.5", "font-medium"], [1, "flex", "max-w-full", "items-center", "truncate", "text-sm", "opacity-60"], [1, "text-blue-500", "text-lg"], [1, "flex-1", "truncate"], ["diameter", "24"], ["name", "landing-book-room", "matRipple", "", 1, "flex", "w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["name", "landing-book-room", "matRipple", "", 1, "flex", "w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "click"], ["src", "assets/icons/room-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingAvailabilityComponent_Template(rf, ctx) {
+_LandingAvailabilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingAvailabilityComponent, selectors: [["landing-availability"]], features: [\u0275\u0275ProvidersFeature([ExploreSpacesService])], decls: 6, vars: 5, consts: [[1, "py-2"], [1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "flex", "items-center", "space-x-2", "px-4", "text-sm", "sm:text-base"], [1, "mx-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "items-center", "space-x-2", "overflow-auto", "py-2", 3, "mb-4"], [1, "mx-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "items-center", "space-x-2", "overflow-auto", "py-2"], ["name", "landing-view-space", "matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "snap-start", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "shadow-sm", 3, "routerLink", "queryParams"], [1, "mb-2", "text-sm", "opacity-60"], [1, "bg-base-200", "flex", "h-16", "w-16", "min-w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm"], ["auth", "", 1, "h-full", "w-full", "object-cover", "object-center", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "w-1/2", "flex-1", "space-y-1", "text-left"], [1, "max-w-full", "truncate", "px-1.5", "font-medium"], [1, "flex", "max-w-full", "items-center", "truncate", "text-sm", "opacity-60"], [1, "text-lg", "text-blue-500"], [1, "flex-1", "truncate"], ["diameter", "24"], ["name", "landing-book-room", "matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "p-2", "shadow-sm"], ["name", "landing-book-room", "matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "p-2", "shadow-sm", 3, "click"], ["src", "assets/icons/room-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingAvailabilityComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275conditionalCreate(1, LandingAvailabilityComponent_Conditional_1_Template, 3, 3, "div", 1);
@@ -538,7 +540,8 @@ _LandingAvailabilityComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
   MatProgressSpinner,
   RouterModule,
   RouterLink,
-  IconComponent
+  IconComponent,
+  AuthenticatedImageDirective
 ], styles: ["\n\n*[_ngcontent-%COMP%] {\n  shrink: 0;\n}\n/*# sourceMappingURL=landing-availability.component.css.map */"] });
 var LandingAvailabilityComponent = _LandingAvailabilityComponent;
 (() => {
@@ -569,12 +572,12 @@ var LandingAvailabilityComponent = _LandingAvailabilityComponent;
                         <button
                             name="landing-view-space"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-2 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 flex w-64 snap-start items-center space-x-2 rounded-sm border p-2 shadow-sm"
                             [routerLink]="['/explore']"
                             [queryParams]="{ level: lvl.id }"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                                class="bg-base-200 flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (lvl?.images?.length) {
                                     <img
@@ -598,7 +601,7 @@ var LandingAvailabilityComponent = _LandingAvailabilityComponent;
                                 <div
                                     class="flex max-w-full items-center truncate text-sm opacity-60"
                                 >
-                                    <icon class="text-blue-500 text-lg"
+                                    <icon class="text-lg text-blue-500"
                                         >place</icon
                                     >
                                     @let building = lvl.parent_id | building;
@@ -645,11 +648,11 @@ var LandingAvailabilityComponent = _LandingAvailabilityComponent;
                         <button
                             name="landing-book-room"
                             matRipple
-                            class="flex w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                            class="border-base-200 bg-base-100 flex w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                             (click)="book(space)"
                         >
                             <div
-                                class="flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                                class="bg-base-200 flex h-16 w-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (
                                     (space.id | space | async)?.images?.length
@@ -678,7 +681,7 @@ var LandingAvailabilityComponent = _LandingAvailabilityComponent;
                                 <div
                                     class="flex max-w-full items-center truncate text-sm opacity-60"
                                 >
-                                    <icon class="text-blue-500 text-lg"
+                                    <icon class="text-lg text-blue-500"
                                         >place</icon
                                     >
                                     @let level = space.zones | level;
@@ -708,12 +711,13 @@ var LandingAvailabilityComponent = _LandingAvailabilityComponent;
       SpacePipe,
       MatProgressSpinnerModule,
       RouterModule,
-      IconComponent
+      IconComponent,
+      AuthenticatedImageDirective
     ], styles: ["/* angular:styles/component:css;604008b5b82ae8efe608a1ad34bb5a806886552a595ea4c88282f9cd101ac1cc;/home/runner/work/user-interfaces/user-interfaces/apps/workplace/src/app/landing/landing-availability.component.ts */\n* {\n  shrink: 0;\n}\n/*# sourceMappingURL=landing-availability.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LandingAvailabilityComponent, { className: "LandingAvailabilityComponent", filePath: "apps/workplace/src/app/landing/landing-availability.component.ts", lineNumber: 194 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LandingAvailabilityComponent, { className: "LandingAvailabilityComponent", filePath: "apps/workplace/src/app/landing/landing-availability.component.ts", lineNumber: 196 });
 })();
 
 // apps/workplace/src/app/landing/landing-colleagues.component.ts
@@ -782,7 +786,7 @@ function LandingColleaguesComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275property("user", user_r3);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!user_r3.outsideHours() ? 3 : -1);
+    \u0275\u0275conditional(!(user_r3.outsideHours == null ? null : user_r3.outsideHours()) ? 3 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275property("matTooltip", user_r3.name);
     \u0275\u0275advance();
@@ -967,7 +971,7 @@ _LandingColleaguesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   if (rf & 2) {
     \u0275\u0275queryAdvance();
   }
-}, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 25, consts: [["search_input", ""], ["menu", "matMenu"], [1, "mx-2", "flex", "items-center", "justify-between", "rounded-sm", "bg-base-200", "p-2", "text-sm"], [1, "h-1/2", "w-full", "flex-1", "space-y-4", "overflow-auto", "pt-4"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["btn", "", "name", "open-colleague-search", "matRipple", "", 1, "inverse", "m-2", "w-[calc(100%-1rem)]", 3, "click"], ["search", "", 1, "absolute", "inset-x-2", "bottom-16", "top-2", "flex", "flex-col", "overflow-hidden", "rounded-sm", "border", "border-base-200", "bg-base-100"], [1, "w-full", "border-b", "border-base-200", "p-2", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "name", "close-colleague-search", 1, "absolute", "right-0", "top-0", 3, "click"], [1, "flex", "h-1/2", "flex-1", "flex-col", "space-y-2", "overflow-auto"], ["user", "", 1, "relative", "flex", "items-center", "space-x-2", "px-2"], [1, "relative", "text-xl"], [3, "user"], [1, "absolute", "bottom-1", "right-1", "h-3", "w-3", "rounded-full", "border", "border-white", 3, "bg-error", "bg-success", "bg-warning", "bg-neutral", "matTooltip"], [1, "w-1/2", "flex-1", "leading-tight"], [1, "truncate", 3, "matTooltip"], [1, "truncate", "text-sm", 3, "matTooltip"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "name", "colleague-more", 1, "rounded-sm!", "bg-base-200", 3, "matMenuTriggerFor"], ["xPosition", "before"], ["mat-menu-item", "", "name", "meeting-with-colleague", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["name", "remove-colleague", "mat-menu-item", "", 3, "click"], [1, "absolute", "bottom-1", "right-1", "h-3", "w-3", "rounded-full", "border", "border-white", 3, "matTooltip"], ["src", "assets/icons/no-contacts.svg"], [1, "text-center", "text-sm", "opacity-60"], ["matRipple", "", "name", "add-colleague", 1, "flex", "min-h-12", "w-full", "items-center", "space-x-2", "p-1", "text-left"], ["matRipple", "", "name", "add-colleague", 1, "flex", "min-h-12", "w-full", "items-center", "space-x-2", "p-1", "text-left", 3, "click"], [1, "relative", "text-base"], [1, "flex-1", "leading-tight"], [1, "truncate"], ["diameter", "32"]], template: function LandingColleaguesComponent_Template(rf, ctx) {
+}, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 25, consts: [["search_input", ""], ["menu", "matMenu"], [1, "bg-base-200", "mx-2", "flex", "items-center", "justify-between", "rounded-sm", "p-2", "text-sm"], [1, "h-1/2", "w-full", "flex-1", "space-y-4", "overflow-auto", "pt-4"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["btn", "", "name", "open-colleague-search", "matRipple", "", 1, "inverse", "m-2", "w-[calc(100%-1rem)]", 3, "click"], ["search", "", 1, "border-base-200", "bg-base-100", "absolute", "inset-x-2", "top-2", "bottom-16", "flex", "flex-col", "overflow-hidden", "rounded-sm", "border"], [1, "border-base-200", "w-full", "border-b", "p-2", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "name", "close-colleague-search", 1, "absolute", "top-0", "right-0", 3, "click"], [1, "flex", "h-1/2", "flex-1", "flex-col", "space-y-2", "overflow-auto"], ["user", "", 1, "relative", "flex", "items-center", "space-x-2", "px-2"], [1, "relative", "text-xl"], [3, "user"], [1, "absolute", "right-1", "bottom-1", "h-3", "w-3", "rounded-full", "border", "border-white", 3, "bg-error", "bg-success", "bg-warning", "bg-neutral", "matTooltip"], [1, "w-1/2", "flex-1", "leading-tight"], [1, "truncate", 3, "matTooltip"], [1, "truncate", "text-sm", 3, "matTooltip"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "name", "colleague-more", 1, "bg-base-200", "rounded-sm!", 3, "matMenuTriggerFor"], ["xPosition", "before"], ["mat-menu-item", "", "name", "meeting-with-colleague", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], ["name", "remove-colleague", "mat-menu-item", "", 3, "click"], [1, "absolute", "right-1", "bottom-1", "h-3", "w-3", "rounded-full", "border", "border-white", 3, "matTooltip"], ["src", "assets/icons/no-contacts.svg"], [1, "text-center", "text-sm", "opacity-60"], ["matRipple", "", "name", "add-colleague", 1, "flex", "min-h-12", "w-full", "items-center", "space-x-2", "p-1", "text-left"], ["matRipple", "", "name", "add-colleague", 1, "flex", "min-h-12", "w-full", "items-center", "space-x-2", "p-1", "text-left", 3, "click"], [1, "relative", "text-base"], [1, "flex-1", "leading-tight"], [1, "truncate"], ["diameter", "32"]], template: function LandingColleaguesComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2)(1, "h2");
@@ -1035,6 +1039,8 @@ _LandingColleaguesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   MatRipple,
   MatProgressSpinnerModule,
   MatProgressSpinner,
+  MatTooltipModule,
+  MatTooltip,
   UserAvatarComponent,
   FormsModule,
   DefaultValueAccessor,
@@ -1051,7 +1057,7 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
     type: Component,
     args: [{ selector: "landing-colleagues", template: `
         <div
-            class="mx-2 flex items-center justify-between rounded-sm bg-base-200 p-2 text-sm"
+            class="bg-base-200 mx-2 flex items-center justify-between rounded-sm p-2 text-sm"
         >
             <h2>
                 {{
@@ -1066,9 +1072,9 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
                     <div class="relative flex items-center space-x-2 px-2" user>
                         <div class="relative text-xl">
                             <a-user-avatar [user]="user"></a-user-avatar>
-                            @if (!user.outsideHours()) {
+                            @if (!user.outsideHours?.()) {
                                 <div
-                                    class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
+                                    class="absolute right-1 bottom-1 h-3 w-3 rounded-full border border-white"
                                     [class.bg-error]="
                                         user.location === 'aol' ||
                                         user.location === 'ooo'
@@ -1097,7 +1103,7 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
                         <button
                             icon
                             name="colleague-more"
-                            class="rounded-sm! bg-base-200"
+                            class="bg-base-200 rounded-sm!"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_horiz</icon>
@@ -1159,19 +1165,19 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded-sm border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 absolute inset-x-2 top-2 bottom-16 flex flex-col overflow-hidden rounded-sm border"
         >
             <input
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
                 [placeholder]="'FORM.USER_SEARCH' | translate"
-                class="w-full border-b border-base-200 p-2"
+                class="border-base-200 w-full border-b p-2"
             />
             <button
                 icon
                 name="close-colleague-search"
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 (click)="show_search = false"
             >
                 <icon>close</icon>
@@ -1243,6 +1249,7 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
       IconComponent,
       MatRippleModule,
       MatProgressSpinnerModule,
+      MatTooltipModule,
       UserAvatarComponent,
       FormsModule,
       MatMenuModule
@@ -1250,7 +1257,7 @@ var LandingColleaguesComponent = _LandingColleaguesComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LandingColleaguesComponent, { className: "LandingColleaguesComponent", filePath: "apps/workplace/src/app/landing/landing-colleagues.component.ts", lineNumber: 241 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LandingColleaguesComponent, { className: "LandingColleaguesComponent", filePath: "apps/workplace/src/app/landing/landing-colleagues.component.ts", lineNumber: 243 });
 })();
 
 // apps/workplace/src/app/landing/landing-favourites.component.ts
@@ -1572,7 +1579,7 @@ _LandingFavouritesComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275LandingFavouritesComponent_BaseFactory || (\u0275LandingFavouritesComponent_BaseFactory = \u0275\u0275getInheritedFactory(_LandingFavouritesComponent)))(__ngFactoryType__ || _LandingFavouritesComponent);
   };
 })();
-_LandingFavouritesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingFavouritesComponent, selectors: [["landing-favourites"]], features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [["menu", "matMenu"], [1, "mx-2", "flex", "items-center", "justify-between", "rounded-sm", "bg-base-200", "p-2", "text-sm"], [1, "h-1/2", "w-full", "flex-1", "space-y-2", "divide-y", "divide-base-200", "overflow-auto", "pt-4"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["item", "", 1, "relative", "mx-2", "flex", "flex-col", "items-center", "space-y-2", "pt-2"], [1, "relative", "flex", "w-full", "items-center", "space-x-2"], [1, "relative", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm", "bg-base-300"], ["auth", "", 1, "absolute", "left-1/2", "top-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "flex", "h-16", "w-1/2", "flex-1", "flex-col", "justify-center", "space-y-1"], [1, "w-full", "truncate", "pr-12"], [1, "flex", "items-center", "space-x-1", "text-xs", "opacity-60"], [1, "text-blue-500"], [1, "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "space-x-2", "truncate", "text-xs", "opacity-60"], ["btn", "", "name", "book-favourite", "matRipple", "", 1, "inverse", "w-full", 3, "click", "disabled"], ["icon", "", "name", "favourite-more", 1, "absolute", "right-0", "top-2", "m-0!", "rounded-sm!", "bg-base-200", 3, "matMenuTriggerFor"], ["xPosition", "before"], ["name", "landing-remove-favourite", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl", "text-error"], [1, "m-auto", 3, "src"], [1, "truncate"], ["btn", "", "name", "book-favourite", "matRipple", "", 1, "inverse", "w-full", 3, "click"], ["icon", "", "name", "favourite-more", 1, "top-22", "absolute", "right-0", "m-0!", "rounded-sm!", "bg-base-200", 3, "matMenuTriggerFor"], [1, "pr-4"], ["src", "assets/icons/no-favourites.svg"], [1, "text-center", "text-sm", "opacity-60"]], template: function LandingFavouritesComponent_Template(rf, ctx) {
+_LandingFavouritesComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingFavouritesComponent, selectors: [["landing-favourites"]], features: [\u0275\u0275ProvidersFeature([SpacePipe]), \u0275\u0275InheritDefinitionFeature], decls: 9, vars: 11, consts: [["menu", "matMenu"], [1, "bg-base-200", "mx-2", "flex", "items-center", "justify-between", "rounded-sm", "p-2", "text-sm"], [1, "divide-base-200", "h-1/2", "w-full", "flex-1", "space-y-2", "divide-y", "overflow-auto", "pt-4"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["item", "", 1, "relative", "mx-2", "flex", "flex-col", "items-center", "space-y-2", "pt-2"], [1, "relative", "flex", "w-full", "items-center", "space-x-2"], [1, "bg-base-300", "relative", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "object-cover", 3, "source"], ["src", "assets/icons/room-placeholder.svg", 1, "m-auto"], [1, "flex", "h-16", "w-1/2", "flex-1", "flex-col", "justify-center", "space-y-1"], [1, "w-full", "truncate", "pr-12"], [1, "flex", "items-center", "space-x-1", "text-xs", "opacity-60"], [1, "text-blue-500"], [1, "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "space-x-2", "truncate", "text-xs", "opacity-60"], ["btn", "", "name", "book-favourite", "matRipple", "", 1, "inverse", "w-full", 3, "click", "disabled"], ["icon", "", "name", "favourite-more", 1, "bg-base-200", "absolute", "top-2", "right-0", "m-0!", "rounded-sm!", 3, "matMenuTriggerFor"], ["xPosition", "before"], ["name", "landing-remove-favourite", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-error", "text-2xl"], [1, "m-auto", 3, "src"], [1, "truncate"], ["btn", "", "name", "book-favourite", "matRipple", "", 1, "inverse", "w-full", 3, "click"], ["icon", "", "name", "favourite-more", 1, "bg-base-200", "absolute", "top-22", "right-0", "m-0!", "rounded-sm!", 3, "matMenuTriggerFor"], [1, "pr-4"], ["src", "assets/icons/no-favourites.svg"], [1, "text-center", "text-sm", "opacity-60"]], template: function LandingFavouritesComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1)(1, "h2");
     \u0275\u0275text(2);
@@ -1613,7 +1620,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
     type: Component,
     args: [{ selector: "landing-favourites", template: `
         <div
-            class="mx-2 flex items-center justify-between rounded-sm bg-base-200 p-2 text-sm"
+            class="bg-base-200 mx-2 flex items-center justify-between rounded-sm p-2 text-sm"
         >
             <h2>
                 {{
@@ -1628,7 +1635,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
             </h2>
         </div>
         <div
-            class="h-1/2 w-full flex-1 space-y-2 divide-y divide-base-200 overflow-auto pt-4"
+            class="divide-base-200 h-1/2 w-full flex-1 space-y-2 divide-y overflow-auto pt-4"
         >
             @if (spaces?.length || (assets | async)?.length) {
                 @for (item of spaces; track item || $index) {
@@ -1642,12 +1649,12 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                                 class="relative flex w-full items-center space-x-2"
                             >
                                 <div
-                                    class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm bg-base-300"
+                                    class="bg-base-300 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm"
                                 >
                                     @if (space.images.length) {
                                         <img
                                             auth
-                                            class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                            class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                             [source]="space.images[0]"
                                         />
                                     } @else {
@@ -1705,7 +1712,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                                 icon
                                 name="favourite-more"
                                 [matMenuTriggerFor]="menu"
-                                class="absolute right-0 top-2 m-0! rounded-sm! bg-base-200"
+                                class="bg-base-200 absolute top-2 right-0 m-0! rounded-sm!"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -1723,7 +1730,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                                     (click)="removeFavourite('space', item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl text-error"
+                                        <icon class="text-error text-2xl"
                                             >delete</icon
                                         >
                                         <div>
@@ -1747,12 +1754,12 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                             class="relative flex w-full items-center space-x-2"
                         >
                             <div
-                                class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm bg-base-300"
+                                class="bg-base-300 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm"
                             >
                                 @if (item?.images?.length) {
                                     <img
                                         auth
-                                        class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                        class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                         [source]="item?.images[0]"
                                     />
                                 } @else {
@@ -1801,7 +1808,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                             icon
                             name="favourite-more"
                             [matMenuTriggerFor]="menu"
-                            class="top-22 absolute right-0 m-0! rounded-sm! bg-base-200"
+                            class="bg-base-200 absolute top-22 right-0 m-0! rounded-sm!"
                         >
                             <icon>more_horiz</icon>
                         </button>
@@ -1821,7 +1828,7 @@ var LandingFavouritesComponent = _LandingFavouritesComponent;
                                 (click)="removeFavourite(item.type, item.id)"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error">
+                                    <icon class="text-error text-2xl">
                                         delete
                                     </icon>
                                     <div class="pr-4">
@@ -1968,7 +1975,7 @@ var _LandingQuickBookComponent = class _LandingQuickBookComponent {
 _LandingQuickBookComponent.\u0275fac = function LandingQuickBookComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LandingQuickBookComponent)();
 };
-_LandingQuickBookComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingQuickBookComponent, selectors: [["landing-quick-book"]], decls: 6, vars: 5, consts: [[1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "mx-4", "mb-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "space-x-2", "overflow-auto"], ["matRipple", "", 1, "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm"], ["matRipple", "", 1, "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "click"], [1, "relative", "flex", "h-16", "min-w-16", "items-center", "justify-center", "rounded-sm", "bg-base-200"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "absolute", "inset-0", "bg-base-100", "opacity-50"], ["diameter", "48"], [1, "flex", "h-16", "min-w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm", "bg-base-200"], ["src", "assets/icons/car-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingQuickBookComponent_Template(rf, ctx) {
+_LandingQuickBookComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingQuickBookComponent, selectors: [["landing-quick-book"]], decls: 6, vars: 5, consts: [[1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "mx-4", "mb-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "space-x-2", "overflow-auto"], ["matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "p-2", "shadow-sm"], ["matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "p-2", "shadow-sm", 3, "click"], [1, "bg-base-200", "relative", "flex", "h-16", "min-w-16", "items-center", "justify-center", "rounded-sm"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "text-xl"], [1, "bg-base-100", "absolute", "inset-0", "opacity-50"], ["diameter", "48"], [1, "bg-base-200", "flex", "h-16", "min-w-16", "items-center", "justify-center", "overflow-hidden", "rounded-sm"], ["src", "assets/icons/car-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingQuickBookComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -2003,11 +2010,11 @@ var LandingQuickBookComponent = _LandingQuickBookComponent;
             @if (features()?.includes('desks')) {
                 <button
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     (click)="book('desk')"
                 >
                     <div
-                        class="relative flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 relative flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2018,7 +2025,7 @@ var LandingQuickBookComponent = _LandingQuickBookComponent;
                                 class="absolute inset-0 flex items-center justify-center"
                             >
                                 <div
-                                    class="absolute inset-0 bg-base-100 opacity-50"
+                                    class="bg-base-100 absolute inset-0 opacity-50"
                                 ></div>
                                 <mat-spinner diameter="48"></mat-spinner>
                             </div>
@@ -2032,11 +2039,11 @@ var LandingQuickBookComponent = _LandingQuickBookComponent;
             @if (features().includes('parking')) {
                 <button
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     (click)="book('parking')"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center overflow-hidden rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center overflow-hidden rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2047,7 +2054,7 @@ var LandingQuickBookComponent = _LandingQuickBookComponent;
                                 class="absolute inset-0 flex items-center justify-center"
                             >
                                 <div
-                                    class="absolute inset-0 bg-base-100 opacity-50"
+                                    class="bg-base-100 absolute inset-0 opacity-50"
                                 ></div>
                                 <mat-spinner diameter="48"></mat-spinner>
                             </div>
@@ -2143,7 +2150,7 @@ var _LandingQuickLinksComponent = class _LandingQuickLinksComponent {
 _LandingQuickLinksComponent.\u0275fac = function LandingQuickLinksComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LandingQuickLinksComponent)();
 };
-_LandingQuickLinksComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingQuickLinksComponent, selectors: [["landing-quick-links"]], decls: 8, vars: 7, consts: [[1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "mx-4", "mb-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "space-x-2", "overflow-auto"], ["matRipple", "", 1, "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "border-base-200", "bg-base-100", "p-2", "shadow-sm", 3, "routerLink"], [1, "flex", "h-16", "min-w-16", "items-center", "justify-center", "rounded-sm", "bg-base-200"], ["src", "assets/icons/room-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "text-xl"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], ["src", "assets/icons/car-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], ["src", "assets/icons/locker-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingQuickLinksComponent_Template(rf, ctx) {
+_LandingQuickLinksComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingQuickLinksComponent, selectors: [["landing-quick-links"]], decls: 8, vars: 7, consts: [[1, "mb-2", "px-4", "font-medium", "sm:mb-4", "sm:text-lg"], [1, "mx-4", "mb-4", "flex", "w-[calc(100%-2rem)]", "snap-x", "space-x-2", "overflow-auto"], ["matRipple", "", 1, "border-base-200", "bg-base-100", "flex", "w-64", "min-w-64", "snap-start", "items-center", "space-x-4", "rounded-sm", "border", "p-2", "shadow-sm", 3, "routerLink"], [1, "bg-base-200", "flex", "h-16", "min-w-16", "items-center", "justify-center", "rounded-sm"], ["src", "assets/icons/room-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], [1, "text-xl"], ["src", "assets/icons/desk-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], ["src", "assets/icons/car-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"], ["src", "assets/icons/locker-placeholder.svg", 1, "h-1/2", "w-1/2", "object-contain", "object-center"]], template: function LandingQuickLinksComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -2183,11 +2190,11 @@ var LandingQuickLinksComponent = _LandingQuickLinksComponent;
             @if (features().includes('spaces')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     [routerLink]="['/book', 'meeting']"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2202,11 +2209,11 @@ var LandingQuickLinksComponent = _LandingQuickLinksComponent;
             @if (features().includes('desks')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     [routerLink]="['/book', 'desk']"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2221,11 +2228,11 @@ var LandingQuickLinksComponent = _LandingQuickLinksComponent;
             @if (features().includes('parking')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     [routerLink]="['/book', 'parking']"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2240,11 +2247,11 @@ var LandingQuickLinksComponent = _LandingQuickLinksComponent;
             @if (features().includes('lockers')) {
                 <a
                     matRipple
-                    class="flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border border-base-200 bg-base-100 p-2 shadow-sm"
+                    class="border-base-200 bg-base-100 flex w-64 min-w-64 snap-start items-center space-x-4 rounded-sm border p-2 shadow-sm"
                     [routerLink]="['/book', 'locker']"
                 >
                     <div
-                        class="flex h-16 min-w-16 items-center justify-center rounded-sm bg-base-200"
+                        class="bg-base-200 flex h-16 min-w-16 items-center justify-center rounded-sm"
                     >
                         <img
                             class="h-1/2 w-1/2 object-contain object-center"
@@ -2429,7 +2436,7 @@ _LandingUpcomingComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275LandingUpcomingComponent_BaseFactory || (\u0275LandingUpcomingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_LandingUpcomingComponent)))(__ngFactoryType__ || _LandingUpcomingComponent);
   };
 })();
-_LandingUpcomingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingUpcomingComponent, selectors: [["landing-upcoming"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [[1, "py-2"], [1, "mb-2", "flex", "items-center", "justify-between", "px-4", "sm:mb-4"], [1, "font-medium", "sm:text-lg"], ["btn", "", "name", "upcoming-view-all", 1, "inverse", "hidden", "sm:flex", 3, "routerLink"], ["name", "upcoming-view-all-mobile", 1, "inverse", "text-blue-500", "relative", "top-8", "flex", "underline", "sm:hidden", 3, "routerLink"], [1, "space-y-4", "px-4"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], [3, "event", "show_day", "edit_fn", "remove_fn"], [3, "booking", "show_day", "edit_fn", "remove_fn", "end_fn"], ["src", "assets/img/no-events.svg", 1, "mr-4"], [1, "opacity-30"]], template: function LandingUpcomingComponent_Template(rf, ctx) {
+_LandingUpcomingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingUpcomingComponent, selectors: [["landing-upcoming"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [[1, "py-2"], [1, "mb-2", "flex", "items-center", "justify-between", "px-4", "sm:mb-4"], [1, "font-medium", "sm:text-lg"], ["btn", "", "name", "upcoming-view-all", 1, "inverse", "hidden", "sm:flex", 3, "routerLink"], ["name", "upcoming-view-all-mobile", 1, "inverse", "relative", "top-8", "flex", "text-blue-500", "underline", "sm:hidden", 3, "routerLink"], [1, "space-y-4", "px-4"], [1, "flex", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "p-8"], [3, "event", "show_day", "edit_fn", "remove_fn"], [3, "booking", "show_day", "edit_fn", "remove_fn", "end_fn"], ["src", "assets/img/no-events.svg", 1, "mr-4"], [1, "opacity-30"]], template: function LandingUpcomingComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
     \u0275\u0275text(3);
@@ -2494,7 +2501,7 @@ var LandingUpcomingComponent = _LandingUpcomingComponent;
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
-                    class="inverse text-blue-500 relative top-8 flex underline sm:hidden"
+                    class="inverse relative top-8 flex text-blue-500 underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
                     {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
@@ -2686,7 +2693,7 @@ _LandingComponent.\u0275fac = /* @__PURE__ */ (() => {
     return (\u0275LandingComponent_BaseFactory || (\u0275LandingComponent_BaseFactory = \u0275\u0275getInheritedFactory(_LandingComponent)))(__ngFactoryType__ || _LandingComponent);
   };
 })();
-_LandingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingComponent, selectors: [["app-landing"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 16, consts: [[1, "z-10"], [1, "flex", "h-1/2", "flex-1", "bg-base-200"], [1, "relative", "hidden", "h-full", "w-[18rem]", "flex-col", "overflow-hidden", "border-r", "border-base-300", "bg-base-100", "sm:flex"], [1, "z-0", "h-full", "w-1/2", "flex-1", "overflow-auto", "sm:px-4"], [1, "sticky", "top-0", "z-50", "mb-4", "flex", "items-center", "justify-between", "overflow-hidden", "bg-brand-300", "px-4", "shadow-sm", "sm:rounded-b"], [1, ""], [1, "font-medium", "sm:text-xl"], ["date", "", 1, "text-sm", "sm:text-base"], [1, "text-sm", "sm:text-base"], [1, "h-32", "pt-4"], ["src", "assets/img/landing.svg"], [1, "mx-4", "mb-2", "h-px", "w-[calc(100%-2rem)]", "bg-base-200"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "inverse"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "flex", "items-center", "space-x-2", "capitalize"], [1, "pr-2"], [1, "h-1/2", "w-full", "flex-1"]], template: function LandingComponent_Template(rf, ctx) {
+_LandingComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LandingComponent, selectors: [["app-landing"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 21, vars: 16, consts: [[1, "z-10"], [1, "bg-base-200", "flex", "h-1/2", "flex-1"], [1, "border-base-300", "bg-base-100", "relative", "hidden", "h-full", "w-[18rem]", "flex-col", "overflow-hidden", "border-r", "sm:flex"], [1, "z-0", "h-full", "w-1/2", "flex-1", "overflow-auto", "sm:px-4"], [1, "bg-brand-300", "sticky", "top-0", "z-50", "mb-4", "flex", "items-center", "justify-between", "overflow-hidden", "px-4", "shadow-sm", "sm:rounded-b"], [1, ""], [1, "font-medium", "sm:text-xl"], ["date", "", 1, "text-sm", "sm:text-base"], [1, "text-sm", "sm:text-base"], [1, "h-32", "pt-4"], ["src", "assets/img/landing.svg"], [1, "bg-base-200", "mx-4", "mb-2", "h-px", "w-[calc(100%-2rem)]"], [1, "flex", "items-center", "space-x-2", "p-2"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "inverse"], ["btn", "", "matRipple", "", 1, "flex-1", 3, "click"], [1, "flex", "items-center", "space-x-2", "capitalize"], [1, "pr-2"], [1, "h-1/2", "w-full", "flex-1"]], template: function LandingComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, LandingComponent_Conditional_0_Template, 1, 0, "topbar", 0);
     \u0275\u0275elementStart(1, "div", 1);
@@ -2753,10 +2760,10 @@ var LandingComponent = _LandingComponent;
         @if (!hide_nav()) {
             <topbar class="z-10" />
         }
-        <div class="flex h-1/2 flex-1 bg-base-200">
+        <div class="bg-base-200 flex h-1/2 flex-1">
             @if (!hide_landing_sidebar()) {
                 <div
-                    class="relative hidden h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100 sm:flex"
+                    class="border-base-300 bg-base-100 relative hidden h-full w-[18rem] flex-col overflow-hidden border-r sm:flex"
                 >
                     <div class="flex items-center space-x-2 p-2">
                         @if (!hide_colleagues()) {
@@ -2807,7 +2814,7 @@ var LandingComponent = _LandingComponent;
             }
             <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
-                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-brand-300 px-4 shadow-sm sm:rounded-b"
+                    class="bg-brand-300 sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden px-4 shadow-sm sm:rounded-b"
                 >
                     <div class="">
                         <div class="font-medium sm:text-xl">
@@ -2841,7 +2848,7 @@ var LandingComponent = _LandingComponent;
                 }
                 <landing-availability />
                 <div
-                    class="mx-4 mb-2 h-px w-[calc(100%-2rem)] bg-base-200"
+                    class="bg-base-200 mx-4 mb-2 h-px w-[calc(100%-2rem)]"
                 ></div>
                 <landing-upcoming />
             </div>
@@ -2891,4 +2898,4 @@ var AppLandingModule = _AppLandingModule;
 export {
   AppLandingModule
 };
-//# sourceMappingURL=landing.module-7WQUY2IZ.js.map
+//# sourceMappingURL=landing.module-Q6S7WP5K.js.map

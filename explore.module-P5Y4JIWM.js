@@ -3,7 +3,7 @@ import {
   ExploreMapViewComponent,
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-L4PPFGNC.js";
+} from "./chunk-I4HIS35D.js";
 import {
   Component,
   MAP_FEATURE_DATA,
@@ -21,7 +21,7 @@ import {
   ɵɵelement,
   ɵɵelementEnd,
   ɵɵelementStart
-} from "./chunk-WSBVRI5L.js";
+} from "./chunk-2I6M3YMW.js";
 
 // apps/workplace/src/app/explore/explore.component.ts
 function ExploreComponent_Conditional_0_Template(rf, ctx) {
@@ -48,7 +48,7 @@ var _ExploreComponent = class _ExploreComponent {
 _ExploreComponent.\u0275fac = function ExploreComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreComponent)();
 };
-_ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreComponent, selectors: [["app-explore"]], decls: 5, vars: 2, consts: [[1, "flex", "h-1/2", "flex-1", "flex-col-reverse", "bg-base-200", "sm:flex-row"], [1, "relative", "z-0", "flex", "h-1/2", "flex-1", "flex-col", "overflow-hidden", "sm:h-auto"]], template: function ExploreComponent_Template(rf, ctx) {
+_ExploreComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreComponent, selectors: [["app-explore"]], decls: 5, vars: 2, consts: [[1, "bg-base-200", "flex", "h-1/2", "flex-1", "flex-col-reverse", "sm:flex-row"], [1, "relative", "z-0", "flex", "h-1/2", "flex-1", "flex-col", "overflow-hidden", "sm:h-auto"]], template: function ExploreComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, ExploreComponent_Conditional_0_Template, 1, 0, "topbar");
     \u0275\u0275elementStart(1, "div", 0)(2, "main", 1);
@@ -70,7 +70,7 @@ var ExploreComponent = _ExploreComponent;
         @if (!hide_nav) {
             <topbar />
         }
-        <div class="flex h-1/2 flex-1 flex-col-reverse bg-base-200 sm:flex-row">
+        <div class="bg-base-200 flex h-1/2 flex-1 flex-col-reverse sm:flex-row">
             <main
                 class="relative z-0 flex h-1/2 flex-1 flex-col overflow-hidden sm:h-auto"
             >
@@ -114,4 +114,4 @@ var ExploreModule = _ExploreModule;
 export {
   ExploreModule
 };
-//# sourceMappingURL=explore.module-46NJ4U6O.js.map
+//# sourceMappingURL=explore.module-P5Y4JIWM.js.map
