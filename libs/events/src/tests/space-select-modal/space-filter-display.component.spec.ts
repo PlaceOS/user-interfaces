@@ -21,6 +21,7 @@ describe('SpaceFiltersDisplayComponent', () => {
             MockProvider(EventFormService, {
                 form: new FormGroup({}),
                 options$: new BehaviorSubject({ features: ['Whiteboard'] }),
+                filters$: new BehaviorSubject({ features: ['Whiteboard'] }),
                 setOptions: jest.fn(),
                 setFilters: jest.fn(),
             } as any),

@@ -14,7 +14,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
     selector: 'explore-parking-info',
     template: `
         <div
-            class="absolute left-1/2 top-1/2 rounded-lg rounded-tl-none! bg-base-300 p-2 text-left shadow-sm"
+            class="bg-base-300 absolute top-1/2 left-1/2 rounded-lg rounded-tl-none! p-2 text-left shadow-sm"
             [class.bg-error!]="status === 'busy'"
             [class.text-error-content!]="status === 'busy'"
             [class.bg-warning!]="status === 'reserved'"
@@ -22,7 +22,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
             [class.bg-success!]="status === 'free'"
             [class.text-success-content!]="status === 'free'"
         >
-            <div class="triangle absolute left-0.5 top-0.5"></div>
+            <div class="triangle absolute top-0.5 left-0.5"></div>
             <div class="flex space-x-2">
                 <div class="flex min-w-24 flex-col pl-1 leading-tight">
                     <div class="whitespace-nowrap">{{ name }}</div>
@@ -32,10 +32,10 @@ interface ParkingSpaceExtended extends ParkingSpace {
                 </div>
                 @if (is_concierge && plate_number) {
                     <div
-                        class="relative flex h-full flex-col rounded-sm bg-base-100 px-2 leading-tight text-base-content shadow-sm"
+                        class="bg-base-100 text-base-content relative flex h-full flex-col rounded-sm px-2 leading-tight shadow-sm"
                     >
                         <div
-                            class="w-full whitespace-nowrap pt-1 text-center text-[0.625rem] font-medium"
+                            class="w-full pt-1 text-center text-[0.625rem] font-medium whitespace-nowrap"
                         >
                             {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
                         </div>

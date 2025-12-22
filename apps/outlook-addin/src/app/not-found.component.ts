@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
     selector: 'placeos-not-found',
     template: `
         <div
-            class="z-0 flex h-full flex-1 flex-col overflow-y-auto bg-base-200"
+            class="bg-base-200 z-0 flex h-full flex-1 flex-col overflow-y-auto"
         >
             <section
-                class="flex h-full flex-col items-center justify-center border-b border-base-200 py-5"
+                class="border-base-200 flex h-full flex-col items-center justify-center border-b py-5"
             >
                 <div class="mx-3 flex flex-row">
                     <img
@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
                 </div>
                 <div class="mx-3 flex flex-row">
                     <div class="mb-3">
-                        <span class="text-gray-700 mr-auto text-3xl font-bold"
+                        <span class="mr-auto text-3xl font-bold text-gray-700"
                             >Page not found</span
                         >
                     </div>

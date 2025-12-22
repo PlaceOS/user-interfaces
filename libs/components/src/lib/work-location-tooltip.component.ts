@@ -29,7 +29,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'work-location-tooltip',
     template: `
         <div
-            class="relative -right-1 -top-12 flex w-74 flex-col overflow-hidden rounded-sm bg-base-100 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex w-74 flex-col overflow-hidden rounded-sm shadow-sm"
         >
             <div class="flex items-center justify-between px-2">
                 <h3 class="px-2 py-4 font-medium">
@@ -61,7 +61,7 @@ import { TranslatePipe } from './translate.pipe';
                             [class.opacity-30]="now > timeFrom(block.end_time)"
                         >
                             <div
-                                class="z-20 flex h-10 w-10 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 z-20 flex h-10 w-10 items-center justify-center rounded-full"
                                 [class.bg-base-200]="
                                     now < timeFrom(block.start_time) ||
                                     now > timeFrom(block.end_time)
@@ -82,7 +82,7 @@ import { TranslatePipe } from './translate.pipe';
                             <div class="ml-2 flex-1">
                                 <button
                                     matRipple
-                                    class="flex items-center space-x-2 rounded-sm px-2 py-1 font-medium hover:bg-base-200"
+                                    class="hover:bg-base-200 flex items-center space-x-2 rounded-sm px-2 py-1 font-medium"
                                     [matMenuTriggerFor]="work_menu"
                                 >
                                     <div>
@@ -125,7 +125,7 @@ import { TranslatePipe } from './translate.pipe';
                             </div>
                             @if (i > 0) {
                                 <div
-                                    class="absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed border-base-200"
+                                    class="border-base-200 absolute -top-2 left-7 h-4 w-0 -translate-x-px border-l-2 border-dashed"
                                 ></div>
                             }
                         </div>

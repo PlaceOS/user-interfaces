@@ -397,6 +397,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         duration: number,
         host = false,
         resource: Desk = null,
+        all_day = false,
     ) {
         let user = null;
         if (!!this._settings.get('app.desks.allow_time_changes')) {
@@ -406,16 +407,28 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     this._settings.get('app.desks.available_period') || 90,
                 ),
             );
+            const allow_all_day = !!this._settings.get(
+                'app.desks.allow_all_day',
+            );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host, resource },
+                data: {
+                    date,
+                    duration,
+                    until,
+                    host,
+                    resource,
+                    all_day,
+                    allow_all_day,
+                },
             });
             const details = await lastValueFrom(ref.afterClosed());
             if (!details) throw 'User cancelled';
             date = details.date;
             duration = details.duration;
             user = details.user;
+            all_day = details.all_day;
         }
-        return { date, duration, user };
+        return { date, duration, user, all_day };
     }
 
     private async _bookDesk(desk: Desk, options: DeskOptions) {
@@ -444,11 +457,12 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 all_day: !!options.all_day,
             });
         }
-        let { date, duration, user } = await this._setBookingTime(
+        let { date, duration, user, all_day } = await this._setBookingTime(
             this._bookings.form.value.date,
             this._bookings.form.value.duration,
             this._options.getValue()?.custom ?? false,
             desk as any,
+            !!options.all_day,
         );
         user = user || options.host || currentUser();
         const user_email = user?.email;
@@ -457,7 +471,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             asset_id: desk.id,
             asset_name: desk.name,
             date,
-            duration: options.all_day ? 12 * 60 : duration,
+            duration: all_day ? 12 * 60 : duration,
+            all_day,
             map_id: desk?.map_id || desk?.id,
             description: desk.name,
             user,

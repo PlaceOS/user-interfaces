@@ -15,12 +15,12 @@ import { startOfMinute } from 'date-fns';
             <div class="z-10 flex w-full flex-col justify-center space-y-8">
                 <router-outlet></router-outlet>
             </div>
-            <div class="absolute right-4 top-4 text-2xl text-white">
+            <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
             <img
                 src="assets/img/building.png"
-                class="absolute bottom-0 right-0 w-[60%]"
+                class="absolute right-0 bottom-0 w-[60%]"
             />
         </div>
     `,

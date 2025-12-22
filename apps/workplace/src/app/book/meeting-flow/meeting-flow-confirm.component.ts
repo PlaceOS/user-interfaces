@@ -33,7 +33,7 @@ import { SpacePipe } from '@placeos/events';
     selector: 'meeting-flow-confirm',
     template: `
         <header
-            class="sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 px-4 py-2"
+            class="bg-base-200 sticky top-2 z-10 mx-auto mb-4 flex h-14 w-full max-w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none px-4 py-2"
         >
             <h2 class="m-0 flex-1 text-xl font-medium capitalize">
                 {{ 'APP.WORKPLACE.MEETING_CONFIRM' | translate }}
@@ -48,7 +48,7 @@ import { SpacePipe } from '@placeos/events';
             }
         </header>
         <section period class="flex space-x-1 px-2">
-            <icon class="mt-1 text-success">done</icon>
+            <icon class="text-success mt-1">done</icon>
             <div details class="leading-6">
                 <h3>{{ event.title || 'Meeting Details' }}</h3>
                 <div class="flex items-center space-x-2">
@@ -76,7 +76,7 @@ import { SpacePipe } from '@placeos/events';
         </section>
         @if (event.attendees?.length) {
             <section attendees class="mt-2 flex space-x-1 px-2">
-                <icon class="mt-1 text-success">done</icon>
+                <icon class="text-success mt-1">done</icon>
                 <div details class="leading-6">
                     <h3>
                         {{
@@ -85,7 +85,7 @@ import { SpacePipe } from '@placeos/events';
                         }}
                     </h3>
                     <div attendee-list>
-                        <mat-chip-list #chipList aria-label="User selection">
+                        <mat-chip-set aria-label="User selection">
                             @for (user of event.attendees; track user) {
                                 <mat-chip>
                                     <div class="flex items-center">
@@ -96,14 +96,14 @@ import { SpacePipe } from '@placeos/events';
                                     </div>
                                 </mat-chip>
                             }
-                        </mat-chip-list>
+                        </mat-chip-set>
                     </div>
                 </div>
             </section>
         }
         @if (space?.id) {
             <section spaces class="mt-2 flex space-x-1 px-2">
-                <icon class="mt-1 text-success">done</icon>
+                <icon class="text-success mt-1">done</icon>
                 <div details class="leading-6">
                     <h3>
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
@@ -127,13 +127,13 @@ import { SpacePipe } from '@placeos/events';
         @if (requires_approval) {
             <section class="px-2 pt-4">
                 <div
-                    class="rounded-sm border-none! bg-warning px-2 py-1 text-center text-sm text-warning-content"
+                    class="bg-warning text-warning-content rounded-sm border-none! px-2 py-1 text-center text-sm"
                 >
                     {{ 'CALENDAR_EVENT.APPROVAL_REQUIRED_MSG' | translate }}
                 </div>
             </section>
         }
-        <footer class="mt-4 w-full border-t border-base-200 p-2">
+        <footer class="border-base-200 mt-4 w-full border-t p-2">
             <button
                 btn
                 name="confirm-meeting"

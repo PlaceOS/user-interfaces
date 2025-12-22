@@ -137,7 +137,7 @@ import { SurveyService } from './survey.service';
                     </a>
                     <button mat-menu-item (click)="remove(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-xl text-error"> delete </icon>
+                            <icon class="text-error text-xl"> delete </icon>
                             <span>{{
                                 'APP.CONCIERGE.SURVEY_REMOVE' | translate
                             }}</span>

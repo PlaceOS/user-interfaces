@@ -32,7 +32,7 @@ import { ControlStateService } from '../control-state.service';
                 @for (item of channel_list; track item) {
                     <button
                         matRipple
-                        class="m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded-sm border border-base-200"
+                        class="border-base-200 m-2 flex h-28 w-32 flex-col items-center justify-center space-y-2 rounded-sm border"
                         [class.bg-base-200]="channel_url !== item.channel"
                         [class.bg-primary]="channel_url === item.channel"
                         [class.text-white]="channel_url === item.channel"

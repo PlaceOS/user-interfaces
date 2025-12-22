@@ -12,12 +12,12 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'region-select',
     template: `
         <div
-            class="relative -right-1 -top-12 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm bg-base-100 pb-3 shadow-sm"
+            class="bg-base-100 relative -top-12 -right-1 flex max-h-[65vh] w-74 flex-col overflow-auto rounded-sm pb-3 shadow-sm"
             (click)="close()"
         >
             <div
                 matRipple
-                class="flex items-center space-x-2 border-b border-base-300 px-2 py-3"
+                class="border-base-300 flex items-center space-x-2 border-b px-2 py-3"
             >
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">

@@ -25,6 +25,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    CustomTooltipComponent,
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
@@ -133,7 +134,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-base-400 text-2xl text-neutral-content"
+                    class="bg-base-400 text-neutral-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
                             | translate
@@ -150,7 +151,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
             @if (!row?.checked_in && !row.checked_out_at) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-warning text-2xl text-warning-content"
+                    class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
                             | translate
@@ -162,7 +163,7 @@ import { VisitorsStateService } from './visitors-state.service';
             }
             @if (row?.checked_in) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
+                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                     [matTooltip]="
                         'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
                             | translate
@@ -203,7 +204,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 @if (row.extension_data?.id_data?.url) {
                     <button
                         matRipple
-                        class="rounded-3xl bg-success px-4 py-2 text-white"
+                        class="bg-success rounded-3xl px-4 py-2 text-white"
                     >
                         {{
                             row.extension_data?.id_confirmed
@@ -217,7 +218,7 @@ import { VisitorsStateService } from './visitors-state.service';
             </div>
             <ng-template #id_confirmation>
                 <div
-                    class="my-2 flex w-[20rem] flex-col space-y-2 rounded-sm bg-base-100 p-2"
+                    class="bg-base-100 my-2 flex w-[20rem] flex-col space-y-2 rounded-sm p-2"
                 >
                     <img
                         [src]="row.extension_data?.id_data?.url"
@@ -248,7 +249,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <ng-template #parking_template let-row="row">
             @if (row.extension_data.parking_booking_id) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
+                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 >
                     <icon>done</icon>
                 </div>
@@ -305,7 +306,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         (row.checked_in && !row.checked_out_at)
                     "
                 >
-                    <div class="flex items-center space-x-2 pl-4 pr-2">
+                    <div class="flex items-center space-x-2 pr-2 pl-4">
                         <div class="flex-1 text-left">
                             {{
                                 (row?.status === 'ended'
@@ -343,7 +344,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
                 <button mat-menu-item (click)="declineVisitor(row)">
                     <div class="flex items-center space-x-2">
-                        <icon class="text-2xl text-error"> event_busy </icon>
+                        <icon class="text-error text-2xl"> event_busy </icon>
                         <div class="pr-2">
                             {{
                                 'APP.CONCIERGE.VISITORS_ACTION_DECLINE'
@@ -398,7 +399,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <button
                         mat-menu-item
                         [disabled]="!row.attachment?.length"
-                        [matMenuTriggerFor]="attachment_menu"
+                        (click)="viewAttachments(row)"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">attachment</icon>
@@ -469,24 +470,8 @@ import { VisitorsStateService } from './visitors-state.service';
                             </div>
                         </div>
                     </button>
-                    @if (can_print) {
-                        <button mat-menu-item (click)="printQRCode()">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">print</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.VISITORS_ACTION_PRINT_QR'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    }
                     @if (allow_printing_label && row.checked_in) {
-                        <button
-                            mat-menu-item
-                            (click)="printVisitorPass(row, $event)"
-                        >
+                        <button mat-menu-item (click)="printVisitorPass(row)">
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">badge</icon>
                                 <div>
@@ -601,7 +586,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             (click)="checkoutAllVisitors(row)"
                         >
                             <div class="flex items-center space-x-2">
-                                <icon class="text-2xl text-error">
+                                <icon class="text-error text-2xl">
                                     event_busy
                                 </icon>
                                 <div>
@@ -631,7 +616,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </button>
                 @if (row.extension_data?.notes?.length) {
                     <div
-                        class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-content"
+                        class="bg-info text-info-content absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full"
                         [matTooltip]="
                             'APP.CONCIERGE.VISITORS_NOTES_AVAILABLE' | translate
                         "
@@ -648,7 +633,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         @if ((guests | async)?.length) {
             <button
-                class="absolute bottom-4 right-4 z-20 h-12 w-12 bg-secondary text-white shadow-sm hover:shadow-lg"
+                class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
                 matTooltipPosition="left"
                 icon
@@ -671,6 +656,7 @@ import { VisitorsStateService } from './visitors-state.service';
         TranslatePipe,
         IconComponent,
         SimpleTableComponent,
+        CustomTooltipComponent,
         FormsModule,
     ],
 })
@@ -852,5 +838,12 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
         this._state.poll();
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
+    }
+
+    public viewAttachments(row: any) {
+        // Open attachment viewer for the visitor
+        if (row.attachment?.length) {
+            window.open(row.attachment[0], '_blank');
+        }
     }
 }

@@ -21,34 +21,29 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    showSignageMedia,
-    SignageMedia,
-    SignagePlaylist,
-} from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
+import { mediaThumbnail, SignagePlaylist } from '@placeos/ts-client';
 import { SignageStateService } from './signage-state.service';
 
 interface PlaylistCount {
     count: number;
+    media_ids: string[];
     last_updated: number;
 }
 
 const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
-const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
 
 @Component({
     selector: `signage-item-playlists`,
     template: `
         <div
-            class="flex items-center justify-center space-x-2 rounded-xl bg-base-100 p-2"
+            class="bg-base-100 flex items-center justify-center space-x-2 rounded-xl p-2"
         >
             <h3 class="text-xl font-medium">
                 {{ item()?.display_name || item()?.name }}
             </h3>
             @if (extra()) {
                 <div
-                    class="rounded-lg bg-base-200 px-2 py-1 font-mono text-xs uppercase"
+                    class="bg-base-200 rounded-lg px-2 py-1 font-mono text-xs uppercase"
                 >
                     {{ extra() }}
                 </div>
@@ -79,16 +74,16 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                 @for (item of active_playlists(); track item?.id) {
                     <div
                         cdkDrag
-                        class="flex h-20 w-full items-center space-x-2 rounded-lg border border-base-300 bg-base-100 p-2"
+                        class="border-base-300 bg-base-100 flex h-20 w-full items-center space-x-2 rounded-lg border p-2"
                     >
                         <div
-                            class="h-20 w-full rounded-xl border-4 border-dashed border-base-400 bg-base-300"
+                            class="border-base-400 bg-base-300 h-20 w-full rounded-xl border-4 border-dashed"
                             *cdkDragPlaceholder
                         ></div>
                         <button
                             matRipple
                             cdkDragHandle
-                            class="m-0! flex h-full w-6 items-center justify-center rounded-sm hover:bg-base-200"
+                            class="hover:bg-base-200 m-0! flex h-full w-6 items-center justify-center rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.SIGNAGE_MEDIA_REORDER'
                                     | translate
@@ -101,24 +96,36 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                             matRipple
                             [routerLink]="['/signage', 'media']"
                             [queryParams]="{ playlist: item.id }"
-                            class="h-14 w-14 overflow-hidden rounded-sm border border-base-200 bg-base-200"
+                            class="border-base-200 bg-base-200 relative h-14 w-14 rounded-sm border"
                         >
                             @for (
                                 media of playlist_thumbnail_media()[item.id] ||
                                     [];
                                 track media;
-                                let i = $index
+                                let i = $index;
+                                let len = $count
                             ) {
                                 <img
                                     auth
                                     [source]="media"
-                                    class="absolute h-full w-full rounded-sm object-cover shadow-lg"
-                                    [style.top]="0.5 + i * 1 + 'rem'"
-                                    [style.left]="0.5 + i * 1 + 'rem'"
+                                    class="border-base-300 bg-base-200 absolute h-10 w-10 rounded-sm border object-cover shadow"
+                                    [style.top]="
+                                        0.45 -
+                                        (len - 1) * 0.125 +
+                                        (len - 1 - i) * 0.25 +
+                                        'rem'
+                                    "
+                                    [style.left]="
+                                        0.45 -
+                                        (len - 1) * 0.125 +
+                                        (len - 1 - i) * 0.25 +
+                                        'rem'
+                                    "
+                                    [style.z-index]="i"
                                 />
                             }
                         </a>
-                        <div class="w-1/2 flex-1 text-base-content">
+                        <div class="text-base-content w-1/2 flex-1">
                             <div class="truncate">
                                 {{ item.name }}
                             </div>
@@ -138,7 +145,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                         </div>
                         @if (isScheduled(item)) {
                             <div
-                                class="rounded-sm border border-info bg-info-light p-1 text-lg"
+                                class="border-info bg-info-light rounded-sm border p-1 text-lg"
                                 [matTooltip]="'COMMON.SCHEDULED' | translate"
                             >
                                 <icon>event</icon>
@@ -172,7 +179,7 @@ const PLAYLIST_ITEM_MEDIA = signal<Record<string, SignageMedia[]>>({});
                             </a>
                             <button mat-menu-item (click)="remove.emit(item)">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-2xl text-error">
+                                    <icon class="text-error text-2xl">
                                         delete
                                     </icon>
                                     <div class="pr-2">
@@ -273,35 +280,14 @@ export class SignageItemPlaylistsComponent implements OnChanges {
             ) {
                 continue;
             }
-            this._state.getPlaylistMedia(item.id).then(async (media) => {
+            this._state.getPlaylistMedia(item.id).then((media) => {
                 this.playlist_count.update((m) => ({
                     ...m,
                     [item.id]: {
                         count: media.length,
+                        media_ids: media.slice(0, 3),
                         last_updated: Date.now(),
                     },
-                }));
-                const thumbnails = this.playlist_media()[item.id] || [];
-                const media_requests = [];
-                for (const id of media) {
-                    if (!thumbnails.find((_) => _.id === id)) {
-                        media_requests.push(
-                            lastValueFrom(showSignageMedia(id)).catch(
-                                () => null,
-                            ),
-                        );
-                    }
-                }
-                if (media_requests.length) {
-                    const media_items = await Promise.all(media_requests);
-                    for (const item of media_items) {
-                        if (!item) continue;
-                        thumbnails.push(item);
-                    }
-                }
-                this.playlist_media.update((m) => ({
-                    ...m,
-                    [item.id]: thumbnails,
                 }));
             });
         }
@@ -324,19 +310,14 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     }
 
     public readonly playlist_count = PLAYLIST_ITEM_COUNTS;
-    public readonly playlist_media = PLAYLIST_ITEM_MEDIA;
 
     public readonly playlist_thumbnail_media = computed(() => {
-        const thumbnails = this.playlist_media();
+        const counts = this.playlist_count();
         const result: Record<string, string[]> = {};
-        for (const [playlist_id, media_items] of Object.entries(thumbnails)) {
-            result[playlist_id] = media_items
-                .slice(0, 2)
-                .map(
-                    (item) =>
-                        `/api/engine/v2/uploads/${encodeURIComponent(item.thumbnail_id)}/url`,
-                )
-                .filter((m) => m);
+        for (const [playlist_id, data] of Object.entries(counts)) {
+            result[playlist_id] = (data.media_ids || []).map((id) =>
+                mediaThumbnail(id),
+            );
         }
         return result;
     });

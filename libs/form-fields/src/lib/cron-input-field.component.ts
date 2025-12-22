@@ -39,7 +39,7 @@ function listPattern(fieldPattern) {
     selector: 'cron-input-field',
     template: `
         <div
-            class="mb-1 flex w-full items-center space-x-2 rounded-sm border border-base-300 focus-within:border-base-content focus-within:outline-4 focus-within:outline-base-content"
+            class="border-base-300 focus-within:border-base-content focus-within:outline-base-content mb-1 flex w-full items-center space-x-2 rounded-sm border focus-within:outline-4"
             [formGroup]="form"
         >
             <input
@@ -74,7 +74,7 @@ function listPattern(fieldPattern) {
                 formControlName="day_of_week"
             />
         </div>
-        <div class="text-xs text-error" [class.opacity-0]="form.valid">
+        <div class="text-error text-xs" [class.opacity-0]="form.valid">
             CRON expression is invalid
         </div>
     `,

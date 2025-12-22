@@ -22,7 +22,7 @@ import {
     selector: `select-user-modal`,
     template: ` <div class="w-md">
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'COMMON.SELECT_USER_TITLE' | translate }}
@@ -33,7 +33,7 @@ import {
         </header>
         <main class="h-[60vh] overflow-auto px-2 pb-2">
             <mat-form-field
-                class="no-subscript sticky top-0 z-10 mb-2 w-full bg-base-100"
+                class="no-subscript bg-base-100 sticky top-0 z-10 mb-2 w-full"
                 appearance="outline"
             >
                 <icon class="relative -left-2 text-2xl" matPrefix>search</icon>
@@ -47,7 +47,7 @@ import {
             <div class="relative z-0 w-full space-y-2">
                 @for (user of users | async; track user) {
                     <button
-                        class="w-full rounded-sm border border-base-300 p-2 text-left hover:bg-base-200"
+                        class="border-base-300 hover:bg-base-200 w-full rounded-sm border p-2 text-left"
                         matRipple
                         (click)="select(user)"
                     >

@@ -101,11 +101,11 @@ export class DesksStateService extends AsyncHandler {
         switchMap(([filters]) => {
             // Only load desk metadata when on manage view
             if (filters.view !== 'manage') {
-                return of([]);
+                return of({ list: [] as any[], is_manage: false });
             }
             this._loading.set(true);
             const zones = filters.zones || [];
-            return zones && !zones.includes('All')
+            const fetch$ = zones && !zones.includes('All')
                 ? showMetadata(zones[0], 'desks').pipe(
                       map((m) => (m.details instanceof Array ? m.details : [])),
                       catchError((_) => of([])),
@@ -120,11 +120,13 @@ export class DesksStateService extends AsyncHandler {
                       ),
                       catchError((_) => of([])),
                   );
+            return fetch$.pipe(map((list) => ({ list, is_manage: true })));
         }),
-        map((list) => {
+        map(({ list, is_manage }) => {
             if (!(list instanceof Array)) list = [];
             list.sort((a, b) => a.name?.localeCompare(b.name));
-            this._loading.set(false);
+            // Only set loading to false if we're on manage view
+            if (is_manage) this._loading.set(false);
             return list.map((i) => new Desk({ ...i, qr_code: '' }));
         }),
         shareReplay(1),
@@ -247,6 +249,10 @@ export class DesksStateService extends AsyncHandler {
             ];
         } else if (filters.zones && this._filters()?.zones?.includes('All')) {
             filters.zones = [];
+        }
+        // Set loading immediately when zones or date change to prevent stale data from showing
+        if (filters.zones !== undefined || filters.date !== undefined) {
+            this._loading.set(true);
         }
         this._filters.set({ ...this._filters(), ...filters });
     }

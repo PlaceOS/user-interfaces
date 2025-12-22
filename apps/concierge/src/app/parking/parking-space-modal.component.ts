@@ -1,5 +1,10 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -9,6 +14,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DialogEvent, User } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { UserSearchFieldComponent } from '@placeos/form-fields';
@@ -20,7 +26,7 @@ import { ParkingSpace } from './parking-state.service';
     template: `
         <div class="w-md">
             <header
-                class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -82,7 +88,7 @@ import { ParkingSpace } from './parking-state.service';
                         <button
                             icon
                             matRipple
-                            class="h-12 w-12 min-w-12 rounded-sm bg-secondary text-secondary-content"
+                            class="bg-secondary text-secondary-content h-12 w-12 min-w-12 rounded-sm"
                             [matTooltip]="
                                 'APP.CONCIERGE.USER_CLEAR' | translate
                             "
@@ -118,7 +124,7 @@ import { ParkingSpace } from './parking-state.service';
                 </main>
             }
             <footer
-                class="flex items-center justify-end space-x-2 border-t border-base-300 px-4 py-2"
+                class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
             >
                 <button btn matRipple class="w-32" (click)="postForm()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -136,6 +142,8 @@ import { ParkingSpace } from './parking-state.service';
         MatInputModule,
         IconComponent,
         UserSearchFieldComponent,
+        ReactiveFormsModule,
+        MatTooltipModule,
     ],
 })
 export class ParkingSpaceModalComponent implements OnInit {

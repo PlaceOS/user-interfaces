@@ -44,7 +44,7 @@ import { addDays, endOfDay, set } from 'date-fns';
         </div> -->
         @if (form()) {
             <div
-                class="space-y-2 divide-y divide-base-200"
+                class="divide-base-200 space-y-2 divide-y"
                 [formGroup]="form()"
             >
                 @if (allow_groups) {
@@ -86,7 +86,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                 <section class="p-2" [class.border-none!]="allow_groups">
                     <h3 class="mb-4 flex items-center space-x-2">
                         <div
-                            class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
                             1
                         </div>
@@ -235,7 +235,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <section class="p-2">
                         <h3 class="flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 2
                             </div>
@@ -260,7 +260,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{ (options | async)?.group ? 3 : 2 }}
                             </div>
@@ -273,7 +273,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                         ></desk-list-field>
                         @if ((options | async)?.group) {
                             <p
-                                class="rounded-sm bg-warning px-2 py-1 text-center text-xs shadow-sm"
+                                class="bg-warning rounded-sm px-2 py-1 text-center text-xs shadow-sm"
                             >
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>
@@ -284,7 +284,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
-                                class="flex h-6 w-6 items-center justify-center rounded-full bg-base-200"
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
                                 {{ (options | async)?.group ? 4 : 3 }}
                             </div>

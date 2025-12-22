@@ -14,7 +14,7 @@ import { DashboardsService } from './dashboards.service';
         <div class="p-4">
             <mat-progress-bar class="w-full" [class.opacity-0]="!loading()" />
             <simple-table
-                class="block min-w-160 bg-base-100"
+                class="bg-base-100 block min-w-160"
                 [data]="alerts()"
                 [filter]="search_term()"
                 [columns]="[

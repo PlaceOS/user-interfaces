@@ -15,7 +15,7 @@ import { BookingAsset } from '../booking-form.service';
         @if (space()) {
             <section
                 image
-                class="relative w-full bg-base-200"
+                class="bg-base-200 relative w-full"
                 [class.sm:h-40]="space().images?.length"
                 [class.h-64]="space().images?.length"
                 [class.sm:h-0]="!space().images?.length"
@@ -33,7 +33,7 @@ import { BookingAsset } from '../booking-form.service';
                     matRipple
                     close
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-base-200 sm:hidden"
+                    class="bg-base-200 absolute top-2 left-2 sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -44,14 +44,14 @@ import { BookingAsset } from '../booking-form.service';
                     [class.text-info-content]="fav()"
                     [class.bg-info!]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2 bg-base-200"
+                    class="bg-base-200 absolute top-2 right-2"
                 >
                     <icon>{{ fav() ? 'favorite' : 'favorite_border' }}</icon>
                 </button>
             </section>
             <div class="h-1/2 flex-1 space-y-2 p-2">
                 <section actions class="z-0">
-                    <h2 class="mb-2 mt-4 text-xl font-medium">
+                    <h2 class="mt-4 mb-2 text-xl font-medium">
                         {{ space().display_name || space().name }}
                     </h2>
                 </section>
@@ -81,7 +81,7 @@ import { BookingAsset } from '../booking-form.service';
                 @if (!hide_map()) {
                     <section
                         map
-                        class="relative mx-auto h-64 w-full overflow-hidden rounded-sm border border-base-200 sm:h-48"
+                        class="border-base-200 relative mx-auto h-64 w-full overflow-hidden rounded-sm border sm:h-48"
                     >
                         <interactive-map
                             class="pointer-events-none"

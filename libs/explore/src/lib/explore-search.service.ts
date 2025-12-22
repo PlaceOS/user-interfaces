@@ -161,7 +161,10 @@ export class ExploreSearchService {
                 // Then get the asset type for that category
                 switchMap((category) => {
                     if (!category) return of(null as AssetGroup | null);
-                    return queryAssetTypesLocal({ zone_id: bld.id, q: `"${category.name}"` }).pipe(
+                    return queryAssetTypesLocal({
+                        zone_id: bld.id,
+                        q: `"${category.name}"`,
+                    }).pipe(
                         catchError(() => of([] as AssetGroup[])),
                         map(
                             (groups) =>
@@ -192,16 +195,21 @@ export class ExploreSearchService {
                             assets
                                 .filter((a) => a.asset_type_id === assetType.id)
                                 .map((a) => {
-                                    const zone = this._org.levelWithID(a.zones) || this._org.buildings.find(_ => a.zones.includes(_.id))
-                                    return ({
+                                    const zone =
+                                        this._org.levelWithID(a.zones) ||
+                                        this._org.buildings.find((_) =>
+                                            a.zones.includes(_.id),
+                                        );
+                                    return {
                                         id: a.id,
                                         name: a.identifier || '',
                                         email: a.other_data?.email || '',
                                         phone: a.other_data?.phone || '',
                                         roles: a.other_data?.roles || [],
                                         zone: zone.id,
-                                        zone_name: zone?.display_name || zone?.name
-                                    })
+                                        zone_name:
+                                            zone?.display_name || zone?.name,
+                                    };
                                 }),
                         ),
                     );
@@ -546,9 +554,8 @@ export class ExploreSearchService {
                 );
 
                 // Get zones from in-progress bookings for proximity sorting
-                const in_progress_zones = this._getInProgressZones(
-                    in_progress_bookings,
-                );
+                const in_progress_zones =
+                    this._getInProgressZones(in_progress_bookings);
 
                 results.sort((a, b) => {
                     // 1. If viewing a map, prioritize items on current level zone

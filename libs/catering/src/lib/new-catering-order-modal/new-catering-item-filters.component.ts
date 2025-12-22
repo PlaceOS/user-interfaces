@@ -5,6 +5,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     i18n,
@@ -78,13 +79,13 @@ const ICONS = {
     selector: 'new-catering-item-filters',
     template: `
         <div
-            class="sticky top-0 z-10 flex items-center border-b border-base-300 bg-base-100 px-4 py-4"
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
-        <div class="mb-2 mt-2 px-2">
+        <div class="mt-2 mb-2 px-2">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input
@@ -124,9 +125,7 @@ const ICONS = {
                 <settings-toggle
                     [name]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="
-                        at_timeChange.emit($event); at_time.set($event)
-                    "
+                    (ngModelChange)="at_timeChange.emit($event)"
                     [matTooltip]="exact_tooltip"
                 ></settings-toggle>
                 @if (day_options.length > 1) {
@@ -139,10 +138,7 @@ const ICONS = {
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="
-                                offset_dayChange.emit($event);
-                                offset_day.set($event)
-                            "
+                            (ngModelChange)="offset_dayChange.emit($event)"
                         >
                             @for (day of day_options; track day) {
                                 <mat-option [value]="day.id">
@@ -202,6 +198,7 @@ const ICONS = {
         MatInputModule,
         FormsModule,
         SettingsToggleComponent,
+        MatTooltipModule,
     ],
 })
 export class NewCateringItemFiltersComponent

@@ -7,7 +7,7 @@ import { IconComponent } from '@placeos/components';
     selector: 'footer-menu',
     template: `
         <div
-            class="flex w-full items-center divide-x border-t border-solid border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 flex w-full items-center divide-x border-t border-solid"
         >
             <a
                 btn

@@ -16,13 +16,13 @@ import { RoomConfirmService } from './room-confirm.service';
         <div
             class="z-0 mx-auto flex min-h-[800px] w-[calc(100%-2rem)] w-full flex-1 flex-col overflow-y-auto"
         >
-            <section class="flex flex-col border-b border-base-200 py-2">
+            <section class="border-base-200 flex flex-col border-b py-2">
                 <div
                     class="justify-content flex flex-row items-center space-x-4"
                 >
                     <button icon matRipple (click)="closeModal()">
                         <icon
-                            class="text-gray-700 flex items-center justify-center text-3xl"
+                            class="flex items-center justify-center text-3xl text-gray-700"
                             >close</icon
                         >
                     </button>
@@ -33,7 +33,7 @@ import { RoomConfirmService } from './room-confirm.service';
             </section>
 
             <section
-                class="mt-4 flex flex-row space-x-4 border-b border-base-200 pb-4"
+                class="border-base-200 mt-4 flex flex-row space-x-4 border-b pb-4"
             >
                 <div class="flex flex-col">
                     <span class="text-base"
@@ -41,17 +41,17 @@ import { RoomConfirmService } from './room-confirm.service';
                     </span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-gray-700 flex text-base font-bold"
+                    <span class="flex text-base font-bold text-gray-700"
                         >{{ title }}
                     </span>
 
-                    <div class="text-gray-700 mt-2 flex items-center text-sm">
+                    <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">calendar_today</icon>
                         <span class="flex">
                             {{ unix_time | date: 'dd MMMM yyyy' }}
                         </span>
                     </div>
-                    <div class="text-gray-700 mt-2 flex items-center text-sm">
+                    <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">schedule</icon>
                         <span class="flex"
                             >{{ start_time }} -{{ end_time }}</span
@@ -61,7 +61,7 @@ import { RoomConfirmService } from './room-confirm.service';
             </section>
 
             <section
-                class="mt-4 flex flex-row space-x-4 border-b border-base-200 pb-4"
+                class="border-base-200 mt-4 flex flex-row space-x-4 border-b pb-4"
             >
                 <div class="flex flex-col">
                     <span class="text-base"
@@ -70,13 +70,13 @@ import { RoomConfirmService } from './room-confirm.service';
                 </div>
 
                 <div class="flex flex-col">
-                    <span class="text-gray-700 flex text-base font-bold"
+                    <span class="flex text-base font-bold text-gray-700"
                         >Attendees
                     </span>
 
                     @for (attendee of attendees; track attendee) {
                         <div
-                            class="text-gray-700 mt-2 flex flex-row items-center text-sm"
+                            class="mt-2 flex flex-row items-center text-sm text-gray-700"
                         >
                             <div class="flex flex-col">
                                 <icon class="flex items-center">people</icon>
@@ -90,7 +90,7 @@ import { RoomConfirmService } from './room-confirm.service';
                     }
 
                     <div
-                        class="text-gray-700 mt-2 flex flex-row items-center text-sm"
+                        class="mt-2 flex flex-row items-center text-sm text-gray-700"
                     >
                         <div class="flex flex-col">
                             <icon class="flex items-center">people</icon>
@@ -109,17 +109,17 @@ import { RoomConfirmService } from './room-confirm.service';
                     </span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-gray-700 flex text-base font-bold"
+                    <span class="flex text-base font-bold text-gray-700"
                         >Rooms
                     </span>
 
-                    <div class="text-gray-700 mt-2 flex items-center text-sm">
+                    <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">meeting_room</icon>
                         <span class="flex">
                             {{ space?.name }}
                         </span>
                     </div>
-                    <div class="text-gray-700 mt-2 flex items-center text-sm">
+                    <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">room</icon>
                         <span class="flex"> {{ space?.level?.name }}</span>
                     </div>
@@ -127,13 +127,13 @@ import { RoomConfirmService } from './room-confirm.service';
             </section>
 
             <div
-                class="top-box-shadow -mx-4 mb-10 mt-5 flex flex-col items-center border-t border-base-200 p-3"
+                class="top-box-shadow border-base-200 -mx-4 mt-5 mb-10 flex flex-col items-center border-t p-3"
             >
                 <button
                     matRipple
                     (click)="confirmBooking()"
                     [disabled]="!show_submit_button"
-                    class="mx-4 ml-2 w-[300px] border-secondary bg-secondary"
+                    class="border-secondary bg-secondary mx-4 ml-2 w-[300px]"
                 >
                     <span class="">Confirm</span>
                 </button>

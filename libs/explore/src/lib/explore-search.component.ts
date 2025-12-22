@@ -25,7 +25,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             #button
             icon
             matRipple
-            class="m-2 bg-base-200"
+            class="bg-base-200 m-2"
             (window:resize)="checkButtonPosition()"
             (click)="show ? closeSearch($event) : showSearch()"
         >
@@ -35,7 +35,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
             role="search"
             tabindex="0"
             matRipple
-            class="absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden bg-base-100 px-4 outline-hidden"
+            class="bg-base-100 absolute top-1/2 z-10 flex max-w-[calc(100vw-7rem)] -translate-y-1/2 items-center overflow-hidden px-4 outline-hidden"
             [class.right-0]="right_size"
             [class.-translate-x-14]="right_size"
             [class.left-0]="!right_size"
@@ -85,7 +85,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                                 </div>
                             </div>
                             <div
-                                class="rounded-sm bg-base-300 p-2 text-xs font-bold capitalize text-white"
+                                class="bg-base-300 rounded-sm p-2 text-xs font-bold text-white capitalize"
                             >
                                 {{ option.type }}
                             </div>

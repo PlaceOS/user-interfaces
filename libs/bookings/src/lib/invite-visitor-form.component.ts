@@ -52,10 +52,10 @@ import { BookingFormService } from './booking-form.service';
         @if (!sent) {
             @if (!(loading | async) && !loading_many) {
                 <div
-                    class="relative flex max-h-full flex-col overflow-auto bg-base-100"
+                    class="bg-base-100 relative flex max-h-full flex-col overflow-auto"
                 >
                     <div
-                        class="w-full border-b border-base-200 px-4 py-4 sm:px-16"
+                        class="border-base-200 w-full border-b px-4 py-4 sm:px-16"
                     >
                         <h2 class="text-2xl font-medium">
                             {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
@@ -63,7 +63,7 @@ import { BookingFormService } from './booking-form.service';
                     </div>
                     @if (form) {
                         <form [formGroup]="form" class="px-4 py-4 sm:px-16">
-                            @if (buildings?.length > 1) {
+                            @if ((buildings | async)?.length > 1) {
                                 <div class="flex flex-col">
                                     <label for="building">
                                         {{ 'RESOURCE.BUILDING' | translate
@@ -336,7 +336,7 @@ import { BookingFormService } from './booking-form.service';
                         </form>
                     }
                     <div
-                        class="sticky bottom-0 border-t border-base-200 bg-base-100 px-4 py-4 sm:px-16"
+                        class="border-base-200 bg-base-100 sticky bottom-0 border-t px-4 py-4 sm:px-16"
                     >
                         <button
                             btn
@@ -361,7 +361,7 @@ import { BookingFormService } from './booking-form.service';
         } @else {
             <div
                 sent
-                class="absolute inset-0 flex flex-col items-center justify-center bg-base-100 text-center"
+                class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center text-center"
             >
                 <div
                     class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
@@ -452,7 +452,7 @@ import { BookingFormService } from './booking-form.service';
                     }
                 </div>
                 <div
-                    class="z-10 w-full border-t border-base-200 bg-base-100 p-2"
+                    class="border-base-200 bg-base-100 z-10 w-full border-t p-2"
                 >
                     <div
                         class="mx-auto flex w-full max-w-lg items-center space-x-2"

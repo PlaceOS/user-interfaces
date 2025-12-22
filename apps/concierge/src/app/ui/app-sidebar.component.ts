@@ -25,7 +25,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                 @if (!link.children) {
                     <a
                         matRipple
-                        class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                        class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
@@ -36,7 +36,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                     @if (link.children?.length) {
                         <button
                             matRipple
-                            class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                            class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                             (click)="
                                 show_block[link.id || link._id] =
                                     !show_block[link.id || link._id]
@@ -62,7 +62,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                         >
                             @for (child of link.children; track child) {
                                 <a
-                                    class="my-1 flex w-full items-center space-x-2 rounded-r-full p-1 hover:bg-base-200"
+                                    class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
                                     [routerLink]="child.route"
                                     routerLinkActive="active"
                                 >

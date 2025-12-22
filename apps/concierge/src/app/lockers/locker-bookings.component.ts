@@ -63,7 +63,7 @@ import { LockerStateService } from './locker-state.service';
                 [sortable]="true"
                 [page_size]="100"
                 [empty_message]="
-                    ((filters | async)?.search
+                    ((search | async)
                         ? 'APP.CONCIERGE.LOCKERS_BOOK_SEARCH_EMPTY'
                         : 'APP.CONCIERGE.LOCKERS_BOOK_EMPTY'
                     ) | translate
@@ -100,7 +100,7 @@ import { LockerStateService } from './locker-state.service';
                         row.status === 'ended'
                     ) {
                         <div
-                            class="rounded-3xl bg-error px-4 py-2 text-xs text-white"
+                            class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
                         >
                             {{
                                 (row.status === 'ended'
@@ -128,7 +128,7 @@ import { LockerStateService } from './locker-state.service';
                         }}
                     </div>
                     @if (row.user_name) {
-                        <div class="select-all text-xs opacity-30">
+                        <div class="text-xs opacity-30 select-all">
                             {{ row.user_email }}
                         </div>
                     }
@@ -138,7 +138,7 @@ import { LockerStateService } from './locker-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-30 rounded-3xl border-none bg-warning text-warning-content"
+                        class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
                         [class.text-success-content!]="
                             row?.status === 'approved'
                         "
@@ -151,7 +151,7 @@ import { LockerStateService } from './locker-state.service';
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (row?.status === 'ended'
@@ -195,7 +195,7 @@ import { LockerStateService } from './locker-state.service';
                 <div class="px-2">
                     <button
                         matRipple
-                        class="h-10 w-24 rounded-3xl border-none bg-warning text-warning-content"
+                        class="bg-warning text-warning-content h-10 w-24 rounded-3xl border-none"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.bg-neutral!]="!data"
                         [class.text-neutral-content!]="!data"
@@ -209,7 +209,7 @@ import { LockerStateService } from './locker-state.service';
                                 : 'Check-in or check-out locker'
                         "
                     >
-                        <div class="flex items-center space-x-2 pl-4 pr-2">
+                        <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
                                     (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
@@ -274,6 +274,7 @@ export class LockerBookingsComponent {
 
     public loading: string;
     public readonly filters = this._state.filters;
+    public readonly search = this._state.search;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly bookings = this._state.filtered_bookings.pipe(
         map((i) =>

@@ -15,13 +15,13 @@ import { StaffStateService } from './staff-state.service';
     template: `
         @if (user()) {
             <div
-                class="flex w-full items-center border-b border-base-200 bg-base-100 px-4 py-2 hover:opacity-80"
+                class="border-base-200 bg-base-100 flex w-full items-center border-b px-4 py-2 hover:opacity-80"
                 details
             >
                 <a-user-avatar [user]="user()"></a-user-avatar>
                 <div class="flex flex-1 flex-col">
                     <div class="px-2">{{ user()?.name }}</div>
-                    <div class="px-2 text-xs text-opacity-50">
+                    <div class="text-opacity-50 px-2 text-xs">
                         {{ user()?.email }}
                     </div>
                 </div>

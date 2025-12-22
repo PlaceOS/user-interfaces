@@ -24,7 +24,7 @@ type MediaEvent =
     template: `
         <div class="flex flex-col items-center justify-center p-2">
             <div
-                class="relative top-2 z-20 w-56 overflow-hidden rounded-full border border-base-300 bg-base-100 px-2 py-1"
+                class="border-base-300 bg-base-100 relative top-2 z-20 w-56 overflow-hidden rounded-full border px-2 py-1"
                 [matTooltip]="duration() | mediaDuration"
                 matTooltipPosition="above"
             >
@@ -34,11 +34,11 @@ type MediaEvent =
                     [value]="progress()"
                 ></mat-progress-bar>
                 @if (animating()) {
-                    <div class="absolute inset-1 rounded-full bg-success"></div>
+                    <div class="bg-success absolute inset-1 rounded-full"></div>
                 }
             </div>
             <div
-                class="flex items-center space-x-2 overflow-hidden rounded-full border border-base-300 bg-base-100 p-2 text-lg"
+                class="border-base-300 bg-base-100 flex items-center space-x-2 overflow-hidden rounded-full border p-2 text-lg"
             >
                 <button
                     icon

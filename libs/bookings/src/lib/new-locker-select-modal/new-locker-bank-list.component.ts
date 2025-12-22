@@ -33,7 +33,7 @@ import { Locker, LockerBank } from '../locker.class';
                     ) {
                         <li
                             locker_bank
-                            class="relative w-full overflow-hidden rounded-lg border border-base-200 bg-base-100 shadow-sm"
+                            class="border-base-200 bg-base-100 relative w-full overflow-hidden rounded-lg border shadow-sm"
                             [class.!border-blue-400]="
                                 active() === locker_bank.id
                             "
@@ -42,14 +42,14 @@ import { Locker, LockerBank } from '../locker.class';
                                 name="select-locker_bank"
                                 matRipple
                                 class="flex h-full w-full p-2"
-                                (click)="selectLockerBank(locker_bank)"
+                                (click)="selectLockerBank($any(locker_bank))"
                             >
                                 <div
-                                    class="relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl bg-base-200"
+                                    class="bg-base-200 relative mr-4 flex h-20 w-20 items-center justify-center rounded-xl"
                                 >
                                     @if (selected().includes(locker_bank.id)) {
                                         <div
-                                            class="absolute left-1 top-1 flex h-6 w-6 items-center justify-center rounded-full border border-neutral bg-base-200 text-white"
+                                            class="border-neutral bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border text-white"
                                         >
                                             <icon>done</icon>
                                         </div>
@@ -136,7 +136,7 @@ import { Locker, LockerBank } from '../locker.class';
               </button> -->
                             @if (locker_bank.tags?.length) {
                                 <div
-                                    class="absolute bottom-2 right-2 rounded-sm bg-base-200 px-2 py-1 font-mono text-xs"
+                                    class="bg-base-200 absolute right-2 bottom-2 rounded-sm px-2 py-1 font-mono text-xs"
                                 >
                                     {{ locker_bank.tags[0] }}
                                 </div>

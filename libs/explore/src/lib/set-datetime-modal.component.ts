@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
     FormsModule,
     ReactiveFormsModule,
 } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SettingsService, User } from '@placeos/common';
@@ -21,7 +22,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
     selector: 'set-datetime-modal',
     template: `
         <header
-            class="m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Set date and time</h2>
             <button icon matRipple mat-dialog-close>
@@ -37,7 +38,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                         <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
                             <label>Resource:</label>
                             <div
-                                class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                                class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
                                 {{
                                     resource.name ||
@@ -83,23 +84,34 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                             [use_24hr]="use_24hr_time"
                         ></a-time-field>
                     </div>
-                    <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                        <label>End Time</label>
-                        <a-duration-field
-                            formControlName="duration"
-                            [time]="form.get('date')?.value"
-                            [max]="10 * 60"
-                            [min]="60"
-                            [step]="60"
-                            [use_24hr]="use_24hr_time"
-                        >
-                        </a-duration-field>
-                    </div>
+                    @if (!form.value.all_day) {
+                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
+                            <label>End Time</label>
+                            <a-duration-field
+                                formControlName="duration"
+                                [time]="form.get('date')?.value"
+                                [max]="10 * 60"
+                                [min]="60"
+                                [step]="60"
+                                [use_24hr]="use_24hr_time"
+                            >
+                            </a-duration-field>
+                        </div>
+                    }
                 </div>
+                @if (allow_all_day) {
+                    <div
+                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
+                    >
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    </div>
+                }
             </main>
         }
         <footer
-            class="mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
                 {{ 'COMMON.CONTINUE' | translate }}
@@ -110,6 +122,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
     imports: [
         MatRippleModule,
         MatDialogModule,
+        MatCheckboxModule,
         IconComponent,
         DurationFieldComponent,
         TimeFieldComponent,
@@ -120,7 +133,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
         TranslatePipe,
     ],
 })
-export class SetDatetimeModalComponent {
+export class SetDatetimeModalComponent implements OnInit {
     private _data = inject<{
         date: number;
         duration: number;
@@ -128,6 +141,8 @@ export class SetDatetimeModalComponent {
         host: boolean;
         user?: User;
         resource: BookingAsset;
+        all_day?: boolean;
+        allow_all_day?: boolean;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
@@ -136,12 +151,27 @@ export class SetDatetimeModalComponent {
         user: new FormControl(this._data.user),
         date: new FormControl(this._data.date),
         duration: new FormControl(this._data.duration),
+        all_day: new FormControl(this._data.all_day ?? false),
     });
 
     public readonly book_until = this._data.until;
     public readonly resource = this._data.resource;
+    public readonly allow_all_day = this._data.allow_all_day ?? false;
 
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public ngOnInit(): void {
+        this.form.controls.all_day.valueChanges.subscribe((all_day) => {
+            if (all_day) {
+                this.form.controls.duration.disable();
+            } else {
+                this.form.controls.duration.enable();
+            }
+        });
+        if (this._data.all_day) {
+            this.form.controls.duration.disable();
+        }
     }
 }

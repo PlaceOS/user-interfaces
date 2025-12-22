@@ -73,7 +73,7 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #denied_template let-data="data">
             @if (data) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-error text-2xl text-error-content"
+                    class="bg-error text-error-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 >
                     <icon>close</icon>
                 </div>

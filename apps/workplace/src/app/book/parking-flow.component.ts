@@ -13,7 +13,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
     template: `
         @if (!(deny_parking_access | async)) {
             @if (!(assigned_space | async) || !(has_booking | async)) {
-                <div class="z-50 h-full w-full bg-base-100">
+                <div class="bg-base-100 z-50 h-full w-full">
                     @switch (view()) {
                         @case ('success') {
                             <parking-flow-success> </parking-flow-success>
@@ -28,7 +28,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
                 </div>
             } @else {
                 <div
-                    class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
+                    class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
                     <img
                         src="assets/icons/parking-success.svg"
@@ -53,7 +53,7 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
             }
         } @else {
             <div
-                class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
+                class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >
                 <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
                 <p>

@@ -40,17 +40,17 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
     selector: 'booking-details-modal',
     template: `
         <div
-            class="h-screen w-screen space-y-2 overflow-auto bg-base-100 pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm sm:bg-base-200"
+            class="bg-base-100 sm:bg-base-200 h-screen w-screen space-y-2 overflow-auto pb-2 sm:relative sm:inset-auto sm:h-auto sm:max-h-[80vh] sm:w-204 sm:rounded-sm"
         >
             <div
-                class="max-h-screen flex-col items-center border-base-200 bg-base-100 pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16"
+                class="border-base-200 bg-base-100 max-h-screen flex-col items-center pb-4 sm:flex sm:max-h-[80vh] sm:border-b sm:px-16"
             >
                 @if (!booking()?.extension_data?.images?.length) {
                     <div class="block h-8 w-full sm:hidden"></div>
                 }
                 @if (booking()?.extension_data?.images?.length) {
                     <div
-                        class="h-64 w-full overflow-hidden bg-neutral sm:rounded-b"
+                        class="bg-neutral h-64 w-full overflow-hidden sm:rounded-b"
                     >
                         <image-carousel
                             [images]="booking()?.extension_data?.images"
@@ -132,7 +132,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                 icon
                                 matRipple
                                 [matMenuTriggerFor]="menu"
-                                class="h-12 w-12 rounded-sm bg-secondary text-white"
+                                class="bg-secondary h-12 w-12 rounded-sm text-white"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -142,9 +142,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             </div>
             <div class="flex-wrap sm:flex sm:px-12">
                 <div
-                    class="min-w-1/3 grow-4 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                    class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
-                    <h3 class="mb-2 mt-2 px-3 text-lg font-medium">
+                    <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
                         {{ 'BOOKINGS.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
@@ -180,8 +180,8 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             <icon matTooltip="Booked By">person</icon>
                             <div>
                                 {{
-                                    (booking().booked_by_email | user)?.name ||
-                                        booking().booked_by_name
+                                    (booking().booked_by_email | user | async)
+                                        ?.name || booking().booked_by_name
                                 }}
                             </div>
                         </div>
@@ -189,7 +189,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 </div>
                 @if (has_assets()) {
                     <div
-                        class="min-w-1/3 mt-4 grow-3 rounded-sm border-base-200 sm:m-2 sm:w-[16rem] sm:border sm:bg-base-100 sm:p-4"
+                        class="border-base-200 sm:bg-base-100 mt-4 min-w-1/3 grow-3 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                     >
                         <h3 class="mx-3 py-2 text-lg font-medium">
                             {{ 'RESOURCE.ASSETS' | translate }} ({{
@@ -203,7 +203,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             ) {
                                 <div
                                     request
-                                    class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                                    class="border-base-300 bg-base-100 overflow-hidden rounded-xl border"
                                 >
                                     <button
                                         matRipple
@@ -278,7 +278,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </div>
                                     </button>
                                     <div
-                                        class="flex flex-col divide-y divide-base-100 bg-base-200"
+                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
                                         [@show]="
                                             show_request[request.id]
                                                 ? 'show'
@@ -300,7 +300,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                                     }}</span>
                                                 </div>
                                                 <div
-                                                    class="rounded-sm bg-success px-2 py-1 text-xs text-success-content"
+                                                    class="bg-success text-success-content rounded-sm px-2 py-1 text-xs"
                                                 >
                                                     x{{ item.quantity }}
                                                 </div>
@@ -315,7 +315,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 @if (level()?.map_id) {
                     <button
                         map
-                        class="min-w-1/3 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] grow-3 overflow-hidden rounded-sm border border-base-200 p-2 sm:my-2 sm:h-48 sm:w-[16rem] sm:bg-base-100"
+                        class="border-base-200 sm:bg-base-100 relative m-2 mt-4 h-64 w-[calc(100%-1rem)] min-w-1/3 grow-3 overflow-hidden rounded-sm border p-2 sm:my-2 sm:h-48 sm:w-[16rem]"
                         (click)="viewLocation()"
                     >
                         @if (!hide_map()) {
@@ -336,7 +336,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute left-2 top-0 bg-neutral text-white"
+                class="bg-neutral absolute top-0 left-2 text-white"
             >
                 <icon>close</icon>
             </button>

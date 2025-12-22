@@ -1,16 +1,10 @@
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
-import { MockComponent, MockProvider } from 'ng-mocks';
+import { MockProvider, ngMocks } from 'ng-mocks';
 import { of, timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 
 import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
 
@@ -18,10 +12,7 @@ describe('ExploreBookingModalComponent', () => {
     let spectator: SpectatorRouting<ExploreBookingModalComponent>;
     const createComponent = createRoutingFactory({
         component: ExploreBookingModalComponent,
-        declarations: [
-            MockComponent(IconComponent),
-            MockComponent(DurationFieldComponent),
-        ],
+        ...ngMocks.guts(null),
         providers: [
             MockProvider(MAT_DIALOG_DATA, {
                 space: { id: 'one', name: 'Test Space', email: '1' },
@@ -30,20 +21,13 @@ describe('ExploreBookingModalComponent', () => {
                 form: generateEventForm(),
                 newForm: jest.fn(),
                 postForm: jest.fn(async () => ({})),
-                loading: of(''),
+                loading$: of(''),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 app_name: 'workplace',
             }),
             MockProvider(MatDialogRef, { close: jest.fn() }),
-        ],
-        imports: [
-            MatFormFieldModule,
-            MatInputModule,
-            MatProgressSpinnerModule,
-            FormsModule,
-            ReactiveFormsModule,
         ],
     });
 

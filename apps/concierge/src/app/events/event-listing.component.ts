@@ -8,6 +8,7 @@ import { CalendarEvent, SettingsService, User } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     BuildingPipe,
+    CustomTooltipComponent,
     IconComponent,
     LevelPipe,
     SimpleTableComponent,
@@ -97,7 +98,7 @@ import { EventStateService } from './event-state.service';
                     </div>
                 </div>
                 <div
-                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-sm border border-base-200 bg-base-200"
+                    class="border-base-200 bg-base-200 flex h-12 w-12 items-center justify-center overflow-hidden rounded-sm border"
                 >
                     <img
                         *ngIf="item.images?.length"
@@ -199,7 +200,7 @@ import { EventStateService } from './event-state.service';
         <ng-template #published_template let-data="data">
             <div
                 *ngIf="data !== 'PRIVATE' && data !== 'private'"
-                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
+                class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
             >
                 <icon>done</icon>
             </div>
@@ -292,7 +293,7 @@ import { EventStateService } from './event-state.service';
                 </button>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
-                        <icon class="text-2xl text-error">delete</icon>
+                        <icon class="text-error text-2xl">delete</icon>
                         <div class="mr-2">
                             {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
                         </div>
@@ -316,6 +317,7 @@ import { EventStateService } from './event-state.service';
         AuthenticatedImageDirective,
         LevelPipe,
         BuildingPipe,
+        CustomTooltipComponent,
     ],
 })
 export class EventListingComponent {

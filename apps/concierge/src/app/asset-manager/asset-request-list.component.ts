@@ -139,7 +139,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="px-4 py-2">
                 <button
                     matRipple
-                    class="flex w-full items-center space-x-2 rounded-3xl !bg-opacity-20 px-2 py-1 text-left"
+                    class="!bg-opacity-20 flex w-full items-center space-x-2 rounded-3xl px-2 py-1 text-left"
                     [class.bg-success]="row.status === 'approved'"
                     [class.bg-error]="row.status === 'declined'"
                     [class.bg-warning]="row.status === 'tentative'"

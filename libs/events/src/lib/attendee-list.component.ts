@@ -11,9 +11,9 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 @Component({
     selector: 'attendee-list',
     template: `
-        <div class="flex h-full w-full flex-col overflow-hidden bg-base-100">
+        <div class="bg-base-100 flex h-full w-full flex-col overflow-hidden">
             <div
-                class="flex min-h-12 items-center border-b border-base-200 p-2"
+                class="border-base-200 flex min-h-12 items-center border-b p-2"
             >
                 @if (!hide_close()) {
                     <button close icon matRipple (click)="close.emit()">
@@ -41,7 +41,7 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                     ) {
                         <div
                             attendee
-                            class="flex items-center space-x-2 p-2 hover:bg-base-200"
+                            class="hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <div class="w-1/2 flex-1">

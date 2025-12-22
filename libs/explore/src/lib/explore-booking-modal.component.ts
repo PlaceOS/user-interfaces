@@ -15,6 +15,7 @@ import {
 
 import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -37,7 +38,7 @@ export interface ExploreBookingModalData {
     selector: 'explore-booking-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
@@ -85,7 +86,7 @@ export interface ExploreBookingModalData {
                         >
                         <div
                             name="space"
-                            class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                            class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                         >
                             {{
                                 form.controls.resources?.value[0]
@@ -115,14 +116,20 @@ export interface ExploreBookingModalData {
                     </div>
                     <div class="flex flex-wrap sm:space-x-4">
                         @if (form.controls.date) {
-                            <div class="flex w-full flex-1 flex-col sm:w-auto">
+                            <div
+                                class="flex w-full min-w-48 flex-1 flex-col sm:w-auto"
+                            >
                                 <label>{{ 'FORM.DATE' | translate }}:</label>
                                 <div
-                                    class="mb-4 w-full rounded-sm border border-base-200 px-4 py-3"
+                                    class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                                 >
                                     {{ form.value.date | date: 'mediumDate' }}
-                                    at
-                                    {{ form.value.date | date: time_format }}
+                                    @if (!form.value.all_day) {
+                                        at
+                                        {{
+                                            form.value.date | date: time_format
+                                        }}
+                                    }
                                 </div>
                             </div>
                         }
@@ -141,9 +148,16 @@ export interface ExploreBookingModalData {
                             </div>
                         }
                     </div>
+                    @if (allow_all_day) {
+                        <div class="-mt-2 mb-2 flex justify-end">
+                            <mat-checkbox formControlName="all_day">
+                                {{ 'COMMON.ALL_DAY' | translate }}
+                            </mat-checkbox>
+                        </div>
+                    }
                 </main>
             }
-            <footer class="flex justify-end border-t border-base-300 p-2">
+            <footer class="border-base-300 flex justify-end border-t p-2">
                 <button btn matRipple class="mx-2 w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
@@ -172,6 +186,7 @@ export interface ExploreBookingModalData {
         TranslatePipe,
         MatRippleModule,
         MatProgressSpinnerModule,
+        MatCheckboxModule,
         DurationFieldComponent,
         UserSearchFieldComponent,
         MatFormFieldModule,
@@ -212,6 +227,10 @@ export class ExploreBookingModalComponent implements OnInit {
         return this._settings.time_format;
     }
 
+    public get allow_all_day() {
+        return this._settings.get('app.events.allow_all_day');
+    }
+
     public ngOnInit() {
         this._event_form.newForm();
         this.form.patchValue({
@@ -219,6 +238,10 @@ export class ExploreBookingModalComponent implements OnInit {
             host: currentUser().email,
             organiser: currentUser(),
         });
+        this.form.valueChanges.subscribe((v) => {
+            this._checkAllDay(v.all_day);
+        });
+        this._checkAllDay(this.form.value.all_day);
     }
 
     public async save() {
@@ -232,5 +255,13 @@ export class ExploreBookingModalComponent implements OnInit {
             notifySuccess(i18n('EXPLORE.BOOKING_SUCCESS'));
         }
         this._dialog_ref.close();
+    }
+
+    private _checkAllDay(value: boolean) {
+        if (value) {
+            this.form.controls.duration.disable({ emitEvent: false });
+        } else {
+            this.form.controls.duration.enable({ emitEvent: false });
+        }
     }
 }

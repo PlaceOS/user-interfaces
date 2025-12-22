@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -35,9 +35,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                 ) | translate
             "
             [loading]="
-                (loading | async)
-                    ? ('APP.CONCIERGE.LEVELS_SAVING' | translate)
-                    : ''
+                loading() ? ('APP.CONCIERGE.LEVELS_SAVING' | translate) : ''
             "
             (confirm)="save()"
         >
@@ -146,7 +144,7 @@ export class LevelModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly building_list = this._org.building_list;
 
     public readonly form = new FormGroup({
@@ -173,7 +171,7 @@ export class LevelModalComponent {
                 }),
             );
         }
-        this.loading = true;
+        this.loading.set(true);
         const data: any = this.form.getRawValue();
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
         const resp = await (
@@ -190,6 +188,6 @@ export class LevelModalComponent {
             .toPromise()
             .catch();
         if (resp.id) this._dialog_ref.close(resp);
-        this.loading = false;
+        this.loading.set(false);
     }
 }

@@ -9,7 +9,7 @@ import { MeetingFlowSuccessComponent } from './meeting-flow/meeting-flow-success
 @Component({
     selector: 'placeos-book-meeting-flow',
     template: `
-        <div class="z-50 h-full w-full bg-base-100">
+        <div class="bg-base-100 z-50 h-full w-full">
             @switch (view()) {
                 @case ('success') {
                     <meeting-flow-success> </meeting-flow-success>

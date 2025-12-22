@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -22,13 +23,13 @@ import { AssetStateService } from '../asset-state.service';
     selector: 'new-asset-filters',
     template: `
         <div
-            class="sticky top-0 z-10 flex items-center border-b border-base-300 bg-base-100 px-4 py-4"
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
-        <div class="mb-2 mt-3 px-2" [class.sm:hidden]="!search()">
+        <div class="mt-3 mb-2 px-2" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input
@@ -49,9 +50,7 @@ import { AssetStateService } from '../asset-state.service';
                 <settings-toggle
                     [name]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                     [ngModel]="at_time()"
-                    (ngModelChange)="
-                        at_timeChange.emit($event); at_time.set($event)
-                    "
+                    (ngModelChange)="at_timeChange.emit($event)"
                     [matTooltip]="exact_tooltip"
                 ></settings-toggle>
                 @if (day_options.length > 1) {
@@ -64,10 +63,7 @@ import { AssetStateService } from '../asset-state.service';
                     >
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="
-                                offset_dayChange.emit($event);
-                                offset_day.set($event)
-                            "
+                            (ngModelChange)="offset_dayChange.emit($event)"
                         >
                             @for (day of day_options; track day) {
                                 <mat-option [value]="day.id">
@@ -80,9 +76,7 @@ import { AssetStateService } from '../asset-state.service';
                 <label>{{ 'BOOKINGS.ASSETS_DELIVER_TIME' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="
-                        offsetChange.emit($event); offset.set($event)
-                    "
+                    (ngModelChange)="offsetChange.emit($event)"
                     [time]="
                         offset_day() > 0
                             ? start_of_date
@@ -102,7 +96,7 @@ import { AssetStateService } from '../asset-state.service';
             @for (item of categories | async; track item.id) {
                 <settings-toggle
                     [name]="item.name"
-                    [ngModel]="(category | async) === item.id"
+                    [ngModel]="(category | async)?.includes(item.id)"
                     (ngModelChange)="toggleCategory(item.id)"
                 ></settings-toggle>
             }
@@ -124,6 +118,7 @@ import { AssetStateService } from '../asset-state.service';
         SettingsToggleComponent,
         FormsModule,
         MatSelectModule,
+        MatTooltipModule,
         TranslatePipe,
         DurationFieldComponent,
         IconComponent,

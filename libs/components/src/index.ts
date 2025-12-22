@@ -31,12 +31,14 @@ export * from './lib/translate.pipe';
 export * from './lib/unauthorised.component';
 export * from './lib/user-avatar.component';
 export * from './lib/user-controls.component';
+export * from './lib/user-controls-sidebar.component';
 export * from './lib/virtual-keyboard.component';
 
 export * from './lib/chat/chat.service';
 
 export * from './lib/building.pipe';
 export * from './lib/date-from.pipe';
+export * from './lib/duration.pipe';
 export * from './lib/level.pipe';
 export * from './lib/media-duration.pipe';
 export * from './lib/safe.pipe';

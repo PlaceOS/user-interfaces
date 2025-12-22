@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { MatRippleModule } from '@angular/material/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     BookingFormService,
     loadLockerBanks,
@@ -25,7 +26,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
     selector: 'placeos-book-locker-flow',
     template: `
         @if (!((assigned_space | async) && (has_booking | async))) {
-            <div class="z-50 h-full w-full bg-base-100">
+            <div class="bg-base-100 z-50 h-full w-full">
                 @switch (view()) {
                     @case ('success') {
                         <locker-flow-success> </locker-flow-success>
@@ -40,7 +41,7 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
             </div>
         } @else {
             <div
-                class="z-50 flex h-full w-full flex-col items-center justify-center space-y-4 bg-base-100"
+                class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >
                 <img src="assets/icons/parking-success.svg" class="h-64 w-64" />
                 <p>
@@ -70,6 +71,8 @@ import { BookLockerFlowSuccessComponent } from './locker-flow/locker-flow-succes
         BookLockerFlowConfirmComponent,
         BookLockerFlowFormComponent,
         BookLockerFlowSuccessComponent,
+        RouterModule,
+        MatRippleModule,
     ],
 })
 export class BookLockerFlowComponent extends AsyncHandler implements OnInit {

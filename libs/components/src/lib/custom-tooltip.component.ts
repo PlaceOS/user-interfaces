@@ -12,6 +12,8 @@ import {
     SimpleChanges,
     TemplateRef,
     Type,
+    computed,
+    effect,
     inject,
     input,
     viewChild,
@@ -23,10 +25,6 @@ import { SanitizePipe } from './sanitise.pipe';
 export class CustomTooltipData<T = any> {
     data: T;
     close: () => void;
-    constructor(d) {
-        this.data = d.data;
-        this.close = d.close || (() => null);
-    }
 }
 
 @Component({
@@ -35,18 +33,18 @@ export class CustomTooltipData<T = any> {
         <ng-content />
         <ng-template cdk-portal>
             <div custom-tooltip class="relative print:hidden">
-                @switch (type) {
+                @switch (type()) {
                     @case ('component') {
                         <ng-container
-                            *ngComponentOutlet="content(); injector: injector"
+                            *ngComponentOutlet="component(); injector: injector"
                         ></ng-container>
                     }
                     @case ('html') {
-                        <div [innerHTML]="content() | sanitize"></div>
+                        <div [innerHTML]="html() | sanitize"></div>
                     }
                     @default {
                         <ng-container
-                            *ngTemplateOutlet="content(); context: data()"
+                            *ngTemplateOutlet="template(); context: data()"
                         ></ng-container>
                     }
                 }
@@ -91,13 +89,43 @@ export class CustomTooltipComponent<T = any>
     /** Delay time in milliseconds to close after hover */
     public readonly delay = input(0);
     /** Type of content to render */
-    public type: 'template' | 'component' | 'html' = 'template';
+    public readonly type = computed(() =>
+        this.content() instanceof TemplateRef
+            ? 'template'
+            : this.content() instanceof Type
+              ? 'component'
+              : 'html',
+    );
+
+    public readonly template = computed(() => {
+        return this.content() as TemplateRef<any>;
+    });
+
+    public readonly html = computed(() => {
+        return this.content() as string;
+    });
+
+    public readonly component = computed(() => {
+        return this.content() as Type<any>;
+    });
 
     public injector: Injector;
 
     private _overlay_ref: OverlayRef = null;
 
     private readonly _portal = viewChild(CdkPortal);
+
+    private _update_injector = effect(() => {
+        this.injector = Injector.create({
+            providers: [
+                {
+                    provide: CustomTooltipData,
+                    useValue: { data: this.data(), close: () => this.close() },
+                },
+            ],
+            parent: this._injector,
+        });
+    });
 
     public ngOnInit(): void {
         const open = () => this.open();
@@ -128,7 +156,6 @@ export class CustomTooltipComponent<T = any>
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        this._updateInjector();
         if (
             this._overlay_ref &&
             (changes.x_pos || changes.y_pos || changes.content)
@@ -152,7 +179,6 @@ export class CustomTooltipComponent<T = any>
                 if (hover && delay) {
                     this.timeout('onclose', () => this.close(), delay);
                 }
-                this._updateType();
                 if (this._overlay_ref) this.close();
                 const _portal = this._portal();
                 if (!_portal) return;
@@ -199,27 +225,5 @@ export class CustomTooltipComponent<T = any>
             this._overlay_ref.dispose();
             this._overlay_ref = null;
         }
-    }
-
-    private _updateType() {
-        const content = this.content();
-        this.type =
-            typeof content === 'string'
-                ? 'html'
-                : content instanceof TemplateRef
-                  ? 'template'
-                  : 'component';
-    }
-
-    private _updateInjector() {
-        this.injector = Injector.create({
-            providers: [
-                {
-                    provide: CustomTooltipData,
-                    useValue: { data: this.data(), close: () => this.close() },
-                },
-            ],
-            parent: this._injector,
-        });
     }
 }

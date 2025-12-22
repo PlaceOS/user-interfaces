@@ -66,8 +66,37 @@ import {
     tap,
 } from 'rxjs/operators';
 
+export type EventSource = 'api' | 'driver' | 'ws';
+
 export interface ScheduleOptions {
     period: 'day' | 'week' | 'month';
+}
+
+/**
+ * De-duplicates events from multiple sources based on ical_uid.
+ * Events from sources earlier in the list take priority.
+ * @param events_by_source - Array of event arrays, ordered by priority (first = highest priority)
+ * @returns De-duplicated array of events
+ */
+function deduplicateEventsByIcalUid(
+    events_by_source: CalendarEvent[][],
+): CalendarEvent[] {
+    const seen_ical_uids = new Set<string>();
+    const result: CalendarEvent[] = [];
+
+    for (const events of events_by_source) {
+        for (const event of events) {
+            const uid = event.ical_uid;
+            // If no ical_uid, include the event (can't dedupe without it)
+            // If ical_uid exists and hasn't been seen, include and mark as seen
+            if (!uid || !seen_ical_uids.has(uid)) {
+                if (uid) seen_ical_uids.add(uid);
+                result.push(event);
+            }
+        }
+    }
+
+    return result;
 }
 
 @Injectable({
@@ -80,7 +109,7 @@ export class ScheduleStateService extends AsyncHandler {
     private _parking = inject(ParkingService);
 
     private _poll = new BehaviorSubject(0);
-    private _poll_type = new BehaviorSubject<'api' | 'ws' | 'driver'>('api');
+    private _event_sources = new BehaviorSubject<EventSource[]>(['api']);
     private _loading = new BehaviorSubject(false);
     private _options = new BehaviorSubject<ScheduleOptions>({ period: 'day' });
     private _filters = new BehaviorSubject({
@@ -185,6 +214,29 @@ export class ScheduleStateService extends AsyncHandler {
     public getOptions() {
         return this._options.getValue();
     }
+
+    /** Observable of current event sources */
+    public readonly event_sources = this._event_sources.asObservable();
+
+    /**
+     * Set the event sources to use for fetching events.
+     * The order determines priority for de-duplication (first = highest priority).
+     * @param sources - Array of event sources in priority order
+     */
+    public setEventSources(sources: EventSource[]) {
+        if (sources?.length) {
+            this._event_sources.next(sources);
+        }
+    }
+
+    /**
+     * Get the current event sources
+     * @returns Array of event sources in priority order
+     */
+    public getEventSources(): EventSource[] {
+        return this._event_sources.getValue();
+    }
+
     public readonly week_date = combineLatest([
         this._org.active_building,
         this.date,
@@ -301,18 +353,43 @@ export class ScheduleStateService extends AsyncHandler {
         }),
         shareReplay(1),
     );
-    /** List of calendar events for the selected date */
+    /** Map of source type to observable */
+    private _getEventsObservable(
+        source: EventSource,
+    ): Observable<CalendarEvent[]> {
+        switch (source) {
+            case 'driver':
+                return this.driver_events;
+            case 'ws':
+                return this.ws_events;
+            case 'api':
+            default:
+                return this.api_events;
+        }
+    }
+
+    /** List of calendar events for the selected date, combined from multiple sources */
     public readonly raw_events = combineLatest([
-        this._poll_type,
+        this._event_sources,
         this._options,
     ]).pipe(
-        switchMap(([t, { period }]) =>
-            t === 'driver'
-                ? this.driver_events
-                : t === 'api' || period !== 'week'
-                  ? this.api_events
-                  : this.ws_events,
-        ),
+        switchMap(([sources]) => {
+            if (!sources?.length) {
+                return of([]);
+            }
+            // Create observables for each source in priority order
+            const source_observables = sources.map((source) =>
+                this._getEventsObservable(source).pipe(
+                    catchError(() => of([] as CalendarEvent[])),
+                ),
+            );
+            // Combine all sources and deduplicate by ical_uid
+            return combineLatest(source_observables).pipe(
+                map((events_by_source) =>
+                    deduplicateEventsByIcalUid(events_by_source),
+                ),
+            );
+        }),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
@@ -606,16 +683,26 @@ export class ScheduleStateService extends AsyncHandler {
     constructor() {
         super();
         this.subscription(
-            'poll_type',
-            this._org.active_building.subscribe(() =>
-                this._poll_type.next(
-                    this._settings.get('app.schedule.use_driver')
+            'event_sources',
+            this._org.active_building.subscribe(() => {
+                // Check for new array-based setting first
+                const sources_setting = this._settings.get(
+                    'app.schedule.event_sources',
+                ) as EventSource[] | undefined;
+                if (sources_setting?.length) {
+                    this._event_sources.next(sources_setting);
+                } else {
+                    // Fall back to legacy boolean settings for backward compatibility
+                    const legacy_source: EventSource = this._settings.get(
+                        'app.schedule.use_driver',
+                    )
                         ? 'driver'
                         : this._settings.get('app.schedule.use_websocket')
                           ? 'ws'
-                          : 'api',
-                ),
-            ),
+                          : 'api';
+                    this._event_sources.next([legacy_source]);
+                }
+            }),
         );
         this.subscription(
             'chat_event',

@@ -73,7 +73,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
                             {{
                                 'APP.CONTROL.SOURCE_INPUTS_EMPTY'
                                     | translate
-                                        : { name: details?.name || 'Unknown' }
+                                        : { name: source?.name || 'Unknown' }
                             }}
                         </p>
                     </div>

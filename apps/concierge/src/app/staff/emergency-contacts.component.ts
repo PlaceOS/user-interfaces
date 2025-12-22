@@ -102,7 +102,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                                class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                                 [matTooltip]="
                                     'APP.CONCIERGE.CONTACTS_ROLES_MANAGE'
                                         | translate
@@ -140,8 +140,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             },
                             {
                                 key: 'zone',
-                                name:
-                                    'RESOURCE.LEVEL' | translate,
+                                name: 'RESOURCE.LEVEL' | translate,
                                 content: zone_template,
                                 sortable: false,
                             },
@@ -171,7 +170,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                         <div class="flex flex-wrap p-2">
                             @for (role of data; track role) {
                                 <span
-                                    class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
+                                    class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
                                 >
                                     {{ role }}
                                 </span>
@@ -238,7 +237,7 @@ export { EmergencyContact } from './emergency-contacts.service';
         ApplicationSidebarComponent,
         FormsModule,
         TranslatePipe,
-        LevelPipe
+        LevelPipe,
     ],
 })
 export class EmergencyContactsComponent implements OnInit {

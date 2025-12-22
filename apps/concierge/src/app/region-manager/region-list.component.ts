@@ -147,8 +147,8 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                         </div>
                     </button>
                     <button mat-menu-item (click)="removeRegion(row)">
-                        <div class="text-red-500 flex items-center space-x-2">
-                            <icon class="text-xl text-error"> delete </icon>
+                        <div class="flex items-center space-x-2 text-red-500">
+                            <icon class="text-error text-xl"> delete </icon>
                             <div>
                                 {{ 'APP.CONCIERGE.REGIONS_REMOVE' | translate }}
                             </div>

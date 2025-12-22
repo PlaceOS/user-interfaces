@@ -30,7 +30,7 @@ const DAY_IN_MINUTES = 24 * 60;
                 event
                 matRipple
                 [class]="
-                    'absolute z-10 overflow-hidden rounded-sm border border-base-200 text-sm shadow-xs hover:z-30 ' +
+                    'border-base-200 absolute z-10 overflow-hidden rounded-sm border text-sm shadow-xs hover:z-30 ' +
                     type
                 "
                 [style.top]="top * 100 + '%'"
@@ -65,7 +65,7 @@ const DAY_IN_MINUTES = 24 * 60;
         @if (event() && (ui_options | async)?.show_cleaning) {
             <div
                 cleaning
-                class="absolute z-20 flex w-full overflow-hidden rounded-sm bg-base-100 p-2 shadow-sm hover:h-48!"
+                class="bg-base-100 absolute z-20 flex w-full overflow-hidden rounded-sm p-2 shadow-sm hover:h-48!"
                 [style.top]="top * 100 + '%'"
                 [style.height]="height * 100 + '%'"
             >

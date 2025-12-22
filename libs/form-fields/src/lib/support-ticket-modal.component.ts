@@ -36,7 +36,7 @@ export interface SupportRequestType {
     template: `
         <fullscreen-modal-shell
             [heading]="'Raise a support ticket'"
-            [loading]="loading"
+            [loading]="loading ? 'true' : ''"
             [confirm_text]="'COMMON.SUBMIT' | translate"
             (confirm)="submit()"
         >

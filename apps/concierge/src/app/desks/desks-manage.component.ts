@@ -108,7 +108,7 @@ const QR_CODES = {};
                 <div class="flex flex-wrap p-2">
                     @for (item of data; track item) {
                         <span
-                            class="m-1 rounded-2xl bg-info px-2 py-1 font-mono text-xs text-info-content"
+                            class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
                         >
                             {{ item }}
                         </span>
@@ -133,7 +133,7 @@ const QR_CODES = {};
                 @if (data) {
                     <button
                         class="px-4 py-2 text-left leading-tight"
-                        (click)="copyToClipboard(data, 'assigned')"
+                        (click)="copyToClipboard(data)"
                     >
                         <div class="">{{ row.assigned_name || data }}</div>
                         @if (row.assigned_name) {
@@ -179,19 +179,19 @@ const QR_CODES = {};
                         <icon class="text-error">delete</icon>
                     </button>
                     <ng-template #qr_menu>
-                        <div class="rounded-sm bg-base-100 py-2 shadow-sm">
+                        <div class="bg-base-100 rounded-sm py-2 shadow-sm">
                             <div class="" printable [content]="print_content">
                                 <ng-template #print_content>
                                     <a
                                         [href]="row.qr_link | safe: 'url'"
                                         target="_blank"
                                         ref="noopener noreferrer"
-                                        class="mx-4 my-2 block rounded-lg border border-base-200 bg-base-100 p-2"
+                                        class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                     >
                                         <img class="w-48" [src]="row.qr_code" />
                                     </a>
                                     <div
-                                        class="mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm bg-base-200 p-2 text-center font-mono text-sm"
+                                        class="bg-base-200 mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm p-2 text-center font-mono text-sm"
                                     >
                                         {{ row.name || row.id }}
                                     </div>
@@ -214,7 +214,7 @@ const QR_CODES = {};
             </ng-template>
             @if (loading() || stateLoading()) {
                 <div
-                    class="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-base-100 bg-opacity-60"
+                    class="bg-base-100 bg-opacity-60 absolute inset-0 flex flex-col items-center justify-center space-y-2"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     @if (loading()) {
@@ -224,11 +224,11 @@ const QR_CODES = {};
             }
             @if (dragging()) {
                 <div
-                    class="absolute inset-0 flex items-center justify-center bg-neutral"
+                    class="bg-neutral absolute inset-0 flex items-center justify-center"
                 >
-                    <div class="rounded-sm bg-base-100 p-4 shadow-sm">
+                    <div class="bg-base-100 rounded-sm p-4 shadow-sm">
                         <div
-                            class="flex h-64 w-64 flex-col items-center justify-center rounded-sm border-4 border-dashed border-base-200"
+                            class="border-base-200 flex h-64 w-64 flex-col items-center justify-center rounded-sm border-4 border-dashed"
                         >
                             {{
                                 'APP.CONCIERGE.DESKS_DROP_TEMPLATE' | translate
@@ -238,7 +238,7 @@ const QR_CODES = {};
                     <input
                         type="file"
                         class="absolute inset-0 opacity-0"
-                        (change)="loadCSVData($event)"
+                        (change)="loadCSVData($any($event))"
                     />
                 </div>
             }

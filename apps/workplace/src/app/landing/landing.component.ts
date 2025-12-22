@@ -27,10 +27,10 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
         @if (!hide_nav()) {
             <topbar class="z-10" />
         }
-        <div class="flex h-1/2 flex-1 bg-base-200">
+        <div class="bg-base-200 flex h-1/2 flex-1">
             @if (!hide_landing_sidebar()) {
                 <div
-                    class="relative hidden h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100 sm:flex"
+                    class="border-base-300 bg-base-100 relative hidden h-full w-[18rem] flex-col overflow-hidden border-r sm:flex"
                 >
                     <div class="flex items-center space-x-2 p-2">
                         @if (!hide_colleagues()) {
@@ -81,7 +81,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
             }
             <div class="z-0 h-full w-1/2 flex-1 overflow-auto sm:px-4">
                 <header
-                    class="sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden bg-brand-300 px-4 shadow-sm sm:rounded-b"
+                    class="bg-brand-300 sticky top-0 z-50 mb-4 flex items-center justify-between overflow-hidden px-4 shadow-sm sm:rounded-b"
                 >
                     <div class="">
                         <div class="font-medium sm:text-xl">
@@ -115,7 +115,7 @@ import { LandingUpcomingComponent } from './landing-upcoming.component';
                 }
                 <landing-availability />
                 <div
-                    class="mx-4 mb-2 h-px w-[calc(100%-2rem)] bg-base-200"
+                    class="bg-base-200 mx-4 mb-2 h-px w-[calc(100%-2rem)]"
                 ></div>
                 <landing-upcoming />
             </div>

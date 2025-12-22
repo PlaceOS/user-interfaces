@@ -77,7 +77,7 @@ const ICONS = {
 @Component({
     selector: 'catering-item-filters',
     template: `
-        <div class="mb-2 mt-2 px-2" [class.sm:hidden]="!search()">
+        <div class="mt-2 mb-2 px-2" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
                 <icon matPrefix class="text-xl">search</icon>
                 <input

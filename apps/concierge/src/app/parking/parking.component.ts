@@ -21,7 +21,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                     <div class="px-8 pb-2">
                         <nav
                             mat-tab-nav-bar
-                            class="overflow-hidden rounded-sm bg-base-200"
+                            class="bg-base-200 overflow-hidden rounded-sm"
                             [tabPanel]="tabPanel"
                         >
                             <a
@@ -82,7 +82,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                     >
                         <div
-                            class="absolute inset-0 z-0 bg-base-100 opacity-80"
+                            class="bg-base-100 absolute inset-0 z-0 opacity-80"
                         ></div>
                         <p class="z-10 opacity-60">
                             {{

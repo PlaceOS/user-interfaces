@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
@@ -27,7 +28,15 @@ describe('DesksComponent', () => {
             MockComponent(SearchbarComponent),
         ],
         providers: [
-            MockProvider(DesksStateService, { refresh: jest.fn() }),
+            MockProvider(DesksStateService, {
+                refresh: jest.fn(),
+                filters: signal({}),
+                loading: signal(false),
+                setFilters: jest.fn(),
+                rejectAllDesks: jest.fn(),
+                editDesk: jest.fn(),
+                addDesks: jest.fn(),
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [

@@ -23,7 +23,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
         <div class="absolute inset-0 flex flex-col">
             <div
                 topbar
-                class="relative z-20 flex h-16 w-full items-center border-b border-base-300 bg-base-100 p-2 shadow-sm"
+                class="border-base-300 bg-base-100 relative z-20 flex h-16 w-full items-center border-b p-2 shadow-sm"
             >
                 <img
                     auth
@@ -39,32 +39,32 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                 </div>
             </div>
             <div
-                class="relative z-10 flex h-1/2 w-full flex-1 flex-wrap items-center overflow-auto bg-base-200"
+                class="bg-base-200 relative z-10 flex h-1/2 w-full flex-1 flex-wrap items-center overflow-auto"
             >
                 <div
-                    class="sticky left-0 z-20 flex min-h-full w-16 min-w-16 flex-col border-r border-base-300 bg-base-100"
+                    class="border-base-300 bg-base-100 sticky left-0 z-20 flex min-h-full w-16 min-w-16 flex-col border-r"
                 >
                     <div
-                        class="z-50 min-h-12 w-full border-b border-base-300"
+                        class="border-base-300 z-50 min-h-12 w-full border-b"
                     ></div>
                     <div class="relative flex h-1/2 w-full flex-1 flex-col">
                         <div
                             now
-                            class="absolute left-0 z-20 h-[2px] w-screen -translate-y-1/2 bg-secondary"
+                            class="bg-secondary absolute left-0 z-20 h-[2px] w-screen -translate-y-1/2"
                             [style.top]="current_offset() + '%'"
                         >
                             <div
-                                class="arrow absolute left-0 top-0 -translate-y-1/2"
+                                class="arrow absolute top-0 left-0 -translate-y-1/2"
                             ></div>
                         </div>
                         @for (hr of hours(); track hr; let i = $index) {
                             <div
                                 hour
-                                class="relative z-10 min-h-8 w-full flex-1 border-b border-base-300"
+                                class="border-base-300 relative z-10 min-h-8 w-full flex-1 border-b"
                             >
                                 <div
                                     text
-                                    class="absolute left-0 right-2 top-0 -translate-y-1/2 bg-base-100 pr-2 text-right text-sm"
+                                    class="bg-base-100 absolute top-0 right-2 left-0 -translate-y-1/2 pr-2 text-right text-sm"
                                 >
                                     @if (i > 0) {
                                         {{ hr % 12 === 0 ? '12' : hr % 12 }}
@@ -74,7 +74,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                                     }
                                 </div>
                                 <div
-                                    class="absolute inset-x-0 top-1/2 w-full border-b border-base-300"
+                                    class="border-base-300 absolute inset-x-0 top-1/2 w-full border-b"
                                 ></div>
                             </div>
                         }
@@ -83,7 +83,7 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                 @if (spaces().length) {
                     @for (space of spaces(); track space) {
                         <space-timetable
-                            class="relative z-10 min-w-[24vw] flex-1 border-r border-base-300"
+                            class="border-base-300 relative z-10 min-w-[24vw] flex-1 border-r"
                             [space]="space"
                             [time_offset]="offset()"
                             [time_period]="length()"

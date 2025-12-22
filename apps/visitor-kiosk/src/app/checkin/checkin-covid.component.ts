@@ -11,7 +11,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-covid]',
     template: `
         <div
-            class="relative overflow-y-auto overflow-x-hidden rounded-sm bg-base-100 p-4"
+            class="bg-base-100 relative overflow-x-hidden overflow-y-auto rounded-sm p-4"
         >
             <h3 class="mb-4 text-xl font-medium">COVID Disclaimer</h3>
             <ol class="list-inside list-decimal">
@@ -62,7 +62,7 @@ import { CheckinStateService } from './checkin-state.service';
                 icon
                 matRipple
                 [attr.disabled]="!symptoms && !contact"
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
                 <icon>close</icon>

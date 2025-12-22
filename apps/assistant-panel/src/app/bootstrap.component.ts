@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,12 +18,12 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
 @Component({
     selector: 'app-bootstrap',
     template: `
-        <div class="absolute inset-0 z-0 bg-base-200"></div>
+        <div class="bg-base-200 absolute inset-0 z-0"></div>
         <div
-            class="relative z-10 mx-auto my-8 w-md overflow-hidden rounded-lg border border-base-300 bg-base-100"
+            class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md overflow-hidden rounded-lg border"
         >
             <header
-                class="flex w-full items-center justify-between bg-secondary px-4 py-3 text-xl font-medium text-secondary-content"
+                class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
             >
                 <div>{{ 'COMMON.BOOTSTRAP_ASSISTANT' | translate }}</div>
                 <div class="rounded-sm px-2 py-1 font-mono text-sm uppercase">
@@ -75,7 +76,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                                         }
                                     </div>
                                     <div
-                                        class="rounded-sm bg-base-200 px-2 py-1 font-mono text-[0.625rem]"
+                                        class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
                                     >
                                         {{ option.id }}
                                     </div>
@@ -105,7 +106,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
             }
             @if (!loading) {
                 <footer
-                    class="flex w-full items-center justify-end border-t border-base-300 px-4 py-2"
+                    class="border-base-300 flex w-full items-center justify-end border-t px-4 py-2"
                 >
                     <button
                         btn
@@ -128,6 +129,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
         MatProgressSpinnerModule,
         MatRippleModule,
         CommonModule,
+        FormsModule,
         TranslatePipe,
     ],
 })

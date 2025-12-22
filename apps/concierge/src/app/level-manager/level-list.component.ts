@@ -68,7 +68,7 @@ import { LevelManagementService } from './level-management.service';
         <ng-template #parking_template let-row="row">
             @if (row.tags?.includes('parking')) {
                 <div
-                    class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm bg-success text-2xl text-success-content"
+                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
                 >
                     <icon>done</icon>
                 </div>
@@ -112,7 +112,7 @@ import { LevelManagementService } from './level-management.service';
                     </button>
                     <button mat-menu-item (click)="removeLevel(row)">
                         <div class="flex items-center space-x-2">
-                            <icon class="text-2xl text-error"> delete </icon>
+                            <icon class="text-error text-2xl"> delete </icon>
                             <span>
                                 {{ 'APP.CONCIERGE.LEVELS_REMOVE' | translate }}
                             </span>

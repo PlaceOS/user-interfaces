@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import {
     AsyncHandler,
     i18n,
     notifySuccess,
     SettingsService,
-    User,
+    StaffUser,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -26,7 +27,7 @@ import { LandingStateService } from './landing-state.service';
     selector: 'landing-colleagues',
     template: `
         <div
-            class="mx-2 flex items-center justify-between rounded-sm bg-base-200 p-2 text-sm"
+            class="bg-base-200 mx-2 flex items-center justify-between rounded-sm p-2 text-sm"
         >
             <h2>
                 {{
@@ -41,9 +42,9 @@ import { LandingStateService } from './landing-state.service';
                     <div class="relative flex items-center space-x-2 px-2" user>
                         <div class="relative text-xl">
                             <a-user-avatar [user]="user"></a-user-avatar>
-                            @if (!user.outsideHours()) {
+                            @if (!user.outsideHours?.()) {
                                 <div
-                                    class="absolute bottom-1 right-1 h-3 w-3 rounded-full border border-white"
+                                    class="absolute right-1 bottom-1 h-3 w-3 rounded-full border border-white"
                                     [class.bg-error]="
                                         user.location === 'aol' ||
                                         user.location === 'ooo'
@@ -72,7 +73,7 @@ import { LandingStateService } from './landing-state.service';
                         <button
                             icon
                             name="colleague-more"
-                            class="rounded-sm! bg-base-200"
+                            class="bg-base-200 rounded-sm!"
                             [matMenuTriggerFor]="menu"
                         >
                             <icon>more_horiz</icon>
@@ -134,19 +135,19 @@ import { LandingStateService } from './landing-state.service';
         <div
             search
             [class.hidden]="!show_search"
-            class="absolute inset-x-2 bottom-16 top-2 flex flex-col overflow-hidden rounded-sm border border-base-200 bg-base-100"
+            class="border-base-200 bg-base-100 absolute inset-x-2 top-2 bottom-16 flex flex-col overflow-hidden rounded-sm border"
         >
             <input
                 #search_input
                 [ngModel]="(options | async)?.search"
                 (ngModelChange)="updateSearch($event)"
                 [placeholder]="'FORM.USER_SEARCH' | translate"
-                class="w-full border-b border-base-200 p-2"
+                class="border-base-200 w-full border-b p-2"
             />
             <button
                 icon
                 name="close-colleague-search"
-                class="absolute right-0 top-0"
+                class="absolute top-0 right-0"
                 (click)="show_search = false"
             >
                 <icon>close</icon>
@@ -233,6 +234,7 @@ import { LandingStateService } from './landing-state.service';
         IconComponent,
         MatRippleModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         UserAvatarComponent,
         FormsModule,
         MatMenuModule,
@@ -283,7 +285,7 @@ export class LandingColleaguesComponent extends AsyncHandler {
     private readonly _input_el =
         viewChild.required<ElementRef<HTMLInputElement>>('search_input');
 
-    public newMeeting(user: User) {
+    public newMeeting(user: StaffUser) {
         this._event_form.newForm();
         setTimeout(() => {
             this._event_form.form.patchValue({ attendees: [user] });

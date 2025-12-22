@@ -13,10 +13,10 @@ import { EventWeekViewComponent } from './event-week-view.component';
 @Component({
     selector: 'event-calendar',
     template: `
-        <div class="flex w-full items-center border-y border-base-200">
+        <div class="border-base-200 flex w-full items-center border-y">
             <div class="flex-1 px-2 py-4">
                 @if (is_today | async) {
-                    <span class="text-xs text-info">{{
+                    <span class="text-info text-xs">{{
                         ((period | async) === 'week'
                             ? 'COMMON.WEEK_THIS'
                             : 'COMMON.MONTH_THIS'
@@ -24,7 +24,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
                     }}</span>
                 }
             </div>
-            <div class="flex-2 flex items-center justify-center space-x-2">
+            <div class="flex flex-2 items-center justify-center space-x-2">
                 <div class="pl-4 font-medium">
                     {{ (options | async)?.date | date: 'MMM yyyy' }}
                 </div>

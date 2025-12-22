@@ -100,7 +100,7 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             }
         </div>
-        <div class="mb-2 flex h-14 items-center bg-base-100 px-8">
+        <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
             @if (section() === 'events') {
                 <div class="mr-2 flex items-center">
                     <a
@@ -159,7 +159,7 @@ import { ParkingStateService } from './parking-state.service';
                 <button
                     icon
                     matRipple
-                    class="h-12 w-12 rounded-sm bg-secondary text-secondary-content"
+                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="manageRestrictions()"
                     [matTooltip]="
                         'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
@@ -170,7 +170,7 @@ import { ParkingStateService } from './parking-state.service';
             }
             @if (section() === 'events') {
                 <div
-                    class="mr-2 flex items-center space-x-2 rounded-md border border-base-300 py-1 pl-3 pr-1 text-sm"
+                    class="border-base-300 mr-2 flex items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
                     matTooltip="Parking Spaces Occupied"
                 >
                     {{ (bookings | async)?.length || 0 }} of

@@ -21,19 +21,19 @@ const STATUS = {};
     template: `
         @if (item()) {
             <div
-                class="relative m-2 h-40 w-full flex-1 rounded-sm border bg-base-100 p-2 shadow-sm"
+                class="bg-base-100 relative m-2 h-40 w-full flex-1 rounded-sm border p-2 shadow-sm"
                 [class.border-base-200]="!active()"
                 [class.border-primary]="active()"
             >
                 @let source = input | async;
                 <button
                     matRipple
-                    class="relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm bg-info"
+                    class="bg-info relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm"
                     [class.bg-base-300!]="!source"
                     (click)="setActiveOutput()"
                 >
                     <div
-                        class="absolute left-1 top-1 rounded-full border border-base-300 bg-base-100 px-2 py-1 text-xs text-base-content"
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1 left-1 rounded-full border px-2 py-1 text-xs"
                         [class.bg-primary!]="active()"
                     >
                         {{ item()?.name || 'Display' }}

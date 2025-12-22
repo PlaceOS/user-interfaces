@@ -92,11 +92,11 @@ import { SignageStateService } from './signage-state.service';
                     >
                     </settings-toggle>
                 </div>
-                <div class="pb-4 pt-2">
-                    <div class="relative rounded-sm border border-base-300">
+                <div class="pt-2 pb-4">
+                    <div class="border-base-300 relative rounded-sm border">
                         <label
                             for="default-duration"
-                            class="absolute left-2 top-0 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 bg-base-100 px-2"
+                            class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
                         >
                             <div>Default Play Time</div>
                         </label>
@@ -238,11 +238,11 @@ import { SignageStateService } from './signage-state.service';
                     </div>
                 </div>
                 <div
-                    class="relative mb-12 space-y-2 rounded-sm border border-base-300 px-4 pt-4"
+                    class="border-base-300 relative mb-12 space-y-2 rounded-sm border px-4 pt-4"
                 >
                     <label
                         for="schedule"
-                        class="absolute left-2 top-0 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 bg-base-100 px-2"
+                        class="bg-base-100 absolute top-0 left-2 m-0 flex w-auto min-w-0 -translate-y-1/2 items-center space-x-2 px-2"
                     >
                         <div>Schedule</div>
                     </label>

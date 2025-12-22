@@ -40,7 +40,7 @@ export async function openRecurringClashModal(
     template: `
         <div class="relative">
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{ 'BOOKINGS.RECURRING_CLASHES_TITLE' | translate }}
@@ -50,7 +50,7 @@ export async function openRecurringClashModal(
                 class="flex max-h-[60vh] w-full max-w-[calc(100vw-2rem)] flex-col items-center space-y-4 overflow-auto px-4 py-2 sm:max-w-md"
             >
                 <div
-                    class="flex items-center space-x-2 rounded-xl border border-base-200 bg-warning p-2 text-warning-content shadow-sm"
+                    class="border-base-200 bg-warning text-warning-content flex items-center space-x-2 rounded-xl border p-2 shadow-sm"
                 >
                     <icon class="text-5xl">warning</icon>
                     <p>
@@ -58,10 +58,10 @@ export async function openRecurringClashModal(
                     </p>
                 </div>
                 <div
-                    class="max-h-48 w-full overflow-auto rounded-sm border border-base-300 bg-base-100"
+                    class="border-base-300 bg-base-100 max-h-48 w-full overflow-auto rounded-sm border"
                 >
                     <table class="w-full text-sm">
-                        <thead class="sticky top-0 bg-base-200">
+                        <thead class="bg-base-200 sticky top-0">
                             <tr>
                                 <th class="p-2 text-left">
                                     {{ 'FORM.DATE' | translate }}
@@ -73,7 +73,7 @@ export async function openRecurringClashModal(
                         </thead>
                         <tbody>
                             @for (clash of clashes; track clash.booking_start) {
-                                <tr class="border-t border-base-300">
+                                <tr class="border-base-300 border-t">
                                     <td class="p-2">
                                         {{
                                             clash.booking_start * 1000
@@ -101,12 +101,12 @@ export async function openRecurringClashModal(
                 </p>
             </main>
             <footer
-                class="sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 sticky bottom-0 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn
                     matRipple
-                    class="inverse flex-1 bg-base-100"
+                    class="inverse bg-base-100 flex-1"
                     mat-dialog-close
                 >
                     {{ 'COMMON.CANCEL' | translate }}

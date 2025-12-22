@@ -31,14 +31,14 @@ import { SpacesService } from '../spaces.service';
     selector: `new-space-filters`,
     template: `
         <div
-            class="sticky top-0 z-10 flex items-center border-b border-base-300 bg-base-100 px-4 py-4"
+            class="border-base-300 bg-base-100 sticky top-0 z-10 flex items-center border-b px-4 py-4"
         >
             <h3 class="text-xl font-medium">
                 {{ 'COMMON.FILTERS' | translate }}
             </h3>
         </div>
         <form
-            class="max-h-[65vh] w-full max-w-[100vw] divide-y divide-base-200 overflow-y-auto overflow-x-hidden p-2"
+            class="divide-base-200 max-h-[65vh] w-full max-w-[100vw] divide-y overflow-x-hidden overflow-y-auto p-2"
             [formGroup]="form"
         >
             <section details>
@@ -271,7 +271,7 @@ import { SpacesService } from '../spaces.service';
                                     class="w-full"
                                     [name]="feature_display[feat] || feat"
                                     [ngModel]="
-                                        (options | async)?.features?.includes(
+                                        (filters | async)?.features?.includes(
                                             feat
                                         )
                                     "
@@ -287,7 +287,7 @@ import { SpacesService } from '../spaces.service';
             }
         </form>
         @if (can_close) {
-            <div class="w-full border-t border-base-200 px-2 pt-2">
+            <div class="border-base-200 w-full border-t px-2 pt-2">
                 <button
                     btn
                     matRipple
@@ -430,7 +430,11 @@ export class NewSpaceFiltersComponent {
                 Date.now(),
                 this._settings.get('app.events.allowed_future_days') || 180,
             ),
-        );
+        ).valueOf();
+    }
+
+    public close() {
+        // No-op for inline filters
     }
 
     public setBuilding(bld: Building) {

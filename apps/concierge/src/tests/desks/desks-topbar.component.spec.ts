@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -5,7 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, of, timer } from 'rxjs';
+import { of, timer } from 'rxjs';
 
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
@@ -27,11 +28,11 @@ describe('DesksTopbarComponent', () => {
         ],
         providers: [
             MockProvider(DesksStateService, {
-                filters: new BehaviorSubject({}),
+                filters: signal({}),
                 setFilters: jest.fn(),
                 approveDesk: jest.fn(),
                 rejectDesk: jest.fn(),
-            }),
+            } as any),
             MockProvider(OrganisationService, {
                 active_levels: of([]),
                 initialised: of(true),

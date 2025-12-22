@@ -37,7 +37,7 @@ const EMPTY: string[] = [];
         @if (show_radius()) {
             <div
                 name="radius"
-                class="radius center border-blue-600 absolute rounded-full border-8 border-dashed border-info bg-info opacity-30"
+                class="radius center border-info bg-info absolute rounded-full border-8 border-dashed border-blue-600 opacity-30"
                 [style]="
                     'height: ' + diameter() + '%; width: ' + diameter() + '%;'
                 "
@@ -71,7 +71,7 @@ const EMPTY: string[] = [];
         <ng-template #device_tooltip>
             <div
                 name="device-info"
-                class="pointer-events-none left-0 top-0 mx-2 w-64 rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 pointer-events-none top-0 left-0 mx-2 w-64 rounded-sm p-4 shadow-sm"
             >
                 <div class="arrow"></div>
                 <div class="details">

@@ -36,7 +36,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                             [active]="active() === item.custom_id"
                             [selected]="true"
                             [favourite]="isFavourite(item.id)"
-                            (toggleFav)="toggleFav.emit(item.id)"
+                            (toggleFav)="toggleFav.emit(item)"
                             (select)="selectItem(item, true)"
                         ></new-catering-item-list-item>
                     }
@@ -60,7 +60,7 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                                 [selected]="selected().includes(item.custom_id)"
                                 [favourite]="isFavourite(item.id)"
                                 [code]="code"
-                                (toggleFav)="toggleFav.emit(item.id)"
+                                (toggleFav)="toggleFav.emit(item)"
                                 (select)="selectItem(item, true)"
                             ></new-catering-item-list-item>
                         }

@@ -29,17 +29,17 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
     selector: 'new-parking-select-modal',
     template: `
         <div
-            class="mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden bg-base-100 p-2 sm:m-0 sm:h-auto sm:w-auto"
+            class="bg-base-100 mb-10 flex h-[calc(100vh-2.5rem)] max-h-[calc(100vh-2.5rem)] w-screen flex-col space-y-2 overflow-hidden p-2 sm:m-0 sm:h-auto sm:w-auto"
             [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
         >
             <header
-                class="flex h-14 w-full items-center space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
             >
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'BOOKINGS.PARKING_FIND' | translate }}
                 </h2>
                 <div
-                    class="flex divide-x divide-secondary rounded-sm border border-secondary"
+                    class="divide-secondary border-secondary flex divide-x rounded-sm border"
                 >
                     <button
                         icon
@@ -74,7 +74,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
                 <div
-                    class="h-full w-full overflow-y-auto overflow-x-hidden rounded-sm border border-base-300 shadow-sm sm:block sm:w-[20rem]"
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
                     <new-parking-space-filters
@@ -82,7 +82,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     ></new-parking-space-filters>
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded-sm border border-base-300 bg-base-200 sm:w-[20rem] lg:block"
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || displayed"
                     [class.sm:hidden]="displayed"
                     [class.md:block]="!displayed"
@@ -112,7 +112,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     }
                 </div>
                 <div
-                    class="h-full w-full overflow-auto rounded-sm border border-base-300 shadow-sm sm:w-[20rem] lg:block"
+                    class="border-base-300 h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem] lg:block"
                     [class.hidden]="show_filters || !displayed"
                     [class.sm:hidden]="!displayed"
                     [class.md:block]="displayed"
@@ -133,7 +133,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                     <button
                         icon
                         matRipple
-                        class="absolute right-2 top-3 z-20 border border-base-200 bg-base-100 sm:hidden"
+                        class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
                         (click)="show_filters = !show_filters"
                     >
                         <icon>{{
@@ -143,7 +143,7 @@ export const FAV_PARKING_KEY = 'favourite_parking_spaces';
                 }
             </main>
             <footer
-                class="flex w-full items-center justify-between space-x-2 rounded-sm border-none bg-base-200 p-2"
+                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
             >
                 <button
                     btn

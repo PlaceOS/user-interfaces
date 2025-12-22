@@ -6,7 +6,7 @@ import { DateOptionsComponent } from '../ui/date-options.component';
 @Component({
     selector: 'points-topbar',
     template: `
-        <div class="flex h-20 items-center space-x-2 bg-base-100 px-8 py-4">
+        <div class="bg-base-100 flex h-20 items-center space-x-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{ 'APP.CONCIERGE.POINTS_HEADER' | translate }}
             </h2>

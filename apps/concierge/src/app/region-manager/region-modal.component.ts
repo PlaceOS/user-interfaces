@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -36,9 +36,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                 ) | translate
             "
             [loading]="
-                (loading | async)
-                    ? ('APP.CONCIERGE.REGION_SAVING' | translate)
-                    : ''
+                loading() ? ('APP.CONCIERGE.REGION_SAVING' | translate) : ''
             "
             (confirm)="save()"
         >
@@ -103,7 +101,7 @@ export class RegionModalComponent extends AsyncHandler implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly building_list = this._org.building_list;
 
     public timezones: string[] = [];
@@ -138,7 +136,7 @@ export class RegionModalComponent extends AsyncHandler implements OnInit {
         }
         const data: any = this.form.getRawValue();
         data.tags = ['region'];
-        this.loading = true;
+        this.loading.set(true);
         const resp = await (
             data.id
                 ? updateZone(data.id, {
@@ -157,7 +155,7 @@ export class RegionModalComponent extends AsyncHandler implements OnInit {
             .toPromise()
             .catch();
         if (resp.id) this._dialog_ref.close(resp);
-        this.loading = false;
+        this.loading.set(false);
     }
 
     private _updateTimezoneList() {

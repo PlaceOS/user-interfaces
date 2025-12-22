@@ -5,6 +5,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     csvToJson,
     downloadFile,
@@ -20,7 +21,7 @@ import { CateringStateService } from './catering-state.service';
     selector: 'charge-code-list-modal',
     template: `
         <header
-            class="sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none bg-base-200 p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
@@ -32,13 +33,11 @@ import { CateringStateService } from './catering-state.service';
             }
         </header>
         @if (!loading()) {
-            <main
-                class="flex max-h-[65vh] min-h-80 flex-col overflow-auto"
-            >
+            <main class="flex max-h-[65vh] min-h-80 flex-col overflow-auto">
                 @if (charge_codes().length) {
                     @for (code of charge_codes(); track i; let i = $index) {
                         <div
-                            class="flex w-full items-center space-x-2 px-2 py-1 hover:bg-base-200"
+                            class="hover:bg-base-200 flex w-full items-center space-x-2 px-2 py-1"
                         >
                             <mat-form-field
                                 appearance="outline"
@@ -55,7 +54,7 @@ import { CateringStateService } from './catering-state.service';
                             <button
                                 icon
                                 matRipple
-                                class="h-12 w-12 rounded-sm border border-error text-error"
+                                class="border-error text-error h-12 w-12 rounded-sm border"
                                 [matTooltip]="
                                     'CATERING.CHARGE_CODES_REMOVE' | translate
                                 "
@@ -85,7 +84,7 @@ import { CateringStateService } from './catering-state.service';
         }
         @if (!loading()) {
             <footer
-                class="flex items-center space-x-2 border-t border-base-200 p-2"
+                class="border-base-200 flex items-center space-x-2 border-t p-2"
             >
                 <button btn matRipple class="inverse relative w-48">
                     {{ 'CATERING.CHARGE_CODES_IMPORT' | translate }}
@@ -100,7 +99,7 @@ import { CateringStateService } from './catering-state.service';
                     matRipple
                     (click)="downloadTemplate()"
                     [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
-                    class="h-12 w-12 rounded-sm border border-secondary text-secondary"
+                    class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                 >
                     <icon>download</icon>
                 </button>
@@ -123,6 +122,7 @@ import { CateringStateService } from './catering-state.service';
         MatFormFieldModule,
         MatInputModule,
         FormsModule,
+        MatTooltipModule,
     ],
 })
 export class ChargeCodeListModalComponent implements OnInit {

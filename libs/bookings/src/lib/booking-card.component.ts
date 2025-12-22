@@ -54,7 +54,7 @@ import { ParkingService } from './parking.service';
                 (click)="viewDetails()"
             >
                 <div
-                    class="relative w-full rounded-xl border border-base-300 bg-base-100 py-4 shadow-sm"
+                    class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
@@ -128,7 +128,7 @@ import { ParkingService } from './parking.service';
                         }
                     </div>
                     <icon
-                        class="absolute right-1 top-1/2 -translate-y-1/2 text-4xl"
+                        class="absolute top-1/2 right-1 -translate-y-1/2 text-4xl"
                     >
                         chevron_right
                     </icon>
@@ -137,21 +137,21 @@ import { ParkingService } from './parking.service';
                         booking()?.booking_type !== 'group-event'
                     ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-2 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
                     @if (booking()?.booking_type === 'group-event') {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-2 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
                     @if (is_reserved_parking_space | async) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-2 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-2 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{
                                 (booking().status !== 'declined'

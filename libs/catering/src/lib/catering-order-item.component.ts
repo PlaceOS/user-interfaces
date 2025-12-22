@@ -1,6 +1,6 @@
 import { Component, OnInit, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { CateringItem } from '@placeos/common';
+import { OrderCateringItem } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -13,7 +13,7 @@ const ACTIVE_ITEMS = new Set<string>();
             <div class="relative h-14 w-16 text-right">
                 <div
                     arm
-                    class="absolute left-1/2 top-1/2 h-16 w-4 -translate-x-px -translate-y-full border-b-2 border-l-2 border-base-200"
+                    class="border-base-200 absolute top-1/2 left-1/2 h-16 w-4 -translate-x-px -translate-y-full border-b-2 border-l-2"
                 ></div>
             </div>
             <div class="mr-4 w-12">
@@ -21,7 +21,7 @@ const ACTIVE_ITEMS = new Set<string>();
                     action
                     icon
                     matRipple
-                    class="text-dark-fade border-2 border-dashed border-base-200 p-2 text-xl"
+                    class="text-dark-fade border-base-200 border-2 border-dashed p-2 text-xl"
                     [class.bg-success]="active"
                     [class.text-white]="active"
                     [class.border-solid]="active"
@@ -31,11 +31,11 @@ const ACTIVE_ITEMS = new Set<string>();
                 </button>
             </div>
             <div
-                class="flex flex-1 items-center space-x-4 border-b border-solid border-base-200 py-4"
+                class="border-base-200 flex flex-1 items-center space-x-4 border-b border-solid py-4"
             >
                 <div class="">
                     <div
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-base-300 p-1 font-mono text-sm"
+                        class="bg-base-300 flex h-10 w-10 items-center justify-center rounded-full p-1 font-mono text-sm"
                     >
                         {{ item()?.amount || item()?.quantity || 1 }}×
                     </div>
@@ -45,7 +45,7 @@ const ACTIVE_ITEMS = new Set<string>();
                     @for (opt of item().option_list; track opt) {
                         @if (opt) {
                             <div
-                                class="rounded-2xl bg-warning px-2 py-1 text-xs text-warning-content shadow-sm"
+                                class="bg-warning text-warning-content rounded-2xl px-2 py-1 text-xs shadow-sm"
                             >
                                 {{ opt.name }}
                             </div>
@@ -66,7 +66,7 @@ const ACTIVE_ITEMS = new Set<string>();
 })
 export class CateringOrderItemComponent implements OnInit {
     public readonly order_id = input<string>(undefined);
-    public readonly item = input<CateringItem>(undefined);
+    public readonly item = input<OrderCateringItem>(undefined);
 
     public active = false;
 

@@ -28,7 +28,7 @@ interface CateringOptionGroup {
     selector: 'catering-item-details',
     template: `
         @if (item()) {
-            <section image class="relative h-64 w-full bg-base-200 sm:h-40">
+            <section image class="bg-base-200 relative h-64 w-full sm:h-40">
                 <image-carousel
                     [images]="item().images"
                     class="absolute inset-0"
@@ -38,7 +38,7 @@ interface CateringOptionGroup {
                     matRipple
                     name="close-catering-item-details"
                     (click)="close.emit()"
-                    class="absolute left-2 top-2 bg-neutral text-white sm:hidden"
+                    class="bg-neutral absolute top-2 left-2 text-white sm:hidden"
                 >
                     <icon>arrow_back</icon>
                 </button>
@@ -49,7 +49,7 @@ interface CateringOptionGroup {
                     [class.text-white]="!fav()"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
-                    class="absolute right-2 top-2"
+                    class="absolute top-2 right-2"
                 >
                     <icon
                         [className]="
@@ -64,7 +64,7 @@ interface CateringOptionGroup {
             <div class="h-1/2 flex-1 space-y-2 overflow-auto p-2">
                 <section actions class="z-0 flex items-center justify-between">
                     <div>
-                        <h2 class="mb-2 mt-4 text-xl font-medium">
+                        <h2 class="mt-4 mb-2 text-xl font-medium">
                             {{ item().name }}
                         </h2>
                         @if (item().unit_price) {
@@ -83,7 +83,7 @@ interface CateringOptionGroup {
                 <section class="flex flex-wrap items-center">
                     @for (tag of item().tags; track tag) {
                         <div
-                            class="m-1 rounded-2xl bg-base-200 px-2 py-1 text-sm capitalize"
+                            class="bg-base-200 m-1 rounded-2xl px-2 py-1 text-sm capitalize"
                         >
                             {{ tag }}
                         </div>
@@ -138,7 +138,7 @@ interface CateringOptionGroup {
                                                         class="flex max-w-[calc(100vw-4rem)] items-center justify-center sm:max-w-60"
                                                     >
                                                         <div
-                                                            class="w-1/2 flex-1 whitespace-normal p-2 font-medium capitalize"
+                                                            class="w-1/2 flex-1 p-2 font-medium whitespace-normal capitalize"
                                                         >
                                                             {{ opt.name }}
                                                         </div>
@@ -206,7 +206,7 @@ interface CateringOptionGroup {
                 </section>
             </div>
             <div
-                class="border-t border-base-200 px-2 pb-22 pt-2 shadow-sm sm:hidden"
+                class="border-base-200 border-t px-2 pt-2 pb-22 shadow-sm sm:hidden"
             >
                 <button
                     btn

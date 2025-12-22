@@ -20,7 +20,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
     template: `
         <div class="fixed inset-0 overflow-auto">
             <form
-                class="mx-auto my-4 flex flex-col items-center overflow-hidden rounded-sm bg-base-100 p-4 shadow-sm"
+                class="bg-base-100 mx-auto my-4 flex flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <div class="flex items-center justify-center">
                     <img
@@ -115,6 +115,8 @@ export class LoginComponent implements OnInit {
 
     /** Whether the user credentials are being checked */
     public loading: boolean;
+    /** Current focused field */
+    public focus: string = '';
 
     public readonly form = new FormGroup({
         username: new FormControl('', [Validators.required]),

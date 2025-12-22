@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { CustomTooltipComponent } from '@placeos/components';
+import { CustomTooltipComponent, TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
 import {
     addDays,
@@ -23,7 +25,7 @@ import { EventStateService } from './event-state.service';
     template: `
         <div class="absolute inset-0 overflow-auto">
             <div
-                class="m-2 grid h-224 min-h-full w-7xl min-w-full grid-cols-7 border-b border-base-200"
+                class="border-base-200 m-2 grid h-224 min-h-full w-7xl min-w-full grid-cols-7 border-b"
             >
                 @for (weekday of weekdays; track $index) {
                     <div
@@ -36,10 +38,10 @@ import { EventStateService } from './event-state.service';
                 @for (day of month_days; track day.id) {
                     <div
                         monthday
-                        class="relative flex flex-col space-y-1 border border-base-200"
+                        class="border-base-200 relative flex flex-col space-y-1 border"
                     >
                         <div
-                            class="ml-1 mt-1 flex h-8 w-8 items-center justify-center rounded-full"
+                            class="mt-1 ml-1 flex h-8 w-8 items-center justify-center rounded-full"
                             [class.opacity-30]="!day.is_month"
                             [class.bg-secondary]="day.is_today"
                             [class.text-secondary-content]="day.is_today"
@@ -50,21 +52,22 @@ import { EventStateService } from './event-state.service';
                             event of (event_day_map | async)[
                                 dateString(day.id)
                             ] || [] | slice: 0 : 3;
-                            track event.id
+                            track $any(event).id
                         ) {
                             <button
                                 matRipple
                                 (click)="viewEvent(event)"
-                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm border border-base-200 bg-base-100 py-1 pl-3 pr-2 shadow-sm hover:border-info"
+                                class="border-base-200 bg-base-100 hover:border-info relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm border py-1 pr-2 pl-3 shadow-sm"
                             >
                                 <div
-                                    class="absolute inset-y-0 left-0 w-1.5 bg-info"
+                                    class="bg-info absolute inset-y-0 left-0 w-1.5"
                                 ></div>
                                 <div
                                     class="h-full truncate text-left text-sm opacity-60"
                                 >
-                                    {{ event.date | date: 'shortTime' }} &mdash;
-                                    {{ event.title }}
+                                    {{ $any(event).date | date: 'shortTime' }}
+                                    &mdash;
+                                    {{ $any(event).title }}
                                 </div>
                                 <div
                                     class="absolute inset-0"
@@ -77,7 +80,7 @@ import { EventStateService } from './event-state.service';
                                 <ng-template #event_card>
                                     <div class="pointer-events-none p-2">
                                         <group-event-card
-                                            [event]="event"
+                                            [event]="$any(event)"
                                         ></group-event-card>
                                     </div>
                                 </ng-template>
@@ -90,7 +93,7 @@ import { EventStateService } from './event-state.service';
                             <button
                                 matRipple
                                 matTooltip="More events"
-                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm py-1 pl-3 pr-2 text-sm underline"
+                                class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm py-1 pr-2 pl-3 text-sm underline"
                                 [matMenuTriggerFor]="menu"
                             >
                                 {{
@@ -113,7 +116,7 @@ import { EventStateService } from './event-state.service';
                                 event of (event_day_map | async)[
                                     dateString(day.id)
                                 ] || [] | slice: 3;
-                                track event.id
+                                track $any(event).id
                             ) {
                                 <button
                                     mat-menu-item
@@ -121,12 +124,15 @@ import { EventStateService } from './event-state.service';
                                 >
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1">
-                                            {{ event.title }}
+                                            {{ $any(event).title }}
                                         </div>
                                         <div
-                                            class="rounded-sm bg-base-200 px-2 py-1 text-xs text-base-content opacity-60"
+                                            class="bg-base-200 text-base-content rounded-sm px-2 py-1 text-xs opacity-60"
                                         >
-                                            {{ event.date | date: 'shortTime' }}
+                                            {{
+                                                $any(event).date
+                                                    | date: 'shortTime'
+                                            }}
                                         </div>
                                     </div>
                                 </button>
@@ -149,6 +155,9 @@ import { EventStateService } from './event-state.service';
         MatMenuModule,
         GroupEventCardComponent,
         CustomTooltipComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTooltipModule,
     ],
 })
 export class EventMonthViewComponent extends AsyncHandler implements OnInit {
