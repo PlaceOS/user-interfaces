@@ -292,6 +292,26 @@ export function registerMockBookings() {
         },
     });
 
+    // Update induction status endpoint for visitor-kiosk
+    registerMockEndpoint({
+        path: '/api/staff/v1/bookings/:id/update_induction',
+        metadata: {},
+        method: 'POST',
+        callback: (req) => {
+            const booking = ALL_BOOKINGS.find(
+                (b) => `${b.id}` === `${req.route_params.id}`,
+            );
+            if (!booking)
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${req.route_params.id}`,
+                };
+            const induction = req.query_params.induction || 'tentative';
+            (booking as any).induction = induction;
+            return booking;
+        },
+    });
+
     registerMockEndpoint({
         path: '/api/staff/v1/bookings/:id',
         metadata: {},
