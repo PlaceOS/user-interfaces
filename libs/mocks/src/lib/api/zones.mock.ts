@@ -100,6 +100,30 @@ export function registerMockZones() {
                     },
                 };
             }
+            if (request.query_params.name === 'catering-settings') {
+                return {
+                    'catering-settings': {
+                        details: {
+                            require_notes: false,
+                            charge_codes: [
+                                'CC-1001',
+                                'CC-1002',
+                                'CC-1003',
+                                'CC-2001',
+                                'CC-2002',
+                            ],
+                            disabled_rooms: [],
+                        },
+                    },
+                };
+            }
+            if (request.query_params.name === 'catering_config') {
+                return {
+                    catering_config: {
+                        details: [],
+                    },
+                };
+            }
             if (request.query_params.name === 'parking-spaces') {
                 const parts = request.route_params.id.split('-');
                 const id = parts[parts.length - 1];
