@@ -54,6 +54,13 @@ import { VideoCallPageComponent } from './video-call-page.component';
     `,
     styles: [
         `
+            :host {
+                display: block;
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+
             :host > div {
                 background-color: var(--primary);
                 color: #fff;

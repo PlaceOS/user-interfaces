@@ -68,6 +68,13 @@ import { TopbarHeaderComponent } from './topbar-header.component';
     `,
     styles: [
         `
+            :host {
+                display: block;
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+
             :host > div {
                 color: #fff;
             }
