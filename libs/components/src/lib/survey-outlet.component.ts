@@ -426,7 +426,9 @@ export class SurveyOutletComponent
     }
 
     private async _updateSurvey() {
-        this.timeout('not_found', () => this.not_found.emit(true));
+        // Use longer timeout (5 seconds) to allow for API response time
+        // Default 300ms was too short for mock endpoints and slow networks
+        this.timeout('not_found', () => this.not_found.emit(true), 5000);
         if (!this.survey_id()) return;
         this.loading.set('Loading survey details...');
         const survey = await lastValueFrom(

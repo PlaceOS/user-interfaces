@@ -117,6 +117,13 @@
                 "staticFilePath": "dist/apps/survey/browser",
                 "spa": true
             }
+        },
+        "e2e": {
+            "executor": "@nx/playwright:playwright",
+            "outputs": ["{workspaceRoot}/dist/.playwright/apps/survey"],
+            "options": {
+                "config": "apps/survey/playwright.config.ts"
+            }
         }
     }
 }

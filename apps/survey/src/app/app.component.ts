@@ -12,6 +12,7 @@ import {
     notifySuccess,
     OrganisationService,
     setAppName,
+    setLoadingMessage,
     setNotifyOutlet,
     SettingsService,
     setTranslationService,
@@ -24,6 +25,7 @@ import {
     GlobalLoadingComponent,
 } from '@placeos/components';
 
+import { mocksInit } from '@placeos/mocks';
 import { convertPairStringToMap, setAPI_Key } from '@placeos/ts-client';
 // import * as Sentry from '@sentry/angular';
 
@@ -97,6 +99,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
             );
             notifySuccess('Toggled dark mode.');
         });
+        this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyM'], () => {
+            localStorage.setItem(
+                'mock',
+                `${localStorage.getItem('mock') !== 'true'}`,
+            );
+            location.reload();
+        });
         this._route.queryParamMap.subscribe((params) => {
             if (params.has('hide_nav'))
                 localStorage.setItem('PlaceOS.hide_nav', 'true');
@@ -115,7 +124,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
         const settings = this._settings.get('composer') || {};
         settings.mock =
             !!this._settings.get('mock') ||
+            location.href.includes('mock=true') ||
+            localStorage.getItem('mock') === 'true' ||
             location.origin.includes('demo.place.tech');
+        if (settings.mock) {
+            setLoadingMessage('Initializing mocks...');
+            mocksInit();
+        }
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
             const query = convertPairStringToMap(START_QUERY.substring(1));

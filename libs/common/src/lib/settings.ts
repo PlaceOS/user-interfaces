@@ -50,6 +50,7 @@ const app: any = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     general: {},
+    allow_dark_mode: true,
 };
 
 /**
