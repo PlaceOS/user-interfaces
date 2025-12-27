@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["find-space.component.ts"],
+  "sourcesContent": ["\n            .mat-button-toggle-appearance-standard {\n                height: 2.25rem;\n            }\n            .mat-button-toggle-appearance-standard\n                .mat-button-toggle-label-content {\n                line-height: 2.25rem;\n                font-size: 0.875rem;\n            }\n            .mat-button-toggle-label-content {\n                font-size: 0.875rem;\n            }\n            .mat-button-toggle-checked {\n                border: 1px solid var(--secondary);\n                border-radius: 5px;\n                box-shadow: none;\n            }\n            .mat-focus-indicator {\n                border: none;\n            }\n        "],
+  "mappings": "AACY,CAAA,sCACI,OAAA,OACJ,CACA,CAHA,uEAKI,YAAA,QACA,UAAA,OACJ,CACA,iCACI,UAAA,OACJ,CACA,CAAA,0BACI,OAAA,IAAA,MAAA,IAAA,2BACA,IACA,WAAA,IACJ,CACA,CAAA,oBACI,OAAA,IACJ",
+  "names": []
+}
