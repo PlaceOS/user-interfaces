@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["parking-filters.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                max-width: 100vw;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,MAAA,KACA,UAAA,KACJ",
+  "names": []
+}
