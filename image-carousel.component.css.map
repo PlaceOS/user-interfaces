@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["image-carousel.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n\n            [image] {\n                transition: transform 300ms;\n            }\n\n            button[disabled] {\n                pointer-events: none;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ,CAEA,CAAA,OACI,WAAA,UAAA,GACJ,CAEA,MAAA,CAAA,UACI,eAAA,IACJ",
+  "names": []
+}
