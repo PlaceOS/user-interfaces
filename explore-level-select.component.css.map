@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-level-select.component.ts"],
+  "sourcesContent": ["\n            .active {\n                background: var(--secondary) !important;\n                color: #fff !important;\n            }\n\n            button:not(:first-child) {\n                border-top: 1px solid var(--base-300) !important;\n            }\n        "],
+  "mappings": "AACY,CAAA,OACI,WAAA,IAAA,uBACA,MAAA,cACJ,CAEA,MAAA,KAAA,cACI,WAAA,IAAA,MAAA,IAAA,qBACJ",
+  "names": []
+}
