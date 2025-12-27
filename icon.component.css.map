@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["icon.component.ts"],
+  "sourcesContent": ["\n            i {\n                font-size: 1em;\n            }\n        "],
+  "mappings": "AACY,EACI,UAAA,GACJ",
+  "names": []
+}
