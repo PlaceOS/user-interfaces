@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-space-info.component.ts"],
+  "sourcesContent": ["\n            [status] {\n                background-color: var(--success);\n                color: var(--success-content);\n            }\n\n            [status].busy {\n                background-color: var(--error);\n                color: var(--error-content);\n            }\n\n            [status].pending {\n                background-color: var(--warn);\n                color: var(--warn-content);\n            }\n\n            [status].not-bookable {\n                background-color: var(--base-300);\n            }\n        "],
+  "mappings": "AACY,CAAA,QACI,iBAAA,IAAA,WACA,MAAA,IAAA,kBACJ,CAEA,CAAA,OAAA,CAAA,KACI,iBAAA,IAAA,SACA,MAAA,IAAA,gBACJ,CAEA,CAAA,OAAA,CAAA,QACI,iBAAA,IAAA,QACA,MAAA,IAAA,eACJ,CAEA,CAAA,OAAA,CAAA,aACI,iBAAA,IAAA,WACJ",
+  "names": []
+}
