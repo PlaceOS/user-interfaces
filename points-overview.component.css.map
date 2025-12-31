@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["points-overview.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,MACJ",
+  "names": []
+}

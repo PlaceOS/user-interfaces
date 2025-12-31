@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["reports.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            main > *:not(router-outlet) {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,KACA,MAAA,KACA,iBAAA,IAAA,WACJ,CAEA,IAAA,CAAA,CAAA,KAAA,eACI,QAAA,KACA,eAAA,OACA,MAAA,KACA,OAAA,IACJ",
+  "names": []
+}
