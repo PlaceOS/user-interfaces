@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["event-month-view.component.ts"],
+  "sourcesContent": ["\n            .grid {\n                grid-template-rows: 3rem repeat(6, minmax(0, 1fr));\n            }\n        "],
+  "mappings": "AACY,CAAA,KACI,mBAAA,KAAA,OAAA,CAAA,CAAA,OAAA,CAAA,CAAA,KACJ",
+  "names": []
+}
