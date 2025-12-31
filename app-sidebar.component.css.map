@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["app-sidebar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n            }\n\n            a.active {\n                background-color: var(--secondary);\n                color: var(--secondary-content);\n            }\n\n            a.active:hover {\n                color: var(--base-content);\n                opacity: 0.75;\n            }\n        "],
+  "mappings": "AACY,MACI,OAAA,IACJ,CAEA,CAAA,CAAA,OACI,iBAAA,IAAA,aACA,MAAA,IAAA,oBACJ,CAEA,CAAA,CALA,MAKA,OACI,MAAA,IAAA,gBACA,QAAA,GACJ",
+  "names": []
+}
