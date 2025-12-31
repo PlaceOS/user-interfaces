@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["points-assets.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n                overflow-x: auto;\n                overflow-y: hidden;\n            }\n        "],
+  "mappings": "AACY,MACI,OAAA,KACA,MAAA,KACA,WAAA,KACA,WAAA,MACJ",
+  "names": []
+}
