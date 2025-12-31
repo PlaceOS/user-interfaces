@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["signage-media-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n\n            ::ng-deep .cdk-drag-preview {\n                opacity: 0.6;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,IACJ,CAEA,UAAA,CAAA,iBACI,QAAA,EACJ",
+  "names": []
+}
