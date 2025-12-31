@@ -12,14 +12,17 @@ import {
 } from '@placeos/common';
 import { getModule } from '@placeos/ts-client';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, from, of } from 'rxjs';
 import {
-    distinctUntilChanged,
+    catchError,
     filter,
+    finalize,
     map,
     shareReplay,
+    skip,
     startWith,
     switchMap,
+    takeUntil,
     tap,
 } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
@@ -61,32 +64,32 @@ export class ContactTracingStateService {
         end: endOfDay(Date.now()),
     });
 
-    public readonly events = combineLatest([
-        this._options,
-        this._generate,
-    ]).pipe(
-        distinctUntilChanged((a, b) => a[1] === b[1]),
-        filter(([_, gen]) => !!gen),
-        switchMap(([{ start, end, user }]) => {
+    public readonly events = this._generate.pipe(
+        filter((gen) => !!gen),
+        switchMap(() => {
+            const { start, end, user } = this._options.getValue();
             if (!user) return of([]);
             this._loading.next('Loading contact events...');
 
             const mod = getModule(this.system_id, 'ContactTracing');
-            user = user || currentUser();
-            GetUserPipe.addUser(user);
-            return this.system_id && mod
-                ? mod
-                      .execute('close_contacts', [
-                          user.email,
-                          user.username,
-                          getUnixTime(start),
-                          getUnixTime(end),
-                      ])
-                      .catch((err) => {
-                          notifyError(`${err?.msg || JSON.stringify(err)}`);
-                          return [];
-                      })
-                : of([]);
+            const current_user = user || currentUser();
+            GetUserPipe.addUser(current_user);
+            if (!this.system_id || !mod) return of([]);
+            return from(
+                mod.execute('close_contacts', [
+                    current_user.email,
+                    current_user.username,
+                    getUnixTime(start),
+                    getUnixTime(end),
+                ]),
+            ).pipe(
+                catchError((err) => {
+                    notifyError(`${err?.msg || JSON.stringify(err)}`);
+                    return of([]);
+                }),
+                takeUntil(this._options.pipe(skip(1))),
+                finalize(() => this._loading.next('')),
+            );
         }),
         map((list) => {
             const user = this._options.getValue().user || currentUser();
@@ -103,7 +106,6 @@ export class ContactTracingStateService {
                     }) as ContactEvent,
             );
         }),
-        tap((_) => this._loading.next('')),
         startWith([]),
         shareReplay(1),
     );

@@ -41,9 +41,12 @@ import {
 import {
     catchError,
     debounceTime,
+    finalize,
     map,
     shareReplay,
+    skip,
     switchMap,
+    takeUntil,
 } from 'rxjs/operators';
 import {
     generateReportForBookings,
@@ -144,52 +147,65 @@ export class ReportsStateService {
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
             };
+            let request$: Observable<(CalendarEvent | Booking)[]>;
             switch (options.type) {
                 case 'desks':
-                    return queryAllBookings({
+                    request$ = queryAllBookings({
                         ...query,
                         zones: zones,
                         type: 'desk',
                         limit: 1000,
                     });
+                    break;
                 case 'parking':
-                    return queryAllBookings({
+                    request$ = queryAllBookings({
                         ...query,
                         zones: zones,
                         type: 'parking',
                         limit: 1000,
                     });
+                    break;
                 case 'lockers':
-                    return queryAllBookings({
+                    request$ = queryAllBookings({
                         ...query,
                         zones: zones,
                         type: 'locker',
                         limit: 1000,
                     });
+                    break;
                 case 'assets':
-                    return queryAllBookings({
+                    request$ = queryAllBookings({
                         ...query,
                         zones: zones,
                         type: 'asset-request',
                         limit: 1000,
                     });
+                    break;
                 case 'catering':
-                    return queryAllBookings({
+                    request$ = queryAllBookings({
                         ...query,
                         zones: zones,
                         type: 'catering-order',
                         limit: 1000,
                     });
+                    break;
                 case 'events':
-                    return queryAllEvents({
+                    request$ = queryAllEvents({
                         ...query,
                         zone_ids: zones,
                         limit: 1000,
                     }).pipe(catchError((_) => of([])));
+                    break;
+                default:
+                    request$ = of([]);
             }
+            // Cancel request if options change before it completes
+            return request$.pipe(
+                takeUntil(this._options.pipe(skip(1))),
+                finalize(() => this._loading.next('')),
+            );
         }),
         map((list) => {
-            this._loading.next('');
             if (!list?.length) {
                 notifyError('No bookings for the selected levels and period');
             }
@@ -252,14 +268,13 @@ export class ReportsStateService {
                     ),
                 );
             }
-            return Promise.all(
+            if (!zones.length) return of([]);
+            return forkJoin(
                 zones.map((z) =>
-                    showMetadata(z, 'desks')
-                        .pipe(
-                            catchError(() => of({ details: [] })),
-                            map((m) => [z, m.details.length]),
-                        )
-                        .toPromise(),
+                    showMetadata(z, 'desks').pipe(
+                        catchError(() => of({ details: [] })),
+                        map((m) => [z, m.details.length] as [string, number]),
+                    ),
                 ),
             );
         }),

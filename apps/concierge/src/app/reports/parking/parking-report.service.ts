@@ -10,7 +10,7 @@ import {
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import { format, isSameDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -82,14 +82,13 @@ export class ParkingReportService {
                     .filter((_) => _.tags.includes('parking'))
                     .map((_) => _.id);
             }
-            return Promise.all(
+            if (!zones.length) return of([]);
+            return forkJoin(
                 zones.map((z) =>
-                    showMetadata(z, 'parking-spaces')
-                        .pipe(
-                            catchError(() => of({ details: [] })),
-                            map((m) => [z, m.details.length]),
-                        )
-                        .toPromise(),
+                    showMetadata(z, 'parking-spaces').pipe(
+                        catchError(() => of({ details: [] })),
+                        map((m) => [z, m.details.length] as [string, number]),
+                    ),
                 ),
             );
         }),

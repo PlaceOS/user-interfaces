@@ -31,10 +31,12 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import {
     debounceTime,
     filter,
+    finalize,
     map,
     shareReplay,
+    skip,
     switchMap,
-    take,
+    takeUntil,
     tap,
 } from 'rxjs/operators';
 import { REMOVE_KEYS } from '../reports-state.service';
@@ -64,26 +66,30 @@ export class AssetsReportService {
 
     public readonly products$ = this._generate.pipe(
         filter((gen) => gen > 0),
-        switchMap(() => this._options.pipe(take(1))),
         debounceTime(300),
-        switchMap((options) => {
+        switchMap(() => {
+            const options = this._options.getValue();
             this._loading.next(true);
             return queryAssetGroupsExtended({
                 zones:
+                    (options.zones || [])?.join(',') ||
                     (this._settings.get('app.use_region')
                         ? this._org.region?.id
-                        : '') || this._org.building?.id,
-            });
+                        : '') ||
+                    this._org.building?.id,
+            }).pipe(
+                takeUntil(this._options.pipe(skip(1))),
+                finalize(() => this._loading.next(false)),
+            );
         }),
-        tap(() => this._loading.next(false)),
         shareReplay(1),
     );
 
     public readonly bookings$ = this._generate.pipe(
         filter((gen) => gen > 0),
-        switchMap(() => this._options.pipe(take(1))),
         debounceTime(300),
-        switchMap((options) => {
+        switchMap(() => {
+            const options = this._options.getValue();
             this._loading.next(true);
             const { start, end, zones } = options;
             return queryBookings({
@@ -96,13 +102,15 @@ export class AssetsReportService {
                         ? this._org.region?.id
                         : '') ||
                     this._org.building?.id,
-            });
+            }).pipe(
+                takeUntil(this._options.pipe(skip(1))),
+                finalize(() => this._loading.next(false)),
+            );
         }),
         tap((_) => {
             if (!_.length) {
                 notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
             }
-            this._loading.next(false);
         }),
         shareReplay(1),
     );
