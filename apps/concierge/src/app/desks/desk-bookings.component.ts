@@ -16,7 +16,7 @@ import { DesksStateService } from './desks-state.service';
 @Component({
     selector: 'desk-bookings',
     template: `
-        <div class="h-full w-full overflow-auto pb-16">
+        <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
                 class="block min-w-368 text-sm"
                 [data]="bookings()"

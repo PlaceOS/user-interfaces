@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import {
@@ -23,152 +23,141 @@ import {
 
 @Component({
     selector: 'email-templates-list',
-    template: ` <div class="absolute inset-0 flex flex-col">
-        <div class="flex items-center justify-between space-x-2 p-8">
-            <h2 class="text-2xl font-medium">
-                {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
-            </h2>
-            <div class="flex-1"></div>
-            <!-- <mat-form-field appearance="outline" class="w-56 no-subscript">
-            <mat-select
-              [ngModel]="(filters | async)?.category"
-              [placeholder]="'COMMON.CATEGORY_ALL' | translate"
-              (ngModelChange)="setFilters({ category: $event })"
-              >
-              <mat-option value="">{{'COMMON.CATEGORY_ALL' | translate}}</mat-option>
-              <mat-option value="internal">{{'COMMON.TYPE_INTERNAL' | translate}}</mat-option>
-              <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
-            </mat-select>
-          </mat-form-field> -->
-            <a btn matRipple [routerLink]="['/email-templates', 'manage']">
-                <div class="ml-2">
-                    {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
-                </div>
-                <icon class="text-2xl">add</icon>
-            </a>
-        </div>
-        <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
-            <div class="min-h-full w-full overflow-x-auto">
-                <simple-table
-                    class="block w-full min-w-4xl text-sm"
-                    [data]="templates"
-                    empty_message="No group events for selected period"
-                    [columns]="[
-                        { key: 'subject', name: 'FORM.TITLE' | translate },
-                        {
-                            key: 'category',
-                            name: 'COMMON.CATEGORY' | translate,
-                            show: !(filters | async)?.category && false,
-                        },
-                        {
-                            key: 'trigger',
-                            name: 'COMMON.TRIGGER' | translate,
-                            content: trigger_template,
-                        },
-                        {
-                            key: 'zone_id',
-                            name: 'RESOURCE.BUILDING' | translate,
-                            content: bld_template,
-                        },
-                        {
-                            key: 'created_at',
-                            name: 'COMMON.CREATED_AT' | translate,
-                            size: '8rem',
-                            content: date_template,
-                        },
-                        {
-                            key: 'actions',
-                            name: ' ',
-                            size: '3.5rem',
-                            content: actions_template,
-                            sortable: false,
-                        },
-                    ]"
-                    [sortable]="true"
-                >
-                </simple-table>
-                <ng-template #date_template let-data="data">
-                    <div class="p-4 opacity-60">
-                        {{ data * 1000 | date: 'mediumDate' }}
-                    </div>
-                </ng-template>
-                <ng-template #bld_template let-data="data">
-                    <div class="p-4">
-                        {{ (data | building)?.display_name }}
-                        @if (!(data | building)) {
-                            <span class="opacity-30">
-                                {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
-                            </span>
-                        }
-                    </div>
-                </ng-template>
-                <ng-template #trigger_template let-data="data">
-                    <div class="p-4 font-mono text-xs">
-                        {{ data }}
-                        @if (!data) {
-                            <span class="opacity-30">
-                                {{ 'COMMON.TRIGGER_EMPTY' | translate }}
-                            </span>
-                        }
-                    </div>
-                </ng-template>
-                <ng-template #actions_template let-row="row">
-                    <button
-                        icon
+    template: `
+        <div class="absolute inset-0 overflow-auto px-8">
+            @if (!hide_header) {
+                <div class="flex items-center justify-between space-x-2 p-8">
+                    <h2 class="text-2xl font-medium">
+                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_HEADER' | translate }}
+                    </h2>
+                    <div class="flex-1"></div>
+                    <a
+                        btn
                         matRipple
-                        [matMenuTriggerFor]="menu"
-                        class="mx-auto"
+                        [routerLink]="['/email-templates', 'manage']"
                     >
-                        <icon>more_vert</icon>
+                        <div class="ml-2">
+                            {{
+                                'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate
+                            }}
+                        </div>
+                        <icon class="text-2xl">add</icon>
+                    </a>
+                </div>
+            }
+            <simple-table
+                class="mb-8 block w-full min-w-[56rem] text-sm"
+                [data]="templates"
+                empty_message="No group events for selected period"
+                [columns]="[
+                    { key: 'subject', name: 'FORM.TITLE' | translate },
+                    {
+                        key: 'category',
+                        name: 'COMMON.CATEGORY' | translate,
+                        show: !(filters | async)?.category && false,
+                    },
+                    {
+                        key: 'trigger',
+                        name: 'COMMON.TRIGGER' | translate,
+                        content: trigger_template,
+                    },
+                    {
+                        key: 'zone_id',
+                        name: 'RESOURCE.BUILDING' | translate,
+                        content: bld_template,
+                    },
+                    {
+                        key: 'created_at',
+                        name: 'COMMON.CREATED_AT' | translate,
+                        size: '8rem',
+                        content: date_template,
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        size: '3.5rem',
+                        content: actions_template,
+                        sortable: false,
+                    },
+                ]"
+                [sortable]="true"
+            >
+            </simple-table>
+            <ng-template #date_template let-data="data">
+                <div class="p-4 opacity-60">
+                    {{ data * 1000 | date: 'mediumDate' }}
+                </div>
+            </ng-template>
+            <ng-template #bld_template let-data="data">
+                <div class="p-4">
+                    {{ (data | building)?.display_name }}
+                    @if (!(data | building)) {
+                        <span class="opacity-30">
+                            {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
+                        </span>
+                    }
+                </div>
+            </ng-template>
+            <ng-template #trigger_template let-data="data">
+                <div class="p-4 font-mono text-xs">
+                    {{ data }}
+                    @if (!data) {
+                        <span class="opacity-30">
+                            {{ 'COMMON.TRIGGER_EMPTY' | translate }}
+                        </span>
+                    }
+                </div>
+            </ng-template>
+            <ng-template #actions_template let-row="row">
+                <button
+                    icon
+                    matRipple
+                    [matMenuTriggerFor]="menu"
+                    class="mx-auto"
+                >
+                    <icon>more_vert</icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="sendTestEmail(row)">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">send</icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_SEND_TEST'
+                                        | translate
+                                }}
+                            </div>
+                        </div>
                     </button>
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item (click)="sendTestEmail(row)">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">send</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.EMAIL_TEMPLATES_SEND_TEST'
-                                            | translate
-                                    }}
-                                </div>
+                    <a
+                        mat-menu-item
+                        [routerLink]="['/email-templates', 'manage', row.id]"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">edit</icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
+                                        | translate
+                                }}
                             </div>
-                        </button>
-                        <a
-                            mat-menu-item
-                            [routerLink]="[
-                                '/email-templates',
-                                'manage',
-                                row.id,
-                            ]"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">edit</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.EMAIL_TEMPLATES_EDIT'
-                                            | translate
-                                    }}
-                                </div>
+                        </div>
+                    </a>
+                    <button mat-menu-item (click)="removeTemplate(row)">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl text-error"> delete </icon>
+                            <div>
+                                {{
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE'
+                                        | translate
+                                }}
                             </div>
-                        </a>
-                        <button mat-menu-item (click)="removeTemplate(row)">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-error text-2xl">
-                                    delete
-                                </icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    </mat-menu>
-                </ng-template>
-            </div>
+                        </div>
+                    </button>
+                </mat-menu>
+            </ng-template>
         </div>
-    </div>`,
+    `,
     styles: [``],
     imports: [
         CommonModule,
@@ -183,6 +172,8 @@ import {
 export class EmailTemplatesListComponent {
     private _state = inject(EmailTemplatesStateService);
     private _org = inject(OrganisationService);
+
+    @Input() hide_header = false;
 
     public sending_email: string;
     public readonly filters = this._state.filters;

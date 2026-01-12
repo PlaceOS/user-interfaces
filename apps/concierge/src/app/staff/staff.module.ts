@@ -6,7 +6,11 @@ import { StaffComponent } from './staff.component';
 
 const ROUTES: Route[] = [
     { path: '', component: StaffComponent },
-    { path: 'emergency-contacts', component: EmergencyContactsComponent },
+    {
+        path: 'emergency-contacts',
+        redirectTo: '/settings-management',
+        pathMatch: 'full',
+    },
 ];
 
 @NgModule({

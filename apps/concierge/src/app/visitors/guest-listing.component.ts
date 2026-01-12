@@ -37,98 +37,100 @@ import { VisitorsStateService } from './visitors-state.service';
 @Component({
     selector: 'guest-listings',
     template: `
-        <simple-table
-            class="z-0 block text-sm"
-            [style.min-width]="68 + extra_width + 'rem'"
-            [data]="guests"
-            [columns]="[
-                {
-                    key: 'state',
-                    name: 'COMMON.STATUS' | translate,
-                    content: state_template,
-                    size: '6.5rem',
-                    show: !hide_field('state'),
-                    sortable: false,
-                },
-                {
-                    key: 'date',
-                    name: 'FORM.TIME' | translate,
-                    content: date_template,
-                    show: !hide_field('date'),
-                    size: '6rem',
-                },
-                {
-                    key: 'asset_name',
-                    name: 'RESOURCE.VISITOR' | translate,
-                    content: person_template,
-                },
-                {
-                    key: 'user_name',
-                    name: 'FORM.HOST' | translate,
-                    content: host_template,
-                    show: !hide_field('user_name'),
-                },
-                {
-                    key: 'checked_in_at',
-                    name: 'COMMON.CHECKED_IN' | translate,
-                    content: time_template,
-                    show: !hide_field('checked_in_at'),
-                    size: '6rem',
-                },
-                {
-                    key: 'checked_out_at',
-                    name: 'COMMON.CHECKED_OUT' | translate,
-                    content: time_template,
-                    show: !hide_field('checked_out_at'),
-                    size: '6rem',
-                },
-                {
-                    key: 'induction',
-                    name: 'BOOKINGS.INDUCTED' | translate,
-                    content: induction_template,
-                    show: !!inductions_enabled(),
-                    size: '5.5rem',
-                },
-                {
-                    key: 'pass_number',
-                    name: 'BOOKINGS.PASS_NUMBER' | translate,
-                    content: pass_template,
-                    show: pass_number_enabled,
-                    size: '6rem',
-                },
-                {
-                    key: 'parking_space',
-                    name: 'RESOURCE.PARKING' | translate,
-                    content: parking_template,
-                    show: !!has_parking,
-                    size: '5.5rem',
-                },
-                {
-                    key: 'status',
-                    name: 'COMMON.STATE' | translate,
-                    content: status_template,
-                    show: !hide_field('status'),
-                    size: '9.5rem',
-                },
-                {
-                    key: 'notes',
-                    name: 'FORM.NOTES' | translate,
-                    content: notes_template,
-                    show: !hide_field('notes'),
-                    sortable: false,
-                    size: '4.5rem',
-                },
-                {
-                    key: 'actions',
-                    name: ' ',
-                    content: action_template,
-                    size: '3.25rem',
-                    sortable: false,
-                },
-            ]"
-            [filter]="search"
-            [sortable]="true"
-        />
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="z-0 block text-sm"
+                [style.min-width]="68 + extra_width + 'rem'"
+                [data]="guests"
+                [columns]="[
+                    {
+                        key: 'state',
+                        name: 'COMMON.STATUS' | translate,
+                        content: state_template,
+                        size: '6.5rem',
+                        show: !hide_field('state'),
+                        sortable: false,
+                    },
+                    {
+                        key: 'date',
+                        name: 'FORM.TIME' | translate,
+                        content: date_template,
+                        show: !hide_field('date'),
+                        size: '6rem',
+                    },
+                    {
+                        key: 'asset_name',
+                        name: 'RESOURCE.VISITOR' | translate,
+                        content: person_template,
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'FORM.HOST' | translate,
+                        content: host_template,
+                        show: !hide_field('user_name'),
+                    },
+                    {
+                        key: 'checked_in_at',
+                        name: 'COMMON.CHECKED_IN' | translate,
+                        content: time_template,
+                        show: !hide_field('checked_in_at'),
+                        size: '6rem',
+                    },
+                    {
+                        key: 'checked_out_at',
+                        name: 'COMMON.CHECKED_OUT' | translate,
+                        content: time_template,
+                        show: !hide_field('checked_out_at'),
+                        size: '6rem',
+                    },
+                    {
+                        key: 'induction',
+                        name: 'BOOKINGS.INDUCTED' | translate,
+                        content: induction_template,
+                        show: !!inductions_enabled(),
+                        size: '5.5rem',
+                    },
+                    {
+                        key: 'pass_number',
+                        name: 'BOOKINGS.PASS_NUMBER' | translate,
+                        content: pass_template,
+                        show: pass_number_enabled,
+                        size: '6rem',
+                    },
+                    {
+                        key: 'parking_space',
+                        name: 'RESOURCE.PARKING' | translate,
+                        content: parking_template,
+                        show: !!has_parking,
+                        size: '5.5rem',
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATE' | translate,
+                        content: status_template,
+                        show: !hide_field('status'),
+                        size: '9.5rem',
+                    },
+                    {
+                        key: 'notes',
+                        name: 'FORM.NOTES' | translate,
+                        content: notes_template,
+                        show: !hide_field('notes'),
+                        sortable: false,
+                        size: '4.5rem',
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3.25rem',
+                        sortable: false,
+                    },
+                ]"
+                [filter]="search"
+                [sortable]="true"
+            />
+        </div>
         <ng-template #state_template let-row="row">
             @if (!row?.checked_in && row.checked_out_at) {
                 <div

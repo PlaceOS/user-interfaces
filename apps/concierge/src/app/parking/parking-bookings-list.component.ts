@@ -20,61 +20,65 @@ import { ParkingStateService } from './parking-state.service';
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
             class="sticky left-0 w-full"
         />
-        <simple-table
-            class="block min-w-304 text-sm"
-            [data]="filtered_events"
-            [columns]="[
-                {
-                    key: 'state',
-                    name: 'COMMON.STATUS_BUSY' | translate,
-                    content: state_template,
-                    size: '4.75rem',
-                    sortable: false,
-                },
-                {
-                    key: 'date',
-                    name: 'FORM.TIME' | translate,
-                    content: date_template,
-                },
-                {
-                    key: 'asset_name',
-                    name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
-                },
-                {
-                    key: 'user_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                    content: person_template,
-                },
-                {
-                    key: 'booked_by_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                    content: host_template,
-                },
-                {
-                    key: 'plate_number',
-                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                    content: plate_template,
-                    size: '10rem',
-                    sortable: false,
-                },
-                {
-                    key: 'status',
-                    name: 'COMMON.STATUS' | translate,
-                    content: status_template,
-                    size: '9.5rem',
-                },
-                {
-                    key: 'actions',
-                    name: ' ',
-                    content: action_template,
-                    size: '3.5rem',
-                    sortable: false,
-                },
-            ]"
-            [filter]="(options | async)?.search"
-            [sortable]="true"
-            [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
-        />
+        <div class="absolute inset-0 overflow-auto px-8">
+            <simple-table
+                class="block min-w-[76rem] text-sm"
+                [data]="filtered_events"
+                [columns]="[
+                    {
+                        key: 'state',
+                        name: 'COMMON.STATUS_BUSY' | translate,
+                        content: state_template,
+                        size: '4.75rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'date',
+                        name: 'FORM.TIME' | translate,
+                        content: date_template,
+                    },
+                    {
+                        key: 'asset_name',
+                        name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
+                        content: person_template,
+                    },
+                    {
+                        key: 'booked_by_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                        content: host_template,
+                    },
+                    {
+                        key: 'plate_number',
+                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        content: plate_template,
+                        size: '10rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATUS' | translate,
+                        content: status_template,
+                        size: '9.5rem',
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3.5rem',
+                        sortable: false,
+                    },
+                ]"
+                [filter]="(options | async)?.search"
+                [sortable]="true"
+                [empty_message]="
+                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate
+                "
+            />
+        </div>
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{

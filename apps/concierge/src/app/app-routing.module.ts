@@ -42,6 +42,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'bookings',
+        loadChildren: () =>
+            import('./booking-manager/booking-manager.module').then(
+                (m) => m.BookingManagerModule,
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'book/desks',
         loadChildren: () =>
             import('./desks/desks.module').then((m) => m.DesksModule),
@@ -106,9 +115,13 @@ const routes: Routes = [
     },
     {
         path: 'room-management',
+        redirectTo: 'resource-management',
+    },
+    {
+        path: 'resource-management',
         loadChildren: () =>
-            import('./room-manager/room-manager.module').then(
-                (m) => m.RoomManagerModule,
+            import('./resource-manager/resource-manager.module').then(
+                (m) => m.ResourceManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
@@ -148,18 +161,17 @@ const routes: Routes = [
     },
     {
         path: 'points-of-interest',
-        loadChildren: () =>
-            import('./poi-manager/poi-manager.module').then(
-                (m) => m.POIManagerModule,
-            ),
-        canActivate: [AuthorisedUserGuard],
-        canLoad: [AuthorisedUserGuard],
+        redirectTo: 'settings-management',
     },
     {
         path: 'url-management',
+        redirectTo: 'settings-management',
+    },
+    {
+        path: 'settings-management',
         loadChildren: () =>
-            import('./url-management/url-manager.module').then(
-                (m) => m.UrlManagerModule,
+            import('./settings-manager/settings-manager.module').then(
+                (m) => m.SettingsManagerModule,
             ),
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],

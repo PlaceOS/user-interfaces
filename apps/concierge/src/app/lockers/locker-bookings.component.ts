@@ -17,14 +17,13 @@ import { LockerStateService } from './locker-state.service';
     selector: 'locker-bookings',
     template: `
         @let more_pages = has_more_pages | async;
-        <div class="h-4 w-full"></div>
         <div
-            class="flex h-full w-full flex-col pt-4"
+            class="absolute inset-0 overflow-auto px-8"
             [class.pb-16]="!loading && more_pages"
             [class.pb-4]="!(!loading && more_pages)"
         >
             <simple-table
-                class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
+                class="block w-full min-w-[72rem] flex-1 text-sm"
                 [data]="bookings"
                 [columns]="[
                     {

@@ -9,6 +9,7 @@ import {
     currentUser,
     firstTruthyValueFrom,
     i18n,
+    settingSignal,
     unique,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
@@ -18,7 +19,7 @@ import { debounceTime, filter } from 'rxjs/operators';
     selector: 'app-sidebar',
     template: `
         <div
-            class="border-base-200 h-full w-64 overflow-auto border-r py-2 pr-3"
+            class="h-full min-w-60 overflow-auto border-r border-base-200 py-2 pr-3"
         >
             @for (link of filtered_links(); track link.id + '' + $index) {
                 @if (!link.children) {
@@ -108,13 +109,11 @@ export class ApplicationSidebarComponent
 
     public filtered_links = signal([]);
 
-    public get feature_list() {
-        return this._settings.get('app.features') || [];
-    }
-
-    public get feature_groups() {
-        return this._settings.get('app.feature_groups') || {};
-    }
+    public readonly feature_list = settingSignal<string[]>('features', []);
+    public readonly feature_groups = settingSignal<Record<string, string[]>>(
+        'feature_groups',
+        {},
+    );
 
     public get is_admin() {
         const groups = currentUser().groups || [];
@@ -130,144 +129,159 @@ export class ApplicationSidebarComponent
         await firstTruthyValueFrom(this._org.initialised);
         this.links = [
             {
+                id: 'spaces',
+                name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
+                icon: 'meeting_room',
+                route: ['/book/rooms'],
+            },
+            {
+                id: 'bookings',
                 name: i18n('APP.CONCIERGE.MENU_BOOKINGS'),
-                icon: 'add_circle',
+                icon: 'book_online',
+                route: ['/bookings'],
                 children: [
-                    {
-                        id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_ROOM_BOOKINGS'),
-                        route: ['/book/rooms'],
-                    },
                     {
                         id: 'desks',
                         name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
-                        route: ['/book/desks/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'parking',
                         name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
-                        route: ['/book/parking/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'parking-bookings',
                         name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
-                        route: ['/book/parking/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'lockers',
                         name: i18n('APP.CONCIERGE.MENU_LOCKER_BOOKINGS'),
-                        route: ['/book/lockers/events'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'assets',
                         name: i18n('APP.CONCIERGE.MENU_ASSET_BOOKINGS'),
-                        route: ['/book/assets/list/requests'],
-                    },
-                    {
-                        id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
-                        route: ['/book/catering/orders'],
+                        route: ['/bookings'],
                     },
                     {
                         id: 'visitors',
                         name: i18n('APP.CONCIERGE.MENU_VISITOR_BOOKINGS'),
-                        route: ['/book/visitors'],
-                    },
-                    {
-                        id: 'visitor-rules',
-                        name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
-                        route: ['/book/visitors/rules'],
+                        route: ['/bookings'],
                     },
                 ],
             },
             {
-                id: 'facilities',
-                name: i18n('APP.CONCIERGE.MENU_MANAGEMENT'),
-                icon: 'place',
+                id: 'catering',
+                name: i18n('APP.CONCIERGE.MENU_CATERING_BOOKINGS'),
+                icon: 'restaurant',
+                route: ['/book/catering/orders'],
+            },
+            {
+                id: 'catering-menu',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
+                icon: 'restaurant_menu',
+                route: ['/book/catering/menu'],
+                admin: true,
+                alias: 'catering',
+            },
+            {
+                id: 'signage',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
+                icon: 'tv',
+                route: ['/signage'],
+                admin: true,
+            },
+            {
+                id: 'deals-n-offers',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
+                icon: 'local_offer',
+                route: ['/deals-n-offers'],
+                admin: true,
+            },
+            {
+                id: 'zones',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
+                icon: 'account_tree',
+                route: ['/zone-management'],
+                admin: true,
+            },
+            {
+                id: 'settings',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_SETTINGS'),
+                icon: 'settings',
+                route: ['/settings-management'],
+                admin: true,
+                alias: [
+                    'emergency-contacts',
+                    'email-templates',
+                    'url-management',
+                    'points-of-interest',
+                    'points',
+                ],
                 children: [
-                    // {
-                    //     id: 'facilities',
-                    //     name: 'Building Map',
-                    //     route: ['/facilities'],
-                    // },
-                    {
-                        id: 'zones',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ZONES'),
-                        route: ['/zone-management'],
-                    },
-                    {
-                        id: 'spaces',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
-                        route: ['/room-management'],
-                    },
-                    {
-                        id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
-                        route: ['/book/desks/manage'],
-                    },
-                    {
-                        id: 'parking',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
-                        route: ['/book/parking/manage'],
-                    },
-                    {
-                        id: 'parking-manage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
-                        route: ['/book/parking/manage'],
-                    },
-                    {
-                        id: 'lockers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
-                        route: ['/book/lockers/manage'],
-                    },
-                    {
-                        id: 'catering',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_CATERING'),
-                        route: ['/book/catering/menu'],
-                    },
-                    {
-                        id: 'points',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
-                        route: ['/points-management'],
-                    },
                     {
                         id: 'emergency-contacts',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_CONTACTS'),
-                        icon: 'assignment_ind',
-                        route: ['/users/staff/emergency-contacts'],
-                    },
-                    {
-                        id: 'signage',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_SIGNAGE'),
-                        route: ['/signage'],
-                    },
-                    {
-                        id: 'points-of-interest',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
-                        route: ['/points-of-interest'],
-                    },
-                    {
-                        id: 'url-management',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
-                        route: ['/url-management'],
+                        route: ['/settings-management'],
                     },
                     {
                         id: 'email-templates',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_EMAILS'),
-                        route: ['/email-templates'],
+                        route: ['/settings-management'],
                     },
                     {
-                        id: 'deals-n-offers',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DEALS'),
-                        route: ['/deals-n-offers'],
+                        id: 'url-management',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_URLS'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'points-of-interest',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_MAP_FEATURES'),
+                        route: ['/settings-management'],
+                    },
+                    {
+                        id: 'points',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_POINTS'),
+                        route: ['/settings-management'],
                     },
                 ],
             },
             {
-                id: 'assets',
-                name: i18n('APP.CONCIERGE.MENU_ASSETS'),
-                route: ['/book/assets/list/items'],
-                icon: 'vibration',
+                id: 'resources',
+                name: i18n('APP.CONCIERGE.MENU_MANAGE_RESOURCES'),
+                icon: 'category',
+                route: ['/resource-management'],
+                admin: true,
+                alias: ['spaces', 'desks', 'parking', 'lockers'],
+                children: [
+                    {
+                        id: 'spaces',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'desks',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'parking',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'parking-manage',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_PARKING'),
+                        route: ['/resource-management'],
+                    },
+                    {
+                        id: 'lockers',
+                        name: i18n('APP.CONCIERGE.MENU_MANAGE_LOCKERS'),
+                        route: ['/resource-management'],
+                    },
+                ],
             },
             {
                 id: 'internal-users',
@@ -280,59 +294,20 @@ export class ApplicationSidebarComponent
                 name: i18n('APP.CONCIERGE.MENU_EVENTS'),
                 route: ['/entertainment/events'],
                 icon: 'confirmation_number',
+                admin: true,
             },
             {
                 id: 'surveys',
                 name: i18n('APP.CONCIERGE.MENU_SURVEYS'),
                 route: ['/surveys'],
                 icon: 'add_reaction',
+                admin: true,
             },
             {
-                _id: 'reports',
+                id: 'reports',
                 name: i18n('APP.CONCIERGE.MENU_REPORTS'),
+                route: ['/reports'],
                 icon: 'analytics',
-                children: [
-                    {
-                        id: 'booking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
-                        route: ['/reports/bookings'],
-                    },
-                    {
-                        id: 'desk-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
-                        route: ['/reports/desks'],
-                    },
-                    {
-                        id: 'parking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_PARKING'),
-                        route: ['/reports/parking'],
-                    },
-                    {
-                        id: 'lockers-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_LOCKERS'),
-                        route: ['/reports/lockers'],
-                    },
-                    {
-                        id: 'catering-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CATERING'),
-                        route: ['/reports/catering'],
-                    },
-                    {
-                        id: 'contact-tracing-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_CONTACT_TRACING'),
-                        route: ['/reports/contact-tracing'],
-                    },
-                    {
-                        id: 'assets-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ASSETS'),
-                        route: ['/reports/assets'],
-                    },
-                    {
-                        id: 'visitors-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_VISITORS'),
-                        route: ['/reports/visitors'],
-                    },
-                ],
             },
         ];
         this.updateFilteredLinks();
@@ -355,22 +330,71 @@ export class ApplicationSidebarComponent
         this.timeout('update_links', () => this.updateFilteredLinks(), 500);
     }
 
-    private _isFeatureAvailable(name: string): boolean {
+    private _isFeatureAvailable(link: any): boolean {
+        const name = link.id || link._id;
         if (name.startsWith('*')) {
             return true;
         }
-        const has_feature = this.feature_list.includes(name);
-        const feature_groups = this.feature_groups[name] || [];
+
+        // Use alias if provided (can be string or array), otherwise use the item's id
+        const aliases = link.alias
+            ? Array.isArray(link.alias)
+                ? link.alias
+                : [link.alias]
+            : [name];
+
+        // Check if at least one alias matches a feature
+        const matching_features = aliases.filter((alias) =>
+            this.feature_list().includes(alias),
+        );
+
+        if (!matching_features.length) {
+            return false;
+        }
+
         const groups = currentUser().groups;
-        if (
-            has_feature &&
-            (this.is_admin ||
-                !feature_groups.length ||
-                groups.find((grp) => feature_groups.includes(grp)))
-        ) {
+
+        // Special handling for items marked with admin: true
+        if (link.admin) {
+            // Check if user is admin or in feature groups for any of the matching features
+            return (
+                this.is_admin ||
+                matching_features.some((feature_name) => {
+                    const feature_groups =
+                        this.feature_groups()[feature_name] || [];
+                    return (
+                        feature_groups.length &&
+                        groups.find((grp) => feature_groups.includes(grp))
+                    );
+                })
+            );
+        }
+
+        // For other features: check each matching feature
+        // If any feature has no groups defined, allow access
+        // Otherwise, require admin or group membership for at least one feature
+        const features_with_groups = matching_features.filter(
+            (feature_name) => {
+                const feature_groups =
+                    this.feature_groups()[feature_name] || [];
+                return feature_groups.length > 0;
+            },
+        );
+
+        // If no features have groups defined, just having the feature is enough
+        if (!features_with_groups.length) {
             return true;
         }
-        return false;
+
+        // If some features have groups, check admin or group membership for any of them
+        return (
+            this.is_admin ||
+            features_with_groups.some((feature_name) => {
+                const feature_groups =
+                    this.feature_groups()[feature_name] || [];
+                return groups.find((grp) => feature_groups.includes(grp));
+            })
+        );
     }
 
     public updateFilteredLinks() {
@@ -397,7 +421,7 @@ export class ApplicationSidebarComponent
                     ...link,
                     children: link.children
                         ? link.children.filter((_) =>
-                              this._isFeatureAvailable(_.id),
+                              this._isFeatureAvailable(_),
                           )
                         : null,
                 }))
@@ -405,19 +429,32 @@ export class ApplicationSidebarComponent
                     (_) =>
                         ((!_.id ||
                             _.id === 'home' ||
-                            this._isFeatureAvailable(_.id)) &&
+                            this._isFeatureAvailable(_)) &&
                             _.route) ||
                         _.children?.length,
-                ),
+                )
+                .map((link) => {
+                    // Convert resources to a simple link (not a dropdown)
+                    // but only show if at least one resource feature is enabled
+                    if (link.id === 'resources' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
+                    // Convert bookings to a simple link (not a dropdown)
+                    // but only show if at least one booking feature is enabled
+                    if (link.id === 'bookings' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
+                    // Convert settings to a simple link (not a dropdown)
+                    // but only show if at least one settings feature is enabled
+                    if (link.id === 'settings' && link.children?.length) {
+                        return { ...link, children: null };
+                    }
+                    return link;
+                }),
         );
         if (this.filtered_links().find((_) => _.id === 'home')) {
             const link = this.filtered_links().find((_) => _.id === 'home');
             link.route = this._settings.get('app.default_route') || ['/'];
-        }
-        if (!this.is_admin) {
-            this.filtered_links.update((links) =>
-                links.filter((_) => _.id !== 'facilities'),
-            );
         }
     }
 
