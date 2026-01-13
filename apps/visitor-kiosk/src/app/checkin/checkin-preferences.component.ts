@@ -174,6 +174,7 @@ export class CheckinPreferencesComponent
         this.subscription(
             '',
             this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('jwt')) setToken(params.get('jwt'));
                 if (params.has('email')) {
                     await this._checkin
                         .loadGuestAndEvent(
@@ -187,7 +188,6 @@ export class CheckinPreferencesComponent
                             throw err;
                         });
                 }
-                if (params.has('jwt')) setToken(params.get('jwt'));
             }),
         );
         this.type.set('menu');
