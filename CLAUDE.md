@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 7+ frontend applications and shared libraries for common functionality.
+PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 15 frontend applications and shared libraries for common functionality.
 
 ## Repository Structure
 
@@ -18,7 +18,7 @@ PlaceOS User Interfaces is a monorepo containing multiple Angular applications f
 - **visitor-kiosk** - Visitor kiosk interface
 - Additional apps: assistant-panel, enrolment, outlook-addin, redirect, signage, stagehand, survey, timetable
 
-Each app has a corresponding `-e2e` directory for Playwright/Cypress tests.
+Each app has a corresponding `-e2e` directory for Playwright tests.
 
 ### Shared Libraries (`/libs`)
 Path aliases are defined in `tsconfig.base.json` using `@placeos/*` namespace:
@@ -114,7 +114,7 @@ nx test workplace --testFile=schedule.component.spec.ts
 ### PlaceOS Integration
 All apps connect to PlaceOS backend via the `@placeos/ts-client` library:
 
-- **PlaceOSService** (`libs/common/src/lib/placeos.service.ts`) - Main service for initializing PlaceOS client, handles authentication, token management, Sentry integration
+- **PlaceOS_Service** (`libs/common/src/lib/placeos.service.ts`) - Main service for initializing PlaceOS client, handles authentication, token management, Sentry integration
 - **OrganisationService** (`libs/common/src/lib/org/organisation.service.ts`) - Manages organizational hierarchy (regions, buildings, levels/floors, zones)
 - Uses OAuth for authentication with token refresh
 - Settings loaded from Zone metadata via PlaceOS API
@@ -129,8 +129,8 @@ All apps connect to PlaceOS backend via the `@placeos/ts-client` library:
 ### Key Service Patterns
 Services follow Angular standalone component patterns and use signals (Angular 20):
 
-- **EventFormService** -  Handles space/meeting room booking flows
-- **BookingFormService** - Handles all other booking flows
+- **EventFormService** - Handles space/meeting room booking flows
+- **BookingFormService** - Handles all other booking flows (desks, parking, lockers)
 - **ParkingService** - Parking space management
 - **ExploreService** - Map data service
 - Most services use `inject()` for dependency injection
@@ -138,14 +138,14 @@ Services follow Angular standalone component patterns and use signals (Angular 2
 
 ### Application Flow
 1. App bootstraps via `main.ts`
-2. PlaceOSService initializes (sets up API, auth, org data)
+2. PlaceOS_Service initializes (sets up API, auth, org data)
 3. Settings loaded from PlaceOS metadata
 4. Routes defined in `app-routing.module.ts`
 5. Features conditionally enabled based on settings (see `app.features` array)
 
 ### Development Server Proxy
 By default, dev servers proxy API requests to a live PlaceOS environment (configured in `config/proxy.conf.js`):
-- Proxied paths: `/control`, `/auth`, `/api`, `/login`, etc.
+- Proxied paths: `/control`, `/auth`, `/api`, `/styles`, `/scripts`, `/login`, `/backoffice`, `/r`
 - Default target: `placeos-dev.aca.im`
 - OAuth redirects don't work with local dev server - copy token from live instance or use `/login/?continue=/` basic auth form
 
@@ -186,19 +186,19 @@ nx migrate --run-migrations
 - Settings configurable via PlaceOS Zone metadata
 - Supports multiple locales (see `app.locales` in settings)
 - Service worker support for PWA functionality (production builds)
-- Custom localization support via `shared/locales`, **TranslationPipe** and **LocalesService**
+- Custom localization support via `shared/locales`, **TranslationPipe** and **LocaleService**
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
 
-## other
+## Other
 
 - After you finish making changes make sure all the apps build with `npm run build-all`
 - After you finish making changes make sure all the tests pass with `npm run test-all`
 
-## Code styles
+## Code Styles
 
 - Use snake_case for variables
 - Use camelCase for functions
 - Use PascalCase for classes, types and interfaces
-- Use kebab-case for file names, directories and CSS selectors(id, class, attribute)
+- Use kebab-case for file names, directories and CSS selectors (id, class, attribute)
 - Use CAPS_CASE for constants
