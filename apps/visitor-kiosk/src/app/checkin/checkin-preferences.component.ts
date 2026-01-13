@@ -171,6 +171,7 @@ export class CheckinPreferencesComponent
 
     public ngOnInit(): void {
         this.loading.set(true);
+        this._org.limit_init = true;
         this.subscription(
             '',
             this._route.queryParamMap.subscribe(async (params) => {

@@ -53,6 +53,7 @@ export class OrganisationService {
     private readonly _active_building = new BehaviorSubject<Building>(null);
     private readonly _levels = new BehaviorSubject<BuildingLevel[]>([]);
     private readonly _loaded_data: string[] = [];
+    private readonly _limited_init = signal(false);
 
     public readonly app_key = `${(
         this._service.app_name || 'workplace'
@@ -85,7 +86,7 @@ export class OrganisationService {
         shareReplay(1),
     );
     /** Organisation data for the application */
-    private _organisation: Organisation;
+    private _organisation: Organisation = new Organisation();
     /** Mapping of organisation settings overrides */
     private _settings: Record<string, any>[] = [];
     /** Mapping of regions to settings overrides */
@@ -228,6 +229,10 @@ export class OrganisationService {
         return this._levels.getValue();
     }
 
+    public set limit_init(state: boolean) {
+        this._limited_init.set(state);
+    }
+
     constructor() {
         onlineState()
             .pipe(first((_) => _))
@@ -345,6 +350,10 @@ export class OrganisationService {
     }
 
     private async init(tries = 0) {
+        if (this._limited_init()) {
+            this._initialised.next(true);
+            return;
+        }
         this._initialised.next(false);
         await this.load().catch((err) => {
             notifyError('Error loading organisation data. Retrying...');
