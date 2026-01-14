@@ -266,17 +266,19 @@ export class RoomWeekBookingsTimelineComponent
                     'yyyy-MM-dd',
                     this.tz,
                 );
-                map[date] = events.filter((event) => {
-                    const event_date_value = this._data_pipe.transform(
-                        event.date,
-                        'yyyy-MM-dd',
-                        this.tz,
-                    );
-                    return (
-                        date_value === event_date_value &&
-                        !event.is_system_event
-                    );
-                });
+                map[date] = events
+                    .filter((event) => {
+                        const event_date_value = this._data_pipe.transform(
+                            event.date,
+                            'yyyy-MM-dd',
+                            this.tz,
+                        );
+                        return (
+                            date_value === event_date_value &&
+                            !event.is_system_event
+                        );
+                    })
+                    .sort((a, b) => a.date - b.date);
             }
             return map;
         }),
