@@ -19,6 +19,15 @@ export const ANIMATION_SHOW_ENTER_LEAVE = trigger('show', [
 
 export const ANIMATION_SHOW_CONTRACT_EXPAND = trigger('show', [
     state('show', style({ opacity: 1, height: '*' })),
-    state('hide', style({ opacity: 0, height: 0, 'pointer-events': 'none' })),
-    transition('show <=> hide', animate('200ms ease-in')),
+    state(
+        'hide',
+        style({
+            opacity: 0,
+            height: 0,
+            'pointer-events': 'none',
+            'padding-top': 0,
+            'padding-bottom': 0,
+        }),
+    ),
+    transition('show <=> hide', animate('200ms ease-in-out')),
 ]);
