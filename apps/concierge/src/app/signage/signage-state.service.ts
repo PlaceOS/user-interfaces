@@ -293,6 +293,7 @@ export class SignageStateService extends AsyncHandler {
         notifySuccess(
             i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_MEDIA_SAVE_SUCCESS'),
         );
+        this.changed();
     }
 
     public async getPlaylistMedia(playlist_id: string) {
