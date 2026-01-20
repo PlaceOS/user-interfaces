@@ -48,8 +48,8 @@
     --info-content: hsl(214, 100%, 97%);
 
     /* Warning */
-    --warn: hsl(45, 100%, 64%);
-    --warn-light: hsl(60, 100%, 95%);
+    --warn: hsl(30, 100%, 45%);
+    --warn-light: hsl(45, 100%, 96%);
     --warn-content: hsl(0, 0%, 0%);
 
     /* Success */
