@@ -5,7 +5,7 @@ import {
     SurveyQuestion,
 } from '@placeos/ts-client';
 
-const MOCK_SURVEYS: Survey[] = [
+export const MOCK_SURVEYS: Survey[] = [
     {
         id: 1,
         title: 'Employee Satisfaction Survey',
@@ -103,9 +103,29 @@ const MOCK_SURVEYS: Survey[] = [
             },
         ],
     },
+    {
+        id: 7,
+        title: 'Comprehensive Feedback Survey',
+        description: 'A survey with all question types for testing',
+        trigger: 'monthly',
+        building_id: 'bld-01',
+        zone_id: 'bld-01_lvl-1',
+        pages: [
+            {
+                title: 'Page 1 - Ratings and Text',
+                description: 'Rate your experience and provide text feedback',
+                question_order: [19, 20, 21],
+            },
+            {
+                title: 'Page 2 - Selections',
+                description: 'Select from various options',
+                question_order: [22, 23, 24],
+            },
+        ],
+    },
 ];
 
-const MOCK_QUESTIONS: SurveyQuestion[] = [
+export const MOCK_QUESTIONS: SurveyQuestion[] = [
     {
         id: 1,
         title: 'How satisfied are you with your current role?',
@@ -225,12 +245,12 @@ const MOCK_QUESTIONS: SurveyQuestion[] = [
         required: false,
         max_rating: 0,
         choices: [
-            'Coffee machine',
-            'Microwave',
-            'Refrigerator',
-            'Water cooler',
-            'Vending machines',
-            'Recreation area',
+            { text: 'Coffee machine' },
+            { text: 'Microwave' },
+            { text: 'Refrigerator' },
+            { text: 'Water cooler' },
+            { text: 'Vending machines' },
+            { text: 'Recreation area' },
         ],
         tags: ['amenities', 'usage'],
         deleted: false,
@@ -375,9 +395,96 @@ const MOCK_QUESTIONS: SurveyQuestion[] = [
         tags: ['ev-charging', 'parking', 'sustainability'],
         deleted: false,
     },
+    // Comprehensive survey questions (19-24)
+    {
+        id: 19,
+        title: 'Overall satisfaction rating',
+        description: 'Rate your overall satisfaction from 1 to 5',
+        type: 'rating',
+        options: { min: 1, max: 5 },
+        required: true,
+        max_rating: 5,
+        choices: [],
+        tags: ['satisfaction', 'comprehensive'],
+        deleted: false,
+    },
+    {
+        id: 20,
+        title: 'Your name',
+        description: 'Please enter your name',
+        type: 'text',
+        options: { max_length: 100 },
+        required: true,
+        max_rating: 0,
+        choices: [],
+        tags: ['name', 'comprehensive'],
+        deleted: false,
+    },
+    {
+        id: 21,
+        title: 'Additional comments',
+        description: 'Please share any additional feedback',
+        type: 'comment',
+        options: { multiline: true, max_length: 500 },
+        required: false,
+        max_rating: 0,
+        choices: [],
+        tags: ['comments', 'comprehensive'],
+        deleted: false,
+    },
+    {
+        id: 22,
+        title: 'Preferred contact method',
+        description: 'How would you like us to contact you?',
+        type: 'dropdown',
+        options: {},
+        required: true,
+        max_rating: 0,
+        choices: [
+            { text: 'Email' },
+            { text: 'Phone' },
+            { text: 'In Person' },
+            { text: 'No Contact' },
+        ],
+        tags: ['contact', 'comprehensive'],
+        deleted: false,
+    },
+    {
+        id: 23,
+        title: 'Preferred time of day',
+        description: 'When is the best time to reach you?',
+        type: 'radiogroup',
+        options: {},
+        required: true,
+        max_rating: 0,
+        choices: [
+            { text: 'Morning (9am - 12pm)' },
+            { text: 'Afternoon (12pm - 5pm)' },
+            { text: 'Evening (5pm - 8pm)' },
+        ],
+        tags: ['time', 'comprehensive'],
+        deleted: false,
+    },
+    {
+        id: 24,
+        title: 'Topics of interest',
+        description: 'Select all topics that interest you',
+        type: 'checkbox',
+        options: {},
+        required: false,
+        max_rating: 0,
+        choices: [
+            { text: 'Workplace improvements' },
+            { text: 'New facilities' },
+            { text: 'Team events' },
+            { text: 'Training opportunities' },
+        ],
+        tags: ['interests', 'comprehensive'],
+        deleted: false,
+    },
 ];
 
-const MOCK_ANSWERS: SurveyAnswer[] = [
+export const MOCK_ANSWERS: SurveyAnswer[] = [
     {
         id: 1,
         question_id: 1,
@@ -550,6 +657,8 @@ export function registerMockSurveys() {
         path: '/api/staff/v1/surveys/questions/:id',
         metadata: {},
         method: 'GET',
+        delay: 50,
+        delay_variance: 10,
         callback: (request) => {
             const questionId = parseInt(request.route_params?.id as string);
             const question = MOCK_QUESTIONS.find(
@@ -619,6 +728,8 @@ export function registerMockSurveys() {
         path: '/api/staff/v1/surveys/:id',
         metadata: {},
         method: 'GET',
+        delay: 50,
+        delay_variance: 10,
         callback: (request) => {
             const surveyId = parseInt(request.route_params?.id as string);
             const survey = MOCK_SURVEYS.find((s) => s.id === surveyId);
@@ -630,4 +741,43 @@ export function registerMockSurveys() {
             return survey;
         },
     });
+
+    // POST endpoint for submitting survey answers
+    registerMockEndpoint({
+        path: '/api/staff/v1/surveys/answers',
+        metadata: {},
+        method: 'POST',
+        delay: 50,
+        delay_variance: 10,
+        callback: (request) => {
+            const body = request.body;
+            const answers: SurveyAnswer[] = Array.isArray(body) ? body : [body];
+            const created_answers: SurveyAnswer[] = [];
+
+            for (const answer of answers) {
+                const new_id =
+                    Math.max(...MOCK_ANSWERS.map((a) => a.id as number), 0) + 1;
+                const new_answer: SurveyAnswer = {
+                    id: new_id,
+                    survey_id: answer.survey_id,
+                    question_id: answer.question_id,
+                    type: answer.type,
+                    answer_json: answer.answer_json,
+                };
+                MOCK_ANSWERS.push(new_answer);
+                created_answers.push(new_answer);
+            }
+
+            return created_answers.length === 1
+                ? created_answers[0]
+                : created_answers;
+        },
+    });
 }
+
+// Re-export for mocks.ts compatibility
+export const SURVEY_MOCKS = {
+    MOCK_SURVEYS,
+    MOCK_QUESTIONS,
+    MOCK_ANSWERS,
+};

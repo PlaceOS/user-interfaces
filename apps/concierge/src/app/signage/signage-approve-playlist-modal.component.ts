@@ -43,139 +43,147 @@ import { SignageStateService } from './signage-state.service';
                 }
             </header>
             @if (!loading()) {
-                <main class="flex space-x-2 py-2">
+                <main class="max-h-[60vh] gap-2 overflow-auto py-2">
                     @let versions = playlist_versions | async;
                     @let media = playlist_media | async;
-                    <div
-                        class="border-base-300 bg-success-light w-[24rem] rounded-sm border"
-                    >
-                        @let current_version = versions?.[0];
-                        @let current_media = media?.[0] || [];
+                    <div class="flex gap-2">
                         <div
-                            class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
+                            class="border-base-300 bg-success-light w-[24rem] rounded-sm border"
                         >
-                            <h3>Version to approve</h3>
-                            <div class="font-mono text-xs opacity-50">
-                                {{
-                                    current_version?.updated_at * 1000
-                                        | date: 'dd MMM, HH:mm'
-                                }}
+                            @let current_version = versions?.[0];
+                            @let current_media = media?.[0] || [];
+                            <div
+                                class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
+                            >
+                                <h3>Version to approve</h3>
+                                <div class="font-mono text-xs opacity-50">
+                                    {{
+                                        current_version?.updated_at * 1000
+                                            | date: 'dd MMM, HH:mm'
+                                    }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="space-y-2 p-2">
-                            <div class="px-2 text-sm">
-                                {{
-                                    'COMMON.ITEM_COUNT'
-                                        | translate
-                                            : {
-                                                  count:
-                                                      current_version?.items
-                                                          .length || 0,
-                                              }
-                                            : current_version?.items.length || 0
-                                }}
-                            </div>
-                            @for (item of current_media; track item.id) {
-                                <div
-                                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
-                                >
-                                    <button
-                                        class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
-                                        matRipple
-                                        (click)="previewItem(item)"
+                            <div class="space-y-2 p-2">
+                                <div class="px-2 text-sm">
+                                    {{
+                                        'COMMON.ITEM_COUNT'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          current_version?.items
+                                                              .length || 0,
+                                                  }
+                                                : current_version?.items
+                                                      .length || 0
+                                    }}
+                                </div>
+                                @for (item of current_media; track item.id) {
+                                    <div
+                                        class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
-                                        @if (item.thumbnail_url) {
-                                            <img
-                                                auth
-                                                [source]="item.thumbnail_url"
-                                                class="h-full w-full object-cover"
-                                            />
-                                            <div
-                                                class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
-                                            >
-                                                <icon class="text-lg"
-                                                    >expand_content</icon
+                                        <button
+                                            class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
+                                            matRipple
+                                            (click)="previewItem(item)"
+                                        >
+                                            @if (item.thumbnail_url) {
+                                                <img
+                                                    auth
+                                                    [source]="
+                                                        item.thumbnail_url
+                                                    "
+                                                    class="h-full w-full object-cover"
+                                                />
+                                                <div
+                                                    class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
                                                 >
-                                            </div>
-                                        }
-                                    </button>
-                                    <span class="truncate">{{
-                                        item.name
-                                    }}</span>
-                                </div>
-                            } @empty {
-                                <div
-                                    class="flex flex-col items-center justify-center p-8 opacity-30"
-                                >
-                                    <icon class="text-4xl">hide_image</icon>
-                                    <p class="text-sm">
-                                        {{ 'COMMON.NO_ITEMS' | translate }}
-                                    </p>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <div
-                        class="border-base-300 bg-error-light w-[24rem] rounded-sm border"
-                    >
-                        @let previous_version = versions?.[1];
-                        @let previous_media = media?.[1] || [];
-                        <div
-                            class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
-                        >
-                            <h3>Previous version</h3>
-                            <div class="font-mono text-xs opacity-50">
-                                {{
-                                    previous_version?.updated_at * 1000
-                                        | date: 'dd MMM, HH:mm'
-                                }}
-                            </div>
-                        </div>
-                        <div class="space-y-2 p-2">
-                            <div class="space-y-2 px-2 text-sm">
-                                {{
-                                    'COMMON.ITEM_COUNT'
-                                        | translate
-                                            : {
-                                                  count:
-                                                      previous_version?.items
-                                                          .length || 0,
-                                              }
-                                            : previous_version?.items.length ||
-                                                  0
-                                }}
-                            </div>
-                            @for (item of previous_media; track item.id) {
-                                <div
-                                    class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
-                                >
-                                    <button
-                                        class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
-                                        matRipple
-                                        (click)="previewItem(item)"
+                                                    <icon class="text-lg"
+                                                        >expand_content</icon
+                                                    >
+                                                </div>
+                                            }
+                                        </button>
+                                        <span class="truncate">{{
+                                            item.name
+                                        }}</span>
+                                    </div>
+                                } @empty {
+                                    <div
+                                        class="flex flex-col items-center justify-center p-8 opacity-30"
                                     >
-                                        @if (item.thumbnail_url) {
-                                            <img
-                                                auth
-                                                [source]="item.thumbnail_url"
-                                                class="h-full w-full object-cover"
-                                            />
-                                        }
-                                    </button>
-                                    <span class="truncate">{{
-                                        item.name
-                                    }}</span>
+                                        <icon class="text-4xl">hide_image</icon>
+                                        <p class="text-sm">
+                                            {{ 'COMMON.NO_ITEMS' | translate }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div
+                            class="border-base-300 bg-error-light w-[24rem] rounded-sm border"
+                        >
+                            @let previous_version = versions?.[1];
+                            @let previous_media = media?.[1] || [];
+                            <div
+                                class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
+                            >
+                                <h3>Previous version</h3>
+                                <div class="font-mono text-xs opacity-50">
+                                    {{
+                                        previous_version?.updated_at * 1000
+                                            | date: 'dd MMM, HH:mm'
+                                    }}
                                 </div>
-                            } @empty {
-                                <div
-                                    class="flex flex-col items-center justify-center p-8 opacity-30"
-                                >
-                                    <icon class="text-4xl">hide_image</icon>
-                                    <p class="text-sm">
-                                        {{ 'COMMON.NO_ITEMS' | translate }}
-                                    </p>
+                            </div>
+                            <div class="space-y-2 p-2">
+                                <div class="space-y-2 px-2 text-sm">
+                                    {{
+                                        'COMMON.ITEM_COUNT'
+                                            | translate
+                                                : {
+                                                      count:
+                                                          previous_version
+                                                              ?.items.length ||
+                                                          0,
+                                                  }
+                                                : previous_version?.items
+                                                      .length || 0
+                                    }}
                                 </div>
-                            }
+                                @for (item of previous_media; track item.id) {
+                                    <div
+                                        class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
+                                    >
+                                        <button
+                                            class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
+                                            matRipple
+                                            (click)="previewItem(item)"
+                                        >
+                                            @if (item.thumbnail_url) {
+                                                <img
+                                                    auth
+                                                    [source]="
+                                                        item.thumbnail_url
+                                                    "
+                                                    class="h-full w-full object-cover"
+                                                />
+                                            }
+                                        </button>
+                                        <span class="truncate">{{
+                                            item.name
+                                        }}</span>
+                                    </div>
+                                } @empty {
+                                    <div
+                                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                                    >
+                                        <icon class="text-4xl">hide_image</icon>
+                                        <p class="text-sm">
+                                            {{ 'COMMON.NO_ITEMS' | translate }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </main>

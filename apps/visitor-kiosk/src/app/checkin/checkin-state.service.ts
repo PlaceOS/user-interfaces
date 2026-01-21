@@ -74,7 +74,7 @@ export class CheckinStateService {
     /** Load guest and event data */
     public async loadGuestAndEvent(email: string, event_id?: string) {
         const guest = await lastValueFrom(showGuest(email));
-        if (event_id) {
+        if (!guest.booking && event_id) {
             const event = await lastValueFrom(showBooking(event_id));
             this._guest.next(guest);
             this._booking.next(event);

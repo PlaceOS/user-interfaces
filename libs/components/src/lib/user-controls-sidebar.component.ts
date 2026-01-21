@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from './icon.component';
-import { TranslatePipe } from './translate.pipe';
 import { UserControlsComponent } from './user-controls.component';
 
 @Component({
@@ -60,7 +59,6 @@ import { UserControlsComponent } from './user-controls.component';
         MatRippleModule,
         IconComponent,
         UserControlsComponent,
-        TranslatePipe,
     ],
 })
 export class UserControlsSidebarComponent implements OnDestroy {

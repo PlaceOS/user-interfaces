@@ -8,7 +8,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingFormService } from '../booking-form.service';
 
 @Component({
@@ -67,7 +66,7 @@ import { BookingFormService } from '../booking-form.service';
             }
         `,
     ],
-    imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
+    imports: [CommonModule, IconComponent, MatRippleModule],
 })
 export class NewParkingFiltersDisplayComponent extends AsyncHandler {
     private _event_form = inject(BookingFormService);

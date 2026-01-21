@@ -1,8 +1,11 @@
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 
-import { MOCK_BOOKINGS } from './bookings.data';
+import { MOCK_BOOKINGS, MOCK_CATERING_BOOKINGS } from './bookings.data';
 import { ACTIVE_USER } from './users.data';
+
+// Combined bookings for all types
+const ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 
 export function registerMockBookings() {
     registerMockEndpoint({
@@ -10,7 +13,7 @@ export function registerMockBookings() {
         metadata: {},
         method: 'GET',
         callback: (_) => {
-            let events = MOCK_BOOKINGS;
+            let events = ALL_BOOKINGS;
             if (!_.query_params.zone_ids && !_.query_params.zones) {
                 // Real API returns active user bookings when no zone is specified
                 _.query_params.user_id = ACTIVE_USER.id;
@@ -118,7 +121,9 @@ export function registerMockBookings() {
         metadata: {},
         method: 'GET',
         callback: (_) => {
-            const event = MOCK_BOOKINGS.find((e) => e.id === _.route_params.id);
+            const event = ALL_BOOKINGS.find(
+                (e) => `${e.id}` === `${_.route_params.id}`,
+            );
             if (!event)
                 throw {
                     status: 404,
@@ -133,7 +138,9 @@ export function registerMockBookings() {
         metadata: {},
         method: 'POST',
         callback: (_) => {
-            const event = MOCK_BOOKINGS.find((e) => e.id === _.route_params.id);
+            const event = ALL_BOOKINGS.find(
+                (e) => `${e.id}` === `${_.route_params.id}`,
+            );
             if (!event) {
                 throw {
                     status: 404,
@@ -156,7 +163,7 @@ export function registerMockBookings() {
         method: 'DELETE',
         callback: (_) => {
             const { id, email } = _.route_params;
-            const event = MOCK_BOOKINGS.find((e) => e.id === id);
+            const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
             if (!event) {
                 throw {
                     status: 404,
@@ -182,7 +189,7 @@ export function registerMockBookings() {
         method: 'POST',
         callback: (_) => {
             const { id, email } = _.route_params;
-            const event = MOCK_BOOKINGS.find((e) => e.id === id);
+            const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
             if (!event) {
                 throw {
                     status: 404,
@@ -210,15 +217,15 @@ export function registerMockBookings() {
         },
     });
 
-    const updateBooking = (id, data) => {
-        const index = MOCK_BOOKINGS.findIndex((e) => e.id === id);
+    const updateBooking = (id: string | number, data: any) => {
+        const index = ALL_BOOKINGS.findIndex((e) => `${e.id}` === `${id}`);
         if (index < 0)
             throw {
                 status: 404,
                 message: `Unable to find booking with ID ${id}`,
             };
         const new_event = { ...data };
-        MOCK_BOOKINGS.splice(index, 1, new_event);
+        ALL_BOOKINGS.splice(index, 1, new_event);
         return new_event;
     };
 
@@ -234,8 +241,8 @@ export function registerMockBookings() {
         metadata: {},
         method: 'POST',
         callback: (req) => {
-            const booking = MOCK_BOOKINGS.find(
-                (b) => b.id === req.route_params.id,
+            const booking = ALL_BOOKINGS.find(
+                (b) => `${b.id}` === `${req.route_params.id}`,
             );
             if (!booking)
                 throw {
@@ -253,8 +260,8 @@ export function registerMockBookings() {
         metadata: {},
         method: 'POST',
         callback: (req) => {
-            const booking = MOCK_BOOKINGS.find(
-                (b) => b.id === req.route_params.id,
+            const booking = ALL_BOOKINGS.find(
+                (b) => `${b.id}` === `${req.route_params.id}`,
             );
             if (!booking)
                 throw {
@@ -272,8 +279,8 @@ export function registerMockBookings() {
         metadata: {},
         method: 'POST',
         callback: (req) => {
-            const booking = MOCK_BOOKINGS.find(
-                (b) => b.id === req.route_params.id,
+            const booking = ALL_BOOKINGS.find(
+                (b) => `${b.id}` === `${req.route_params.id}`,
             );
             if (!booking)
                 throw {
@@ -281,6 +288,26 @@ export function registerMockBookings() {
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
             booking.checked_in = true;
+            return booking;
+        },
+    });
+
+    // Update induction status endpoint for visitor-kiosk
+    registerMockEndpoint({
+        path: '/api/staff/v1/bookings/:id/update_induction',
+        metadata: {},
+        method: 'POST',
+        callback: (req) => {
+            const booking = ALL_BOOKINGS.find(
+                (b) => `${b.id}` === `${req.route_params.id}`,
+            );
+            if (!booking)
+                throw {
+                    status: 404,
+                    message: `Unable to find booking with ID ${req.route_params.id}`,
+                };
+            const induction = req.query_params.induction || 'tentative';
+            (booking as any).induction = induction;
             return booking;
         },
     });
@@ -297,15 +324,15 @@ export function registerMockBookings() {
         metadata: {},
         method: 'DELETE',
         callback: (req) => {
-            const index = MOCK_BOOKINGS.findIndex(
-                (e) => e.id === req.route_params.id,
+            const index = ALL_BOOKINGS.findIndex(
+                (e) => `${e.id}` === `${req.route_params.id}`,
             );
             if (index < 0)
                 throw {
                     status: 404,
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
-            MOCK_BOOKINGS.splice(index, 1);
+            ALL_BOOKINGS.splice(index, 1);
             return;
         },
     });

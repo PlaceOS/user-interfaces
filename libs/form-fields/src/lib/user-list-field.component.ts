@@ -50,7 +50,6 @@ import { searchGuests } from 'libs/users/src/lib/guests.fn';
 import { NewUserModalComponent } from 'libs/users/src/lib/new-user-modal.component';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
-import { PlaceUserPipe } from './place-user.pipe';
 
 function validateEmail(email) {
     const re =
@@ -238,7 +237,6 @@ const DENIED_FILE_TYPES = [
         MatRippleModule,
         TranslatePipe,
         IconComponent,
-        PlaceUserPipe,
         MatTooltipModule,
         UserAvatarComponent,
     ],

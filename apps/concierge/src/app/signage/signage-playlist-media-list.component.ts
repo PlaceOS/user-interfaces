@@ -34,11 +34,12 @@ import {
     SignagePlaylist,
 } from '@placeos/ts-client';
 import { getUnixTime, startOfMinute } from 'date-fns';
-import { of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
     filter,
+    map,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -447,7 +448,11 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
     });
 
     private _playlist_media = toSignal(
-        toObservable(this._playlist_media_observable).pipe(
+        combineLatest([
+            toObservable(this._playlist_media_observable),
+            this._state.has_changed,
+        ]).pipe(
+            map(([playlist]) => playlist),
             filter((playlist) => !!playlist),
             debounceTime(300),
             tap(() => this.loading.set(true)),

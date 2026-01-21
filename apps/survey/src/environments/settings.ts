@@ -9,7 +9,7 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     general,
     prevent_space_init: true,
-    allow_dark_mode: false,
+    allow_dark_mode: true,
 };
 
 /**

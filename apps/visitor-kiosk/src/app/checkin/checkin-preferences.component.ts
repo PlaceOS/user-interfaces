@@ -1,7 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { setToken, showMetadata } from '@placeos/ts-client';
-import { lastValueFrom, of } from 'rxjs';
+import {
+    listChildMetadata,
+    PlaceZoneMetadata,
+    setToken,
+} from '@placeos/ts-client';
+import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -31,6 +35,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    parseJWT,
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -145,13 +150,28 @@ export class CheckinPreferencesComponent
     public type = signal<'save' | 'menu'>('menu');
     public beverage: CateringItem;
     public readonly event = this._checkin.event;
+    public readonly bld_id = new BehaviorSubject('');
 
-    public readonly menu = this._org.active_building.pipe(
+    public readonly menu = this.bld_id.pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            showMetadata(bld.id, 'catering').pipe(
-                catchError(() => of({ details: [] })),
-                map(({ details }) => (details instanceof Array ? details : [])),
+            listChildMetadata(bld, {
+                name: 'catering',
+                include_parent: true,
+            }).pipe(
+                catchError(() => of([] as PlaceZoneMetadata[])),
+                map((list) => {
+                    const details = [];
+                    for (const zone of list) {
+                        if (zone.keys.includes('catering')) {
+                            const catering = zone.metadata.catering;
+                            if (catering.details instanceof Array) {
+                                details.push(...catering.details);
+                            }
+                        }
+                    }
+                    return details;
+                }),
                 map((menu) => menu.map((i) => new CateringItem(i))),
             ),
         ),
@@ -172,22 +192,34 @@ export class CheckinPreferencesComponent
     public ngOnInit(): void {
         this.loading.set(true);
         this.subscription(
+            'bld',
+            this._org.active_building.subscribe((v) =>
+                v ? this.bld_id.next(v.id) : '',
+            ),
+        );
+        this.subscription(
             '',
             this._route.queryParamMap.subscribe(async (params) => {
-                if (params.has('email')) {
-                    await this._checkin
-                        .loadGuestAndEvent(
-                            params.get('email'),
-                            params.get('event_id'),
-                        )
-                        .catch((err) => {
-                            this.handleError(
-                                'Unable to find visitor or a meeting associated with the given email address.',
-                            );
-                            throw err;
-                        });
+                const jwt = params.get('jwt');
+                if (jwt) {
+                    setToken(jwt);
+                    const data = parseJWT(jwt);
+                    const user = data.u;
+                    if (user) {
+                        const email = user.e;
+                        const [event_id, , bld_zone] = user.r || [];
+                        this.bld_id.next(bld_zone);
+
+                        await this._checkin
+                            .loadGuestAndEvent(email, event_id)
+                            .catch((err) => {
+                                this.handleError(
+                                    'Unable to find visitor or a meeting associated with the given email address.',
+                                );
+                                throw err;
+                            });
+                    }
                 }
-                if (params.has('jwt')) setToken(params.get('jwt'));
             }),
         );
         this.type.set('menu');

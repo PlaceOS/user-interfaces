@@ -47,6 +47,79 @@ class RoomModule {
     public readonly available_outputs;
     public readonly environment;
 
+    // Lighting bindings
+    public lighting_scenes: string[] = ['Off', 'Presentation', 'Meeting', 'Full'];
+    public lighting_scene: string = 'Off';
+    public lighting_levels: HashMap<number> = {
+        zone1: 50,
+        zone2: 75,
+        zone3: 100,
+    };
+
+    // Camera bindings
+    public available_cameras: string[] = [
+        'Camera_1',
+        'Camera_2',
+        'Camera_3',
+        'Camera_4',
+    ];
+    public selected_camera: string = 'Camera_1';
+
+    // Microphone bindings
+    public microphones: string[] = ['Microphone_1', 'Microphone_2', 'Microphone_3'];
+
+    // Room joining bindings
+    public join_modes: HashMap<string> = {
+        independent: 'Independent',
+        combined: 'Combined Mode',
+        overflow: 'Overflow Mode',
+    };
+    public joined: HashMap = { room_ids: [] };
+    public join_lockout_secondary: boolean = false;
+
+    // Room accessories
+    public room_accessories: HashMap[] = [
+        {
+            id: 'blind1',
+            name: 'Window Blinds',
+            icon: 'blinds',
+            states: ['Open', 'Closed', 'Half'],
+            state: 'Open',
+        },
+        {
+            id: 'screen1',
+            name: 'Projector Screen',
+            icon: 'screen_share',
+            states: ['Up', 'Down'],
+            state: 'Up',
+        },
+    ];
+
+    // Voice control
+    public voice_control: boolean = true;
+
+    // Phone dialling
+    public dial_bindings: HashMap = {
+        module: 'QSC',
+        index: 1,
+    };
+    public offhook: boolean = false;
+    public ringing: boolean = false;
+
+    // Audio
+    public has_master_audio: boolean = true;
+    public mute: boolean = false;
+
+    // Meeting/Calendar
+    public meeting_url: string = 'https://meet.example.com/room-123';
+
+    // UI configuration
+    public hide_join_button: boolean = false;
+    public hide_present_all: boolean = false;
+
+    // Preview outputs for source routing
+    public preview_outputs: string[] = ['Display1', 'Display2'];
+
     public readonly help = {
         help: {
             title: 'Help',
@@ -234,6 +307,68 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     /** Unlocks an IO node. */
     $unlock(source: string) {
         this.$updateState(source, { locked: false });
+    }
+
+    /** Set the lighting scene */
+    $set_lighting_scene(scene: string) {
+        if (this.lighting_scenes.includes(scene)) {
+            this.lighting_scene = scene;
+            // Also update env_sources for lights
+            const light_source = this.env_sources.find((_) => _.type === 'lights');
+            if (light_source) {
+                this[`${light_source.type}/${light_source.id}`] = {
+                    ...light_source,
+                    state: scene,
+                };
+            }
+        }
+    }
+
+    /** Set lighting level for a zone */
+    $set_lighting_level(zone: string, level: number) {
+        if (this.lighting_levels[zone] !== undefined) {
+            this.lighting_levels = { ...this.lighting_levels, [zone]: level };
+        }
+    }
+
+    /** Select a camera */
+    $select_camera(camera_id: string) {
+        if (this.available_cameras.includes(camera_id)) {
+            this.selected_camera = camera_id;
+        }
+    }
+
+    /** Join rooms with a specific mode */
+    $join_rooms(mode: string, room_ids: string[] = []) {
+        if (this.join_modes[mode]) {
+            this.joined = { room_ids, mode };
+        }
+    }
+
+    /** Separate joined rooms */
+    $separate_rooms() {
+        this.joined = { room_ids: [] };
+    }
+
+    /** Control a room accessory */
+    $set_accessory_state(accessory_id: string, state: string) {
+        const accessory = this.room_accessories.find((_) => _.id === accessory_id);
+        if (accessory && accessory.states.includes(state)) {
+            accessory.state = state;
+            this.room_accessories = [...this.room_accessories];
+        }
+    }
+
+    /** Dial a phone number */
+    $dial_phone(number: string) {
+        this.offhook = true;
+        return new Promise<void>((r) => setTimeout(() => r(), 1000));
+    }
+
+    /** Hangup phone call */
+    $hangup_phone() {
+        this.offhook = false;
+        this.ringing = false;
     }
 
     $updateState(source: string, data: HashMap) {
