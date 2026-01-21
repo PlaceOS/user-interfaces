@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AsyncHandler, log, randomString } from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, Subject } from 'rxjs';
 
 const STORE_KEY = 'PlaceOS.SIGNAGE.cached_files';
+const STAGGER_DELAY_MS = 500; // Delay between uncached resource requests
 
 export type CacheItemStatus =
     | 'preparing'
@@ -67,9 +68,17 @@ export class MediaCacheService extends AsyncHandler {
 
     public async requestFilesToCache(url_list: string[]): Promise<boolean> {
         let failures = false;
+        let uncached_count = 0;
         for (const url of url_list) {
             const existing = this._cache_index.find((_) => _.url === url);
             if (existing?.status === 'cached') continue;
+            // Stagger requests for uncached resources to avoid overwhelming the network
+            if (uncached_count > 0) {
+                await new Promise((resolve) =>
+                    setTimeout(resolve, STAGGER_DELAY_MS),
+                );
+            }
+            uncached_count++;
             const cache_item: CacheItem = {
                 id: randomString(16, '0123456789ABCDEF'),
                 url,
@@ -142,10 +151,32 @@ export class MediaCacheService extends AsyncHandler {
         return this._cache_index.map((_) => _.url);
     }
 
-    public getFile(url: string) {
+    public async getFile(url: string): Promise<File> {
+        const cache_item = this._cache_index.find((_) => _.url === url);
+        if (!cache_item) throw new Error('Unable to find file with URL');
+
+        // Wait for download to complete if item is currently being downloaded
+        if (
+            cache_item.status === 'preparing' ||
+            cache_item.status === 'downloading' ||
+            cache_item.status === 'storing'
+        ) {
+            const final_status = await firstValueFrom(
+                cache_item.on_change.pipe(
+                    filter(
+                        (status) =>
+                            status === 'cached' || status === 'invalidated',
+                    ),
+                ),
+            );
+            if (final_status === 'invalidated') {
+                return null;
+            }
+        } else if (cache_item.status === 'invalidated') {
+            return null;
+        }
+
         return new Promise<File>((resolve, reject) => {
-            const cache_item = this._cache_index.find((_) => _.url === url);
-            if (!cache_item) return reject('Unable to find file with URL');
             const transaction = this._cache_db.transaction(
                 ['files'],
                 'readonly',
