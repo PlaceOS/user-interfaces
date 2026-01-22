@@ -46,6 +46,7 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         handle_login: !settings.local_login,
         use_iframe: true,
         mock,
+        delay: 300,
     };
     if (localStorage) {
         localStorage.setItem(
