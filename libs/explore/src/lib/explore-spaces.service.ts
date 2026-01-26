@@ -152,11 +152,6 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
                 }),
             );
         }
-        this._event_form.newForm();
-        this._event_form.form.patchValue({
-            host: currentUser()?.email,
-            resources: [space],
-        });
         if (room_alerts[space.id]?.[0] === 'closed') {
             return notifyError(`${room_alerts[space.id][1]}`);
         }
@@ -181,6 +176,11 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
             window.open(url, '_blank', 'noopener noreferer');
             return;
         }
+        this._event_form.newForm();
+        this._event_form.form.patchValue({
+            host: currentUser()?.email,
+            resources: [space],
+        });
         this._dialog.open(
             (this._settings.get('app.explore.show_booking_qr')
                 ? ExploreBookQrComponent
