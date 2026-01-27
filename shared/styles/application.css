@@ -1683,7 +1683,7 @@ a[link] {
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
-        color: var(--neutral);
+        color: var(--base-300);
     }
 
     input {

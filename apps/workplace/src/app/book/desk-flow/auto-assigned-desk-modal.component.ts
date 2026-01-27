@@ -12,7 +12,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { BookingAsset, BookingFormService } from '@placeos/bookings';
+import {
+    BookingAsset,
+    BookingFormService,
+    findNearbyFeature,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Desk,
@@ -226,6 +230,10 @@ export class AutoAssignedDeskModalComponent
     public readonly assigned_desk = signal<BookingAsset | Desk | null>(null);
     public readonly date = model<number | undefined>(undefined);
     public readonly duration = model<number | undefined>(undefined);
+    /** When set, tries to find a desk nearby to this desk */
+    public readonly nearby_desk_id = model<string | undefined>(undefined);
+    /** When set, filters available desks to this level */
+    public readonly level_id = model<string | undefined>(undefined);
 
     public zoom = 1.5;
     public center = signal({ x: 0.5, y: 0.5 });
@@ -262,7 +270,7 @@ export class AutoAssignedDeskModalComponent
             });
 
             // Get available resources (desks)
-            const available_desks = await firstTruthyValueFrom(
+            let available_desks = await firstTruthyValueFrom(
                 this._state.available_resources,
             );
 
@@ -272,26 +280,79 @@ export class AutoAssignedDeskModalComponent
                 return;
             }
 
-            // Group desks by level and find level with most available desks
-            const desks_by_level = available_desks.reduce(
-                (acc, desk) => {
-                    const level_id = desk.zone?.id || 'unknown';
-                    if (!acc[level_id]) {
-                        acc[level_id] = [];
+            let assigned_desk: BookingAsset;
+            const nearby_desk_id = this.nearby_desk_id();
+            const level_id = this.level_id();
+
+            // If nearby_desk_id is provided, try to find a desk nearby
+            if (nearby_desk_id) {
+                // Filter to same level if level_id is provided
+                if (level_id) {
+                    const level_desks = available_desks.filter(
+                        (desk) => desk.zone?.id === level_id,
+                    );
+                    if (level_desks.length > 0) {
+                        available_desks = level_desks;
                     }
-                    acc[level_id].push(desk);
-                    return acc;
-                },
-                {} as Record<string, typeof available_desks>,
-            );
+                }
 
-            // Find the level with the most available desks
-            const level_with_most_desks = Object.entries(desks_by_level).sort(
-                ([, a], [, b]) => b.length - a.length,
-            )[0];
+                // Try to find the level by looking at nearby desk in all resources
+                const all_resources = await firstTruthyValueFrom(
+                    this._state.resources,
+                );
+                const nearby_resource = all_resources.find(
+                    (r) =>
+                        r.id === nearby_desk_id || r.map_id === nearby_desk_id,
+                );
 
-            // Pick the first desk from the level with most availability
-            const assigned_desk = level_with_most_desks[1][0];
+                if (nearby_resource?.zone?.id) {
+                    const level = this._org.levelWithID([
+                        nearby_resource.zone.id,
+                    ]);
+                    if (level?.map_id) {
+                        // Use findNearbyFeature to get the closest desk
+                        const desk_ids = available_desks.map(
+                            (d) => d.map_id || d.id,
+                        );
+                        const closest_id = await findNearbyFeature(
+                            level.map_id,
+                            nearby_desk_id,
+                            desk_ids,
+                        );
+                        if (closest_id) {
+                            assigned_desk = available_desks.find(
+                                (d) =>
+                                    d.id === closest_id ||
+                                    d.map_id === closest_id,
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Fallback to original logic if no nearby desk found
+            if (!assigned_desk) {
+                // Group desks by level and find level with most available desks
+                const desks_by_level = available_desks.reduce(
+                    (acc, desk) => {
+                        const zone_id = desk.zone?.id || 'unknown';
+                        if (!acc[zone_id]) {
+                            acc[zone_id] = [];
+                        }
+                        acc[zone_id].push(desk);
+                        return acc;
+                    },
+                    {} as Record<string, typeof available_desks>,
+                );
+
+                // Find the level with the most available desks
+                const level_with_most_desks = Object.entries(
+                    desks_by_level,
+                ).sort(([, a], [, b]) => b.length - a.length)[0];
+
+                // Pick the first desk from the level with most availability
+                assigned_desk = level_with_most_desks[1][0];
+            }
 
             form.patchValue({
                 asset_id: assigned_desk.id,

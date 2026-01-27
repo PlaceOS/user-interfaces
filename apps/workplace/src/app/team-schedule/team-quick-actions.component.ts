@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { settingSignal } from '@placeos/common';
+import { currentUser, settingSignal, User } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { BookingFormService } from '@placeos/bookings';
+import { TeamScheduleService } from './team-schedule.service';
 
 @Component({
     selector: 'team-quick-actions',
@@ -37,18 +39,33 @@ import { IconComponent } from '@placeos/components';
                     btn
                     matRipple
                     class="white w-full flex-1 space-x-2"
-                    (click)="autoAssignDesk()"
+                    (click)="bookForGroup()"
                 >
                     <icon class="text-2xl">bolt</icon>
-                    <div>Book for team</div>
+                    @if (select_mode()) {
+                        <div>
+                            Book selected
+                            @if (selected_count() > 0) {
+                                ({{ selected_count() }})
+                            }
+                        </div>
+                    } @else {
+                        <div>Book for team</div>
+                    }
                 </button>
                 <button
                     btn
                     matRipple
                     class="inverse white w-full flex-1 space-x-2"
+                    (click)="toggleSelectMode()"
                 >
-                    <icon class="text-2xl">map</icon>
-                    <div>Select Colleagues</div>
+                    @if (select_mode()) {
+                        <icon class="text-2xl">close</icon>
+                        <div>Clear</div>
+                    } @else {
+                        <icon class="text-2xl">group_add</icon>
+                        <div>Select Colleagues</div>
+                    }
                 </button>
             </div>
         </div>
@@ -69,8 +86,53 @@ import { IconComponent } from '@placeos/components';
 export class TeamQuickActionsComponent {
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
+    private _booking_form = inject(BookingFormService);
+    private _service = inject(TeamScheduleService);
 
     public readonly features = settingSignal<string[]>('features', []);
 
-    public readonly autoAssignDesk = () => {};
+    // Expose data
+    public readonly select_mode = this._service.select_mode;
+    public readonly selected_count = this._service.selected_count;
+
+    public toggleSelectMode() {
+        if (this._service.select_mode()) {
+            this._service.clearSelection();
+        } else {
+            this._service.toggleSelectMode();
+        }
+    }
+
+    public bookForGroup() {
+        let members: User[];
+
+        if (this._service.select_mode() && this._service.selected_count() > 0) {
+            // Use selected members
+            members = this._service
+                .selected_members()
+                .map((m) => m.user as User);
+        } else {
+            // Use team members
+            members = this._service.getTeamMembers().map((m) => m.user as User);
+        }
+
+        // Add current user if not already included
+        const current = currentUser();
+        if (!members.find((m) => m.email === current.email)) {
+            members = [current, ...members];
+        }
+
+        // Clear selection mode
+        this._service.clearSelection();
+
+        // Set up group booking
+        this._booking_form.setOptions({
+            type: 'desk',
+            group: true,
+            members,
+        });
+
+        // Navigate to desk booking flow
+        this._router.navigate(['/book', 'desks']);
+    }
 }

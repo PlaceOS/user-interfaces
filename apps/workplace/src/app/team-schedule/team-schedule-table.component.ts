@@ -1,11 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
     TranslatePipe,
     UserAvatarComponent,
 } from '@placeos/components';
-import { LocationStatus, TeamMember, USER_LOCATIONS } from './common';
+import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-desk-modal.component';
+import {
+    DayStatus,
+    LocationStatus,
+    TeamMember,
+    USER_LOCATIONS,
+} from './common';
 import { TeamScheduleService } from './team-schedule.service';
 
 @Component({
@@ -35,13 +44,15 @@ import { TeamScheduleService } from './team-schedule.service';
                     {{ 'APP.WORKPLACE.TEAM_SCHEDULE_BOOK_HINT' | translate }}
                 </p>
                 <span class="ml-4 font-medium"
-                    >{{ service.booked_count() }}/20</span
+                    >{{ booked_count() }}/{{ total_members() }}</span
                 >
             </div>
         </div>
 
         <!-- Table Grid -->
-        <div class="schedule-grid border-base-300 w-full border-t">
+        <div
+            class="schedule-grid border-base-300 w-full overflow-auto border-t"
+        >
             <!-- Header Row -->
             <div
                 class="bg-base-200/50 text-base-content/70 contents text-sm font-medium"
@@ -53,18 +64,18 @@ import { TeamScheduleService } from './team-schedule.service';
                         'APP.WORKPLACE.TEAM_SCHEDULE_EMPLOYEE' | translate
                     }}</span>
                     <span class="text-base-content/50 ml-2"
-                        >{{ service.filtered_members().length }}/{{
-                            service.total_members()
+                        >{{ filtered_members().length }}/{{
+                            total_members()
                         }}</span
                     >
                 </div>
-                @for (day of service.week_days(); track day.date) {
+                @for (day of week_days(); track day.date) {
                     <div
                         class="border-base-300 flex items-center justify-center gap-4 border-b border-l p-2"
-                        [ngClass]="{ 'bg-primary/20': day.is_today }"
+                        [ngClass]="{ 'bg-brand-200/20': day.is_today }"
                     >
                         <div class="flex flex-col items-center leading-none">
-                            <div class="text-lg">
+                            <div class="text-lg uppercase">
                                 {{ day.date | date: 'EEE' }}
                             </div>
                             @if (day.is_today) {
@@ -90,24 +101,53 @@ import { TeamScheduleService } from './team-schedule.service';
             </div>
 
             <!-- Data Rows -->
-            @for (member of service.filtered_members(); track member.user.id) {
+            @for (member of filtered_members(); track member.user.id) {
                 <div class="group contents">
                     <!-- Employee Cell -->
                     <div
                         class="border-base-300 bg-base-100 group-hover:bg-base-200/50 sticky left-0 z-10 flex items-center gap-3 border-b px-4 py-3"
                     >
-                        <button
-                            class="shrink-0"
-                            (click)="service.toggleFavorite(member)"
-                        >
-                            @if (member.is_favorite) {
-                                <icon class="text-warning text-xl">star</icon>
-                            } @else {
-                                <icon class="text-base-content/30 text-xl"
-                                    >star_outline</icon
-                                >
-                            }
-                        </button>
+                        @if (select_mode()) {
+                            <button
+                                class="shrink-0"
+                                (click)="toggleMemberSelection(member)"
+                                [matTooltip]="
+                                    isMemberSelected(member)
+                                        ? 'Deselect'
+                                        : 'Select'
+                                "
+                            >
+                                @if (isMemberSelected(member)) {
+                                    <icon class="text-primary text-xl"
+                                        >check_box</icon
+                                    >
+                                } @else {
+                                    <icon class="text-base-content/30 text-xl"
+                                        >check_box_outline_blank</icon
+                                    >
+                                }
+                            </button>
+                        } @else {
+                            <button
+                                class="shrink-0"
+                                (click)="toggleFavorite(member)"
+                                [matTooltip]="
+                                    member.is_favorite
+                                        ? 'Remove from favorites'
+                                        : 'Add to favorites'
+                                "
+                            >
+                                @if (member.is_favorite) {
+                                    <icon class="text-warning text-xl"
+                                        >star</icon
+                                    >
+                                } @else {
+                                    <icon class="text-base-content/30 text-xl"
+                                        >star_outline</icon
+                                    >
+                                }
+                            </button>
+                        }
                         <a-user-avatar class="shrink-0" [user]="member.user" />
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
@@ -147,25 +187,22 @@ import { TeamScheduleService } from './team-schedule.service';
                     </div>
 
                     <!-- Day Cells -->
-                    @for (
-                        day of service.week_days();
-                        track day.date;
-                        let i = $index
-                    ) {
+                    @for (day of week_days(); track day.date; let i = $index) {
                         <div
                             class="border-base-300 group-hover:bg-base-200/50 flex items-center justify-center border-b border-l p-2"
-                            [ngClass]="{ 'bg-primary/10': day.is_today }"
+                            [ngClass]="{ 'bg-brand-200/10': day.is_today }"
                         >
                             @if (member.statuses[i]; as status) {
                                 @if (
                                     status.status === 'office' && status.booking
                                 ) {
                                     <button
-                                        class="bg-base-200 hover:bg-base-300 flex w-full max-w-30 flex-col items-center rounded-lg px-3 py-2 transition-colors"
+                                        class="bg-base-200 hover:bg-base-300 flex w-full max-w-30 flex-col rounded-lg px-3 py-2 transition-colors"
                                         (click)="bookNearby(member, day)"
+                                        matTooltip="Book nearby"
                                     >
                                         <div
-                                            class="text-primary flex items-center gap-1 text-xs"
+                                            class="text-brand-200 flex items-center gap-1 text-xs"
                                         >
                                             <icon class="text-sm"
                                                 >location_on</icon
@@ -189,26 +226,70 @@ import { TeamScheduleService } from './team-schedule.service';
                                     <button
                                         class="flex h-10 w-10 items-center justify-center rounded-lg transition-colors"
                                         [style.background-color]="
-                                            service.getLocationStyle(
-                                                status.status
-                                            ).bg_color
+                                            getLocationStyle(status.status)
+                                                .bg_color
                                         "
                                         [style.color]="
-                                            service.getLocationStyle(
-                                                status.status
-                                            ).fg_color
+                                            getLocationStyle(status.status)
+                                                .fg_color
                                         "
                                         (click)="bookNearby(member, day)"
+                                        [matTooltip]="
+                                            getLocationStyle(status.status).name
+                                                | translate
+                                        "
                                     >
                                         <icon class="text-xl">{{
-                                            service.getLocationStyle(
-                                                status.status
-                                            ).icon
+                                            getLocationStyle(status.status).icon
                                         }}</icon>
                                     </button>
                                 }
                             }
                         </div>
+                    }
+                </div>
+            } @empty {
+                <!-- Empty State -->
+                <div
+                    class="border-base-300 col-span-full flex flex-col items-center justify-center border-t py-16"
+                >
+                    @if (loading()) {
+                        <mat-spinner diameter="32" />
+                        <p class="text-base-content/60 mt-4">
+                            {{ 'COMMON.LOADING' | translate }}...
+                        </p>
+                    } @else if (total_members() === 0) {
+                        <icon class="text-base-content/60 text-5xl"
+                            >group_off</icon
+                        >
+                        <p class="text-base-content/60 mt-4">
+                            {{
+                                'APP.WORKPLACE.TEAM_SCHEDULE_NO_MEMBERS'
+                                    | translate
+                            }}
+                        </p>
+                        <p class="text-base-content/40 mt-1 text-sm">
+                            {{
+                                'APP.WORKPLACE.TEAM_SCHEDULE_NO_MEMBERS_HINT'
+                                    | translate
+                            }}
+                        </p>
+                    } @else {
+                        <icon class="text-base-content/60 text-5xl"
+                            >filter_list_off</icon
+                        >
+                        <p class="text-base-content/60 mt-4 text-sm">
+                            {{
+                                'APP.WORKPLACE.TEAM_SCHEDULE_NO_FILTER_RESULTS'
+                                    | translate
+                            }}
+                        </p>
+                        <p class="text-base-content/40 mt-1 text-xs">
+                            {{
+                                'APP.WORKPLACE.TEAM_SCHEDULE_NO_FILTER_RESULTS_HINT'
+                                    | translate
+                            }}
+                        </p>
                     }
                 </div>
             }
@@ -224,17 +305,75 @@ import { TeamScheduleService } from './team-schedule.service';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, IconComponent, UserAvatarComponent],
+    imports: [
+        CommonModule,
+        MatTooltipModule,
+        TranslatePipe,
+        IconComponent,
+        UserAvatarComponent,
+        MatProgressSpinnerModule,
+    ],
 })
 export class TeamScheduleTableComponent {
-    public readonly service = inject(TeamScheduleService);
+    private _dialog = inject(MatDialog);
+    private _service = inject(TeamScheduleService);
 
     public readonly user_locations = Object.keys(USER_LOCATIONS).map((key) => ({
         ...USER_LOCATIONS[key as LocationStatus],
         key,
     }));
 
+    // Expose data
+    public readonly week_days = this._service.week_days;
+    public readonly filtered_members = this._service.filtered_members;
+    public readonly total_members = this._service.total_members;
+    public readonly booked_count = this._service.booked_count;
+    public readonly select_mode = this._service.select_mode;
+    public readonly loading = this._service.loading;
+
+    // Actions
+    public toggleMemberSelection(member: TeamMember) {
+        this._service.toggleMemberSelection(member);
+    }
+
+    public isMemberSelected(member: TeamMember): boolean {
+        return this._service.isMemberSelected(member);
+    }
+
+    public toggleFavorite(member: TeamMember) {
+        this._service.toggleFavorite(member);
+    }
+
+    public getLocationStyle(status: LocationStatus) {
+        return this._service.getLocationStyle(status);
+    }
+
     public bookNearby(member: TeamMember, day: { date: number }) {
-        console.log('Book nearby', member.user.name, new Date(day.date));
+        const day_index = this._service
+            .week_days()
+            .findIndex((d) => d.date === day.date);
+        const status: DayStatus | undefined = member.statuses[day_index];
+        const booking = status?.booking;
+
+        const dialog_ref = this._dialog.open(AutoAssignedDeskModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'auto-assigned-desk-modal',
+        });
+        dialog_ref.componentInstance.show_close.set(true);
+
+        // Set date from the day clicked
+        dialog_ref.componentInstance.date.set(day.date);
+
+        // If the team member has a booking, use their desk and booking details
+        if (booking?.desk_id) {
+            dialog_ref.componentInstance.nearby_desk_id.set(booking.desk_id);
+            if (booking.level_id) {
+                dialog_ref.componentInstance.level_id.set(booking.level_id);
+            }
+            if (booking.duration) {
+                dialog_ref.componentInstance.duration.set(booking.duration);
+            }
+        }
     }
 }

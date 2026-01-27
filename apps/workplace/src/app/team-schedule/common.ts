@@ -1,4 +1,4 @@
-import { User } from '@placeos/common';
+import { StaffUser, User } from '@placeos/common';
 
 export type LocationStatus =
     | 'unspecified'
@@ -11,6 +11,10 @@ export type LocationStatus =
 export interface DeskBooking {
     building_name: string;
     desk_code: string;
+    desk_id?: string;
+    level_id?: string;
+    date?: number;
+    duration?: number;
 }
 
 export interface DayStatus {
@@ -20,7 +24,7 @@ export interface DayStatus {
 }
 
 export interface TeamMember {
-    user: User;
+    user: StaffUser | User;
     is_favorite: boolean;
     is_my_team: boolean;
     department?: string;

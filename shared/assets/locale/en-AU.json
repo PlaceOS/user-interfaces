@@ -1059,7 +1059,11 @@
             "RESOURCE_CHECKED_IN": "Successfully checked in resource",
             "RESOURCE_CHECKED_IN_MESSAGE": "Resource checked in successfully",
             "TEAM_SCHEDULE_BOOK_HINT": "Press on the card to book desk next to colleague",
-            "TEAM_SCHEDULE_EMPLOYEE": "Employee"
+            "TEAM_SCHEDULE_EMPLOYEE": "Employee",
+            "TEAM_SCHEDULE_NO_FILTER_RESULTS": "No results found",
+            "TEAM_SCHEDULE_NO_FILTER_RESULTS_HINT": "Try adjusting your filters or search criteria.",
+            "TEAM_SCHEDULE_NO_MEMBERS": "No team members",
+            "TEAM_SCHEDULE_NO_MEMBERS_HINT": "Add team members or colleagues to your team to see their schedules."
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",
