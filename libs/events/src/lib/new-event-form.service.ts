@@ -183,7 +183,11 @@ export class EventFormService extends AsyncHandler {
                     catchError(() => of([])),
                 );
             }),
-            map((list) => list.filter((_) => _.bookable && _.email)),
+            map((list: Space[]) =>
+                list.filter(
+                    (_) => _.bookable && _.email && !_.room_booking_url,
+                ),
+            ),
             tap(() => this.removeLoadingTag(Tags.ListingRooms)),
             startWith([]),
             shareReplay(1),
