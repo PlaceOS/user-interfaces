@@ -21,19 +21,19 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
     template: `
         @if (view() !== 'success') {
             <div
-                class="relative z-0 flex h-full w-full flex-col overflow-auto bg-base-200"
+                class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
             >
                 <div
                     class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
                 >
                     @if (!is_edit_mode()) {
-                        <desk-flow-auto-assign />
+                        <desk-flow-auto-assign class="block" />
                     }
                     <div
-                        class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                        class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
                     >
                         <div
-                            class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                            class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                         >
                             <icon>info</icon>
                             <div>
@@ -44,7 +44,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
                         <desk-flow-select />
                     </div>
                     <div
-                        class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+                        class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
                     >
                         <div></div>
                         <button

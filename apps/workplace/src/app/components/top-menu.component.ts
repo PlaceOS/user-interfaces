@@ -90,11 +90,13 @@ import { IconComponent } from '@placeos/components';
                             <icon
                                 outline
                                 className="material-symbols-outlined"
-                                class="m-0! text-xl"
+                                class="text-xl"
                             >
                                 {{ route.icon }}
                             </icon>
-                            <div class="truncate pr-4">{{ route.name }}</div>
+                            <div text class="truncate pr-4">
+                                {{ route.name }}
+                            </div>
                         </div>
                     </a>
                 }
@@ -114,6 +116,11 @@ import { IconComponent } from '@placeos/components';
 
             .active > [bar] {
                 display: block;
+            }
+
+            a.active icon,
+            a.active [text] {
+                color: var(--secondary);
             }
 
             a:not([mat-menu-item]):not(.active) {
@@ -200,6 +207,7 @@ export class TopMenuComponent
         if (url.includes('book/locker')) return 'lockers';
         if (url.includes('book/parking')) return 'parking';
         if (url.includes('explore')) return 'explore';
+        if (url.includes('team-schedule')) return 'team-schedule';
         if (url.includes('schedule')) return 'schedule';
         return '';
     }
@@ -281,6 +289,12 @@ export class TopMenuComponent
                 route: '/deals-n-offers',
                 icon: 'confirmation_number',
                 name: i18n('APP.WORKPLACE.MENU_DEALS'),
+            },
+            {
+                id: 'team-schedule',
+                route: '/team-schedule',
+                icon: 'groups',
+                name: i18n('APP.WORKPLACE.MENU_TEAM_SCHEDULE'),
             },
         ];
     }

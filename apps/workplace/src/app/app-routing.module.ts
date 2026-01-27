@@ -82,6 +82,15 @@ const routes: Routes = [
                 (m) => m.LandingNewComponent,
             ),
     },
+    {
+        path: 'team-schedule',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadComponent: () =>
+            import('./team-schedule/team-schedule.component').then(
+                (m) => m.TeamScheduleComponent,
+            ),
+    },
     { path: '**', redirectTo: '-', pathMatch: 'full' },
 ];
 

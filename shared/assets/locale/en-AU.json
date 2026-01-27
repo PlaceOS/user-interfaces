@@ -292,7 +292,18 @@
         "URL_VALID": "URL is invalid",
         "SELECTED_COUNT": "{{ count }} selected",
         "PEOPLE_COUNT": "{{ count }} people",
-        "PEOPLE_COUNT_1": "{{ count }} person"
+        "PEOPLE_COUNT_1": "{{ count }} person",
+        "ALL_COLLEAGUES": "All Colleagues",
+        "MY_TEAM": "My Team",
+        "LOCATION_UNSPECIFIED": "Unspecified",
+        "LOCATION_WFH": "Work from Home",
+        "LOCATION_OFFICE": "In Office",
+        "LOCATION_ONSITE": "Onsite",
+        "LOCATION_LEAVE": "On Leave",
+        "LOCATION_SICK": "Off Sick",
+        "ALL_DEPARTMENTS": "All Departments",
+        "ALL_OFFICES": "All Offices",
+        "ALL_STATUSES": "All Statuses"
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -917,6 +928,7 @@
             "MENU_EVENTS": "Events",
             "MENU_AI": "Ben AI",
             "MENU_DEALS": "Deals & Offers",
+            "MENU_TEAM_SCHEDULE": "Team Schedule",
             "GLOBAL_SEARCH": "Search for people or spaces...",
             "GLOBAL_SEARCH_EMPTY": "No matches found.",
             "GLOBAL_SEARCH_START": "Start typing to search...",
@@ -1045,7 +1057,9 @@
             "DEALS_EMPTY_BODY": "We're working on bringing you exciting deals and offers. Please check back later or explore other sections.",
             "RESOURCE_CHECKED_IN_FAILED": "No booking found",
             "RESOURCE_CHECKED_IN": "Successfully checked in resource",
-            "RESOURCE_CHECKED_IN_MESSAGE": "Resource checked in successfully"
+            "RESOURCE_CHECKED_IN_MESSAGE": "Resource checked in successfully",
+            "TEAM_SCHEDULE_BOOK_HINT": "Press on the card to book desk next to colleague",
+            "TEAM_SCHEDULE_EMPLOYEE": "Employee"
         },
         "CONCIERGE": {
             "MENU_BOOKINGS": "Bookings",

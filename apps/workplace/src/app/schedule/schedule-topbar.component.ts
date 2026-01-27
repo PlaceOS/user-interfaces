@@ -8,7 +8,7 @@ import { addDays, isSameDay, subDays } from 'date-fns';
     selector: `schedule-topbar`,
     template: `
         <div
-            class="flex w-full flex-col items-center justify-between space-y-2 border-b border-base-300 bg-base-100 p-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+            class="border-base-300 bg-base-100 flex w-full flex-col items-center justify-between space-y-2 border-b p-2 sm:flex-row sm:space-y-0 sm:space-x-2"
         >
             <div date class="flex w-full items-center space-x-2 sm:w-auto">
                 <button
@@ -46,19 +46,19 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                     <div>{{ date() | date: 'EEE, dd MMM' }}</div>
                 }
                 <div
-                    class="rounded-lg border border-base-300 px-2 py-1 text-xs"
+                    class="border-base-300 rounded-lg border px-2 py-1 text-xs"
                 >
                     {{ date() | date: 'z' }}
                 </div>
             </div>
             <div
                 view
-                class="flex w-full space-x-1 rounded-xl border border-base-300 bg-base-200 p-1 sm:w-auto"
+                class="border-base-300 bg-base-200 flex w-full space-x-1 rounded-xl border p-1 sm:w-auto"
             >
                 <a
                     btn
                     matRipple
-                    class="min-h-10 flex-1 hover:bg-base-300"
+                    class="hover:bg-base-300 min-h-10 flex-1"
                     [class.clear]="view() !== 'day'"
                     [routerLink]="[]"
                     [queryParams]="{ view: 'day' }"
@@ -69,7 +69,7 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                 <a
                     btn
                     matRipple
-                    class="min-h-10 flex-1 hover:bg-base-300"
+                    class="hover:bg-base-300 min-h-10 flex-1"
                     [class.clear]="view() !== 'week'"
                     [routerLink]="[]"
                     [queryParams]="{ view: 'week' }"
@@ -80,7 +80,7 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                 <a
                     btn
                     matRipple
-                    class="min-h-10 flex-1 hover:bg-base-300"
+                    class="hover:bg-base-300 min-h-10 flex-1"
                     [class.clear]="view() !== 'list'"
                     [routerLink]="[]"
                     [queryParams]="{ view: 'list' }"
@@ -102,9 +102,7 @@ export class ScheduleTopbarComponent {
     public readonly has_date_range = computed(() => {
         const end = this.end_date();
         const start = this.date();
-        return (
-            this.view() === 'list' && end !== null && !isSameDay(start, end)
-        );
+        return this.view() === 'list' && end !== null && !isSameDay(start, end);
     });
 
     public readonly resetDate = () => {
