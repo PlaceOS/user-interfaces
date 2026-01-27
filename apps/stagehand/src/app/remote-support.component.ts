@@ -645,7 +645,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'room_list',
             this._support.space_list.subscribe((l) => {
-                this.room_list.set(l);
+                this.room_list.set(l as any as Space[]);
                 this._dashboard.setDashboard('');
                 this._dashboard.listenForDashboardAlerts(true);
             }),

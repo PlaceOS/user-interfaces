@@ -198,7 +198,7 @@ export class CheckinPreferencesComponent
             ),
         );
         this.subscription(
-            '',
+            'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 const jwt = params.get('jwt');
                 if (jwt) {

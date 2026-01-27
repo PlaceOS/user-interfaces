@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { OrganisationService } from '@placeos/common';
-import { querySystems } from '@placeos/ts-client';
+import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { catchError, first, map, of, shareReplay, switchMap } from 'rxjs';
 
 @Injectable({
@@ -17,10 +17,14 @@ export class SupportService {
                 limit: 5000,
             }).pipe(
                 map((r) => r.data),
-                catchError(() => of([])),
+                catchError(() => of([] as PlaceSystem[])),
             ),
         ),
-        map((spaces) => spaces.filter((s) => s.support_url)),
+        map((spaces) =>
+            spaces.filter(
+                (s) => s.support_url || s.camera_url || s.timetable_url,
+            ),
+        ),
         shareReplay(1),
     );
 

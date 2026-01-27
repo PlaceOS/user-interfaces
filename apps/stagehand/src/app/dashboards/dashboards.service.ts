@@ -13,7 +13,9 @@ import {
     listDashboardAlerts,
     PlaceAlert,
     PlaceAlertDashboard,
+    PlaceModule,
     queryAlertDashboards,
+    queryModules,
     removeAlert,
     removeAlertDashboard,
     showAlert,
@@ -23,6 +25,7 @@ import {
     TriggerConditionOperator,
 } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
@@ -119,6 +122,38 @@ interface BrokerAlert {
     value: any;
 }
 
+/**
+ * Calculate module index based on modules of the same name/class
+ */
+function calculateModuleIndex(
+    module_list: PlaceModule[],
+    module: PlaceModule,
+): number {
+    const driver = module.driver || ({ class_name: 'System' } as any);
+    const module_class = module.custom_name || module.name || driver.class_name;
+    const modules_with_class = module_list.filter((mod) => {
+        const d = mod.driver || ({ class_name: 'System' } as any);
+        const mod_class = mod.custom_name || mod.name || d.class_name;
+        return mod_class === module_class;
+    });
+    return Math.max(
+        1,
+        modules_with_class.findIndex((mod) => mod.id === module.id) + 1,
+    );
+}
+
+/**
+ * Get list of valid device names (module_name_index format) for a system's modules
+ */
+function getModuleDeviceNames(modules: PlaceModule[]): string[] {
+    return modules.map((mod) => {
+        const driver = mod.driver || ({ class_name: 'System' } as any);
+        const name = mod.custom_name || mod.name || driver.class_name || 'Blank';
+        const index = calculateModuleIndex(modules, mod);
+        return `${name}_${index}`;
+    });
+}
+
 function findCompareMatches(alerts: BrokerAlert[], item: TriggerComparison) {
     const topic = compareAsTopic(item);
     const matches: BrokerAlert[] = [];
@@ -175,6 +210,10 @@ export class DashboardsService extends AsyncHandler {
     private _region_set_from_params = false;
     /** Track alert IDs that have already been notified to prevent duplicates */
     private _notified_alert_ids = new Set<string>();
+    /** Cache of system modules: system_id -> list of valid device names */
+    private _system_modules_cache = new Map<string, string[]>();
+    /** Track in-flight module queries to prevent duplicate requests */
+    private _pending_module_queries = new Map<string, Promise<string[]>>();
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -362,6 +401,56 @@ export class DashboardsService extends AsyncHandler {
         this.timeout('init_finish', () => this._initialising.set(false));
     }
 
+    /**
+     * Get valid module device names for a system.
+     * Caches results to avoid repeated API calls.
+     */
+    private async _getSystemModuleNames(system_id: string): Promise<string[]> {
+        // Return cached result if available
+        if (this._system_modules_cache.has(system_id)) {
+            return this._system_modules_cache.get(system_id);
+        }
+
+        // Check if there's already a pending query for this system
+        if (this._pending_module_queries.has(system_id)) {
+            return this._pending_module_queries.get(system_id);
+        }
+
+        // Create new query promise
+        const query_promise = lastValueFrom(
+            queryModules({ control_system_id: system_id }).pipe(
+                map((resp) => resp.data),
+            ),
+        )
+            .then((modules) => {
+                const device_names = getModuleDeviceNames(modules);
+                this._system_modules_cache.set(system_id, device_names);
+                this._pending_module_queries.delete(system_id);
+                return device_names;
+            })
+            .catch((err) => {
+                log('ALERTS', `Failed to fetch modules for system ${system_id}:`, err);
+                this._pending_module_queries.delete(system_id);
+                // Return empty array on error - this will cause the alert to be filtered out
+                return [];
+            });
+
+        this._pending_module_queries.set(system_id, query_promise);
+        return query_promise;
+    }
+
+    /**
+     * Check if a module exists on a system.
+     * Returns true if the module exists, false otherwise.
+     */
+    private async _moduleExistsOnSystem(
+        system_id: string,
+        device: string,
+    ): Promise<boolean> {
+        const module_names = await this._getSystemModuleNames(system_id);
+        return module_names.includes(device);
+    }
+
     private _listenToAlertTopics() {
         if (!this._connected) {
             return this.timeout('alert_topics', () =>
@@ -421,7 +510,7 @@ export class DashboardsService extends AsyncHandler {
     private _updateDashboardAlertList() {
         this.timeout(
             'update_alerts',
-            () => {
+            async () => {
                 const alert_list = this.alerts_list();
                 let alert_out: Alert[] = [];
                 for (const alert of alert_list) {
@@ -471,9 +560,27 @@ export class DashboardsService extends AsyncHandler {
                     }
                     alert_out = unique(alert_out, 'id');
                 }
+
+                // Filter out alerts where the module no longer exists on the system
+                const filtered_alerts: Alert[] = [];
+                for (const alert of alert_out) {
+                    const exists = await this._moduleExistsOnSystem(
+                        alert.location,
+                        alert.device,
+                    );
+                    if (exists) {
+                        filtered_alerts.push(alert);
+                    } else {
+                        log(
+                            'ALERTS',
+                            `Filtering out alert for non-existent module: ${alert.device} on system ${alert.location}`,
+                        );
+                    }
+                }
+
                 // Send push notifications for new alerts
-                this._sendPushNotifications(alert_out);
-                this.dashboard_alerts.set(alert_out);
+                this._sendPushNotifications(filtered_alerts);
+                this.dashboard_alerts.set(filtered_alerts);
             },
             10,
         );
