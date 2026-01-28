@@ -21,6 +21,7 @@ import {
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { LandingStateService } from '../landing/landing-state.service';
+import { TeamScheduleService } from '../team-schedule/team-schedule.service';
 import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
 
 @Component({
@@ -122,6 +123,42 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                 </button>
                                 <button
                                     mat-menu-item
+                                    (click)="toggleFavorite(user)"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl">{{
+                                            isFavorite(user) ? 'star' : 'star_outline'
+                                        }}</icon>
+                                        <div>
+                                            {{
+                                                (isFavorite(user)
+                                                    ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_FAVORITE'
+                                                    : 'APP.WORKPLACE.COLLEAGUES_ADD_FAVORITE'
+                                                ) | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
+                                    (click)="toggleTeamMember(user)"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-2xl">{{
+                                            isTeamMember(user) ? 'group_remove' : 'group_add'
+                                        }}</icon>
+                                        <div>
+                                            {{
+                                                (isTeamMember(user)
+                                                    ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_TEAM'
+                                                    : 'APP.WORKPLACE.COLLEAGUES_ADD_TEAM'
+                                                ) | translate
+                                            }}
+                                        </div>
+                                    </div>
+                                </button>
+                                <button
+                                    mat-menu-item
                                     (click)="removeColleague(user)"
                                 >
                                     <div class="flex items-center space-x-2">
@@ -182,6 +219,7 @@ export class LandingColleaguesNewComponent {
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
+    private _team_schedule = inject(TeamScheduleService);
 
     public readonly contacts = this._state.contacts;
     public readonly selected_users = signal<User[]>([]);
@@ -275,5 +313,21 @@ export class LandingColleaguesNewComponent {
         }
         notifySuccess(i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_SUCCESS'));
         this._dialog.closeAll();
+    }
+
+    public isFavorite(user: User): boolean {
+        return this._team_schedule.isFavorite(user);
+    }
+
+    public isTeamMember(user: User): boolean {
+        return this._team_schedule.isTeamMember(user);
+    }
+
+    public toggleFavorite(user: User) {
+        this._team_schedule.toggleFavoriteByUser(user);
+    }
+
+    public toggleTeamMember(user: User) {
+        this._team_schedule.toggleTeamMemberByUser(user);
     }
 }

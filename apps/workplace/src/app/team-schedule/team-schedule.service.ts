@@ -1,20 +1,24 @@
-import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
+import { queryBookings } from '@placeos/bookings';
 import {
     currentUser,
     firstTruthyValueFrom,
     OrganisationService,
+    SETTING_KEYS,
+    SettingsService,
     StaffUser,
-    unique,
 } from '@placeos/common';
-import { queryBookings } from '@placeos/bookings';
-import {
-    PlaceMetadata,
-    showMetadata,
-    showUser,
-    updateMetadata,
-} from '@placeos/ts-client';
+import { PlaceMetadata, showMetadata, showUser } from '@placeos/ts-client';
 import {
     addDays,
+    addWeeks,
     eachDayOfInterval,
     endOfDay,
     format,
@@ -23,7 +27,6 @@ import {
     startOfDay,
     startOfWeek,
     subWeeks,
-    addWeeks,
 } from 'date-fns';
 import { catchError, lastValueFrom, of } from 'rxjs';
 import {
@@ -56,23 +59,17 @@ const DEFAULT_FILTERS: TeamScheduleFilters = {
     status: null,
 };
 
-/**
- * Stub function for fetching team members.
- * TODO: Replace with actual API call when team API is available.
- */
-export function queryTeamMembers(): Promise<StaffUser[]> {
-    // Stub: return empty array until team API is implemented
-    return Promise.resolve([]);
-}
-
 @Injectable({
     providedIn: 'root',
 })
 export class TeamScheduleService {
     private readonly _org = inject(OrganisationService);
+    private readonly _settings = inject(SettingsService);
 
     // Filter state
-    private readonly _filters = signal<TeamScheduleFilters>({ ...DEFAULT_FILTERS });
+    private readonly _filters = signal<TeamScheduleFilters>({
+        ...DEFAULT_FILTERS,
+    });
     public readonly filters = this._filters.asReadonly();
 
     // Loading state - starts true, set to false after initial load completes
@@ -135,7 +132,13 @@ export class TeamScheduleService {
     // Filtered members based on all filters
     public readonly filtered_members = computed(() => {
         let members = this._team_members();
-        const { view, search: raw_search, department, office, status } = this._filters();
+        const {
+            view,
+            search: raw_search,
+            department,
+            office,
+            status,
+        } = this._filters();
         const search = raw_search.toLowerCase().trim();
         const day_index = this.active_day_index();
 
@@ -221,11 +224,41 @@ export class TeamScheduleService {
         });
     }
 
-    public async toggleFavorite(member: TeamMember) {
+    public toggleFavorite(member: TeamMember) {
         if (member.is_favorite) {
-            await this.removeFavorite(member.user as StaffUser);
+            this.removeFavorite(member.user as StaffUser);
         } else {
-            await this.addFavorite(member.user as StaffUser);
+            this.addFavorite(member.user as StaffUser);
+        }
+    }
+
+    /** Check if a user is a favourite */
+    public isFavorite(user: StaffUser | { email: string }): boolean {
+        const user_id = user.email;
+        return this._favorite_ids().has(user_id);
+    }
+
+    /** Check if a user is a team member */
+    public isTeamMember(user: StaffUser | { email: string }): boolean {
+        const user_id = user.email;
+        return this._team_member_ids().has(user_id);
+    }
+
+    /** Toggle favourite status for a user by email */
+    public toggleFavoriteByUser(user: StaffUser | { email: string }) {
+        if (this.isFavorite(user)) {
+            this.removeFavorite(user as StaffUser);
+        } else {
+            this.addFavorite(user as StaffUser);
+        }
+    }
+
+    /** Toggle team member status for a user by email */
+    public toggleTeamMemberByUser(user: StaffUser | { email: string }) {
+        if (this.isTeamMember(user)) {
+            this.removeTeamMember(user as StaffUser);
+        } else {
+            this.addTeamMember(user as StaffUser);
         }
     }
 
@@ -291,20 +324,18 @@ export class TeamScheduleService {
         try {
             // Fetch colleagues (from user's contacts metadata)
             const colleagues = await this._fetchColleagues();
-            const favorite_ids = new Set(colleagues.map((u) => u.id || u.email));
+
+            // Get favourite IDs from user settings (favourites are a subset of colleagues)
+            const favorite_ids = this._getFavoriteIds();
             this._favorite_ids.set(favorite_ids);
 
-            // Fetch team members (stubbed for now)
-            const team_users = await queryTeamMembers();
-            const team_ids = new Set(team_users.map((u) => u.id || u.email));
+            // Get team member IDs from user settings (team members are a subset of colleagues)
+            const team_ids = this._getTeamMemberIds();
             this._team_member_ids.set(team_ids);
 
-            // Combine and deduplicate users
-            const all_users = unique([...colleagues, ...team_users], 'email');
-
-            // Fetch bookings for all users and build team members
+            // Fetch bookings for all colleagues and build team members
             const team_members = await this._buildTeamMembers(
-                all_users,
+                colleagues,
                 favorite_ids,
                 team_ids,
             );
@@ -326,11 +357,18 @@ export class TeamScheduleService {
 
         this.loading.set(true);
         try {
+            // Re-read IDs from settings in case they changed
+            const favorite_ids = this._getFavoriteIds();
+            this._favorite_ids.set(favorite_ids);
+
+            const team_ids = this._getTeamMemberIds();
+            this._team_member_ids.set(team_ids);
+
             const users = members.map((m) => m.user as StaffUser);
             const team_members = await this._buildTeamMembers(
                 users,
-                this._favorite_ids(),
-                this._team_member_ids(),
+                favorite_ids,
+                team_ids,
             );
             this._team_members.set(team_members);
         } catch (error) {
@@ -347,7 +385,9 @@ export class TeamScheduleService {
             if (!user?.id) return [];
 
             const metadata: PlaceMetadata = (await lastValueFrom(
-                showMetadata(user.id, 'contacts').pipe(catchError(() => of({}))),
+                showMetadata(user.id, 'contacts').pipe(
+                    catchError(() => of({})),
+                ),
             )) as any;
             const list =
                 metadata?.details instanceof Array ? metadata.details : [];
@@ -369,12 +409,29 @@ export class TeamScheduleService {
         }
     }
 
+    /** Get favourite team member IDs from user settings */
+    private _getFavoriteIds(): Set<string> {
+        const ids =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_TEAM_MEMBERS) ||
+            [];
+        return new Set(ids);
+    }
+
+    /** Get team member IDs from user settings */
+    private _getTeamMemberIds(): Set<string> {
+        const ids =
+            this._settings.get<string[]>(SETTING_KEYS.TEAM_MEMBERS) || [];
+        return new Set(ids);
+    }
+
     /**
      * Map user work location preference to our LocationStatus type.
      * @param location - The location string from work preferences (wfh, wfo, aol, ooo, etc.)
      * @returns The corresponding LocationStatus
      */
-    private _mapWorkLocationToStatus(location: string | undefined): LocationStatus {
+    private _mapWorkLocationToStatus(
+        location: string | undefined,
+    ): LocationStatus {
         if (!location) return 'unspecified';
         switch (location) {
             case 'wfh':
@@ -399,7 +456,10 @@ export class TeamScheduleService {
      * @param date - The date to check (timestamp)
      * @returns The location string or undefined if not set
      */
-    private _getUserWorkLocationForDate(user: StaffUser, date: number): string | undefined {
+    private _getUserWorkLocationForDate(
+        user: StaffUser,
+        date: number,
+    ): string | undefined {
         const date_obj = new Date(date);
         const date_string = format(date_obj, 'yyyy-MM-dd');
         const day_of_week = date_obj.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -453,7 +513,7 @@ export class TeamScheduleService {
         // Build team members with their booking data
         return users.map((user, index) => {
             const user_bookings = all_bookings[index];
-            const user_id = user.id || user.email;
+            const user_id = user.email || user.id;
 
             // Build day statuses from work preferences and bookings
             const day_statuses: DayStatus[] = week_days.map((day) => {
@@ -462,12 +522,18 @@ export class TeamScheduleService {
 
                 // Find booking for this day
                 const booking = user_bookings.find(
-                    (b) => b.date >= day_start.valueOf() && b.date < day_end.valueOf(),
+                    (b) =>
+                        b.date >= day_start.valueOf() &&
+                        b.date < day_end.valueOf(),
                 );
 
                 // Get user's work location preference for this day
-                const work_location = this._getUserWorkLocationForDate(user, day.date);
-                let status: LocationStatus = this._mapWorkLocationToStatus(work_location);
+                const work_location = this._getUserWorkLocationForDate(
+                    user,
+                    day.date,
+                );
+                let status: LocationStatus =
+                    this._mapWorkLocationToStatus(work_location);
                 let desk_booking: DeskBooking | undefined;
 
                 // If user has a desk booking, override status to 'office' and include booking details
@@ -521,71 +587,111 @@ export class TeamScheduleService {
         });
     }
 
-    /** Add a user to favorites (contacts) */
-    public async addFavorite(user: StaffUser) {
-        try {
-            const current = currentUser();
-            if (!current?.id) return;
+    /** Add a user to favorites */
+    public addFavorite(user: StaffUser) {
+        const user_id = user.email || user.id;
+        const current_favorites =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_TEAM_MEMBERS) ||
+            [];
 
-            const favorites = this._team_members()
-                .filter((m) => m.is_favorite)
-                .map((m) => m.user);
-            const updated = unique([...favorites, user], 'email');
+        // Don't add duplicates
+        if (current_favorites.includes(user_id)) return;
 
-            await lastValueFrom(
-                updateMetadata(current.id, {
-                    name: 'contacts',
-                    description: 'Contacts for the User',
-                    details: updated,
-                }),
-            );
+        const updated = [...current_favorites, user_id];
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_TEAM_MEMBERS,
+            updated,
+        );
 
-            // Update local state
-            const favorite_ids = new Set(this._favorite_ids());
-            favorite_ids.add(user.id || user.email);
-            this._favorite_ids.set(favorite_ids);
+        // Update local state
+        const favorite_ids = new Set(this._favorite_ids());
+        favorite_ids.add(user_id);
+        this._favorite_ids.set(favorite_ids);
 
-            // Update member's favorite status
-            const members = this._team_members().map((m) =>
-                m.user.email === user.email ? { ...m, is_favorite: true } : m,
-            );
-            this._team_members.set(members);
-        } catch (error) {
-            console.error('Error adding favorite:', error);
+        // Update member's favorite status
+        const members = this._team_members().map((m) =>
+            m.user.email === user.email ? { ...m, is_favorite: true } : m,
+        );
+        this._team_members.set(members);
+    }
+
+    /** Remove a user from favorites */
+    public removeFavorite(user: StaffUser) {
+        const user_id = user.email || user.id;
+        const current_favorites =
+            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_TEAM_MEMBERS) ||
+            [];
+
+        const updated = current_favorites.filter((id) => id !== user_id);
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_TEAM_MEMBERS,
+            updated,
+        );
+
+        // Update local state
+        const favorite_ids = new Set(this._favorite_ids());
+        favorite_ids.delete(user_id);
+        this._favorite_ids.set(favorite_ids);
+
+        // Update member's favorite status
+        const members = this._team_members().map((m) =>
+            m.user.email === user.email ? { ...m, is_favorite: false } : m,
+        );
+        this._team_members.set(members);
+    }
+
+    /** Toggle a user's team member status */
+    public toggleTeamMember(member: TeamMember) {
+        if (member.is_my_team) {
+            this.removeTeamMember(member.user as StaffUser);
+        } else {
+            this.addTeamMember(member.user as StaffUser);
         }
     }
 
-    /** Remove a user from favorites (contacts) */
-    public async removeFavorite(user: StaffUser) {
-        try {
-            const current = currentUser();
-            if (!current?.id) return;
+    /** Add a user to team members */
+    public addTeamMember(user: StaffUser) {
+        const user_id = user.email || user.id;
+        const current_team =
+            this._settings.get<string[]>(SETTING_KEYS.TEAM_MEMBERS) || [];
 
-            const favorites = this._team_members()
-                .filter((m) => m.is_favorite && m.user.email !== user.email)
-                .map((m) => m.user);
+        // Don't add duplicates
+        if (current_team.includes(user_id)) return;
 
-            await lastValueFrom(
-                updateMetadata(current.id, {
-                    name: 'contacts',
-                    description: 'Contacts for the User',
-                    details: favorites,
-                }),
-            );
+        const updated = [...current_team, user_id];
+        this._settings.saveUserSetting(SETTING_KEYS.TEAM_MEMBERS, updated);
 
-            // Update local state
-            const favorite_ids = new Set(this._favorite_ids());
-            favorite_ids.delete(user.id || user.email);
-            this._favorite_ids.set(favorite_ids);
+        // Update local state
+        const team_ids = new Set(this._team_member_ids());
+        team_ids.add(user_id);
+        this._team_member_ids.set(team_ids);
 
-            // Update member's favorite status
-            const members = this._team_members().map((m) =>
-                m.user.email === user.email ? { ...m, is_favorite: false } : m,
-            );
-            this._team_members.set(members);
-        } catch (error) {
-            console.error('Error removing favorite:', error);
-        }
+        // Update member's team status
+        const members = this._team_members().map((m) =>
+            m.user.email === user.email ? { ...m, is_my_team: true } : m,
+        );
+        this._team_members.set(members);
+    }
+
+    /** Remove a user from team members */
+    public removeTeamMember(user: StaffUser) {
+        const user_id = user.email || user.id;
+        const current_team =
+            this._settings.get<string[]>(SETTING_KEYS.TEAM_MEMBERS) || [];
+
+        const updated = current_team.filter((id) => id !== user_id);
+        this._settings.saveUserSetting(SETTING_KEYS.TEAM_MEMBERS, updated);
+
+        // Update local state
+        const team_ids = new Set(this._team_member_ids());
+        team_ids.delete(user_id);
+        this._team_member_ids.set(team_ids);
+
+        // Update member's team status
+        const members = this._team_members().map((m) =>
+            m.user.email === user.email ? { ...m, is_my_team: false } : m,
+        );
+        this._team_members.set(members);
     }
 
     /** Refresh all data */

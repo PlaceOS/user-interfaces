@@ -158,7 +158,7 @@ import { TeamScheduleService } from './team-schedule.service';
                                 >
                                 @if (member.is_my_team) {
                                     <span
-                                        class="bg-primary/20 text-primary shrink-0 rounded px-1.5 py-0.5 text-xs font-medium"
+                                        class="bg-brand-100/20 text-brand-100 shrink-0 rounded px-1.5 py-0.5 text-xs font-medium"
                                         >{{
                                             'COMMON.MY_TEAM' | translate
                                         }}</span
@@ -197,14 +197,14 @@ import { TeamScheduleService } from './team-schedule.service';
                                     status.status === 'office' && status.booking
                                 ) {
                                     <button
-                                        class="bg-base-200 hover:bg-base-300 flex w-full max-w-30 flex-col rounded-lg px-3 py-2 transition-colors"
+                                        class="bg-info-light/30 hover:bg-info-light/40 flex w-full max-w-30 flex-col rounded-lg px-3 py-2 transition-colors"
                                         (click)="bookNearby(member, day)"
                                         matTooltip="Book nearby"
                                     >
                                         <div
-                                            class="text-brand-200 flex items-center gap-1 text-xs"
+                                            class="flex items-center gap-1 text-xs"
                                         >
-                                            <icon class="text-sm"
+                                            <icon class="text-brand-200 text-sm"
                                                 >location_on</icon
                                             >
                                             <span class="truncate">{{
@@ -212,9 +212,9 @@ import { TeamScheduleService } from './team-schedule.service';
                                             }}</span>
                                         </div>
                                         <div
-                                            class="text-success flex items-center gap-1 text-xs"
+                                            class="flex items-center gap-1 text-xs"
                                         >
-                                            <icon class="text-sm"
+                                            <icon class="text-success text-sm"
                                                 >check_circle</icon
                                             >
                                             <span>{{

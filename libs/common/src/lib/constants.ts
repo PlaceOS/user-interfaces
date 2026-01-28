@@ -21,6 +21,8 @@ export const SETTING_KEYS = {
     FAVORITE_PARKING_SPACES: 'favourite_parking',
     FAVORITE_LOCKERS: 'favourite_lockers',
     FAVORITE_CATERING: 'favourite_menu_items',
+    FAVORITE_TEAM_MEMBERS: 'favourite_team_members',
+    TEAM_MEMBERS: 'team_members',
 };
 
 ///////////////////////////////////////////////////////////////
