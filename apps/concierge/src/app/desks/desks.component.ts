@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -19,6 +19,8 @@ import {
     randomInt,
     SettingsService,
 } from '@placeos/common';
+import { UserPipe } from '@placeos/users';
+import { format } from 'date-fns';
 import { DeskView } from './desks-state.service';
 
 import { CommonModule } from '@angular/common';
@@ -26,6 +28,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -93,7 +96,7 @@ import { DesksStateService } from './desks-state.service';
                         </button>
                     }
                 </div>
-                <div class="mb-4 flex w-full items-center space-x-2 px-8">
+                <div class="mb-4 flex w-full items-center gap-2 px-8">
                     @if (!manage) {
                         <mat-form-field
                             appearance="outline"
@@ -185,7 +188,7 @@ import { DesksStateService } from './desks-state.service';
                             icon
                             matRipple
                             [matTooltip]="'COMMON.REFRESH' | translate"
-                            class="border-base-200 ml-2 rounded-sm border"
+                            class="border-base-200 rounded-sm border"
                             (click)="refresh()"
                             [disabled]="loading()"
                         >
@@ -198,11 +201,28 @@ import { DesksStateService } from './desks-state.service';
                             [matTooltip]="
                                 'APP.CONCIERGE.REJECT_ALL' | translate
                             "
-                            class="border-base-200 ml-2 rounded-sm border"
+                            class="border-base-200 rounded-sm border"
                             (click)="rejectAll()"
                             [disabled]="loading()"
                         >
                             <icon>event_busy</icon>
+                        </button>
+                        <button
+                            btn
+                            icon
+                            matRipple
+                            [matTooltip]="
+                                'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
+                            "
+                            class="border-base-200 rounded-sm border"
+                            [disabled]="downloading()"
+                            (click)="downloadCsv()"
+                        >
+                            @if (downloading()) {
+                                <mat-spinner diameter="24"></mat-spinner>
+                            } @else {
+                                <icon>download</icon>
+                            }
                         </button>
                     }
                     @if (path === 'manage') {
@@ -283,8 +303,10 @@ import { DesksStateService } from './desks-state.service';
             }
         `,
     ],
+    providers: [UserPipe],
     imports: [
         MatProgressBarModule,
+        MatProgressSpinnerModule,
         RouterModule,
         MatRippleModule,
         CommonModule,
@@ -309,8 +331,10 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _user_pipe = inject(UserPipe);
 
     public readonly loading = this._state.loading;
+    public readonly downloading = signal(false);
     public path: string;
     public manage = false;
     /** Signal for filters */
@@ -412,6 +436,35 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const data = jsonToCsv([desk]);
         downloadFile('desk-template.csv', data);
     }
+
+    public readonly downloadCsv = async () => {
+        this.downloading.set(true);
+        try {
+            const bookings = this._state.bookings();
+            const emails = new Set<string>();
+            for (const booking of bookings) {
+                if (booking.user_email) emails.add(booking.user_email);
+                if (booking.booked_by_email)
+                    emails.add(booking.booked_by_email);
+            }
+            const data = await Promise.all(
+                Array.from(emails).map(async (email) => {
+                    const user = await this._user_pipe.transform(email);
+                    return {
+                        name: user?.name || '',
+                        email,
+                    };
+                }),
+            );
+            const date = format(
+                this._state.filters().date || Date.now(),
+                'yyyy-MM-dd',
+            );
+            downloadFile(`desk-bookings-${date}.csv`, jsonToCsv(data));
+        } finally {
+            this.downloading.set(false);
+        }
+    };
 
     public async loadCSVData(event: InputEvent) {
         const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {

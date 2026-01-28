@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, log, SettingsService } from '@placeos/common';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -58,13 +58,23 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.timeout(
             'not-bootstrapped',
-            () => this._router.navigate(['/bootstrap']),
+            () => {
+                log(
+                    'SIGNAGE',
+                    'Panel not bootstrapped after 3 seconds. Redirecting...',
+                );
+                this._router.navigate(['/bootstrap']);
+            },
             3000,
         );
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
                 if (params.has('system_id')) {
+                    log(
+                        'SIGNAGE',
+                        `Display set to "${params.get('system_id')}"`,
+                    );
                     this._signage.setDisplay(params.get('system_id'));
                     this.clearTimeout('not-bootstrapped');
                 }

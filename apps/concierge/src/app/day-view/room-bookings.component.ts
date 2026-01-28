@@ -1,15 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
+    downloadFile,
     i18n,
+    jsonToCsv,
     nextValueFrom,
     OrganisationService,
     SettingsService,
@@ -20,6 +24,8 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { UserPipe } from '@placeos/users';
+import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
@@ -32,7 +38,7 @@ const EMPTY = [];
     selector: 'room-bookings',
     template: `
         <div class="absolute inset-0 flex flex-col overflow-hidden pl-8">
-            <div class="flex w-full items-center space-x-4 py-4 pr-8">
+            <div class="flex w-full items-center space-x-2 py-4 pr-8">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.ROOM_BOOKINGS' | translate }}
                 </h2>
@@ -50,6 +56,22 @@ const EMPTY = [];
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <button
+                    icon
+                    matRipple
+                    class="border-secondary h-12 w-12 rounded border"
+                    [matTooltip]="
+                        'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
+                    "
+                    [disabled]="downloading()"
+                    (click)="downloadCsv()"
+                >
+                    @if (downloading()) {
+                        <mat-spinner diameter="24"></mat-spinner>
+                    } @else {
+                        <icon class="text-2xl">download</icon>
+                    }
+                </button>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
@@ -174,12 +196,15 @@ const EMPTY = [];
         </div>
     `,
     styles: [``],
+    providers: [UserPipe],
     imports: [
         CommonModule,
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
+        MatTooltipModule,
         IconComponent,
         MatRippleModule,
         MatCheckboxModule,
@@ -197,9 +222,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
+    private _user_pipe = inject(UserPipe);
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    public readonly downloading = signal(false);
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -328,4 +355,32 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         if (value) hide_type.push(id as any);
         this._state.setFilters({ hide_type });
     }
+
+    public readonly downloadCsv = async () => {
+        this.downloading.set(true);
+        try {
+            const events = await nextValueFrom(this._state.filtered);
+            const emails = new Set<string>();
+            for (const event of events) {
+                if (event.host) emails.add(event.host);
+                for (const attendee of event.attendees || []) {
+                    if (attendee.email) emails.add(attendee.email);
+                }
+            }
+            const data = await Promise.all(
+                Array.from(emails).map(async (email) => {
+                    const user = await this._user_pipe.transform(email);
+                    return {
+                        name: user?.name || '',
+                        email,
+                    };
+                }),
+            );
+            const period = await nextValueFrom(this.period);
+            const date = format(this._state.getDate(), 'yyyy-MM-dd');
+            downloadFile(`room-bookings-${date}-${period}.csv`, jsonToCsv(data));
+        } finally {
+            this.downloading.set(false);
+        }
+    };
 }

@@ -428,18 +428,33 @@ export class DesksStateService extends AsyncHandler {
         this.setFilters({});
     }
 
-    public async cancelBooking(booking: Booking) {
+    public async cancelBooking(booking: Booking, series = false) {
         const result = await openConfirmModal(
             {
-                title: i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_TITLE'),
-                content: i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_CONTENT'),
+                title: i18n(
+                    series
+                        ? 'APP.CONCIERGE.DESKS_BOOKING_DELETE_SERIES_TITLE'
+                        : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_TITLE',
+                ),
+                content: i18n(
+                    series
+                        ? 'APP.CONCIERGE.DESKS_BOOKING_DELETE_SERIES_CONTENT'
+                        : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_CONTENT',
+                ),
                 icon: { content: 'event_busy' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        result.loading(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING'));
-        await nextValueFrom(removeBooking(booking.id)).catch((e) => {
+        result.loading(
+            i18n(
+                series
+                    ? 'APP.CONCIERGE.DESKS_BOOKING_DELETE_SERIES_LOADING'
+                    : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING',
+            ),
+        );
+        const query = series ? {} : { instance: true, start_time: booking.instance };
+        await nextValueFrom(removeBooking(booking.id, query)).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),
             );

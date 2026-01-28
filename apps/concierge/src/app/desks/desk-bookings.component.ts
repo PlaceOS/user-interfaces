@@ -285,6 +285,19 @@ import { DesksStateService } from './desks-state.service';
                                 </div>
                             </div>
                         </button>
+                        @if (row.instance) {
+                            <button mat-menu-item (click)="cancelSeries(row)">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-error text-2xl">delete</icon>
+                                    <div>
+                                        {{
+                                            'BOOKINGS.ACTION_DELETE_SERIES'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
                     </mat-menu>
                 </div>
             </ng-template>
@@ -345,6 +358,7 @@ export class DeskBookingsComponent {
 
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly cancel = (b) => this._state.cancelBooking(b);
+    public readonly cancelSeries = (b) => this._state.cancelBooking(b, true);
     public readonly loadMore = () => this._state.nextPage();
 
     public get columns() {
