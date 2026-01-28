@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -6,6 +6,7 @@ import {
     signal,
     ViewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -40,7 +41,7 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 import { FindAvailabilityModalComponent } from '@placeos/users';
-import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, startWith, tap } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-options',
@@ -66,7 +67,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                         </div>
                         <h3 class="text-xl">
                             {{
-                                event.title ||
+                                form_value().title ||
                                     ('CALENDAR_EVENT.MEETING_DETAILS_HEADER'
                                         | translate)
                             }}
@@ -75,9 +76,9 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                     <div class="space-y-1 pl-10">
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">today</icon>
-                            <div date>{{ event.date | date: 'fullDate' }}</div>
+                            <div date>{{ form_value().date | date: 'fullDate' }}</div>
                         </div>
-                        @if (event.recurrence?.pattern) {
+                        @if (form_value().recurrence?.pattern) {
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">update</icon>
                                 <div date>{{ formatted_recurrence }}</div>
@@ -86,17 +87,27 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">schedule</icon>
                             <div class="flex flex-col leading-tight">
-                                <div time>{{ formattedTime() }}</div>
+                                <div time>
+                                    @if (is_multiday) {
+                                        {{ form_value().date | date: 'MMM d' }}@if (!form_value().all_day) {, {{ form_value().date | date: time_format }}}
+                                        -
+                                        {{ form_value().date_end | date: 'MMM d' }}@if (!form_value().all_day) {, {{ form_value().date_end | date: time_format }}}
+                                    } @else if (form_value().all_day) {
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    } @else {
+                                        {{ form_value().date | date: time_format }} - {{ form_value().date_end | date: time_format }} ({{ form_value().date | date: 'zzzz' }})
+                                    }
+                                </div>
                                 @if (timezone) {
                                     <div class="text-xs opacity-30">
-                                        {{ formattedTime(tz) }}
+                                        {{ form_value().date | date: time_format : timezone }} - {{ form_value().date_end | date: time_format : timezone }} ({{ form_value().date | date: 'zzzz' : timezone }})
                                     </div>
                                 }
                             </div>
                         </div>
                     </div>
                 </div>
-                @if (event.resources?.length) {
+                @if (form_value().resources?.length) {
                     <div>
                         <div class="mb-2 flex items-center space-x-4">
                             <div
@@ -112,7 +123,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             </h3>
                         </div>
                         <div class="space-y-1 pl-10">
-                            @for (space of event.resources; track space.id) {
+                            @for (space of form_value().resources; track space.id) {
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl"
                                         >room_preferences</icon
@@ -199,7 +210,7 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                 </h3>
                 <a-user-list-field
                     formControlName="attendees"
-                    [time]="event.date"
+                    [time]="form_value().date"
                     [guests]="allow_externals()"
                 >
                     <button
@@ -221,15 +232,15 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                     <catering-list-field
                         formControlName="catering"
                         [options]="{
-                            date: event.date,
-                            duration: event.duration,
-                            all_day: event.all_day,
-                            zone_id: event.resources?.length
-                                ? event.resources[0]?.level?.parent_id
+                            date: form_value().date,
+                            duration: form_value().duration,
+                            all_day: form_value().all_day,
+                            zone_id: form_value().resources?.length
+                                ? form_value().resources[0]?.level?.parent_id
                                 : '',
                         }"
                     ></catering-list-field>
-                    @if (event.catering?.length && has_codes | async) {
+                    @if (form_value().catering?.length && has_codes | async) {
                         <mat-form-field
                             appearance="outline"
                             class="mt-2 w-full"
@@ -273,12 +284,12 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                             </mat-error>
                         </mat-form-field>
                     }
-                    @if (event.catering?.length) {
+                    @if (form_value().catering?.length) {
                         <mat-form-field
                             appearance="outline"
                             class="w-full"
                             [class.mt-2]="
-                                !(event.catering?.length && (has_codes | async))
+                                !(form_value().catering?.length && (has_codes | async))
                             "
                         >
                             <textarea
@@ -303,11 +314,11 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
                     </h3>
                     <asset-list-field
                         [options]="{
-                            date: event.date,
-                            duration: event.duration,
-                            all_day: event.all_day,
-                            zone_id: event?.resources?.length
-                                ? event?.resources[0]?.level?.parent_id
+                            date: form_value().date,
+                            duration: form_value().duration,
+                            all_day: form_value().all_day,
+                            zone_id: form_value()?.resources?.length
+                                ? form_value()?.resources[0]?.level?.parent_id
                                 : '',
                         }"
                         [rejected_ids]="invalid_assets"
@@ -393,11 +404,16 @@ export class MeetingFlowOptionsComponent {
     private _catering = inject(CateringOrderStateService);
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
-    private _date = new DatePipe('en');
 
     @ViewChild('input') private _input: ElementRef<HTMLInputElement>;
 
     public readonly form = signal(this._event_form.form);
+    public readonly form_value = toSignal(
+        this._event_form.form.valueChanges.pipe(
+            startWith(this._event_form.form.getRawValue()),
+        ),
+        { initialValue: this._event_form.form.getRawValue() },
+    );
     public readonly loading = signal(false);
     public readonly allow_externals = settingSignal(
         'events.allow_externals',
@@ -413,7 +429,7 @@ export class MeetingFlowOptionsComponent {
     public invalid_assets = [];
 
     public get is_multiday() {
-        return this.form().getRawValue().duration > 24 * 60;
+        return this.form_value().duration > 24 * 60;
     }
 
     public readonly has_catering = this._catering.available_menu.pipe(
@@ -443,45 +459,20 @@ export class MeetingFlowOptionsComponent {
         return this._settings.time_format;
     }
 
-    public get event() {
-        return this.form().getRawValue();
-    }
-
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
             : '';
     }
 
-    public get tz() {
-        return this.timezone;
-    }
-
     public get formatted_recurrence() {
+        const value = this.form_value();
         return formatRecurrence(
             fromEventRecurrence({
-                ...this.event.recurrence,
-                start: this.event.date || this.event.recurrence.start,
+                ...value.recurrence,
+                start: value.date || value.recurrence.start,
             }),
         );
-    }
-
-    public formattedTime(tz?: string) {
-        const date = this.form().getRawValue().date;
-        const date_end = this.form().getRawValue().date_end;
-        const all_day = this.form().getRawValue().all_day;
-        const tz_format = this._date.transform(date, 'zzzz', tz);
-        const start_date = this._date.transform(date, 'MMM d', tz);
-        const start_time = this._date.transform(date, this.time_format, tz);
-        const end_date = this._date.transform(date_end, 'MMM d', tz);
-        const end_time = this._date.transform(date_end, this.time_format, tz);
-
-        if (this.is_multiday) {
-            return `${start_date}${all_day ? '' : ', ' + start_time} - ${end_date}${all_day ? '' : ', ' + end_time}`;
-        } else if (all_day) {
-            return i18n('COMMON.ALL_DAY');
-        }
-        return `${start_time} - ${end_time} ${'(' + tz_format + ')'}`;
     }
 
     public getSpaceLocation(space: any): string {
@@ -517,8 +508,9 @@ export class MeetingFlowOptionsComponent {
     }
 
     public async confirmBooking() {
-        const space = this.event.resources[0];
-        if (!this.event.host) {
+        const value = this.form_value();
+        const space = value.resources[0];
+        if (!value.host) {
             this._event_form.form.patchValue({ host: currentUser()?.email });
         }
         if (!space) {
