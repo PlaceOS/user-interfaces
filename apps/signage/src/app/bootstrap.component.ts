@@ -6,6 +6,7 @@ import {
     firstTruthyValueFrom,
     i18n,
     Identity,
+    log,
     OrganisationService,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
@@ -196,15 +197,18 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear') === 'true') {
+                    log('BOOTSTRAP', 'Bootstrapped data clear');
                     localStorage.removeItem(STORE_DISPLAY_KEY);
                     localStorage.removeItem(STORE_BUILDING_KEY);
                 }
                 if (params.has('building')) {
                     this.setBuilding(params.get('building'));
+                    log('BOOTSTRAP', 'Bootstrapped data for building set');
                 }
                 if (params.has('display')) {
                     this.active_display = params.get('display');
-                    this.bootstrapKiosk();
+                    log('BOOTSTRAP', 'Bootstrapped data for display set');
+                    this.bootstrapPanel();
                 }
             }),
         );
@@ -220,7 +224,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Store bootstrapped values and navigate to the main page
      */
-    public async bootstrapKiosk() {
+    public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
         const bld = await firstTruthyValueFrom(this.active_building);
         if (!bld?.id || !this.active_display || !localStorage) {
@@ -229,6 +233,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         localStorage.setItem(STORE_BUILDING_KEY, bld.id);
         localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
+        log(
+            'BOOTSTRAP',
+            `Bootstrapped panel to building "${bld.id}" and display ${this.active_display}`,
+        );
         this._router.navigate(['/signage', this.active_display]);
         this.loading.set('');
     }
@@ -242,6 +250,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
 
         if (bld_id && display_id) {
+            log(
+                'BOOTSTRAP',
+                `Application already bootstrapped to building "${bld_id}" and display ${display_id}`,
+            );
             this._router.navigate(['/signage', display_id]);
         }
         VirtualKeyboardComponent.enabled =
