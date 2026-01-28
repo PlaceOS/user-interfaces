@@ -13,12 +13,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     template: `
         @if (show_book_items() && features().length > 1) {
             <div
-                class="fixed inset-0 bottom-16 z-20"
+                class="fixed inset-0 bottom-16 z-30"
                 [attr.dark]="dark_mode()"
                 (click)="show_book_items.set(false); blur_backdrop.set(false)"
             >
                 <div
-                    class="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-4 rounded-t-xl border-t border-base-200 bg-base-100 p-4"
+                    class="border-base-200 bg-base-100 absolute inset-x-0 bottom-0 grid max-h-[60vh] grid-cols-2 gap-4 overflow-y-auto rounded-t-xl border-t p-4"
                 >
                     @if (features().includes('spaces')) {
                         <a
@@ -26,9 +26,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             matRipple
                             [routerLink]="['/book', 'meeting']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-secondary"
+                            <icon class="text-secondary text-6xl"
                                 >meeting_room</icon
                             >
                             <div>
@@ -40,11 +40,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <a
                             matRipple
                             name="footer-nav-desks"
-                            [routerLink]="['/book', 'desks']"
+                            [routerLink]="['/book', 'desk']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-secondary">desk</icon>
+                            <icon class="text-secondary text-6xl">desk</icon>
                             <div>
                                 {{ 'APP.WORKPLACE.MENU_DESKS' | translate }}
                             </div>
@@ -56,9 +56,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-parking"
                             [routerLink]="['/book', 'parking']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-secondary"
+                            <icon class="text-secondary text-6xl"
                                 >directions_car</icon
                             >
                             <div>
@@ -72,11 +72,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-visitor-invite"
                             [routerLink]="['/book', 'visitor']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-secondary"
-                                >person_add</icon
-                            >
+                            <icon class="text-secondary text-6xl">person</icon>
                             <div>
                                 {{ 'APP.WORKPLACE.MENU_VISITORS' | translate }}
                             </div>
@@ -88,27 +86,90 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-my-day"
                             [routerLink]="['/your-bookings']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-secondary">today</icon>
+                            <icon class="text-secondary text-6xl">event</icon>
                             <div>
                                 {{ 'APP.WORKPLACE.MENU_SCHEDULE' | translate }}
                             </div>
                         </a>
                     }
-                    @if (features().includes('events')) {
+                    @if (features().includes('group-events')) {
                         <a
                             matRipple
-                            name="footer-nav-my-day"
+                            name="footer-nav-group-events"
                             [routerLink]="['/group-events']"
                             routerLinkActive="active"
-                            class="flex flex-col items-center justify-center space-y-4 rounded-xl bg-base-200 px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <icon class="text-3xl text-primary"
+                            <icon class="text-secondary text-6xl"
                                 >local_activity</icon
                             >
                             <div>
                                 {{ 'APP.WORKPLACE.MENU_EVENTS' | translate }}
+                            </div>
+                        </a>
+                    }
+                    @if (features().includes('lockers')) {
+                        <a
+                            matRipple
+                            name="footer-nav-lockers"
+                            [routerLink]="['/book', 'locker']"
+                            routerLinkActive="active"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                        >
+                            <icon class="text-secondary text-6xl">lock</icon>
+                            <div>
+                                {{ 'APP.WORKPLACE.MENU_LOCKERS' | translate }}
+                            </div>
+                        </a>
+                    }
+                    @if (features().includes('control')) {
+                        <a
+                            matRipple
+                            name="footer-nav-control"
+                            [routerLink]="['/control']"
+                            routerLinkActive="active"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                        >
+                            <icon class="text-secondary text-6xl"
+                                >remote_gen</icon
+                            >
+                            <div>
+                                {{ 'APP.WORKPLACE.MENU_CONTROL' | translate }}
+                            </div>
+                        </a>
+                    }
+                    @if (features().includes('deals-n-offers')) {
+                        <a
+                            matRipple
+                            name="footer-nav-deals"
+                            [routerLink]="['/deals-n-offers']"
+                            routerLinkActive="active"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                        >
+                            <icon class="text-secondary text-6xl"
+                                >confirmation_number</icon
+                            >
+                            <div>
+                                {{ 'APP.WORKPLACE.MENU_DEALS' | translate }}
+                            </div>
+                        </a>
+                    }
+                    @if (features().includes('team-schedule')) {
+                        <a
+                            matRipple
+                            name="footer-nav-team-schedule"
+                            [routerLink]="['/team-schedule']"
+                            routerLinkActive="active"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                        >
+                            <icon class="text-secondary text-6xl">groups</icon>
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.MENU_TEAM_SCHEDULE'
+                                        | translate
+                                }}
                             </div>
                         </a>
                     }
@@ -117,7 +178,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         }
         @if (features().length > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-40 flex h-16 w-full items-center justify-center border-t shadow-sm sm:hidden"
+                class="border-base-200 bg-base-100 relative z-[60] flex h-16 w-full items-center justify-center border-t shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
             >
                 <a
@@ -184,12 +245,21 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     `,
     styles: [
         `
+            :host {
+                position: relative;
+                z-index: 200;
+            }
+
             a.active icon {
                 color: var(--secondary) !important;
             }
 
             a.active {
-                font-weight: 500;
+                background-color: var(--brand-200) !important;
+                color: #fff !important;
+            }
+            a.active icon {
+                color: #fff !important;
             }
 
             a:not(.active) [filled],
