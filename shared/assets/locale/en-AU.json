@@ -1192,6 +1192,7 @@
             "ROOMS_REMOVE_ERROR": "Failed to remove room. Error: {{ error }}",
             "ROOMS_APPROVE_SERIES": "Approve Series",
             "ROOMS_REJECT_SERIES": "Reject Series",
+            "DOWNLOAD_USER_LIST": "Download User list for selected levels",
             "APP_SETTINGS": "Application Settings",
             "APP_SETTINGS_WORKPLACE": "Workplace Settings",
             "APP_SETTINGS_CONCIERGE": "Concierge Settings",
