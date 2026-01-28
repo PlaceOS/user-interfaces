@@ -112,7 +112,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                             matRipple
                             class="mb-2 w-full"
                             [disabled]="!active_building || !active_display"
-                            (click)="bootstrapKiosk()"
+                            (click)="bootstrapPanel()"
                         >
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                         </button>
