@@ -11,13 +11,7 @@ import {
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -46,23 +40,6 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 </header>
                 @if (!loading()) {
                     <main class="px-4 py-2">
-                        <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
-                            <mat-form-field appearance="outline">
-                            <mat-select
-                                #select
-                                name="building"
-                                [ngModel]="(active_building | async)?.id"
-                                (ngModelChange)="setBuilding($event)"
-                                [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
-                                >
-                                <mat-option
-                                *ngFor="let option of buildings | async"
-                                [value]="option.id"
-                                >
-                                {{ option.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field> -->
                         <label for="display">
                             {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
                         </label>
@@ -111,7 +88,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                             btn
                             matRipple
                             class="mb-2 w-full"
-                            [disabled]="!active_building || !active_display"
+                            [disabled]="!active_display"
                             (click)="bootstrapPanel()"
                         >
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
@@ -154,8 +131,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
-    /** Actively selected building */
-    public readonly active_building = this._org.active_building;
     /** Actively selected display */
     public active_display: any;
 
@@ -163,16 +138,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
 
-    public readonly displays = this.active_building.pipe(
-        filter((_) => !!_),
-        switchMap((_) =>
-            querySystems({
-                zone_id: this._org.organisation?.id,
-                limit: 500,
-                fields: ['id', 'name', 'display_name', 'email'].join(','),
-                signage: true,
-            }).pipe(catchError(() => of({ data: [] }))),
-        ),
+    public readonly displays = querySystems({
+        zone_id: this._org.organisation?.id,
+        limit: 500,
+        fields: ['id', 'name', 'display_name', 'email'].join(','),
+        signage: true,
+    }).pipe(
+        catchError(() => of({ data: [] })),
         map((r) =>
             r.data.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
@@ -201,10 +173,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     localStorage.removeItem(STORE_DISPLAY_KEY);
                     localStorage.removeItem(STORE_BUILDING_KEY);
                 }
-                if (params.has('building')) {
-                    this.setBuilding(params.get('building'));
-                    log('BOOTSTRAP', 'Bootstrapped data for building set');
-                }
                 if (params.has('display')) {
                     this.active_display = params.get('display');
                     log('BOOTSTRAP', 'Bootstrapped data for display set');
@@ -215,27 +183,19 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
 
-    public setBuilding(bld_id: string) {
-        const bld = this._org.buildings.find(({ id }) => id === bld_id);
-        if (!bld) return;
-        this._org.building = bld;
-    }
-
     /**
      * Store bootstrapped values and navigate to the main page
      */
     public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
-        const bld = await firstTruthyValueFrom(this.active_building);
-        if (!bld?.id || !this.active_display || !localStorage) {
+        if (!this.active_display || !localStorage) {
             this.loading.set('');
             return;
         }
-        localStorage.setItem(STORE_BUILDING_KEY, bld.id);
         localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
         log(
             'BOOTSTRAP',
-            `Bootstrapped panel to building "${bld.id}" and display ${this.active_display}`,
+            `Bootstrapped panel to display ${this.active_display}`,
         );
         this._router.navigate(['/signage', this.active_display]);
         this.loading.set('');
@@ -246,13 +206,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK'));
-        const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
-
-        if (bld_id && display_id) {
+        if (display_id) {
             log(
                 'BOOTSTRAP',
-                `Application already bootstrapped to building "${bld_id}" and display ${display_id}`,
+                `Application already bootstrapped to display ${display_id}`,
             );
             this._router.navigate(['/signage', display_id]);
         }
