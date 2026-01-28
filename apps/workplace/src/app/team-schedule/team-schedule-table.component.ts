@@ -9,6 +9,7 @@ import {
     UserAvatarComponent,
 } from '@placeos/components';
 import { AutoAssignedDeskModalComponent } from '../book/desk-flow/auto-assigned-desk-modal.component';
+import { AddColleaguesModalComponent } from '../landing-new/add-colleagues-modal.component';
 import {
     DayStatus,
     LocationStatus,
@@ -294,6 +295,16 @@ import { TeamScheduleService } from './team-schedule.service';
                 </div>
             }
         </div>
+
+        <!-- Add Colleagues Button -->
+        <div class="flex justify-center p-2">
+            <button btn class="w-48" (click)="openAddColleaguesModal()">
+                <icon class="mr-2 text-xl">person_add</icon>
+                <span class="mr-2">{{
+                    'APP.WORKPLACE.COLLEAGUES_ADD' | translate
+                }}</span>
+            </button>
+        </div>
     `,
     styles: [
         `
@@ -375,5 +386,14 @@ export class TeamScheduleTableComponent {
                 dialog_ref.componentInstance.duration.set(booking.duration);
             }
         }
+    }
+
+    public openAddColleaguesModal() {
+        this._dialog.open(AddColleaguesModalComponent, {
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            panelClass: 'panel',
+            data: {},
+        });
     }
 }
