@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -62,9 +63,14 @@ const EMPTY = [];
                     [matTooltip]="
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
+                    [disabled]="downloading()"
                     (click)="downloadCsv()"
                 >
-                    <icon class="text-2xl">download</icon>
+                    @if (downloading()) {
+                        <mat-spinner diameter="24"></mat-spinner>
+                    } @else {
+                        <icon class="text-2xl">download</icon>
+                    }
                 </button>
                 <button btn matRipple class="space-x-2" (click)="newBooking()">
                     <div class="pl-2">
@@ -197,6 +203,7 @@ const EMPTY = [];
         MatFormFieldModule,
         MatSelectModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         MatRippleModule,
@@ -219,6 +226,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    public readonly downloading = signal(false);
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -349,25 +357,30 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly downloadCsv = async () => {
-        const events = await nextValueFrom(this._state.filtered);
-        const emails = new Set<string>();
-        for (const event of events) {
-            if (event.host) emails.add(event.host);
-            for (const attendee of event.attendees || []) {
-                if (attendee.email) emails.add(attendee.email);
+        this.downloading.set(true);
+        try {
+            const events = await nextValueFrom(this._state.filtered);
+            const emails = new Set<string>();
+            for (const event of events) {
+                if (event.host) emails.add(event.host);
+                for (const attendee of event.attendees || []) {
+                    if (attendee.email) emails.add(attendee.email);
+                }
             }
+            const data = await Promise.all(
+                Array.from(emails).map(async (email) => {
+                    const user = await this._user_pipe.transform(email);
+                    return {
+                        name: user?.name || '',
+                        email,
+                    };
+                }),
+            );
+            const period = await nextValueFrom(this.period);
+            const date = format(this._state.getDate(), 'yyyy-MM-dd');
+            downloadFile(`room-bookings-${date}-${period}.csv`, jsonToCsv(data));
+        } finally {
+            this.downloading.set(false);
         }
-        const data = await Promise.all(
-            Array.from(emails).map(async (email) => {
-                const user = await this._user_pipe.transform(email);
-                return {
-                    name: user?.name || '',
-                    email,
-                };
-            }),
-        );
-        const period = await nextValueFrom(this.period);
-        const date = format(this._state.getDate(), 'yyyy-MM-dd');
-        downloadFile(`room-bookings-${date}-${period}.csv`, jsonToCsv(data));
     };
 }
