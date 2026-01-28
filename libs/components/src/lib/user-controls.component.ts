@@ -513,6 +513,7 @@ export class UserControlsComponent implements OnInit {
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
             { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
+            { id: 'sick', name: i18n('COMMON.WORK_SICK'), icon: 'sick' },
         ];
     }
 

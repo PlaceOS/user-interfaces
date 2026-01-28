@@ -241,6 +241,8 @@ export class StaffUser extends User {
                 return i18n('COMMON.WORK_HOURS_OUT');
             case 'aol':
                 return i18n('COMMON.WORK_HOURS_LEAVE');
+            case 'sick':
+                return i18n('COMMON.WORK_HOURS_SICK');
             default:
                 return i18n('COMMON.UNKNOWN');
         }
@@ -262,6 +264,7 @@ export class StaffUser extends User {
         const in_hours = this.in_hours_time(datetime);
         if (location === 'wfh' && in_hours) return 'home';
         if (location === 'wfo' && in_hours) return 'business';
+        if (location === 'sick') return 'sick';
         return 'event_busy';
     }
 
