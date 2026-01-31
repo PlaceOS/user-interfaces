@@ -48,6 +48,8 @@ export interface MapViewChangeEvent {
     rotation: number;
 }
 
+export type MapViewerMode = '2d' | '3d';
+
 interface OverlayInstance {
     overlay: MapOverlay;
     element: HTMLDivElement;
@@ -55,8 +57,9 @@ interface OverlayInstance {
 
 const MAX_ZOOM = 10;
 const MIN_ZOOM = 0.5;
-const MAX_CENTER: Vec2 = { x: 0.6, y: 0.6 };
-const MIN_CENTER: Vec2 = { x: -0.6, y: -0.6 };
+const FEATURE_BOUNDS_SCALE_3D = 0.8;
+const MAX_CENTER: Vec2 = { x: 1, y: 1 };
+const MIN_CENTER: Vec2 = { x: -1, y: -1 };
 
 interface ElementBoundsResult {
     bounds: Map<string, Rect>;
@@ -221,6 +224,10 @@ export class MapViewer {
     public zoom = 1;
     /** Rotation around the Z/Up axis */
     public rotation = 0;
+    /** View mode: '2d' for top-down view, '3d' for isometric view */
+    public mode: MapViewerMode = '3d';
+    /** Whether to render the map texture at double resolution (8192×8192) if supported */
+    public high_resolution = false;
     /** Callback invoked when view changes from user interaction */
     public onViewChange: ((event: MapViewChangeEvent) => void) | null = null;
 
@@ -367,6 +374,24 @@ export class MapViewer {
     public setRotation(new_rotation: number) {
         this.rotation = new_rotation;
         this._renderMap();
+    }
+
+    public setMode(new_mode: MapViewerMode) {
+        if (this.mode === new_mode) return;
+        this.mode = new_mode;
+        this._renderMap();
+    }
+
+    public setHighResolution(enabled: boolean) {
+        if (this.high_resolution === enabled) return;
+        this.high_resolution = enabled;
+        // Re-render the map image at the new resolution
+        this._renderMapImage();
+    }
+
+    /** Get the maximum texture size supported by the device */
+    public getMaxTextureSize(): number {
+        return this.renderer.capabilities.maxTextureSize;
     }
 
     public setOverlays(overlays: MapOverlay[]) {
@@ -641,8 +666,8 @@ export class MapViewer {
     private _onPointerDown(e: PointerEvent) {
         if (!this._quad) return;
 
-        // Right-click for rotation
-        if (e.button === 2) {
+        // Right-click for rotation (only in 3D mode)
+        if (e.button === 2 && this.mode === '3d') {
             this._is_rotating = true;
             this._rotate_start_x = e.clientX;
             this._rotate_start_rotation = this.rotation;
@@ -755,9 +780,10 @@ export class MapViewer {
         const aspect = container_width / container_height;
         const quad_size = 100;
 
-        // The quad is rotated 45°, so it extends to ±(quad_size/2 * √2) in world X and Z
+        // In 3D mode, the quad is rotated 45°, so it extends to ±(quad_size/2 * √2) in world X and Z
         // In center units (divided by quad_size), the map half-extent is √2/2 ≈ 0.707
-        const map_half_extent = Math.SQRT2 / 2;
+        // In 2D mode, no 45° rotation, so map half-extent is simply 0.5
+        const map_half_extent = this.mode === '3d' ? Math.SQRT2 / 2 : 0.5;
 
         // Frustum size in world units
         const frustum_height = quad_size / zoom;
@@ -855,12 +881,19 @@ export class MapViewer {
         const svg_blob = new Blob([svg_string], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(svg_blob);
 
-        // Load the SVG into an image, then render to a 4096x4096 canvas
+        // Load the SVG into an image, then render to canvas
         const svg_image = new Image();
         svg_image.onload = () => {
             URL.revokeObjectURL(url);
 
-            const target_size = 4096;
+            // Use 8192 if high resolution is enabled and device supports it, otherwise 4096
+            const max_texture_size = this.renderer.capabilities.maxTextureSize;
+            const base_size = 4096;
+            const high_res_size = 8192;
+            const target_size =
+                this.high_resolution && max_texture_size >= high_res_size
+                    ? high_res_size
+                    : base_size;
             const canvas = document.createElement('canvas');
             canvas.width = target_size;
             canvas.height = target_size;
@@ -931,7 +964,8 @@ export class MapViewer {
             // Create new texture from the map image
             this._texture = new THREE.Texture(this.map_image);
             this._texture.needsUpdate = true;
-            this._texture.minFilter = THREE.LinearFilter;
+            this._texture.generateMipmaps = true;
+            this._texture.minFilter = THREE.LinearMipmapLinearFilter; // Trilinear filtering
             this._texture.magFilter = THREE.LinearFilter;
             this._texture.colorSpace = THREE.SRGBColorSpace;
             this._texture_image = this.map_image;
@@ -946,16 +980,8 @@ export class MapViewer {
             this._quad = new THREE.Mesh(geometry, material);
 
             // Rotate quad to lie flat on XZ plane using quaternion for clarity
-            // First rotate -90° around X to lay flat, then 45° around Y for diamond
-            const quat_x = new THREE.Quaternion().setFromAxisAngle(
-                new THREE.Vector3(1, 0, 0),
-                -Math.PI / 2,
-            );
-            const quat_y = new THREE.Quaternion().setFromAxisAngle(
-                new THREE.Vector3(0, 1, 0),
-                Math.PI / 4,
-            );
-            this._quad.quaternion.copy(quat_x).premultiply(quat_y);
+            // First rotate -90° around X to lay flat, then optionally 45° around Y for diamond (3D mode)
+            this._applyQuadRotation();
 
             this.scene.add(this._quad);
         }
@@ -963,19 +989,7 @@ export class MapViewer {
         if (!this._quad) return;
 
         // Apply rotation around Y axis (world up)
-        const quat_x = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(1, 0, 0),
-            -Math.PI / 2,
-        );
-        const quat_y = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 1, 0),
-            Math.PI / 4 + this.rotation,
-        );
-        this._quad.quaternion.copy(quat_x).premultiply(quat_y);
-
-        // Set up orthographic camera for 2:1 isometric projection
-        // 2:1 isometric angle: arctan(0.5) ≈ 26.565°
-        const iso_angle = Math.atan(0.5);
+        this._applyQuadRotation();
 
         const container_width = this.container.clientWidth || 1;
         const container_height = this.container.clientHeight || 1;
@@ -991,23 +1005,30 @@ export class MapViewer {
         this.camera.bottom = -frustum_height / 2;
         this.camera.updateProjectionMatrix();
 
-        // Position camera for 2:1 isometric view
-        // Camera looks down at iso_angle from horizontal
-        const camera_distance = 500;
-
         // Convert center offset to world space
         const center_x = this.center.x * quad_size;
         const center_z = this.center.y * quad_size;
+        const camera_distance = 500;
 
-        // Camera position: elevated and back from the target point
-        this.camera.position.set(
-            center_x,
-            camera_distance * Math.sin(iso_angle),
-            center_z + camera_distance * Math.cos(iso_angle),
-        );
+        if (this.mode === '2d') {
+            // 2D mode: camera looks straight down
+            this.camera.position.set(center_x, camera_distance, center_z);
+            this.camera.lookAt(center_x, 0, center_z);
+        } else {
+            // 3D mode: Set up orthographic camera for 2:1 isometric projection
+            // 2:1 isometric angle: arctan(0.5) ≈ 26.565°
+            const iso_angle = Math.atan(0.5);
 
-        // Look at the center point on the ground
-        this.camera.lookAt(center_x, 0, center_z);
+            // Camera position: elevated and back from the target point
+            this.camera.position.set(
+                center_x,
+                camera_distance * Math.sin(iso_angle),
+                center_z + camera_distance * Math.cos(iso_angle),
+            );
+
+            // Look at the center point on the ground
+            this.camera.lookAt(center_x, 0, center_z);
+        }
 
         // Update renderer size if container changed
         if (
@@ -1022,6 +1043,30 @@ export class MapViewer {
 
         // Update overlay positions after rendering
         this._updateOverlayPositions();
+    }
+
+    /**
+     * Apply rotation to the quad based on current mode and rotation angle.
+     * In 2D mode: no rotation applied (top-down view)
+     * In 3D mode: applies 45° diamond offset plus user rotation
+     */
+    private _applyQuadRotation() {
+        if (!this._quad) return;
+
+        // Rotate -90° around X to lay flat on XZ plane
+        const quat_x = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(1, 0, 0),
+            -Math.PI / 2,
+        );
+
+        // In 3D mode, add 45° diamond offset plus user rotation; in 2D mode, no Y rotation
+        const y_rotation = this.mode === '3d' ? Math.PI / 4 + this.rotation : 0;
+        const quat_y = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            y_rotation,
+        );
+
+        this._quad.quaternion.copy(quat_x).premultiply(quat_y);
     }
 
     private _updateOverlayPositions() {
@@ -1049,7 +1094,12 @@ export class MapViewer {
                 }
                 if (overlay.type === 'box') {
                     // Apply box_scale to adjust size relative to reference (default 1 = 100%)
-                    const scale = overlay.box_scale ?? 1;
+                    // In 3D mode, also apply FEATURE_BOUNDS_SCALE_3D to account for isometric projection
+                    const base_scale = overlay.box_scale ?? 1;
+                    const scale =
+                        this.mode === '3d'
+                            ? base_scale * FEATURE_BOUNDS_SCALE_3D
+                            : base_scale;
                     const scaled_width = bounds.width * scale;
                     const scaled_height = bounds.height * scale;
                     // Center the scaled box on the original bounds center
@@ -1206,9 +1256,11 @@ export class MapViewer {
             new THREE.Vector3(1, 0, 0),
             -Math.PI / 2,
         );
+        // In 3D mode, add 45° diamond offset plus user rotation; in 2D mode, no Y rotation
+        const y_rotation = this.mode === '3d' ? Math.PI / 4 + this.rotation : 0;
         const quat_y = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),
-            Math.PI / 4 + this.rotation,
+            y_rotation,
         );
         const combined_quat = quat_x.clone().premultiply(quat_y);
 

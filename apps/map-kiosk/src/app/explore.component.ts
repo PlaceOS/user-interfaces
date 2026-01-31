@@ -22,7 +22,6 @@ import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
-    InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
     VirtualKeyboardComponent,
@@ -236,35 +235,20 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
             </div>
             <div class="relative h-full flex-1">
                 <div class="absolute inset-0">
-                    @if (isometric()) {
-                        <dynamic-map
-                            [src]="url | async"
-                            [zoom]="(positions | async)?.zoom"
-                            [center]="(positions | async)?.center"
-                            (zoomChange)="updateZoom($event)"
-                            (centerChange)="updateCenter($event)"
-                            [styles]="styles | async"
-                            [features]="features | async"
-                            [actions]="actions | async"
-                            [labels]="labels | async"
-                            [options]="{ controls: true }"
-                            [focus]="locate"
-                        />
-                    } @else {
-                        <interactive-map
-                            [src]="url | async"
-                            [zoom]="(positions | async)?.zoom"
-                            [center]="(positions | async)?.center"
-                            (zoomChange)="updateZoom($event)"
-                            (centerChange)="updateCenter($event)"
-                            [styles]="styles | async"
-                            [features]="features | async"
-                            [actions]="actions | async"
-                            [labels]="labels | async"
-                            [options]="{ controls: true }"
-                            [focus]="locate"
-                        />
-                    }
+                    <dynamic-map
+                        [src]="url | async"
+                        [zoom]="(positions | async)?.zoom"
+                        [center]="(positions | async)?.center"
+                        (zoomChange)="updateZoom($event)"
+                        (centerChange)="updateCenter($event)"
+                        [styles]="styles | async"
+                        [features]="features | async"
+                        [actions]="actions | async"
+                        [labels]="labels | async"
+                        [options]="{ controls: true }"
+                        [focus]="locate"
+                        [mode]="isometric() ? '3d' : '2d'"
+                    />
                 </div>
             </div>
         </div>
@@ -301,7 +285,6 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
         AccessibilityControlsComponent,
         MatRippleModule,
         IconComponent,
-        InteractiveMapComponent,
         AuthenticatedImageDirective,
         CustomTooltipComponent,
         RouterModule,

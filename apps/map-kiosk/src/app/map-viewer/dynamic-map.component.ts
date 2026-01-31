@@ -40,6 +40,7 @@ import {
     MapOverlay,
     MapViewChangeEvent,
     MapViewer,
+    MapViewerMode,
     Vec2,
 } from './map-viewer.class';
 
@@ -180,6 +181,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
     public zoom = model(1);
     public center = model<Vec2>({ x: 0, y: 0 });
     public rotation = model(0);
+    public mode = input<MapViewerMode>('3d');
+    public highResolution = input(false);
     public reset = model(0);
     public metadata = model({} as MapMetadata);
     public styles = input<ViewerStyles>({});
@@ -269,6 +272,22 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
             }
         });
 
+        // Effect to sync mode to MapViewer
+        effect(() => {
+            const mode_val = this.mode() ?? '3d';
+            if (this._map_viewer) {
+                this._map_viewer.setMode(mode_val);
+            }
+        });
+
+        // Effect to sync high resolution to MapViewer
+        effect(() => {
+            const high_res = this.highResolution() ?? false;
+            if (this._map_viewer) {
+                this._map_viewer.setHighResolution(high_res);
+            }
+        });
+
         // Effect to handle reset
         effect(() => {
             const reset_val = this.reset();
@@ -312,6 +331,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
             };
 
             // Apply initial view state (use defaults if values are undefined)
+            this._map_viewer.setMode(this.mode() ?? '3d');
+            this._map_viewer.setHighResolution(this.highResolution() ?? false);
             this._map_viewer.setZoom(this.zoom() ?? 1);
             this._map_viewer.setCenter(
                 this.center() ? { ...this.center() } : { x: 0, y: 0 },
@@ -418,7 +439,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
                 type: 'box',
                 contents,
                 scale_with_zoom: false,
-                box_scale: 0.8,
+                box_scale: 1,
             });
         }
 
