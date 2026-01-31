@@ -241,7 +241,7 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.timeout('update_offset', () => this.updateOffset(), 200);
-        const events = this.events
+        const events = (this.events || [])
             .sort((a, b) => a.date - b.date)
             .filter(
                 (i) => i.date_end > Date.now() && isSameDay(i.date, Date.now()),
