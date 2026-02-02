@@ -188,7 +188,10 @@ const QR_CODES = {};
                                         ref="noopener noreferrer"
                                         class="border-base-200 bg-base-100 mx-4 my-2 block rounded-lg border p-2"
                                     >
-                                        <img class="w-48" [src]="row.qr_code" />
+                                        <img
+                                            class="w-48"
+                                            [src]="qr_code().get(row.id)"
+                                        />
                                     </a>
                                     <div
                                         class="bg-base-200 mx-4 mt-2 w-[calc(100%-2rem)] rounded-sm p-2 text-center font-mono text-sm"
@@ -266,8 +269,9 @@ export class DesksManageComponent extends AsyncHandler {
     private _element = inject(ElementRef);
     private _clipboard = inject(Clipboard);
 
-    public loading = signal<string>('');
-    public dragging = signal(false);
+    public readonly loading = signal<string>('');
+    public readonly dragging = signal(false);
+    public readonly qr_code = signal<Map<string, string>>(new Map());
     public readonly filters = this._state.filters;
     public readonly stateLoading = this._state.loading;
     public readonly desks = computed(() =>
@@ -331,6 +335,7 @@ export class DesksManageComponent extends AsyncHandler {
         }/#/book/code?asset_id=${encodeURIComponent(item.id)}`;
         item.qr_link = link;
         item.qr_code = generateQRCode(link);
+        this.qr_code.update((map) => map.set(item.id, item.qr_code));
     }
 
     public print() {
