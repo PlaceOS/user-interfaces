@@ -70,7 +70,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
             >
                 <div
                     filters
-                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-80"
                     [class.hidden]="!show_filters"
                 >
                     <new-space-filters
@@ -79,7 +79,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                 </div>
                 <div
                     list
-                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-80 md:w-112 lg:block"
                     [class.hidden]="show_filters || displayed()"
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
