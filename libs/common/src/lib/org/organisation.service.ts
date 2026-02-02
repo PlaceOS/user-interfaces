@@ -93,6 +93,8 @@ export class OrganisationService {
     private _region_settings: Record<string, Record<string, any>> = {};
     /** Mapping of buildings to settings overrides */
     private _building_settings: Record<string, Record<string, any>> = {};
+    /** Flag to skip automatic building/region selection when set externally */
+    private _skip_auto_selection = false;
 
     /** Mapping of organisation settings overrides */
     public get settings() {
@@ -144,12 +146,18 @@ export class OrganisationService {
         this.setRegion(item);
     }
 
+    /** Prevent automatic building/region selection from overriding externally set values */
+    public skipAutoSelection() {
+        this._skip_auto_selection = true;
+    }
+
     public async setRegion(item: Region) {
         if (!item || this._active_region.value?.id == item.id) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
         if (
+            !this._skip_auto_selection &&
             this.building?.parent_id !== item.id &&
             this.buildingsForRegion(item).length
         ) {
@@ -361,6 +369,7 @@ export class OrganisationService {
             throw err;
         });
         setTimeout(() => {
+            if (this._skip_auto_selection) return;
             if (localStorage.getItem('PLACEOS.region')) {
                 this.region = this.regions.find(
                     (region) =>
@@ -683,6 +692,7 @@ export class OrganisationService {
     }
 
     private _setBuildingFromTimezone() {
+        if (this._skip_auto_selection) return;
         const bld_list = this.buildings.filter(
             (bld) => !this.region || bld.parent_id === this.region?.id,
         );
