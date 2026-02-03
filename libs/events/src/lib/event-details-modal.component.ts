@@ -827,7 +827,7 @@ export class EventDetailsModalComponent implements OnInit {
             ) || new Building(),
     );
     public readonly timezone = computed(() =>
-        settingSignal('events.use_building_timezone')
+        settingSignal('events.use_building_timezone')()
             ? this._org.building.timezone
             : '',
     );
