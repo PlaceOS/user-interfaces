@@ -13,6 +13,7 @@ import {
     nextValueFrom,
     notifyError,
     OrganisationService,
+    settingSignal,
     SettingsService,
     unique,
     User,
@@ -21,7 +22,6 @@ import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
-    InteractiveMapComponent,
     MapPinComponent,
     MapRadiusComponent,
     VirtualKeyboardComponent,
@@ -42,6 +42,7 @@ import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
+import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
 
 @Component({
     selector: '[app-explore]',
@@ -233,11 +234,8 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 <hr class="mx-auto w-[calc(100%-4rem)]" />
             </div>
             <div class="relative h-full flex-1">
-                <div
-                    class="absolute inset-0"
-                    [class.isometric]="isometric"
-                >
-                    <interactive-map
+                <div class="absolute inset-0">
+                    <dynamic-map
                         [src]="url | async"
                         [zoom]="(positions | async)?.zoom"
                         [center]="(positions | async)?.center"
@@ -249,7 +247,8 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                         [labels]="labels | async"
                         [options]="{ controls: true }"
                         [focus]="locate"
-                    ></interactive-map>
+                        [mode]="isometric() ? '3d' : '2d'"
+                    />
                 </div>
             </div>
         </div>
@@ -271,18 +270,6 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                 margin-top: 0.5rem !important;
                 margin-bottom: 0.5rem !important;
             }
-
-            .isometric {
-                transform: perspective(800px) rotateX(45deg) rotateZ(-45deg)
-                    scale(0.7);
-                transform-origin: center center;
-                transition: transform 300ms ease-in-out;
-            }
-
-            .isometric interactive-map {
-                height: 100%;
-                width: 100%;
-            }
         `,
     ],
     providers: [
@@ -298,12 +285,12 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         AccessibilityControlsComponent,
         MatRippleModule,
         IconComponent,
-        InteractiveMapComponent,
         AuthenticatedImageDirective,
         CustomTooltipComponent,
         RouterModule,
         MatMenuModule,
         ExploreSearchComponent,
+        DynamicMapComponent,
     ],
 })
 export class ExploreComponent extends AsyncHandler implements OnInit {
@@ -387,16 +374,12 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
 
     public locate = '';
-    public isometric = localStorage.getItem('KIOSK.isometric') === 'true';
+    public isometric = settingSignal('show_isometric');
 
     @HostListener('window:mousedown') public onMouse = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
     @HostListener('window:touchstart') public onTouch = () =>
         this.timeout('reset', () => this.resetKiosk(), this.reset_delay * 1000);
-    @HostListener('window:isometric-change', ['$event'])
-    public onIsometricChange(event: Event) {
-        this.isometric = (event as CustomEvent).detail;
-    }
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
@@ -599,7 +582,10 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         if ((document.activeElement as any)?.blur)
             (document.activeElement as any)?.blur();
         const level = localStorage.getItem('KIOSK.level');
-        this._state.setPositions(1, { x: 0.5, y: 0.5 });
+        this._state.setPositions(
+            1,
+            this.isometric() ? { x: 0, y: 0 } : { x: 0.5, y: 0.5 },
+        );
         if (level) this._state.setLevel(level);
         this._dialog.closeAll();
         if (navigate) this._router.navigate(['/']);

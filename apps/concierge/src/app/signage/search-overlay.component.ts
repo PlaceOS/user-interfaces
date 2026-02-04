@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
     OnChanges,
@@ -86,7 +87,13 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         </div>
     `,
     styles: [``],
-    imports: [FormsModule, IconComponent, MatRippleModule, TranslatePipe],
+    imports: [
+        FormsModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+        CommonModule,
+    ],
 })
 export class SearchOverlayComponent<T extends {} = any> implements OnChanges {
     public readonly item_list = input<T[]>([]);

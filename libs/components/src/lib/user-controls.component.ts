@@ -44,7 +44,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex max-h-[90vh] flex-col divide-y overflow-auto rounded-sm border shadow-sm"
+            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex flex-col divide-y overflow-auto rounded-sm border shadow-sm"
             [class.border]="!sidebar()"
         >
             <div avatar class="flex w-full min-w-72 flex-col items-center p-2">

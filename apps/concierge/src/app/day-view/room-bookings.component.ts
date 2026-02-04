@@ -378,7 +378,10 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             );
             const period = await nextValueFrom(this.period);
             const date = format(this._state.getDate(), 'yyyy-MM-dd');
-            downloadFile(`room-bookings-${date}-${period}.csv`, jsonToCsv(data));
+            downloadFile(
+                `room-bookings-${date}-${period}.csv`,
+                jsonToCsv(data),
+            );
         } finally {
             this.downloading.set(false);
         }

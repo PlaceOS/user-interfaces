@@ -315,17 +315,28 @@ export class PlaceOS_Service extends AsyncHandler {
     }
 
     private _setZones() {
+        if (this._region || this._zone) {
+            this._org.skipAutoSelection();
+        }
         this.timeout(
             'set_building+region',
             async () => {
-                const region = this._org.regions.find(
-                    (b) => b.id === this._region,
-                );
-                if (region) this._org.setRegion(region);
                 const building_list = await nextValueFrom(
                     this._org.building_list,
                 );
-                const bld = building_list.find((b) => b.id === this._zone);
+                let bld = building_list.find((b) => b.id === this._zone);
+                // Determine the target region: explicit region_id, or derived from building's parent
+                const target_region_id = this._region || bld?.parent_id;
+                const region = this._org.regions.find(
+                    (b) => b.id === target_region_id,
+                );
+                if (region) await this._org.setRegion(region);
+                if (!bld && this._zone) {
+                    const building_list = await nextValueFrom(
+                        this._org.building_list,
+                    );
+                    bld = building_list.find((b) => b.id === this._zone);
+                }
                 if (bld) this._org.setBuilding(bld, true);
             },
             1000,

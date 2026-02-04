@@ -1,10 +1,10 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents and automated assistants when working with code in this repository.
 
 ## Project Overview
 
-PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 15 frontend applications and shared libraries for common functionality.
+PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 16 frontend applications and shared libraries for common functionality.
 
 ## Repository Structure
 
@@ -16,9 +16,9 @@ PlaceOS User Interfaces is a monorepo containing multiple Angular applications f
 - **control** - AV/Room control
 - **map-kiosk** - Building location kiosk
 - **visitor-kiosk** - Visitor kiosk interface
-- Additional apps: assistant-panel, enrolment, outlook-addin, redirect, signage, stagehand, survey, timetable
+- Additional apps: assistant-panel, enrolment, outlook-addin, redirect, signage, signage-manager, stagehand, survey, timetable
 
-Each app has a corresponding `-e2e` directory for Playwright tests.
+E2E tests use Playwright and live in `apps/<app>/e2e` where present.
 
 ### Shared Libraries (`/libs`)
 Path aliases are defined in `tsconfig.base.json` using `@placeos/*` namespace:
@@ -165,7 +165,7 @@ By default, dev servers proxy API requests to a live PlaceOS environment (config
 ## Testing Environment
 
 - Unit tests: Jest with `@ngneat/spectator` and `ng-mocks`
-- E2E tests: Playwright (new) and Cypress (legacy)
+- E2E tests: Playwright
 - Mock mode available for development/testing without live backend
 
 ## Version Management

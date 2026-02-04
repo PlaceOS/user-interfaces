@@ -126,7 +126,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                         </div>
                                     }
                                 </div>
-                                <div class="max-w-48 space-y-2">
+                                <div class="w-full space-y-2">
                                     <div
                                         class="mr-10 truncate text-left font-medium"
                                     >
