@@ -174,6 +174,11 @@ export class ApplicationSidebarComponent
                         route: ['/book/visitors'],
                     },
                     {
+                        id: 'vip-visitors',
+                        name: i18n('APP.CONCIERGE.MENU_VIP_VISITORS'),
+                        route: ['/book/vip-visitors'],
+                    },
+                    {
                         id: 'visitor-rules',
                         name: i18n('APP.CONCIERGE.MENU_VISITOR_RULES'),
                         route: ['/book/visitors/rules'],
