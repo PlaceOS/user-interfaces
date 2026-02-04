@@ -23,6 +23,7 @@ export type BookingType =
     | 'locker'
     | 'room'
     | 'visitor'
+    | 'vip-visitor'
     | 'asset-request'
     | 'staff'
     | 'group-event'

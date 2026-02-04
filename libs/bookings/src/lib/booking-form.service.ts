@@ -147,6 +147,7 @@ export class BookingFormService extends AsyncHandler {
         parking: settingSignal(SETTING_KEYS.FAVORITE_PARKING_SPACES, [], true),
         staff: settingSignal('favorites', [], true),
         visitor: settingSignal('favorites', [], true),
+        'vip-visitor': settingSignal('favorites', [], true),
         'group-event': settingSignal('favorites', [], true),
         'asset-request': settingSignal('favorites', [], true),
         'catering-order': settingSignal('favorites', [], true),

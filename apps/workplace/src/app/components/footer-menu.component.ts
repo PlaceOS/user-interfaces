@@ -1,10 +1,11 @@
-import { Component, inject, model, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, model, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
@@ -77,6 +78,23 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <icon class="text-secondary text-6xl">person</icon>
                             <div>
                                 {{ 'APP.WORKPLACE.MENU_VISITORS' | translate }}
+                            </div>
+                        </a>
+                    }
+                    @if (can_see_vip_visitor()) {
+                        <a
+                            matRipple
+                            name="footer-nav-vip-visitor-invite"
+                            [routerLink]="['/book', 'vip-visitor']"
+                            routerLinkActive="active"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                        >
+                            <icon class="text-secondary text-6xl">star</icon>
+                            <div>
+                                {{
+                                    'APP.WORKPLACE.MENU_VIP_VISITORS'
+                                        | translate
+                                }}
                             </div>
                         </a>
                     }
@@ -279,6 +297,17 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
     public readonly dark_mode = signal(false);
     public readonly features = signal<string[]>([]);
     public readonly default_page = signal<string>('/landing');
+    public readonly vip_visitor_booker_group = signal<string>('');
+    public readonly user = userSignal();
+
+    public readonly can_see_vip_visitor = computed(() => {
+        const features = this.features();
+        if (!features.includes('vip-visitor-invite')) return false;
+        const vip_group = this.vip_visitor_booker_group();
+        if (!vip_group) return true; // No group restriction if not set
+        const groups = this.user().groups;
+        return groups.includes(vip_group);
+    });
 
     public ngOnInit() {
         this.subscription(
@@ -291,6 +320,9 @@ export class FooterMenuComponent extends AsyncHandler implements OnInit {
                 this.features.set(this._settings.get('app.features') || []);
                 this.default_page.set(
                     this._settings.get('app.default_route') || '/landing',
+                );
+                this.vip_visitor_booker_group.set(
+                    this._settings.get('vip_visitor_booker_group') || '',
                 );
             }),
         );

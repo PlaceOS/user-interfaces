@@ -167,6 +167,10 @@ export class TopMenuComponent {
         '/landing',
     );
     public readonly new_features = settingSignal('app.new_features', false);
+    public readonly vip_visitor_booker_group = settingSignal<string>(
+        'vip_visitor_booker_group',
+        '',
+    );
 
     public readonly is_admin = computed(() => {
         const groups = this.user().groups;
@@ -180,11 +184,20 @@ export class TopMenuComponent {
         const feature_list = this.feature_list();
         const feature_groups = this.feature_groups();
         const groups = this.user().groups;
-        return feature_list.filter(
-            (name) =>
+        const vip_group = this.vip_visitor_booker_group();
+        return feature_list.filter((name) => {
+            // Special check for VIP visitor - requires user to be in vip_visitor_booker_group
+            if (name === 'vip-visitor-invite') {
+                if (vip_group && !groups.includes(vip_group)) {
+                    return false;
+                }
+            }
+            // Regular feature group check
+            return (
                 !feature_groups[name]?.length ||
-                feature_groups[name].find((_) => groups.includes(_)),
-        );
+                feature_groups[name].find((_) => groups.includes(_))
+            );
+        });
     });
 
     private readonly url = toSignal(
@@ -244,6 +257,12 @@ export class TopMenuComponent {
             route: '/book/visitor',
             icon: 'person',
             name: i18n('APP.WORKPLACE.MENU_VISITORS'),
+        },
+        {
+            id: 'vip-visitor-invite',
+            route: '/book/vip-visitor',
+            icon: 'star',
+            name: i18n('APP.WORKPLACE.MENU_VIP_VISITORS'),
         },
         {
             id: 'explore',

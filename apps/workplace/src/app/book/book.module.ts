@@ -13,6 +13,7 @@ import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
 import { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
+import { VipVisitorFlowComponent } from './vip-visitor-flow/vip-visitor-flow.component';
 
 const ROUTES: Route[] = [
     {
@@ -33,6 +34,8 @@ const ROUTES: Route[] = [
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'visitor/:step', component: VisitorFlowNewComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },
+            { path: 'vip-visitor/:step', component: VipVisitorFlowComponent },
+            { path: 'vip-visitor', redirectTo: 'vip-visitor/form' },
             { path: 'locker/:step', component: BookLockerFlowComponent },
             { path: 'locker', redirectTo: 'locker/form' },
             { path: '*', redirectTo: 'meeting/form' },
@@ -51,6 +54,7 @@ const STANDALONE_COMPONENTS = [
     NewDeskFlowComponent,
     VisitorFlowComponent,
     VisitorFlowNewComponent,
+    VipVisitorFlowComponent,
     NewParkingFlowComponent,
     BookLockerFlowComponent,
 ];
