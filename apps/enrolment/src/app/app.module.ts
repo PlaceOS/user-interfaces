@@ -14,6 +14,7 @@ import { AppComponent } from './app.component';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
 import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
 import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
+import { EnrolmentVipGuestConfirmComponent } from './enrolment-vip-guest-confirm.component';
 import { EnrolmentComponent } from './enrolment.component';
 
 import { GlobalBannerComponent } from '@placeos/components';
@@ -30,6 +31,7 @@ const STANADALONE_COMPONENTS = [
     EnrolmentComponent,
     EnrolmentEventDetailsComponent,
     EnrolmentGuestConfirmComponent,
+    EnrolmentVipGuestConfirmComponent,
     EnrolmentErrorComponent,
 ];
 

@@ -6,7 +6,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-event-details',
     template: `
         <div
-            class="border-base-200 bg-base-100 mx-auto my-4 w-[480px] max-w-[calc(100vw-2rem)] space-y-4 rounded-sm border p-4 shadow-sm"
+            class="border-base-200 bg-base-100 mx-auto my-4 w-120 max-w-[calc(100vw-2rem)] space-y-4 rounded-sm border p-4 shadow-sm"
         >
             <h3 class="text-center text-xl font-medium">Meeting Details</h3>
             <div>

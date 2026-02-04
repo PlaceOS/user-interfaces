@@ -6,12 +6,12 @@ import { EnrolmentStateService } from './enrolment-state.service';
     selector: 'enrolment-error',
     template: `
         <div
-            class="border-base-200 bg-warning mx-auto my-4 w-lg max-w-[calc(100vw-2rem)] rounded-sm border p-4 shadow-sm"
+            class="border-base-300 bg-warning mx-auto my-4 w-lg max-w-[calc(100vw-2rem)] rounded-sm border p-4 shadow-lg"
         >
             <h3 class="mb-4 text-center text-xl font-medium">
                 Unable to continue
             </h3>
-            <p class="text-center">
+            <p class="text-center text-sm">
                 @switch (error | async) {
                     @case ('guest') {
                         Your details could not be retrieved.
@@ -32,6 +32,13 @@ import { EnrolmentStateService } from './enrolment-state.service';
                     @case ('cancelled') {
                         Meeting was cancelled, please check your calendar for
                         updates.
+                    }
+                    @case ('booking') {
+                        Your VIP booking details could not be retrieved. Please
+                        check that your link is valid.
+                    }
+                    @case ('checked_out') {
+                        You have already checked out from this visit.
                     }
                 }
             </p>

@@ -15,12 +15,13 @@ import { debounceTime, map } from 'rxjs/operators';
 import { EnrolmentErrorComponent } from './enrolment-error.component';
 import { EnrolmentEventDetailsComponent } from './enrolment-event-details.component';
 import { EnrolmentGuestConfirmComponent } from './enrolment-guest-confirm.component';
+import { EnrolmentVipGuestConfirmComponent } from './enrolment-vip-guest-confirm.component';
 import { EnrolmentStateService } from './enrolment-state.service';
 
 @Component({
     selector: 'app-enrolment',
     template: `
-        <div class="bg-base-300 absolute inset-0 flex flex-col">
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div
                 class="bg-secondary text-secondary-content z-20 h-16 w-full p-2 shadow-sm"
             >
@@ -43,6 +44,9 @@ import { EnrolmentStateService } from './enrolment-state.service';
                         }
                         @case ('guest') {
                             <enrolment-guest-confirm></enrolment-guest-confirm>
+                        }
+                        @case ('vip-guest') {
+                            <enrolment-vip-guest-confirm></enrolment-vip-guest-confirm>
                         }
                         @case ('complete') {
                             <div
@@ -82,6 +86,7 @@ import { EnrolmentStateService } from './enrolment-state.service';
         MatProgressSpinnerModule,
         EnrolmentErrorComponent,
         EnrolmentGuestConfirmComponent,
+        EnrolmentVipGuestConfirmComponent,
         EnrolmentEventDetailsComponent,
         AuthenticatedImageDirective,
         IconComponent,
