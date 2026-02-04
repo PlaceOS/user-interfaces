@@ -40,12 +40,22 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         }}</span>
                     </h3>
                     <div class="grid grid-cols-2 gap-3 text-sm">
+                        @if (booking.extension_data?.vip_title) {
+                            <div>
+                                <div class="opacity-60">
+                                    {{ 'APP.CONCIERGE.VIP_TITLE' | translate }}
+                                </div>
+                                <div class="font-medium">
+                                    {{ booking.extension_data?.vip_title }}
+                                </div>
+                            </div>
+                        }
                         <div>
                             <div class="opacity-60">
-                                {{ 'FORM.NAME' | translate }}
+                                {{ booking.extension_data?.vip_full_name ? ('APP.CONCIERGE.VIP_FULL_NAME' | translate) : ('FORM.NAME' | translate) }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.asset_name || '-' }}
+                                {{ booking.extension_data?.vip_full_name || booking.asset_name || '-' }}
                             </div>
                         </div>
                         <div>
@@ -56,6 +66,16 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ booking.asset_id || '-' }}
                             </div>
                         </div>
+                        @if (booking.extension_data?.vip_contact_number) {
+                            <div>
+                                <div class="opacity-60">
+                                    {{ 'APP.CONCIERGE.VIP_CONTACT_NUMBER' | translate }}
+                                </div>
+                                <div class="font-medium">
+                                    {{ booking.extension_data?.vip_contact_number }}
+                                </div>
+                            </div>
+                        }
                     </div>
                 </section>
 
@@ -149,7 +169,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     </div>
                 </section>
 
-                <!-- VIP Assistant -->
+                <!-- VIP Assistant (from booking form) -->
                 @if (booking.extension_data?.vip_assistant_name || booking.extension_data?.vip_assistant_email) {
                     <section class="border-base-300 rounded-lg border p-4">
                         <h3 class="mb-3 flex items-center space-x-2 font-medium">
@@ -173,6 +193,142 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                     {{ booking.extension_data?.vip_assistant_email || '-' }}
                                 </div>
                             </div>
+                        </div>
+                    </section>
+                }
+
+                <!-- Assistant Details (from VIP guest enrolment) -->
+                @if (booking.extension_data?.assistant_name || booking.extension_data?.assistant_contact_number) {
+                    <section class="border-base-300 rounded-lg border p-4">
+                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                            <icon>support_agent</icon>
+                            <span>{{ 'APP.CONCIERGE.VIP_ASSISTANT_DETAILS' | translate }}</span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            @if (booking.extension_data?.assistant_name) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'FORM.NAME' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.assistant_name }}
+                                    </div>
+                                </div>
+                            }
+                            @if (booking.extension_data?.assistant_contact_number) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'APP.CONCIERGE.CONTACT_NUMBER' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.assistant_contact_number }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                <!-- Protocol Officer -->
+                @if (booking.extension_data?.protocol_officer_name || booking.extension_data?.protocol_officer_contact_number) {
+                    <section class="border-base-300 rounded-lg border p-4">
+                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                            <icon>badge</icon>
+                            <span>{{ 'APP.CONCIERGE.VIP_PROTOCOL_OFFICER' | translate }}</span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            @if (booking.extension_data?.protocol_officer_name) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'FORM.NAME' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.protocol_officer_name }}
+                                    </div>
+                                </div>
+                            }
+                            @if (booking.extension_data?.protocol_officer_contact_number) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'APP.CONCIERGE.CONTACT_NUMBER' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.protocol_officer_contact_number }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                <!-- Vehicle Details -->
+                @if (booking.extension_data?.vehicle_plate_number || booking.extension_data?.vehicle_plate_type) {
+                    <section class="border-base-300 rounded-lg border p-4">
+                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                            <icon>directions_car</icon>
+                            <span>{{ 'APP.CONCIERGE.VIP_VEHICLE_DETAILS' | translate }}</span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            @if (booking.extension_data?.vehicle_plate_number) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'APP.CONCIERGE.VIP_VEHICLE_PLATE_NUMBER' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.vehicle_plate_number }}
+                                    </div>
+                                </div>
+                            }
+                            @if (booking.extension_data?.vehicle_plate_type) {
+                                <div>
+                                    <div class="opacity-60">
+                                        {{ 'APP.CONCIERGE.VIP_VEHICLE_PLATE_TYPE' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.vehicle_plate_type }}
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </section>
+                }
+
+                <!-- Beverage Preference (from VIP guest enrolment) -->
+                @if (booking.extension_data?.beverage_preference && booking.extension_data?.beverage_preference !== 'none') {
+                    <section class="border-base-300 rounded-lg border p-4">
+                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                            <icon>local_cafe</icon>
+                            <span>{{ 'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE' | translate }}</span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="opacity-60">
+                                    {{ 'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE' | translate }}
+                                </div>
+                                <div class="font-medium">
+                                    @switch (booking.extension_data?.beverage_preference) {
+                                        @case ('standard') {
+                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_STANDARD' | translate }}
+                                        }
+                                        @case ('custom') {
+                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM' | translate }}
+                                        }
+                                        @default {
+                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_NONE' | translate }}
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            @if (booking.extension_data?.beverage_preference === 'custom' && booking.extension_data?.beverage_notes) {
+                                <div class="col-span-2">
+                                    <div class="opacity-60">
+                                        {{ 'APP.CONCIERGE.VIP_BEVERAGE_NOTES' | translate }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ booking.extension_data?.beverage_notes }}
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </section>
                 }
