@@ -51,8 +51,8 @@ import { TranslatePipe } from './translate.pipe';
             [loader] {
                 background-image: linear-gradient(
                     to right,
-                    #f15b55 0%,
-                    #f68c50 100%
+                    #f9a825 0%,
+                    #fdd835 100%
                 );
             }
         `,

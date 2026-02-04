@@ -33,6 +33,15 @@ const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'book/vip-visitors',
+        loadChildren: () =>
+            import('./vip-visitors/vip-visitors.module').then(
+                (m) => m.VipVisitorsModule,
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'book/assets',
         loadChildren: () =>
             import('./asset-manager/asset-manager.module').then(
