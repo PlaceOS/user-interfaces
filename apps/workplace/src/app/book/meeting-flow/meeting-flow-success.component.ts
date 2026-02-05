@@ -64,10 +64,12 @@ import { set } from 'date-fns';
                     </p>
                     @if (last_event()?.recurrence?.pattern) {
                         <div
-                            class="flex items-center space-x-2 rounded-lg bg-base-200 px-4 py-2"
+                            class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
                         >
                             <icon class="text-xl">update</icon>
-                            <div class="text-sm">{{ formatted_recurrence }}</div>
+                            <div class="text-sm">
+                                {{ formatted_recurrence }}
+                            </div>
                         </div>
                     }
                     @if (true) {
@@ -158,7 +160,7 @@ export class MeetingFlowSuccessComponent implements OnInit {
     }
 
     public startDeskBooking() {
-        this._router.navigate(['/book', 'desks', 'form']);
+        this._router.navigate(['/book', 'desk', 'form']);
         setTimeout(async () => {
             this._booking_form.newForm('desk');
             const space = await this._space_pipe.transform(
