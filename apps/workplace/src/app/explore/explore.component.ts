@@ -24,7 +24,7 @@ import { EventPinComponent } from './event-pin.component';
                 <explore-map-view></explore-map-view>
                 @if (next_event()) {
                     <div
-                        class="absolute right-2 top-2 flex items-center space-x-2 rounded-full border border-base-300 bg-base-100 p-1"
+                        class="border-base-300 bg-base-100 absolute top-2 right-2 flex items-center space-x-2 rounded-full border p-1"
                     >
                         <div class="max-w-[40vw] flex-1 px-4 leading-tight">
                             <div class="truncate">{{ next_event().title }}</div>
@@ -35,7 +35,7 @@ import { EventPinComponent } from './event-pin.component';
                                 {{ lvl?.display_name || lvl?.name }}
                             </div>
                         </div>
-                        <div class="rounded bg-base-200 px-2 py-1 text-xs">
+                        <div class="bg-base-200 rounded px-2 py-1 text-xs">
                             @if (begins_in()) {
                                 {{
                                     'COMMON.BEGINS_IN'
@@ -56,7 +56,7 @@ import { EventPinComponent } from './event-pin.component';
                             icon
                             matRipple
                             matTooltip="Pin my booking"
-                            class="border border-base-200 bg-secondary text-secondary-content"
+                            class="border-base-200 bg-secondary text-secondary-content border"
                             (click)="pinEvent()"
                         >
                             <icon>place</icon>
@@ -103,7 +103,13 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _upcoming = toSignal(this._landing.upcoming_events);
     private _time = signal(Date.now());
 
-    public readonly next_event = computed(() => this._upcoming()[0]);
+    public readonly next_event = computed(() => {
+        const upcoming = this._upcoming()[0];
+        if (upcoming.type === 'desk' || upcoming.system) {
+            return upcoming;
+        }
+        return null;
+    });
     public readonly begins_in = computed(() => {
         const event = this.next_event();
         if (!event) return 0;
