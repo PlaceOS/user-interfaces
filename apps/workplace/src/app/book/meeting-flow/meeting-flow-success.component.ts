@@ -6,6 +6,7 @@ import {
     Booking,
     BuildingLevel,
     currentUser,
+    firstTruthyValueFrom,
     formatRecurrence,
     fromEventRecurrence,
     i18n,
@@ -136,12 +137,10 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly allow_desk_booking = computed(() =>
         settingSignal('features', [])()?.includes('desks'),
     );
-    public readonly space = computed(
-        () => this.last_event()?.space || new Space(),
-    );
-    public readonly level = computed(
-        () => this._org.levelWithID(this.space().zones) || new BuildingLevel(),
-    );
+    public readonly space = signal(new Space());
+    public readonly level = computed(() => {
+        return this._org.levelWithID(this.space().zones) || new BuildingLevel();
+    });
 
     public get time_format() {
         return this._settings.time_format;
@@ -159,8 +158,15 @@ export class MeetingFlowSuccessComponent implements OnInit {
         );
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this.loading.set(true);
+        await firstTruthyValueFrom(this._org.initialised);
+        const space = this.last_event()?.space;
+        if (space) {
+            this.space.set(
+                await this._space_pipe.transform(space.email || space.id),
+            );
+        }
         setTimeout(() => this.loading.set(false), 500);
     }
 
@@ -178,13 +184,6 @@ export class MeetingFlowSuccessComponent implements OnInit {
                 minutes: 0,
             }).valueOf();
 
-            // Resolve space and level before setting up the form
-            const space = await this._space_pipe.transform(
-                this.space().email || this.space().id,
-            );
-            const level = this._org.levelWithID(space?.zones);
-            console.log('Space:', space, level, this.space());
-
             // Pass correct date/duration via Booking so newForm's internal
             // timeout('date') doesn't overwrite with defaults
             this._booking_form.newForm(
@@ -198,7 +197,7 @@ export class MeetingFlowSuccessComponent implements OnInit {
             );
             this._booking_form.setOptions({
                 type: 'desk',
-                zone_id: level?.id,
+                zone_id: this.level()?.id,
             });
             this._booking_form.form.patchValue({ user: currentUser() });
 
@@ -221,8 +220,8 @@ export class MeetingFlowSuccessComponent implements OnInit {
                 .map((_) => _.map_id || _.id)
                 .filter((i) => i);
             const nearby = await findNearbyFeature(
-                level.map_id,
-                space?.map_id,
+                this.level().map_id,
+                this.space()?.map_id,
                 bookable_desks,
             );
             if (!nearby) {
