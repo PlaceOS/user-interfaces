@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
     model,
     output,
@@ -268,6 +269,31 @@ export class DeskFlowSelectListComponent {
             this.available_items()?.length,
         ),
     ]);
+
+    private _initial_page_set = false;
+
+    constructor() {
+        effect(() => {
+            const items = this.available_items();
+            const selected = this.selected_items();
+            if (
+                !this._initial_page_set &&
+                items?.length &&
+                selected?.length
+            ) {
+                const selected_index = items.findIndex((item) =>
+                    selected.includes(item.id),
+                );
+                if (selected_index >= 0) {
+                    const target_page = Math.floor(
+                        selected_index / this.page_size(),
+                    );
+                    this.page.set(target_page);
+                }
+                this._initial_page_set = true;
+            }
+        });
+    }
 
     public readonly favourites = settingSignal<string[]>(
         SETTING_KEYS.FAVORITE_DESKS,
