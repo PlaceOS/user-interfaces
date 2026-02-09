@@ -46,12 +46,6 @@ export interface UserDetails extends User {
                     ></a-user-avatar>
                 </div>
                 <div class="mb-[0.25em] text-[1.5em]">{{ user().name }}</div>
-                <div>
-                    {{
-                        'APP.VISITOR_KIOSK.LABEL_FOR'
-                            | translate: { title: user()?.title }
-                    }}
-                </div>
                 <div class="opacity-60">
                     {{
                         'APP.VISITOR_KIOSK.LABEL_HOST'
