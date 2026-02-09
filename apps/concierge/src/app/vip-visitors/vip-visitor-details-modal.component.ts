@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     Booking,
     getTimezoneOffsetString,
@@ -13,20 +13,17 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 @Component({
     selector: 'vip-visitor-details-modal',
     template: `
-        <div class="bg-base-100 w-[32rem] max-w-full overflow-hidden rounded-lg">
+        <div class="bg-base-100 w-xl max-w-full overflow-hidden rounded-lg">
             <header
-                class="bg-secondary text-secondary-content flex items-center justify-between p-4"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none p-2"
             >
                 <h2 class="flex items-center space-x-2 text-lg font-medium">
                     <icon class="text-warning">star</icon>
-                    <span>{{ 'APP.CONCIERGE.VIP_DETAILS_TITLE' | translate }}</span>
+                    <span>{{
+                        'APP.CONCIERGE.VIP_DETAILS_TITLE' | translate
+                    }}</span>
                 </h2>
-                <button
-                    icon
-                    matRipple
-                    mat-dialog-close
-                    class="text-secondary-content"
-                >
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             </header>
@@ -52,10 +49,19 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         }
                         <div>
                             <div class="opacity-60">
-                                {{ booking.extension_data?.vip_full_name ? ('APP.CONCIERGE.VIP_FULL_NAME' | translate) : ('FORM.NAME' | translate) }}
+                                {{
+                                    booking.extension_data?.vip_full_name
+                                        ? ('APP.CONCIERGE.VIP_FULL_NAME'
+                                          | translate)
+                                        : ('FORM.NAME' | translate)
+                                }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.vip_full_name || booking.asset_name || '-' }}
+                                {{
+                                    booking.extension_data?.vip_full_name ||
+                                        booking.asset_name ||
+                                        '-'
+                                }}
                             </div>
                         </div>
                         <div>
@@ -69,10 +75,16 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         @if (booking.extension_data?.vip_contact_number) {
                             <div>
                                 <div class="opacity-60">
-                                    {{ 'APP.CONCIERGE.VIP_CONTACT_NUMBER' | translate }}
+                                    {{
+                                        'APP.CONCIERGE.VIP_CONTACT_NUMBER'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.vip_contact_number }}
+                                    {{
+                                        booking.extension_data
+                                            ?.vip_contact_number
+                                    }}
                                 </div>
                             </div>
                         }
@@ -109,7 +121,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'FORM.HOST' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.user_name || booking.user_email || '-' }}
+                                {{
+                                    booking.user_name ||
+                                        booking.user_email ||
+                                        '-'
+                                }}
                             </div>
                         </div>
                         <div>
@@ -119,12 +135,26 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <div class="font-medium">
                                 <span
                                     class="rounded px-2 py-0.5 text-xs"
-                                    [class.bg-success]="booking.status === 'approved'"
-                                    [class.text-success-content]="booking.status === 'approved'"
-                                    [class.bg-error]="booking.status === 'declined'"
-                                    [class.text-error-content]="booking.status === 'declined'"
-                                    [class.bg-warning]="booking.status !== 'approved' && booking.status !== 'declined'"
-                                    [class.text-warning-content]="booking.status !== 'approved' && booking.status !== 'declined'"
+                                    [class.bg-success]="
+                                        booking.status === 'approved'
+                                    "
+                                    [class.text-success-content]="
+                                        booking.status === 'approved'
+                                    "
+                                    [class.bg-error]="
+                                        booking.status === 'declined'
+                                    "
+                                    [class.text-error-content]="
+                                        booking.status === 'declined'
+                                    "
+                                    [class.bg-warning]="
+                                        booking.status !== 'approved' &&
+                                        booking.status !== 'declined'
+                                    "
+                                    [class.text-warning-content]="
+                                        booking.status !== 'approved' &&
+                                        booking.status !== 'declined'
+                                    "
                                 >
                                     {{ booking.status | titlecase }}
                                 </span>
@@ -133,9 +163,14 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         @if (booking.title) {
                             <div class="col-span-2">
                                 <div class="opacity-60">
-                                    {{ 'BOOKINGS.VIP_VISITOR_REASON' | translate }}
+                                    {{
+                                        'BOOKINGS.VIP_VISITOR_REASON'
+                                            | translate
+                                    }}
                                 </div>
-                                <div class="font-medium">{{ booking.title }}</div>
+                                <div class="font-medium">
+                                    {{ booking.title }}
+                                </div>
                             </div>
                         }
                     </div>
@@ -170,11 +205,18 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </section>
 
                 <!-- VIP Assistant (from booking form) -->
-                @if (booking.extension_data?.vip_assistant_name || booking.extension_data?.vip_assistant_email) {
+                @if (
+                    booking.extension_data?.vip_assistant_name ||
+                    booking.extension_data?.vip_assistant_email
+                ) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>support_agent</icon>
-                            <span>{{ 'BOOKINGS.VIP_ASSISTANT' | translate }}</span>
+                            <span>{{
+                                'BOOKINGS.VIP_ASSISTANT' | translate
+                            }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <div>
@@ -182,7 +224,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                     {{ 'FORM.NAME' | translate }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.vip_assistant_name || '-' }}
+                                    {{
+                                        booking.extension_data
+                                            ?.vip_assistant_name || '-'
+                                    }}
                                 </div>
                             </div>
                             <div>
@@ -190,7 +235,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                     {{ 'FORM.EMAIL' | translate }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.vip_assistant_email || '-' }}
+                                    {{
+                                        booking.extension_data
+                                            ?.vip_assistant_email || '-'
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -198,11 +246,19 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 }
 
                 <!-- Assistant Details (from VIP guest enrolment) -->
-                @if (booking.extension_data?.assistant_name || booking.extension_data?.assistant_contact_number) {
+                @if (
+                    booking.extension_data?.assistant_name ||
+                    booking.extension_data?.assistant_contact_number
+                ) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>support_agent</icon>
-                            <span>{{ 'APP.CONCIERGE.VIP_ASSISTANT_DETAILS' | translate }}</span>
+                            <span>{{
+                                'APP.CONCIERGE.VIP_ASSISTANT_DETAILS'
+                                    | translate
+                            }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             @if (booking.extension_data?.assistant_name) {
@@ -211,17 +267,28 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                         {{ 'FORM.NAME' | translate }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.assistant_name }}
+                                        {{
+                                            booking.extension_data
+                                                ?.assistant_name
+                                        }}
                                     </div>
                                 </div>
                             }
-                            @if (booking.extension_data?.assistant_contact_number) {
+                            @if (
+                                booking.extension_data?.assistant_contact_number
+                            ) {
                                 <div>
                                     <div class="opacity-60">
-                                        {{ 'APP.CONCIERGE.CONTACT_NUMBER' | translate }}
+                                        {{
+                                            'APP.CONCIERGE.CONTACT_NUMBER'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.assistant_contact_number }}
+                                        {{
+                                            booking.extension_data
+                                                ?.assistant_contact_number
+                                        }}
                                     </div>
                                 </div>
                             }
@@ -230,30 +297,51 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 }
 
                 <!-- Protocol Officer -->
-                @if (booking.extension_data?.protocol_officer_name || booking.extension_data?.protocol_officer_contact_number) {
+                @if (
+                    booking.extension_data?.protocol_officer_name ||
+                    booking.extension_data?.protocol_officer_contact_number
+                ) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>badge</icon>
-                            <span>{{ 'APP.CONCIERGE.VIP_PROTOCOL_OFFICER' | translate }}</span>
+                            <span>{{
+                                'APP.CONCIERGE.VIP_PROTOCOL_OFFICER' | translate
+                            }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
-                            @if (booking.extension_data?.protocol_officer_name) {
+                            @if (
+                                booking.extension_data?.protocol_officer_name
+                            ) {
                                 <div>
                                     <div class="opacity-60">
                                         {{ 'FORM.NAME' | translate }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.protocol_officer_name }}
+                                        {{
+                                            booking.extension_data
+                                                ?.protocol_officer_name
+                                        }}
                                     </div>
                                 </div>
                             }
-                            @if (booking.extension_data?.protocol_officer_contact_number) {
+                            @if (
+                                booking.extension_data
+                                    ?.protocol_officer_contact_number
+                            ) {
                                 <div>
                                     <div class="opacity-60">
-                                        {{ 'APP.CONCIERGE.CONTACT_NUMBER' | translate }}
+                                        {{
+                                            'APP.CONCIERGE.CONTACT_NUMBER'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.protocol_officer_contact_number }}
+                                        {{
+                                            booking.extension_data
+                                                ?.protocol_officer_contact_number
+                                        }}
                                     </div>
                                 </div>
                             }
@@ -262,30 +350,49 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 }
 
                 <!-- Vehicle Details -->
-                @if (booking.extension_data?.vehicle_plate_number || booking.extension_data?.vehicle_plate_type) {
+                @if (
+                    booking.extension_data?.vehicle_plate_number ||
+                    booking.extension_data?.vehicle_plate_type
+                ) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>directions_car</icon>
-                            <span>{{ 'APP.CONCIERGE.VIP_VEHICLE_DETAILS' | translate }}</span>
+                            <span>{{
+                                'APP.CONCIERGE.VIP_VEHICLE_DETAILS' | translate
+                            }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             @if (booking.extension_data?.vehicle_plate_number) {
                                 <div>
                                     <div class="opacity-60">
-                                        {{ 'APP.CONCIERGE.VIP_VEHICLE_PLATE_NUMBER' | translate }}
+                                        {{
+                                            'APP.CONCIERGE.VIP_VEHICLE_PLATE_NUMBER'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.vehicle_plate_number }}
+                                        {{
+                                            booking.extension_data
+                                                ?.vehicle_plate_number
+                                        }}
                                     </div>
                                 </div>
                             }
                             @if (booking.extension_data?.vehicle_plate_type) {
                                 <div>
                                     <div class="opacity-60">
-                                        {{ 'APP.CONCIERGE.VIP_VEHICLE_PLATE_TYPE' | translate }}
+                                        {{
+                                            'APP.CONCIERGE.VIP_VEHICLE_PLATE_TYPE'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.vehicle_plate_type }}
+                                        {{
+                                            booking.extension_data
+                                                ?.vehicle_plate_type
+                                        }}
                                     </div>
                                 </div>
                             }
@@ -294,38 +401,71 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 }
 
                 <!-- Beverage Preference (from VIP guest enrolment) -->
-                @if (booking.extension_data?.beverage_preference && booking.extension_data?.beverage_preference !== 'none') {
+                @if (
+                    booking.extension_data?.beverage_preference &&
+                    booking.extension_data?.beverage_preference !== 'none'
+                ) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>local_cafe</icon>
-                            <span>{{ 'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE' | translate }}</span>
+                            <span>{{
+                                'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE'
+                                    | translate
+                            }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <div>
                                 <div class="opacity-60">
-                                    {{ 'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE' | translate }}
+                                    {{
+                                        'APP.CONCIERGE.VIP_BEVERAGE_PREFERENCE'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-medium">
-                                    @switch (booking.extension_data?.beverage_preference) {
+                                    @switch (
+                                        booking.extension_data
+                                            ?.beverage_preference
+                                    ) {
                                         @case ('standard') {
-                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_STANDARD' | translate }}
+                                            {{
+                                                'BOOKINGS.VIP_WELCOME_BEVERAGE_STANDARD'
+                                                    | translate
+                                            }}
                                         }
                                         @case ('custom') {
-                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM' | translate }}
+                                            {{
+                                                'BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM'
+                                                    | translate
+                                            }}
                                         }
                                         @default {
-                                            {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_NONE' | translate }}
+                                            {{
+                                                'BOOKINGS.VIP_WELCOME_BEVERAGE_NONE'
+                                                    | translate
+                                            }}
                                         }
                                     }
                                 </div>
                             </div>
-                            @if (booking.extension_data?.beverage_preference === 'custom' && booking.extension_data?.beverage_notes) {
+                            @if (
+                                booking.extension_data?.beverage_preference ===
+                                    'custom' &&
+                                booking.extension_data?.beverage_notes
+                            ) {
                                 <div class="col-span-2">
                                     <div class="opacity-60">
-                                        {{ 'APP.CONCIERGE.VIP_BEVERAGE_NOTES' | translate }}
+                                        {{
+                                            'APP.CONCIERGE.VIP_BEVERAGE_NOTES'
+                                                | translate
+                                        }}
                                     </div>
                                     <div class="font-medium">
-                                        {{ booking.extension_data?.beverage_notes }}
+                                        {{
+                                            booking.extension_data
+                                                ?.beverage_notes
+                                        }}
                                     </div>
                                 </div>
                             }
@@ -337,7 +477,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <section class="border-base-300 rounded-lg border p-4">
                     <h3 class="mb-3 flex items-center space-x-2 font-medium">
                         <icon>room_service</icon>
-                        <span>{{ 'BOOKINGS.VIP_SERVICES' | translate }}</span>
+                        <span>{{
+                            'BOOKINGS.VIP_SERVICES_HEADER' | translate
+                        }}</span>
                     </h3>
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div>
@@ -347,13 +489,22 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <div class="font-medium">
                                 @switch (booking.extension_data?.meet_greet) {
                                     @case ('internal') {
-                                        {{ 'BOOKINGS.VIP_MEET_GREET_INTERNAL' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_MEET_GREET_INTERNAL'
+                                                | translate
+                                        }}
                                     }
                                     @case ('external_airport') {
-                                        {{ 'BOOKINGS.VIP_MEET_GREET_EXTERNAL_AIRPORT' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_MEET_GREET_EXTERNAL_AIRPORT'
+                                                | translate
+                                        }}
                                     }
                                     @default {
-                                        {{ 'BOOKINGS.VIP_MEET_GREET_NONE' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_MEET_GREET_NONE'
+                                                | translate
+                                        }}
                                     }
                                 }
                             </div>
@@ -365,10 +516,16 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <div class="font-medium">
                                 @switch (booking.extension_data?.driver) {
                                     @case ('in_house') {
-                                        {{ 'BOOKINGS.VIP_DRIVER_IN_HOUSE' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_DRIVER_IN_HOUSE'
+                                                | translate
+                                        }}
                                     }
                                     @case ('third_party') {
-                                        {{ 'BOOKINGS.VIP_DRIVER_THIRD_PARTY' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_DRIVER_THIRD_PARTY'
+                                                | translate
+                                        }}
                                     }
                                     @default {
                                         -
@@ -381,7 +538,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'BOOKINGS.VIP_WALKTHROUGH' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.walkthrough ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+                                {{
+                                    booking.extension_data?.walkthrough
+                                        ? ('COMMON.YES' | translate)
+                                        : ('COMMON.NO' | translate)
+                                }}
                             </div>
                         </div>
                         <div>
@@ -389,7 +550,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'BOOKINGS.VIP_GIVEAWAY_GIFT' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.gift ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+                                {{
+                                    booking.extension_data?.gift
+                                        ? ('COMMON.YES' | translate)
+                                        : ('COMMON.NO' | translate)
+                                }}
                             </div>
                         </div>
                         <div>
@@ -397,7 +562,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'BOOKINGS.VIP_PHOTOGRAPHER' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.photographer ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+                                {{
+                                    booking.extension_data?.photographer
+                                        ? ('COMMON.YES' | translate)
+                                        : ('COMMON.NO' | translate)
+                                }}
                             </div>
                         </div>
                         <div>
@@ -405,7 +574,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'BOOKINGS.VIP_WELCOME_SCREEN' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.welcome_screen ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+                                {{
+                                    booking.extension_data?.welcome_screen
+                                        ? ('COMMON.YES' | translate)
+                                        : ('COMMON.NO' | translate)
+                                }}
                             </div>
                         </div>
                         <div>
@@ -413,23 +586,42 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                 {{ 'BOOKINGS.VIP_PRESENTATION' | translate }}
                             </div>
                             <div class="font-medium">
-                                {{ booking.extension_data?.presentation ? ('COMMON.YES' | translate) : ('COMMON.NO' | translate) }}
+                                {{
+                                    booking.extension_data?.presentation
+                                        ? ('COMMON.YES' | translate)
+                                        : ('COMMON.NO' | translate)
+                                }}
                             </div>
                         </div>
                         <div>
                             <div class="opacity-60">
-                                {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE' | translate }}
+                                {{
+                                    'BOOKINGS.VIP_WELCOME_BEVERAGE' | translate
+                                }}
                             </div>
                             <div class="font-medium">
-                                @switch (booking.extension_data?.welcome_beverage) {
+                                @switch (
+                                    booking.extension_data?.welcome_beverage
+                                ) {
                                     @case ('standard') {
-                                        {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_STANDARD' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_WELCOME_BEVERAGE_STANDARD'
+                                                | translate
+                                        }}
                                     }
                                     @case ('custom') {
-                                        {{ booking.extension_data?.welcome_beverage_custom || ('BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM' | translate) }}
+                                        {{
+                                            booking.extension_data
+                                                ?.welcome_beverage_custom ||
+                                                ('BOOKINGS.VIP_WELCOME_BEVERAGE_CUSTOM'
+                                                    | translate)
+                                        }}
                                     }
                                     @default {
-                                        {{ 'BOOKINGS.VIP_WELCOME_BEVERAGE_NONE' | translate }}
+                                        {{
+                                            'BOOKINGS.VIP_WELCOME_BEVERAGE_NONE'
+                                                | translate
+                                        }}
                                     }
                                 }
                             </div>
@@ -440,35 +632,59 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 <!-- Restaurant Reservation -->
                 @if (booking.extension_data?.restaurant_reservation) {
                     <section class="border-base-300 rounded-lg border p-4">
-                        <h3 class="mb-3 flex items-center space-x-2 font-medium">
+                        <h3
+                            class="mb-3 flex items-center space-x-2 font-medium"
+                        >
                             <icon>restaurant</icon>
                             <span>{{
-                                'BOOKINGS.VIP_RESTAURANT_RESERVATION' | translate
+                                'BOOKINGS.VIP_RESTAURANT_RESERVATION'
+                                    | translate
                             }}</span>
                         </h3>
                         <div class="grid grid-cols-2 gap-3 text-sm">
                             <div>
                                 <div class="opacity-60">
-                                    {{ 'BOOKINGS.VIP_RESTAURANT_NAME' | translate }}
+                                    {{
+                                        'BOOKINGS.VIP_RESTAURANT_NAME'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.restaurant_reservation?.name || '-' }}
+                                    {{
+                                        booking.extension_data
+                                            ?.restaurant_reservation?.name ||
+                                            '-'
+                                    }}
                                 </div>
                             </div>
                             <div>
                                 <div class="opacity-60">
-                                    {{ 'BOOKINGS.VIP_RESTAURANT_TIME' | translate }}
+                                    {{
+                                        'BOOKINGS.VIP_RESTAURANT_TIME'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.restaurant_reservation?.time | date: time_format : tz }}
+                                    {{
+                                        booking.extension_data
+                                            ?.restaurant_reservation?.time
+                                            | date: time_format : tz
+                                    }}
                                 </div>
                             </div>
                             <div class="col-span-2">
                                 <div class="opacity-60">
-                                    {{ 'BOOKINGS.VIP_RESTAURANT_ADDRESS' | translate }}
+                                    {{
+                                        'BOOKINGS.VIP_RESTAURANT_ADDRESS'
+                                            | translate
+                                    }}
                                 </div>
                                 <div class="font-medium">
-                                    {{ booking.extension_data?.restaurant_reservation?.address || '-' }}
+                                    {{
+                                        booking.extension_data
+                                            ?.restaurant_reservation?.address ||
+                                            '-'
+                                    }}
                                 </div>
                             </div>
                         </div>
@@ -490,7 +706,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             </div>
                             <div class="font-medium">
                                 @if (booking.checked_in_at) {
-                                    {{ booking.checked_in_at * 1000 | date: 'medium' : tz }}
+                                    {{
+                                        booking.checked_in_at * 1000
+                                            | date: 'medium' : tz
+                                    }}
                                 } @else {
                                     -
                                 }
@@ -502,7 +721,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             </div>
                             <div class="font-medium">
                                 @if (booking.checked_out_at) {
-                                    {{ booking.checked_out_at * 1000 | date: 'medium' : tz }}
+                                    {{
+                                        booking.checked_out_at * 1000
+                                            | date: 'medium' : tz
+                                    }}
                                 } @else {
                                     -
                                 }
@@ -511,19 +733,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     </div>
                 </section>
             </div>
-            <footer class="border-base-300 flex justify-end border-t p-4">
-                <button btn matRipple mat-dialog-close>
-                    {{ 'COMMON.CLOSE' | translate }}
-                </button>
-            </footer>
         </div>
     `,
-    imports: [
-        CommonModule,
-        MatRippleModule,
-        IconComponent,
-        TranslatePipe,
-    ],
+    imports: [CommonModule, MatRippleModule, IconComponent, TranslatePipe],
 })
 export class VipVisitorDetailsModalComponent {
     private _dialog_ref = inject(MatDialogRef<VipVisitorDetailsModalComponent>);

@@ -25,7 +25,7 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
     selector: 'vip-visitor-listings',
     template: `
         <simple-table
-            class="z-0 block text-sm"
+            class="z-0 block min-w-240 text-sm"
             [data]="visitors"
             [columns]="[
                 {
@@ -85,11 +85,10 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
         <ng-template #visitor_template let-row="row">
             <div class="px-4 py-2">
                 <div class="flex items-center space-x-1">
-                    <icon class="text-warning text-lg">star</icon>
                     <span>{{ row.asset_name || row.asset_id }}</span>
                 </div>
                 @if (row.asset_name && row.asset_id) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-30 select-all">
                         {{ row.asset_id }}
                     </div>
                 }
@@ -98,7 +97,14 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
         <ng-template #assistant_template let-row="row">
             <div class="px-4 py-2">
                 @if (row.extension_data?.vip_assistant_name) {
-                    <div>{{ row.extension_data.vip_assistant_name }}</div>
+                    @let name = row.extension_data.vip_assistant_name;
+                    @let email = row.extension_data.vip_assistant_email;
+                    <div>{{ name || email }}</div>
+                    @if (name && email) {
+                        <div class="text-xs opacity-30 select-all">
+                            {{ email }}
+                        </div>
+                    }
                 } @else {
                     <span class="opacity-30">-</span>
                 }
@@ -108,7 +114,7 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.booked_by_name || row.booked_by_email }}</div>
                 @if (row.booked_by_name && row.booked_by_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-30 select-all">
                         {{ row.booked_by_email }}
                     </div>
                 }
