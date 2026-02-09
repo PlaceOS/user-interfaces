@@ -20,6 +20,7 @@ import {
     removeAlertDashboard,
     showAlert,
     showAlertDashboard,
+    systemModuleState,
     token,
     TriggerComparison,
     TriggerConditionOperator,
@@ -148,7 +149,8 @@ function calculateModuleIndex(
 function getModuleDeviceNames(modules: PlaceModule[]): string[] {
     return modules.map((mod) => {
         const driver = mod.driver || ({ class_name: 'System' } as any);
-        const name = mod.custom_name || mod.name || driver.class_name || 'Blank';
+        const name =
+            mod.custom_name || mod.name || driver.class_name || 'Blank';
         const index = calculateModuleIndex(modules, mod);
         return `${name}_${index}`;
     });
@@ -429,7 +431,11 @@ export class DashboardsService extends AsyncHandler {
                 return device_names;
             })
             .catch((err) => {
-                log('ALERTS', `Failed to fetch modules for system ${system_id}:`, err);
+                log(
+                    'ALERTS',
+                    `Failed to fetch modules for system ${system_id}:`,
+                    err,
+                );
                 this._pending_module_queries.delete(system_id);
                 // Return empty array on error - this will cause the alert to be filtered out
                 return [];
@@ -449,6 +455,128 @@ export class DashboardsService extends AsyncHandler {
     ): Promise<boolean> {
         const module_names = await this._getSystemModuleNames(system_id);
         return module_names.includes(device);
+    }
+
+    /**
+     * Get the current value of a status variable from a module.
+     * Returns undefined if the value cannot be fetched.
+     */
+    private async _getModuleStatusValue(
+        system_id: string,
+        device: string,
+        status_key: string,
+        keys: string[] = [],
+    ): Promise<any> {
+        const parts = (device || '').split('_');
+        const module_index = parseInt(parts.pop(), 10) || 1;
+        const module_name = parts.join('_');
+        if (!module_name) return undefined;
+
+        try {
+            const state = await lastValueFrom(
+                systemModuleState(system_id, module_name, module_index),
+            );
+            let value = state?.[status_key];
+            // Navigate through sub-keys if specified
+            for (const key of keys || []) {
+                if (value == null) break;
+                value = value[key];
+            }
+            return value;
+        } catch (err) {
+            log(
+                'ALERTS',
+                `Failed to fetch status value for ${device}.${status_key} on system ${system_id}:`,
+                err,
+            );
+            return undefined;
+        }
+    }
+
+    /**
+     * Coerce a value that may be a string representation to its actual type.
+     * Handles "true"/"false" strings, numeric strings, and null/undefined strings.
+     */
+    private _coerceValue(value: any): any {
+        if (typeof value !== 'string') return value;
+
+        const lower = value.toLowerCase();
+        // Handle boolean strings
+        if (lower === 'true') return true;
+        if (lower === 'false') return false;
+        // Handle null/undefined strings
+        if (lower === 'null') return null;
+        if (lower === 'undefined') return undefined;
+        // Handle numeric strings
+        if (value !== '' && !isNaN(Number(value))) {
+            return Number(value);
+        }
+        return value;
+    }
+
+    /**
+     * Validate that an alert condition matches the current module state.
+     * This prevents false positives from delayed or stale MQTT messages.
+     */
+    private async _validateAlertCondition(
+        system_id: string,
+        device: string,
+        comparison: TriggerComparison,
+    ): Promise<boolean> {
+        // Get the status key and subkeys from the comparison
+        let status_key: string;
+        let keys: string[] = [];
+        if (comparison.left instanceof Object) {
+            status_key = comparison.left.status;
+            keys = comparison.left.keys || [];
+        } else {
+            status_key = comparison.left as string;
+        }
+
+        // Fetch the current value from the module
+        const raw_value = await this._getModuleStatusValue(
+            system_id,
+            device,
+            status_key,
+            keys,
+        );
+
+        if (raw_value === undefined) {
+            // If we can't fetch the value, don't validate (let alert through)
+            log(
+                'ALERTS',
+                `Could not fetch current value for ${device}.${status_key}, skipping validation`,
+            );
+            return true;
+        }
+
+        // Coerce values that may be string representations to their actual types
+        const current_value = this._coerceValue(raw_value);
+        const expected = this._coerceValue(comparison.right);
+
+        // Validate against the comparison operator
+        switch (comparison.operator) {
+            case TriggerConditionOperator.EQ:
+                return current_value === expected;
+            case TriggerConditionOperator.NEQ:
+                return current_value !== expected;
+            case TriggerConditionOperator.GT:
+                return current_value > expected;
+            case TriggerConditionOperator.LT:
+                return current_value < expected;
+            case TriggerConditionOperator.GTE:
+                return current_value >= expected;
+            case TriggerConditionOperator.LTE:
+                return current_value <= expected;
+            case TriggerConditionOperator.AND:
+                return !!(current_value && expected);
+            case TriggerConditionOperator.OR:
+                return !!(current_value || expected);
+            case TriggerConditionOperator.XOR:
+                return !!current_value !== !!expected;
+            default:
+                return true;
+        }
     }
 
     private _listenToAlertTopics() {
@@ -512,7 +640,10 @@ export class DashboardsService extends AsyncHandler {
             'update_alerts',
             async () => {
                 const alert_list = this.alerts_list();
-                let alert_out: Alert[] = [];
+                // Track alerts with their triggering comparisons for validation
+                let alert_out: (Alert & {
+                    _comparisons?: TriggerComparison[];
+                })[] = [];
                 for (const alert of alert_list) {
                     const comparision_matches: any[][] = [];
                     for (const item of alert.conditions.comparisons) {
@@ -555,6 +686,8 @@ export class DashboardsService extends AsyncHandler {
                                 body: alert.description,
                                 status: 'open',
                                 timestamp: time * 1000,
+                                // Store comparisons for validation
+                                _comparisons: alert.conditions.comparisons,
                             });
                         }
                     }
@@ -562,18 +695,44 @@ export class DashboardsService extends AsyncHandler {
                 }
 
                 // Filter out alerts where the module no longer exists on the system
+                // and validate that current state matches the alert condition
                 const filtered_alerts: Alert[] = [];
                 for (const alert of alert_out) {
                     const exists = await this._moduleExistsOnSystem(
                         alert.location,
                         alert.device,
                     );
-                    if (exists) {
-                        filtered_alerts.push(alert);
-                    } else {
+                    if (!exists) {
                         log(
                             'ALERTS',
                             `Filtering out alert for non-existent module: ${alert.device} on system ${alert.location}`,
+                        );
+                        continue;
+                    }
+
+                    // Validate current state matches at least one comparison
+                    const comparisons = alert._comparisons || [];
+                    let valid = comparisons.length === 0; // If no comparisons, consider valid
+                    for (const comparison of comparisons) {
+                        const is_valid = await this._validateAlertCondition(
+                            alert.location,
+                            alert.device,
+                            comparison,
+                        );
+                        if (is_valid) {
+                            valid = true;
+                            break; // At least one comparison is still valid
+                        }
+                    }
+
+                    if (valid) {
+                        // Remove internal _comparisons before adding to output
+                        const { _comparisons, ...clean_alert } = alert;
+                        filtered_alerts.push(clean_alert);
+                    } else {
+                        log(
+                            'ALERTS',
+                            `Filtering out alert for ${alert.device} on system ${alert.location}: current state no longer matches condition`,
                         );
                     }
                 }
