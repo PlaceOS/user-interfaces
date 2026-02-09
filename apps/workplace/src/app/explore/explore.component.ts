@@ -104,7 +104,8 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
     private _time = signal(Date.now());
 
     public readonly next_event = computed(() => {
-        const upcoming = this._upcoming()[0];
+        const upcoming = this._upcoming()?.[0];
+        if (!upcoming) return null;
         if (upcoming.type === 'desk' || upcoming.system) {
             return upcoming;
         }

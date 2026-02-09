@@ -31,7 +31,12 @@ describe('ExploreBookingModalComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        spectator = createComponent();
+        // Bypass the 500ms _min_loading timer so the form renders
+        (spectator.component as any)._min_loading.set(false);
+        spectator.detectChanges();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();

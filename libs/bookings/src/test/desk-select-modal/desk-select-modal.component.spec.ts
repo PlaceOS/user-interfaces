@@ -1,3 +1,16 @@
+// Mock DeskMapComponent module before any imports so ng-mocks never processes
+// InteractiveMapComponent (which uses model() signals unsupported by ng-mocks 14.x)
+jest.mock('../../lib/desk-select-modal/desk-map.component', () => {
+    const { Component } = jest.requireActual('@angular/core');
+
+    class DeskMapComponent {}
+    Component({ selector: 'desk-map', template: '', standalone: true })(
+        DeskMapComponent,
+    );
+
+    return { DeskMapComponent };
+});
+
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -5,14 +18,14 @@ import {
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Desk, SETTING_KEYS, SettingsService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
 import { DeskDetailsComponent } from '../../lib/desk-select-modal/desk-details.component';
 import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-filters-display.component';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';
-import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
 import { DeskSelectModalComponent } from '../../lib/desk-select-modal/desk-select-modal.component';
 
 describe('DeskSelectModalComponent', () => {
@@ -20,7 +33,10 @@ describe('DeskSelectModalComponent', () => {
     const createComponent = createComponentFactory({
         component: DeskSelectModalComponent,
         providers: [
-            MockProvider(BookingFormService),
+            {
+                provide: BookingFormService,
+                useValue: { setOptions: jest.fn() },
+            },
             MockProvider(SettingsService, {
                 get: jest.fn(),
                 saveUserSetting: jest.fn(),
@@ -29,12 +45,11 @@ describe('DeskSelectModalComponent', () => {
             MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         declarations: [
-            MockComponent(IconComponent),
-            MockComponent(DeskFiltersDisplayComponent),
-            MockComponent(DeskFiltersComponent),
-            MockComponent(DeskListComponent),
-            MockComponent(DeskDetailsComponent),
-            MockComponent(DeskMapComponent),
+            mockComponent(IconComponent),
+            mockComponent(DeskFiltersDisplayComponent),
+            mockComponent(DeskFiltersComponent),
+            mockComponent(DeskListComponent),
+            mockComponent(DeskDetailsComponent),
         ],
         imports: [MockModule(MatDialogModule)],
     });
