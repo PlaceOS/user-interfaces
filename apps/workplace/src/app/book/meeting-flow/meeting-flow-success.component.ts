@@ -1,28 +1,33 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
+    Booking,
+    BuildingLevel,
     currentUser,
+    firstTruthyValueFrom,
     formatRecurrence,
     fromEventRecurrence,
     i18n,
-    nextValueFrom,
     notifyError,
     OrganisationService,
+    settingSignal,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { set } from 'date-fns';
+import { firstValueFrom, skip } from 'rxjs';
 
 @Component({
     selector: 'meeting-flow-success',
     template: `
         @let details =
             {
-                level: level?.display_name || level?.name,
-                space: space?.display_name || space?.name,
+                level: level().display_name || level().name,
+                space: space().display_name || space().name,
                 date: last_event()?.date | date: 'mediumDate',
                 time:
                     (last_event()?.date | date: time_format) +
@@ -47,7 +52,7 @@ import { set } from 'date-fns';
                     <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
-                                (space
+                                (space().email
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE_ALLDAY'
                                     : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE_ALLDAY'
                                 ) | translate: details
@@ -55,7 +60,7 @@ import { set } from 'date-fns';
                         }
                         @if (!last_event()?.all_day) {
                             {{
-                                (space
+                                (space().email
                                     ? 'CALENDAR_EVENT.SUCCESS_WITH_SPACE'
                                     : 'CALENDAR_EVENT.SUCCESS_WITHOUT_SPACE'
                                 ) | translate: details
@@ -64,10 +69,12 @@ import { set } from 'date-fns';
                     </p>
                     @if (last_event()?.recurrence?.pattern) {
                         <div
-                            class="flex items-center space-x-2 rounded-lg bg-base-200 px-4 py-2"
+                            class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
                         >
                             <icon class="text-xl">update</icon>
-                            <div class="text-sm">{{ formatted_recurrence }}</div>
+                            <div class="text-sm">
+                                {{ formatted_recurrence }}
+                            </div>
                         </div>
                     }
                     @if (true) {
@@ -79,13 +86,19 @@ import { set } from 'date-fns';
                         </p>
                     }
                     <div class="h-4"></div>
-                    @if (space?.email && allow_desk_booking) {
+                    @if (space().email && allow_desk_booking()) {
                         <button
                             btn
                             matRipple
-                            class="w-48"
+                            class="w-56"
+                            [disabled]="desk_loading()"
                             (click)="startDeskBooking()"
                         >
+                            @if (desk_loading()) {
+                                <icon class="mr-2 animate-spin text-2xl"
+                                    >progress_activity</icon
+                                >
+                            }
                             {{ 'CALENDAR_EVENT.BOOK_NEARBY_DESK' | translate }}
                         </button>
                     }
@@ -119,22 +132,15 @@ export class MeetingFlowSuccessComponent implements OnInit {
     private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly loading = signal(false);
+    public readonly desk_loading = signal(false);
     public readonly last_event = this._event_form.last_success;
-
-    public get allow_desk_booking() {
-        return this._settings.get('app.features').includes('desks');
-    }
-
-    public get space() {
-        return this.last_event()?.space;
-    }
-
-    public get level() {
-        return (
-            this._org.levelWithID(this.space?.zones) ||
-            this._org.levelsForBuilding()[0]
-        );
-    }
+    public readonly allow_desk_booking = computed(() =>
+        settingSignal('features', [])()?.includes('desks'),
+    );
+    public readonly space = signal(new Space());
+    public readonly level = computed(() => {
+        return this._org.levelWithID(this.space().zones) || new BuildingLevel();
+    });
 
     public get time_format() {
         return this._settings.time_format;
@@ -152,56 +158,89 @@ export class MeetingFlowSuccessComponent implements OnInit {
         );
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
         this.loading.set(true);
+        await firstTruthyValueFrom(this._org.initialised);
+        const space = this.last_event()?.space;
+        if (space) {
+            this.space.set(
+                await this._space_pipe.transform(space.email || space.id),
+            );
+        }
         setTimeout(() => this.loading.set(false), 500);
     }
 
-    public startDeskBooking() {
-        this._router.navigate(['/book', 'desks', 'form']);
-        setTimeout(async () => {
-            this._booking_form.newForm('desk');
-            const space = await this._space_pipe.transform(
-                this.space.id || this.space.email,
+    public async startDeskBooking() {
+        this.desk_loading.set(true);
+        if (!this.space().email) {
+            return notifyError(
+                'Unable to book nearby desk when no room in meeting',
             );
-            const level = this._org.levelWithID(space?.zones);
-            this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
-            this._booking_form.form.patchValue({
-                date: set(this.last_event().date, {
-                    hours: 8,
-                    minutes: 0,
-                }).valueOf(),
-                duration: 10 * 60,
-                all_day: this.last_event().all_day,
-                booking_type: 'desk',
-                user: currentUser(),
+        }
+        try {
+            const event = this.last_event();
+            const date = set(event.date, {
+                hours: 8,
+                minutes: 0,
+            }).valueOf();
+
+            // Pass correct date/duration via Booking so newForm's internal
+            // timeout('date') doesn't overwrite with defaults
+            this._booking_form.newForm(
+                'desk',
+                new Booking({
+                    date,
+                    duration: 8 * 60,
+                    all_day: event.all_day,
+                    booking_type: 'desk',
+                }),
+            );
+            this._booking_form.setOptions({
+                type: 'desk',
+                zone_id: this.level()?.id,
             });
-            const resources = await nextValueFrom(
-                this._booking_form.available_resources,
+            this._booking_form.form.patchValue({ user: currentUser() });
+
+            // Activate the available_resources pipeline (it only queries
+            // when subscribed) and detect stale shareReplay(1) cache.
+            let has_cached = false;
+            const warmup = this._booking_form.available_resources.subscribe(
+                () => {
+                    has_cached = true;
+                },
+            );
+            // shareReplay replays synchronously, so has_cached is set by now
+            warmup.unsubscribe();
+            const resources = await firstValueFrom(
+                this._booking_form.available_resources.pipe(
+                    skip(has_cached ? 1 : 0),
+                ),
             );
             const bookable_desks = resources
                 .map((_) => _.map_id || _.id)
                 .filter((i) => i);
             const nearby = await findNearbyFeature(
-                level.map_id,
-                space?.map_id,
+                this.level().map_id,
+                this.space()?.map_id,
                 bookable_desks,
             );
-            if (!nearby)
-                return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+            if (!nearby) {
+                notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+                this._router.navigate(['/book', 'desk', 'form']);
+                return;
+            }
             const resource = resources.find((_) => _.map_id === nearby);
             this._booking_form.form.patchValue({
-                date: set(this.last_event().date, {
-                    hours: 8,
-                    minutes: 0,
-                }).valueOf(),
-                duration: 10 * 60,
-                all_day: this.last_event().all_day,
-                booking_type: 'desk',
                 asset_id: nearby,
                 asset_name: resource.name,
                 resources: [resource],
             });
-        }, 50);
+            this._router.navigate(['/book', 'desk', 'form']);
+        } catch (e) {
+            notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+            this._router.navigate(['/book', 'desk', 'form']);
+        } finally {
+            this.desk_loading.set(false);
+        }
     }
 }

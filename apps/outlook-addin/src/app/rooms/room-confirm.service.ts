@@ -86,7 +86,7 @@ export class RoomConfirmService {
 
     async postForm() {
         await this._state.postForm().catch((err) => console.error(err));
-        if (this._state.last_success)
+        if (this._state.last_success())
             this.router.navigate(['/confirm/success']);
     }
 }

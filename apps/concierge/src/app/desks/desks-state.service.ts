@@ -105,21 +105,27 @@ export class DesksStateService extends AsyncHandler {
             }
             this._loading.set(true);
             const zones = filters.zones || [];
-            const fetch$ = zones && !zones.includes('All')
-                ? showMetadata(zones[0], 'desks').pipe(
-                      map((m) => (m.details instanceof Array ? m.details : [])),
-                      catchError((_) => of([])),
-                  )
-                : listChildMetadata(this._org.building?.id, {
-                      name: 'desks',
-                  }).pipe(
-                      map((m) =>
-                          m
-                              .map((i) => i.metadata?.desks?.details || [])
-                              .reduce((c: any[], i: any[]) => [...c, ...i], []),
-                      ),
-                      catchError((_) => of([])),
-                  );
+            const fetch$ =
+                zones && !zones.includes('All')
+                    ? showMetadata(zones[0], 'desks').pipe(
+                          map((m) =>
+                              m.details instanceof Array ? m.details : [],
+                          ),
+                          catchError((_) => of([])),
+                      )
+                    : listChildMetadata(this._org.building?.id, {
+                          name: 'desks',
+                      }).pipe(
+                          map((m) =>
+                              m
+                                  .map((i) => i.metadata?.desks?.details || [])
+                                  .reduce(
+                                      (c: any[], i: any[]) => [...c, ...i],
+                                      [],
+                                  ),
+                          ),
+                          catchError((_) => of([])),
+                      );
             return fetch$.pipe(map((list) => ({ list, is_manage: true })));
         }),
         map(({ list, is_manage }) => {
@@ -162,7 +168,7 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
-                    include_deleted: 'all',
+                    deleted: true,
                     limit: 500,
                 }).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
@@ -453,7 +459,9 @@ export class DesksStateService extends AsyncHandler {
                     : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING',
             ),
         );
-        const query = series ? {} : { instance: true, start_time: booking.instance };
+        const query = series
+            ? { instance: true, start_time: booking.instance }
+            : {};
         await nextValueFrom(removeBooking(booking.id, query)).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),

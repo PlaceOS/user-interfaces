@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
@@ -121,9 +121,11 @@ export class OldEventFormService extends AsyncHandler {
     private _changed = new BehaviorSubject<number>(0);
     private _space_pipe: SpacePipe;
 
-    public last_success: CalendarEvent = new CalendarEvent(
-        JSON.parse(
-            sessionStorage?.getItem('PLACEOS.last_booked_event') || '{}',
+    public readonly last_success = signal<CalendarEvent>(
+        new CalendarEvent(
+            JSON.parse(
+                sessionStorage?.getItem('PLACEOS.last_booked_event') || '{}',
+            ),
         ),
     );
     public readonly loading = this._loading.asObservable();
@@ -294,8 +296,8 @@ export class OldEventFormService extends AsyncHandler {
                         (all_day ? Math.max(24 * 60, duration) : duration) *
                             MINUTES;
                     let booking_list = bookings[idx] || [];
-                    if (this.last_success?.system?.id === _.id) {
-                        booking_list = [...booking_list, this.last_success];
+                    if (this.last_success()?.system?.id === _.id) {
+                        booking_list = [...booking_list, this.last_success()];
                     }
                     return periodInFreeTimeSlot(
                         start,
@@ -821,7 +823,7 @@ export class OldEventFormService extends AsyncHandler {
                 creating_assets = false;
             }
             this.clearForm();
-            this.last_success = result;
+            this.last_success.set(result);
             sessionStorage.setItem(
                 'PLACEOS.last_booked_event',
                 JSON.stringify(result),
