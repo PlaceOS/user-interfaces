@@ -13,6 +13,7 @@ export const BOOKING_TYPE_COLORS: Record<string, [string, string]> = {
     visitor: ['#FBCFE8', '#DB2777'],
     locker: ['#A7f3D0', '#059669'],
     'group-event': ['#FCD34D', '#D97706'],
+    'vip-visitor': ['#FEF3C7', '#B45309'],
 };
 
 export const SETTING_KEYS = {

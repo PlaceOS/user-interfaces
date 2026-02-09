@@ -203,6 +203,12 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
             icon: 'event_available',
             name: 'RESOURCE.EVENTS',
         },
+        {
+            type: 'vip-visitor',
+            feat: 'vip-visitor-invite',
+            icon: 'star',
+            name: 'RESOURCE.VIP_VISITORS',
+        },
     ];
 
     public readonly counts = computed(() => {
@@ -278,6 +284,10 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
                     this._state.setType(
                         'group-event',
                         this.hasFeature('group-events'),
+                    );
+                    this._state.setType(
+                        'vip-visitor',
+                        this.hasFeature('vip-visitor-invite'),
                     );
                 }),
         );

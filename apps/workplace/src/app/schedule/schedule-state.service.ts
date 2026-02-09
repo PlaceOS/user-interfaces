@@ -129,6 +129,7 @@ export class ScheduleStateService extends AsyncHandler {
             'visitor',
             'locker',
             'group-event',
+            'vip-visitor',
         ],
     });
     private _date = signal(Date.now());
@@ -373,7 +374,26 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly events = computed(() =>
         this.raw_events().filter((_) => !_.extension_data?.shared_event),
     );
-    /** List of desk bookings for the selected date */
+    /** List of VIP visitor bookings for the selected date */
+    public readonly vip_visitors = toSignal(
+        combineLatest([this._update$, toObservable(this.options)]).pipe(
+            switchMap(([[date, end_date], options]) =>
+                this._bookingQuery(
+                    'vip-visitor',
+                    options.period,
+                    date,
+                    end_date,
+                ),
+            ),
+            map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+            tap(() =>
+                this.timeout('end_loading', () => this._loading.set(false)),
+            ),
+            shareReplay(1),
+        ),
+        { initialValue: [] },
+    );
+    /** List of visitor bookings for the selected date */
     public readonly visitors = toSignal(
         combineLatest([this._update$, toObservable(this.options)]).pipe(
             switchMap(([[date, end_date], options]) =>
@@ -498,6 +518,7 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly bookings = computed(() => {
         const events = this.events() || [];
         const visitors = this.visitors() || [];
+        const vip_visitors = this.vip_visitors() || [];
         const desks = this.desks() || [];
         const parking = this.parking() || [];
         const lockers = this.lockers() || [];
@@ -514,6 +535,7 @@ export class ScheduleStateService extends AsyncHandler {
         return [
             ...filtered_events,
             ...visitors,
+            ...vip_visitors,
             ...desks,
             ...parking,
             ...lockers,

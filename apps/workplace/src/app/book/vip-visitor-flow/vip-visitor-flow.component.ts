@@ -30,7 +30,7 @@ import {
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { lastValueFrom } from 'rxjs';
+import { filter, lastValueFrom } from 'rxjs';
 import {
     VipServicesData,
     VipVisitorFlowServicesComponent,
@@ -529,6 +529,16 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
                 if (p.has('step'))
                     this._booking_form.setView(p.get('step') as any);
             }),
+        );
+
+        // Set the active building zone on the form
+        this.subscription(
+            'building',
+            this._org.active_building
+                .pipe(filter((_) => !!_))
+                .subscribe((bld) => {
+                    this.form.patchValue({ zones: [bld.id] });
+                }),
         );
     }
 

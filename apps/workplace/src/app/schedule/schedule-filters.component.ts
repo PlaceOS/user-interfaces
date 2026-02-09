@@ -129,6 +129,11 @@ export class ScheduleFiltersComponent {
         { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
         { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },
         { type: 'group-event', feat: 'group-events', name: 'RESOURCE.EVENTS' },
+        {
+            type: 'vip-visitor',
+            feat: 'vip-visitor-invite',
+            name: 'RESOURCE.VIP_VISITORS',
+        },
     ];
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);

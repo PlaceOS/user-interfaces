@@ -132,6 +132,12 @@ export class ScheduleFilterCardComponent {
             icon: 'event_available',
             name: 'RESOURCE.EVENTS',
         },
+        {
+            type: 'vip-visitor',
+            feat: 'vip-visitor-invite',
+            icon: 'star',
+            name: 'RESOURCE.VIP_VISITORS',
+        },
     ];
 
     public readonly counts = computed(() => {
