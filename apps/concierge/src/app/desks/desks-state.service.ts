@@ -168,7 +168,7 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
-                    deleted: true,
+                    include_deleted: 'all',
                     limit: 500,
                 }).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
