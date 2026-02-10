@@ -24,7 +24,9 @@ import {
     User,
     currentUser,
     getInvalidFields,
+    i18n,
     notifyError,
+    notifySuccess,
     randomString,
 } from '@placeos/common';
 
@@ -58,7 +60,12 @@ import { BookingFormService } from './booking-form.service';
                         class="border-base-200 w-full border-b px-4 py-4 sm:px-16"
                     >
                         <h2 class="text-2xl font-medium">
-                            {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
+                            {{
+                                (is_edit
+                                    ? 'BOOKINGS.VISITOR_EDIT_TITLE'
+                                    : 'BOOKINGS.VISITOR_INVITE_TITLE'
+                                ) | translate
+                            }}
                         </h2>
                     </div>
                     @if (form) {
@@ -345,7 +352,12 @@ import { BookingFormService } from './booking-form.service';
                             class="w-full sm:w-auto"
                             (click)="sendInvite()"
                         >
-                            {{ 'BOOKINGS.VISITOR_SEND' | translate }}
+                            {{
+                                (is_edit
+                                    ? 'BOOKINGS.VISITOR_UPDATE'
+                                    : 'BOOKINGS.VISITOR_SEND'
+                                ) | translate
+                            }}
                         </button>
                     </div>
                 </div>
@@ -550,6 +562,10 @@ export class InviteVisitorFormComponent
             : this._org.building;
     }
 
+    public get is_edit() {
+        return !!this.form?.value?.id;
+    }
+
     public get form() {
         return this._service.form;
     }
@@ -593,7 +609,7 @@ export class InviteVisitorFormComponent
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        this.form.patchValue({ title: 'Visit' });
+        if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -654,7 +670,13 @@ export class InviteVisitorFormComponent
             ...old_visitors.filter((_) => !_.includes(asset_id)),
             visitor_details,
         ]);
+        const is_editing = this.is_edit;
         await (this.multiple ? this._bookForMany() : this._bookForOne());
+        if (is_editing) {
+            notifySuccess(i18n('BOOKINGS.VISITOR_UPDATED'));
+            this.done.emit();
+            return;
+        }
         this.last_success = this._service.last_success;
         if (this.last_success) this._generateLinks();
         await this.initFormZone();
@@ -672,6 +694,22 @@ export class InviteVisitorFormComponent
         });
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
+        if (this.form.value.id && !this.form.value.assets?.length) {
+            const attendees = this.form.value.attendees || [];
+            if (attendees.length) {
+                this.form.patchValue({ assets: attendees });
+            } else if (this.form.value.asset_id) {
+                this.form.patchValue({
+                    assets: [
+                        new User({
+                            name: this.form.value.asset_name,
+                            email: this.form.value.asset_id,
+                            organisation: this.form.value.company,
+                        }),
+                    ],
+                });
+            }
+        }
     }
 
     private async _bookForOne() {

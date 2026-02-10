@@ -80,6 +80,7 @@ const DENIED_FILE_TYPES = [
                                 user
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
+                                [matTooltip]="item.email"
                             >
                                 <div class="flex items-center space-x-2">
                                     <div>{{ item.name || item.email }}</div>
@@ -239,6 +240,7 @@ const DENIED_FILE_TYPES = [
         IconComponent,
         MatTooltipModule,
         UserAvatarComponent,
+        MatTooltipModule,
     ],
 })
 export class UserListFieldComponent

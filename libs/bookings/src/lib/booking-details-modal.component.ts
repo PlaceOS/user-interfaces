@@ -458,10 +458,13 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly can_edit = computed(() => {
+        const is_visitor = this.booking().booking_type === 'visitor';
+        const visitor_edit_allowed =
+            is_visitor && settingSignal('visitors.allow_editing', false)();
         return (
             !this.booking().is_done &&
             !this.booking().checked_in &&
-            this.booking().booking_type !== 'visitor'
+            (!is_visitor || visitor_edit_allowed)
         );
     });
 
