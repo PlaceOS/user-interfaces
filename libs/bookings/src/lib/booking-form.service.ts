@@ -659,6 +659,7 @@ export class BookingFormService extends AsyncHandler {
                         assets: value.assets.map((_) => _.toJSON()),
                         group: value.group,
                         phone: value.phone,
+                        company: value.company,
                         department:
                             value.user?.department || currentUser()?.department,
                     },
@@ -890,9 +891,9 @@ export class BookingFormService extends AsyncHandler {
                   }));
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
-        const resource_rules = assets?.map((space) => {
+        const resource_rules = assets?.filter((s) => s?.zone)?.map((space) => {
             const bld = this._org.buildings.find(
-                (b) => space.zone.parent_id === b.id,
+                (b) => space.zone?.parent_id === b.id,
             );
             return rulesForResource(
                 {

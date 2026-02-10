@@ -371,7 +371,7 @@ export class VisitorInviteFormComponent
         );
         if (this.multiple())
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        this.form.patchValue({ title: 'Visit' });
+        if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -440,6 +440,23 @@ export class VisitorInviteFormComponent
         });
         if (this.multiple())
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
+        if (this.form.value.id && !this.form.value.assets?.length) {
+            const attendees = this.form.value.attendees || [];
+            if (attendees.length) {
+                this.form.patchValue({ assets: attendees });
+            } else if (this.form.value.asset_id) {
+                this.form.patchValue({
+                    assets: [
+                        new User({
+                            name: this.form.value.asset_name,
+                            email: this.form.value.asset_id,
+                            organisation: this.form.value.company,
+                            is_external: true,
+                        }),
+                    ],
+                });
+            }
+        }
     }
 
     private async _bookForOne() {
