@@ -2036,7 +2036,7 @@
             "SOURCE_SWITCHING": "Switching input source..."
         },
         "SIGNAGE": {
-            "BOOTSTRAP_TITLE": "Control Panel Setup",
+            "BOOTSTRAP_TITLE": "Signage Setup",
             "BOOTSTRAP_BUILDING": "Select a building from the dropdown below",
             "BOOTSTRAP_BUILDING_SELECT": "Select Building",
             "BOOTSTRAP_DISPLAY": "Select a display from the dropdown below",
