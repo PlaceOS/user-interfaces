@@ -2,8 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
     deleteParkingSpace,
+    deleteParkingUser,
+    ParkingUser,
     queryParkingSpaces,
+    queryParkingUsers,
     saveParkingSpace,
+    saveParkingUser,
 } from '@placeos/assets';
 import {
     approveBooking,
@@ -24,14 +28,13 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
-    randomInt,
     RecurrenceDays,
     SettingsService,
     unique,
     User,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { PlaceAsset, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -56,17 +59,7 @@ export interface ParkingOptions {
 
 export type ParkingSpace = PlaceAsset;
 
-export interface ParkingUser {
-    id: string;
-    name: string;
-    email: string;
-    car_model: string;
-    car_colour: string;
-    plate_number: string;
-    phone: string;
-    notes: string;
-    deny: boolean;
-}
+export type { ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 
@@ -135,7 +128,7 @@ export class ParkingStateService extends AsyncHandler {
         ),
         shareReplay(1),
     );
-    /** List of parking spaces for the current building/level */
+    /** List of parking users for the current building */
     public users = combineLatest([
         this._org.active_building,
         this._change,
@@ -143,14 +136,8 @@ export class ParkingStateService extends AsyncHandler {
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            return showMetadata(bld.id, 'parking-users');
+            return queryParkingUsers(bld.id);
         }),
-        map(
-            (metadata) =>
-                (metadata.details instanceof Array
-                    ? metadata.details
-                    : []) as ParkingUser[],
-        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'users'),
@@ -322,7 +309,7 @@ export class ParkingStateService extends AsyncHandler {
         state.close();
     }
 
-    /** Add or update a space in the available list */
+    /** Add or update a user in the available list */
     public async editUser(user?: ParkingUser) {
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
@@ -337,23 +324,15 @@ export class ParkingStateService extends AsyncHandler {
         const zone = this._org.building.id;
         const new_user = {
             ...state.metadata,
-            id: state.metadata.id || `P:USR-${randomInt(999_999)}`,
+            id: state.metadata.id || undefined,
         };
         if ('user' in new_user) delete new_user.user;
-        const users = await nextValueFrom(this.users);
-        const idx = users.findIndex((_) => _.id === new_user.id);
-        if (idx >= 0) users[idx] = new_user;
-        else users.push(new_user);
-        await updateMetadata(zone, {
-            name: 'parking-users',
-            details: users,
-            description: 'List of available parking users',
-        }).toPromise();
+        await saveParkingUser(new_user, zone).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
 
-    /** Remove the given space from the available list */
+    /** Remove the given user from the available list */
     public async removeUser(user: ParkingUser) {
         const state = await openConfirmModal(
             {
@@ -367,13 +346,7 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
-        const zone = this._org.building.id;
-        const users = await nextValueFrom(this.users);
-        await updateMetadata(zone, {
-            name: 'parking-users',
-            details: users.filter((_) => _.id !== user.id),
-            description: 'List of available parking users',
-        })
+        await deleteParkingUser(user.id)
             .toPromise()
             .catch((e) => {
                 notifyError(

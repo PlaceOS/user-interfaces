@@ -5,7 +5,7 @@ import {
     SettingsService,
     currentUser,
 } from '@placeos/common';
-import { PlaceAsset, showMetadata } from '@placeos/ts-client';
+import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
@@ -17,21 +17,10 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
-import { queryParkingSpacesForZones } from '@placeos/assets';
+import { queryParkingSpacesForZones, queryParkingUsers } from '@placeos/assets';
 
 export type ParkingSpace = PlaceAsset;
-
-export interface ParkingUser {
-    id: string;
-    name: string;
-    email: string;
-    car_model: string;
-    car_colour: string;
-    plate_number: string;
-    phone: string;
-    notes: string;
-    deny: boolean;
-}
+export type { ParkingUser } from '@placeos/assets';
 
 @Injectable({
     providedIn: 'root',
@@ -84,19 +73,13 @@ export class ParkingService extends AsyncHandler {
         shareReplay(1),
     );
 
-    /** List of parking spaces for the current building/level */
+    /** List of parking users for the current building */
     public users = combineLatest([this._org.active_building]).pipe(
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            return showMetadata(bld.id, 'parking-users');
+            return queryParkingUsers(bld.id);
         }),
-        map(
-            (metadata) =>
-                (metadata.details instanceof Array
-                    ? metadata.details
-                    : []) as ParkingUser[],
-        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'users'),
