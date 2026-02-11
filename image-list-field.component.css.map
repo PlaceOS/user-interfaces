@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["image-list-field.component.ts"],
+  "sourcesContent": ["\n            :host {\n                width: 100%;\n            }\n\n            [overlay] {\n                transition: background 200ms;\n            }\n\n            [image]:hover [actions],\n            [image]:hover > icon {\n                opacity: 1 !important;\n            }\n\n            [image]:hover [bg] {\n                opacity: 0.4 !important;\n            }\n\n            [actions],\n            [image] > icon {\n                transition: opacity 200ms;\n            }\n\n            [image] {\n                transition: transform 200ms;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACJ;AAEA,CAAA;AACI,cAAA,WAAA;AACJ;AAEA,CAAA,MAAA,OAAA,CAAA;;AAEI,WAAA;AACJ;AAEA,CAAA,MAAA,OAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA;;AAEI,cAAA,QAAA;AACJ;AAEA,CAAA;AACI,cAAA,UAAA;AACJ;",
+  "names": []
+}
