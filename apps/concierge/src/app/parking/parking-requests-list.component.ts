@@ -14,7 +14,7 @@ import { combineLatest, map } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
-    selector: 'parking-bookings-list',
+    selector: 'parking-requests-list',
     template: `
         <mat-progress-bar
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
@@ -35,10 +35,6 @@ import { ParkingStateService } from './parking-state.service';
                     key: 'date',
                     name: 'FORM.TIME' | translate,
                     content: date_template,
-                },
-                {
-                    key: 'asset_name',
-                    name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
                 },
                 {
                     key: 'user_name',
@@ -67,13 +63,13 @@ import { ParkingStateService } from './parking-state.service';
                     key: 'actions',
                     name: ' ',
                     content: action_template,
-                    size: '3.5rem',
+                    size: '6.5rem',
                     sortable: false,
                 },
             ]"
             [filter]="(options | async)?.search"
             [sortable]="true"
-            [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
+            [empty_message]="'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate"
         />
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
@@ -218,6 +214,21 @@ import { ParkingStateService } from './parking-state.service';
                     [disabled]="
                         row.checked_in ||
                         row.state === 'in_progress' ||
+                        row.status === 'ended'
+                    "
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
+                    "
+                    (click)="assignSpace(row)"
+                >
+                    <icon class="text-2xl">add_location</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [disabled]="
+                        row.checked_in ||
+                        row.state === 'in_progress' ||
                         row.status === 'ended' ||
                         row.instance
                     "
@@ -243,14 +254,13 @@ import { ParkingStateService } from './parking-state.service';
         IconComponent,
     ],
 })
-export class ParkingBookingsListComponent
+export class ParkingRequestsListComponent
     extends AsyncHandler
     implements OnInit
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly events = this._state.bookings;
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
 
@@ -259,18 +269,13 @@ export class ParkingBookingsListComponent
         this.options,
     ]).pipe(
         map(([booking_list, { search }]) => {
-            const show_requests = !!this._settings.get(
-                'app.parking.show_requests',
+            const unallocated = booking_list.filter((b) =>
+                b.asset_id?.startsWith('unallocated'),
             );
-            const list = show_requests
-                ? booking_list.filter(
-                      (b) => !b.asset_id?.startsWith('unallocated'),
-                  )
-                : booking_list;
             const s = search.toLowerCase();
             return !s
-                ? list
-                : list.filter(
+                ? unallocated
+                : unallocated.filter(
                       (b) =>
                           b.user_name.toLowerCase().includes(s) ||
                           b.user_email.toLowerCase().includes(s) ||
@@ -284,6 +289,7 @@ export class ParkingBookingsListComponent
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
     public readonly editReservation = (e) => this._state.editReservation(e);
+    public readonly assignSpace = (e) => this._state.assignSpace(e);
 
     public get time_format() {
         return this._settings.time_format;

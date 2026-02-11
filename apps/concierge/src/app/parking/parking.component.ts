@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -17,7 +17,54 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
-                @if (section() !== 'events') {
+                @if (
+                    show_requests &&
+                    section() === 'events' &&
+                    view() !== 'map'
+                ) {
+                    <div class="px-8 pb-2">
+                        <nav
+                            mat-tab-nav-bar
+                            class="bg-base-200 overflow-hidden rounded-sm"
+                            [tabPanel]="eventsTabPanel"
+                        >
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'events',
+                                    'requests',
+                                ]"
+                                [active]="view() === 'requests'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_REQUESTS'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'events',
+                                    'bookings',
+                                ]"
+                                [active]="view() === 'bookings'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_BOOKINGS'
+                                        | translate
+                                }}
+                            </a>
+                        </nav>
+                        <mat-tab-nav-panel
+                            #eventsTabPanel
+                        ></mat-tab-nav-panel>
+                    </div>
+                }
+                @if (section() === 'manage') {
                     <div class="px-8 pb-2">
                         <nav
                             mat-tab-nav-bar
@@ -130,12 +177,17 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
 export class ParkingComponent extends AsyncHandler implements OnInit {
     private _state = inject(ParkingStateService);
     private _router = inject(Router);
+    private _settings = inject(SettingsService);
 
     /** List of levels for the active building */
     public readonly levels = this._state.levels;
 
     public readonly section = signal<'events' | 'manage'>('events');
-    public readonly view = signal<'spaces' | 'list' | 'map' | 'users'>('list');
+    public readonly view = signal<'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'>('bookings');
+
+    public get show_requests() {
+        return !!this._settings.get('app.parking.show_requests');
+    }
 
     public ngOnInit() {
         this.subscription('poll_bookings', () => this._state.startPolling());

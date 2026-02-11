@@ -108,8 +108,8 @@ import { ParkingStateService } from './parking-state.service';
                         matRipple
                         name="deals-list"
                         class="rounded-l rounded-r-none px-2"
-                        [class.inverse]="view() !== 'list'"
-                        [routerLink]="['events', 'list']"
+                        [class.inverse]="view() === 'map'"
+                        [routerLink]="['events', 'bookings']"
                         [matTooltip]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
@@ -155,7 +155,7 @@ import { ParkingStateService } from './parking-state.service';
                 </mat-select>
             </mat-form-field>
             <div class="w-px min-w-2 flex-1"></div>
-            @if (view() !== 'list' && view() !== 'map') {
+            @if (section() === 'manage') {
                 <button
                     icon
                     matRipple
@@ -193,7 +193,11 @@ import { ParkingStateService } from './parking-state.service';
                     >
                 </div>
             }
-            @if (view() === 'list' || view() === 'map') {
+            @if (
+                view() === 'requests' ||
+                view() === 'bookings' ||
+                view() === 'map'
+            ) {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
         </div>
@@ -236,7 +240,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly section = signal<'events' | 'manage'>('events');
-    public readonly view = signal<'spaces' | 'list' | 'map' | 'users'>('list');
+    public readonly view = signal<
+        'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'
+    >('requests');
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */

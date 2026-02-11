@@ -47,6 +47,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
@@ -471,6 +472,14 @@ export class ParkingStateService extends AsyncHandler {
               )
             : notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
         if (success.state !== 'failed') this._change.next(Date.now());
+    }
+
+    public async assignSpace(booking: Booking) {
+        const ref = this._dialog.open(ParkingAssignSpaceModalComponent, {
+            data: { booking },
+        });
+        const result = await ref.afterClosed().toPromise();
+        if (result) this._change.next(Date.now());
     }
 
     private async _clearAssignedBooking(space: ParkingSpace) {
