@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["event-link-modal.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACJ;",
+  "names": []
+}
