@@ -72,12 +72,6 @@ const EMPTY = [];
                         <icon class="text-2xl">download</icon>
                     }
                 </button>
-                <button btn matRipple class="space-x-2" (click)="newBooking()">
-                    <div class="pl-2">
-                        {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
-                    </div>
-                    <icon class="text-2xl">add</icon>
-                </button>
             </div>
             <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
