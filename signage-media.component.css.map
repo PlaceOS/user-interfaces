@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["signage-media.component.ts"],
+  "sourcesContent": ["\n            :host {\n                min-height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAA;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering-report-overall.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-wrap: wrap;\n                align-items: center;\n                justify-content: center;\n                padding: 0.5rem;\n                max-width: 64rem;\n                margin: 0 auto;\n            }\n\n            [item] {\n                border: 1px solid var(--base-200);\n                border-radius: 0.5rem;\n                padding: 1rem;\n                margin: 0.5rem;\n                height: 6rem;\n                width: 12rem;\n                min-width: 7rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,aAAA;AACA,eAAA;AACA,mBAAA;AACA,WAAA;AACA,aAAA;AACA,UAAA,EAAA;AACJ;AAEA,CAAA;AACI,UAAA,IAAA,MAAA,IAAA;AACA,iBAAA;AACA,WAAA;AACA,UAAA;AACA,UAAA;AACA,SAAA;AACA,aAAA;AACJ;",
+  "names": []
+}
