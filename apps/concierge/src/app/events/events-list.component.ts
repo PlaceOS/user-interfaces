@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { isMock } from '@placeos/ts-client';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addDays,
@@ -18,7 +19,7 @@ import {
     subMonths,
 } from 'date-fns';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { EventCalendarComponent } from './event-calendar.component';
+import { EventApprovalsComponent } from './event-approvals.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
 
@@ -42,35 +43,6 @@ import { EventStateService } from './event-state.service';
                 </a>
             </div>
             <div filters class="flex items-center space-x-2 px-8 pb-4">
-                <button
-                    btn
-                    matRipple
-                    class="rounded-3xl"
-                    [class.inverse]="view !== 'list'"
-                    (click)="setView('list')"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">list</icon>
-                        <div class="pr-2">{{ 'COMMON.LIST' | translate }}</div>
-                    </div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="rounded-3xl"
-                    [class.inverse]="view !== 'calendar'"
-                    (click)="setView('calendar')"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">event</icon>
-                        <div class="pr-2">
-                            {{ 'COMMON.CALENDAR' | translate }}
-                        </div>
-                    </div>
-                </button>
-                <div class="h-full px-2">
-                    <div class="bg-base-300 h-full w-px"></div>
-                </div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
                         [ngModel]="period | async"
@@ -97,14 +69,36 @@ import { EventStateService } from './event-state.service';
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div class="flex items-center space-x-1 px-8 pb-4">
+                <button
+                    matRipple
+                    class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+                    [class.bg-primary]="view === 'list'"
+                    [class.text-primary-content]="view === 'list'"
+                    [class.bg-base-200]="view !== 'list'"
+                    (click)="view = 'list'"
+                >
+                    List
+                </button>
+                <button
+                    matRipple
+                    class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+                    [class.bg-primary]="view === 'approvals'"
+                    [class.text-primary-content]="view === 'approvals'"
+                    [class.bg-base-200]="view !== 'approvals'"
+                    (click)="view = 'approvals'"
+                >
+                    Approvals
+                </button>
+            </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
+                @if (view === 'approvals') {
+                    <event-approvals></event-approvals>
+                }
                 @if (view === 'list') {
                     <div class="min-h-full w-full overflow-x-auto">
                         <event-listing class="block"></event-listing>
                     </div>
-                }
-                @if (view === 'calendar') {
-                    <event-calendar></event-calendar>
                 }
             </div>
         </div>
@@ -130,7 +124,7 @@ import { EventStateService } from './event-state.service';
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
-        EventCalendarComponent,
+        EventApprovalsComponent,
         EventListingComponent,
         MatRippleModule,
         RouterModule,
@@ -148,12 +142,12 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         distinctUntilChanged(),
     );
 
-    public view: 'list' | 'calendar' = 'list';
     public period_list = [];
     public selected_range: number;
+    public view: 'list' | 'approvals' = 'list';
 
     public get has_calendar() {
-        return this._settings.get('app.group_events_calendar');
+        return isMock() || this._settings.get('app.group_events_calendar');
     }
 
     public ngOnInit() {
@@ -170,9 +164,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((q) => {
-                if (q.has('view')) {
-                    this.view = q.get('view') as 'list' | 'calendar';
-                }
                 if (q.has('period') && q.get('period') !== this._state.period) {
                     this.setPeriodType(
                         q.get('period') as 'week' | 'month',
@@ -204,15 +195,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-    }
-
-    public setView(view: 'list' | 'calendar') {
-        this.view = view;
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { view: view },
-            queryParamsHandling: 'merge',
-        });
     }
 
     public setPeriodType(type: 'week' | 'month', set_route = true) {

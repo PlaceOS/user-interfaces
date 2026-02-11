@@ -26,6 +26,7 @@ import {
     switchMap,
     tap,
 } from 'rxjs/operators';
+import { EventApprovalStateService } from './event-approval-state.service';
 
 export interface GroupEventOptions {
     period: 'week' | 'month';
@@ -42,6 +43,7 @@ export class EventStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _router = inject(Router);
+    private _approval_state = inject(EventApprovalStateService);
 
     private _options = new BehaviorSubject<GroupEventOptions>({
         period: 'week',
@@ -50,7 +52,7 @@ export class EventStateService extends AsyncHandler {
     private _poll = new BehaviorSubject(0);
     private _changed = new BehaviorSubject(0);
 
-    public readonly event_list = combineLatest([
+    private readonly _api_events = combineLatest([
         this._org.active_building,
         this._options,
         this._changed,
@@ -74,6 +76,18 @@ export class EventStateService extends AsyncHandler {
                 .sort((a, b) => a.date - b.date),
         ),
         tap(() => this._loading.next('')),
+        shareReplay(1),
+    );
+
+    public readonly event_list = combineLatest([
+        this._api_events,
+        this._approval_state.grouped_calendar_events$,
+    ]).pipe(
+        map(([api_events, grouped_events]) =>
+            [...api_events, ...grouped_events].sort(
+                (a, b) => a.date - b.date,
+            ),
+        ),
         shareReplay(1),
     );
 

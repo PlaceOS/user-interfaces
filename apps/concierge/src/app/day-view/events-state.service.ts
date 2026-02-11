@@ -44,6 +44,7 @@ import {
 } from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
+import { EventApprovalStateService } from '../events/event-approval-state.service';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
@@ -98,6 +99,7 @@ export class EventsStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _approval_events = inject(EventApprovalStateService);
 
     /** Emitter for poll events */
     private _poll = new BehaviorSubject<number>(0);
@@ -119,6 +121,10 @@ export class EventsStateService extends AsyncHandler {
     private _zones = new BehaviorSubject<string[]>([]);
     /** Whether booking data is being loaded */
     private _loading = new BehaviorSubject<boolean>(false);
+    /** Approval status filter */
+    private _approval_filter = new BehaviorSubject<
+        'all' | 'incoming' | 'approved' | 'declined'
+    >('all');
 
     /** Observable for active date */
     public readonly date = this._date.asObservable();
@@ -132,6 +138,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly event = this._event.asObservable();
     /** Period of time to show events for */
     public readonly period = this._period.asObservable();
+    /** Observable for approval filter */
+    public readonly approval_filter = this._approval_filter.asObservable();
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
@@ -154,15 +162,21 @@ export class EventsStateService extends AsyncHandler {
             }
             return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
-        map((l) =>
-            flatten<Space>(l)
+        map((l) => {
+            const api_spaces = flatten<Space>(l)
                 .filter((_) => _.bookable)
                 .sort((a, b) =>
                     (a.display_name || a.name || '').localeCompare(
                         b.display_name || b.name || '',
                     ),
-                ),
-        ),
+                );
+            const mock_spaces = this._approval_events.mockSpaces();
+            const existing = new Set(api_spaces.map((s) => s.email));
+            const new_spaces = mock_spaces.filter(
+                (s) => !existing.has(s.email),
+            );
+            return [...api_spaces, ...new_spaces];
+        }),
         tap(() => this._loading.next(false)),
         shareReplay(1),
     );
@@ -267,26 +281,76 @@ export class EventsStateService extends AsyncHandler {
         this._date,
         this._period,
         this._zones,
+        this._approval_events.grouped_calendar_events$,
     ]).pipe(
-        map(([events, removed, added, filters, date, period, zones]: any) => {
-            let event_list = [...events];
-            event_list.filter(
-                (_) =>
-                    !removed.find(
-                        (e) => _.id === e.id || _.ical_uid === e.ical_uid,
-                    ),
-            );
-            event_list = event_list.concat(added);
-            const { start, end } = periodFor(
-                period,
+        map(
+            ([
+                events,
+                removed,
+                added,
+                filters,
                 date,
-                this.tz_offset,
-                this._week_start,
-            );
-            return this.filterEvents(event_list, start, end, filters, zones);
-        }),
+                period,
+                zones,
+                mock_events,
+            ]: any) => {
+                let event_list = [...events];
+                event_list.filter(
+                    (_) =>
+                        !removed.find(
+                            (e) =>
+                                _.id === e.id || _.ical_uid === e.ical_uid,
+                        ),
+                );
+                event_list = event_list.concat(added);
+                const { start, end } = periodFor(
+                    period,
+                    date,
+                    this.tz_offset,
+                    this._week_start,
+                );
+                const filtered_events = this.filterEvents(
+                    event_list,
+                    start,
+                    end,
+                    filters,
+                    zones,
+                );
+                const mock_in_range = (mock_events as CalendarEvent[]).filter(
+                    (e) =>
+                        timePeriodsIntersect(
+                            start.valueOf(),
+                            end.valueOf(),
+                            e.date,
+                            e.date + e.duration * 60 * 1000,
+                        ),
+                );
+                return [...filtered_events, ...mock_in_range];
+            },
+        ),
         shareReplay(1),
     );
+
+    /** Observable for events filtered by approval status */
+    public readonly approval_filtered: Observable<CalendarEvent[]> =
+        combineLatest([this.filtered, this._approval_filter]).pipe(
+            map(([events, filter_value]) => {
+                switch (filter_value) {
+                    case 'incoming':
+                        return events.filter(
+                            (e) =>
+                                e.status === 'tentative' || e.status === 'none',
+                        );
+                    case 'approved':
+                        return events.filter((e) => e.status === 'approved');
+                    case 'declined':
+                        return events.filter((e) => e.status === 'declined');
+                    default:
+                        return events;
+                }
+            }),
+            shareReplay(1),
+        );
 
     public readonly pending: Observable<CalendarEvent[]> = of(1).pipe(
         switchMap(() => {
@@ -341,6 +405,9 @@ export class EventsStateService extends AsyncHandler {
     public readonly setZones = (zones: string[]) => this._zones.next(zones);
     public readonly setEvent = (event: CalendarEvent) =>
         this._event.next(event);
+    public readonly setApprovalFilter = (
+        filter_value: 'all' | 'incoming' | 'approved' | 'declined',
+    ) => this._approval_filter.next(filter_value);
 
     public setUIOptions(options: BookingUIOptions) {
         const old_options = this._options.getValue();

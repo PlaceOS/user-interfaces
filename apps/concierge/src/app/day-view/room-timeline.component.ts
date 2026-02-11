@@ -181,11 +181,21 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                     @if (!event.is_system_event) {
                                         <div
                                             class="absolute inset-y-0 left-0 w-1"
-                                            [class.bg-secondary]="
-                                                event.status !== 'cancelled'
+                                            [class.bg-success]="
+                                                event.status === 'approved'
+                                            "
+                                            [class.bg-warning]="
+                                                event.status === 'tentative'
                                             "
                                             [class.bg-error]="
+                                                event.status === 'declined' ||
                                                 event.status === 'cancelled'
+                                            "
+                                            [class.bg-base-300]="
+                                                event.status !== 'approved' &&
+                                                event.status !== 'tentative' &&
+                                                event.status !== 'declined' &&
+                                                event.status !== 'cancelled'
                                             "
                                         ></div>
                                         <p
