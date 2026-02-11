@@ -1,10 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -33,7 +31,6 @@ import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
-const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
@@ -112,67 +109,19 @@ const EMPTY = [];
                         }}</settings-toggle
                     >
                 }
-                <div class="flex flex-1 justify-end pr-2">
-                    <div
-                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
-                    >
-                        <div
-                            class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
-                        >
-                            @for (type of types; track type.id) {
-                                @if (!type_list.includes(type.id)) {
-                                    <div
-                                        class="border-base-300 flex items-center rounded-full border"
-                                    >
-                                        <div
-                                            class="m-2 h-4 w-4 rounded-full"
-                                            [style.background-color]="
-                                                type.color
-                                            "
-                                        ></div>
-                                        <div class="truncate text-sm">
-                                            {{ type.name }}
-                                        </div>
-                                        <button
-                                            icon
-                                            matRipple
-                                            class="text-base-300 hover:text-base-content"
-                                            (click)="setFilter(type.id, true)"
-                                        >
-                                            <icon class="text-xl">close</icon>
-                                        </button>
-                                    </div>
-                                }
-                            }
-                        </div>
-                        <button
-                            btn
-                            matRipple
-                            class="inverse bg-base-100"
-                            [matMenuTriggerFor]="menu"
-                        >
-                            <icon>filter_list</icon>
-                            <div class="mx-2">
-                                {{ 'COMMON.FILTERS' | translate }}
-                            </div>
-                        </button>
+                <div class="flex flex-1 items-center justify-end space-x-4 pr-2">
+                    <div class="flex items-center space-x-1">
+                        <div class="h-3 w-3 rounded-full bg-success"></div>
+                        <span class="text-xs opacity-60">Approved</span>
                     </div>
-                    <mat-menu #menu="matMenu" class="">
-                        <div
-                            class="flex w-48 flex-col space-y-2 overflow-hidden"
-                        >
-                            @for (type of types; track type) {
-                                <mat-checkbox
-                                    [ngModel]="!type_list.includes(type.id)"
-                                    (ngModelChange)="
-                                        setFilter(type.id, !$event)
-                                    "
-                                >
-                                    {{ type.name }}
-                                </mat-checkbox>
-                            }
-                        </div>
-                    </mat-menu>
+                    <div class="flex items-center space-x-1">
+                        <div class="h-3 w-3 rounded-full bg-warning"></div>
+                        <span class="text-xs opacity-60">Pending</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <div class="h-3 w-3 rounded-full bg-error"></div>
+                        <span class="text-xs opacity-60">Declined</span>
+                    </div>
                 </div>
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
@@ -196,12 +145,10 @@ const EMPTY = [];
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
-        MatMenuModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         MatRippleModule,
-        MatCheckboxModule,
         FormsModule,
         RoomBookingsTimelineComponent,
         RoomWeekBookingsTimelineComponent,
@@ -253,16 +200,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public types: any[] = [
-        { id: 'internal', name: 'Internal', color: '#D81B60' },
-        { id: 'external', name: 'External', color: '#1E88E5' },
-        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
-    ];
-
-    public get type_list() {
-        return this._state.filters.hide_type || EMPTY;
-    }
-
     public get has_approvals() {
         return this._org.binding('approvals');
     }
@@ -276,23 +213,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.types = [
-            {
-                id: 'internal',
-                name: i18n('COMMON.TYPE_INTERNAL'),
-                color: '#D81B60',
-            },
-            {
-                id: 'external',
-                name: i18n('COMMON.TYPE_EXTERNAL'),
-                color: '#1E88E5',
-            },
-            {
-                id: 'cancelled',
-                name: i18n('COMMON.TYPE_CANCELLED'),
-                color: '#eeeeee',
-            },
-        ];
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -340,14 +260,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                     this.updateZones([_.id]);
                 }),
         );
-    }
-
-    public setFilter(id: string, value: boolean) {
-        const filters = this._state.filters;
-        let hide_type = filters.hide_type || [];
-        hide_type = hide_type.filter((i) => i !== id);
-        if (value) hide_type.push(id as any);
-        this._state.setFilters({ hide_type });
     }
 
     public readonly downloadCsv = async () => {

@@ -7,7 +7,6 @@ import {
     CalendarEvent,
     getTimezoneOffsetInMinutes,
     getTimezoneOffsetString,
-    i18n,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -16,6 +15,11 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import {
+    EventSummaryDialogComponent,
+    EventSummaryData,
+} from '../events/event-summary-dialog.component';
+import { MOCK_APPROVAL_EVENTS } from '../events/event-approvals-mock.data';
 import { UserPipe } from '@placeos/users';
 import {
     addDays,
@@ -133,9 +137,9 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                             >
                                 <div
                                     class="my-1.5 h-2 w-2 rounded-full"
-                                    [style.background-color]="
-                                        typeColor(event.type)
-                                    "
+                                    [class.bg-success]="event.status === 'approved'"
+                                    [class.bg-warning]="event.status === 'tentative' || (!event.status && event.status !== 'declined' && event.status !== 'cancelled')"
+                                    [class.bg-error]="event.status === 'declined' || event.status === 'cancelled'"
                                 ></div>
                                 <div class="w-1/2 flex-1">
                                     <div
@@ -216,12 +220,6 @@ export class RoomWeekBookingsTimelineComponent
     public readonly date = this._state.date;
 
     public readonly remove = this._state.removeBooking;
-
-    public types = [
-        { id: 'internal', name: 'Internal', color: '#D81B60' },
-        { id: 'external', name: 'External', color: '#1E88E5' },
-        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
-    ];
 
     public readonly days = combineLatest([
         this.date,
@@ -340,27 +338,6 @@ export class RoomWeekBookingsTimelineComponent
 
     public ngOnInit() {
         this.subscription('poll', this._state.poll());
-        this.types = [
-            {
-                id: 'internal',
-                name: i18n('COMMON.TYPE_INTERNAL'),
-                color: '#D81B60',
-            },
-            {
-                id: 'external',
-                name: i18n('COMMON.TYPE_EXTERNAL'),
-                color: '#1E88E5',
-            },
-            {
-                id: 'cancelled',
-                name: i18n('COMMON.TYPE_CANCELLED'),
-                color: '#eeeeee',
-            },
-        ];
-    }
-
-    public typeColor(type: string) {
-        return this.types.find((_) => _.id === type)?.color || '#EEE';
     }
 
     public viewEvent(
@@ -369,6 +346,13 @@ export class RoomWeekBookingsTimelineComponent
         scroll_to = false,
     ) {
         if (event.is_system_event) return;
+        const mock = MOCK_APPROVAL_EVENTS.find((e) => e.id === event.id);
+        if (mock) {
+            this._dialog.open(EventSummaryDialogComponent, {
+                data: { event: mock } as EventSummaryData,
+            });
+            return;
+        }
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: {
                 event,

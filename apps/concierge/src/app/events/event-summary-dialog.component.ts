@@ -15,6 +15,7 @@ import {
     MOCK_APPROVAL_EVENTS,
     MockApprovalEvent,
 } from './event-approvals-mock.data';
+import { EventApprovalStateService } from './event-approval-state.service';
 
 export interface EventSummaryData {
     event: MockApprovalEvent;
@@ -31,13 +32,32 @@ export interface EventSummaryData {
                     <h3 class="text-lg font-semibold">
                         {{ event.title }}
                     </h3>
-                    <div
-                        class="mt-1 inline-flex items-center space-x-1 rounded-full bg-base-200 px-3 py-0.5 text-xs font-medium"
-                    >
-                        <icon class="text-sm">{{
-                            categoryIcon(event.category)
-                        }}</icon>
-                        <span>{{ categoryName(event.category) }}</span>
+                    <div class="mt-1 flex items-center space-x-2">
+                        <div
+                            class="inline-flex items-center space-x-1 rounded-full bg-base-200 px-3 py-0.5 text-xs font-medium"
+                        >
+                            <icon class="text-sm">{{
+                                categoryIcon(event.category)
+                            }}</icon>
+                            <span>{{ categoryName(event.category) }}</span>
+                        </div>
+                        <div
+                            class="inline-flex items-center space-x-1 rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                            [class.border-success]="getStatus(event.id) === 'approved'"
+                            [class.text-success]="getStatus(event.id) === 'approved'"
+                            [class.border-warning]="getStatus(event.id) === 'pending'"
+                            [class.text-warning]="getStatus(event.id) === 'pending'"
+                            [class.border-error]="getStatus(event.id) === 'declined'"
+                            [class.text-error]="getStatus(event.id) === 'declined'"
+                        >
+                            <div
+                                class="h-2 w-2 rounded-full"
+                                [class.bg-success]="getStatus(event.id) === 'approved'"
+                                [class.bg-warning]="getStatus(event.id) === 'pending'"
+                                [class.bg-error]="getStatus(event.id) === 'declined'"
+                            ></div>
+                            <span>{{ getStatusLabel(event.id) }}</span>
+                        </div>
                     </div>
                 </div>
                 <button
@@ -89,10 +109,29 @@ export interface EventSummaryData {
                         class="rounded border border-base-300 bg-base-200/50 p-3"
                     >
                         <div
-                            class="mb-1 flex items-center space-x-1 text-xs font-medium opacity-60"
+                            class="mb-1 flex items-center justify-between"
                         >
-                            <icon class="text-sm">link</icon>
-                            <span>Parent Event</span>
+                            <div class="flex items-center space-x-1 text-xs font-medium opacity-60">
+                                <icon class="text-sm">link</icon>
+                                <span>Parent Event</span>
+                            </div>
+                            <div
+                                class="inline-flex items-center space-x-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+                                [class.border-success]="getStatus(parent_event.id) === 'approved'"
+                                [class.text-success]="getStatus(parent_event.id) === 'approved'"
+                                [class.border-warning]="getStatus(parent_event.id) === 'pending'"
+                                [class.text-warning]="getStatus(parent_event.id) === 'pending'"
+                                [class.border-error]="getStatus(parent_event.id) === 'declined'"
+                                [class.text-error]="getStatus(parent_event.id) === 'declined'"
+                            >
+                                <div
+                                    class="h-1.5 w-1.5 rounded-full"
+                                    [class.bg-success]="getStatus(parent_event.id) === 'approved'"
+                                    [class.bg-warning]="getStatus(parent_event.id) === 'pending'"
+                                    [class.bg-error]="getStatus(parent_event.id) === 'declined'"
+                                ></div>
+                                <span>{{ getStatusLabel(parent_event.id) }}</span>
+                            </div>
                         </div>
                         <div class="text-sm font-medium">
                             {{ parent_event.title }}
@@ -130,9 +169,28 @@ export interface EventSummaryData {
                                         >
                                         <span>{{ child.title }}</span>
                                     </div>
-                                    <span class="text-xs opacity-40">{{
-                                        categoryName(child.category)
-                                    }}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs opacity-40">{{
+                                            categoryName(child.category)
+                                        }}</span>
+                                        <div
+                                            class="flex items-center space-x-1 rounded-full border px-2 py-0.5 text-xs font-medium"
+                                            [class.border-success]="getStatus(child.id) === 'approved'"
+                                            [class.text-success]="getStatus(child.id) === 'approved'"
+                                            [class.border-warning]="getStatus(child.id) === 'pending'"
+                                            [class.text-warning]="getStatus(child.id) === 'pending'"
+                                            [class.border-error]="getStatus(child.id) === 'declined'"
+                                            [class.text-error]="getStatus(child.id) === 'declined'"
+                                        >
+                                            <div
+                                                class="h-1.5 w-1.5 rounded-full"
+                                                [class.bg-success]="getStatus(child.id) === 'approved'"
+                                                [class.bg-warning]="getStatus(child.id) === 'pending'"
+                                                [class.bg-error]="getStatus(child.id) === 'declined'"
+                                            ></div>
+                                            <span>{{ getStatusLabel(child.id) }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -151,6 +209,7 @@ export interface EventSummaryData {
 export class EventSummaryDialogComponent {
     readonly data = inject<EventSummaryData>(MAT_DIALOG_DATA);
     readonly dialogRef = inject(MatDialogRef);
+    private _approval_state = inject(EventApprovalStateService);
 
     get event(): MockApprovalEvent {
         return this.data.event;
@@ -169,6 +228,19 @@ export class EventSummaryDialogComponent {
         return MOCK_APPROVAL_EVENTS.filter(
             (e) => e.parent_event === this.event.id,
         );
+    }
+
+    getStatus(event_id: string): string {
+        return this._approval_state.status[event_id] || 'pending';
+    }
+
+    getStatusLabel(event_id: string): string {
+        const status = this.getStatus(event_id);
+        return status === 'approved'
+            ? 'Approved'
+            : status === 'declined'
+              ? 'Declined'
+              : 'Pending';
     }
 
     categoryIcon(category: string): string {

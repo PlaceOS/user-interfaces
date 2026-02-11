@@ -139,11 +139,6 @@ export class ApplicationSidebarComponent
                         route: ['/book/rooms'],
                     },
                     {
-                        id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_DESK_BOOKINGS'),
-                        route: ['/book/desks/events'],
-                    },
-                    {
                         id: 'parking',
                         name: i18n('APP.CONCIERGE.MENU_PARKING_BOOKINGS'),
                         route: ['/book/parking/events'],
@@ -199,11 +194,6 @@ export class ApplicationSidebarComponent
                         id: 'spaces',
                         name: i18n('APP.CONCIERGE.MENU_MANAGE_ROOMS'),
                         route: ['/room-management'],
-                    },
-                    {
-                        id: 'desks',
-                        name: i18n('APP.CONCIERGE.MENU_MANAGE_DESKS'),
-                        route: ['/book/desks/manage'],
                     },
                     {
                         id: 'parking',
@@ -294,13 +284,8 @@ export class ApplicationSidebarComponent
                 children: [
                     {
                         id: 'booking-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
+                        name: 'Venue Bookings',
                         route: ['/reports/bookings'],
-                    },
-                    {
-                        id: 'desk-report',
-                        name: i18n('APP.CONCIERGE.MENU_REPORT_DESKS'),
-                        route: ['/reports/desks'],
                     },
                     {
                         id: 'parking-report',

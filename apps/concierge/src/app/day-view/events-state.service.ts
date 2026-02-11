@@ -47,20 +47,12 @@ import { openConfirmModal } from '@placeos/components';
 import { EventApprovalStateService } from '../events/event-approval-state.service';
 import { EventBookModalComponent } from './event-book-modal.component';
 
-export type BookingType =
-    | 'internal'
-    | 'client'
-    | 'external'
-    | 'setup'
-    | 'training'
-    | 'interview'
-    | 'declined';
-
 export interface BookingFilters {
     /** List of zone ids to get bookings for */
     zone_ids?: string[];
     space_emails?: string[];
-    hide_type?: BookingType[];
+    /** @deprecated No longer used for filtering */
+    hide_type?: string[];
 }
 
 export interface BookingUIOptions {
@@ -261,12 +253,41 @@ export class EventsStateService extends AsyncHandler {
                 observables.push(driver_events$.pipe(catchError(() => of([]))));
             }
 
-            // Combine all event sources
+            // Also fetch events from the group events calendar
+            const group_calendar = this._settings.get(
+                'app.group_events_calendar',
+            );
+            if (group_calendar) {
+                observables.push(
+                    queryEvents({
+                        period_start: getUnixTime(start),
+                        period_end: getUnixTime(end),
+                        calendars: group_calendar,
+                    }).pipe(
+                        map((list) =>
+                            list.filter(
+                                (_) => _.extension_data?.shared_event,
+                            ),
+                        ),
+                        catchError(() => of([])),
+                    ),
+                );
+            }
+
+            // Combine all event sources and deduplicate
             if (observables.length === 0) return of([]);
             if (observables.length === 1) return observables[0];
 
             return combineLatest(observables).pipe(
-                map((event_lists) => flatten(event_lists)),
+                map((event_lists) => {
+                    const all_events = flatten(event_lists);
+                    const seen = new Set<string>();
+                    return all_events.filter((e) => {
+                        if (seen.has(e.id)) return false;
+                        seen.add(e.id);
+                        return true;
+                    });
+                }),
             );
         }),
         tap(() => this._loading.next(false)),
@@ -526,17 +547,7 @@ export class EventsStateService extends AsyncHandler {
                 !!bkn.resources.find((space) =>
                     space.zones.find((zone) => filters.zone_ids.includes(zone)),
                 );
-            const type = bkn.guests?.length
-                ? 'external'
-                : bkn.status === 'declined'
-                  ? 'cancelled'
-                  : 'internal';
-            const show =
-                !filters.hide_type?.length ||
-                !(filters.hide_type as any).find(
-                    (item) => item.id === type || item === type,
-                );
-            return intersects && has_space && in_zones && show;
+            return intersects && has_space && in_zones;
         });
     }
 }

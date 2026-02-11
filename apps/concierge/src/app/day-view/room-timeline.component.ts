@@ -20,6 +20,11 @@ import {
     declineEvent,
 } from '@placeos/events';
 import {
+    EventSummaryDialogComponent,
+    EventSummaryData,
+} from '../events/event-summary-dialog.component';
+import { MOCK_APPROVAL_EVENTS } from '../events/event-approvals-mock.data';
+import {
     addHours,
     differenceInMinutes,
     format,
@@ -448,6 +453,13 @@ Host:  ${event.organiser?.name || event.host}`;
         scroll_to = false,
     ) {
         if (event.is_system_event) return;
+        const mock = MOCK_APPROVAL_EVENTS.find((e) => e.id === event.id);
+        if (mock) {
+            this._dialog.open(EventSummaryDialogComponent, {
+                data: { event: mock } as EventSummaryData,
+            });
+            return;
+        }
         const ref = this._dialog.open(EventDetailsModalComponent, {
             data: {
                 event,
