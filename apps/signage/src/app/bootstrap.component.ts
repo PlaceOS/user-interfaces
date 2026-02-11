@@ -11,7 +11,7 @@ import {
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -138,13 +138,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
 
-    public readonly displays = querySystems({
-        zone_id: this._org.organisation?.id,
-        limit: 500,
-        fields: ['id', 'name', 'display_name', 'email'].join(','),
-        signage: true,
-    }).pipe(
-        catchError(() => of({ data: [] })),
+    public readonly displays = this._org.initialised.pipe(
+        first((_) => !!_),
+        switchMap(() =>
+            querySystems({
+                zone_id: this._org.organisation?.id,
+                limit: 500,
+                fields: ['id', 'name', 'display_name', 'email'].join(','),
+                signage: true,
+            }).pipe(catchError(() => of({ data: [] }))),
+        ),
         map((r) =>
             r.data.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
