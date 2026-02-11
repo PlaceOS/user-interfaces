@@ -26,6 +26,7 @@ import {
     showMetadata,
     showUser,
 } from '@placeos/ts-client';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     addDays,
     addMinutes,
@@ -160,7 +161,7 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('desks' as any);
                 case 'parking':
                     this._loading.next(i18n('BOOKINGS.PARKING_LOADING'));
-                    return this.loadResourceList('parking-spaces' as any);
+                    return this.loadParkingResources();
                 case 'locker':
                     this._loading.next(i18n('BOOKINGS.LOCKERS_LOADING'));
                     return loadLockers(
@@ -989,6 +990,25 @@ export class BookingFormService extends AsyncHandler {
         }
 
         return true;
+    }
+
+    public loadParkingResources(): Observable<BookingAsset[]> {
+        const use_region = this._settings.get('app.use_region');
+        const levels = (
+            use_region
+                ? this._org.levelsForRegion()
+                : this._org.levelsForBuilding()
+        ).filter((_) => _.tags.includes('parking'));
+        return queryParkingSpacesForZones(levels.map((l) => l.id)).pipe(
+            map((spaces) =>
+                spaces.map((s) => ({
+                    ...s,
+                    id: s.id || s.map_id,
+                    groups: s.place_groups,
+                    zone: this._org.levelWithID([s.zone_id]) as any,
+                })) as BookingAsset[],
+            ),
+        );
     }
 
     public loadResourceList(type: string) {

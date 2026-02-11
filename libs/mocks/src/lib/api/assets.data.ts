@@ -1,5 +1,6 @@
-import { predictableRandomInt } from '@placeos/common';
+import { padString, predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
+import { MOCK_STAFF } from './users.data';
 
 export const MOCK_CATEGORIES = [
     {
@@ -41,6 +42,12 @@ export const MOCK_CATEGORIES = [
         id: '8',
         name: 'Cleaning & Maintenance',
         description: 'Cleaning supplies and maintenance tools',
+    },
+    {
+        id: '_parking_category_',
+        name: '_PARKING_SPACES_',
+        description: 'Parking spaces',
+        hidden: true,
     },
 ];
 
@@ -357,6 +364,12 @@ export const MOCK_PRODUCTS = [
         barcode: 'SHK-NV752',
         description: 'Professional grade vacuum cleaner with HEPA filtration',
     },
+    {
+        id: '_parking_type_',
+        name: '_PARKING_SPACES_',
+        category_id: '_parking_category_',
+        brand: 'PlaceOS',
+    },
 ];
 
 const ASSET_CONDITIONS = ['Excellent', 'Good', 'Fair', 'Poor'];
@@ -472,7 +485,7 @@ export const MOCK_ASSETS = Array(150)
                     weight: predictableRandomInt(50, 1),
                 },
                 tags: [
-                    product.brand.toLowerCase(),
+                    product.brand?.toLowerCase(),
                     MOCK_CATEGORIES.find(
                         (c) => c.id === product.category_id,
                     )?.name.toLowerCase(),
@@ -561,3 +574,43 @@ export const getAssetsRequiringMaintenance = () =>
             getUnixTime(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
         ); // Due within 7 days
     });
+
+const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
+
+export function generateMockParkingAssets(zone_id: string) {
+    if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
+        const parts = zone_id.split('-');
+        const id = parts[parts.length - 1];
+        MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
+            .fill(0)
+            .map((_, idx) => {
+                const position = padString(
+                    (idx % 18) + Math.floor(idx / 18) * 100,
+                    3,
+                );
+                const assignee =
+                    predictableRandomInt(9999) % 4 === 0
+                        ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]
+                        : ({} as any);
+                return {
+                    id: `park-${id}-${position}`,
+                    map_id: `park-${position}`,
+                    name: `${position}`,
+                    bookable: predictableRandomInt(9999) % 4 !== 0,
+                    assigned_to: assignee.email || '',
+                    assigned_name: assignee.name || '',
+                    asset_type_id: '_parking_type_',
+                    zone_id,
+                    notes: '',
+                    place_groups: [],
+                    features: [],
+                    images: [],
+                };
+            });
+    }
+    return MOCK_PARKING_ASSETS_CACHE[zone_id];
+}
+
+export function getAllMockParkingAssets() {
+    return Object.values(MOCK_PARKING_ASSETS_CACHE).flat();
+}

@@ -4,11 +4,10 @@ import {
     OrganisationService,
     SettingsService,
     currentUser,
-    flatten,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -18,14 +17,9 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 
-export interface ParkingSpace {
-    id: string;
-    map_id: string;
-    name: string;
-    notes: string;
-    assigned_to: string;
-}
+export type ParkingSpace = PlaceAsset;
 
 export interface ParkingUser {
     id: string;
@@ -80,24 +74,8 @@ export class ParkingService extends AsyncHandler {
         filter(([lvls]) => !!lvls[0]?.id),
         switchMap(([levels]) => {
             this._loading.next([...this._loading.getValue(), 'spaces']);
-            return forkJoin(
-                levels.map((lvl) =>
-                    showMetadata(lvl.id, 'parking-spaces').pipe(
-                        map(
-                            (d) =>
-                                (d.details instanceof Array
-                                    ? d.details
-                                    : []
-                                ).map((s) => ({
-                                    ...s,
-                                    zone_id: lvl.id,
-                                })) as ParkingSpace[],
-                        ),
-                    ),
-                ),
-            );
+            return queryParkingSpacesForZones(levels.map((l) => l.id));
         }),
-        map((list) => flatten<ParkingSpace>(list)),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'spaces'),

@@ -1,6 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    deleteParkingSpace,
+    queryParkingSpaces,
+    saveParkingSpace,
+} from '@placeos/assets';
+import {
     approveBooking,
     approveBookingInstance,
     checkinBooking,
@@ -26,7 +31,7 @@ import {
     User,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { PlaceAsset, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -49,14 +54,7 @@ export interface ParkingOptions {
     zones: string[];
 }
 
-export interface ParkingSpace {
-    id: string;
-    map_id: string;
-    name: string;
-    notes: string;
-    assigned_to: string;
-    zone_id?: string;
-}
+export type ParkingSpace = PlaceAsset;
 
 export interface ParkingUser {
     id: string;
@@ -121,26 +119,14 @@ export class ParkingStateService extends AsyncHandler {
         this._options,
         this._change,
     ]).pipe(
+        debounceTime(300),
         switchMap(([levels, options]) => {
-            if (!(options.zones[0] || levels[0]?.id)) {
+            const zone_id = options.zones[0] || levels[0]?.id;
+            if (!zone_id) {
                 return of([] as ParkingSpace[]);
             }
             this._loading.next([...this._loading.getValue(), 'spaces']);
-            return showMetadata(
-                options.zones[0] || levels[0]?.id,
-                'parking-spaces',
-            ).pipe(
-                map(
-                    ({ details }) =>
-                        (details instanceof Array ? details : []).map(
-                            (space) =>
-                                ({
-                                    ...space,
-                                    zone_id: options.zones[0] || levels[0]?.id,
-                                }) as ParkingSpace,
-                        ) as ParkingSpace[],
-                ),
-            );
+            return queryParkingSpaces(zone_id);
         }),
         tap(() =>
             this._loading.next(
@@ -248,47 +234,46 @@ export class ParkingStateService extends AsyncHandler {
                 .toPromise(),
         ]);
         if (state?.reason !== 'done') return;
-        const zone =
+        const zone_id =
             this._options.getValue().zones[0] ||
             space.zone_id ||
             this._org.levelsForBuilding()[0]?.id;
-        const new_space = {
+        const asset_data: Partial<ParkingSpace> = {
             ...state.metadata,
-            zone,
-            id: state.metadata.id || `parking-${zone}.${randomInt(999_999)}`,
+            zone_id,
+            id: state.metadata.id || undefined,
         };
-        const spaces = await nextValueFrom(this.spaces);
-        const idx = spaces.findIndex((_) => _.id === space.id);
         let recreate = false;
         if (
             space.assigned_to &&
-            (space.assigned_to !== new_space.assigned_to ||
-                space.id !== new_space.id)
+            (space.assigned_to !== asset_data.assigned_to ||
+                space.id !== asset_data.id)
         ) {
             this._clearAssignedBooking(space);
             recreate = true;
         }
+        const saved = await saveParkingSpace(asset_data).toPromise();
         if (
-            (space.assigned_to !== new_space.assigned_to || recreate) &&
-            new_space.assigned_to
+            (space.assigned_to !== asset_data.assigned_to || recreate) &&
+            asset_data.assigned_to
         ) {
             const users = await nextValueFrom(this.users);
-            const user = users.find((_) => _.email === new_space.assigned_to);
+            const user = users.find((_) => _.email === asset_data.assigned_to);
             const user_details = await USER_PIPE.transform(
-                new_space.assigned_to,
+                asset_data.assigned_to,
             );
             const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
             await saveBooking(
                 new Booking({
-                    user_id: user_details.id || new_space.assigned_to,
-                    user_email: new_space.assigned_to,
+                    user_id: user_details.id || asset_data.assigned_to,
+                    user_email: asset_data.assigned_to,
                     user_name: user_details.name,
                     booking_start: getUnixTime(date),
                     booking_end: getUnixTime(addHours(date, 22)),
                     type: 'parking',
                     booking_type: 'parking',
-                    asset_id: new_space.id,
-                    asset_name: new_space.name,
+                    asset_id: saved.id,
+                    asset_name: saved.name,
                     recurrence_type: 'daily',
                     recurrence_days:
                         RecurrenceDays.MONDAY |
@@ -300,26 +285,21 @@ export class ParkingStateService extends AsyncHandler {
                         this._org.organisation.id,
                         this._org.region?.id,
                         this._org.building?.id,
-                        new_space.zone_id ||
-                            new_space.zone?.id ||
-                            new_space.zone,
+                        zone_id,
                     ]),
                     extension_data: {
-                        asset_name: new_space.name,
+                        asset_name: saved.name,
                         is_assigned: true,
                         plate_number: user?.plate_number || '',
                     },
                 }),
-            ).toPromise();
+            )
+                .toPromise()
+                .catch((e) => {
+                    ref.close();
+                    throw e;
+                });
         }
-        if (idx >= 0) spaces[idx] = new_space;
-        else spaces.push(new_space);
-        const new_space_list = spaces;
-        await updateMetadata(zone, {
-            name: 'parking-spaces',
-            details: new_space_list,
-            description: 'List of available parking spaces',
-        }).toPromise();
         this._change.next(Date.now());
         ref.close();
     }
@@ -336,14 +316,9 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
-        const zone = this._options.getValue().zones[0];
-        const spaces = await nextValueFrom(this.spaces);
         this._clearAssignedBooking(space);
-        await updateMetadata(zone, {
-            name: 'parking-spaces',
-            details: spaces.filter((_) => _.id !== space.id),
-            description: 'List of available parking spaces',
-        }).toPromise();
+        await deleteParkingSpace(space.id).toPromise();
+        this._change.next(Date.now());
         state.close();
     }
 

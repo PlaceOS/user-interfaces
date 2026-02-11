@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    OnInit,
+    Output,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -26,7 +33,7 @@ import { ParkingSpace } from './parking-state.service';
     template: `
         <div class="w-md">
             <header
-                class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 min-h-12 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
@@ -36,25 +43,25 @@ import { ParkingSpace } from './parking-state.service';
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main class="flex flex-col p-4" [formGroup]="form">
-                    <label for="name">{{
+                    <label for="identifier">{{
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            name="name"
+                            name="identifier"
                             [placeholder]="
                                 'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                             "
-                            formControlName="name"
+                            formControlName="identifier"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -117,19 +124,21 @@ import { ParkingSpace } from './parking-state.service';
                 </main>
             } @else {
                 <main
-                    class="flex flex-col items-center justify-center space-y-2 p-8"
+                    class="flex min-h-48 flex-col items-center justify-center space-y-2 p-12"
                 >
                     <mat-spinner diameter="32"></mat-spinner>
                     <p>{{ 'APP.CONCIERGE.PARKING_SPACE_SAVE' | translate }}</p>
                 </main>
             }
-            <footer
-                class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
-            >
-                <button btn matRipple class="w-32" (click)="postForm()">
-                    {{ 'COMMON.SAVE' | translate }}
-                </button>
-            </footer>
+            @if (!loading()) {
+                <footer
+                    class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
+                >
+                    <button btn matRipple class="w-32" (click)="postForm()">
+                        {{ 'COMMON.SAVE' | translate }}
+                    </button>
+                </footer>
+            }
         </div>
     `,
     styles: [``],
@@ -152,7 +161,7 @@ export class ParkingSpaceModalComponent implements OnInit {
         inject<MatDialogRef<ParkingSpaceModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean;
+    public readonly loading = signal(false);
 
     public get id() {
         return this._data?.id || '';
@@ -160,7 +169,7 @@ export class ParkingSpaceModalComponent implements OnInit {
 
     public readonly form = new FormGroup({
         id: new FormControl(''),
-        name: new FormControl('', [Validators.required]),
+        identifier: new FormControl('', [Validators.required]),
         map_id: new FormControl('', [Validators.required]),
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
@@ -171,8 +180,12 @@ export class ParkingSpaceModalComponent implements OnInit {
 
     constructor() {
         const _data = this._data;
-
-        if (_data) this.form.patchValue(_data);
+        if (_data) {
+            this.form.patchValue({
+                ..._data,
+                map_id: _data.map_id || _data.other_data.map_id,
+            });
+        }
     }
 
     public async ngOnInit() {
@@ -190,13 +203,13 @@ export class ParkingSpaceModalComponent implements OnInit {
 
     public postForm() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;
             value.assigned_name = value.assigned_user.name;
-            delete value.assigned_user;
         }
+        delete (value as any).assigned_user;
         this._dialog_ref.disableClose = true;
         this.event.emit({ reason: 'done', metadata: value });
     }
