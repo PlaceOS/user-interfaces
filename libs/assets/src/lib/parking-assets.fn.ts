@@ -98,6 +98,7 @@ export interface ParkingUser {
     phone: string;
     notes: string;
     deny: boolean;
+    special_needs: boolean;
 }
 
 const PARKING_USER_CATEGORY_NAME = '_PARKING_USERS_';
@@ -162,6 +163,7 @@ export function toParkingUser(asset: PlaceAsset): ParkingUser {
         phone: data.phone || '',
         notes: asset.notes || '',
         deny: String(data.deny) === 'true',
+        special_needs: String(data.special_needs) === 'true',
     };
 }
 
@@ -183,6 +185,7 @@ export function fromParkingUser(
             plate_number: user.plate_number || '',
             phone: user.phone || '',
             deny: user.deny ? 'true' : 'false',
+            special_needs: user.special_needs ? 'true' : 'false',
         },
     } as Partial<PlaceAsset>;
 }

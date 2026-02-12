@@ -48,7 +48,7 @@
     --info-content: hsl(214, 100%, 97%);
 
     /* Warning */
-    --warn: hsl(45, 100%, 64%);
+    --warn: #ffa000;
     --warn-light: hsl(60, 100%, 95%);
     --warn-content: hsl(0, 0%, 0%);
 
