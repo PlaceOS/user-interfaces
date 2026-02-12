@@ -132,13 +132,19 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'venue')) {
                     @case ('approved') {
-                        <icon class="text-success text-lg">done</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
                     }
                     @case ('declined') {
-                        <icon class="text-error text-lg">close</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
                     }
                     @case ('pending') {
-                        <icon class="text-warning text-lg">schedule</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
                     }
                     @default {
                         <span class="opacity-30">&mdash;</span>
@@ -152,13 +158,19 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'dining')) {
                     @case ('approved') {
-                        <icon class="text-success text-lg">done</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
                     }
                     @case ('declined') {
-                        <icon class="text-error text-lg">close</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
                     }
                     @case ('pending') {
-                        <icon class="text-warning text-lg">schedule</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
                     }
                     @default {
                         <span class="opacity-30">&mdash;</span>
@@ -172,13 +184,19 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'av_tech')) {
                     @case ('approved') {
-                        <icon class="text-success text-lg">done</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
                     }
                     @case ('declined') {
-                        <icon class="text-error text-lg">close</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
                     }
                     @case ('pending') {
-                        <icon class="text-warning text-lg">schedule</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
                     }
                     @default {
                         <span class="opacity-30">&mdash;</span>
@@ -192,13 +210,19 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'safety')) {
                     @case ('approved') {
-                        <icon class="text-success text-lg">done</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
                     }
                     @case ('declined') {
-                        <icon class="text-error text-lg">close</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
                     }
                     @case ('pending') {
-                        <icon class="text-warning text-lg">schedule</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
                     }
                     @default {
                         <span class="opacity-30">&mdash;</span>
@@ -212,13 +236,19 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'events')) {
                     @case ('approved') {
-                        <icon class="text-success text-lg">done</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
                     }
                     @case ('declined') {
-                        <icon class="text-error text-lg">close</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
                     }
                     @case ('pending') {
-                        <icon class="text-warning text-lg">schedule</icon>
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
                     }
                     @default {
                         <span class="opacity-30">&mdash;</span>
