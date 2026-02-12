@@ -9,7 +9,6 @@ import { CalendarEvent, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
-    TranslatePipe,
 } from '@placeos/components';
 import { EventStateService } from './event-state.service';
 import {
@@ -303,7 +302,6 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
         MatDialogModule,
         RouterModule,
         MatRippleModule,
-        TranslatePipe,
         MatProgressBarModule,
     ],
 })
