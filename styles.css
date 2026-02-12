@@ -2347,6 +2347,7 @@ html {
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --leading-tight: 1.25;
+  --leading-relaxed: 1.625;
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
@@ -2355,6 +2356,7 @@ html {
   --radius-3xl: 1.5rem;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-spin: spin 1s linear infinite;
   --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-bounce: bounce 1s infinite;
   --blur-sm: 8px;
@@ -3051,6 +3053,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mt-6 {
   margin-top: calc(var(--spacing) * 6);
 }
+#placeos .mt-8 {
+  margin-top: calc(var(--spacing) * 8);
+}
 #placeos .mt-10 {
   margin-top: calc(var(--spacing) * 10);
 }
@@ -3209,9 +3214,6 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-1 {
   height: calc(var(--spacing) * 1);
-}
-#placeos .h-1\.5 {
-  height: calc(var(--spacing) * 1.5);
 }
 #placeos .h-1\/2 {
   height: calc(1/2 * 100%);
@@ -3485,6 +3487,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-h-\[80vh\] {
   max-height: 80vh;
+}
+#placeos .max-h-\[85vh\] {
+  max-height: 85vh;
 }
 #placeos .max-h-\[calc\(80vh-18rem\)\] {
   max-height: calc(80vh - 18rem);
@@ -3786,11 +3791,11 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[28\%\] {
   width: 28%;
 }
-#placeos .w-\[28rem\] {
-  width: 28rem;
-}
 #placeos .w-\[50vw\] {
   width: 50vw;
+}
+#placeos .w-\[56rem\] {
+  width: 56rem;
 }
 #placeos .w-\[60\%\] {
   width: 60%;
@@ -3944,6 +3949,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-w-\[640px\] {
   max-width: 640px;
+}
+#placeos .max-w-\[720px\] {
+  max-width: 720px;
 }
 #placeos .max-w-\[768px\] {
   max-width: 768px;
@@ -4101,6 +4109,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-\[80vw\] {
   min-width: 80vw;
 }
+#placeos .min-w-\[140px\] {
+  min-width: 140px;
+}
+#placeos .min-w-\[200px\] {
+  min-width: 200px;
+}
 #placeos .min-w-\[256px\] {
   min-width: 256px;
 }
@@ -4226,6 +4240,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .animate-ping {
   animation: var(--animate-ping);
 }
+#placeos .animate-spin {
+  animation: var(--animate-spin);
+}
 #placeos .cursor-grab {
   cursor: grab;
 }
@@ -4321,6 +4338,11 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
   margin-block-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-y-reverse)));
 }
+:where(#placeos .space-y-1\.5 > :not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-y-reverse)));
+}
 :where(#placeos .space-y-2 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
   margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
@@ -4341,6 +4363,11 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-block-start: calc(calc(var(--spacing) * 5) * var(--tw-space-y-reverse));
   margin-block-end: calc(calc(var(--spacing) * 5) * calc(1 - var(--tw-space-y-reverse)));
 }
+:where(#placeos .space-y-6 > :not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
+}
 :where(#placeos .space-y-8 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
   margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
@@ -4351,6 +4378,9 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-block-start: calc(0.5em * var(--tw-space-y-reverse));
   margin-block-end: calc(0.5em * calc(1 - var(--tw-space-y-reverse)));
 }
+#placeos .gap-x-4 {
+  column-gap: calc(var(--spacing) * 4);
+}
 :where(#placeos .space-x-0 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(calc(var(--spacing) * 0) * var(--tw-space-x-reverse));
@@ -4360,6 +4390,11 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(calc(var(--spacing) * 1) * var(--tw-space-x-reverse));
   margin-inline-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-x-reverse)));
+}
+:where(#placeos .space-x-1\.5 > :not(:last-child)) {
+  --tw-space-x-reverse: 0;
+  margin-inline-start: calc(calc(var(--spacing) * 1.5) * var(--tw-space-x-reverse));
+  margin-inline-end: calc(calc(var(--spacing) * 1.5) * calc(1 - var(--tw-space-x-reverse)));
 }
 :where(#placeos .space-x-2 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
@@ -4390,6 +4425,9 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(0.5em * var(--tw-space-x-reverse));
   margin-inline-end: calc(0.5em * calc(1 - var(--tw-space-x-reverse)));
+}
+#placeos .gap-y-2 {
+  row-gap: calc(var(--spacing) * 2);
 }
 :where(#placeos .divide-x > :not(:last-child)) {
   --tw-divide-x-reverse: 0;
@@ -4702,6 +4740,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-success {
   border-color: var(--success);
 }
+#placeos .border-success\/30 {
+  border-color: var(--success);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-success\/30 {
+    border-color: color-mix(in oklab, var(--success) 30%, transparent);
+  }
+}
 #placeos .border-warning {
   border-color: var(--warn);
 }
@@ -4730,6 +4776,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-base-200 {
   background-color: var(--base-200);
+}
+#placeos .bg-base-200\/30 {
+  background-color: var(--base-200);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-200\/30 {
+    background-color: color-mix(in oklab, var(--base-200) 30%, transparent);
+  }
 }
 #placeos .bg-base-200\/50 {
   background-color: var(--base-200);
@@ -4769,6 +4823,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-error-light\! {
   background-color: var(--error-light) !important;
 }
+#placeos .bg-error\/20 {
+  background-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-error\/20 {
+    background-color: color-mix(in oklab, var(--error) 20%, transparent);
+  }
+}
 #placeos .bg-info {
   background-color: var(--info);
 }
@@ -4777,6 +4839,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-info-light {
   background-color: var(--info-light);
+}
+#placeos .bg-info\/20 {
+  background-color: var(--info);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-info\/20 {
+    background-color: color-mix(in oklab, var(--info) 20%, transparent);
+  }
 }
 #placeos .bg-neutral {
   background-color: var(--neutral);
@@ -4789,6 +4859,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-primary\! {
   background-color: var(--primary) !important;
+}
+#placeos .bg-primary\/10 {
+  background-color: var(--primary);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-primary\/10 {
+    background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+  }
 }
 #placeos .bg-secondary {
   background-color: var(--secondary);
@@ -4808,6 +4886,22 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-success-light {
   background-color: var(--success-light);
 }
+#placeos .bg-success\/10 {
+  background-color: var(--success);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-success\/10 {
+    background-color: color-mix(in oklab, var(--success) 10%, transparent);
+  }
+}
+#placeos .bg-success\/20 {
+  background-color: var(--success);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-success\/20 {
+    background-color: color-mix(in oklab, var(--success) 20%, transparent);
+  }
+}
 #placeos .bg-transparent {
   background-color: transparent;
 }
@@ -4822,6 +4916,14 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-warning-light {
   background-color: var(--warn-light);
+}
+#placeos .bg-warning\/20 {
+  background-color: var(--warn);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-warning\/20 {
+    background-color: color-mix(in oklab, var(--warn) 20%, transparent);
+  }
 }
 #placeos .bg-warning\/50 {
   background-color: var(--warn);
@@ -4864,14 +4966,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .p-2 {
   padding: calc(var(--spacing) * 2);
 }
+#placeos .p-2\.5 {
+  padding: calc(var(--spacing) * 2.5);
+}
 #placeos .p-3 {
   padding: calc(var(--spacing) * 3);
 }
 #placeos .p-4 {
   padding: calc(var(--spacing) * 4);
-}
-#placeos .p-5 {
-  padding: calc(var(--spacing) * 5);
 }
 #placeos .p-6 {
   padding: calc(var(--spacing) * 6);
@@ -4917,6 +5019,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .px-4 {
   padding-inline: calc(var(--spacing) * 4);
+}
+#placeos .px-5 {
+  padding-inline: calc(var(--spacing) * 5);
 }
 #placeos .px-6 {
   padding-inline: calc(var(--spacing) * 6);
@@ -4968,6 +5073,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pt-2 {
   padding-top: calc(var(--spacing) * 2);
+}
+#placeos .pt-3 {
+  padding-top: calc(var(--spacing) * 3);
 }
 #placeos .pt-4 {
   padding-top: calc(var(--spacing) * 4);
@@ -5028,6 +5136,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pb-22 {
   padding-bottom: calc(var(--spacing) * 22);
+}
+#placeos .pb-24 {
+  padding-bottom: calc(var(--spacing) * 24);
 }
 #placeos .pl-0 {
   padding-left: calc(var(--spacing) * 0);
@@ -5173,6 +5284,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .leading-none {
   --tw-leading: 1;
   line-height: 1;
+}
+#placeos .leading-relaxed {
+  --tw-leading: var(--leading-relaxed);
+  line-height: var(--leading-relaxed);
 }
 #placeos .leading-tight {
   --tw-leading: var(--leading-tight);
@@ -5646,6 +5761,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (hover: hover) {
+  #placeos .hover\:border-primary:hover {
+    border-color: var(--primary);
+  }
+}
+@media (hover: hover) {
   #placeos .hover\:bg-base-100:hover {
     background-color: var(--base-100);
   }
@@ -5653,6 +5773,16 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (hover: hover) {
   #placeos .hover\:bg-base-200:hover {
     background-color: var(--base-200);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-base-200\/50:hover {
+    background-color: var(--base-200);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #placeos .hover\:bg-base-200\/50:hover {
+      background-color: color-mix(in oklab, var(--base-200) 50%, transparent);
+    }
   }
 }
 @media (hover: hover) {
@@ -5673,6 +5803,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (hover: hover) {
   #placeos .hover\:text-info:hover {
     color: var(--info);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:underline:hover {
+    text-decoration-line: underline;
   }
 }
 @media (hover: hover) {
@@ -6262,6 +6397,11 @@ input:where([type=button], [type=reset], [type=submit]),
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+@media (min-width: 48rem) {
+  #placeos .md\:flex-row {
+    flex-direction: row;
+  }
+}
 @media (min-width: 64rem) {
   #placeos .lg\:block {
     display: block;
@@ -6490,6 +6630,11 @@ body {
 @property --tw-drop-shadow-size { syntax: "*"; inherits: false; }
 @property --tw-duration { syntax: "*"; inherits: false; }
 @property --tw-ease { syntax: "*"; inherits: false; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes ping {
   75%, 100% {
     transform: scale(2);
