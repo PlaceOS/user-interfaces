@@ -34,11 +34,13 @@ import { BehaviorSubject, Observable, combineLatest, forkJoin, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
+    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     first,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -135,10 +137,13 @@ export class EventsStateService extends AsyncHandler {
 
     public readonly spaces: Observable<Space[]> = combineLatest([
         this._zones,
-        this._org.active_region.pipe(distinctUntilKeyChanged('id')),
+        this._org.active_region.pipe(
+            startWith(null),
+            distinctUntilChanged((a, b) => a?.id === b?.id),
+        ),
         this._org.active_building.pipe(
-            filter((_) => !!_),
-            distinctUntilKeyChanged('id'),
+            startWith(null),
+            distinctUntilChanged((a, b) => a?.id === b?.id),
         ),
     ]).pipe(
         debounceTime(300),
@@ -152,7 +157,11 @@ export class EventsStateService extends AsyncHandler {
                           .map((_) => _.id)
                     : null) || [this._org.building?.id];
             }
-            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
+            const valid_zones = (zone_ids || []).filter(Boolean);
+            if (!valid_zones.length) return of([]);
+            return forkJoin(
+                valid_zones.map((id) => requestSpacesForZone(id)),
+            );
         }),
         map((l) => {
             const api_spaces = flatten<Space>(l)
