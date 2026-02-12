@@ -282,17 +282,13 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                 >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">edit</icon>
-                        <div class="mr-2">
-                            {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
-                        </div>
+                        <div class="mr-2">Edit Event</div>
                     </div>
                 </a>
                 <button mat-menu-item (click)="removeEvent(row)">
                     <div class="flex items-center space-x-2">
                         <icon class="text-error text-2xl">delete</icon>
-                        <div class="mr-2">
-                            {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
-                        </div>
+                        <div class="mr-2">Remove Event</div>
                     </div>
                 </button>
             </mat-menu>
