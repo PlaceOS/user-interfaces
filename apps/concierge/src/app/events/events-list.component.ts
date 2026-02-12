@@ -21,6 +21,7 @@ import {
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { EventApprovalsComponent } from './event-approvals.component';
 import { EventListingComponent } from './event-listing.component';
+import { EventQuotesComponent } from './event-quotes.component';
 import { EventStateService } from './event-state.service';
 
 @Component({
@@ -90,6 +91,16 @@ import { EventStateService } from './event-state.service';
                 >
                     Approvals
                 </button>
+                <button
+                    matRipple
+                    class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+                    [class.bg-primary]="view === 'quotes'"
+                    [class.text-primary-content]="view === 'quotes'"
+                    [class.bg-base-200]="view !== 'quotes'"
+                    (click)="view = 'quotes'"
+                >
+                    Quotes &amp; Invoices
+                </button>
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
                 @if (view === 'approvals') {
@@ -99,6 +110,9 @@ import { EventStateService } from './event-state.service';
                     <div class="min-h-full w-full overflow-x-auto">
                         <event-listing class="block"></event-listing>
                     </div>
+                }
+                @if (view === 'quotes') {
+                    <event-quotes></event-quotes>
                 }
             </div>
         </div>
@@ -126,6 +140,7 @@ import { EventStateService } from './event-state.service';
         MatSelectModule,
         EventApprovalsComponent,
         EventListingComponent,
+        EventQuotesComponent,
         MatRippleModule,
         RouterModule,
         FormsModule,
@@ -144,7 +159,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
 
     public period_list = [];
     public selected_range: number;
-    public view: 'list' | 'approvals' = 'list';
+    public view: 'list' | 'approvals' | 'quotes' = 'list';
 
     public get has_calendar() {
         return isMock() || this._settings.get('app.group_events_calendar');

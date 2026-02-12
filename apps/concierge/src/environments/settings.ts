@@ -86,6 +86,7 @@ const app = {
  */
 export const DEFAULT_SETTINGS: any = {
     debug: true,
+    mock: true,
     composer: {
         domain: '',
         route: '/concierge',

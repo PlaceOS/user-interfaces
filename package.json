@@ -48,6 +48,7 @@
         "@nx/angular": "21.2.0",
         "@sentry/cli": "^2.28.6",
         "@types/google.maps": "^3.55.0",
+        "jspdf": "^4.1.0",
         "rxjs": "^7.8.2",
         "tslib": "^2.3.0",
         "zone.js": "0.15.0"

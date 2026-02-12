@@ -47,6 +47,11 @@ export class EventApprovalStateService {
         });
     }
 
+    /** Force all observables to re-evaluate (e.g. after adding mock events) */
+    public refresh(): void {
+        this._status.next({ ...this._status.getValue() });
+    }
+
     public readonly approved_calendar_events$ = this._status.pipe(
         map((statuses) => {
             const approved_ids = Object.entries(statuses)
@@ -173,7 +178,7 @@ export class EventApprovalStateService {
             const room_email =
                 event.location
                     .toLowerCase()
-                    .replace(/[^a-z0-9]/g, '.') + '@hancock.com';
+                    .replace(/[^a-z0-9]/g, '.') + '@ucla.edu';
             if (seen.has(room_email)) return null;
             seen.add(room_email);
             return new Space({
@@ -196,11 +201,11 @@ export class EventApprovalStateService {
         const organiser_email =
             mock.organiser
                 .toLowerCase()
-                .replace(/[^a-z0-9]/g, '.') + '@hancock.com';
+                .replace(/[^a-z0-9]/g, '.') + '@ucla.edu';
         const room_email =
             mock.location
                 .toLowerCase()
-                .replace(/[^a-z0-9]/g, '.') + '@hancock.com';
+                .replace(/[^a-z0-9]/g, '.') + '@ucla.edu';
 
         let body = '';
         if (requirements) {

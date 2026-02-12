@@ -438,7 +438,7 @@ export class EventSummaryDialogComponent {
         return (
             this.event.organiser
                 .toLowerCase()
-                .replace(/[^a-z0-9]/g, '.') + '@hancock.com'
+                .replace(/[^a-z0-9]/g, '.') + '@ucla.edu'
         );
     }
 
