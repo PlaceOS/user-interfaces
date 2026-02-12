@@ -88,7 +88,10 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
 
         <!-- Event column -->
         <ng-template #event_template let-item="row">
-            <div class="flex items-center space-x-2 px-3 py-2">
+            <div
+                class="flex cursor-pointer items-center space-x-2 px-3 py-2 hover:bg-base-200/50"
+                (click)="showSummary(item)"
+            >
                 <div
                     date
                     class="flex w-8 flex-col items-center leading-tight"
@@ -104,7 +107,7 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                     </div>
                 </div>
                 <div details class="flex flex-col">
-                    <div class="text-sm font-medium">{{ item.title }}</div>
+                    <div class="text-sm font-medium hover:underline">{{ item.title }}</div>
                     <div class="text-xs opacity-40">
                         {{ item.date | date: 'EEEE, ' + time_format }}
                         &ndash;
@@ -268,20 +271,6 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                 <icon>more_vert</icon>
             </button>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="showSummary(row)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">info</icon>
-                        <div class="mr-2">View Summary</div>
-                    </div>
-                </button>
-                <button mat-menu-item (click)="viewEvent(row)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">visibility</icon>
-                        <div class="mr-2">
-                            {{ 'APP.CONCIERGE.EVENTS_VIEW' | translate }}
-                        </div>
-                    </div>
-                </button>
                 <a
                     mat-menu-item
                     [routerLink]="[
