@@ -22,24 +22,28 @@ import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
 
 const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
-    business: { start: 540, end: 1020 },
-    morning: { start: 360, end: 720 },
-    afternoon: { start: 720, end: 1080 },
+    day_worker: { start: 420, end: 1020 },
+    day_shift_12hr: { start: 330, end: 1110 },
+    night_shift_12hr: { start: 1050, end: 390 },
+    half_day_am: { start: 420, end: 720 },
+    half_day_pm: { start: 750, end: 1020 },
 };
 
 @Component({
     selector: 'parking-request-form-details',
     template: `
         @if (form()) {
-            <div class="space-y-4" [formGroup]="form()">
+            <div [formGroup]="form()">
                 <!-- BOOKING FREQUENCY -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">date_range</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>date_range</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_BOOKING_FREQUENCY' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <a-date-field
                         name="date"
                         formControlName="date"
@@ -248,13 +252,15 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 </div>
 
                 <!-- REQUEST TYPE -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">ballot</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>ballot</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_REQUEST_TYPE' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="space-y-2">
                         @for (type of request_types(); track type.value) {
                             <div
@@ -312,13 +318,15 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 </div>
 
                 <!-- SHIFT SELECTION -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">schedule</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>schedule</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_SHIFT_SELECTION' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="space-y-3">
                         <div>
                             <label class="mb-1 block text-sm font-medium">
@@ -334,16 +342,24 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                         setShiftType($event.value)
                                     "
                                 >
-                                    <mat-option value="business">{{
-                                        'BOOKINGS.PARKING_SHIFT_BUSINESS'
+                                    <mat-option value="day_worker">{{
+                                        'BOOKINGS.PARKING_SHIFT_DAY_WORKER'
                                             | translate
                                     }}</mat-option>
-                                    <mat-option value="morning">{{
-                                        'BOOKINGS.PARKING_SHIFT_MORNING'
+                                    <mat-option value="day_shift_12hr">{{
+                                        'BOOKINGS.PARKING_SHIFT_DAY_12HR'
                                             | translate
                                     }}</mat-option>
-                                    <mat-option value="afternoon">{{
-                                        'BOOKINGS.PARKING_SHIFT_AFTERNOON'
+                                    <mat-option value="night_shift_12hr">{{
+                                        'BOOKINGS.PARKING_SHIFT_NIGHT_12HR'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="half_day_am">{{
+                                        'BOOKINGS.PARKING_SHIFT_HALF_DAY_AM'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="half_day_pm">{{
+                                        'BOOKINGS.PARKING_SHIFT_HALF_DAY_PM'
                                             | translate
                                     }}</mat-option>
                                     <mat-option value="custom">{{
@@ -416,17 +432,17 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 <!-- LOCATION PREFERENCE -->
                 @if ((building_list | async)?.length > 1) {
                     <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
-                        <h3
-                            class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">place</icon>
+                        <icon>place</icon>
+                        <div>
                             {{
                                 'BOOKINGS.PARKING_LOCATION_PREFERENCE'
                                     | translate
                             }}
-                        </h3>
+                        </div>
+                    </div>
+                    <div class="space-y-3 p-4">
                         @if (region_name) {
                             <div class="text-sm font-medium">
                                 {{ region_name }}
@@ -477,13 +493,15 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">directions_car</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>directions_car</icon>
+                    <div>
                         {{ 'BOOKINGS.PARKING_VEHICLE_DETAILS' | translate }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
                         <div class="flex-1">
                             <label class="mb-1 block text-sm font-medium">
@@ -537,16 +555,18 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 </div>
 
                 <!-- SPACE RESTRICTIONS -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">tune</icon>
+                <div
+                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                >
+                    <icon>tune</icon>
+                    <div>
                         {{
                             'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                 | translate
                         }}
-                    </h3>
+                    </div>
+                </div>
+                <div class="space-y-3 p-4">
                     <p class="text-sm opacity-60">
                         {{
                             'BOOKINGS.PARKING_SPACE_RESTRICTIONS_DESC'
@@ -579,7 +599,18 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
             </div>
         }
     `,
-    styles: [``],
+    styles: [
+        `
+            .gradient {
+                background: linear-gradient(
+                    105deg,
+                    var(--base-200) 0%,
+                    var(--base-200) 50%,
+                    var(--base-100) 100%
+                );
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -624,8 +655,8 @@ export class ParkingRequestFormDetailsComponent
     public readonly week_options = computed(() =>
         Array.from({ length: this.max_weeks() }, (_, i) => i + 1),
     );
-    public readonly shift_type = signal<string>('custom');
-    public readonly start_time_mins = signal<number>(480);
+    public readonly shift_type = signal<string>('day_worker');
+    public readonly start_time_mins = signal<number>(420);
     public readonly end_time_mins = signal<number>(1020);
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5].map((index) => ({
@@ -701,18 +732,17 @@ export class ParkingRequestFormDetailsComponent
     public ngOnInit() {
         const form = this.form();
         if (!form) return;
+        const is_edit = !!form.value.id;
         const date = form.getRawValue().date;
-        if (date) {
+        if (is_edit && date) {
             const d = new Date(date);
             const start = d.getHours() * 60 + d.getMinutes();
-            const duration = form.value.duration || 540;
+            const duration = form.value.duration || 600;
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
             this._detectShiftType(start, start + duration);
         } else {
-            this.start_time_mins.set(480);
-            this.end_time_mins.set(1020);
-            this.shift_type.set('custom');
+            this.setShiftType('day_worker');
         }
         const is_daily = form.value.recurrence_type === 'daily';
         this.booking_frequency.set(is_daily ? 'daily' : 'single');
@@ -824,10 +854,13 @@ export class ParkingRequestFormDetailsComponent
         const raw_date = form.getRawValue().date || Date.now();
         const day = startOfDay(raw_date);
         const new_date = day.valueOf() + start_mins * 60 * 1000;
-        const duration = Math.max(end_mins - start_mins, 30);
+        const duration =
+            end_mins > start_mins
+                ? end_mins - start_mins
+                : 1440 - start_mins + end_mins;
         const was_disabled = form.controls.date.disabled;
         if (was_disabled) form.controls.date.enable({ emitEvent: false });
-        form.patchValue({ date: new_date, duration });
+        form.patchValue({ date: new_date, duration: Math.max(duration, 30) });
         if (was_disabled) form.controls.date.disable({ emitEvent: false });
     }
 
@@ -855,8 +888,9 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _detectShiftType(start: number, end: number) {
+        const normalized_end = end > 1440 ? end - 1440 : end;
         for (const [key, preset] of Object.entries(SHIFT_PRESETS)) {
-            if (preset.start === start && preset.end === end) {
+            if (preset.start === start && preset.end === normalized_end) {
                 this.shift_type.set(key);
                 return;
             }

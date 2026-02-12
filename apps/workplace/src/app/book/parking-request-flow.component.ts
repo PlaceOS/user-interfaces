@@ -8,7 +8,7 @@ import { ParkingRequestSuccessComponent } from './parking-request-flow/parking-r
 @Component({
     selector: 'placeos-parking-request-flow',
     template: `
-        <div class="bg-base-100 z-50 h-full w-full">
+        <div class="bg-base-200 z-50 h-full w-full">
             @switch (view()) {
                 @case ('success') {
                     <parking-request-success></parking-request-success>

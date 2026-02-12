@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { Router } from '@angular/router';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
@@ -23,154 +23,188 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 @Component({
     selector: 'parking-request-form',
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto p-4">
+        <div
+            class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
+        >
             <div
-                class="bg-base-100 mx-auto w-3xl max-w-full space-y-4 rounded-xl p-4"
+                class="mx-auto min-h-full w-[80rem] max-w-full flex-1 space-y-4 px-4 pt-4"
             >
-                <!-- Header -->
                 <div
-                    class="bg-base-100 border-base-300 flex items-center gap-4 rounded-lg border p-6"
+                    class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
                 >
+                    <!-- Gradient Header -->
                     <div
-                        class="bg-info/20 text-info flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold"
+                        class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                     >
-                        P
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-semibold">
+                        <icon>local_parking</icon>
+                        <div>
                             {{
                                 (form.value.id
                                     ? 'APP.WORKPLACE.PARKING_REQUEST_EDIT_HEADER'
                                     : 'BOOKINGS.PARKING_REQUEST_TITLE'
                                 ) | translate
                             }}
-                        </h1>
+                        </div>
+                    </div>
+                    <div class="px-4 pt-3 pb-1">
                         <p class="text-sm opacity-60">
                             {{
                                 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
                             }}
                         </p>
                     </div>
+
+                    <!-- Form Details -->
+                    <parking-request-form-details
+                        [form]="form"
+                        [show_special_needs]="show_special_needs()"
+                    ></parking-request-form-details>
+
+                    <!-- SUMMARY SECTION -->
+                    <div
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                    >
+                        <icon>info</icon>
+                        <div>
+                            {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
+                        </div>
+                    </div>
+                    <div class="space-y-4 p-4">
+                        <!-- Allocation info box -->
+                        <div
+                            class="bg-base-200 border-base-300 flex items-start gap-3 rounded-lg border p-4"
+                        >
+                            <icon class="text-warning mt-0.5 shrink-0 text-xl"
+                                >campaign</icon
+                            >
+                            <p
+                                class="text-sm"
+                                [innerHTML]="
+                                    'BOOKINGS.PARKING_ALLOCATION_INFO'
+                                        | translate
+                                "
+                            ></p>
+                        </div>
+
+                        <!-- Info bullets -->
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <icon class="text-success text-lg"
+                                    >check_circle</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_ADVANCE_DAYS'
+                                            | translate
+                                                : {
+                                                      days: available_days(),
+                                                  }
+                                    "
+                                ></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-success text-lg"
+                                    >check_circle</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_APPROVAL_GROUP'
+                                            | translate
+                                    "
+                                ></span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <icon class="text-warning text-lg"
+                                    >warning</icon
+                                >
+                                <span
+                                    class="text-sm"
+                                    [innerHTML]="
+                                        'BOOKINGS.PARKING_MANUAL_APPROVAL'
+                                            | translate
+                                    "
+                                ></span>
+                            </div>
+                        </div>
+
+                        <!-- Conditional after-hours warning -->
+                        @if (form.value.request_type === 'after_hours') {
+                            <div
+                                class="text-warning flex items-center gap-2"
+                            >
+                                <icon class="text-lg">error</icon>
+                                <span class="text-sm">{{
+                                    'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
+                                        | translate
+                                }}</span>
+                            </div>
+                        }
+                    </div>
                 </div>
 
-                <!-- Form Details -->
-                <parking-request-form-details
-                    [form]="form"
-                    [show_special_needs]="show_special_needs()"
-                ></parking-request-form-details>
-
-                <!-- SUMMARY + SUBMISSION -->
+                <!-- Sticky bottom bar -->
                 <div
-                    class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-4"
+                    class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
                 >
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                    <button
+                        btn
+                        matRipple
+                        class="inverse flex items-center gap-2"
+                        (click)="clearForm()"
                     >
-                        <icon class="text-lg">info</icon>
-                        {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
-                    </h3>
-
-                    <!-- Allocation info box -->
-                    <div
-                        class="bg-base-200 border-base-300 flex items-start gap-3 rounded-lg border p-4"
+                        <icon>close</icon>
+                        {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        (click)="submitRequest()"
+                        [disabled]="loading()"
                     >
-                        <icon class="text-warning mt-0.5 shrink-0 text-xl"
-                            >campaign</icon
-                        >
-                        <p
-                            class="text-sm"
-                            [innerHTML]="
-                                'BOOKINGS.PARKING_ALLOCATION_INFO' | translate
-                            "
-                        ></p>
-                    </div>
-
-                    <!-- Info bullets -->
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <icon class="text-success text-lg"
-                                >check_circle</icon
-                            >
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_ADVANCE_DAYS'
-                                        | translate
-                                            : {
-                                                  days: available_days(),
-                                              }
-                                "
-                            ></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <icon class="text-success text-lg"
-                                >check_circle</icon
-                            >
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_APPROVAL_GROUP'
-                                        | translate
-                                "
-                            ></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <icon class="text-warning text-lg">warning</icon>
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_MANUAL_APPROVAL'
-                                        | translate
-                                "
-                            ></span>
-                        </div>
-                    </div>
-
-                    <!-- Conditional after-hours warning -->
-                    @if (form.value.request_type === 'after_hours') {
-                        <div class="text-warning flex items-center gap-2">
-                            <icon class="text-lg">error</icon>
-                            <span class="text-sm">{{
-                                'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
-                                    | translate
-                            }}</span>
-                        </div>
-                    }
-
-                    <!-- Buttons -->
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        @if (loading()) {
-                            <mat-spinner diameter="32"></mat-spinner>
-                        } @else {
-                            <button
-                                btn
-                                matRipple
-                                class="inverse flex items-center gap-2"
-                                (click)="clearForm()"
-                            >
-                                <icon>close</icon>
-                                {{ 'BOOKINGS.PARKING_CANCEL' | translate }}
-                            </button>
-                            <button
-                                btn
-                                matRipple
-                                confirm
-                                class="flex items-center gap-2"
-                                (click)="submitRequest()"
-                            >
-                                <icon>send</icon>
+                        <div class="flex items-center space-x-2">
+                            @if (loading()) {
+                                <icon class="animate-spin text-2xl"
+                                    >progress_activity</icon
+                                >
+                            } @else {
+                                <icon class="text-2xl">send</icon>
+                            }
+                            <div class="flex-1 pr-4">
                                 {{
                                     'BOOKINGS.PARKING_SUBMIT_REQUEST'
                                         | translate
                                 }}
-                            </button>
-                        }
-                    </div>
+                            </div>
+                            @if (!loading()) {
+                                <icon class="text-2xl"
+                                    >keyboard_arrow_right</icon
+                                >
+                            }
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
     `,
-    styles: [``],
+    styles: [
+        `
+            :host {
+                width: 100%;
+                height: 100%;
+            }
+
+            .gradient {
+                background: linear-gradient(
+                    105deg,
+                    var(--base-200) 0%,
+                    var(--base-200) 50%,
+                    var(--base-100) 100%
+                );
+            }
+        `,
+    ],
     imports: [
         CommonModule,
         MatRippleModule,
@@ -178,7 +212,6 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         TranslatePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
-        MatProgressSpinnerModule,
     ],
 })
 export class ParkingRequestFormComponent
@@ -226,8 +259,8 @@ export class ParkingRequestFormComponent
         };
         if (!this.form.getRawValue().date) {
             const day_start = startOfDay(now);
-            defaults.date = day_start.valueOf() + 8 * 60 * 60 * 1000;
-            defaults.duration = 540;
+            defaults.date = day_start.valueOf() + 7 * 60 * 60 * 1000;
+            defaults.duration = 600;
         }
         this.form.patchValue(defaults);
         const parking_user = await nextValueFrom(
