@@ -302,7 +302,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
-        this._booking_form.loadResourceList('parking-spaces' as any),
+        this._booking_form.loadParkingResources(),
         this._change,
     ]).pipe(
         map(([desks, parking]) => {

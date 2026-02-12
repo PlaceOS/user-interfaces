@@ -210,6 +210,12 @@ export class DashboardsService extends AsyncHandler {
     private _alerts = signal([]);
     private _initialising = signal(false);
     private _region_set_from_params = false;
+    /** Capture original URL query string at construction time before effects can modify it */
+    private _initial_query_string = (() => {
+        const hash = location.hash;
+        const idx = hash.indexOf('?');
+        return idx >= 0 ? hash.substring(idx + 1) : '';
+    })();
     /** Track alert IDs that have already been notified to prevent duplicates */
     private _notified_alert_ids = new Set<string>();
     /** Cache of system modules: system_id -> list of valid device names */
@@ -231,28 +237,41 @@ export class DashboardsService extends AsyncHandler {
 
     constructor() {
         super();
-        // Check for region/building in URL query params immediately
-        this._initFromQueryParams();
 
         firstTruthyValueFrom(this._org.initialised).then(() => {
-            this.timeout('org_init', () => {
-                // Don't overwrite if region was explicitly set from query params
-                if (!this._region_set_from_params) {
-                    this.region_id.set(this._org.region?.id || '');
-                    this.building_id.set(this._org.building?.id || '');
-                }
-            });
+            // Check for region/building in URL query params immediately
+            this._initFromQueryParams();
+
+            // If not set from params, sync with org service region/building
+            if (!this._region_set_from_params) {
+                this.region_id.set(this._org.region?.id || '');
+                this.building_id.set(this._org.building?.id || '');
+                // Subscribe to catch late region restoration (e.g., from localStorage)
+                this.subscription(
+                    'org_region',
+                    this._org.active_region.subscribe((region) => {
+                        if (!this._region_set_from_params) {
+                            this.region_id.set(region?.id || '');
+                        }
+                    }),
+                );
+                this.subscription(
+                    'org_building',
+                    this._org.active_building.subscribe((building) => {
+                        if (!this._region_set_from_params) {
+                            this.building_id.set(building?.id || '');
+                        }
+                    }),
+                );
+            }
         });
     }
 
     /** Initialize region/building from URL query params */
     private _initFromQueryParams() {
-        // Parse query params from hash (for hash routing) or search
-        const hash = location.hash;
-        const queryIndex = hash.indexOf('?');
-        const queryString =
-            queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
-        const params = new URLSearchParams(queryString);
+        // Use query string captured at construction time to avoid reading
+        // params injected by the _query_sync effect in AlertsComponent
+        const params = new URLSearchParams(this._initial_query_string);
 
         const region_param = params.get('region');
         const building_param = params.get('building');

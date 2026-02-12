@@ -4,13 +4,13 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ParkingSpace } from '@placeos/bookings';
 import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ParkingSpace } from '@placeos/explore';
 import { combineLatest } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
@@ -26,7 +26,7 @@ import { ParkingStateService } from './parking-state.service';
             [data]="spaces"
             [columns]="[
                 {
-                    key: 'name',
+                    key: 'identifier',
                     name: 'APP.CONCIERGE.PARKING_BAY' | translate,
                     content: name_template,
                 },

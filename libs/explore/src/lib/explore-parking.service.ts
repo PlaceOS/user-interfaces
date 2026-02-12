@@ -4,7 +4,6 @@ import {
     AsyncHandler,
     BookingRuleset,
     currentUser,
-    flatten,
     i18n,
     nextValueFrom,
     notifyError,
@@ -13,7 +12,7 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { PlaceZone, showMetadata } from '@placeos/ts-client';
+import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
     endOfDay,
@@ -24,7 +23,7 @@ import {
     startOfDay,
     startOfMinute,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -35,6 +34,7 @@ import {
 } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
@@ -43,16 +43,7 @@ import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
 import { SetDatetimeModalComponent } from './set-datetime-modal.component';
 
-export interface ParkingSpace {
-    id: string;
-    map_id: string;
-    name: string;
-    notes: string;
-    assigned_to: string;
-    zone_id?: string;
-    zone?: PlaceZone;
-    groups?: string[];
-}
+export type ParkingSpace = PlaceAsset;
 
 export interface ParkingOptions {
     enable_booking?: boolean;
@@ -139,20 +130,9 @@ export class ExploreParkingService extends AsyncHandler {
 
     /** List of parking spaces for the active building */
     public readonly spaces: Observable<ParkingSpace[]> = this.levels.pipe(
-        switchMap((_) =>
-            forkJoin(
-                _.map((l) =>
-                    showMetadata(l.id, 'parking-spaces').pipe(
-                        map((d) =>
-                            (d.details instanceof Array ? d.details : []).map(
-                                (s) => ({ ...s, zone_id: l.id }),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+        switchMap((levels) =>
+            queryParkingSpacesForZones(levels.map((l) => l.id)),
         ),
-        map((_) => flatten(_)),
         shareReplay(1),
     );
 
@@ -293,9 +273,13 @@ export class ExploreParkingService extends AsyncHandler {
                     return;
                 }
                 if (deny_parking_access) {
+                    const space_zone = this._org.levelWithID([
+                        space.zone_id,
+                    ]);
                     return notifyError(
                         i18n('EXPLORE.PARKING_PERMISSIONS_ERROR', {
-                            name: space.zone?.display_name || space.zone?.name,
+                            name:
+                                space_zone?.display_name || space_zone?.name,
                         }),
                     );
                 }
@@ -318,8 +302,10 @@ export class ExploreParkingService extends AsyncHandler {
                     );
                 }
                 if (
-                    space.groups?.length &&
-                    !space.groups.find((_) => currentUser().groups.includes(_))
+                    space.place_groups?.length &&
+                    !space.place_groups.find((_) =>
+                        currentUser().groups.includes(_),
+                    )
                 ) {
                     return notifyError(
                         i18n('EXPLORE.PARKING_GROUP_ERROR', {

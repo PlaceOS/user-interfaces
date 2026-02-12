@@ -11,6 +11,7 @@ import { BookLockerFlowComponent } from './locker-flow.component';
 import { MeetingFlowNewComponent } from './meeting-flow-new/meeting-flow.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
+import { ParkingRequestFlowComponent } from './parking-request-flow.component';
 import { VisitorFlowNewComponent } from './visitor-flow-new/visitor-flow.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 
@@ -31,6 +32,11 @@ const ROUTES: Route[] = [
             // { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking/:step', component: NewParkingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
+            { path: 'parking-request', redirectTo: 'parking-request/form' },
+            {
+                path: 'parking-request/:step',
+                component: ParkingRequestFlowComponent,
+            },
             { path: 'visitor/:step', component: VisitorFlowNewComponent },
             { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'locker/:step', component: BookLockerFlowComponent },
@@ -52,6 +58,7 @@ const STANDALONE_COMPONENTS = [
     VisitorFlowComponent,
     VisitorFlowNewComponent,
     NewParkingFlowComponent,
+    ParkingRequestFlowComponent,
     BookLockerFlowComponent,
 ];
 

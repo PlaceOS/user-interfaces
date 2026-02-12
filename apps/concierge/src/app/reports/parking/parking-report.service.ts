@@ -8,7 +8,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { queryParkingSpaces } from '@placeos/assets';
 import { format, isSameDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
@@ -85,9 +85,12 @@ export class ParkingReportService {
             if (!zones.length) return of([]);
             return forkJoin(
                 zones.map((z) =>
-                    showMetadata(z, 'parking-spaces').pipe(
-                        catchError(() => of({ details: [] })),
-                        map((m) => [z, m.details.length] as [string, number]),
+                    queryParkingSpaces(z).pipe(
+                        catchError(() => of([])),
+                        map(
+                            (spaces) =>
+                                [z, spaces.length] as [string, number],
+                        ),
                     ),
                 ),
             );

@@ -97,6 +97,15 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         plate_number: new FormControl(
             booking.extension_data.plate_number || '',
         ),
+        vehicle_type: new FormControl(
+            booking.extension_data.vehicle_type || 'car',
+        ),
+        request_type: new FormControl(
+            booking.extension_data.request_type || 'standard',
+        ),
+        space_restrictions: new FormControl(
+            booking.extension_data.space_restrictions || false,
+        ),
         pass_number: new FormControl(booking.extension_data.pass_number || ''),
         recurrence_custom: new FormControl(
             booking.extension_data.recurrence_custom ?? false,
