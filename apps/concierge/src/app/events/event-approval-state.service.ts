@@ -18,7 +18,11 @@ type ActionStatus = 'approved' | 'declined';
     providedIn: 'root',
 })
 export class EventApprovalStateService {
-    private _status = new BehaviorSubject<Record<string, ActionStatus>>({});
+    private _status = new BehaviorSubject<Record<string, ActionStatus>>({
+        'appr-001': 'approved',
+        'appr-005': 'approved',
+        'appr-011': 'approved',
+    });
     private _role = new BehaviorSubject<EventRole>('global_admin');
 
     public readonly status$ = this._status.asObservable();
