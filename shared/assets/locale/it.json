@@ -591,6 +591,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "Email del visitatore",
         "VISITOR_COMPANY": "Azienda Visitatore",
         "VISITOR_COMPANY_PLACEHOLDER": "Azienda del visitatore",
+        "VISITOR_PHONE": "Numero di telefono",
+        "VISITOR_PHONE_PLACEHOLDER": "Numero di telefono del visitatore",
         "VISITOR_REASON": "Motivo della visita",
         "VISITOR_REASON_PLACEHOLDER": "es. Riunione di aggiornamento",
         "VISITOR_PASS": "Numero Pass",

@@ -591,6 +591,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "Courriel du visiteur",
         "VISITOR_COMPANY": "Entreprise du visiteur",
         "VISITOR_COMPANY_PLACEHOLDER": "Entreprise du visiteur",
+        "VISITOR_PHONE": "Numéro de téléphone",
+        "VISITOR_PHONE_PLACEHOLDER": "Numéro de téléphone du visiteur",
         "VISITOR_REASON": "Raison de la visite",
         "VISITOR_REASON_PLACEHOLDER": "ex. Rencontre de suivi",
         "VISITOR_PASS": "Numéro de laissez-passer",

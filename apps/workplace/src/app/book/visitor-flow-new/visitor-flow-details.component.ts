@@ -3,6 +3,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -118,7 +119,7 @@ type VisitorFormType = 'single' | 'group';
                         </mat-form-field>
                     </div>
                 }
-                <div class="flex flex-col">
+                <div class="relative flex flex-col">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
@@ -126,35 +127,48 @@ type VisitorFormType = 'single' | 'group';
                         name="date"
                         formControlName="date"
                     ></date-field>
+                    @if (allow_all_day()) {
+                        <mat-checkbox
+                            formControlName="all_day"
+                            class="absolute -top-2 right-2"
+                        >
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    }
                 </div>
-                <div
-                    class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
-                >
-                    <div class="flex-1">
-                        <label for="time">
-                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
-                        </label>
-                        <time-field
-                            name="time"
-                            [ngModel]="form_value().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr()"
-                        />
+                @if (!form_value().all_day) {
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    >
+                        <div class="flex-1">
+                            <label for="time">
+                                {{ 'FORM.TIME_START' | translate
+                                }}<span>*</span>
+                            </label>
+                            <time-field
+                                name="time"
+                                [ngModel]="form_value().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr()"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <label for="duration">
+                                {{ 'FORM.DURATION' | translate }}<span>*</span>
+                            </label>
+                            <duration-field
+                                name="duration"
+                                formControlName="duration"
+                                [time]="form_value().date"
+                                [max]="max_duration()"
+                                [use_24hr]="use_24hr()"
+                            />
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="duration">
-                            {{ 'FORM.DURATION' | translate }}<span>*</span>
-                        </label>
-                        <duration-field
-                            name="duration"
-                            formControlName="duration"
-                            [time]="form_value().date"
-                            [max]="max_duration()"
-                            [use_24hr]="use_24hr()"
-                        />
-                    </div>
-                </div>
+                }
                 @if (can_book_for_others()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
@@ -200,6 +214,7 @@ type VisitorFormType = 'single' | 'group';
         TranslatePipe,
         IconComponent,
         UserSearchFieldComponent,
+        MatCheckboxModule,
     ],
 })
 export class VisitorFlowDetailsComponent implements OnInit {
@@ -224,6 +239,10 @@ export class VisitorFlowDetailsComponent implements OnInit {
         ),
     );
 
+    public readonly allow_all_day = settingSignal(
+        'visitors.allow_all_day',
+        false,
+    );
     public readonly can_book_for_others = settingSignal(
         'bookings.can_book_for_others',
         false,

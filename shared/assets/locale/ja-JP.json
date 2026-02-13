@@ -591,6 +591,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "訪問者のメールアドレス",
         "VISITOR_COMPANY": "訪問者の会社",
         "VISITOR_COMPANY_PLACEHOLDER": "訪問者の会社",
+        "VISITOR_PHONE": "電話番号",
+        "VISITOR_PHONE_PLACEHOLDER": "訪問者の電話番号",
         "VISITOR_REASON": "訪問理由",
         "VISITOR_REASON_PLACEHOLDER": "例：打ち合わせ",
         "VISITOR_PASS": "パス番号",

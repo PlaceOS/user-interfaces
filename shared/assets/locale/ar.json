@@ -591,6 +591,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "البريد الإلكتروني للزائر",
         "VISITOR_COMPANY": "شركة الزائر",
         "VISITOR_COMPANY_PLACEHOLDER": "شركة الزائر",
+        "VISITOR_PHONE": "رقم الهاتف",
+        "VISITOR_PHONE_PLACEHOLDER": "رقم هاتف الزائر",
         "VISITOR_REASON": "سبب الزيارة",
         "VISITOR_REASON_PLACEHOLDER": "مثال: اجتماع متابعة",
         "VISITOR_PASS": "رقم التصريح",

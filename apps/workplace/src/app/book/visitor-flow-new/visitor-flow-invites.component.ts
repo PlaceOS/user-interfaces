@@ -108,20 +108,41 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             </mat-autocomplete>
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <label for="company">{{
-                            'BOOKINGS.VISITOR_COMPANY' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="company"
-                                formControlName="company"
-                                [placeholder]="
-                                    'BOOKINGS.VISITOR_COMPANY' | translate
-                                "
-                            />
-                        </mat-form-field>
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                    >
+                        <div class="flex flex-1 flex-col">
+                            <label for="company">{{
+                                'BOOKINGS.VISITOR_COMPANY' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="company"
+                                    formControlName="company"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_COMPANY' | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label for="phone">{{
+                                'BOOKINGS.VISITOR_PHONE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="phone"
+                                    type="tel"
+                                    formControlName="phone"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_PHONE_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
                 } @else {
                     <div class="flex flex-col" [formGroup]="form">

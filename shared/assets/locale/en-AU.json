@@ -699,6 +699,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "Email of the visitor",
         "VISITOR_COMPANY": "Visitor Company",
         "VISITOR_COMPANY_PLACEHOLDER": "Company of the visitor",
+        "VISITOR_PHONE": "Phone Number",
+        "VISITOR_PHONE_PLACEHOLDER": "Phone number of the visitor",
         "VISITOR_REASON": "Reason for visit",
         "VISITOR_REASON_PLACEHOLDER": "e.g. Meeting Catchup",
         "VISITOR_PASS": "Pass Number",

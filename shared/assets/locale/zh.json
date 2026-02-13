@@ -591,6 +591,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "访客的电子邮件",
         "VISITOR_COMPANY": "访客公司",
         "VISITOR_COMPANY_PLACEHOLDER": "访客的公司",
+        "VISITOR_PHONE": "电话号码",
+        "VISITOR_PHONE_PLACEHOLDER": "访客的电话号码",
         "VISITOR_REASON": "访问原因",
         "VISITOR_REASON_PLACEHOLDER": "例如：会议跟进",
         "VISITOR_PASS": "通行证号码",

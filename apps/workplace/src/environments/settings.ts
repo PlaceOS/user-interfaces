@@ -229,6 +229,9 @@ const app = {
     parking: {
         allow_all_day: true,
     },
+    visitors: {
+        allow_all_day: true,
+    },
     analytics: {
         enabled: true,
         tracking_id: '',
