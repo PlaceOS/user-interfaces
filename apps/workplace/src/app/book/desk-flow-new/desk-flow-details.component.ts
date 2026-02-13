@@ -77,12 +77,12 @@ type FormType = 'single' | 'group' | 'other';
             </div>
             <!-- Desktop button toggle -->
             <div
-                class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
+                class="bg-base-200 hidden w-full items-center space-x-1 rounded-lg p-1 sm:flex"
             >
                 <button
                     btn
                     matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
                     [class.clear]="active_form() !== 'single'"
                     (click)="setActiveForm('single')"
                 >
@@ -92,7 +92,7 @@ type FormType = 'single' | 'group' | 'other';
                 <button
                     btn
                     matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
                     [class.clear]="active_form() !== 'group'"
                     (click)="setActiveForm('group')"
                 >
@@ -102,7 +102,7 @@ type FormType = 'single' | 'group' | 'other';
                 <button
                     btn
                     matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                    class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
                     [class.clear]="active_form() !== 'other'"
                     (click)="setActiveForm('other')"
                 >
@@ -144,45 +144,55 @@ type FormType = 'single' | 'group' | 'other';
                     </div>
                 }
                 <div
-                    class="flex flex-col space-y-2 sm:hidden sm:flex-row sm:space-x-2 sm:space-y-0"
+                    class="flex flex-col space-y-2 sm:hidden sm:flex-row sm:space-y-0 sm:space-x-2"
                 >
                     <div class="relative flex-1">
                         <label for="date">{{ 'FORM.DATE' | translate }}</label>
                         <date-field name="date" formControlName="date" />
                         @if (allow_all_day()) {
                             <mat-checkbox
-                                formControlName="all_day"
+                                [ngModel]="form_value().all_day"
+                                (ngModelChange)="
+                                    form.patchValue({ all_day: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
                                 class="absolute -top-2 right-2"
                             >
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>
                         }
                     </div>
-                    <div class="flex-1">
-                        <label for="time">{{ 'FORM.TIME' | translate }}</label>
-                        <time-field
-                            name="time"
-                            [ngModel]="form_value().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                        />
-                    </div>
-                    <div class="flex-1">
-                        <label for="duration">{{
-                            'FORM.DURATION' | translate
-                        }}</label>
-                        <duration-field
-                            name="duration"
-                            [time]="form_value().date"
-                            [max]="max_duration()"
-                            [min]="min_duration()"
-                            [custom_options]="custom_duration_options()"
-                            [step]="duration_step()"
-                            [use_24hr]="use_24hr()"
-                            [timezone]="timezone"
-                            formControlName="duration"
-                        />
-                    </div>
+                    @if (!form_value().all_day) {
+                        <div class="flex-1">
+                            <label for="time">{{
+                                'FORM.TIME' | translate
+                            }}</label>
+                            <time-field
+                                name="time"
+                                [ngModel]="form_value().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <label for="duration">{{
+                                'FORM.DURATION' | translate
+                            }}</label>
+                            <duration-field
+                                name="duration"
+                                [time]="form_value().date"
+                                [max]="max_duration()"
+                                [min]="min_duration()"
+                                [custom_options]="custom_duration_options()"
+                                [step]="duration_step()"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
+                                formControlName="duration"
+                            />
+                        </div>
+                    }
                 </div>
                 @if (can_recurr()) {
                     <div class="flex flex-col">
@@ -239,7 +249,7 @@ type FormType = 'single' | 'group' | 'other';
                             </button>
                         </a-user-list-field>
                         <p
-                            class="mt-1 flex items-center space-x-1 rounded bg-info p-1 text-sm text-info-content shadow"
+                            class="bg-info text-info-content mt-1 flex items-center space-x-1 rounded p-1 text-sm shadow"
                         >
                             <icon class="text-xl">info</icon>
                             <span>{{

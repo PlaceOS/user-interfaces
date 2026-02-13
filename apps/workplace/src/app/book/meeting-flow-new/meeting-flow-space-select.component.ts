@@ -249,7 +249,11 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         }
                         <settings-toggle
                             class="mb-4"
-                            formControlName="all_day"
+                            [ngModel]="(filters | async)?.show_fav"
+                            (ngModelChange)="
+                                setFilters({ show_fav: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
                             >{{
                                 'COMMON.FAVOURITES_ONLY' | translate
                             }}</settings-toggle
@@ -569,7 +573,12 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             />
                         </div>
                     }
-                    <settings-toggle class="mb-4" formControlName="all_day">{{
+                    <settings-toggle
+                        class="mb-4"
+                        [ngModel]="(filters | async)?.show_fav"
+                        (ngModelChange)="setFilters({ show_fav: $event })"
+                        [ngModelOptions]="{ standalone: true }"
+                        >{{
                         'COMMON.FAVOURITES_ONLY' | translate
                     }}</settings-toggle>
                     @if ((features | async)?.length) {
