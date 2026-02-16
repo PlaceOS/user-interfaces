@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     AsyncHandler,
     Booking,
@@ -26,7 +27,6 @@ import {
     showMetadata,
     showUser,
 } from '@placeos/ts-client';
-import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     addDays,
     addMinutes,
@@ -68,6 +68,7 @@ import {
     BookingClash,
     findBookingClashes,
     queryBookings,
+    removeBooking,
     saveBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
@@ -716,9 +717,20 @@ export class BookingFormService extends AsyncHandler {
         return result;
     }
 
+    public setting(key: string) {
+        const { type } = this._options.getValue();
+        return (
+            this._settings.get(`app.${type}.${key}`) ||
+            this._settings.get(`app.${type}s.${key}`) ||
+            this._settings.get(`app.bookings.${key}`)
+        );
+    }
+
     public async postFormForGroup() {
         const { members, group, type } = this._options.getValue();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
+        const rollback_on_group_error =
+            this.setting('rollback_group_bookings') === true;
         const extra_members = members.filter(
             (_) => _.email !== currentUser().email,
         );
@@ -759,49 +771,71 @@ export class BookingFormService extends AsyncHandler {
             Date.now(),
             'yyyy-MM-dd',
         )}]`;
+        const group_error = i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
+            members: unavailable.map((_) => _.name || _.email)?.join(', '),
+        });
         let user_booking: Booking = null;
+        const booking_ids: string[] = [];
         let id = '';
-        for (let i = 0; i < group_members.length; i++) {
-            if (!available[i]) continue;
-            const user = group_members[i];
-            const asset = resources[i];
-            const assets = user.email == currentUser().email ? form.assets : [];
-            this.form.patchValue({
-                ...form,
-                assets,
-                parent_id: id,
-                user: user as any,
-                user_email: user.email,
-                user_id: user.id,
-                asset_id: asset?.id,
-                asset_name: asset.name,
-                description: asset.name,
-                map_id: asset?.map_id || asset?.id,
-                group: group_name,
-                zones: (asset.zone
-                    ? unique([
-                          this._org.organisation.id,
-                          this._org.region?.id,
-                          asset?.zone?.parent_id,
-                          asset?.zone?.id,
-                      ])
-                    : [this._org.organisation.id, this._org.region?.id]
-                ).filter((_) => _),
-            });
-            const bkn = await this.postForm(true);
-            if (bkn.id && !id) id = bkn.id;
-            if (bkn.user_email === currentUser().email) user_booking = bkn;
-        }
-        if (unavailable.length) {
-            notifyWarn(
-                i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
-                    members: unavailable
-                        .map((_) => _.name || _.email)
-                        ?.join(', '),
-                }),
-            );
+        try {
+            for (let i = 0; i < group_members.length; i++) {
+                if (!available[i]) continue;
+                const user = group_members[i];
+                const asset = resources[i];
+                const assets =
+                    user.email == currentUser().email ? form.assets : [];
+                this.form.patchValue({
+                    ...form,
+                    assets,
+                    parent_id: id,
+                    user: user as any,
+                    user_email: user.email,
+                    user_id: user.id,
+                    asset_id: asset?.id,
+                    asset_name: asset.name,
+                    description: asset.name,
+                    map_id: asset?.map_id || asset?.id,
+                    group: group_name,
+                    zones: (asset.zone
+                        ? unique([
+                              this._org.organisation.id,
+                              this._org.region?.id,
+                              asset?.zone?.parent_id,
+                              asset?.zone?.id,
+                          ])
+                        : [this._org.organisation.id, this._org.region?.id]
+                    ).filter((_) => _),
+                });
+                const bkn = await this.postForm(true);
+                if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn.id && !id) id = bkn.id;
+                if (bkn.user_email === currentUser().email) user_booking = bkn;
+            }
+            if (unavailable.length) {
+                if (rollback_on_group_error) {
+                    await this.rollbackGroupBookings(booking_ids);
+                    throw group_error;
+                }
+                notifyWarn(group_error);
+            }
+        } catch (error) {
+            if (rollback_on_group_error && booking_ids.length) {
+                await this.rollbackGroupBookings(booking_ids);
+            }
+            throw error;
         }
         return user_booking;
+    }
+
+    private async rollbackGroupBookings(booking_ids: string[]) {
+        const rollback_errors = (
+            await Promise.allSettled(
+                booking_ids.map((id) => lastValueFrom(removeBooking(id))),
+            )
+        ).filter((_) => _.status === 'rejected');
+        if (rollback_errors.length) {
+            console.error('Failed to rollback group bookings', rollback_errors);
+        }
     }
 
     private async checkQuestions() {
@@ -895,20 +929,22 @@ export class BookingFormService extends AsyncHandler {
                   }));
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
-        const resource_rules = assets?.filter((s) => s?.zone)?.map((space) => {
-            const bld = this._org.buildings.find(
-                (b) => space.zone?.parent_id === b.id,
-            );
-            return rulesForResource(
-                {
-                    date,
-                    duration,
-                    host: new User(user),
-                    resource: space,
-                },
-                rules[bld?.id] || [],
-            );
-        });
+        const resource_rules = assets
+            ?.filter((s) => s?.zone)
+            ?.map((space) => {
+                const bld = this._org.buildings.find(
+                    (b) => space.zone?.parent_id === b.id,
+                );
+                return rulesForResource(
+                    {
+                        date,
+                        duration,
+                        host: new User(user),
+                        resource: space,
+                    },
+                    rules[bld?.id] || [],
+                );
+            });
         if (!resource_rules.every((_) => !_.hidden)) {
             throw i18n(
                 'BOOKINGS.RULES_HIDDEN',
@@ -1003,13 +1039,14 @@ export class BookingFormService extends AsyncHandler {
                 : this._org.levelsForBuilding()
         ).filter((_) => _.tags.includes('parking'));
         return queryParkingSpacesForZones(levels.map((l) => l.id)).pipe(
-            map((spaces) =>
-                spaces.map((s) => ({
-                    ...s,
-                    id: s.id || s.map_id,
-                    groups: s.place_groups,
-                    zone: this._org.levelWithID([s.zone_id]) as any,
-                })) as BookingAsset[],
+            map(
+                (spaces) =>
+                    spaces.map((s) => ({
+                        ...s,
+                        id: s.id || s.map_id,
+                        groups: s.place_groups,
+                        zone: this._org.levelWithID([s.zone_id]) as any,
+                    })) as BookingAsset[],
             ),
         );
     }
