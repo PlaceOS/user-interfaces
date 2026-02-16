@@ -773,15 +773,6 @@ export class BookingFormService extends AsyncHandler {
         return result;
     }
 
-    public setting(key: string) {
-        const { type } = this._options.getValue();
-        return (
-            this._settings.get(`app.${type}.${key}`) ||
-            this._settings.get(`app.${type}s.${key}`) ||
-            this._settings.get(`app.bookings.${key}`)
-        );
-    }
-
     public async postFormForGroup() {
         const { members, group, type } = this._options.getValue();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
