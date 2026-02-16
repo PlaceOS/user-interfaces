@@ -771,6 +771,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_pass_number"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Allow international flag for visitors"
+                                        formControlName="allow_international"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Show calendar links after booking"
                                         formControlName="show_calendar_links"
                                     ></settings-toggle>
@@ -1340,6 +1344,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         visitors: new FormGroup({
             has_parking: new FormControl(false),
             allow_pass_number: new FormControl(false),
+            allow_international: new FormControl(false),
             show_calendar_links: new FormControl(false),
             hide_fields: new FormControl([]),
         }),

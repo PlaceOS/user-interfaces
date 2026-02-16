@@ -718,6 +718,9 @@ export class BookingFormService extends AsyncHandler {
                         group: value.group,
                         phone: value.phone,
                         company: value.company,
+                        ...(value.booking_type === 'visitor'
+                            ? { international: !!value.international }
+                            : {}),
                         department:
                             value.user?.department || currentUser()?.department,
                     },

@@ -14,6 +14,7 @@ import {
     addSignagePlaylist,
     listSignagePlaylistMedia,
     PlaceSystem,
+    PlaceZone,
     querySignageMedia,
     querySignagePlaylists,
     querySystems,
@@ -42,6 +43,7 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
 } from 'rxjs/operators';
 
@@ -116,6 +118,7 @@ export class SignageStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(() => querySignageMedia({ limit: 2500 } as any)),
         map((_) => _.data.sort((a, b) => b.created_at - a.created_at)),
+        startWith([] as SignageMedia[]),
         shareReplay(1),
     );
 
@@ -127,6 +130,7 @@ export class SignageStateService extends AsyncHandler {
         debounceTime(300),
         switchMap(() => querySignagePlaylists({ limit: 500 } as any)),
         map((_) => (_.data || []).sort((a, b) => a.name.localeCompare(b.name))),
+        startWith([] as SignagePlaylist[]),
         shareReplay(1),
     );
 
@@ -155,6 +159,7 @@ export class SignageStateService extends AsyncHandler {
                 ),
             ),
         ),
+        startWith([] as PlaceSystem[]),
         shareReplay(1),
     );
 
@@ -175,6 +180,8 @@ export class SignageStateService extends AsyncHandler {
                 ),
             ),
         ),
+        startWith([] as PlaceZone[]),
+        shareReplay(1),
     );
 
     public changed() {

@@ -107,6 +107,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data.space_restrictions || false,
         ),
         pass_number: new FormControl(booking.extension_data.pass_number || ''),
+        international: new FormControl(
+            booking.extension_data.international ?? false,
+        ),
         recurrence_custom: new FormControl(
             booking.extension_data.recurrence_custom ?? false,
         ),

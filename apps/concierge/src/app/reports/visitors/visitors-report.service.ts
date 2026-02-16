@@ -112,6 +112,9 @@ export class VisitorsReportService {
     public async downloadReport() {
         const options = this._options.getValue();
         const bookings = await nextValueFrom(this.bookings$);
+        const show_international = !!this._settings.get(
+            'app.visitors.allow_international',
+        );
         if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same
@@ -129,6 +132,13 @@ export class VisitorsReportService {
                     const fmt_str = 'MMM d, y, h:mm a';
                     b.start = formatDate(b.booking_start * 1000, fmt_str, 'en');
                     b.end = formatDate(b.booking_end * 1000, fmt_str, 'en');
+                    if (show_international) {
+                        b.international = i18n(
+                            booking.extension_data?.international
+                                ? 'COMMON.TRUE'
+                                : 'COMMON.FALSE',
+                        );
+                    }
                     for (const key of REMOVE_KEYS) delete b[key];
                     return b;
                 }),
