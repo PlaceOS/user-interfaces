@@ -1173,6 +1173,26 @@ import { UploadButtonComponent } from './upload-button.component';
                                             }"
                                         ></settings-toggle>
                                     </ng-container>
+                                    <ng-container>
+                                        <settings-toggle
+                                            name="Allow international flag for visitors"
+                                            [ngModel]="
+                                                form.value.visitors
+                                                    .allow_international
+                                            "
+                                            (ngModelChange)="
+                                                form.controls.visitors.patchValue(
+                                                    {
+                                                        allow_international:
+                                                            $event,
+                                                    }
+                                                )
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></settings-toggle>
+                                    </ng-container>
                                 </div>
                             </div>
                         </div>
@@ -1862,6 +1882,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         visitors: new FormGroup({
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            allow_international: new FormControl(false),
         }),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),

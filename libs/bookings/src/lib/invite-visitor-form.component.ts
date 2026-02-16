@@ -318,6 +318,42 @@ import { BookingFormService } from './booking-form.service';
                                         [guests_only]="true"
                                     ></a-user-list-field>
                                 </div>
+                                @if (
+                                    allow_international &&
+                                    form.value.assets?.length
+                                ) {
+                                    <div class="mb-2 flex flex-col">
+                                        <label>International by Visitor</label>
+                                        <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                            @for (
+                                                item of form.value.assets;
+                                                track item.id || item.email
+                                            ) {
+                                                <mat-checkbox
+                                                    [ngModel]="
+                                                        visitor_international[
+                                                            item.email ||
+                                                                item.id
+                                                        ] || false
+                                                    "
+                                                    (ngModelChange)="
+                                                        setVisitorInternational(
+                                                            item,
+                                                            $event
+                                                        )
+                                                    "
+                                                    [ngModelOptions]="{
+                                                        standalone: true,
+                                                    }"
+                                                >
+                                                    {{
+                                                        item.name || item.email
+                                                    }}
+                                                </mat-checkbox>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             }
                             <div class="flex flex-col">
                                 <label for="reason">{{
@@ -351,6 +387,15 @@ import { BookingFormService } from './booking-form.service';
                                             "
                                         />
                                     </mat-form-field>
+                                </div>
+                            }
+                            @if (allow_international && !multiple) {
+                                <div class="-mt-2 mb-2 flex justify-end">
+                                    <mat-checkbox
+                                        formControlName="international"
+                                    >
+                                        International Visitor
+                                    </mat-checkbox>
                                 </div>
                             }
                         </form>
@@ -545,6 +590,7 @@ export class InviteVisitorFormComponent
     public last_count = 0;
     public visitors = [];
     public filtered_visitors = [];
+    public visitor_international: Record<string, boolean> = {};
 
     public get max_duration() {
         return (
@@ -556,6 +602,10 @@ export class InviteVisitorFormComponent
 
     public get allow_pass_number() {
         return this._settings.get('app.visitors.allow_pass_number');
+    }
+
+    public get allow_international() {
+        return !!this._settings.get('app.visitors.allow_international');
     }
 
     public get allow_all_day() {
@@ -612,8 +662,14 @@ export class InviteVisitorFormComponent
             .setValidators([Validators.required, Validators.email]);
         const visitors = this._settings.get('visitor-invitees') || [];
         for (const item of visitors) {
-            const [email, name, company] = item.split('|');
-            this.visitors.push({ email, name, company });
+            if (typeof item !== 'string') continue;
+            const [email, name, company, international] = item.split('|');
+            this.visitors.push({
+                email,
+                name,
+                company,
+                international: international === '1',
+            });
         }
         this.filterVisitors('');
         this.subscription(
@@ -627,6 +683,15 @@ export class InviteVisitorFormComponent
             this.form
                 .get('asset_name')
                 .valueChanges.subscribe((_) => this.filterVisitors(_)),
+        );
+        this.syncVisitorInternational(this.form.value.assets || []);
+        this.subscription(
+            'assets',
+            this.form
+                .get('assets')
+                .valueChanges.subscribe((_) =>
+                    this.syncVisitorInternational(_ || []),
+                ),
         );
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
@@ -646,6 +711,31 @@ export class InviteVisitorFormComponent
             asset_name: item.name,
             company: item.company,
             phone: item.phone,
+            international: !!item.international,
+        });
+    }
+
+    public setVisitorInternational(item: User, international: boolean) {
+        const key = item.email || item.id;
+        if (!key) return;
+        this.visitor_international = {
+            ...this.visitor_international,
+            [key]: !!international,
+        };
+        this.form.patchValue({
+            assets: (this.form.value.assets || []).map((user) => {
+                const user_key = user.email || user.id;
+                return user_key !== key
+                    ? user
+                    : new User({
+                          ...user,
+                          international: !!international,
+                          extension_data: {
+                              ...(user.extension_data || {}),
+                              international: !!international,
+                          },
+                      } as any);
+            }),
         });
     }
 
@@ -655,7 +745,7 @@ export class InviteVisitorFormComponent
             ({ email, name, company }) =>
                 email.toLowerCase().includes(s) ||
                 name.toLowerCase().includes(s) ||
-                company.toLowerCase().includes(s),
+                `${company || ''}`.toLowerCase().includes(s),
         );
     }
 
@@ -684,13 +774,35 @@ export class InviteVisitorFormComponent
         this.form.patchValue({
             description: this.form.value.description || this.form.value.title,
         });
-        const { asset_id, asset_name, company, assets } = this.form.value;
-        const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
-        this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitors.filter((_) => !_.includes(asset_id)),
-            visitor_details,
-        ]);
+        const { asset_id, asset_name, company, international, assets } =
+            this.form.value;
+        if (this.multiple && assets?.length) {
+            const asset_ids = assets.map((_) => _.email).filter((_) => !!_);
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter((_) => {
+                    const visitor_id = `${_}`.split('|')[0];
+                    return !asset_ids.includes(visitor_id);
+                }),
+                ...assets
+                    .filter((_) => !!_.email)
+                    .map((item) => {
+                        return `${item.email}|${item.name || item.email}|${
+                            (item as any).company || item.organisation || ''
+                        }|${
+                            this.getVisitorInternational(item) ? '1' : '0'
+                        }`;
+                    }),
+            ]);
+        } else {
+            const visitor_details = `${asset_id}|${asset_name}|${company}|${
+                international ? '1' : '0'
+            }`;
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter((_) => !_.includes(asset_id)),
+                visitor_details,
+            ]);
+        }
         const is_editing = this.is_edit;
         await (this.multiple ? this._bookForMany() : this._bookForOne());
         if (is_editing) {
@@ -765,6 +877,7 @@ export class InviteVisitorFormComponent
                 booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
+                international: this.getVisitorInternational(user),
                 user: currentUser(),
                 description: group,
                 name: user.name,
@@ -785,6 +898,28 @@ export class InviteVisitorFormComponent
             });
         }
         this.loading_many = false;
+    }
+
+    private syncVisitorInternational(assets: User[] = []) {
+        const map_data: Record<string, boolean> = {};
+        for (const item of assets || []) {
+            const key = item.email || item.id;
+            if (!key) continue;
+            map_data[key] = this.getVisitorInternational(item);
+        }
+        this.visitor_international = map_data;
+    }
+
+    private getVisitorInternational(item: User): boolean {
+        const key = item?.email || item?.id;
+        if (!key) return false;
+        if (key in this.visitor_international) {
+            return !!this.visitor_international[key];
+        }
+        return (
+            !!(item as any).international ||
+            !!item?.extension_data?.international
+        );
     }
 
     private _generateLinks() {

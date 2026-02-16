@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
+import {
+    downloadFile,
+    i18n,
+    jsonToCsv,
+    nextValueFrom,
+    SettingsService,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -57,6 +63,11 @@ import { VisitorsReportService } from './visitors-report.service';
                             'APP.CONCIERGE.REPORTS_VISITORS_SELF_REGISTERED'
                             | translate,
                     },
+                    {
+                        key: 'international',
+                        name: 'International',
+                        show: allow_international,
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="print() ? 0 : 10"
@@ -82,8 +93,12 @@ import { VisitorsReportService } from './visitors-report.service';
 })
 export class VisitorReportListComponent {
     private _state = inject(VisitorsReportService);
+    private _settings = inject(SettingsService);
 
     public readonly print = input(false);
+    public get allow_international() {
+        return !!this._settings.get('app.visitors.allow_international');
+    }
 
     public readonly visitor_bookings = this._state.bookings$.pipe(
         map((bookings) => {
@@ -103,6 +118,11 @@ export class VisitorReportListComponent {
                     ),
                     self_registered: i18n(
                         booking.extension_data?.self_registered
+                            ? 'COMMON.TRUE'
+                            : 'COMMON.FALSE',
+                    ),
+                    international: i18n(
+                        booking.extension_data?.international
                             ? 'COMMON.TRUE'
                             : 'COMMON.FALSE',
                     ),

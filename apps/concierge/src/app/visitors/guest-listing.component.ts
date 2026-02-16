@@ -97,6 +97,13 @@ import { VisitorsStateService } from './visitors-state.service';
                     size: '6rem',
                 },
                 {
+                    key: 'international',
+                    name: 'International',
+                    content: international_template,
+                    show: allow_international,
+                    size: '7rem',
+                },
+                {
                     key: 'parking_space',
                     name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
@@ -368,6 +375,17 @@ import { VisitorsStateService } from './visitors-state.service';
                 {{ row.extension_data.pass_number }}
                 @if (!row.extension_data.pass_number) {
                     <span class="opacity-30">No Pass</span>
+                }
+            </div>
+        </ng-template>
+        <ng-template #international_template let-row="row">
+            <div class="px-4">
+                @if (row.extension_data?.international) {
+                    {{ 'COMMON.YES' | translate }}
+                } @else {
+                    <span class="opacity-30">{{
+                        'COMMON.NO' | translate
+                    }}</span>
                 }
             </div>
         </ng-template>
@@ -708,6 +726,10 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
 
     public get pass_number_enabled() {
         return this._settings.get('app.visitors.allow_pass_number') !== false;
+    }
+
+    public get allow_international() {
+        return !!this._settings.get('app.visitors.allow_international');
     }
 
     public readonly downloadVisitorList = () =>
