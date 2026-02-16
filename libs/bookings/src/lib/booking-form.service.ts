@@ -158,6 +158,15 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.last_booked_booking') || '{}',
         ),
     );
+    public get last_count(): number {
+        return parseInt(
+            sessionStorage.getItem('PLACEOS.last_booked_count') || '1',
+            10,
+        );
+    }
+    public set last_count(value: number) {
+        sessionStorage.setItem('PLACEOS.last_booked_count', String(value));
+    }
     public readonly loading = this._loading.asObservable();
     public readonly options = this._options.pipe(shareReplay(1));
     public readonly form = generateBookingForm();
@@ -529,6 +538,7 @@ export class BookingFormService extends AsyncHandler {
 
     public clearOldState() {
         sessionStorage.removeItem('PLACEOS.last_booked_booking');
+        sessionStorage.removeItem('PLACEOS.last_booked_count');
         this.last_success = new Booking();
     }
 

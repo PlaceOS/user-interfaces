@@ -182,6 +182,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         try {
             const asset_name = this.form_value()?.asset_name;
+            this._booking_form.last_count = is_multiple
+                ? this.form_value()?.assets?.length || 1
+                : 1;
             await (is_multiple ? this._bookForMany() : this._bookForOne());
             const name = is_multiple ? i18n('BOOKINGS.VISITORS') : asset_name;
             notifySuccess(
@@ -189,7 +192,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     is_multiple
                         ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                         : 'BOOKINGS.VISITOR_SENT_SINGLE',
-                    { name, count: this.form_value()?.assets?.length || 1 },
+                    { name, count: this._booking_form.last_count },
                 ),
             );
             this._router.navigate(['/book/visitor/success']);
