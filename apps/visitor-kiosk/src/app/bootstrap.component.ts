@@ -10,6 +10,7 @@ import {
     OrganisationService,
     Region,
     SettingsService,
+    VERSION,
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
@@ -23,316 +24,354 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="bg-base-200 absolute inset-0 z-0"></div>
-        <div
-            form
-            class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
-        >
-            <header
-                class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
+        <div class="bg-base-200 absolute inset-0 z-0">
+            <div
+                form
+                class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
             >
-                <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
-                <div class="relative overflow-hidden rounded-sm px-2 py-1">
-                    <div
-                        class="bg-base-100 absolute inset-0 z-0 opacity-10"
-                    ></div>
-                    <div class="relative z-10 font-mono text-sm uppercase">
-                        {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                <header
+                    class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
+                >
+                    <div>{{ 'APP.VISITOR_KIOSK.APP' | translate }}</div>
+                    <div class="relative overflow-hidden rounded-sm px-2 py-1">
+                        <div
+                            class="bg-base-100 absolute inset-0 z-0 opacity-10"
+                        ></div>
+                        <div class="relative z-10 font-mono text-sm uppercase">
+                            {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                        </div>
                     </div>
-                </div>
-            </header>
-            @if (!loading()) {
-                <div class="flex flex-col space-y-2 px-4">
-                    @if ((regions | async)?.length > 1) {
-                        <label>
-                            {{
-                                'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
-                                    | translate
-                            }}
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript"
-                        >
-                            <mat-select
-                                #select
-                                building
-                                [(ngModel)]="active_region"
-                                (ngModelChange)="setRegion($event)"
-                                [placeholder]="
+                </header>
+                @if (!loading()) {
+                    <div class="flex flex-col space-y-2 px-4">
+                        @if ((regions | async)?.length > 1) {
+                            <label>
+                                {{
                                     'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
                                         | translate
-                                "
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                                <mat-select-trigger>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-1 truncate">
-                                            {{
-                                                active_region()?.display_name ||
-                                                    active_region()?.name
-                                            }}
-                                        </div>
+                                <mat-select
+                                    #select
+                                    building
+                                    [(ngModel)]="active_region"
+                                    (ngModelChange)="setRegion($event)"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
                                         <div
-                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            class="flex items-center space-x-4"
                                         >
-                                            {{ active_region()?.id }}
-                                        </div>
-                                    </div>
-                                </mat-select-trigger>
-                                @for (option of regions | async; track option) {
-                                    <mat-option [value]="option">
-                                        <div class="leading-tight">
-                                            <div>
+                                            <div class="flex-1 truncate">
                                                 {{
-                                                    option.display_name ||
-                                                        option.name
+                                                    active_region()
+                                                        ?.display_name ||
+                                                        active_region()?.name
                                                 }}
                                             </div>
                                             <div
-                                                class="font-mono text-[0.625rem] opacity-30"
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                             >
-                                                <span class="hidden"
-                                                    >&nbsp;[</span
-                                                >{{ option.id
-                                                }}<span class="hidden">]</span>
+                                                {{ active_region()?.id }}
                                             </div>
                                         </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if ((buildings | async)?.length) {
-                        <label>
-                            {{
-                                'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
-                                    | translate
-                            }}
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript"
-                        >
-                            <mat-select
-                                #select
-                                building
-                                [(ngModel)]="active_building"
-                                (ngModelChange)="setBuilding($event)"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.SELECT_BUILDING'
+                                    </mat-select-trigger>
+                                    @for (
+                                        option of regions | async;
+                                        track option
+                                    ) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if ((buildings | async)?.length) {
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
                                         | translate
-                                "
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                                <mat-select-trigger>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-1 truncate">
-                                            {{
-                                                active_building()
-                                                    ?.display_name ||
-                                                    active_building()?.name
-                                            }}
-                                        </div>
+                                <mat-select
+                                    #select
+                                    building
+                                    [(ngModel)]="active_building"
+                                    (ngModelChange)="setBuilding($event)"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_BUILDING'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
                                         <div
-                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            class="flex items-center space-x-4"
                                         >
-                                            {{ active_building()?.id }}
-                                        </div>
-                                    </div>
-                                </mat-select-trigger>
-                                @for (
-                                    option of buildings | async;
-                                    track option
-                                ) {
-                                    <mat-option [value]="option">
-                                        <div class="leading-tight">
-                                            <div>
+                                            <div class="flex-1 truncate">
                                                 {{
-                                                    option.display_name ||
-                                                        option.name
+                                                    active_building()
+                                                        ?.display_name ||
+                                                        active_building()?.name
                                                 }}
                                             </div>
                                             <div
-                                                class="font-mono text-[0.625rem] opacity-60"
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                             >
-                                                <span class="hidden"
-                                                    >&nbsp;[</span
-                                                >{{ option.id
-                                                }}<span class="hidden">]</span>
+                                                {{ active_building()?.id }}
                                             </div>
                                         </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if ((levels | async)?.length && active_building()) {
-                        <div></div>
-                        <label>
-                            {{
-                                'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG' | translate
-                            }}
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript"
-                        >
-                            <mat-select
-                                #select
-                                level
-                                [(ngModel)]="active_level"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.SELECT_LEVEL' | translate
-                                "
+                                    </mat-select-trigger>
+                                    @for (
+                                        option of buildings | async;
+                                        track option
+                                    ) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-60"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if ((levels | async)?.length && active_building()) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_LEVEL_MSG'
+                                        | translate
+                                }}
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                                <mat-select-trigger>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex-1 truncate">
-                                            {{
-                                                active_level()?.display_name ||
-                                                    active_level()?.name
-                                            }}
-                                        </div>
+                                <mat-select
+                                    #select
+                                    level
+                                    [(ngModel)]="active_level"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_LEVEL'
+                                            | translate
+                                    "
+                                >
+                                    <mat-select-trigger>
                                         <div
-                                            class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
+                                            class="flex items-center space-x-4"
                                         >
-                                            {{ active_level()?.id }}
-                                        </div>
-                                    </div>
-                                </mat-select-trigger>
-                                @for (option of levels | async; track option) {
-                                    <mat-option [value]="option">
-                                        <div class="leading-tight">
-                                            <div>
+                                            <div class="flex-1 truncate">
                                                 {{
-                                                    option.display_name ||
-                                                        option.name
+                                                    active_level()
+                                                        ?.display_name ||
+                                                        active_level()?.name
                                                 }}
                                             </div>
                                             <div
-                                                class="font-mono text-[0.625rem] opacity-30"
+                                                class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                             >
-                                                <span class="hidden"
-                                                    >&nbsp;[</span
-                                                >{{ option.id
-                                                }}<span class="hidden">]</span>
+                                                {{ active_level()?.id }}
                                             </div>
                                         </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if (rotations && rotations.length) {
-                        <div></div>
-                        <label>
-                            {{
-                                'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
-                                    | translate
-                            }}
-                            Please select an orientation from the dropdown below
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript"
-                        >
-                            <mat-select
-                                #select
-                                [(value)]="active_rotation"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
+                                    </mat-select-trigger>
+                                    @for (
+                                        option of levels | async;
+                                        track option
+                                    ) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (rotations && rotations.length) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_ORIENTATION_MSG'
                                         | translate
-                                "
+                                }}
+                                Please select an orientation from the dropdown
+                                below
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                                @for (option of rotations; track option) {
-                                    <mat-option [value]="option">
-                                        <div class="leading-tight">
-                                            <div>
-                                                {{
-                                                    option.display_name ||
-                                                        option.name
-                                                }}
+                                <mat-select
+                                    #select
+                                    [(value)]="active_rotation"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
+                                            | translate
+                                    "
+                                >
+                                    @for (option of rotations; track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
                                             </div>
-                                            <div
-                                                class="font-mono text-[0.625rem] opacity-30"
-                                            >
-                                                <span class="hidden"
-                                                    >&nbsp;[</span
-                                                >{{ option.id
-                                                }}<span class="hidden">]</span>
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if (locations && locations.length) {
-                        <div></div>
-                        <label>
-                            {{
-                                'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
-                                    | translate
-                            }}
-                            Please select an fixed location from the dropdown
-                            below
-                        </label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript"
-                        >
-                            <mat-select
-                                #select
-                                [(value)]="active_location"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.SELECT_LOCATION'
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (locations && locations.length) {
+                            <div></div>
+                            <label>
+                                {{
+                                    'APP.VISITOR_KIOSK.SELECT_LOCATION_MSG'
                                         | translate
-                                "
+                                }}
+                                Please select an fixed location from the
+                                dropdown below
+                            </label>
+                            <mat-form-field
+                                appearance="outline"
+                                class="no-subscript"
                             >
-                                @for (option of locations; track option) {
-                                    <mat-option [value]="option">
-                                        <div class="leading-tight">
-                                            <div>
-                                                {{
-                                                    option.display_name ||
-                                                        option.name
-                                                }}
+                                <mat-select
+                                    #select
+                                    [(value)]="active_location"
+                                    [placeholder]="
+                                        'APP.VISITOR_KIOSK.SELECT_LOCATION'
+                                            | translate
+                                    "
+                                >
+                                    @for (option of locations; track option) {
+                                        <mat-option [value]="option">
+                                            <div class="leading-tight">
+                                                <div>
+                                                    {{
+                                                        option.display_name ||
+                                                            option.name
+                                                    }}
+                                                </div>
+                                                <div
+                                                    class="font-mono text-[0.625rem] opacity-30"
+                                                >
+                                                    <span class="hidden"
+                                                        >&nbsp;[</span
+                                                    >{{ option.id
+                                                    }}<span class="hidden"
+                                                        >]</span
+                                                    >
+                                                </div>
                                             </div>
-                                            <div
-                                                class="font-mono text-[0.625rem] opacity-30"
-                                            >
-                                                <span class="hidden"
-                                                    >&nbsp;[</span
-                                                >{{ option.id
-                                                }}<span class="hidden">]</span>
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                </div>
-            } @else {
-                <div class="m-auto flex flex-col items-center p-8">
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>{{ loading() }}</p>
-                </div>
-            }
-            @if (!loading()) {
-                <div
-                    class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
-                >
-                    <button
-                        btn
-                        matRipple
-                        class="w-32"
-                        [disabled]="!active_building() && !active_level()"
-                        (click)="bootstrapKiosk()"
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                    </div>
+                } @else {
+                    <div class="m-auto flex flex-col items-center p-8">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <p>{{ loading() }}</p>
+                    </div>
+                }
+                @if (!loading()) {
+                    <div
+                        class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
                     >
-                        Finish Setup
-                    </button>
+                        <button
+                            btn
+                            matRipple
+                            class="w-32"
+                            [disabled]="!active_building() && !active_level()"
+                            (click)="bootstrapKiosk()"
+                        >
+                            Finish Setup
+                        </button>
+                    </div>
+                }
+            </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
                 </div>
-            }
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
         </div>
     `,
     styles: [
@@ -361,6 +400,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+
+    public get version() {
+        return VERSION;
+    }
 
     /** Loading state of the bootstrap */
     public readonly loading = signal('');

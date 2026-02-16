@@ -14,9 +14,11 @@ import {
     Identity,
     OrganisationService,
     Region,
+    VERSION,
 } from '@placeos/common';
 import {
     SettingsToggleComponent,
+    TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { first } from 'rxjs/operators';
@@ -27,13 +29,22 @@ import { first } from 'rxjs/operators';
         <div class="bg-base-200 absolute inset-0 z-0"></div>
         <div
             form
-            class="border-base-300 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
+            class="border-base-200 bg-base-100 relative z-10 mx-auto my-8 w-md max-w-[calc(100%-2rem)] overflow-hidden rounded-lg border shadow-sm"
         >
             <header
                 class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
             >
-                <div>Map Kiosk</div>
-                <div class="rounded-sm px-2 py-1 font-mono text-sm">SETUP</div>
+                <div>
+                    {{ 'COMMON.MAP_KIOSK' | translate }}
+                </div>
+                <div class="relative overflow-hidden rounded-sm px-2 py-1">
+                    <div
+                        class="bg-base-100 absolute inset-0 z-0 opacity-10"
+                    ></div>
+                    <div class="relative z-10 font-mono text-sm uppercase">
+                        {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                    </div>
+                </div>
             </header>
             @if (!loading) {
                 <div class="flex flex-col px-4">
@@ -282,7 +293,7 @@ import { first } from 'rxjs/operators';
             }
             @if (!loading) {
                 <div
-                    class="border-base-300 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
+                    class="border-base-200 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
                 >
                     <button
                         btn
@@ -295,6 +306,15 @@ import { first } from 'rxjs/operators';
                     </button>
                 </div>
             }
+        </div>
+        <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+            <div class="text-xs opacity-40">
+                {{ 'COMMON.CONTROLS_VERSION' | translate }}: {{ version.hash }}
+            </div>
+            <div class="text-xs opacity-40">
+                {{ version.time | date: 'longDate' }}
+                ({{ version.time | date: 'shortTime' }})
+            </div>
         </div>
     `,
     styles: [
@@ -316,12 +336,17 @@ import { first } from 'rxjs/operators';
         SettingsToggleComponent,
         CommonModule,
         FormsModule,
+        TranslatePipe,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+
+    public get version() {
+        return VERSION;
+    }
 
     /** Loading state of the bootstrap */
     public loading: string;
