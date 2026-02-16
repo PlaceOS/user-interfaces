@@ -740,6 +740,9 @@ export class BookingFormService extends AsyncHandler {
         const active_resource = asset_list.find(
             (_) => _.id === form.asset_id || _.map_id === form.asset_id,
         );
+        if (!active_resource) {
+            throw 'Selected resource is no longer available';
+        }
         const level = this._org.levelWithID([active_resource.zone?.id]);
         const resources = [
             active_resource,
@@ -755,16 +758,18 @@ export class BookingFormService extends AsyncHandler {
             'email',
         );
         const available = await Promise.all(
-            group_members.map((_, idx) =>
-                this._checkResourceAvailable(
+            group_members.map((_, idx) => {
+                const resource = resources[idx];
+                if (!resource) return false;
+                return this._checkResourceAvailable(
                     {
                         ...form,
-                        asset_id: resources[idx].map_id || resources[idx].id,
+                        asset_id: resource.map_id || resource.id,
                         user_email: _.email,
                     },
                     type,
-                ),
-            ),
+                );
+            }),
         );
         const unavailable = group_members.filter((_, idx) => !available[idx]);
         const group_name = `${currentUser().email}[${format(
