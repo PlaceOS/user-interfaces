@@ -4,7 +4,7 @@ import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { AsyncHandler, OrganisationService } from '@placeos/common';
+import { AsyncHandler, OrganisationService, VERSION } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,104 +19,122 @@ import { TranslatePipe } from '@placeos/components';
 @Component({
     selector: '[app-bootstrap]',
     template: `
-        <div
-            class="border-base-200 bg-base-100 m-4 mx-auto flex flex-col items-center overflow-hidden rounded-sm border text-center shadow-sm"
-        >
-            <h2 class="bg-error m-0 w-full px-4 py-2 text-2xl text-white">
-                {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
-            </h2>
-            @if (!loading() || loading() === 'search') {
-                <p class="description py-4">
-                    {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
-                </p>
-                <mat-form-field appearance="outline">
-                    <mat-label>{{
-                        'COMMON.BOOTSTRAP_LABEL' | translate
-                    }}</mat-label>
-                    <input
-                        matInput
-                        [ngModel]="system_id$ | async"
-                        [matAutocomplete]="auto"
-                        [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
-                        (ngModelChange)="system_id$.next($event)"
-                    />
-                    @if (loading() === 'search') {
-                        <mat-spinner [diameter]="32" matSuffix></mat-spinner>
-                    }
-                </mat-form-field>
-                <mat-autocomplete #auto="matAutocomplete">
-                    @for (option of space_list | async; track option.id) {
-                        <mat-option [value]="option.id">
-                            <div
-                                class="flex w-full items-center space-x-4 leading-tight"
-                            >
-                                <div class="flex flex-1 flex-col">
-                                    <div>
-                                        {{ option.display_name || option.name }}
-                                    </div>
-                                    @if (
-                                        option.display_name &&
-                                        option.display_name !== option.name
-                                    ) {
-                                        <div class="text-xs opacity-30">
-                                            {{ option.name }}
-                                        </div>
-                                    }
-                                </div>
-                                <div
-                                    class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
-                                >
-                                    {{ option.id }}
-                                </div>
-                            </div>
-                        </mat-option>
-                    }
-                    @if (
-                        system_id$.getValue()?.length < 2 &&
-                        !(space_list | async)?.length
-                    ) {
-                        <mat-option class="pointer-events-none opacity-60">
-                            {{
-                                'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate
-                            }}
-                        </mat-option>
-                    }
-                </mat-autocomplete>
-                <button
-                    btn
-                    matRipple
-                    [disabled]="!system_id$.getValue()"
-                    (click)="bootstrap()"
+        <div class="bg-base-300 absolute inset-0">
+            <div
+                form
+                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
+            >
+                <header
+                    class="bg-secondary text-secondary-content flex w-full items-center justify-between px-4 py-3 text-xl font-medium"
                 >
-                    {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
-                </button>
-            } @else {
-                <div load class="my-16 flex flex-col items-center">
-                    <mat-spinner [diameter]="32"></mat-spinner>
-                    <div class="m-4">
-                        {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+                    <div>
+                        {{ 'APP.BOOKING_PANEL.BOOTSTRAP_TITLE' | translate }}
                     </div>
+                    <div class="relative overflow-hidden rounded-sm px-2 py-1">
+                        <div
+                            class="bg-base-100 absolute inset-0 z-0 opacity-10"
+                        ></div>
+                        <div class="relative z-10 font-mono text-sm uppercase">
+                            {{ 'COMMON.BOOTSTRAP_SETUP' | translate }}
+                        </div>
+                    </div>
+                </header>
+                @if (!loading() || loading() === 'search') {
+                    <p class="description py-4">
+                        {{ 'COMMON.BOOTSTRAP_DESCRIPTION' | translate }}
+                    </p>
+                    <mat-form-field appearance="outline">
+                        <mat-label>{{
+                            'COMMON.BOOTSTRAP_LABEL' | translate
+                        }}</mat-label>
+                        <input
+                            matInput
+                            [ngModel]="system_id$ | async"
+                            [matAutocomplete]="auto"
+                            [placeholder]="'COMMON.BOOTSTRAP_LABEL' | translate"
+                            (ngModelChange)="system_id$.next($event)"
+                        />
+                        @if (loading() === 'search') {
+                            <mat-spinner
+                                [diameter]="32"
+                                matSuffix
+                            ></mat-spinner>
+                        }
+                    </mat-form-field>
+                    <mat-autocomplete #auto="matAutocomplete">
+                        @for (option of space_list | async; track option.id) {
+                            <mat-option [value]="option.id">
+                                <div
+                                    class="flex w-full items-center space-x-4 leading-tight"
+                                >
+                                    <div class="flex flex-1 flex-col">
+                                        <div>
+                                            {{
+                                                option.display_name ||
+                                                    option.name
+                                            }}
+                                        </div>
+                                        @if (
+                                            option.display_name &&
+                                            option.display_name !== option.name
+                                        ) {
+                                            <div class="text-xs opacity-30">
+                                                {{ option.name }}
+                                            </div>
+                                        }
+                                    </div>
+                                    <div
+                                        class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
+                                    >
+                                        {{ option.id }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        }
+                        @if (
+                            system_id$.getValue()?.length < 2 &&
+                            !(space_list | async)?.length
+                        ) {
+                            <mat-option class="pointer-events-none opacity-60">
+                                {{
+                                    'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
+                                        | translate
+                                }}
+                            </mat-option>
+                        }
+                    </mat-autocomplete>
+                    <button
+                        btn
+                        matRipple
+                        [disabled]="!system_id$.getValue()"
+                        (click)="bootstrap()"
+                    >
+                        {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
+                    </button>
+                } @else {
+                    <div load class="my-16 flex flex-col items-center">
+                        <mat-spinner [diameter]="32"></mat-spinner>
+                        <div class="m-4">
+                            {{ 'COMMON.BOOTSTRAP_LOADING' | translate }}
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
                 </div>
-            }
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
+            <div></div>
         </div>
     `,
     styles: [
         `
-            :host {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #f0f0f0;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%230002' fill-opacity='1' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            }
-
-            :host > div {
-                width: 32rem;
-                max-width: calc(100vw - 2rem);
-            }
-
             mat-form-field {
                 width: calc(100% - 2rem);
             }
@@ -143,6 +161,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
+
+    public get version() {
+        return VERSION;
+    }
 
     /** Whether application data is loading */
     public loading = signal('');

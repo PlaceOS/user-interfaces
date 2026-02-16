@@ -8,6 +8,7 @@ import {
     Identity,
     log,
     OrganisationService,
+    VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
@@ -101,6 +102,15 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                     </div>
                 }
             </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}: {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
         </div>
     `,
     styles: [
@@ -128,6 +138,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+
+    public get version() { return VERSION; }
 
     /** Loading state of the bootstrap */
     public readonly loading = signal('');

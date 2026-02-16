@@ -1901,7 +1901,7 @@
             "UPCOMING": "Upcoming",
             "NO_CURRENT": "No current events",
             "NO_UPCOMING": "No upcoming events",
-            "BOOTSTRAP_TITLE": "PlaceOS Booking Panel",
+            "BOOTSTRAP_TITLE": "Booking Panel",
             "LOADING_SYSTEM": "Loading system data...",
             "FREE_IN_HOURS_AND_MINUTES": "Free in {{ hour }} hours and {{ minute }} minutes",
             "FREE_IN_MINUTES": "Free in {{ minute }} minutes",
@@ -1915,7 +1915,7 @@
             "BOOKING_LOADING": "Processing booking request..."
         },
         "CONTROL": {
-            "BOOTSTRAP_TITLE": "Control Panel Setup",
+            "BOOTSTRAP_TITLE": "Panel Setup",
             "TOUCH_TO_START": "Touch to Start",
             "CONNECTING": "Connecting to system ({{ id }})...",
             "REMAINING": "Remaining",
@@ -2005,7 +2005,7 @@
             "SOURCE_SWITCHING": "Switching input source..."
         },
         "SIGNAGE": {
-            "BOOTSTRAP_TITLE": "Signage Setup",
+            "BOOTSTRAP_TITLE": "Signage",
             "BOOTSTRAP_BUILDING": "Select a building from the dropdown below",
             "BOOTSTRAP_BUILDING_SELECT": "Select Building",
             "BOOTSTRAP_DISPLAY": "Select a display from the dropdown below",
