@@ -12,6 +12,7 @@ import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SettingsService } from '@placeos/common';
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
@@ -41,6 +42,7 @@ describe('InviteVisitorFormComponent', () => {
             MockModule(MatInputModule),
             MockModule(MatProgressSpinnerModule),
             MockModule(MatAutocompleteModule),
+            MockModule(MatCheckboxModule),
         ],
     });
 

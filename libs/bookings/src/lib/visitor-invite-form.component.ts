@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -79,35 +80,45 @@ import { BookingFormService } from './booking-form.service';
                         formControlName="date"
                     ></a-date-field>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <div class="flex w-1/3 flex-1 flex-col">
-                        <label for="start-time">
-                            {{ 'FORM.TIME_START' | translate }}
-                            <span>*</span>
-                        </label>
-                        <a-time-field
-                            name="start-time"
-                            [ngModel]="form.value.date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [disabled]="form.value.all_day"
-                            [use_24hr]="use_24hr()"
-                        ></a-time-field>
+                @if (allow_all_day) {
+                    <div class="-mt-2 mb-2 flex justify-end">
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
                     </div>
-                    <div class="flex w-1/3 flex-1 flex-col">
-                        <label for="end-time">
-                            {{ 'FORM.TIME_END' | translate }}
-                            <span>*</span>
-                        </label>
-                        <a-duration-field
-                            name="end-time"
-                            formControlName="duration"
-                            [time]="form.value.date"
-                            [max]="max_duration()"
-                            [use_24hr]="use_24hr()"
-                        ></a-duration-field>
+                }
+                @if (!form.value.all_day) {
+                    <div class="flex items-center space-x-2">
+                        <div class="flex w-1/3 flex-1 flex-col">
+                            <label for="start-time">
+                                {{ 'FORM.TIME_START' | translate }}
+                                <span>*</span>
+                            </label>
+                            <a-time-field
+                                name="start-time"
+                                [ngModel]="form.value.date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [use_24hr]="use_24hr()"
+                            ></a-time-field>
+                        </div>
+                        <div class="flex w-1/3 flex-1 flex-col">
+                            <label for="end-time">
+                                {{ 'FORM.TIME_END' | translate }}
+                                <span>*</span>
+                            </label>
+                            <a-duration-field
+                                name="end-time"
+                                formControlName="duration"
+                                [time]="form.value.date"
+                                [max]="max_duration()"
+                                [use_24hr]="use_24hr()"
+                            ></a-duration-field>
+                        </div>
                     </div>
-                </div>
+                }
                 @if (can_book_for_others()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
@@ -274,6 +285,7 @@ import { BookingFormService } from './booking-form.service';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatCheckboxModule,
         UserListFieldComponent,
         MatAutocompleteModule,
         UserSearchFieldComponent,
@@ -340,6 +352,13 @@ export class VisitorInviteFormComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get allow_all_day() {
+        return (
+            this._settings.get('app.visitors.allow_all_day') ??
+            this._settings.get('app.bookings.allow_all_day')
+        );
     }
 
     public async ngOnInit() {
