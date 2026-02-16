@@ -13,7 +13,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 interface SearchItem {
-    id: string | number;
+    id: string;
     name: string;
 }
 
