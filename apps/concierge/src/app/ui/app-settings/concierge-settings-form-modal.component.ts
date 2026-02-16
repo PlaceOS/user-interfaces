@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -11,6 +11,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
+    buildCurrencyOptions,
     currentUser,
     notifySuccess,
     OrganisationService,
@@ -311,6 +312,49 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-hint>
                                 Day of the week to show initially on various
                                 calendars
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        <label for="currency">Currency</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="currency"
+                                formControlName="currency"
+                                placeholder="Select currency code"
+                                (openedChange)="
+                                    onCurrencySelectStateChange($event)
+                                "
+                            >
+                                <mat-option disabled class="!h-auto !py-2">
+                                    <input
+                                        matInput
+                                        placeholder="Search currency code or name"
+                                        [ngModel]="currency_filter()"
+                                        (ngModelChange)="
+                                            updateCurrencyFilter($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (click)="$event.stopPropagation()"
+                                        (keydown)="$event.stopPropagation()"
+                                    />
+                                </mat-option>
+                                @for (
+                                    option of filtered_currency_options();
+                                    track option.code
+                                ) {
+                                    <mat-option [value]="option.code">
+                                        {{ option.display_name }}
+                                    </mat-option>
+                                }
+                                @if (!filtered_currency_options().length) {
+                                    <mat-option disabled>
+                                        No currencies match your search
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>
+                                ISO 4217 currency code for pricing
                             </mat-hint>
                         </mat-form-field>
                     </div>
@@ -1301,6 +1345,15 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public readonly zone = this._data.zone;
     public readonly loading = signal('');
     public readonly shown_group = signal('');
+    public readonly currency_filter = signal('');
+    public readonly currency_options = buildCurrencyOptions();
+    public readonly filtered_currency_options = computed(() => {
+        const filter_text = this.currency_filter().trim().toLowerCase();
+        if (!filter_text) return this.currency_options;
+        return this.currency_options.filter((option) =>
+            option.search_text.includes(filter_text),
+        );
+    });
     public readonly settings_key =
         this._settings.get('app.concierge_metadata_key') || 'concierge_app';
 
@@ -1315,6 +1368,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         force_upload_state: new FormControl(false),
         private_uploads: new FormControl(false),
         week_start: new FormControl(0),
+        currency: new FormControl('USD'),
         use_region: new FormControl(false),
         group_events_calendar: new FormControl(''),
         kiosk_url_path: new FormControl(''),
@@ -1399,6 +1453,16 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
 
     public toggleGroup(group: string) {
         this.shown_group.update((shown) => (group === shown ? '' : group));
+    }
+
+    public updateCurrencyFilter(value: string) {
+        this.currency_filter.set((value || '').trim());
+    }
+
+    public onCurrencySelectStateChange(is_open: boolean) {
+        if (!is_open) {
+            this.currency_filter.set('');
+        }
     }
 
     public async save() {
