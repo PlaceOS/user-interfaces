@@ -51,7 +51,10 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
         await lastValueFrom(timer(300));
-        this._state.loadForm();
+        const active_form = this._state.form.getRawValue();
+        const has_edit_state =
+            !!active_form?.id && active_form?.booking_type === 'desk';
+        if (!has_edit_state) this._state.loadForm();
         this._state.setOptions({ type: 'desk' });
         const { id, booking_type } = this._state.form.value;
         if (!id || booking_type !== 'desk') this._state.newForm('desk');

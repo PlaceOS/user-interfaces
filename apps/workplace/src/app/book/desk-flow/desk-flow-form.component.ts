@@ -109,7 +109,7 @@ export class NewDeskFlowFormComponent implements OnInit {
             { id: this._org.building?.id, name: 'Any Level' },
             ...this._org.levelsForBuilding(this._org.building),
         ];
-        if (isBefore(this.form.value.date, Date.now())) {
+        if (!this.form.value.id && isBefore(this.form.value.date, Date.now())) {
             this.form.patchValue({ date: startOfMinute(Date.now()).valueOf() });
         }
         if (!this.form.value.id) {
