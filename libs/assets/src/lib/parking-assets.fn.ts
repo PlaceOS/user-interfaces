@@ -51,6 +51,7 @@ async function _bootstrapParkingType(): Promise<string> {
     if (!type) {
         type = await saveAssetGroup({
             name: PARKING_TYPE_NAME,
+            brand: 'PlaceOS',
             category_id: category.id,
         } as any).toPromise();
     }
