@@ -127,33 +127,35 @@ import { ParkingStateService } from './parking-state.service';
                     </a>
                 </div>
             }
-            <mat-form-field appearance="outline" class="no-subscript w-56">
-                <mat-select
-                    [(ngModel)]="zones"
-                    (ngModelChange)="updateZones($event)"
-                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                    multiple
-                >
-                    @for (level of levels | async; track level) {
-                        <mat-option [value]="level.id">
-                            <div class="flex flex-col-reverse">
-                                @if (use_region) {
-                                    <div class="text-xs opacity-30">
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
+            @if (!is_requests_view()) {
+                <mat-form-field appearance="outline" class="no-subscript w-56">
+                    <mat-select
+                        [(ngModel)]="zones"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                        multiple
+                    >
+                        @for (level of levels | async; track level) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
                                     </div>
-                                }
-                                <div>
-                                    {{ level.display_name || level.name }}
                                 </div>
-                            </div>
-                        </mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
                 <button
@@ -261,11 +263,13 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         if (!this._router.url.includes('parking')) return;
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: { zone_ids: z.length ? z.join(',') : null },
             queryParamsHandling: 'merge',
         });
         this._state.setOptions({ zones: z });
     };
+    public readonly is_requests_view = () =>
+        this.section() === 'events' && this.view() === 'requests';
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
@@ -288,6 +292,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (this.is_requests_view()) {
+                    this.clearZones();
+                    return;
+                }
                 if (
                     params.has('zone_ids') &&
                     this._router.url.includes('parking')
@@ -309,6 +317,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             'levels',
             this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
                 if (this.use_region) return;
+                if (this.is_requests_view()) {
+                    this.clearZones();
+                    return;
+                }
                 this.zones = this.zones.filter((zone) =>
                     levels.find((lvl) => lvl.id === zone),
                 );
@@ -348,5 +360,33 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const [section, view] = parts.slice(-2);
         this.section.set(section as any);
         this.view.set(view.split('?')[0] as any);
+        if (this.is_requests_view()) {
+            this.clearZones();
+            return;
+        }
+        this.selectDefaultZoneForManage();
+    }
+
+    private clearZones() {
+        const has_query_param = this._route.snapshot.queryParamMap.has(
+            'zone_ids',
+        );
+        if (!this.zones.length && !has_query_param) {
+            this._state.setOptions({ zones: [] });
+            return;
+        }
+        this.zones = [];
+        this.updateZones([]);
+    }
+
+    private async selectDefaultZoneForManage() {
+        if (this.section() !== 'manage' || this.use_region || this.zones.length) {
+            return;
+        }
+        const levels = await nextValueFrom(this.levels);
+        const first_level = levels[0]?.id;
+        if (!first_level) return;
+        this.zones = [first_level];
+        this.updateZones(this.zones);
     }
 }
