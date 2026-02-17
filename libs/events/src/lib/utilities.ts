@@ -47,6 +47,9 @@ export function generateEventForm(
     settings?: SettingsService,
 ) {
     if (!event) event = new CalendarEvent();
+    const lock_start_time =
+        !!event.id &&
+        (event.state === 'started' || event.state === 'in_progress');
     const form = new FormGroup({
         id: new FormControl(event.id),
         ical_uid: new FormControl(event.ical_uid),
@@ -109,6 +112,8 @@ export function generateEventForm(
         images: new FormControl(event.extension_data?.images || []),
         featured: new FormControl(event.extension_data?.featured || false),
     });
+    (form as any)._lock_start_time = lock_start_time;
+    const is_start_time_locked = () => !!(form as any)._lock_start_time;
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email),
     );
@@ -136,7 +141,7 @@ export function generateEventForm(
         );
     };
     form.valueChanges.subscribe((v) => {
-        if (form.getRawValue().date < Date.now() && form.value.id) {
+        if (is_start_time_locked()) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
@@ -236,7 +241,7 @@ export function generateEventForm(
         form.get('host').disable();
         form.get('organiser').disable();
     }
-    if (event.state === 'started') form.get('date').disable();
+    if (is_start_time_locked()) form.get('date').disable();
     return form;
 }
 
