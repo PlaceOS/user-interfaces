@@ -1769,47 +1769,24 @@ a[link] {
     transform: translate(-50%, -50%);
 }
 
-#placeos .sun-editor {
-    .se-placeholder {
-        padding: 0.5rem;
+#placeos .squire-editor {
+    border-bottom: 1px solid var(--base-300);
+    border-left: 1px solid var(--base-300);
+    border-right: 1px solid var(--base-300);
+    border-top: none;
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    background: var(--base-100);
+
+    a {
+        color: var(--primary);
+        text-decoration: underline;
     }
 
-    .se-btn-tray {
-        display: flex;
-        align-items: center;
-        padding: 0.25rem;
-    }
-
-    .se-tooltip-text {
-        padding: 0.125rem 0.5rem;
-    }
-
-    .se-container {
-        border-left: 1px solid var(--base-200);
-        border-right: 1px solid var(--base-200);
-    }
-
-    .se-navigation {
-        border-top: 1px solid var(--base-200);
-        border-bottom: 1px solid var(--base-200);
-        padding: 0.25rem;
-    }
-
-    .se-wrapper-wysiwyg {
-        padding: 0.5rem;
-    }
-    .se-btn {
-        border-radius: 0.5rem;
-    }
-
-    .se-btn,
-    .se-btn-list {
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-
-        &:hover {
-            background-color: var(--base-200);
-        }
+    img {
+        max-width: 100%;
+        height: auto;
     }
 }
