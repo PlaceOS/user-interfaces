@@ -161,7 +161,7 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'available',
-                                    name: 'Occupancy',
+                                    name: 'Schedule',
                                     content: status_template,
                                     size: '8rem',
                                 },
