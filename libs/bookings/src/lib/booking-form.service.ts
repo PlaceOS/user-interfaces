@@ -528,13 +528,13 @@ export class BookingFormService extends AsyncHandler {
         details.loading(i18n('BOOKINGS.CONFIRM_LOADING'));
         if (options.group) {
             await this.postFormForGroup().catch((_) => {
-                notifyError(JSON.stringify(_));
+                notifyError(this._error_message(_));
                 details.close();
                 throw _;
             });
         } else
             await this.postForm().catch((_) => {
-                notifyError(JSON.stringify(_));
+                notifyError(this._error_message(_));
                 details.close();
                 throw _;
             });
@@ -731,7 +731,8 @@ export class BookingFormService extends AsyncHandler {
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
         const rollback_on_group_error =
             this.setting('rollback_group_bookings') === true;
-        const extra_members = members.filter(
+        const member_list = members || [];
+        const extra_members = member_list.filter(
             (_) => _.email !== currentUser().email,
         );
         if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
@@ -741,9 +742,12 @@ export class BookingFormService extends AsyncHandler {
             (_) => _.id === form.asset_id || _.map_id === form.asset_id,
         );
         if (!active_resource) {
-            throw 'Selected resource is no longer available';
+            throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
         }
         const level = this._org.levelWithID([active_resource.zone?.id]);
+        if (!level?.map_id) {
+            throw i18n('BOOKINGS.GROUP_MAP_UNAVAILABLE');
+        }
         const resources = [
             active_resource,
             ...(await this._getNearbyResources(
@@ -757,18 +761,37 @@ export class BookingFormService extends AsyncHandler {
             [currentUser(), ...extra_members],
             'email',
         );
+        if (resources.length < group_members.length) {
+            throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
+                available: resources.length,
+                members: group_members.length,
+            });
+        }
+        const unavailable_errors: string[] = [];
         const available = await Promise.all(
-            group_members.map((_, idx) => {
+            group_members.map(async (member, idx) => {
                 const resource = resources[idx];
-                if (!resource) return false;
-                return this._checkResourceAvailable(
-                    {
-                        ...form,
-                        asset_id: resource.map_id || resource.id,
-                        user_email: _.email,
-                    },
-                    type,
-                );
+                if (!resource) {
+                    unavailable_errors.push(
+                        `${member.name || member.email}: ${i18n('BOOKINGS.GROUP_MEMBER_NO_RESOURCE')}`,
+                    );
+                    return false;
+                }
+                try {
+                    return await this._checkResourceAvailable(
+                        {
+                            ...form,
+                            asset_id: resource.map_id || resource.id,
+                            user_email: member.email,
+                        },
+                        type,
+                    );
+                } catch (error) {
+                    unavailable_errors.push(
+                        `${member.name || member.email}: ${this._error_message(error)}`,
+                    );
+                    return false;
+                }
             }),
         );
         const unavailable = group_members.filter((_, idx) => !available[idx]);
@@ -811,25 +834,41 @@ export class BookingFormService extends AsyncHandler {
                         : [this._org.organisation.id, this._org.region?.id]
                     ).filter((_) => _),
                 });
-                const bkn = await this.postForm(true);
+                const bkn = await this.postForm(true).catch((error) => {
+                    throw `${user.name || user.email}: ${this._error_message(error)}`;
+                });
                 if (bkn?.id) booking_ids.push(bkn.id);
                 if (bkn.id && !id) id = bkn.id;
                 if (bkn.user_email === currentUser().email) user_booking = bkn;
             }
             if (unavailable.length) {
+                const unavailable_error = unavailable_errors.length
+                    ? unavailable_errors.join('\n')
+                    : group_error;
                 if (rollback_on_group_error) {
                     await this.rollbackGroupBookings(booking_ids);
-                    throw group_error;
+                    throw unavailable_error;
                 }
-                notifyWarn(group_error);
+                notifyWarn(unavailable_error);
             }
         } catch (error) {
             if (rollback_on_group_error && booking_ids.length) {
                 await this.rollbackGroupBookings(booking_ids);
             }
-            throw error;
+            throw this._error_message(error);
         }
         return user_booking;
+    }
+
+    private _error_message(error: any) {
+        if (typeof error === 'string') return error;
+        if (error instanceof Error && error.message) return error.message;
+        if (typeof error?.error === 'string') return error.error;
+        if (typeof error?.message === 'string') return error.message;
+        if (typeof error?.error?.message === 'string') {
+            return error.error.message;
+        }
+        return i18n('BOOKINGS.ERROR_GENERIC');
     }
 
     private async rollbackGroupBookings(booking_ids: string[]) {
