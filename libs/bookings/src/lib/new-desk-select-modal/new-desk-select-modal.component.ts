@@ -11,7 +11,11 @@ import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from '../booking-form.service';
+import {
+    BookingAsset,
+    BookingFlowOptions,
+    BookingFormService,
+} from '../booking-form.service';
 import { NewDeskDetailsComponent } from './new-desk-details.component';
 import { NewDeskFiltersDisplayComponent } from './new-desk-filters-display.component';
 import { NewDeskFiltersComponent } from './new-desk-filters.component';
@@ -227,8 +231,12 @@ import { NewDeskMapComponent } from './new-desk-map.component';
     ],
 })
 export class NewDeskSelectModalComponent {
-    private _data = inject(MAT_DIALOG_DATA);
+    private _data = inject<{
+        items: BookingAsset[] | (() => BookingAsset[]);
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
     private _dialog_ref =
         inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
 
@@ -253,8 +261,22 @@ export class NewDeskSelectModalComponent {
         return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
     }
 
+    constructor() {
+        const selected_desks =
+            typeof this._data?.items === 'function'
+                ? this._data.items()
+                : this._data?.items || [];
+        this.selected = [...selected_desks];
+        this._event_form.setOptions(this._data?.options || {});
+        this.view.set(
+            this._settings.get('app.desks.default_select_as_map')
+                ? 'map'
+                : 'list',
+        );
+    }
+
     public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+        return !!id && this.selected.some((item) => item.id === id);
     }
 
     public setSelected(item: BookingAsset, state: boolean) {
