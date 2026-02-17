@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -15,6 +15,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
 import {
+    buildCurrencyOptions,
     currentUser,
     notifySuccess,
     OrganisationService,
@@ -322,6 +323,49 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-hint>
                                 Day of the week to show initially on various
                                 calendars
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        <label for="currency">Currency</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="currency"
+                                formControlName="currency"
+                                placeholder="Select currency code"
+                                (openedChange)="
+                                    onCurrencySelectStateChange($event)
+                                "
+                            >
+                                <mat-option disabled class="!h-auto !py-2">
+                                    <input
+                                        matInput
+                                        placeholder="Search currency code or name"
+                                        [ngModel]="currency_filter()"
+                                        (ngModelChange)="
+                                            updateCurrencyFilter($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (click)="$event.stopPropagation()"
+                                        (keydown)="$event.stopPropagation()"
+                                    />
+                                </mat-option>
+                                @for (
+                                    option of filtered_currency_options();
+                                    track option.code
+                                ) {
+                                    <mat-option [value]="option.code">
+                                        {{ option.display_name }}
+                                    </mat-option>
+                                }
+                                @if (!filtered_currency_options().length) {
+                                    <mat-option disabled>
+                                        No currencies match your search
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>
+                                ISO 4217 currency code for pricing
                             </mat-hint>
                         </mat-form-field>
                     </div>
@@ -1766,6 +1810,15 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public old_settings: Record<string, any> = {};
     public readonly loading = signal('');
     public readonly shown_group = signal<string>('');
+    public readonly currency_filter = signal('');
+    public readonly currency_options = buildCurrencyOptions();
+    public readonly filtered_currency_options = computed(() => {
+        const filter_text = this.currency_filter().trim().toLowerCase();
+        if (!filter_text) return this.currency_options;
+        return this.currency_options.filter((option) =>
+            option.search_text.includes(filter_text),
+        );
+    });
     public readonly zone = this._data.zone;
     public readonly settings_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
@@ -1796,6 +1849,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         external_support_url: new FormControl('', [validateURL]),
         support_email: new FormControl('', [Validators.email]),
         catering_provider: new FormControl(''),
+        currency: new FormControl('USD'),
         departments: new FormGroup<Record<string, any>>({}),
         week_start: new FormControl(0),
         locales: new FormControl([]),
@@ -1932,6 +1986,16 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public toggleGroup(group: string) {
         this.shown_group.update((shown) => (group === shown ? '' : group));
+    }
+
+    public updateCurrencyFilter(value: string) {
+        this.currency_filter.set((value || '').trim());
+    }
+
+    public onCurrencySelectStateChange(is_open: boolean) {
+        if (!is_open) {
+            this.currency_filter.set('');
+        }
     }
 
     public async save() {

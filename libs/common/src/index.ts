@@ -1,5 +1,6 @@
 export * from './lib/booking-rules';
 export * from './lib/common';
+export * from './lib/currency-options';
 export * from './lib/feature-available.guard';
 export * from './lib/fixed-device-helpers';
 export * from './lib/google-analytics.service';

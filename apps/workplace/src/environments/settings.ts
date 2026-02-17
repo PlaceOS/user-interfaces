@@ -192,7 +192,7 @@ const app = {
         'visitor-invite',
         'group-events',
     ],
-    currency: '',
+    currency: 'USD',
     default_route: '/landing',
     use_geolocation: false,
     use_24_hour_time: false,
