@@ -297,7 +297,7 @@ export class CateringListFieldComponent
     }
 
     public get currency_code() {
-        return this._org.building?.currency || 'USD';
+        return this._org.currency_code;
     }
 
     public ngOnInit() {
