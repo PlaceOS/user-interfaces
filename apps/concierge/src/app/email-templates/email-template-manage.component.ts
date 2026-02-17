@@ -19,6 +19,7 @@ import {
     extractTextFromHTML,
     i18n,
     nextValueFrom,
+    notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
@@ -57,12 +58,15 @@ import {
                 class="relative z-10 mx-auto w-full max-w-160 overflow-visible p-2"
                 [formGroup]="form"
             >
-                <div class="flex items-center space-x-4">
-                    <div class="w-1/4 flex-1 space-y-2">
+                <div class="mb-2 flex items-center gap-2">
+                    <div class="w-1/4 flex-1 gap-2">
                         <label for="zone">
                             {{ 'RESOURCE.BUILDING' | translate }}
                         </label>
-                        <mat-form-field appearance="outline" class="w-full">
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
+                        >
                             <mat-select
                                 name="zone"
                                 [placeholder]="
@@ -70,9 +74,6 @@ import {
                                 "
                                 formControlName="zone_id"
                             >
-                                <mat-option value="">{{
-                                    'COMMON.BUILDING_EMPTY' | translate
-                                }}</mat-option>
                                 @for (bld of buildings | async; track bld) {
                                     <mat-option [value]="bld.id">
                                         {{ bld.display_name || bld.name }}
@@ -84,7 +85,7 @@ import {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    <div class="w-1/4 flex-1 space-y-2 pb-6">
+                    <div class="w-1/4 flex-1 gap-2">
                         <label for="trigger">
                             {{ 'COMMON.TRIGGER' | translate }}
                         </label>
@@ -167,7 +168,7 @@ import {
                     <button
                         btn
                         matRipple
-                        class="mt-2 flex-1"
+                        class="mt-5.5 flex-1"
                         matTooltip="Values that get replaced in the email template when sent"
                         [disabled]="!form.value.trigger"
                         [matMenuTriggerFor]="tracking_menu"
@@ -383,6 +384,7 @@ export class EmailTemplateManageComponent
             )
             .catch((e) => {
                 this.loading = '';
+                notifyError(i18n(e));
                 throw e;
             });
         this.loading = '';
