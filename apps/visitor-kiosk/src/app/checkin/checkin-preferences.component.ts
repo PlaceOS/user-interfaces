@@ -200,7 +200,7 @@ export class CheckinPreferencesComponent
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
-                const jwt = params.get('jwt');
+                const jwt = params.get('jwt') || params.get('token');
                 if (jwt) {
                     setToken(jwt);
                     const data = parseJWT(jwt);
