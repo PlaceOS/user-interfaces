@@ -160,8 +160,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">map</icon>
                         <div>
-                            {{ level()?.display_name || level()?.name }},
-                            {{ booking().asset_name || booking().asset_id }}
+                            {{ resource_location() }}
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
@@ -442,14 +441,27 @@ export class BookingDetailsModalComponent {
     public readonly level = computed(() =>
         this._org.levelWithID(this.booking()?.zones || []),
     );
+    public readonly level_or_building = computed(
+        () => this.level() || this.building(),
+    );
+    public readonly resource_location = computed(() => {
+        const location_name =
+            this.level_or_building()?.display_name ||
+            this.level_or_building()?.name ||
+            '';
+        const resource_name = this.booking().asset_name || this.booking().asset_id;
+        return location_name ? `${location_name}, ${resource_name}` : resource_name;
+    });
     public readonly building = computed(() => {
+        const zones = this.booking()?.zones || [];
+        const level = this.level();
         const building = this._org.buildings.find((bld) =>
-            (this.booking()?.zones || []).includes(bld.id),
+            zones.includes(bld.id) || bld.id === level?.parent_id,
         );
         if (this._settings.get('app.use_region')) {
             const region = this._org.regions.find(
                 (region) =>
-                    (this.booking()?.zones || []).includes(region.id) ||
+                    zones.includes(region.id) ||
                     region.id === building?.parent_id,
             );
             if (region) return region;

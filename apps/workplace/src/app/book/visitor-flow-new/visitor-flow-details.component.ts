@@ -98,7 +98,7 @@ type VisitorFormType = 'single' | 'group';
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                [ngModel]="form_value().zones?.[0]"
+                                [ngModel]="selected_building_id()"
                                 (ngModelChange)="
                                     form.patchValue({
                                         zones: [$event],
@@ -231,6 +231,16 @@ export class VisitorFlowDetailsComponent implements OnInit {
     public readonly form_value = toSignal(this.form.valueChanges, {
         initialValue: this.form.value,
     });
+    public readonly selected_building_id = computed(() => {
+        const zones = this.form_value()?.zones || [];
+        const building_ids = new Set(this._org.buildings.map((bld) => bld.id));
+        return (
+            zones.find((zone_id) => building_ids.has(zone_id)) ||
+            this._org.building?.id ||
+            zones[0] ||
+            ''
+        );
+    });
 
     public readonly max_duration = computed(() =>
         Math.min(
@@ -265,7 +275,17 @@ export class VisitorFlowDetailsComponent implements OnInit {
     public ngOnInit() {
         // Initialize with single mode
         this._booking_form.setOptions({ group: false });
+        const zones = this.form.value?.zones || [];
+        const is_edit = !!this.form.value?.id;
+        const selected_building_id = this.selected_building_id();
         this.form.patchValue({ user: currentUser() });
+        if (!zones.length && selected_building_id) {
+            this.form.patchValue({ zones: [selected_building_id] });
+            return;
+        }
+        if (is_edit && selected_building_id && zones[0] !== selected_building_id) {
+            this.form.patchValue({ zones: [selected_building_id] });
+        }
     }
 
     public setActiveForm(form: VisitorFormType) {

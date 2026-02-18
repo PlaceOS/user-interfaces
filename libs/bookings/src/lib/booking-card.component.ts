@@ -293,8 +293,18 @@ export class BookingCardComponent
     }
 
     public get location() {
-        const level = this._org.levelWithID(this.booking()?.zones || []);
-        return `${level?.display_name || level?.name || ''}`;
+        const zones = this.booking()?.zones || [];
+        const level = this._org.levelWithID(zones);
+        const building = this._org.buildings.find(
+            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
+        );
+        return `${
+            level?.display_name ||
+            level?.name ||
+            building?.display_name ||
+            building?.name ||
+            ''
+        }`;
     }
 
     public get period() {
