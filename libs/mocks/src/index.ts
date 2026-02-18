@@ -8,6 +8,8 @@ import { registerMockSystems } from './lib/api/systems.mock';
 import { registerMockUsers } from './lib/api/users.mock';
 import { registerMockZones } from './lib/api/zones.mock';
 
+export { MOCK_PRODUCTS, MOCK_CATEGORIES } from './lib/api/assets.data';
+
 export function mocksInit() {
     registerMockAssets();
     registerMockBookings();

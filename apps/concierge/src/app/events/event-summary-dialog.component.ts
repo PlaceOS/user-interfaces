@@ -168,7 +168,7 @@ interface ApprovalItem {
                                         <span>{{ formatCurrency(quote.subtotal) }}</span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="opacity-60">Tax (GST)</span>
+                                        <span class="opacity-60">Tax</span>
                                         <span>{{ formatCurrency(quote.tax_total) }}</span>
                                     </div>
                                     <div class="flex justify-between font-semibold">
@@ -477,6 +477,7 @@ export class EventSummaryDialogComponent {
         safety: 'bg-red-600',
         events: 'bg-teal-600',
         parking: 'bg-indigo-600',
+        setup: 'bg-orange-600',
     };
 
     serviceBadgeColor(category: string): string {

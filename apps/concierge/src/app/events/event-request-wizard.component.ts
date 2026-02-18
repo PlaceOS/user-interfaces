@@ -218,6 +218,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
     { key: 'venue', label: CATEGORY_DISPLAY_NAMES['venue'], icon: CATEGORY_ICONS['venue'] },
     { key: 'dining', label: CATEGORY_DISPLAY_NAMES['dining'], icon: CATEGORY_ICONS['dining'] },
     { key: 'av_tech', label: CATEGORY_DISPLAY_NAMES['av_tech'], icon: CATEGORY_ICONS['av_tech'] },
+    { key: 'setup', label: CATEGORY_DISPLAY_NAMES['setup'], icon: CATEGORY_ICONS['setup'] },
     { key: 'events', label: CATEGORY_DISPLAY_NAMES['events'], icon: CATEGORY_ICONS['events'] },
     { key: 'parking', label: CATEGORY_DISPLAY_NAMES['parking'], icon: CATEGORY_ICONS['parking'] },
     { key: 'safety', label: CATEGORY_DISPLAY_NAMES['safety'], icon: CATEGORY_ICONS['safety'] },

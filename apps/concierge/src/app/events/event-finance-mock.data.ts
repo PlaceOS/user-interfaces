@@ -1,6 +1,8 @@
 import { addDays, setHours, setMinutes } from 'date-fns';
 
 import { EventRole, MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
+import { UCLA_CATERING_MENU } from '../room-manager/ucla-catering-menu';
+import { MOCK_PRODUCTS } from '@placeos/mocks';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -23,7 +25,8 @@ export type BillableCategory =
     | 'staffing'
     | 'security'
     | 'cleaning'
-    | 'miscellaneous';
+    | 'miscellaneous'
+    | 'setup';
 
 // ── Interfaces ─────────────────────────────────────────────────────
 
@@ -115,6 +118,7 @@ export const BILLABLE_CATEGORY_DISPLAY: Record<BillableCategory, string> = {
     security: 'Security',
     cleaning: 'Cleaning',
     miscellaneous: 'Miscellaneous',
+    setup: 'Setup & Furniture',
 };
 
 export const BILLABLE_CATEGORY_ICONS: Record<BillableCategory, string> = {
@@ -125,6 +129,7 @@ export const BILLABLE_CATEGORY_ICONS: Record<BillableCategory, string> = {
     security: 'shield',
     cleaning: 'cleaning_services',
     miscellaneous: 'more_horiz',
+    setup: 'table_restaurant',
 };
 
 // ── Role permissions ───────────────────────────────────────────────
@@ -162,7 +167,7 @@ export const FINANCE_ROLE_PERMISSIONS: Record<EventRole, FinanceRolePermission> 
     },
     venue_manager: {
         allowed_actions: ['view_all', 'create_quote', 'send_quote', 'export'],
-        category_filter: ['venue_hire', 'cleaning', 'staffing'],
+        category_filter: ['venue_hire', 'cleaning', 'staffing', 'setup'],
     },
     campus_it_av_manager: {
         allowed_actions: ['view_all', 'create_quote', 'send_quote', 'export'],
@@ -256,44 +261,76 @@ function _totals(items: FinancialLineItem[]) {
     return { subtotal, tax_total, total: subtotal + tax_total };
 }
 
+// ── Catalog price lookups ─────────────────────────────────────────
+// Prices resolve from the UCLA catering menu and asset catalogs at
+// evaluation time so edits in those files flow through automatically.
+
+const _all_menu_items = UCLA_CATERING_MENU.flatMap((cat) => cat.items);
+
+/** Look up a catering menu item price by its `id` field. */
+function _menuPrice(menu_id: string, fallback: number = 0): number {
+    return _all_menu_items.find((i) => i.id === menu_id)?.default_price ?? fallback;
+}
+
+/** Look up an asset product price by product `id`. Parses "$500/event" → 500. */
+function _assetPrice(product_id: string, fallback: number = 0): number {
+    const product = MOCK_PRODUCTS.find((p) => p.id === product_id);
+    if (!product) return fallback;
+    const raw = (product as any).specifications?.rental_price as string | undefined;
+    if (!raw) return fallback;
+    const match = raw.match(/\$([\d,.]+)/);
+    return match ? parseFloat(match[1].replace(',', '')) : fallback;
+}
+
+// ── Q1 Town Hall (appr-001) ─────────────────────────────────────────
 const _q1_items: FinancialLineItem[] = [
     _lineItem('li-001', 'Royce Hall Auditorium — Full Day Hire', 'venue_hire', 1, 15000, 0.1),
-    _lineItem('li-002', 'Morning Tea — 200 pax', 'catering', 200, 12.5, 0.1),
-    _lineItem('li-003', 'Full Lighting & Sound Production', 'av_equipment', 1, 2200, 0.1),
-    _lineItem('li-004', 'Lectern & Confidence Monitor', 'av_equipment', 1, 400, 0.1),
+    _lineItem('li-002', 'Classic Continental Breakfast — 200 pax', 'catering', 200, _menuPrice('classic_continental', 13), 0.1),
+    _lineItem('li-003', 'Basic Meeting Room AV (University Club)', 'av_equipment', 1, _assetPrice('30', 500), 0.1),
+    _lineItem('li-004', 'AV Technician (10-hour day)', 'staffing', 1, _menuPrice('av_technician_day', 950), 0.1),
+    _lineItem('li-004b', 'Confidence Monitor 65"', 'av_equipment', 1, _assetPrice('44', 550), 0.1),
+    _lineItem('li-004c', 'Acrylic Podium', 'av_equipment', 1, _assetPrice('35', 150), 0.1),
 ];
 
+// ── Leadership Offsite (appr-002) ──────────────────────────────────
 const _offsite_items: FinancialLineItem[] = [
     _lineItem('li-005', 'Centennial Ballroom — Luskin Conference Center — Full Day', 'venue_hire', 1, 8000, 0.1),
-    _lineItem('li-006', 'Working Lunch — 40 pax', 'catering', 40, 35, 0.1),
-    _lineItem('li-007', 'Smart Room Technology + AV Package', 'av_equipment', 1, 1200, 0.1),
-    _lineItem('li-008', 'Conference Services Planner x 2 (8 hrs)', 'staffing', 2, 900, 0.1),
+    _lineItem('li-006', 'Deluxe Boxed Lunch — 40 pax', 'catering', 40, _menuPrice('deluxe_boxed_lunch', 28), 0.1),
+    _lineItem('li-007', 'Basic AV — Built-In Projector', 'av_equipment', 1, _assetPrice('31', 400), 0.1),
+    _lineItem('li-008', 'AV Operator — 8 hrs (x2)', 'staffing', 2, _menuPrice('av_operator', 50) * 8, 0.1),
 ];
 
+// ── Board Dinner (appr-004) ────────────────────────────────────────
 const _dinner_items: FinancialLineItem[] = [
-    _lineItem('li-009', '3-Course Dinner — 30 pax', 'catering', 30, 95, 0.1),
-    _lineItem('li-010', 'Beverage Package — Premium', 'catering', 30, 55, 0.1),
+    _lineItem('li-009', 'Plated Dinner Entree — 30 pax', 'catering', 30, _menuPrice('plated_dinner_entree', 38), 0.1),
+    _lineItem('li-010', 'Hosted Premium Bar — 30 pax (3 hrs)', 'catering', 30, _menuPrice('hosted_premium_bar', 18) * 3, 0.1),
     _lineItem('li-011', 'Wait Staff x 4 (5 hrs)', 'staffing', 4, 250, 0.1),
 ];
 
+// ── Awards Night (appr-010) ────────────────────────────────────────
 const _awards_items: FinancialLineItem[] = [
     _lineItem('li-012', 'Royce Hall Auditorium — Evening', 'venue_hire', 1, 15000, 0.1),
-    _lineItem('li-013', 'Stage Lighting Package', 'av_equipment', 1, 1800, 0.1),
-    _lineItem('li-014', 'Full Lighting & Sound Production', 'av_equipment', 1, 2200, 0.1),
-    _lineItem('li-015', 'Canape Service — 300 pax', 'catering', 300, 18, 0.1),
+    _lineItem('li-013', 'Moon Balloon', 'av_equipment', 1, _assetPrice('53', 800), 0.1),
+    _lineItem('li-014', 'AV Technician (10-hour day)', 'staffing', 1, _menuPrice('av_technician_day', 950), 0.1),
+    _lineItem('li-014b', 'AV Technical Director (10-hour day)', 'staffing', 1, _menuPrice('av_tech_director', 950), 0.1),
+    _lineItem('li-015', "Warm Passed Hors d'oeuvres — 300 pax", 'catering', 300, _menuPrice('warm_passed_hors', 8), 0.1),
     _lineItem('li-016', 'UCPD Security Staff x 3 (6 hrs)', 'security', 3, 350, 0.1),
 ];
 
+// ── Community Day (appr-009) ───────────────────────────────────────
 const _community_items: FinancialLineItem[] = [
     _lineItem('li-017', 'Bruin Plaza — ASUCLA — Full Day', 'venue_hire', 1, 5000, 0.1),
-    _lineItem('li-018', 'BBQ Catering — 500 pax', 'catering', 500, 15, 0.1),
-    _lineItem('li-019', 'Portable PA System', 'av_equipment', 2, 300, 0.1),
+    _lineItem('li-018', 'National Barbecue Buffet — 500 pax', 'catering', 500, _menuPrice('national_barbecue', 50), 0.1),
+    _lineItem('li-019', 'Portable Projector + Screen', 'av_equipment', 2, _assetPrice('33', 250), 0.1),
     _lineItem('li-020', 'Post-Event Grounds Clean', 'cleaning', 1, 850, 0.1),
+    _lineItem('li-020b', '30" Standing Cocktail Tables', 'setup', 20, _menuPrice('cocktail_standing', 10), 0.1),
+    _lineItem('li-020c', "6' Table", 'setup', 10, _menuPrice('table_6ft', 15), 0.1),
 ];
 
+// ── Welcome Lunch (appr-003) ───────────────────────────────────────
 const _lunch_items: FinancialLineItem[] = [
     _lineItem('li-021', 'Morrison Room — University Club — 2 hrs', 'venue_hire', 1, 2000, 0.1),
-    _lineItem('li-022', 'Buffet Lunch — 25 pax', 'catering', 25, 28, 0.1),
+    _lineItem('li-022', 'Classic Lunch Buffet — 25 pax', 'catering', 25, _menuPrice('classic_lunch_buffet', 25), 0.1),
 ];
 
 const _firedrill_items: FinancialLineItem[] = [
@@ -334,7 +371,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Includes set-up and pack-down. All event approvals accepted. Deposit invoice INV-2026-101 sent.',
         attachment_names: ['Q1_TownHall_Quote.pdf'],
         converted_from: undefined,
-        approved_categories: ['venue_hire', 'catering', 'av_equipment'],
+        approved_categories: ['venue_hire', 'catering', 'av_equipment', 'staffing'],
     },
     // ── Q1 Town Hall — deposit invoice (50%), already paid ──
     {

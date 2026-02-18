@@ -81,6 +81,13 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                     sortable: false,
                 },
                 {
+                    key: 'req_setup',
+                    name: 'Setup',
+                    content: setup_req_template,
+                    size: '5rem',
+                    sortable: false,
+                },
+                {
                     key: 'actions',
                     name: ' ',
                     content: actions_template,
@@ -270,6 +277,32 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
         <ng-template #parking_req_template let-item="row">
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'parking')) {
+                    @case ('approved') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
+                    }
+                    @case ('declined') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
+                    }
+                    @case ('pending') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
+                    }
+                    @default {
+                        <span class="opacity-30">&mdash;</span>
+                    }
+                }
+            </div>
+        </ng-template>
+
+        <!-- Setup requirement -->
+        <ng-template #setup_req_template let-item="row">
+            <div class="flex items-center justify-center p-2">
+                @switch (reqStatus(item, 'setup')) {
                     @case ('approved') {
                         <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
                             <icon class="text-base text-white">done</icon>

@@ -6,7 +6,8 @@ export type ApprovalCategory =
     | 'av_tech'
     | 'safety'
     | 'events'
-    | 'parking';
+    | 'parking'
+    | 'setup';
 
 export type EventRole =
     | 'global_admin'
@@ -62,6 +63,7 @@ export const CATEGORY_DISPLAY_NAMES: Record<ApprovalCategory, string> = {
     safety: 'Safety & Security',
     events: 'Event Coordination',
     parking: 'Parking & Transport',
+    setup: 'Setup & Furniture',
 };
 
 export const CATEGORY_ICONS: Record<ApprovalCategory, string> = {
@@ -71,21 +73,22 @@ export const CATEGORY_ICONS: Record<ApprovalCategory, string> = {
     safety: 'shield',
     events: 'event_available',
     parking: 'local_parking',
+    setup: 'table_restaurant',
 };
 
 export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
     global_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup'],
         can_view: ['safety'],
         reject_safety: true,
     },
     campus_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup'],
         can_view: ['safety'],
         reject_safety: true,
     },
     venue_manager: {
-        can_approve: ['venue', 'dining', 'parking'],
+        can_approve: ['venue', 'dining', 'parking', 'setup'],
         can_view: [],
         reject_safety: false,
     },
@@ -100,7 +103,7 @@ export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
         reject_safety: false,
     },
     event_owner: {
-        can_approve: ['venue', 'dining', 'av_tech', 'parking'],
+        can_approve: ['venue', 'dining', 'av_tech', 'parking', 'setup'],
         can_view: [],
         reject_safety: true,
     },
@@ -274,6 +277,90 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 840,
         location: 'Structure 4 — ASUCLA',
         organiser: 'Events Coordinator',
+        parent_event: 'appr-009',
+    },
+    {
+        id: 'appr-015',
+        title: 'Community Day — Setup',
+        category: 'setup',
+        date: _makeDate(7, 6, 0),
+        duration_minutes: 180,
+        location: 'Bruin Plaza — ASUCLA',
+        organiser: 'Events Coordinator',
+        parent_event: 'appr-009',
+    },
+
+    // ── Awards Night child approvals ────────────────────────────────
+    {
+        id: 'appr-016',
+        title: 'Annual Awards Night — Venue',
+        category: 'venue',
+        date: _makeDate(10, 16, 0),
+        duration_minutes: 60,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'People & Culture',
+        parent_event: 'appr-010',
+    },
+    {
+        id: 'appr-017',
+        title: 'Annual Awards Night — Catering',
+        category: 'dining',
+        date: _makeDate(10, 17, 0),
+        duration_minutes: 240,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'People & Culture',
+        parent_event: 'appr-010',
+    },
+    {
+        id: 'appr-018',
+        title: 'Annual Awards Night — AV & Production',
+        category: 'av_tech',
+        date: _makeDate(10, 15, 0),
+        duration_minutes: 120,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'Tech Services',
+        parent_event: 'appr-010',
+    },
+    {
+        id: 'appr-019',
+        title: 'Annual Awards Night — Security',
+        category: 'safety',
+        date: _makeDate(10, 16, 0),
+        duration_minutes: 300,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'UCPD',
+        parent_event: 'appr-010',
+    },
+
+    // ── Community Day child approvals ───────────────────────────────
+    {
+        id: 'appr-020',
+        title: 'Community Day — Venue',
+        category: 'venue',
+        date: _makeDate(7, 7, 0),
+        duration_minutes: 720,
+        location: 'Bruin Plaza — ASUCLA',
+        organiser: 'Events Coordinator',
+        parent_event: 'appr-009',
+    },
+    {
+        id: 'appr-021',
+        title: 'Community Day — Catering',
+        category: 'dining',
+        date: _makeDate(7, 11, 0),
+        duration_minutes: 180,
+        location: 'Bruin Plaza — ASUCLA',
+        organiser: 'Events Coordinator',
+        parent_event: 'appr-009',
+    },
+    {
+        id: 'appr-022',
+        title: 'Community Day — AV & Production',
+        category: 'av_tech',
+        date: _makeDate(7, 6, 30),
+        duration_minutes: 60,
+        location: 'Bruin Plaza — ASUCLA',
+        organiser: 'Tech Services',
         parent_event: 'appr-009',
     },
 ];
