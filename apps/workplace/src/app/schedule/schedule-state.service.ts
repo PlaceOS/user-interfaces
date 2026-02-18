@@ -405,7 +405,7 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(([[date], { period }]) =>
             this._bookingQuery('visitor', period, date),
         ),
-        map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+        map((_) => _.filter((_) => !_.linked_event)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );

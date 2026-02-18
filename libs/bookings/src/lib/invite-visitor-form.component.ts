@@ -28,7 +28,6 @@ import {
     i18n,
     notifyError,
     notifySuccess,
-    randomString,
 } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
@@ -573,6 +572,7 @@ export class InviteVisitorFormComponent
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _existing_siblings: Booking[] = [];
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
@@ -827,20 +827,54 @@ export class InviteVisitorFormComponent
         });
         if (this.multiple)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
-        if (this.form.value.id && !this.form.value.assets?.length) {
-            const attendees = this.form.value.attendees || [];
-            if (attendees.length) {
-                this.form.patchValue({ assets: attendees });
-            } else if (this.form.value.asset_id) {
-                this.form.patchValue({
-                    assets: [
-                        new User({
-                            name: this.form.value.asset_name,
-                            email: this.form.value.asset_id,
-                            organisation: this.form.value.company,
-                        }),
-                    ],
-                });
+        if (this.form.value.id) {
+            const booking_ref = this._service.booking;
+            const is_group =
+                this.multiple &&
+                !!(
+                    this.form.value.parent_id ||
+                    this.form.value.group ||
+                    booking_ref?.parent_id ||
+                    booking_ref?.group
+                );
+            if (is_group) {
+                this._existing_siblings =
+                    await this._service.loadGroupSiblings(
+                        booking_ref?.id ? booking_ref : new Booking(this.form.getRawValue()),
+                    );
+                if (this._existing_siblings.length) {
+                    const visitors = this._existing_siblings.map(
+                        (s) =>
+                            new User({
+                                name: s.asset_name,
+                                email: s.asset_id,
+                                organisation: s.extension_data?.company,
+                                phone: s.extension_data?.phone,
+                                extension_data: {
+                                    international:
+                                        !!s.extension_data?.international,
+                                },
+                            }),
+                    );
+                    this.form.patchValue({ assets: visitors });
+                    this.syncVisitorInternational(visitors);
+                }
+            }
+            if (!this.form.value.assets?.length) {
+                const attendees = this.form.value.attendees || [];
+                if (attendees.length) {
+                    this.form.patchValue({ assets: attendees });
+                } else if (this.form.value.asset_id) {
+                    this.form.patchValue({
+                        assets: [
+                            new User({
+                                name: this.form.value.asset_name,
+                                email: this.form.value.asset_id,
+                                organisation: this.form.value.company,
+                            }),
+                        ],
+                    });
+                }
             }
         }
     }
@@ -866,32 +900,37 @@ export class InviteVisitorFormComponent
 
     private async _bookForMany() {
         this.loading_many = true;
-        const group = `grp-${randomString(8)}`;
-        const value = this.form.value;
-        const assets = value.assets;
+        const assets: User[] = this.form.value.assets || [];
         this.last_count = assets.length;
-        for (const user of assets) {
-            if (!user.email) continue;
-            this.form.patchValue({
-                ...value,
-                booking_type: 'visitor',
-                asset_id: user.email,
-                asset_name: user.name,
-                international: this.getVisitorInternational(user),
-                user: currentUser(),
-                description: group,
-                name: user.name,
-                assets: [],
-                attendees: [
+        const visitor_members = assets
+            .filter((_) => !!_.email)
+            .map(
+                (user) =>
                     new User({
-                        name: user.name,
-                        email: user.email,
-                        organisation: user.company || user.organisation,
-                        phone: user.phone,
-                    }),
-                ],
-            });
-            await this._service.postForm().catch((e) => {
+                        ...user,
+                        international: this.getVisitorInternational(user),
+                        extension_data: {
+                            ...(user.extension_data || {}),
+                            international:
+                                this.getVisitorInternational(user),
+                        },
+                    } as any),
+            );
+        this._service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: visitor_members,
+        });
+        if (this.is_edit && this._existing_siblings.length) {
+            await this._service
+                .editFormForGroup(this._existing_siblings)
+                .catch((e) => {
+                    notifyError(e);
+                    this.loading_many = false;
+                    throw e;
+                });
+        } else {
+            await this._service.postFormForVisitorGroup().catch((e) => {
                 notifyError(e);
                 this.loading_many = false;
                 throw e;

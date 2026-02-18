@@ -27,6 +27,11 @@ describe('InviteVisitorFormComponent', () => {
                 loading: new BehaviorSubject(''),
                 setOptions: jest.fn(),
                 postForm: jest.fn(async () => new Booking()),
+                postFormForVisitorGroup: jest.fn(
+                    async () => new Booking(),
+                ),
+                loadGroupSiblings: jest.fn(async () => []),
+                editFormForGroup: jest.fn(async () => new Booking()),
             }),
             MockProvider(OrganisationService, {
                 initialised: of(true),
