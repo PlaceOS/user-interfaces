@@ -86336,15 +86336,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "32f47c8",
-  "hash": "32f47c8",
+  "raw": "c9e6ead",
+  "hash": "c9e6ead",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "32f47c8",
+  "suffix": "c9e6ead",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1770872498025
+  "time": 1771393098567
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -197845,6 +197845,6124 @@ var ExploreMapStackComponent = _ExploreMapStackComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreMapStackComponent, { className: "ExploreMapStackComponent", filePath: "apps/map-kiosk/src/app/explore-map-stack.component.ts", lineNumber: 71 });
 })();
 
+// libs/mocks/src/lib/api/assets.data.ts
+var MOCK_CATEGORIES = [
+  {
+    id: "9",
+    name: "AV Equipment",
+    description: "Audio-visual equipment, projectors, monitors, cameras and accessories"
+  },
+  {
+    id: "11",
+    name: "Event Setup & Furniture",
+    description: "Tables, bars, cocktail tables and event furniture rental"
+  }
+];
+var MOCK_PRODUCTS = [
+  // ── UCLA AV Equipment (category 9) ────────────────────────────────
+  {
+    id: "30",
+    name: "Basic Meeting Room AV (University Club)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-BASIC-UC",
+    description: "Basic AV package for University Club meeting rooms \u2014 includes projector, screen, podium mic",
+    specifications: { rental_price: "$500/event" }
+  },
+  {
+    id: "31",
+    name: "Basic AV \u2014 Built-In Projector",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-BUILTIN",
+    description: "Basic AV setup with venue built-in projector and audio",
+    specifications: { rental_price: "$400/event" }
+  },
+  {
+    id: "32",
+    name: "Basic AV \u2014 Portable Projector (The Hill)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PORTABLE",
+    description: "Portable projector package for Hill venues",
+    specifications: { rental_price: "$400/event" }
+  },
+  {
+    id: "33",
+    name: "Portable Projector + Screen (Lounges)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PROJ-SCR",
+    description: "Portable projector and screen combo for lounge areas",
+    specifications: { rental_price: "$250/each" }
+  },
+  {
+    id: "34",
+    name: "Hard Wired Internet",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-INTERNET",
+    description: "Dedicated hard-wired internet connection for events",
+    specifications: { rental_price: "$150/each" }
+  },
+  {
+    id: "35",
+    name: "Acrylic Podium",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PODIUM",
+    description: "Clear acrylic podium for presentations and speeches",
+    specifications: { rental_price: "$150/each" }
+  },
+  {
+    id: "36",
+    name: "Additional Pad for Flipchart",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-FLIPPAD",
+    description: "Replacement pad for flipchart easel",
+    specifications: { rental_price: "$20/each" }
+  },
+  {
+    id: "37",
+    name: "Audio Mixer (16-channel)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MIX16",
+    description: "16-channel audio mixer for large events",
+    specifications: { channels: "16", rental_price: "$130/each" }
+  },
+  {
+    id: "38",
+    name: "Audio Mixer (4-channel)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MIX4",
+    description: "4-channel audio mixer for small events",
+    specifications: { channels: "4", rental_price: "$65/each" }
+  },
+  {
+    id: "39",
+    name: "Additional Microphone",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MIC",
+    description: "Additional wired or wireless microphone",
+    specifications: { rental_price: "$200/each" }
+  },
+  {
+    id: "40",
+    name: "Assisted Listening Device",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-ALD",
+    description: "Assisted listening device for accessibility compliance",
+    specifications: { rental_price: "$50/each" }
+  },
+  {
+    id: "41",
+    name: "Camera",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-CAM",
+    description: "Video camera for event recording and live streaming",
+    specifications: { rental_price: "$300/each" }
+  },
+  {
+    id: "42",
+    name: "Cisco Speakerphone",
+    category_id: "9",
+    brand: "Cisco",
+    barcode: "UCLA-AV-CISCO",
+    description: "Cisco speakerphone for conference calls and hybrid meetings",
+    specifications: { rental_price: "$300/each" }
+  },
+  {
+    id: "43",
+    name: 'Confidence Monitor 55"',
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MON55",
+    description: "55-inch confidence monitor for speaker reference",
+    specifications: { size: "55 inch", rental_price: "$350/each" }
+  },
+  {
+    id: "44",
+    name: 'Confidence Monitor 65"',
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MON65",
+    description: "65-inch confidence monitor for speaker reference",
+    specifications: { size: "65 inch", rental_price: "$550/each" }
+  },
+  {
+    id: "45",
+    name: 'Confidence Monitor 85"',
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MON85",
+    description: "85-inch confidence monitor for large venues",
+    specifications: { size: "85 inch", rental_price: "$750/each" }
+  },
+  {
+    id: "46",
+    name: 'Monitor 42"',
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MON42",
+    description: "42-inch display monitor",
+    specifications: { size: "42 inch", rental_price: "$200/each" }
+  },
+  {
+    id: "47",
+    name: "OWL USB Webcam",
+    category_id: "9",
+    brand: "Meeting Owl",
+    barcode: "UCLA-AV-OWL",
+    description: "OWL 360-degree USB webcam for hybrid meetings",
+    specifications: { rental_price: "$350/each" }
+  },
+  {
+    id: "48",
+    name: "Slide Advancer",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-SLIDE",
+    description: "Wireless slide advancer remote",
+    specifications: { rental_price: "$50/each" }
+  },
+  {
+    id: "49",
+    name: "Speaker Timer",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-TIMER",
+    description: "Digital speaker timer display",
+    specifications: { rental_price: "$350/each" }
+  },
+  {
+    id: "50",
+    name: "PerfectCue",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-CUE",
+    description: "PerfectCue presentation cue system",
+    specifications: { rental_price: "$350/each" }
+  },
+  {
+    id: "51",
+    name: "Laptop \u2014 MacBook",
+    category_id: "9",
+    brand: "Apple",
+    barcode: "UCLA-AV-MAC",
+    description: "MacBook laptop for presentations",
+    specifications: { rental_price: "$250/each" }
+  },
+  {
+    id: "52",
+    name: "Laptop \u2014 PC",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PC",
+    description: "PC laptop for presentations",
+    specifications: { rental_price: "$250/each" }
+  },
+  {
+    id: "53",
+    name: "Moon Balloon",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-MOON",
+    description: "Moon balloon lighting for outdoor events",
+    specifications: { rental_price: "$800/each" }
+  },
+  {
+    id: "54",
+    name: "Power Panel",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PWRPNL",
+    description: "Electrical power panel for large events",
+    specifications: { rental_price: "$600/each" }
+  },
+  {
+    id: "55",
+    name: "Power Strip",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PWRSTR",
+    description: "Power strip extension",
+    specifications: { rental_price: "$30/each" }
+  },
+  {
+    id: "56",
+    name: "Power Extension",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-PWREXT",
+    description: "Power extension cord",
+    specifications: { rental_price: "$30/each" }
+  },
+  {
+    id: "57",
+    name: "HDMI Cable (6-Foot)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-HDMI",
+    description: "6-foot HDMI cable",
+    specifications: { length: "6 feet", rental_price: "$30/each" }
+  },
+  {
+    id: "58",
+    name: "Network Cable (10-Foot)",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-NET",
+    description: "10-foot network/ethernet cable",
+    specifications: { length: "10 feet", rental_price: "$30/each" }
+  },
+  {
+    id: "59",
+    name: "Laptop Adapters",
+    category_id: "9",
+    brand: "UCLA AV",
+    barcode: "UCLA-AV-ADAPT",
+    description: "Assorted laptop video adapters (USB-C, HDMI, VGA)",
+    specifications: { rental_price: "$30/each" }
+  },
+  // ── UCLA Event Setup & Furniture (category 11) ──────────────────
+  {
+    id: "70",
+    name: "12-ft Registration Table + 4 Chairs + Wastebaskets",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-REG",
+    description: "Registration table package with chairs and wastebaskets",
+    specifications: { rental_price: "Included", size: "12 feet" }
+  },
+  {
+    id: "71",
+    name: "12-ft Bar",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-BAR12",
+    description: "12-foot bar for events and receptions",
+    specifications: { rental_price: "Included", size: "12 feet" }
+  },
+  {
+    id: "72",
+    name: "6-ft Front & Back Bar",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-BAR6",
+    description: "6-foot front and back bar",
+    specifications: { rental_price: "Included", size: "6 feet" }
+  },
+  {
+    id: "73",
+    name: "6' Buffet Table",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-BUF6",
+    description: "6' buffet table for catering setup",
+    specifications: { rental_price: "Included", size: "6 feet" }
+  },
+  {
+    id: "74",
+    name: "12' Buffet Table",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-BUF12",
+    description: "12' buffet table for catering setup",
+    specifications: { rental_price: "Included", size: "12 feet" }
+  },
+  {
+    id: "75",
+    name: "18' Buffet Table",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-BUF18",
+    description: "18' buffet table for catering setup",
+    specifications: { rental_price: "Included", size: "18 feet" }
+  },
+  {
+    id: "76",
+    name: "6' Table",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-T6",
+    description: "6' table \u2014 $15/each",
+    specifications: { rental_price: "$15/each", size: "6 feet" }
+  },
+  {
+    id: "77",
+    name: "8' Table",
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-T8",
+    description: "8' table \u2014 $20/each",
+    specifications: { rental_price: "$20/each", size: "8 feet" }
+  },
+  {
+    id: "78",
+    name: `6'x18" Seminar (Classroom) Table`,
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-SEM",
+    description: "Seminar/classroom table \u2014 $10/each",
+    specifications: { rental_price: "$10/each" }
+  },
+  {
+    id: "79",
+    name: '30" Standing Cocktail Tables',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-CKT30",
+    description: '30" standing cocktail table \u2014 $10/each',
+    specifications: { rental_price: "$10/each", height: "30 inches" }
+  },
+  {
+    id: "80",
+    name: '36" Seated Cocktail Tables + 4 Chairs',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-CKT36",
+    description: '36" seated cocktail table with 4 chairs \u2014 $15/each',
+    specifications: { rental_price: "$15/each", height: "36 inches" }
+  },
+  {
+    id: "81",
+    name: '42" Round Table',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-RND42",
+    description: '42" round table \u2014 $8/each',
+    specifications: { rental_price: "$8/each", diameter: "42 inches" }
+  },
+  {
+    id: "82",
+    name: '60" Round Table',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-RND60",
+    description: '60" round table \u2014 $12/each',
+    specifications: { rental_price: "$12/each", diameter: "60 inches" }
+  },
+  {
+    id: "83",
+    name: '66" Round Table',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-RND66",
+    description: '66" round table \u2014 $15/each',
+    specifications: { rental_price: "$15/each", diameter: "66 inches" }
+  },
+  {
+    id: "84",
+    name: '72" Round Table',
+    category_id: "11",
+    brand: "UCLA Events",
+    barcode: "UCLA-SETUP-RND72",
+    description: '72" round table \u2014 $20/each',
+    specifications: { rental_price: "$20/each", diameter: "72 inches" }
+  }
+];
+var ASSET_CONDITIONS = ["Excellent", "Good", "Fair", "Poor"];
+var ASSET_STATUS = ["Available", "In Use", "Maintenance", "Retired"];
+var MAINTENANCE_TYPES = ["Routine", "Repair", "Calibration", "Inspection"];
+var generateAssetHistory = (assetId) => {
+  const historyCount = predictableRandomInt(5, 1);
+  return Array(historyCount).fill(null).map((_3, i) => ({
+    id: `history-${assetId}-${i}`,
+    asset_id: assetId,
+    action: ["Assigned", "Returned", "Maintained", "Relocated"][predictableRandomInt(4)],
+    user_id: `staff-${predictableRandomInt(20) + 1}`,
+    location: `Floor ${predictableRandomInt(3) + 1}`,
+    timestamp: getUnixTime(subDays(Date.now(), predictableRandomInt(365))),
+    notes: "Asset management action recorded"
+  }));
+};
+var generateMaintenanceSchedule = (assetId) => {
+  if (predictableRandomInt(3) === 0)
+    return null;
+  return {
+    id: `maintenance-${assetId}`,
+    asset_id: assetId,
+    type: MAINTENANCE_TYPES[predictableRandomInt(MAINTENANCE_TYPES.length)],
+    frequency_days: [30, 60, 90, 180, 365][predictableRandomInt(5)],
+    last_service: getUnixTime(subDays(Date.now(), predictableRandomInt(90))),
+    next_service: getUnixTime(new Date(Date.now() + (predictableRandomInt(90) + 30) * 24 * 60 * 60 * 1e3)),
+    service_provider: "Internal IT" + (predictableRandomInt(3) === 0 ? "" : " / External Contractor"),
+    estimated_cost: predictableRandomInt(500, 50)
+  };
+};
+var MOCK_ASSETS = Array(MOCK_PRODUCTS.length * 3).fill(null).map((_3, i) => {
+  const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
+  const purchaseDate = subMonths(Date.now(), predictableRandomInt(36, 1));
+  const condition = ASSET_CONDITIONS[predictableRandomInt(ASSET_CONDITIONS.length)];
+  const status = ASSET_STATUS[predictableRandomInt(ASSET_STATUS.length)];
+  const assetId = `asset-${String(i + 1).padStart(4, "0")}`;
+  return {
+    id: assetId,
+    name: `${product.name} - ${assetId}`,
+    asset_type_id: product.id,
+    description: product.description || `${product.brand} ${product.name} for office use`,
+    model_number: product.model || `${product.brand}-${predictableRandomInt(9999)}`,
+    serial_number: `${product.brand?.substring(0, 3).toUpperCase()}${predictableRandomInt(999999999)}`,
+    identifier: `${product.barcode}-${String(i + 1).padStart(3, "0")}`,
+    barcode: product.barcode,
+    brand: product.brand,
+    condition,
+    status,
+    purchase_order_id: `PO-${Math.floor(i / 5) + 1}`,
+    // Group assets by purchase orders
+    purchase_date: getUnixTime(purchaseDate),
+    warranty_expiry: getUnixTime(new Date(purchaseDate.getTime() + predictableRandomInt(36, 12) * 30 * 24 * 60 * 60 * 1e3)),
+    purchase_price: predictableRandomInt(5e3, 100),
+    current_value: Math.max(predictableRandomInt(3e3, 50), 50),
+    // Depreciated value
+    location: {
+      building: `Building ${predictableRandomInt(2) + 1}`,
+      floor: predictableRandomInt(5) + 1,
+      room: `Room ${String(predictableRandomInt(50) + 1).padStart(2, "0")}`,
+      zone: `zone-${predictableRandomInt(3) + 1}`
+    },
+    assigned_to: status === "In Use" ? `staff-${predictableRandomInt(20) + 1}` : null,
+    category_id: product.category_id,
+    specifications: product.specifications || {},
+    other_data: {
+      history: generateAssetHistory(assetId),
+      maintenance_schedule: generateMaintenanceSchedule(assetId),
+      insurance_value: predictableRandomInt(6e3, 200),
+      depreciation_rate: predictableRandomInt(20, 5),
+      // 5-25% per year
+      energy_rating: null,
+      dimensions: {
+        width: predictableRandomInt(100, 10),
+        height: predictableRandomInt(100, 5),
+        depth: predictableRandomInt(80, 10),
+        weight: predictableRandomInt(50, 1)
+      },
+      tags: [
+        product.brand?.toLowerCase(),
+        MOCK_CATEGORIES.find((c2) => c2.id === product.category_id)?.name.toLowerCase(),
+        condition.toLowerCase(),
+        ...status === "In Use" ? ["assigned"] : [],
+        ...product.category_id === "1" ? ["tech"] : []
+      ].filter(Boolean)
+    }
+  };
+});
+var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_3, i) => {
+  const orderDate = subMonths(Date.now(), predictableRandomInt(36, 1));
+  const deliveryDate = new Date(orderDate.getTime() + predictableRandomInt(30) * 24 * 60 * 60 * 1e3);
+  return {
+    id: `PO-${i + 1}`,
+    purchase_order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
+    invoice_number: `INV-${String(predictableRandomInt(99999) + 1e4)}`,
+    vendor: [
+      "Office Supplies Co",
+      "Tech Solutions Ltd",
+      "Furniture Plus",
+      "AV Equipment Pro"
+    ][predictableRandomInt(4)],
+    department: ["IT", "Facilities", "HR", "Finance"][predictableRandomInt(4)],
+    purchase_date: getUnixTime(orderDate),
+    delivery_date: getUnixTime(deliveryDate),
+    expected_service_start_date: getUnixTime(deliveryDate),
+    expected_service_end_date: getUnixTime(new Date(deliveryDate.getTime() + 3 * 365 * 24 * 60 * 60 * 1e3)),
+    // 3 years
+    total_amount: predictableRandomInt(5e4, 1e3),
+    currency: "USD",
+    status: ["Pending", "Approved", "Delivered", "Complete"][predictableRandomInt(4)],
+    approver_id: `staff-${predictableRandomInt(5) + 1}`,
+    notes: i % 3 === 0 ? "Bulk order for office renovation" : i % 3 === 1 ? "Emergency replacement" : "Routine procurement",
+    payment_terms: [
+      "Net 30",
+      "Net 60",
+      "Payment on Delivery",
+      "Net 15"
+    ][predictableRandomInt(4)]
+  };
+});
+
+// libs/mocks/src/lib/api/assets.mock.ts
+var BASE_PATH = "/api/engine/v2";
+var update = (dataset) => (id, data) => {
+  const index = dataset.findIndex((e2) => e2.id === id);
+  if (index < 0)
+    throw {
+      status: 404,
+      message: `Unable to find booking with ID ${id}`
+    };
+  const new_event = __spreadValues({}, data);
+  dataset.splice(index, 1, new_event);
+  return new_event;
+};
+function registerMockAssets() {
+  Ko({
+    path: `${BASE_PATH}/asset_categories`,
+    metadata: {},
+    method: "GET",
+    callback: (req) => {
+      let results = MOCK_CATEGORIES;
+      if (req.query_params?.hidden !== void 0) {
+        const hidden = String(req.query_params.hidden) === "true";
+        results = results.filter((c2) => !!c2.hidden === hidden);
+      }
+      return results;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_categories/:id`,
+    metadata: {},
+    method: "GET",
+    callback: (_3) => {
+      const event = MOCK_CATEGORIES.find((e2) => e2.id === _3.route_params.id);
+      if (!event)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${_3.route_params.id}`
+        };
+      return event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_categories`,
+    metadata: {},
+    method: "POST",
+    callback: (request) => {
+      const new_event = __spreadProps(__spreadValues({}, request.body), {
+        id: `-category-${predictableRandomInt(999)}`
+      });
+      MOCK_CATEGORIES.push(new_event);
+      return new_event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_categories/:id`,
+    metadata: {},
+    method: "PUT",
+    callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_categories/:id`,
+    metadata: {},
+    method: "DELETE",
+    callback: (req) => {
+      const index = MOCK_CATEGORIES.findIndex((e2) => e2.id === req.route_params.id);
+      if (index < 0)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${req.route_params.id}`
+        };
+      MOCK_CATEGORIES.splice(index, 1);
+      return;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_types`,
+    metadata: {},
+    method: "GET",
+    callback: (req) => {
+      let results = MOCK_PRODUCTS;
+      if (req.query_params?.category_id) {
+        results = results.filter((p) => p.category_id === req.query_params.category_id);
+      }
+      return results;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_types/:id`,
+    metadata: {},
+    method: "GET",
+    callback: (_3) => {
+      const event = MOCK_PRODUCTS.find((e2) => e2.id === _3.route_params.id);
+      if (!event)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${_3.route_params.id}`
+        };
+      return event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_types`,
+    metadata: {},
+    method: "POST",
+    callback: (request) => {
+      const new_event = __spreadProps(__spreadValues({}, request.body), {
+        id: `-product-${predictableRandomInt(999)}`
+      });
+      MOCK_PRODUCTS.push(new_event);
+      return new_event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_types/:id`,
+    metadata: {},
+    method: "PUT",
+    callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_types/:id`,
+    metadata: {},
+    method: "DELETE",
+    callback: (req) => {
+      const index = MOCK_PRODUCTS.findIndex((e2) => e2.id === req.route_params.id);
+      if (index < 0)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${req.route_params.id}`
+        };
+      MOCK_PRODUCTS.splice(index, 1);
+      return;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_purchase_orders`,
+    metadata: {},
+    method: "GET",
+    callback: (_3) => {
+      const events2 = MOCK_PURCHASE_ORDERS;
+      return events2;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_purchase_orders/:id`,
+    metadata: {},
+    method: "GET",
+    callback: (_3) => {
+      const event = MOCK_PURCHASE_ORDERS.find((e2) => e2.id === _3.route_params.id);
+      if (!event)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${_3.route_params.id}`
+        };
+      return event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_purchase_orders`,
+    metadata: {},
+    method: "POST",
+    callback: (request) => {
+      const new_event = __spreadProps(__spreadValues({}, request.body), {
+        id: `-purchase-order-${predictableRandomInt(999)}`
+      });
+      MOCK_PURCHASE_ORDERS.push(new_event);
+      return new_event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_purchase_orders/:id`,
+    metadata: {},
+    method: "PUT",
+    callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
+  });
+  Ko({
+    path: `${BASE_PATH}/asset_purchase_orders/:id`,
+    metadata: {},
+    method: "DELETE",
+    callback: (req) => {
+      const index = MOCK_PURCHASE_ORDERS.findIndex((e2) => e2.id === req.route_params.id);
+      if (index < 0)
+        throw {
+          status: 404,
+          message: `Unable to find purchase order with ID ${req.route_params.id}`
+        };
+      MOCK_PURCHASE_ORDERS.splice(index, 1);
+      return;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/assets`,
+    metadata: {},
+    method: "GET",
+    callback: (req) => {
+      const type_id = req.query_params?.type_id;
+      const zone_id = req.query_params?.zone_id;
+      let results = [...MOCK_ASSETS];
+      if (type_id) {
+        results = results.filter((a) => a.asset_type_id === type_id);
+      }
+      if (zone_id) {
+        results = results.filter((a) => a.zone_id === zone_id);
+      }
+      return results;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/assets/:id`,
+    metadata: {},
+    method: "GET",
+    callback: (_3) => {
+      const event = MOCK_ASSETS.find((e2) => e2.id === _3.route_params.id);
+      if (!event)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${_3.route_params.id}`
+        };
+      return event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/assets`,
+    metadata: {},
+    method: "POST",
+    callback: (request) => {
+      const new_event = __spreadProps(__spreadValues({}, request.body), {
+        id: `-asset-${predictableRandomInt(999)}`
+      });
+      MOCK_ASSETS.push(new_event);
+      return new_event;
+    }
+  });
+  Ko({
+    path: `${BASE_PATH}/assets/:id`,
+    metadata: {},
+    method: "PUT",
+    callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
+  });
+  Ko({
+    path: `${BASE_PATH}/assets/:id`,
+    metadata: {},
+    method: "DELETE",
+    callback: (req) => {
+      const index = MOCK_ASSETS.findIndex((e2) => e2.id === req.route_params.id);
+      if (index < 0)
+        throw {
+          status: 404,
+          message: `Unable to find booking with ID ${req.route_params.id}`
+        };
+      MOCK_ASSETS.splice(index, 1);
+      return;
+    }
+  });
+}
+
+// libs/mocks/src/lib/api/catering.data.ts
+var DIETARY_RESTRICTIONS = [
+  { id: "vegetarian", name: "Vegetarian", icon: "\u{1F331}" },
+  { id: "vegan", name: "Vegan", icon: "\u{1F33F}" },
+  { id: "gluten-free", name: "Gluten Free", icon: "\u{1F33E}" },
+  { id: "dairy-free", name: "Dairy Free", icon: "\u{1F95B}" },
+  { id: "nut-free", name: "Nut Free", icon: "\u{1F95C}" },
+  { id: "halal", name: "Halal", icon: "\u262A\uFE0F" },
+  { id: "kosher", name: "Kosher", icon: "\u2721\uFE0F" },
+  { id: "low-carb", name: "Low Carb", icon: "\u{1F957}" },
+  { id: "keto", name: "Ketogenic", icon: "\u{1F951}" },
+  { id: "paleo", name: "Paleo", icon: "\u{1F969}" }
+];
+var MOCK_MENU = [
+  // ── Breakfast ────────────────────────────────────────────────────
+  {
+    id: "classic_continental",
+    name: "Classic Continental Breakfast",
+    unit_price: 1300,
+    category: "breakfast",
+    description: "Continental breakfast \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "deluxe_continental",
+    name: "Deluxe Continental Breakfast",
+    unit_price: 1600,
+    category: "breakfast",
+    description: "Deluxe continental breakfast \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "premium_continental",
+    name: "Premium Continental Breakfast",
+    unit_price: 1700,
+    category: "breakfast",
+    description: "Premium continental breakfast \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "american_breakfast",
+    name: "American Breakfast Buffet",
+    unit_price: 2800,
+    category: "breakfast",
+    description: "Full American breakfast buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "breakfast_burrito",
+    name: "Breakfast Burrito Buffet",
+    unit_price: 2800,
+    category: "breakfast",
+    description: "Breakfast burrito buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "bruin_fitness",
+    name: "Bruin Fitness Breakfast Buffet",
+    unit_price: 3e3,
+    category: "breakfast",
+    description: "Healthy fitness breakfast buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "italy_breakfast",
+    name: "Italy Breakfast Buffet",
+    unit_price: 2600,
+    category: "breakfast",
+    description: "Italian-style breakfast buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "omelettes",
+    name: "Omelettes & Things Buffet",
+    unit_price: 3200,
+    category: "breakfast",
+    description: "Omelette station buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "ee_breakfast",
+    name: "EE Breakfast Buffet (A-F)",
+    unit_price: 3e3,
+    category: "breakfast",
+    description: "Executive Education breakfast buffet \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_bf_a", name: "Menu A", group: "menu" },
+      { id: "ee_bf_b", name: "Menu B", group: "menu" },
+      { id: "ee_bf_c", name: "Menu C", group: "menu" },
+      { id: "ee_bf_d", name: "Menu D", group: "menu" },
+      { id: "ee_bf_e", name: "Menu E", group: "menu" },
+      { id: "ee_bf_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  // ── Brunch ───────────────────────────────────────────────────────
+  {
+    id: "bruin_brunch",
+    name: "Bruin Brunch Buffet",
+    unit_price: 4300,
+    category: "brunch",
+    description: "Full Bruin brunch buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "brunch_everyday",
+    name: "Brunch Everyday Buffet",
+    unit_price: 4e3,
+    category: "brunch",
+    description: "Everyday brunch buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "dessert_coffee",
+    name: "Dessert & Coffee",
+    unit_price: 1800,
+    category: "brunch",
+    description: "Dessert and coffee service \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  // ── Lunch ────────────────────────────────────────────────────────
+  {
+    id: "abbondanza_pasta",
+    name: "Abbondanza Pasta",
+    unit_price: 1800,
+    category: "lunch",
+    description: "Pasta buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "soup_salad_sandwich",
+    name: "Soup, Salad & Sandwich Buffet",
+    unit_price: 4500,
+    category: "lunch",
+    description: "Soup, salad and sandwich combination \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "market_salad",
+    name: "Market Salad Bar",
+    unit_price: 1800,
+    category: "lunch",
+    description: "Fresh market salad bar \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "sliders",
+    name: "Sliders",
+    unit_price: 2200,
+    category: "lunch",
+    description: "Slider buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "street_tacos",
+    name: "Street Tacos",
+    unit_price: 2200,
+    category: "lunch",
+    description: "Street taco station \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "pho_cart",
+    name: "Pho Cart",
+    unit_price: 2e3,
+    category: "lunch",
+    description: "Vietnamese pho cart \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "california_market_cold",
+    name: "California Market Buffet (Cold)",
+    unit_price: 5400,
+    category: "lunch",
+    description: "Cold California market buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "california_market_hot",
+    name: "California Market Buffet (Hot)",
+    unit_price: 5400,
+    category: "lunch",
+    description: "Hot California market buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "festivity",
+    name: "Festivity Buffet",
+    unit_price: 5900,
+    category: "lunch",
+    description: "Festivity celebration buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "holiday",
+    name: "Holiday Buffet",
+    unit_price: 5700,
+    category: "lunch",
+    description: "Holiday themed buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "albacore_tuna_salad",
+    name: "Albacore Tuna Salad",
+    unit_price: 3800,
+    category: "lunch",
+    description: "Albacore tuna salad \u2014 per bowl",
+    tags: ["per_bowl"],
+    options: []
+  },
+  {
+    id: "albacore_tuna_sandwich",
+    name: "Albacore Tuna Sandwich",
+    unit_price: 2e3,
+    category: "lunch",
+    description: "Albacore tuna sandwich \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "ee_lunch",
+    name: "EE Lunch Buffet (A-F)",
+    unit_price: 4500,
+    category: "lunch",
+    description: "Executive Education lunch buffet \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_ln_a", name: "Menu A", group: "menu" },
+      { id: "ee_ln_b", name: "Menu B", group: "menu" },
+      { id: "ee_ln_c", name: "Menu C", group: "menu" },
+      { id: "ee_ln_d", name: "Menu D", group: "menu" },
+      { id: "ee_ln_e", name: "Menu E", group: "menu" },
+      { id: "ee_ln_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  // ── Dinner ───────────────────────────────────────────────────────
+  {
+    id: "across_asia",
+    name: "Across Asia Buffet",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "Pan-Asian dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "backyard_grillin",
+    name: "Backyard Grillin' Buffet",
+    unit_price: 4e3,
+    category: "dinner",
+    description: "Backyard grill dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "celebration",
+    name: "Celebration Buffet",
+    unit_price: 5500,
+    category: "dinner",
+    description: "Celebration dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "italian_fare",
+    name: "The Italian Fare Buffet",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "Italian fare dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "latin_america",
+    name: "Latin America Buffet",
+    unit_price: 5400,
+    category: "dinner",
+    description: "Latin American dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "mediterranean_hot",
+    name: "Mediterranean Buffet (Hot)",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "Hot Mediterranean dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "mediterranean_room_temp",
+    name: "Mediterranean Buffet (Room Temp)",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "Room temperature Mediterranean buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "national_barbecue",
+    name: "National Barbecue Buffet",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "National barbecue dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "true_bruin",
+    name: "True Bruin Buffet",
+    unit_price: 4e3,
+    category: "dinner",
+    description: "True Bruin dinner buffet \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "ee_dinner",
+    name: "EE Dinner Buffet (A-F)",
+    unit_price: 5e3,
+    category: "dinner",
+    description: "Executive Education dinner buffet \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_dn_a", name: "Menu A", group: "menu" },
+      { id: "ee_dn_b", name: "Menu B", group: "menu" },
+      { id: "ee_dn_c", name: "Menu C", group: "menu" },
+      { id: "ee_dn_d", name: "Menu D", group: "menu" },
+      { id: "ee_dn_e", name: "Menu E", group: "menu" },
+      { id: "ee_dn_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  // ── Breaks & Snacks ─────────────────────────────────────────────
+  {
+    id: "beverage_package",
+    name: "Beverage Package",
+    unit_price: 1200,
+    category: "breaks",
+    description: "Coffee, tea & refreshments \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "cookies_treats",
+    name: "Cookies N'Treats",
+    unit_price: 1400,
+    category: "breaks",
+    description: "Assorted cookies and treats \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "grazing",
+    name: "Grazing",
+    unit_price: 2e3,
+    category: "breaks",
+    description: "Grazing platter \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "la_fiesta",
+    name: "La Fiesta",
+    unit_price: 1700,
+    category: "breaks",
+    description: "La Fiesta snack break \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "revitalize",
+    name: "Revitalize",
+    unit_price: 1500,
+    category: "breaks",
+    description: "Revitalize healthy break \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "moroccan_sun",
+    name: "Under the Moroccan Sun",
+    unit_price: 1600,
+    category: "breaks",
+    description: "Moroccan-themed snack break \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "zen",
+    name: "Zen",
+    unit_price: 1600,
+    category: "breaks",
+    description: "Zen wellness break \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "sundae_bar",
+    name: "Sundae Bar",
+    unit_price: 2200,
+    category: "breaks",
+    description: "Ice cream sundae bar \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "ee_am_break",
+    name: "EE AM Break w/Coffee (A-F)",
+    unit_price: 1850,
+    category: "breaks",
+    description: "Morning break with coffee \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_am_a", name: "Menu A", group: "menu" },
+      { id: "ee_am_b", name: "Menu B", group: "menu" },
+      { id: "ee_am_c", name: "Menu C", group: "menu" },
+      { id: "ee_am_d", name: "Menu D", group: "menu" },
+      { id: "ee_am_e", name: "Menu E", group: "menu" },
+      { id: "ee_am_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  {
+    id: "ee_am_continental",
+    name: "EE AM Break w/Continental & Coffee (A-F)",
+    unit_price: 2550,
+    category: "breaks",
+    description: "Morning break with continental and coffee \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_amc_a", name: "Menu A", group: "menu" },
+      { id: "ee_amc_b", name: "Menu B", group: "menu" },
+      { id: "ee_amc_c", name: "Menu C", group: "menu" },
+      { id: "ee_amc_d", name: "Menu D", group: "menu" },
+      { id: "ee_amc_e", name: "Menu E", group: "menu" },
+      { id: "ee_amc_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  {
+    id: "ee_pm_break",
+    name: "EE PM Break w/Coffee (A-F)",
+    unit_price: 2100,
+    category: "breaks",
+    description: "Afternoon break with coffee \u2014 per person",
+    tags: ["per_person", "conference"],
+    options: [
+      { id: "ee_pm_a", name: "Menu A", group: "menu" },
+      { id: "ee_pm_b", name: "Menu B", group: "menu" },
+      { id: "ee_pm_c", name: "Menu C", group: "menu" },
+      { id: "ee_pm_d", name: "Menu D", group: "menu" },
+      { id: "ee_pm_e", name: "Menu E", group: "menu" },
+      { id: "ee_pm_f", name: "Menu F", group: "menu" }
+    ]
+  },
+  // ── Reception & Hors d'oeuvres ──────────────────────────────────
+  {
+    id: "artisan_cheese_pp",
+    name: "Artisan Cheese Platter",
+    unit_price: 1400,
+    category: "reception",
+    description: "Artisan cheese platter \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  {
+    id: "artisan_cheese_sm",
+    name: "Artisan Cheese Platter (Small)",
+    unit_price: 9500,
+    category: "reception",
+    description: "Small artisan cheese platter \u2014 per platter",
+    tags: ["per_platter"],
+    options: []
+  },
+  {
+    id: "artisan_cheese_lg",
+    name: "Artisan Cheese Platter (Large)",
+    unit_price: 15e3,
+    category: "reception",
+    description: "Large artisan cheese platter \u2014 per platter",
+    tags: ["per_platter"],
+    options: []
+  },
+  {
+    id: "american_caviar",
+    name: "American Caviar, Roasted Potato, Creme Fraiche",
+    unit_price: 500,
+    category: "reception",
+    description: "Hors d'oeuvre \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "artisan_cheese_tart",
+    name: "Artisan Cheese Tart, Roasted Fruit, Thyme",
+    unit_price: 350,
+    category: "reception",
+    description: "Hors d'oeuvre \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "asian_pork_meatballs",
+    name: "Asian Pork Meatballs, Five Spice, Ginger Honey",
+    unit_price: 400,
+    category: "reception",
+    description: "Hors d'oeuvre \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "portobella_sopes",
+    name: "Achiote-Marinated Portobella Sopes",
+    unit_price: 4300,
+    category: "reception",
+    description: "Hors d'oeuvre \u2014 per person",
+    tags: ["per_person"],
+    options: []
+  },
+  // ── Beverages ───────────────────────────────────────────────────
+  {
+    id: "apple_juice",
+    name: "Apple Juice",
+    unit_price: 3200,
+    category: "beverages",
+    description: "Apple juice \u2014 per gallon",
+    tags: ["per_gallon"],
+    options: []
+  },
+  {
+    id: "arnold_palmer",
+    name: "Arnold Palmer",
+    unit_price: 3200,
+    category: "beverages",
+    description: "Arnold Palmer \u2014 per gallon",
+    tags: ["per_gallon"],
+    options: []
+  },
+  {
+    id: "almond_milk",
+    name: "Almond Milk",
+    unit_price: 1200,
+    category: "beverages",
+    description: "Almond milk \u2014 per quart",
+    tags: ["per_quart"],
+    options: []
+  },
+  {
+    id: "canned_juices",
+    name: "Assorted Canned Fruit Juices & V8",
+    unit_price: 250,
+    category: "beverages",
+    description: "Canned juices \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "soft_drinks_bar",
+    name: "Assorted Soft Drinks (Bar)",
+    unit_price: 700,
+    category: "beverages",
+    description: "Soft drinks for bar service \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  // ── Bakery & Pastries ───────────────────────────────────────────
+  {
+    id: "almond_croissants",
+    name: "Almond Croissants",
+    unit_price: 3300,
+    category: "bakery",
+    description: "Almond croissants \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "artisan_bagels_classic",
+    name: "Artisan Bagels (Classic Flavors)",
+    unit_price: 2800,
+    category: "bakery",
+    description: "Classic flavor bagels \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "artisan_bagels_specialty",
+    name: "Artisan Bagels (Specialty Flavors)",
+    unit_price: 2800,
+    category: "bakery",
+    description: "Specialty flavor bagels \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "ucla_cookies",
+    name: "Fresh-Baked UCLA Bakery Cookies",
+    unit_price: 2400,
+    category: "bakery",
+    description: "UCLA bakery cookies \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "petit_fours",
+    name: "Assorted Petit Fours",
+    unit_price: 3500,
+    category: "bakery",
+    description: "Assorted petit fours \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "mini_desserts",
+    name: "Assorted Seasonal Mini Desserts",
+    unit_price: 4500,
+    category: "bakery",
+    description: "Seasonal mini desserts \u2014 per dozen",
+    tags: ["per_dozen"],
+    options: []
+  },
+  {
+    id: "chips_bags",
+    name: "Assorted Bags of Chips",
+    unit_price: 175,
+    category: "bakery",
+    description: "Individual chip bags \u2014 per bag",
+    tags: ["per_bag"],
+    options: []
+  },
+  {
+    id: "kettle_chips",
+    name: "Additional Kettle / Tortilla Chips",
+    unit_price: 2e3,
+    category: "bakery",
+    description: "Kettle or tortilla chips \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "asian_snack_mix",
+    name: "Asian Snack Mix",
+    unit_price: 1800,
+    category: "bakery",
+    description: "Asian snack mix \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  // ── Gameday Menus ───────────────────────────────────────────────
+  {
+    id: "football_lunch",
+    name: "Prepackaged Football Menu \u2014 Lunch (A-U)",
+    unit_price: 2e3,
+    category: "gameday",
+    description: "Pre-packaged football game day lunch \u2014 per person",
+    tags: ["per_person"],
+    options: [
+      { id: "fb_ln_a", name: "Menu A", group: "menu" },
+      { id: "fb_ln_b", name: "Menu B", group: "menu" },
+      { id: "fb_ln_c", name: "Menu C", group: "menu" },
+      { id: "fb_ln_u", name: "Menu U", group: "menu" }
+    ]
+  },
+  {
+    id: "football_dinner",
+    name: "Prepackaged Football Menu \u2014 Dinner (A-U)",
+    unit_price: 3e3,
+    category: "gameday",
+    description: "Pre-packaged football game day dinner \u2014 per person",
+    tags: ["per_person"],
+    options: [
+      { id: "fb_dn_a", name: "Menu A", group: "menu" },
+      { id: "fb_dn_b", name: "Menu B", group: "menu" },
+      { id: "fb_dn_c", name: "Menu C", group: "menu" },
+      { id: "fb_dn_u", name: "Menu U", group: "menu" }
+    ]
+  },
+  // ── Setup & Furniture Rental ────────────────────────────────────
+  {
+    id: "registration_table",
+    name: "12-ft Registration Table + 4 Chairs + Wastebaskets",
+    unit_price: 0,
+    category: "setup",
+    description: "Registration table package \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "bar_12ft",
+    name: "12-ft Bar",
+    unit_price: 0,
+    category: "setup",
+    description: "12-foot bar \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "bar_6ft",
+    name: "6-ft Front & Back Bar",
+    unit_price: 0,
+    category: "setup",
+    description: "6-foot front and back bar \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "buffet_6ft",
+    name: "6' Buffet Table",
+    unit_price: 0,
+    category: "setup",
+    description: "6' buffet table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "buffet_12ft",
+    name: "12' Buffet Table",
+    unit_price: 0,
+    category: "setup",
+    description: "12' buffet table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "buffet_18ft",
+    name: "18' Buffet Table",
+    unit_price: 0,
+    category: "setup",
+    description: "18' buffet table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "table_6ft",
+    name: "6' Table",
+    unit_price: 1500,
+    category: "setup",
+    description: "6' table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "table_8ft",
+    name: "8' Table",
+    unit_price: 2e3,
+    category: "setup",
+    description: "8' table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "seminar_table",
+    name: `6'x18" Seminar (Classroom) Table`,
+    unit_price: 1e3,
+    category: "setup",
+    description: "Seminar/classroom table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "cocktail_standing",
+    name: '30" Standing Cocktail Tables',
+    unit_price: 1e3,
+    category: "setup",
+    description: "Standing cocktail table \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "cocktail_seated",
+    name: '36" Seated Cocktail Tables + 4 Chairs',
+    unit_price: 1500,
+    category: "setup",
+    description: "Seated cocktail table with chairs \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "round_42",
+    name: '42" Round Table',
+    unit_price: 800,
+    category: "setup",
+    description: '42" round table \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "round_60",
+    name: '60" Round Table',
+    unit_price: 1200,
+    category: "setup",
+    description: '60" round table \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "round_66",
+    name: '66" Round Table',
+    unit_price: 1500,
+    category: "setup",
+    description: '66" round table \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "round_72",
+    name: '72" Round Table',
+    unit_price: 2e3,
+    category: "setup",
+    description: '72" round table \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  // ── AV Equipment Rental ─────────────────────────────────────────
+  {
+    id: "av_basic_uc",
+    name: "Basic Meeting Room AV (University Club)",
+    unit_price: 5e4,
+    category: "av_rental",
+    description: "Basic AV package for University Club \u2014 per event",
+    tags: ["per_event"],
+    options: []
+  },
+  {
+    id: "av_basic_projector",
+    name: "Basic AV \u2014 Built-In Projector",
+    unit_price: 4e4,
+    category: "av_rental",
+    description: "Basic AV with built-in projector \u2014 per event",
+    tags: ["per_event"],
+    options: []
+  },
+  {
+    id: "av_basic_portable",
+    name: "Basic AV \u2014 Portable Projector (The Hill)",
+    unit_price: 4e4,
+    category: "av_rental",
+    description: "Portable projector package for The Hill \u2014 per event",
+    tags: ["per_event"],
+    options: []
+  },
+  {
+    id: "av_projector_screen",
+    name: "Portable Projector + Screen (Lounges)",
+    unit_price: 25e3,
+    category: "av_rental",
+    description: "Portable projector and screen \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_hard_internet",
+    name: "Hard Wired Internet",
+    unit_price: 15e3,
+    category: "av_rental",
+    description: "Wired internet connection \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_podium",
+    name: "Acrylic Podium",
+    unit_price: 15e3,
+    category: "av_rental",
+    description: "Acrylic podium \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_flipchart_pad",
+    name: "Additional Pad for Flipchart",
+    unit_price: 2e3,
+    category: "av_rental",
+    description: "Flipchart pad \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_mixer_16ch",
+    name: "Audio Mixer (16-channel)",
+    unit_price: 13e3,
+    category: "av_rental",
+    description: "16-channel audio mixer \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_mixer_4ch",
+    name: "Audio Mixer (4-channel)",
+    unit_price: 6500,
+    category: "av_rental",
+    description: "4-channel audio mixer \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_additional_mic",
+    name: "Additional Microphone",
+    unit_price: 2e4,
+    category: "av_rental",
+    description: "Additional microphone \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_assisted_listening",
+    name: "Assisted Listening Device",
+    unit_price: 5e3,
+    category: "av_rental",
+    description: "Assisted listening device \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_camera",
+    name: "Camera",
+    unit_price: 3e4,
+    category: "av_rental",
+    description: "Camera \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_speakerphone",
+    name: "Cisco Speakerphone",
+    unit_price: 3e4,
+    category: "av_rental",
+    description: "Cisco speakerphone \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_monitor_55",
+    name: 'Confidence Monitor 55"',
+    unit_price: 35e3,
+    category: "av_rental",
+    description: '55" confidence monitor \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_monitor_65",
+    name: 'Confidence Monitor 65"',
+    unit_price: 55e3,
+    category: "av_rental",
+    description: '65" confidence monitor \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_monitor_85",
+    name: 'Confidence Monitor 85"',
+    unit_price: 75e3,
+    category: "av_rental",
+    description: '85" confidence monitor \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_monitor_42",
+    name: 'Monitor 42"',
+    unit_price: 2e4,
+    category: "av_rental",
+    description: '42" monitor \u2014 each',
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_owl_webcam",
+    name: "OWL USB Webcam",
+    unit_price: 35e3,
+    category: "av_rental",
+    description: "OWL USB webcam \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_slide_advancer",
+    name: "Slide Advancer",
+    unit_price: 5e3,
+    category: "av_rental",
+    description: "Slide advancer \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_speaker_timer",
+    name: "Speaker Timer",
+    unit_price: 35e3,
+    category: "av_rental",
+    description: "Speaker timer \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_perfect_cue",
+    name: "PerfectCue",
+    unit_price: 35e3,
+    category: "av_rental",
+    description: "PerfectCue system \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_laptop_mac",
+    name: "Laptop \u2014 MacBook",
+    unit_price: 25e3,
+    category: "av_rental",
+    description: "MacBook laptop \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_laptop_pc",
+    name: "Laptop \u2014 PC",
+    unit_price: 25e3,
+    category: "av_rental",
+    description: "PC laptop \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_moon_balloon",
+    name: "Moon Balloon",
+    unit_price: 8e4,
+    category: "av_rental",
+    description: "Moon balloon lighting \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_power_panel",
+    name: "Power Panel",
+    unit_price: 6e4,
+    category: "av_rental",
+    description: "Power panel \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_power_strip",
+    name: "Power Strip",
+    unit_price: 3e3,
+    category: "av_rental",
+    description: "Power strip \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_power_extension",
+    name: "Power Extension",
+    unit_price: 3e3,
+    category: "av_rental",
+    description: "Power extension \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_hdmi_cable",
+    name: "HDMI Cable (6-Foot)",
+    unit_price: 3e3,
+    category: "av_rental",
+    description: "6-foot HDMI cable \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_network_cable",
+    name: "Network Cable (10-Foot)",
+    unit_price: 3e3,
+    category: "av_rental",
+    description: "10-foot network cable \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_laptop_adapters",
+    name: "Laptop Adapters",
+    unit_price: 3e3,
+    category: "av_rental",
+    description: "Laptop adapters \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  // ── AV Staffing ─────────────────────────────────────────────────
+  {
+    id: "av_operator",
+    name: "AV Operator",
+    unit_price: 5e3,
+    category: "av_staffing",
+    description: "AV operator \u2014 per hour",
+    tags: ["per_hour"],
+    options: []
+  },
+  {
+    id: "av_lighting_operator",
+    name: "AV Lighting Operator",
+    unit_price: 6e3,
+    category: "av_staffing",
+    description: "Lighting operator \u2014 per hour",
+    tags: ["per_hour"],
+    options: []
+  },
+  {
+    id: "av_technician_hourly",
+    name: "AV Technician ($75/hr, min 4hrs)",
+    unit_price: 7500,
+    category: "av_staffing",
+    description: "AV technician hourly rate, 4-hour minimum \u2014 per hour",
+    tags: ["per_hour"],
+    options: []
+  },
+  {
+    id: "av_technician_strike",
+    name: "AV Technician (Set/Strike)",
+    unit_price: 1e4,
+    category: "av_staffing",
+    description: "AV technician for setup/strike \u2014 per hour",
+    tags: ["per_hour"],
+    options: []
+  },
+  {
+    id: "av_technician_day",
+    name: "AV Technician (10-hour day)",
+    unit_price: 95e3,
+    category: "av_staffing",
+    description: "Full day AV technician (10 hours) \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_tech_director",
+    name: "AV Technical Director (10-hour day)",
+    unit_price: 95e3,
+    category: "av_staffing",
+    description: "Full day AV technical director (10 hours) \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_vendor_basic",
+    name: "External Vendor Supervisor (Basic)",
+    unit_price: 5e4,
+    category: "av_staffing",
+    description: "Basic external vendor supervision \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_vendor_premium",
+    name: "External Vendor Supervisor (Premium)",
+    unit_price: 95e3,
+    category: "av_staffing",
+    description: "Premium external vendor supervision \u2014 each",
+    tags: ["each"],
+    options: []
+  },
+  {
+    id: "av_setup_test",
+    name: "AV Setup & Test",
+    unit_price: 5e4,
+    category: "av_staffing",
+    description: "AV setup and testing \u2014 per event",
+    tags: ["per_event"],
+    options: []
+  },
+  // ── Service Charges ─────────────────────────────────────────────
+  {
+    id: "after_hours",
+    name: "After-Hours Service Charge",
+    unit_price: 5e3,
+    category: "service_charges",
+    description: "After-hours service charge \u2014 each",
+    tags: ["each"],
+    options: []
+  }
+];
+var CATERING_PACKAGES = [
+  {
+    id: "pkg-001",
+    name: "Morning Meeting Package",
+    description: "Continental breakfast with beverages for morning meetings",
+    price: 2500,
+    serves: "8-12 people",
+    duration: "2-3 hours",
+    items: ["classic_continental", "beverage_package"],
+    dietary_options: ["vegetarian", "gluten-free"]
+  },
+  {
+    id: "pkg-002",
+    name: "Executive Conference Package",
+    description: "Full day conference with breakfast, lunch and breaks",
+    price: 8500,
+    serves: "10-20 people",
+    duration: "8 hours",
+    items: [
+      "deluxe_continental",
+      "ee_am_break",
+      "soup_salad_sandwich",
+      "ee_pm_break"
+    ],
+    dietary_options: ["vegetarian", "gluten-free"]
+  },
+  {
+    id: "pkg-003",
+    name: "Reception Package",
+    description: "Elegant reception with cheese, apps and beverages",
+    price: 3500,
+    serves: "20-30 people",
+    duration: "3-4 hours",
+    items: [
+      "artisan_cheese_pp",
+      "asian_pork_meatballs",
+      "artisan_cheese_tart"
+    ],
+    dietary_options: ["vegetarian"]
+  },
+  {
+    id: "pkg-004",
+    name: "Game Day Package",
+    description: "Pre-packaged football game day dining",
+    price: 5e3,
+    serves: "15-25 people",
+    duration: "4-6 hours",
+    items: ["football_lunch", "football_dinner", "beverage_package"],
+    dietary_options: []
+  },
+  {
+    id: "pkg-005",
+    name: "Brunch Event Package",
+    description: "Full brunch buffet with dessert and coffee",
+    price: 6100,
+    serves: "12-20 people",
+    duration: "3-4 hours",
+    items: ["bruin_brunch", "dessert_coffee"],
+    dietary_options: ["vegetarian", "vegan", "gluten-free"]
+  }
+];
+var SERVICE_TYPES = [
+  {
+    id: "buffet",
+    name: "Buffet Service",
+    description: "Self-service buffet setup",
+    setup_time: 30,
+    breakdown_time: 30,
+    staff_required: 1,
+    price_modifier: 1
+  },
+  {
+    id: "plated",
+    name: "Plated Service",
+    description: "Individual plated meals served to guests",
+    setup_time: 45,
+    breakdown_time: 45,
+    staff_required: 2,
+    price_modifier: 1.3
+  },
+  {
+    id: "station",
+    name: "Food Stations",
+    description: "Multiple themed food stations",
+    setup_time: 60,
+    breakdown_time: 45,
+    staff_required: 2,
+    price_modifier: 1.2
+  },
+  {
+    id: "cocktail",
+    name: "Cocktail Style",
+    description: "Pass-around finger foods and canapes",
+    setup_time: 30,
+    breakdown_time: 30,
+    staff_required: 3,
+    price_modifier: 1.4
+  }
+];
+var SUPPLIERS = [
+  {
+    id: "sup-001",
+    name: "UCLA Conferences & Catering",
+    rating: 4.9,
+    specialty: "Full-Service Event Catering",
+    location: "UCLA Campus",
+    min_order: 500,
+    delivery_fee: 0,
+    setup_fee: 0
+  },
+  {
+    id: "sup-002",
+    name: "UCLA Housing & Hospitality",
+    rating: 4.8,
+    specialty: "Campus Dining & Hospitality",
+    location: "UCLA Campus",
+    min_order: 300,
+    delivery_fee: 0,
+    setup_fee: 100
+  }
+];
+function generateCateringOrder(event) {
+  const duration = Math.abs(differenceInMinutes(event.event_end * 1e3, event.event_start * 1e3));
+  const attendeeCount = event.attendees?.length || predictableRandomInt(15, 5);
+  let selectedItems = [];
+  let orderType = "individual";
+  let totalPrice = 0;
+  if (attendeeCount >= 8 && duration >= 120) {
+    const suitablePackages = CATERING_PACKAGES.filter((pkg) => {
+      const serves = parseInt(pkg.serves.split("-")[0]);
+      const maxServes = parseInt(pkg.serves.split("-")[1]) || serves + 5;
+      return attendeeCount >= serves && attendeeCount <= maxServes + 5;
+    });
+    if (suitablePackages.length > 0) {
+      const selectedPackage = suitablePackages[predictableRandomInt(suitablePackages.length)];
+      orderType = "package";
+      totalPrice = selectedPackage.price;
+      selectedItems = selectedPackage.items.map((itemId) => {
+        const item = MOCK_MENU.find((m3) => m3.id === itemId);
+        return __spreadProps(__spreadValues({}, item), {
+          quantity: Math.ceil(attendeeCount / 8),
+          package_item: true,
+          options: []
+        });
+      }).filter(Boolean);
+    }
+  }
+  if (selectedItems.length === 0) {
+    const itemCount = Math.min(predictableRandomInt(5, 2), Math.ceil(duration / 60));
+    const selectedItemIds = /* @__PURE__ */ new Set();
+    while (selectedItems.length < itemCount && selectedItemIds.size < MOCK_MENU.length) {
+      const item = MOCK_MENU[predictableRandomInt(MOCK_MENU.length)];
+      if (!selectedItemIds.has(item.id)) {
+        selectedItemIds.add(item.id);
+        const quantity = Math.max(1, Math.ceil(attendeeCount / 8));
+        const itemPrice = item.unit_price * quantity;
+        totalPrice += itemPrice;
+        selectedItems.push(__spreadProps(__spreadValues({}, item), {
+          quantity,
+          package_item: false,
+          options: item.options?.slice(0, predictableRandomInt(3)) || []
+        }));
+      }
+    }
+  }
+  const serviceType = SERVICE_TYPES[predictableRandomInt(SERVICE_TYPES.length)];
+  const serviceModifier = serviceType.price_modifier;
+  totalPrice *= serviceModifier;
+  const supplier = SUPPLIERS[predictableRandomInt(SUPPLIERS.length)];
+  const deliveryFee = supplier.delivery_fee;
+  const setupFee = supplier.setup_fee;
+  totalPrice += deliveryFee + setupFee;
+  const deliveryOffset = predictableRandomInt(30, 30);
+  const deliverAt = new Date(event.event_start * 1e3 - deliveryOffset * 60 * 1e3);
+  const dietaryNeeds = DIETARY_RESTRICTIONS.filter(() => predictableRandomInt(8) === 0);
+  return __spreadValues({
+    id: `order-${String(predictableRandomInt(999999, 1e5))}`,
+    event_id: event.id,
+    invoice_number: `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(predictableRandomInt(99999, 1e4))}`,
+    charge_code: `CC-${String(predictableRandomInt(9999, 1e3))}`,
+    order_type: orderType,
+    status: ["pending", "confirmed", "preparing", "delivered"][predictableRandomInt(4)],
+    // Timing
+    order_date: new Date(Date.now() - predictableRandomInt(7) * 24 * 60 * 60 * 1e3).toISOString(),
+    deliver_at: deliverAt.toISOString(),
+    setup_time: serviceType.setup_time,
+    breakdown_time: serviceType.breakdown_time,
+    // Service details
+    service_type: serviceType,
+    supplier,
+    guest_count: attendeeCount,
+    // Items and pricing
+    items: selectedItems,
+    subtotal: Math.floor(totalPrice - deliveryFee - setupFee),
+    delivery_fee: deliveryFee,
+    setup_fee: setupFee,
+    tax: Math.floor(totalPrice * 0.1),
+    // 10% tax
+    total: Math.floor(totalPrice * 1.1),
+    // Special requirements
+    dietary_requirements: dietaryNeeds.map((d3) => d3.name),
+    special_instructions: predictableRandomInt(3) === 0 ? [
+      "Please use UCLA branded napkins",
+      "Set up 15 minutes before event start",
+      "Vegetarian options on separate table",
+      "Please include serving utensils",
+      "Halal preparation required",
+      "Nut-free preparation required"
+    ][predictableRandomInt(6)] : "",
+    // Contact and delivery
+    delivery_contact: event.attendees?.[0]?.name || "Event Organizer",
+    delivery_phone: event.attendees?.[0]?.phone || "+1 310 825 4321",
+    delivery_location: `Venue - ${event.location || "TBC"}`,
+    access_instructions: "UCLA Events will direct to venue",
+    // Billing
+    department: event.extension_data?.department || "General",
+    cost_center: event.extension_data?.cost_center || "events",
+    project_code: event.extension_data?.project_code || null,
+    // Metadata
+    notes: [
+      "Standard UCLA event catering",
+      "Conference refreshments",
+      "Department celebration catering",
+      "Workshop session meals",
+      "Board meeting premium service"
+    ][predictableRandomInt(5)],
+    created_by: event.attendees?.[0]?.email || "system@place.tech",
+    last_modified: (/* @__PURE__ */ new Date()).toISOString()
+  }, predictableRandomInt(4) === 0 && {
+    rating: predictableRandomInt(5, 3) + 1,
+    // 4-5 stars
+    feedback: [
+      "Excellent food quality and presentation",
+      "Delivered on time, great service",
+      "Fresh ingredients, everyone loved it",
+      "Professional setup and cleanup",
+      "Good variety, accommodated dietary needs"
+    ][predictableRandomInt(5)],
+    would_recommend: true
+  });
+}
+
+// libs/mocks/src/lib/api/zone.data.ts
+var MOCK_ORGS = [
+  {
+    id: "zone-org",
+    created_at: getUnixTime(subMonths(Date.now(), 24)),
+    updated_at: getUnixTime(subMonths(Date.now(), 1)),
+    name: "UCLA",
+    display_name: "University of California, Los Angeles",
+    description: "UCLA Campus Event & Venue Spaces \u2014 Academic, Cultural, Athletic, and Student Life venues",
+    tags: ["org", "university", "campus"],
+    count: 1,
+    capacity: 15e3,
+    parent_id: "",
+    triggers: [],
+    settings: {
+      timezone: "America/Los_Angeles",
+      booking_rules: {
+        advance_booking_days: 90,
+        max_booking_duration: 12 * 60,
+        auto_release_minutes: 15
+      },
+      work_hours: {
+        start: "07:00",
+        end: "22:00",
+        days: [1, 2, 3, 4, 5, 6, 7]
+      },
+      features: [
+        "wifi",
+        "parking",
+        "accessibility",
+        "catering",
+        "security",
+        "av_support"
+      ]
+    },
+    contact: {
+      email: "events@ucla.edu",
+      phone: "+1 310-825-4321",
+      address: "405 Hilgard Avenue, Los Angeles, CA 90095"
+    },
+    metadata: {
+      founded: 1919,
+      employee_count: 45e3,
+      sustainability_rating: "Platinum",
+      certifications: [
+        "LEED Platinum",
+        "AASHE STARS Gold",
+        "Tree Campus USA"
+      ]
+    }
+  }
+];
+var MOCK_REGIONS = [
+  {
+    id: "region-ucla-campus",
+    created_at: getUnixTime(subMonths(Date.now(), 18)),
+    updated_at: getUnixTime(subMonths(Date.now(), 2)),
+    name: "UCLA Campus",
+    display_name: "UCLA Campus",
+    description: "Main UCLA campus in Westwood, Los Angeles",
+    tags: ["region", "campus", "westwood"],
+    count: 25,
+    capacity: 15e3,
+    parent_id: "zone-org",
+    triggers: [],
+    settings: {
+      timezone: "America/Los_Angeles",
+      region_code: "UCLA",
+      business_hours: {
+        start: "07:00",
+        end: "22:00",
+        timezone: "America/Los_Angeles"
+      }
+    },
+    contact: {
+      email: "events@ucla.edu",
+      phone: "+1 310-825-4321",
+      address: "UCLA, Los Angeles, CA 90095"
+    },
+    boundaries: {
+      north: 34.0759,
+      south: 34.0627,
+      east: -118.437,
+      west: -118.453
+    }
+  }
+];
+var MOCK_BUILDINGS = [
+  {
+    id: "bld-01",
+    name: "Covel Commons",
+    display_name: "Covel Commons (Sunset Village)",
+    description: "Full-service event venue in Sunset Village offering catering, AV support, and on-site parking for large and small events",
+    tags: ["building", "dining", "events", "catering"],
+    count: 2,
+    capacity: 800,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "200 De Neve Drive",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0726,
+        lng: -118.451
+      }
+    },
+    features: {
+      parking_spaces: 150,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 10,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1959,
+      architect: "Welton Becket",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 2800,
+      energy_rating: "LEED Silver",
+      construction_type: "Reinforced concrete",
+      elevator_count: 2,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-02",
+    name: "Carnesale Commons",
+    display_name: "Carnesale Commons",
+    description: "Premier event venue with Palisades Ballroom and flexible meeting rooms for conferences, receptions, and formal dinners",
+    tags: ["building", "events", "conference", "ballroom"],
+    count: 2,
+    capacity: 900,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "251 Charles E Young Drive West",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0714,
+        lng: -118.4499
+      }
+    },
+    features: {
+      parking_spaces: 200,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 8,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 2005,
+      architect: "Anshen + Allen",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 3200,
+      energy_rating: "LEED Gold",
+      construction_type: "Steel frame with glass facade",
+      elevator_count: 2,
+      stair_count: 2
+    }
+  },
+  {
+    id: "bld-03",
+    name: "De Neve Plaza",
+    display_name: "De Neve Plaza",
+    description: "Campus event venue with auditorium, plaza room, and flexible meeting spaces for catered events and presentations",
+    tags: ["building", "events", "auditorium", "residential"],
+    count: 2,
+    capacity: 700,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "351 Charles E Young Drive West",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0706,
+        lng: -118.4505
+      }
+    },
+    features: {
+      parking_spaces: 120,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 5,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1965,
+      architect: "Welton Becket",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 2400,
+      energy_rating: "LEED Silver",
+      construction_type: "Reinforced concrete",
+      elevator_count: 2,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-04",
+    name: "University Club",
+    display_name: "University Club",
+    description: "Premier members-only venue with dining rooms, boardrooms, patios, and full-service catering for weddings, galas, and corporate events",
+    tags: ["building", "dining", "events", "premium", "club"],
+    count: 2,
+    capacity: 600,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "480 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0713,
+        lng: -118.4408
+      }
+    },
+    features: {
+      parking_spaces: 80,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "premium"
+    },
+    building_details: {
+      year_built: 1959,
+      architect: "Welton Becket",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 5500,
+      energy_rating: "LEED Silver",
+      construction_type: "Mid-century modern with renovations",
+      elevator_count: 1,
+      stair_count: 2
+    }
+  },
+  {
+    id: "bld-05",
+    name: "Luskin Conference Center",
+    display_name: "Meyer and Renee Luskin Conference Center",
+    description: "Full-service conference center and hotel with 25,000+ sq ft of event space, 254 guest rooms, and on-site restaurant",
+    tags: ["building", "conference", "hotel", "premium", "events"],
+    count: 3,
+    capacity: 1200,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1", "lvl-2"],
+    address: {
+      street: "425 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0706,
+        lng: -118.4437
+      }
+    },
+    features: {
+      parking_spaces: 300,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: true,
+      cafe_on_site: true,
+      gym: true,
+      rooftop_garden: false,
+      ev_charging: 15,
+      security_level: "high"
+    },
+    building_details: {
+      year_built: 2016,
+      architect: "Pei Cobb Freed & Partners",
+      total_floors: 7,
+      basement_levels: 2,
+      floor_area_sqm: 1e4,
+      energy_rating: "LEED Gold",
+      construction_type: "Steel and glass with sustainable features",
+      elevator_count: 6,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-06",
+    name: "ASUCLA Event Spaces",
+    display_name: "ASUCLA Event Spaces (Ackerman & Kerckhoff)",
+    description: "Student union event venues including Grand Ballroom, Grand Salon, meeting rooms, and outdoor terraces",
+    tags: ["building", "student", "events", "ballroom"],
+    count: 2,
+    capacity: 1500,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "308 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.07,
+        lng: -118.444
+      }
+    },
+    features: {
+      parking_spaces: 200,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 10,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1962,
+      architect: "Welton Becket",
+      total_floors: 4,
+      basement_levels: 1,
+      floor_area_sqm: 8e3,
+      energy_rating: "LEED Silver",
+      construction_type: "Reinforced concrete with modern renovations",
+      elevator_count: 3,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-07",
+    name: "Anderson School of Management",
+    display_name: "UCLA Anderson School of Management",
+    description: "Academic venue with Korn Convocation Hall, classrooms, atriums, and outdoor event spaces for conferences and ceremonies",
+    tags: ["building", "academic", "conference", "business"],
+    count: 2,
+    capacity: 800,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "110 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0735,
+        lng: -118.443
+      }
+    },
+    features: {
+      parking_spaces: 250,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 12,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1995,
+      architect: "Pei Cobb Freed & Partners",
+      total_floors: 4,
+      basement_levels: 1,
+      floor_area_sqm: 6500,
+      energy_rating: "LEED Gold",
+      construction_type: "Modern academic complex",
+      elevator_count: 3,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-08",
+    name: "Fowler Museum",
+    display_name: "Fowler Museum at UCLA",
+    description: "Cultural venue with auditorium, galleries, terraces, and courtyards for receptions, lectures, and performances",
+    tags: ["building", "cultural", "museum", "arts"],
+    count: 2,
+    capacity: 600,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "308 Charles E Young Drive North",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.073,
+        lng: -118.4437
+      }
+    },
+    features: {
+      parking_spaces: 100,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 5,
+      security_level: "high"
+    },
+    building_details: {
+      year_built: 1992,
+      architect: "Richard Meier (style)",
+      total_floors: 3,
+      basement_levels: 0,
+      floor_area_sqm: 4500,
+      energy_rating: "Energy Star Certified",
+      construction_type: "Modern museum construction",
+      elevator_count: 2,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-09",
+    name: "Royce Hall",
+    display_name: "Royce Hall",
+    description: "Iconic 1,834-seat performance hall with conference rooms, green rooms, and outdoor terraces for concerts, ceremonies, and events",
+    tags: ["building", "performing-arts", "historic", "landmark"],
+    count: 2,
+    capacity: 2e3,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "340 Royce Drive",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0729,
+        lng: -118.4422
+      }
+    },
+    features: {
+      parking_spaces: 200,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: true,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 8,
+      security_level: "high"
+    },
+    building_details: {
+      year_built: 1929,
+      architect: "Allison & Allison",
+      total_floors: 3,
+      basement_levels: 1,
+      floor_area_sqm: 7e3,
+      energy_rating: "Historic Building \u2014 Energy Retrofit",
+      construction_type: "Romanesque Revival brick and reinforced concrete",
+      elevator_count: 2,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-10",
+    name: "James West Alumni Center",
+    display_name: "James West Alumni Center",
+    description: "Event venue with conference rooms, founders room, galleria, and outdoor patios for receptions, meetings, and celebrations",
+    tags: ["building", "alumni", "events", "conference"],
+    count: 2,
+    capacity: 400,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "325 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0695,
+        lng: -118.445
+      }
+    },
+    features: {
+      parking_spaces: 60,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1990,
+      architect: "Robert Kerr (namesake)",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 3500,
+      energy_rating: "Energy Star Certified",
+      construction_type: "Modern campus architecture",
+      elevator_count: 1,
+      stair_count: 2
+    }
+  },
+  {
+    id: "bld-11",
+    name: "Hammer Museum",
+    display_name: "Hammer Museum",
+    description: "Cultural venue with Billy Wilder Theater, galleries, terraces, boardroom, and sculpture gardens for up to 900 guests",
+    tags: ["building", "cultural", "museum", "arts", "performing-arts"],
+    count: 2,
+    capacity: 900,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "10899 Wilshire Boulevard",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90024",
+      country: "United States",
+      coordinates: {
+        lat: 34.059,
+        lng: -118.4435
+      }
+    },
+    features: {
+      parking_spaces: 200,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 8,
+      security_level: "high"
+    },
+    building_details: {
+      year_built: 1990,
+      architect: "Edward Larrabee Barnes",
+      total_floors: 4,
+      basement_levels: 1,
+      floor_area_sqm: 8e3,
+      energy_rating: "LEED Silver",
+      construction_type: "Modern museum construction",
+      elevator_count: 3,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-12",
+    name: "Schoenberg Music Building",
+    display_name: "Schoenberg Music Building",
+    description: "Music performance complex with 522-seat concert hall, recital halls, practice rooms, recording labs, and rehearsal spaces",
+    tags: ["building", "performing-arts", "music", "academic"],
+    count: 2,
+    capacity: 800,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "445 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0706,
+        lng: -118.44
+      }
+    },
+    features: {
+      parking_spaces: 100,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1955,
+      architect: "Welton Becket",
+      total_floors: 3,
+      basement_levels: 0,
+      floor_area_sqm: 5500,
+      energy_rating: "Historic Building \u2014 Energy Retrofit",
+      construction_type: "Mid-century modern academic",
+      elevator_count: 2,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-13",
+    name: "Theater, Film & Television",
+    display_name: "UCLA School of Theater, Film & Television",
+    description: "Performance and production complex with Freud Playhouse, James Bridges Theater, Little Theater, studio spaces, and screening rooms",
+    tags: ["building", "performing-arts", "film", "theater", "academic"],
+    count: 2,
+    capacity: 1100,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "245 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0718,
+        lng: -118.4405
+      }
+    },
+    features: {
+      parking_spaces: 150,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: true,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 6,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1962,
+      architect: "Welton Becket",
+      total_floors: 3,
+      basement_levels: 0,
+      floor_area_sqm: 7e3,
+      energy_rating: "LEED Silver",
+      construction_type: "Theater and production facility",
+      elevator_count: 2,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-14",
+    name: "CNSI",
+    display_name: "California NanoSystems Institute",
+    description: "Research facility with 260-seat auditorium, conference rooms, lobby space, multipurpose meeting space, and outdoor terraces",
+    tags: ["building", "academic", "research", "conference"],
+    count: 2,
+    capacity: 500,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "570 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.069,
+        lng: -118.4425
+      }
+    },
+    features: {
+      parking_spaces: 100,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 8,
+      security_level: "high"
+    },
+    building_details: {
+      year_built: 2007,
+      architect: "RTKL Associates",
+      total_floors: 5,
+      basement_levels: 1,
+      floor_area_sqm: 6800,
+      energy_rating: "LEED Gold",
+      construction_type: "Modern research facility with glass facade",
+      elevator_count: 3,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-15",
+    name: "Botanical Gardens",
+    display_name: "Mildred E. Mathias Botanical Garden",
+    description: "Garden venue with La Kretz Pavilion, terraces, patios, amphitheater, and 5,000+ plant species across 7 acres",
+    tags: ["building", "outdoor", "garden", "events"],
+    count: 1,
+    capacity: 300,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G"],
+    address: {
+      street: "707 Tiverton Drive",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0668,
+        lng: -118.441
+      }
+    },
+    features: {
+      parking_spaces: 50,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 2,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1930,
+      architect: "UCLA Grounds Division",
+      total_floors: 1,
+      basement_levels: 0,
+      floor_area_sqm: 2500,
+      energy_rating: "LEED Gold",
+      construction_type: "Garden pavilion with outdoor spaces",
+      elevator_count: 0,
+      stair_count: 1
+    }
+  },
+  {
+    id: "bld-16",
+    name: "Samueli Engineering",
+    display_name: "Henry Samueli School of Engineering",
+    description: "Engineering complex with auditoriums, classrooms, Mong Learning Center, Cohen Room, maker spaces, and outdoor patios",
+    tags: ["building", "academic", "engineering", "conference"],
+    count: 2,
+    capacity: 600,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "420 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0696,
+        lng: -118.443
+      }
+    },
+    features: {
+      parking_spaces: 150,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 10,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 2006,
+      architect: "Morphosis Architects",
+      total_floors: 5,
+      basement_levels: 1,
+      floor_area_sqm: 9e3,
+      energy_rating: "LEED Gold",
+      construction_type: "Modern academic and research complex",
+      elevator_count: 4,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-17",
+    name: "Law School",
+    display_name: "UCLA School of Law",
+    description: "Academic venue with classrooms, meeting rooms, student lounges, and Shapiro Courtyard for legal conferences, symposiums, and events",
+    tags: ["building", "academic", "law", "conference"],
+    count: 2,
+    capacity: 500,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "385 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0724,
+        lng: -118.439
+      }
+    },
+    features: {
+      parking_spaces: 120,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 6,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1967,
+      architect: "Jones & Emmons",
+      total_floors: 4,
+      basement_levels: 0,
+      floor_area_sqm: 6e3,
+      energy_rating: "Energy Star Certified",
+      construction_type: "Brutalist academic complex",
+      elevator_count: 3,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-18",
+    name: "Moore Hall",
+    display_name: "Moore Hall",
+    description: "Academic venue with reading room, classrooms, auditorium, and courtyard for lectures, colloquia, and educational conferences",
+    tags: ["building", "academic", "education", "conference"],
+    count: 2,
+    capacity: 400,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "457 Charles E Young Drive South",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.07,
+        lng: -118.4412
+      }
+    },
+    features: {
+      parking_spaces: 80,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1930,
+      architect: "Allison & Allison",
+      total_floors: 3,
+      basement_levels: 0,
+      floor_area_sqm: 4e3,
+      energy_rating: "Historic Building \u2014 Energy Retrofit",
+      construction_type: "Romanesque Revival brick",
+      elevator_count: 1,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-19",
+    name: "Luskin School of Public Affairs",
+    display_name: "UCLA Luskin School of Public Affairs",
+    description: "Academic venue with classrooms, 3rd Floor Commons, patio, and terrace for lectures, career fairs, and commencement events",
+    tags: ["building", "academic", "public-affairs", "conference"],
+    count: 2,
+    capacity: 400,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "337 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0744,
+        lng: -118.4398
+      }
+    },
+    features: {
+      parking_spaces: 60,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 2010,
+      architect: "Pei Cobb Freed & Partners",
+      total_floors: 4,
+      basement_levels: 0,
+      floor_area_sqm: 5e3,
+      energy_rating: "LEED Gold",
+      construction_type: "Modern academic building",
+      elevator_count: 2,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-20",
+    name: "Powell Library",
+    display_name: "Powell Library & Young Research Library",
+    description: "Academic library complex with classrooms, research commons, study spaces, Lux Lab, and special collections for workshops and lectures",
+    tags: ["building", "academic", "library", "research"],
+    count: 2,
+    capacity: 300,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "10740 Dickson Court",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0715,
+        lng: -118.442
+      }
+    },
+    features: {
+      parking_spaces: 60,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: true,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 4,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1929,
+      architect: "Allison & Allison",
+      total_floors: 3,
+      basement_levels: 1,
+      floor_area_sqm: 8e3,
+      energy_rating: "Historic Building \u2014 Energy Retrofit",
+      construction_type: "Romanesque Revival brick and concrete",
+      elevator_count: 2,
+      stair_count: 4
+    }
+  },
+  {
+    id: "bld-21",
+    name: "DataX",
+    display_name: "DataX Research Hub",
+    description: "Data science research hub with Impact Forum event space, conference rooms, collaboration hub, hotel offices, and lounge areas",
+    tags: ["building", "academic", "research", "technology"],
+    count: 1,
+    capacity: 200,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G"],
+    address: {
+      street: "550 Westwood Plaza",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0685,
+        lng: -118.442
+      }
+    },
+    features: {
+      parking_spaces: 80,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 6,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 2022,
+      architect: "Gensler",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 3e3,
+      energy_rating: "LEED Gold",
+      construction_type: "Modern tech research hub",
+      elevator_count: 1,
+      stair_count: 2
+    }
+  },
+  {
+    id: "bld-22",
+    name: "Kaplan Hall",
+    display_name: "Kaplan Hall",
+    description: "Academic building with event spaces, classrooms, and meeting rooms for colloquia, lectures, and student group events",
+    tags: ["building", "academic", "conference"],
+    count: 1,
+    capacity: 100,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G"],
+    address: {
+      street: "377 Charles E Young Drive East",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0725,
+        lng: -118.4395
+      }
+    },
+    features: {
+      parking_spaces: 40,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 2,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1960,
+      architect: "Welton Becket",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 2e3,
+      energy_rating: "Energy Star Certified",
+      construction_type: "Mid-century academic building",
+      elevator_count: 1,
+      stair_count: 2
+    }
+  },
+  {
+    id: "bld-23",
+    name: "Lake Arrowhead Lodge",
+    display_name: "UCLA Lake Arrowhead Lodge",
+    description: "Off-campus conference center and lodge with 10,000 sq ft of event space, 13 meeting rooms, 254 guest rooms, pool, and recreation facilities",
+    tags: ["building", "conference", "retreat", "hotel"],
+    count: 2,
+    capacity: 400,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G", "lvl-1"],
+    address: {
+      street: "850 Willow Creek Road",
+      suburb: "Lake Arrowhead",
+      state: "CA",
+      postcode: "92352",
+      country: "United States",
+      coordinates: {
+        lat: 34.2495,
+        lng: -117.189
+      }
+    },
+    features: {
+      parking_spaces: 100,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: true,
+      cafe_on_site: true,
+      gym: true,
+      rooftop_garden: false,
+      ev_charging: 6,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1922,
+      architect: "Paul Revere Williams (renovation)",
+      total_floors: 3,
+      basement_levels: 0,
+      floor_area_sqm: 5e3,
+      energy_rating: "Energy Star Certified",
+      construction_type: "Rustic lodge with modern renovations",
+      elevator_count: 1,
+      stair_count: 3
+    }
+  },
+  {
+    id: "bld-24",
+    name: "UCLA Recreation",
+    display_name: "UCLA Recreation & Athletic Venues",
+    description: "Athletic and recreation complex including Drake Stadium, Los Angeles Tennis Center, John Wooden Center, and Sunset Canyon Recreation Center",
+    tags: ["building", "athletics", "recreation", "outdoor"],
+    count: 1,
+    capacity: 5e3,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G"],
+    address: {
+      street: "100 Bruin Walk",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0715,
+        lng: -118.4475
+      }
+    },
+    features: {
+      parking_spaces: 300,
+      accessibility: true,
+      bike_storage: true,
+      shower_facilities: true,
+      cafe_on_site: true,
+      gym: true,
+      rooftop_garden: false,
+      ev_charging: 12,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1965,
+      architect: "Various",
+      total_floors: 2,
+      basement_levels: 0,
+      floor_area_sqm: 2e4,
+      energy_rating: "LEED Silver",
+      construction_type: "Athletic and recreation facilities",
+      elevator_count: 2,
+      stair_count: 6
+    }
+  },
+  {
+    id: "bld-25",
+    name: "Campus Outdoor Spaces",
+    display_name: "UCLA Campus Outdoor Venues",
+    description: "Campus-wide outdoor event spaces including Wilson Plaza, Court of Sciences, Franklin Murphy Sculpture Garden, Meyerhoff Park, and Dickson Courts",
+    tags: ["building", "outdoor", "plaza", "events"],
+    count: 1,
+    capacity: 2e3,
+    parent_id: "region-ucla-campus",
+    triggers: [],
+    levels: ["lvl-G"],
+    address: {
+      street: "405 Hilgard Avenue",
+      suburb: "Westwood",
+      state: "CA",
+      postcode: "90095",
+      country: "United States",
+      coordinates: {
+        lat: 34.0708,
+        lng: -118.443
+      }
+    },
+    features: {
+      parking_spaces: 200,
+      accessibility: true,
+      bike_storage: false,
+      shower_facilities: false,
+      cafe_on_site: false,
+      gym: false,
+      rooftop_garden: false,
+      ev_charging: 0,
+      security_level: "standard"
+    },
+    building_details: {
+      year_built: 1929,
+      architect: "Various",
+      total_floors: 1,
+      basement_levels: 0,
+      floor_area_sqm: 3e4,
+      energy_rating: "N/A \u2014 Outdoor spaces",
+      construction_type: "Landscaped plazas and courtyards",
+      elevator_count: 0,
+      stair_count: 0
+    }
+  }
+];
+var MOCK_ZONES = [];
+var createMockLevel = (id, idx, building, levelCode = "1") => {
+  const levelNumber = levelCode === "G" ? 0 : levelCode === "M" ? 0.5 : levelCode.startsWith("P") ? -parseInt(levelCode.substring(1)) : parseInt(levelCode) || 1;
+  const isGroundFloor = levelCode === "G";
+  const isMezzanine = levelCode === "M";
+  const isParkingLevel = levelCode.startsWith("P");
+  let levelType = "office";
+  if (isParkingLevel)
+    levelType = "parking";
+  else if (isGroundFloor)
+    levelType = "lobby";
+  else if (isMezzanine)
+    levelType = "mixed-use";
+  const capacityByType = {
+    parking: 0,
+    lobby: 50,
+    "mixed-use": Math.floor(building.capacity * 0.2),
+    office: Math.floor(building.capacity * 0.4)
+  };
+  const levelName = isParkingLevel ? `Parking Level ${levelCode.substring(1)}` : isGroundFloor ? "Ground Floor" : isMezzanine ? "Mezzanine" : `Level ${levelCode}`;
+  const displayName = levelName;
+  const features = [];
+  if (isGroundFloor)
+    features.push("reception", "lobby", "event-spaces");
+  if (isMezzanine)
+    features.push("meeting-rooms", "break-areas", "informal-seating");
+  if (levelType === "office")
+    features.push("event-spaces", "meeting-rooms", "conference-rooms");
+  if (isParkingLevel)
+    features.push("parking", "ev-charging");
+  return {
+    id: `${building.id}_${id}`,
+    name: levelName,
+    display_name: displayName,
+    parent_id: building.id,
+    description: `${levelName} of ${building.name} featuring ${features.join(", ")}`,
+    tags: ["level", levelType, building.tags[1]].filter(Boolean),
+    map_id: `assets/maps/${building.id.replace("bld-", "level_")}${levelCode}.svg`,
+    code: `${building.name.substring(0, 3).toUpperCase()}-${levelCode}`,
+    type: levelType,
+    count: predictableRandomInt(15, 5),
+    capacity: capacityByType[levelType] || Math.floor(building.capacity * 0.3),
+    location: `${building.address.coordinates.lat},${building.address.coordinates.lng}`,
+    level_number: levelNumber,
+    floor_area_sqm: Math.floor(building.building_details.floor_area_sqm / building.count),
+    ceiling_height: levelType === "lobby" ? 4.5 : isParkingLevel ? 2.4 : 3.5,
+    features,
+    accessibility: {
+      wheelchair_accessible: true,
+      elevator_access: !isParkingLevel || building.building_details.elevator_count > 0,
+      accessible_bathrooms: levelType !== "parking",
+      hearing_loop: isGroundFloor || levelType === "office"
+    },
+    utilities: {
+      power_outlets: "extensive",
+      data_points: "fiber_optic",
+      hvac_zones: Math.ceil((capacityByType[levelType] || 50) / 50),
+      fire_safety: "compliant",
+      security_systems: building.features.security_level
+    },
+    spaces: {
+      meeting_rooms: predictableRandomInt(8, 3),
+      workstations: 0,
+      break_areas: levelType !== "parking" ? predictableRandomInt(3, 1) : 0,
+      storage_rooms: predictableRandomInt(4, 1),
+      bathrooms: isParkingLevel ? 1 : predictableRandomInt(4, 2),
+      parking_spaces: isParkingLevel ? Math.floor(building.features.parking_spaces / 2) : 0
+    },
+    created_at: getUnixTime(subMonths(Date.now(), predictableRandomInt(36, 6))),
+    updated_at: getUnixTime(subMonths(Date.now(), predictableRandomInt(3, 0))),
+    settings: {
+      booking_enabled: levelType !== "parking",
+      public_access: isGroundFloor,
+      after_hours_access: "keycard",
+      temperature_range: {
+        min: 68,
+        max: 76
+      },
+      lighting: {
+        type: "LED with daylight sensors",
+        zones: Math.ceil((capacityByType[levelType] || 30) / 30)
+      }
+    },
+    maintenance: {
+      last_inspection: getUnixTime(subMonths(Date.now(), predictableRandomInt(6, 1))),
+      next_inspection: getUnixTime(new Date(Date.now() + predictableRandomInt(90, 30) * 24 * 60 * 60 * 1e3)),
+      cleaning_schedule: isParkingLevel ? "weekly" : "daily",
+      maintenance_contact: "UCLA Facilities Management"
+    }
+  };
+};
+var MOCK_LEVELS = MOCK_BUILDINGS.map((bld) => bld.levels.map((level, idx) => createMockLevel(level, idx, bld, level.split("-")[1]))).reduce((prev, current) => prev.concat(current), []);
+
+// libs/mocks/src/lib/api/spaces.data.ts
+var floorIndexToLevelCode = (floor_index) => {
+  if (floor_index === 0)
+    return "G";
+  return String(floor_index);
+};
+var getZoneHierarchy = (buildingId, levelId) => {
+  const building = MOCK_BUILDINGS.find((b3) => b3.id === buildingId);
+  if (!building)
+    return ["zone-org", "region-ucla-campus", buildingId, levelId];
+  const region = MOCK_REGIONS.find((r2) => r2.id === building.parent_id);
+  const orgId = region ? region.parent_id : "zone-org";
+  return [orgId, building.parent_id, buildingId, levelId];
+};
+var UCLA_ROOMS = [
+  // ═══════════════════════════════════════════════════════════════════
+  // COVEL COMMONS (bld-01) — from Meeting Room Rental Rates + Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Grand Horizon & Terrace",
+    display_name: "Grand Horizon & Terrace",
+    type: "Event Space",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 350,
+    sqft: 5900,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "Terrace Access", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators", "On-site Parking"],
+    hourly_rate: 450,
+    half_day_rate: 3e3,
+    full_day_rate: 3600,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Salon A & Terrace",
+    display_name: "Salon A & Terrace",
+    type: "Event Space",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "Terrace Access", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators", "On-site Parking"],
+    hourly_rate: 400,
+    half_day_rate: 2750,
+    full_day_rate: 3150,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "South Bay Room",
+    display_name: "South Bay Room",
+    type: "Meeting Room",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 960,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 130,
+    half_day_rate: 900,
+    full_day_rate: 1050,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "West Coast",
+    display_name: "West Coast",
+    type: "Meeting Room",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 55,
+    sqft: 920,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 130,
+    half_day_rate: 900,
+    full_day_rate: 1050,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "North Ridge",
+    display_name: "North Ridge",
+    type: "Meeting Room",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 50,
+    sqft: 874,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 130,
+    half_day_rate: 900,
+    full_day_rate: 1050,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Conference Room L-04",
+    display_name: "Conference Room L-04",
+    type: "Conference Room",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 20,
+    sqft: 400,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "Phone", "WiFi"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi"],
+    hourly_rate: 50,
+    half_day_rate: 250,
+    full_day_rate: 400,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Conference Room 207",
+    display_name: "Conference Room 207",
+    type: "Conference Room",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 20,
+    sqft: 400,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "Phone", "WiFi"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi"],
+    hourly_rate: 50,
+    half_day_rate: 250,
+    full_day_rate: 400,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Northwest Campus Auditorium",
+    display_name: "Northwest Campus Auditorium",
+    type: "Auditorium",
+    building_id: "bld-01",
+    building_name: "Covel Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 349,
+    sqft: 4500,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Lighting Control", "Video Conference"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators", "On-site Parking"],
+    hourly_rate: 300,
+    half_day_rate: 2e3,
+    full_day_rate: 2400,
+    approval_required: true,
+    catering_available: false,
+    notes: "Teleconferences, lectures, presentations, forums, small theatrical performances"
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // CARNESALE COMMONS (bld-02) — from Meeting Room Rental Rates + Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Palisades Ballroom",
+    display_name: "Palisades Ballroom",
+    type: "Ballroom",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 450,
+    sqft: 6700,
+    features: ["Audio System", "Projector", "Stage/Platform", "Flexible Seating", "Catering Setup", "Dance Floor"],
+    services: ["Full Catering Services", "Business Center", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators & Conference Managers", "On-site Parking", "Event Material Storage", "Signage & Displays"],
+    hourly_rate: 450,
+    half_day_rate: 3e3,
+    full_day_rate: 3600,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Palisades ABCF",
+    display_name: "Palisades ABCF Section",
+    type: "Event Space",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 300,
+    sqft: 4500,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators & Conference Managers", "On-site Parking"],
+    hourly_rate: 420,
+    half_day_rate: 2900,
+    full_day_rate: 3400,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Palisades DE",
+    display_name: "Palisades DE Section",
+    type: "Event Space",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2250,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 300,
+    half_day_rate: 2100,
+    full_day_rate: 2600,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Malibu",
+    display_name: "Malibu",
+    type: "Meeting Room",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 40,
+    sqft: 713,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 110,
+    half_day_rate: 750,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Venice A & B",
+    display_name: "Venice A & B",
+    type: "Meeting Room",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 70,
+    sqft: 1211,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 140,
+    half_day_rate: 1e3,
+    full_day_rate: 1150,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Hermosa A & B",
+    display_name: "Hermosa A & B",
+    type: "Meeting Room",
+    building_id: "bld-02",
+    building_name: "Carnesale Commons",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 70,
+    sqft: 1205,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 140,
+    half_day_rate: 1e3,
+    full_day_rate: 1150,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // DE NEVE PLAZA (bld-03) — from Meeting Room Rental Rates + Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Plaza Room",
+    display_name: "Plaza Room",
+    type: "Event Space",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 250,
+    sqft: 3700,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators & Conference Managers", "On-site Parking"],
+    hourly_rate: 300,
+    half_day_rate: 2100,
+    full_day_rate: 2400,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Plaza A",
+    display_name: "Plaza A",
+    type: "Conference Room",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 120,
+    sqft: 1850,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 190,
+    half_day_rate: 1300,
+    full_day_rate: 1700,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Plaza B",
+    display_name: "Plaza B",
+    type: "Conference Room",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 120,
+    sqft: 1850,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Full Catering Services", "Audio-Visual Tech & Support", "Complimentary Wi-Fi", "On-site Parking"],
+    hourly_rate: 190,
+    half_day_rate: 1300,
+    full_day_rate: 1700,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Sycamore",
+    display_name: "Sycamore",
+    type: "Meeting Room",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 30,
+    sqft: 510,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi"],
+    hourly_rate: 60,
+    half_day_rate: 400,
+    full_day_rate: 550,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Magnolia",
+    display_name: "Magnolia",
+    type: "Meeting Room",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 12,
+    sqft: 200,
+    features: ["Display Screen", "Video Conference", "WiFi"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi"],
+    hourly_rate: 30,
+    half_day_rate: 210,
+    full_day_rate: 315,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Jacaranda",
+    display_name: "Jacaranda",
+    type: "Meeting Room",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 12,
+    sqft: 200,
+    features: ["Display Screen", "Video Conference", "WiFi"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi"],
+    hourly_rate: 30,
+    half_day_rate: 210,
+    full_day_rate: 315,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "De Neve Lecture Auditorium",
+    display_name: "De Neve Lecture Auditorium",
+    type: "Auditorium",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 430,
+    sqft: 5e3,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Lighting Control"],
+    services: ["Audio-Visual Tech & Support", "Complimentary Wi-Fi", "Event Facilitators & Conference Managers", "On-site Parking"],
+    hourly_rate: 300,
+    half_day_rate: 2e3,
+    full_day_rate: 2400,
+    approval_required: true,
+    catering_available: false,
+    notes: "Catering only available in Plaza Room, NOT Auditorium"
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // UNIVERSITY CLUB (bld-04) — from University Club Rental Rates + Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Cederbaum Board Room",
+    display_name: "Cederbaum Board Room",
+    type: "Boardroom",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 12,
+    sqft: 170,
+    features: ["Large Display", "HDMI", "Executive Seating", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi"],
+    hourly_rate: 50,
+    half_day_rate: 250,
+    full_day_rate: 250,
+    approval_required: false,
+    catering_available: true,
+    notes: '40" TV w/HDMI cord. Min occupancy 10.'
+  },
+  {
+    name: "Sierra",
+    display_name: "Sierra",
+    type: "Conference Room",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 50,
+    sqft: 806,
+    features: ["Audio System", "Projector", "Flexible Seating", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services", "Custom Menu Development"],
+    hourly_rate: 85,
+    half_day_rate: 500,
+    full_day_rate: 500,
+    approval_required: false,
+    catering_available: true,
+    notes: "No screen in room. Min occupancy 20. Configs: Reception 40, Theatre 50, Rounds 40, Classroom 25, Board 24."
+  },
+  {
+    name: "Hacienda",
+    display_name: "Hacienda",
+    type: "Conference Room",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 999,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services", "Custom Menu Development"],
+    hourly_rate: 170,
+    half_day_rate: 1e3,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "Min occupancy 40. Configs: Reception 60, Theatre 80, Rounds 60, Classroom 35, Board 34."
+  },
+  {
+    name: "Redwood",
+    display_name: "Redwood",
+    type: "Conference Room",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 620,
+    features: ["Audio System", "Projector", "Flexible Seating", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services"],
+    hourly_rate: 170,
+    half_day_rate: 1e3,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "Entire room. Min occupancy 40. Can be split into Redwood A (West w/screen) and Redwood B (East)."
+  },
+  {
+    name: "Sequoia",
+    display_name: "Sequoia",
+    type: "Event Space",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 1535,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "Patio Access", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services", "Custom Menu Development", "Setup & Clean-up Crews"],
+    hourly_rate: 210,
+    half_day_rate: 1250,
+    full_day_rate: 1250,
+    approval_required: true,
+    catering_available: true,
+    notes: "Includes Patio. Min occupancy 50. Configs: Reception 80, Theatre 100, Rounds 60, Classroom 50, Board 32."
+  },
+  {
+    name: "Morrison Room",
+    display_name: "Morrison Room (incl. Terrace)",
+    type: "Event Space",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 200,
+    sqft: 2252,
+    features: ["Audio System", "Projector", "Stage/Platform", "Flexible Seating", "Catering Setup", "Piano", "Terrace Access", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services", "Piano Use ($250)", "Professional Event Coordination", "Custom Menu Development", "Setup & Clean-up Crews"],
+    hourly_rate: 340,
+    half_day_rate: 2e3,
+    full_day_rate: 2e3,
+    approval_required: true,
+    catering_available: true,
+    notes: "Includes Terrace. Piano Use $250, Piano Tuning $200. Min occupancy 80. Configs: Reception 200, Theatre 200, Rounds 180, Classroom 112, Board 50."
+  },
+  {
+    name: "Main Dining Room",
+    display_name: "Main Dining Room",
+    type: "Dining Venue",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 400,
+    sqft: 4191,
+    features: ["Audio System", "Catering Setup", "Flexible Seating", "Bar Service", "WiFi"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Complimentary Guest WiFi", "Bar & Cocktail Services", "Professional Event Coordination", "Custom Menu Development", "Setup & Clean-up Crews"],
+    hourly_rate: 750,
+    half_day_rate: 4400,
+    full_day_rate: 4400,
+    approval_required: true,
+    catering_available: true,
+    notes: "$8,000 weekday buy-out displaces Member Lunch. Min occupancy 175. Configs: Reception 350, Theatre 400, Rounds 200."
+  },
+  {
+    name: "Sherie Bar & Lounge",
+    display_name: "Sherie Bar & Lounge",
+    type: "Dining Venue",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 1886,
+    features: ["Audio System", "Bar Service", "Piano", "Flexible Seating", "WiFi"],
+    services: ["Full-Service Catering", "Bar & Cocktail Services", "Piano Use ($250)", "Audio-Visual Support", "Complimentary Guest WiFi"],
+    hourly_rate: 210,
+    half_day_rate: 1250,
+    full_day_rate: 1250,
+    approval_required: false,
+    catering_available: true,
+    notes: "Piano Use $250, Piano Tuning $200. Min occupancy 50. Configs: Reception 50, Theatre 100, Rounds 60, Board 24."
+  },
+  {
+    name: "West Patio",
+    display_name: "West Patio",
+    type: "Outdoor Space",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 1044,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Full-Service Catering", "Setup & Clean-up Crews"],
+    hourly_rate: 105,
+    half_day_rate: 625,
+    full_day_rate: 625,
+    approval_required: false,
+    catering_available: true,
+    notes: "Min occupancy 25. Configs: Reception 40, Rounds 40, Board 24."
+  },
+  {
+    name: "Garden Patio",
+    display_name: "Garden Patio",
+    type: "Outdoor Space",
+    building_id: "bld-04",
+    building_name: "University Club",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 2160,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Full-Service Catering", "Audio-Visual Support", "Setup & Clean-up Crews"],
+    hourly_rate: 420,
+    half_day_rate: 2500,
+    full_day_rate: 2500,
+    approval_required: true,
+    catering_available: true,
+    notes: "$2,500 after 4 p.m. or weekends. $5,500 weekday buy-out. Configs: Reception 200, Theatre 100, Rounds 100."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // WEYBURN TERRACE (part of bld-03, mapped to De Neve area)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Village View Room",
+    display_name: "Village View Room",
+    type: "Event Space",
+    building_id: "bld-03",
+    building_name: "De Neve Plaza",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 100,
+    sqft: 1800,
+    features: ["Audio System", "Projector", "Flexible Seating", "Kitchenette", "Terrace Access", "WiFi"],
+    services: ["Audio-Visual Support", "Sound System", "Room Setup & Striking", "Catering Permitted", "Custodial Services", "UCLA Guest WiFi"],
+    hourly_rate: 200,
+    half_day_rate: 1400,
+    full_day_rate: 1800,
+    approval_required: false,
+    catering_available: true,
+    notes: "Outdoor terrace with city views. Kitchenette for food prep."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // LUSKIN CONFERENCE CENTER (bld-05) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Centennial Ballroom",
+    display_name: "Centennial Ballroom",
+    type: "Ballroom",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 500,
+    sqft: 1e4,
+    features: ["Audio System", "Projector", "Stage/Platform", "Flexible Seating", "Catering Setup", "Dance Floor", "Smart Room Technology", "Lighting Control"],
+    services: ["On-Site Event Catering", "Dedicated Conference Services Planners", "Smart Room Technology", "Built-in Projection & Motorized Screens", "Sound Amplification & Microphones", "Video Conferencing", "Simultaneous Translation", "On-Site Technical Staff", "Nutrition Hubs"],
+    hourly_rate: 750,
+    half_day_rate: 5e3,
+    full_day_rate: 8e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Centennial Terrace",
+    display_name: "Centennial Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 250,
+    sqft: 5e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["On-Site Event Catering", "Dedicated Conference Services Planners", "Portable AV Equipment"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Laureate Room",
+    display_name: "Laureate Room",
+    type: "Conference Room",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 80,
+    sqft: 1800,
+    features: ["Audio System", "Projector", "Video Conference", "Smart Room Technology", "WiFi"],
+    services: ["On-Site Event Catering", "Smart Room Technology", "Built-in Projection", "Video Conferencing", "On-Site Technical Staff", "Nutrition Hubs"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Luskin Meeting Room 1",
+    display_name: "Meeting Room 1",
+    type: "Meeting Room",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 30,
+    sqft: 600,
+    features: ["Display Screen", "Video Conference", "Smart Room Technology", "WiFi"],
+    services: ["On-Site Event Catering", "Smart Room Technology", "Video Conferencing", "Complimentary WiFi"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Luskin Meeting Room 2",
+    display_name: "Meeting Room 2",
+    type: "Meeting Room",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 25,
+    sqft: 500,
+    features: ["Display Screen", "Video Conference", "Smart Room Technology", "WiFi"],
+    services: ["On-Site Event Catering", "Smart Room Technology", "Video Conferencing", "Complimentary WiFi"],
+    hourly_rate: 90,
+    half_day_rate: 550,
+    full_day_rate: 900,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Luskin Meeting Room 3",
+    display_name: "Meeting Room 3",
+    type: "Meeting Room",
+    building_id: "bld-05",
+    building_name: "Luskin Conference Center",
+    floor: "Level 2",
+    floor_index: 2,
+    capacity: 20,
+    sqft: 450,
+    features: ["Display Screen", "Video Conference", "Smart Room Technology", "WiFi"],
+    services: ["On-Site Event Catering", "Smart Room Technology", "Video Conferencing", "Complimentary WiFi"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // ASUCLA EVENT SPACES (bld-06) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Ackerman Grand Ballroom",
+    display_name: "Ackerman Grand Ballroom",
+    type: "Ballroom",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 1200,
+    sqft: 12e3,
+    features: ["Audio System", "Projector", "Stage/Platform", "Flexible Seating", "Catering Setup", "Dance Floor", "Lighting Control"],
+    services: ["Full-Service Catering (ASUCLA)", "Audio-Visual Support", "Custom Room Setup & Furniture", "Event Planning & Coordination", "Digital Signage Promotion", "Loading Dock Access", "Cleaning & Custodial Support", "Security Coordination"],
+    hourly_rate: 800,
+    half_day_rate: 5e3,
+    full_day_rate: 8e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Bruin Reception Room",
+    display_name: "Bruin Reception Room",
+    type: "Event Space",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1200,
+    features: ["Audio System", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full-Service Catering (ASUCLA)", "Audio-Visual Support", "Custom Room Setup", "Event Planning & Coordination"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Kerckhoff Grand Salon",
+    display_name: "Charles E. Young Grand Salon",
+    type: "Event Space",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 200,
+    sqft: 3500,
+    features: ["Audio System", "Projector", "Vaulted Ceiling", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Full-Service Catering (ASUCLA)", "Audio-Visual Support", "Custom Room Setup & Furniture", "Event Planning & Coordination", "Digital Signage Promotion"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true,
+    notes: "Historic vaulted-ceiling venue in Kerckhoff Hall."
+  },
+  {
+    name: "Viewpoint Conference Room",
+    display_name: "Viewpoint Conference Room",
+    type: "Conference Room",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 40,
+    sqft: 700,
+    features: ["Display Screen", "Video Conference", "Panoramic Views", "WiFi"],
+    services: ["Audio-Visual Support", "Complimentary WiFi", "Catering Available"],
+    hourly_rate: 120,
+    half_day_rate: 700,
+    full_day_rate: 1200,
+    approval_required: false,
+    catering_available: true,
+    notes: "Top-floor views of campus."
+  },
+  {
+    name: "Kerckhoff State Room A",
+    display_name: "Kerckhoff State Room A",
+    type: "Meeting Room",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 25,
+    sqft: 400,
+    features: ["Display Screen", "Video Conference", "WiFi"],
+    services: ["Audio-Visual Support", "Complimentary WiFi", "Catering Available"],
+    hourly_rate: 75,
+    half_day_rate: 450,
+    full_day_rate: 750,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Bruin Plaza",
+    display_name: "Bruin Plaza",
+    type: "Outdoor Space",
+    building_id: "bld-06",
+    building_name: "ASUCLA Event Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 500,
+    sqft: 8e3,
+    features: ["Portable PA", "Flexible Seating", "Natural Light", "Catering Setup"],
+    services: ["Full-Service Catering (ASUCLA)", "Audio-Visual Support", "Event Planning & Coordination", "Security Coordination"],
+    hourly_rate: 500,
+    half_day_rate: 3e3,
+    full_day_rate: 5e3,
+    approval_required: true,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // ANDERSON SCHOOL OF MANAGEMENT (bld-07) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Korn Convocation Hall",
+    display_name: "Carolbeth and Lester Korn Convocation Hall",
+    type: "Auditorium",
+    building_id: "bld-07",
+    building_name: "Anderson School of Management",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 300,
+    sqft: 5e3,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Lighting Control", "Video Conference"],
+    services: ["Venue Rentals", "Audio-Visual Equipment & Support", "High-Speed WiFi", "Catering Coordination", "Event Planning & Management", "Visitor Parking & Transportation", "Safety & Security Liaison", "Virtual & Hybrid Presentation Support", "Ticketing Services", "Disability & Accessibility Accommodations"],
+    hourly_rate: 500,
+    half_day_rate: 3e3,
+    full_day_rate: 5e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Korn Foyer",
+    display_name: "Carolbeth and Lester Korn Foyer",
+    type: "Event Space",
+    building_id: "bld-07",
+    building_name: "Anderson School of Management",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "WiFi"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning & Management", "High-Speed WiFi"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Executive Dining Room",
+    display_name: "Executive Dining Room",
+    type: "Dining Venue",
+    building_id: "bld-07",
+    building_name: "Anderson School of Management",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 40,
+    sqft: 800,
+    features: ["Audio System", "Catering Setup", "Executive Seating", "WiFi"],
+    services: ["Venue Rentals", "Catering Coordination", "High-Speed WiFi", "Disability & Accessibility Accommodations"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Briskin Family Plaza",
+    display_name: "Judy & Bernard Briskin Family Plaza",
+    type: "Outdoor Space",
+    building_id: "bld-07",
+    building_name: "Anderson School of Management",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 4e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning & Management", "Safety & Security Liaison"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Anderson Large Classroom",
+    display_name: "Anderson Large Classroom",
+    type: "Classroom",
+    building_id: "bld-07",
+    building_name: "Anderson School of Management",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "Audio-Visual Equipment & Support", "High-Speed WiFi", "Virtual & Hybrid Presentation Support"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // FOWLER MUSEUM (bld-08) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Lenart Auditorium",
+    display_name: "Harry and Yvonne Lenart Auditorium",
+    type: "Auditorium",
+    building_id: "bld-08",
+    building_name: "Fowler Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 324,
+    sqft: 4500,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Lighting Control"],
+    services: ["Venue Rentals", "Audio-Visual Equipment", "Campus Guest WiFi", "Catering Coordination", "Event Planning & Management", "Technical Support", "Security & Safety Reviews", "Custodial & Clean-up", "Photography & Rights Reproductions"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Goldenberg Terrace",
+    display_name: "Barbara and Joseph Goldenberg Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-08",
+    building_name: "Fowler Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 250,
+    sqft: 3500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning & Management", "Photography Permitting"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Davis Courtyard",
+    display_name: "Elizabeth and W. Thomas Davis Courtyard",
+    type: "Outdoor Space",
+    building_id: "bld-08",
+    building_name: "Fowler Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning & Management"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Deutsch Seminar Room",
+    display_name: "Eleanor Deutsch Seminar Room",
+    type: "Meeting Room",
+    building_id: "bld-08",
+    building_name: "Fowler Museum",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 30,
+    sqft: 500,
+    features: ["Projector", "Audio System", "Video Conference", "WiFi"],
+    services: ["Venue Rentals", "Audio-Visual Equipment", "Campus Guest WiFi"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "UCLA Art Council Amphitheater",
+    display_name: "UCLA Art Council Amphitheater",
+    type: "Outdoor Space",
+    building_id: "bld-08",
+    building_name: "Fowler Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Stage/Platform", "Tiered Seating", "Natural Light", "Portable PA"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning & Management", "Photography Permitting"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: true,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // ROYCE HALL (bld-09) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Royce Hall Auditorium",
+    display_name: "Royce Hall Main Auditorium",
+    type: "Auditorium",
+    building_id: "bld-09",
+    building_name: "Royce Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 1834,
+    sqft: 2e4,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Green Room", "Dressing Rooms", "Lighting Control"],
+    services: ["Professional Stage Crew & Management", "House Staff & Ushers", "UCLA Central Ticket Office", "Full Lighting & Sound Production", "Event Planning & Logistics", "Catering Coordination", "Filming & Photography Permitting", "Security & Fire Marshal Liaison"],
+    hourly_rate: 1500,
+    half_day_rate: 8e3,
+    full_day_rate: 15e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Humanities Conference Room",
+    display_name: "Humanities Conference Room",
+    type: "Conference Room",
+    building_id: "bld-09",
+    building_name: "Royce Hall",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 120,
+    sqft: 2e3,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Audio-Visual Support", "Catering Coordination", "Kitchenette Access", "Guest WiFi"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Herbert Morris Seminar Room",
+    display_name: "Herbert Morris Seminar Room",
+    type: "Meeting Room",
+    building_id: "bld-09",
+    building_name: "Royce Hall",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 80,
+    sqft: 1200,
+    features: ["Audio System", "Projector", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Audio-Visual Support", "Catering Coordination", "Kitchenette Access", "Guest WiFi"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Royce West Terrace",
+    display_name: "Royce West Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-09",
+    building_name: "Royce Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Catering Coordination", "Event Planning & Logistics", "Security Coordination"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // JAMES WEST ALUMNI CENTER (bld-10) — from Event Spaces
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Collins Alumni Conference Room",
+    display_name: "Collins Alumni Conference Room",
+    type: "Conference Room",
+    building_id: "bld-10",
+    building_name: "James West Alumni Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2753,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "Patio Access", "WiFi"],
+    services: ["Venue Rentals", "Catering Management", "Event Staffing", "Room Setup & Strike", "Integrated Sound Systems", "ADA Accessible", "Guest WiFi"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "Two-tiered interior. Supports up to six sound inputs."
+  },
+  {
+    name: "Tom Davis Founders Room",
+    display_name: "Tom Davis Founders' Room",
+    type: "Event Space",
+    building_id: "bld-10",
+    building_name: "James West Alumni Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1678,
+    features: ["Audio System", "Flexible Seating", "Catering Setup", "Patio Access", "WiFi"],
+    services: ["Venue Rentals", "Catering Management", "Event Staffing", "Room Setup & Strike", "Guest WiFi"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Robert Kerr Galleria",
+    display_name: "Robert Kerr Galleria",
+    type: "Gallery",
+    building_id: "bld-10",
+    building_name: "James West Alumni Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 250,
+    sqft: 4434,
+    features: ["Exhibition Walls", "Flexible Seating", "Catering Setup", "Natural Light", "WiFi"],
+    services: ["Venue Rentals", "Catering Management", "Event Staffing", "Room Setup & Strike", "Guest WiFi", "ADA Accessible"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true,
+    notes: 'Known as the "Alumni Living Room". Available after business hours or weekends only.'
+  },
+  {
+    name: "Alumni Center Northwest Patio",
+    display_name: "Northwest Patio",
+    type: "Outdoor Space",
+    building_id: "bld-10",
+    building_name: "James West Alumni Center",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 5e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Fountain"],
+    services: ["Venue Rentals", "Catering Management", "Event Staffing"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: false,
+    catering_available: true,
+    notes: "1st floor patio with lush trees and fountains. Part of 11,335 sq ft total outdoor space."
+  },
+  {
+    name: "Alumni Center Northeast Patio",
+    display_name: "Northeast Patio",
+    type: "Outdoor Space",
+    building_id: "bld-10",
+    building_name: "James West Alumni Center",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 100,
+    sqft: 3e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Management", "Event Staffing"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "2nd floor patio."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // HAMMER MUSEUM (bld-11)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Billy Wilder Theater",
+    display_name: "Billy Wilder Theater",
+    type: "Theater",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 300,
+    sqft: 4500,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Lighting Control"],
+    services: ["AV Support", "Event Planning & Staffing", "Catering Coordination", "Virtual & Hybrid Support", "Group Tours"],
+    hourly_rate: 600,
+    half_day_rate: 3500,
+    full_day_rate: 6e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Pritzker Family Commons",
+    display_name: "Pritzker Family Commons & South Courtyard",
+    type: "Event Space",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 400,
+    sqft: 6e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "WiFi"],
+    services: ["AV Support", "Catering Coordination", "Event Planning & Staffing", "Building Engineering & Custodial"],
+    hourly_rate: 500,
+    half_day_rate: 3e3,
+    full_day_rate: 5e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Annenberg Terrace",
+    display_name: "Annenberg Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Catering Coordination", "Event Planning & Staffing", "Building Engineering & Custodial"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "McMorrow Terrace",
+    display_name: "McMorrow Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Catering Coordination", "Event Planning & Staffing"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Hammer Executive Board Room",
+    display_name: "Executive Board Room",
+    type: "Boardroom",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 20,
+    sqft: 400,
+    features: ["Large Display", "Video Conference", "Audio System", "WiFi"],
+    services: ["AV Support", "Complimentary WiFi"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "The Lab",
+    display_name: "The Lab",
+    type: "Event Space",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1e3,
+    features: ["Flexible Seating", "Audio System", "Projector", "WiFi"],
+    services: ["AV Support", "Catering Coordination", "Event Planning & Staffing"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true,
+    notes: "Flexible workshop and event space."
+  },
+  {
+    name: "Nimoy Studio",
+    display_name: "Bay Nimoy Studio",
+    type: "Event Space",
+    building_id: "bld-11",
+    building_name: "Hammer Museum",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1200,
+    features: ["Flexible Seating", "Audio System", "Stage/Platform", "Lighting Control", "WiFi"],
+    services: ["AV Support", "Catering Coordination", "Event Planning & Staffing"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // SCHOENBERG MUSIC BUILDING (bld-12)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Schoenberg Hall",
+    display_name: "Schoenberg Hall",
+    type: "Auditorium",
+    building_id: "bld-12",
+    building_name: "Schoenberg Music Building",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 522,
+    sqft: 7e3,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Green Room", "Lighting Control"],
+    services: ["Venue Rentals", "AV Support", "Live-Streaming & Recording", "Catering Coordination", "Event Staffing"],
+    hourly_rate: 800,
+    half_day_rate: 4500,
+    full_day_rate: 7500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Lani Hall",
+    display_name: "Lani Hall Theater",
+    type: "Theater",
+    building_id: "bld-12",
+    building_name: "Schoenberg Music Building",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 133,
+    sqft: 2e3,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Lighting Control"],
+    services: ["Venue Rentals", "AV Support", "Live-Streaming & Recording", "Event Staffing"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: true,
+    catering_available: false,
+    notes: "Recital hall for small groups and lectures."
+  },
+  {
+    name: "Jan Popper Theater",
+    display_name: "Jan Popper Theater",
+    type: "Theater",
+    building_id: "bld-12",
+    building_name: "Schoenberg Music Building",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 140,
+    sqft: 2200,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Lighting Control"],
+    services: ["Venue Rentals", "AV Support", "Event Staffing"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: true,
+    catering_available: false,
+    notes: "Intimate performance venue."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // THEATER, FILM & TELEVISION (bld-13)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Freud Playhouse",
+    display_name: "Freud Playhouse",
+    type: "Theater",
+    building_id: "bld-13",
+    building_name: "Theater, Film & Television",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 562,
+    sqft: 8e3,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Green Room", "Dressing Rooms"],
+    services: ["Venue Rentals", "Production & Technical Support", "Film Permitting", "Ticketing Services", "Catering Coordination"],
+    hourly_rate: 1e3,
+    half_day_rate: 6e3,
+    full_day_rate: 1e4,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "James Bridges Theater",
+    display_name: "James Bridges Theater (Melnitz 1409)",
+    type: "Theater",
+    building_id: "bld-13",
+    building_name: "Theater, Film & Television",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 278,
+    sqft: 4e3,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating", "Projector"],
+    services: ["Venue Rentals", "Production & Technical Support", "Film Permitting", "Ticketing Services", "Catering Coordination"],
+    hourly_rate: 500,
+    half_day_rate: 3e3,
+    full_day_rate: 5e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Little Theater",
+    display_name: "Little Theater",
+    type: "Theater",
+    building_id: "bld-13",
+    building_name: "Theater, Film & Television",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 172,
+    sqft: 2500,
+    features: ["Audio System", "Stage/Platform", "Stage Lighting", "Tiered Seating"],
+    services: ["Venue Rentals", "Production & Technical Support", "AV Orientation"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: false
+  },
+  {
+    name: "Studio Theater 1340",
+    display_name: "Studio Theater 1340",
+    type: "Theater",
+    building_id: "bld-13",
+    building_name: "Theater, Film & Television",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 81,
+    sqft: 1200,
+    features: ["Flexible Seating", "Stage/Platform", "Lighting Control", "Audio System"],
+    services: ["Venue Rentals", "Production & Technical Support"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: false,
+    notes: "Flexible black box theater."
+  },
+  {
+    name: "Darren Star Screening Room",
+    display_name: "Darren Star Screening Room",
+    type: "Theater",
+    building_id: "bld-13",
+    building_name: "Theater, Film & Television",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 60,
+    sqft: 900,
+    features: ["Projector", "Audio System", "Tiered Seating", "Lighting Control"],
+    services: ["Venue Rentals", "AV Support", "Film Permitting"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false,
+    notes: "Screening and workshop space."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // CNSI (bld-14)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "CNSI Auditorium",
+    display_name: "CNSI Auditorium",
+    type: "Auditorium",
+    building_id: "bld-14",
+    building_name: "CNSI",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 260,
+    sqft: 4e3,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Video Conference"],
+    services: ["AV Tech & Support", "Complimentary WiFi", "Event Furniture"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "CNSI Lobby Space",
+    display_name: "CNSI Lobby",
+    type: "Event Space",
+    building_id: "bld-14",
+    building_name: "CNSI",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Flexible Seating", "Natural Light", "WiFi", "Catering Setup"],
+    services: ["AV Tech & Support", "Complimentary WiFi", "Event Furniture"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "CNSI Multipurpose Room",
+    display_name: "CNSI Multipurpose Meeting Space",
+    type: "Conference Room",
+    building_id: "bld-14",
+    building_name: "CNSI",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 60,
+    sqft: 1e3,
+    features: ["Projector", "Video Conference", "Audio System", "Natural Light", "WiFi"],
+    services: ["AV Tech & Support", "Complimentary WiFi"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false,
+    notes: "Overlooks Court of Sciences through floor-to-ceiling windows."
+  },
+  {
+    name: "CNSI Conference Room A",
+    display_name: "CNSI Conference Room A",
+    type: "Conference Room",
+    building_id: "bld-14",
+    building_name: "CNSI",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 20,
+    sqft: 400,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["AV Tech & Support", "Complimentary WiFi"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "CNSI Terrace",
+    display_name: "CNSI Upper Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-14",
+    building_name: "CNSI",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 100,
+    sqft: 2e3,
+    features: ["Flexible Seating", "Natural Light", "Portable PA"],
+    services: ["AV Tech & Support", "Catering Coordination"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // BOTANICAL GARDENS (bld-15)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "La Kretz Garden Pavilion",
+    display_name: "La Kretz Garden Pavilion",
+    type: "Event Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 1500,
+    features: ["Audio System", "Projector", "Flexible Seating", "Natural Light", "WiFi"],
+    services: ["Venue Rentals", "AV Setup", "Catering Coordination", "Photography Permitting", "Educational Workshops"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Herbert Plaza",
+    display_name: "Herbert Plaza",
+    type: "Outdoor Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 120,
+    sqft: 2e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination", "Photography Permitting"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "Add-on space to La Kretz Pavilion."
+  },
+  {
+    name: "Parks Patio",
+    display_name: "Park's Patio",
+    type: "Outdoor Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Jewell Terrace",
+    display_name: "Jewell Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1200,
+    features: ["Flexible Seating", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 120,
+    half_day_rate: 700,
+    full_day_rate: 1200,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Norris Terrace",
+    display_name: "Norris Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1200,
+    features: ["Flexible Seating", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 120,
+    half_day_rate: 700,
+    full_day_rate: 1200,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Garden Amphitheater",
+    display_name: "Outdoor Amphitheater",
+    type: "Outdoor Space",
+    building_id: "bld-15",
+    building_name: "Botanical Gardens",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Stage/Platform", "Tiered Seating", "Natural Light", "Portable PA"],
+    services: ["Venue Rentals", "AV Setup", "Catering Coordination", "Photography Permitting"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: true,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // SAMUELI ENGINEERING (bld-16)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Boelter Hall 6750",
+    display_name: "Boelter Hall 6750",
+    type: "Classroom",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["AV & Tech Support", "WiFi", "Catering Coordination"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Boelter Hall Penthouse",
+    display_name: "Boelter Hall Penthouse",
+    type: "Event Space",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 60,
+    sqft: 1e3,
+    features: ["Flexible Seating", "Audio System", "Natural Light", "WiFi"],
+    services: ["AV & Tech Support", "WiFi", "Catering Coordination"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Engineering VI Room 100",
+    display_name: "Engineering VI Room 100",
+    type: "Auditorium",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating", "Video Conference"],
+    services: ["AV & Tech Support", "WiFi", "Catering Coordination", "Digital Signage Promotion"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Engineering VI Room 300",
+    display_name: "Engineering VI Room 300",
+    type: "Classroom",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 100,
+    sqft: 1800,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["AV & Tech Support", "WiFi"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Mong Learning Center",
+    display_name: "Mong Learning Center (Eng VI 180)",
+    type: "Classroom",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["AV & Tech Support", "WiFi", "Instructional Technology"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Cohen Multipurpose Room",
+    display_name: "Cohen Multipurpose Room (Eng VI 134)",
+    type: "Event Space",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 1800,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["AV & Tech Support", "WiFi", "Catering Coordination", "Room Setup Support"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Engineering IV Patio",
+    display_name: "Engineering IV Patio",
+    type: "Outdoor Space",
+    building_id: "bld-16",
+    building_name: "Samueli Engineering",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Catering Coordination", "Room Setup Support"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // LAW SCHOOL (bld-17)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Law School Lecture Hall",
+    display_name: "Law School Lecture Hall",
+    type: "Auditorium",
+    building_id: "bld-17",
+    building_name: "Law School",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Audio System", "Projector", "Tiered Seating", "Video Conference", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi", "Catering Coordination", "Security & Safety Reviews", "Custodial Services", "Ticketing Services"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Law School Classroom A",
+    display_name: "Law School Classroom A",
+    type: "Classroom",
+    building_id: "bld-17",
+    building_name: "Law School",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Law School Meeting Room",
+    display_name: "Law School Meeting Room",
+    type: "Meeting Room",
+    building_id: "bld-17",
+    building_name: "Law School",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 30,
+    sqft: 500,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Shapiro Courtyard",
+    display_name: "Shapiro Courtyard",
+    type: "Outdoor Space",
+    building_id: "bld-17",
+    building_name: "Law School",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 4e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light", "Portable PA"],
+    services: ["Venue Rentals", "Catering Coordination", "Event Planning Support", "Security Coordination"],
+    hourly_rate: 300,
+    half_day_rate: 1800,
+    full_day_rate: 3e3,
+    approval_required: true,
+    catering_available: true,
+    notes: "Tables, easels, and ice buckets must be reserved through EMS."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // MOORE HALL (bld-18)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Moore Hall Reading Room",
+    display_name: "Moore Hall Reading Room",
+    type: "Event Space",
+    building_id: "bld-18",
+    building_name: "Moore Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Audio System", "Projector", "Flexible Seating", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Instructional Technology Support", "Guest WiFi", "Catering Coordination"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Moore Hall Classroom 100",
+    display_name: "Moore Hall Classroom 100",
+    type: "Classroom",
+    building_id: "bld-18",
+    building_name: "Moore Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1200,
+    features: ["Projector", "Audio System", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Instructional Technology Support", "Guest WiFi"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Moore Hall Courtyard",
+    display_name: "Moore Hall Courtyard",
+    type: "Outdoor Space",
+    building_id: "bld-18",
+    building_name: "Moore Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 2e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 150,
+    half_day_rate: 900,
+    full_day_rate: 1500,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Moore Hall Auditorium",
+    display_name: "Moore Hall Auditorium",
+    type: "Auditorium",
+    building_id: "bld-18",
+    building_name: "Moore Hall",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Audio System", "Projector", "Stage/Platform", "Tiered Seating"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi", "Catering Coordination"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: true,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // LUSKIN SCHOOL OF PUBLIC AFFAIRS (bld-19)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Luskin PA Classroom",
+    display_name: "Luskin Public Affairs Classroom",
+    type: "Classroom",
+    building_id: "bld-19",
+    building_name: "Luskin School of Public Affairs",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1200,
+    features: ["Projector", "Audio System", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi", "Custodial & Setup Services"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "3rd Floor Commons",
+    display_name: "Luskin 3rd Floor Commons",
+    type: "Event Space",
+    building_id: "bld-19",
+    building_name: "Luskin School of Public Affairs",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 100,
+    sqft: 1800,
+    features: ["Flexible Seating", "Audio System", "Projector", "Catering Setup", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Guest WiFi", "Catering Coordination", "Event Planning & Logistics"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Luskin PA Patio",
+    display_name: "Luskin Patio",
+    type: "Outdoor Space",
+    building_id: "bld-19",
+    building_name: "Luskin School of Public Affairs",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 60,
+    sqft: 1e3,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Luskin PA Terrace",
+    display_name: "Luskin Terrace",
+    type: "Outdoor Space",
+    building_id: "bld-19",
+    building_name: "Luskin School of Public Affairs",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 80,
+    sqft: 1500,
+    features: ["Flexible Seating", "Catering Setup", "Natural Light"],
+    services: ["Venue Rentals", "Catering Coordination"],
+    hourly_rate: 120,
+    half_day_rate: 700,
+    full_day_rate: 1200,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // POWELL LIBRARY / YRL (bld-20)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Powell Library Classroom A",
+    display_name: "307A Powell Library (Classroom A)",
+    type: "Classroom",
+    building_id: "bld-20",
+    building_name: "Powell Library",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 800,
+    features: ["Projector", "Whiteboard", "WiFi"],
+    services: ["Guest WiFi", "ADA Accessible Workstations"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false,
+    notes: "External events must have a campus sponsor."
+  },
+  {
+    name: "Powell Library Classroom B",
+    display_name: "320B Powell Library (Classroom B)",
+    type: "Classroom",
+    building_id: "bld-20",
+    building_name: "Powell Library",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 800,
+    features: ["Projector", "Whiteboard", "WiFi"],
+    services: ["Guest WiFi", "ADA Accessible Workstations"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Powell Library Classroom C",
+    display_name: "307C Powell Library (Classroom C)",
+    type: "Classroom",
+    building_id: "bld-20",
+    building_name: "Powell Library",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 800,
+    features: ["Projector", "Whiteboard", "WiFi"],
+    services: ["Guest WiFi", "ADA Accessible Workstations"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Powell InqLab 3",
+    display_name: "330 Powell Library (InqLab 3)",
+    type: "Classroom",
+    building_id: "bld-20",
+    building_name: "Powell Library",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 30,
+    sqft: 600,
+    features: ["Projector", "Whiteboard", "WiFi", "Display Screen"],
+    services: ["Guest WiFi", "ADA Accessible Workstations", "Technology Sandbox"],
+    hourly_rate: 60,
+    half_day_rate: 400,
+    full_day_rate: 650,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "YRL RC Classroom",
+    display_name: "11360F YRL (Research Commons Classroom)",
+    type: "Classroom",
+    building_id: "bld-20",
+    building_name: "Powell Library",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 30,
+    sqft: 600,
+    features: ["Projector", "Display Screen", "WiFi"],
+    services: ["Guest WiFi", "Data Science & GIS Stations", "Equipment Lending"],
+    hourly_rate: 60,
+    half_day_rate: 400,
+    full_day_rate: 650,
+    approval_required: false,
+    catering_available: false,
+    notes: "Located in Young Research Library Research Commons."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // DATAX (bld-21)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "DataX Impact Forum",
+    display_name: "Impact Forum",
+    type: "Event Space",
+    building_id: "bld-21",
+    building_name: "DataX",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 100,
+    sqft: 1800,
+    features: ["Audio System", "Projector", "Flexible Seating", "Live-Streaming", "Video Conference", "WiFi"],
+    services: ["Facility Services", "Live-Streaming & Event Recording", "Video Conferencing", "Custom Room Layouts", "Guest WiFi", "Catering Coordination", "Event Security"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "DataX Conference Room A",
+    display_name: "DataX Conference Room A",
+    type: "Conference Room",
+    building_id: "bld-21",
+    building_name: "DataX",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 20,
+    sqft: 400,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Guest WiFi", "Video Conferencing"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "DataX Collaboration Hub",
+    display_name: "Collaboration Hub",
+    type: "Event Space",
+    building_id: "bld-21",
+    building_name: "DataX",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 800,
+    features: ["Flexible Seating", "Display Screen", "WiFi"],
+    services: ["Guest WiFi", "Custom Room Layouts"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true,
+    notes: "Open workspace configurable for events."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // KAPLAN HALL (bld-22)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Kaplan Hall 193",
+    display_name: "Kaplan Hall 193",
+    type: "Event Space",
+    building_id: "bld-22",
+    building_name: "Kaplan Hall",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 1200,
+    features: ["Display Screen", "Video Conference", "Flexible Seating", "WiFi"],
+    services: ["Furniture (Chairs, Tables, Couches)", "WiFi", "Cleaning Services", "AV Services", "Catering Support"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: true,
+    notes: "Room size is 20' x 60'. Wall-mounted monitor, Zoom appliance, control podium."
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // LAKE ARROWHEAD LODGE (bld-23)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Lake Arrowhead Main Hall",
+    display_name: "Main Conference Hall",
+    type: "Event Space",
+    building_id: "bld-23",
+    building_name: "Lake Arrowhead Lodge",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 3e3,
+    features: ["Audio System", "Projector", "Flexible Seating", "Catering Setup", "WiFi"],
+    services: ["Built-in Sound Systems", "Projectors & Flat Screen TVs", "Video Conferencing", "On-Site Technical Support", "Award-Winning Dining", "Complete Meeting Packages"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Lake Arrowhead Breakout Room A",
+    display_name: "Breakout Room A",
+    type: "Meeting Room",
+    building_id: "bld-23",
+    building_name: "Lake Arrowhead Lodge",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 30,
+    sqft: 500,
+    features: ["Display Screen", "Whiteboard", "WiFi"],
+    services: ["Complimentary WiFi", "On-Site Technical Support", "Refreshment Breaks"],
+    hourly_rate: 80,
+    half_day_rate: 500,
+    full_day_rate: 800,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Lake Arrowhead Breakout Room B",
+    display_name: "Breakout Room B",
+    type: "Meeting Room",
+    building_id: "bld-23",
+    building_name: "Lake Arrowhead Lodge",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 20,
+    sqft: 400,
+    features: ["Display Screen", "Whiteboard", "WiFi"],
+    services: ["Complimentary WiFi", "On-Site Technical Support", "Refreshment Breaks"],
+    hourly_rate: 60,
+    half_day_rate: 400,
+    full_day_rate: 650,
+    approval_required: false,
+    catering_available: true
+  },
+  {
+    name: "Lake Arrowhead Boardroom",
+    display_name: "Executive Boardroom",
+    type: "Boardroom",
+    building_id: "bld-23",
+    building_name: "Lake Arrowhead Lodge",
+    floor: "Level 1",
+    floor_index: 1,
+    capacity: 16,
+    sqft: 350,
+    features: ["Large Display", "Video Conference", "Executive Seating", "WiFi"],
+    services: ["Complimentary WiFi", "Video Conferencing", "On-Site Bar & Lounge"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // UCLA RECREATION (bld-24)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Drake Stadium",
+    display_name: "Drake Stadium",
+    type: "Outdoor Space",
+    building_id: "bld-24",
+    building_name: "UCLA Recreation",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 3500,
+    sqft: 5e4,
+    features: ["Stage/Platform", "Audio System", "Lighting Control", "Natural Light"],
+    services: ["Venue Rentals", "Event Coordination", "Security Coordination", "Catering Coordination"],
+    hourly_rate: 2e3,
+    half_day_rate: 1e4,
+    full_day_rate: 18e3,
+    approval_required: true,
+    catering_available: true,
+    notes: "Outdoor large-scale events venue."
+  },
+  {
+    name: "Los Angeles Tennis Center",
+    display_name: "Los Angeles Tennis Center & Clubhouse",
+    type: "Outdoor Space",
+    building_id: "bld-24",
+    building_name: "UCLA Recreation",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 5e3,
+    sqft: 8e4,
+    features: ["Stage/Platform", "Audio System", "Lighting Control", "Natural Light"],
+    services: ["Venue Rentals", "Event Coordination", "Security Coordination", "Catering Coordination"],
+    hourly_rate: 2500,
+    half_day_rate: 12e3,
+    full_day_rate: 2e4,
+    approval_required: true,
+    catering_available: true,
+    notes: "Used for ceremonies, concerts, and commencements."
+  },
+  {
+    name: "Wooden Center Meeting Rooms",
+    display_name: "John Wooden Center Meeting Rooms",
+    type: "Meeting Room",
+    building_id: "bld-24",
+    building_name: "UCLA Recreation",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 40,
+    sqft: 700,
+    features: ["Display Screen", "Video Conference", "Whiteboard", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment"],
+    hourly_rate: 100,
+    half_day_rate: 600,
+    full_day_rate: 1e3,
+    approval_required: false,
+    catering_available: false
+  },
+  {
+    name: "Sunset Canyon Recreation Center",
+    display_name: "Sunset Canyon Recreation Center",
+    type: "Event Space",
+    building_id: "bld-24",
+    building_name: "UCLA Recreation",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 300,
+    sqft: 5e3,
+    features: ["Audio System", "Flexible Seating", "Catering Setup", "Natural Light", "WiFi"],
+    services: ["Venue Rentals", "Event Coordination", "Catering Coordination"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Student Activities Center",
+    display_name: "Student Activities Center",
+    type: "Event Space",
+    building_id: "bld-24",
+    building_name: "UCLA Recreation",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 2500,
+    features: ["Audio System", "Projector", "Flexible Seating", "WiFi"],
+    services: ["Venue Rentals", "AV Equipment", "Event Coordination"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: true
+  },
+  // ═══════════════════════════════════════════════════════════════════
+  // CAMPUS OUTDOOR SPACES (bld-25)
+  // ═══════════════════════════════════════════════════════════════════
+  {
+    name: "Wilson Plaza",
+    display_name: "Wilson Plaza",
+    type: "Outdoor Space",
+    building_id: "bld-25",
+    building_name: "Campus Outdoor Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 500,
+    sqft: 15e3,
+    features: ["Flexible Seating", "Portable PA", "Natural Light", "Catering Setup"],
+    services: ["Event Coordination", "Security Coordination", "Catering Coordination"],
+    hourly_rate: 500,
+    half_day_rate: 3e3,
+    full_day_rate: 5e3,
+    approval_required: true,
+    catering_available: true,
+    notes: "Suitable for receptions, ceremonies, concerts, and information fairs."
+  },
+  {
+    name: "Court of Sciences",
+    display_name: "Court of Sciences",
+    type: "Outdoor Space",
+    building_id: "bld-25",
+    building_name: "Campus Outdoor Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 300,
+    sqft: 8e3,
+    features: ["Flexible Seating", "Portable PA", "Natural Light", "Catering Setup"],
+    services: ["Event Coordination", "Security Coordination", "Catering Coordination"],
+    hourly_rate: 400,
+    half_day_rate: 2500,
+    full_day_rate: 4e3,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Franklin Murphy Sculpture Garden",
+    display_name: "Franklin Murphy Sculpture Garden",
+    type: "Outdoor Space",
+    building_id: "bld-25",
+    building_name: "Campus Outdoor Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 6e3,
+    features: ["Flexible Seating", "Natural Light", "Catering Setup"],
+    services: ["Event Coordination", "Photography Permitting", "Catering Coordination"],
+    hourly_rate: 350,
+    half_day_rate: 2e3,
+    full_day_rate: 3500,
+    approval_required: true,
+    catering_available: true
+  },
+  {
+    name: "Meyerhoff Park",
+    display_name: "Meyerhoff Park",
+    type: "Outdoor Space",
+    building_id: "bld-25",
+    building_name: "Campus Outdoor Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 200,
+    sqft: 5e3,
+    features: ["Stage/Platform", "Portable PA", "Natural Light"],
+    services: ["Event Coordination", "Security Coordination"],
+    hourly_rate: 250,
+    half_day_rate: 1500,
+    full_day_rate: 2500,
+    approval_required: true,
+    catering_available: false,
+    notes: "Free speech designated area with podium and amplified sound."
+  },
+  {
+    name: "Dickson Courts",
+    display_name: "Dickson Courts North & South",
+    type: "Outdoor Space",
+    building_id: "bld-25",
+    building_name: "Campus Outdoor Spaces",
+    floor: "Ground Floor",
+    floor_index: 0,
+    capacity: 150,
+    sqft: 4e3,
+    features: ["Flexible Seating", "Natural Light"],
+    services: ["Event Coordination"],
+    hourly_rate: 200,
+    half_day_rate: 1200,
+    full_day_rate: 2e3,
+    approval_required: false,
+    catering_available: false
+  }
+];
+var generateSpaceData = () => {
+  return UCLA_ROOMS.map((room, index) => {
+    const floorId = `${room.building_id}_lvl-${floorIndexToLevelCode(room.floor_index)}`;
+    const room_code = `${room.building_id.split("-")[1]}.${room.floor_index}.${String(index + 1).padStart(2, "0")}`;
+    return {
+      id: `space-${index + 1}`,
+      name: `${room_code} ${room.name}`,
+      display_name: room.display_name,
+      map_id: `area-${room_code.toLowerCase().replace(/\./g, "-")}-status`,
+      zones: getZoneHierarchy(room.building_id, floorId),
+      type: room.type,
+      code: room.type,
+      capacity: room.capacity,
+      features: room.features,
+      images: [
+        `https://images.unsplash.com/photo-${15e8 + index * 1e5}?w=800&h=600&fit=crop`
+      ],
+      bookable: true,
+      approval: room.approval_required,
+      level: {
+        id: floorId,
+        parent_id: room.building_id,
+        name: room.floor,
+        display_name: room.floor,
+        capacity: room.capacity,
+        number: room.floor_index.toString(),
+        map_id: `${room.building_id}_${room.floor_index}`,
+        tags: [room.type.toLowerCase().replace(/\s+/g, "-")],
+        settings: {
+          booking_enabled: true,
+          auto_release: room.type === "Meeting Room" || room.type === "Conference Room",
+          max_booking_duration: room.type === "Auditorium" || room.type === "Ballroom" ? 720 : 480
+        },
+        images: [
+          `https://images.unsplash.com/photo-${14e8 + room.floor_index * 2e5}?w=1200&h=800&fit=crop`
+        ],
+        locations: {
+          id: floorId,
+          name: room.floor,
+          building: room.building_name
+        }
+      },
+      building: room.building_name,
+      building_id: room.building_id,
+      floor: room.floor,
+      floor_number: room.floor_index,
+      room_code,
+      sqft: room.sqft,
+      services: room.services,
+      notes: room.notes || "",
+      accessibility: {
+        wheelchair_accessible: true,
+        hearing_loop: ["Auditorium", "Ballroom", "Theater"].includes(room.type),
+        braille_signage: true
+      },
+      equipment: room.features.map((feature) => ({
+        name: feature,
+        status: "Working",
+        last_serviced: new Date(Date.now() - 30 * 24 * 60 * 60 * 1e3).toISOString()
+      })),
+      amenities: {
+        natural_light: room.type === "Outdoor Space" || room.features.includes("Natural Light"),
+        air_conditioning: room.type !== "Outdoor Space",
+        power_outlets: Math.max(room.capacity, 10),
+        wifi: true,
+        catering_available: room.catering_available,
+        parking_nearby: true
+      },
+      booking_rules: {
+        advance_booking_days: room.approval_required ? 90 : 30,
+        min_booking_duration: 60,
+        max_booking_duration: room.type === "Auditorium" || room.type === "Ballroom" ? 720 : 480,
+        buffer_time: room.type === "Event Space" || room.type === "Ballroom" ? 60 : 30,
+        approval_required: room.approval_required
+      },
+      cost_center: room.building_name.toLowerCase().replace(/\s+/g, "-"),
+      hourly_rate: room.hourly_rate,
+      half_day_rate: room.half_day_rate || 0,
+      full_day_rate: room.full_day_rate || 0
+    };
+  });
+};
+var rawSpaces = generateSpaceData();
+var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spreadValues({}, space), {
+  features: space.features || [],
+  images: space.images || [
+    "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop"
+  ]
+})));
+
 // libs/mocks/src/lib/api/common.mock.ts
 var DOMAIN = "place.tech";
 
@@ -198643,2305 +204761,6 @@ var MOCK_GUESTS = VISITOR_PROFILES.map((profile, i) => {
     } : {})
   };
 });
-
-// libs/mocks/src/lib/api/assets.data.ts
-var MOCK_CATEGORIES = [
-  {
-    id: "1",
-    name: "Technology",
-    description: "Electronic devices and computing equipment"
-  },
-  {
-    id: "2",
-    name: "Furniture",
-    description: "Office furniture and workspace equipment"
-  },
-  {
-    id: "3",
-    name: "Audio Visual",
-    description: "Presentation and meeting room equipment"
-  },
-  {
-    id: "4",
-    name: "Office Supplies",
-    description: "Stationery and consumable items"
-  },
-  {
-    id: "5",
-    name: "Kitchen & Catering",
-    description: "Kitchen appliances and catering equipment"
-  },
-  {
-    id: "6",
-    name: "Wellness & Safety",
-    description: "Health, safety, and wellness equipment"
-  },
-  {
-    id: "7",
-    name: "Mobility",
-    description: "Transportation and mobility aids"
-  },
-  {
-    id: "8",
-    name: "Cleaning & Maintenance",
-    description: "Cleaning supplies and maintenance tools"
-  },
-  {
-    id: "_parking_category_",
-    name: "_PARKING_SPACES_",
-    description: "Parking spaces",
-    hidden: true
-  }
-];
-var MOCK_PRODUCTS = [
-  // Technology
-  {
-    id: "1",
-    name: 'iPad Pro 12.9"',
-    category_id: "1",
-    brand: "Apple",
-    barcode: "APL-IPD-PRO-12",
-    model: "MHNK3X/A",
-    description: "Latest generation iPad Pro with M2 chip, perfect for presentations and digital collaboration",
-    specifications: {
-      screen_size: "12.9 inch",
-      storage: "256GB",
-      connectivity: "Wi-Fi + Cellular",
-      color: "Space Gray"
-    }
-  },
-  {
-    id: "2",
-    name: "iPhone 14 Pro",
-    category_id: "1",
-    brand: "Apple",
-    barcode: "APL-IPH-14P",
-    model: "MQ0G3X/A",
-    description: "Professional smartphone for business communications and mobile productivity",
-    specifications: {
-      storage: "128GB",
-      color: "Deep Purple",
-      connectivity: "5G"
-    }
-  },
-  {
-    id: "3",
-    name: 'MacBook Pro 16"',
-    category_id: "1",
-    brand: "Apple",
-    barcode: "APL-MBP-16",
-    model: "MK1E3X/A",
-    description: "High-performance laptop for development and creative work",
-    specifications: {
-      processor: "M2 Pro",
-      memory: "16GB",
-      storage: "512GB SSD",
-      color: "Space Gray"
-    }
-  },
-  {
-    id: "4",
-    name: "Surface Pro 9",
-    category_id: "1",
-    brand: "Microsoft",
-    barcode: "MSF-SP9-256",
-    model: "QEZ-00001",
-    description: "2-in-1 tablet and laptop for versatile productivity",
-    specifications: {
-      processor: "Intel Core i5",
-      memory: "8GB",
-      storage: "256GB SSD"
-    }
-  },
-  {
-    id: "5",
-    name: "Wireless Presenter Remote",
-    category_id: "1",
-    brand: "Logitech",
-    barcode: "LOG-R400",
-    model: "R400",
-    description: "Professional wireless presenter with laser pointer and intuitive controls"
-  },
-  // Furniture
-  {
-    id: "6",
-    name: "Aeron Chair",
-    category_id: "2",
-    brand: "Herman Miller",
-    barcode: "HM-AER-B",
-    model: "AE113AWBPJG1C7",
-    description: "Ergonomic office chair with advanced lumbar support and breathable mesh",
-    specifications: {
-      size: "Size B (Medium)",
-      color: "Graphite",
-      material: "Pellicle mesh",
-      adjustments: "Full feature"
-    }
-  },
-  {
-    id: "7",
-    name: "Standing Desk Converter",
-    category_id: "2",
-    brand: "Varidesk",
-    barcode: "VAR-SD36",
-    model: "Pro Plus 36",
-    description: "Height-adjustable desk converter for ergonomic workspace flexibility",
-    specifications: {
-      width: "36 inches",
-      weight_capacity: "35 lbs",
-      height_range: '11.5" - 15.5"'
-    }
-  },
-  {
-    id: "8",
-    name: "Modular Sofa System",
-    category_id: "2",
-    brand: "Steelcase",
-    barcode: "STC-MSS-3",
-    model: "Gesture Lounge",
-    description: "Flexible seating solution for collaborative spaces and break areas"
-  },
-  {
-    id: "9",
-    name: "Conference Table",
-    category_id: "2",
-    brand: "Knoll",
-    barcode: "KNL-CT-12",
-    model: "Florence 12-Person",
-    description: "Premium conference table with integrated cable management",
-    specifications: {
-      seats: "12 people",
-      material: "Oak veneer",
-      shape: "Rectangular"
-    }
-  },
-  // Audio Visual
-  {
-    id: "10",
-    name: "4K Laser Projector",
-    category_id: "3",
-    brand: "Epson",
-    barcode: "EPS-LS500",
-    model: "EpiqVision Ultra LS500",
-    description: "Ultra-short throw 4K laser projector for meeting rooms and presentations",
-    specifications: {
-      resolution: "4K UHD",
-      brightness: "4000 lumens",
-      technology: "Laser",
-      connectivity: "HDMI, USB-C, Wireless"
-    }
-  },
-  {
-    id: "11",
-    name: "Wireless Microphone System",
-    category_id: "3",
-    brand: "Shure",
-    barcode: "SHR-SM58",
-    model: "SM58-LC",
-    description: "Professional wireless microphone for presentations and events"
-  },
-  {
-    id: "12",
-    name: '86" Interactive Display',
-    category_id: "3",
-    brand: "Microsoft",
-    barcode: "MSF-SH2-86",
-    model: 'Surface Hub 2S 85"',
-    description: "Large format interactive display for collaborative meetings and workshops",
-    specifications: {
-      size: "85 inches",
-      resolution: "4K",
-      touch_points: "20 simultaneous",
-      connectivity: "Multiple inputs"
-    }
-  },
-  {
-    id: "13",
-    name: "Soundbar System",
-    category_id: "3",
-    brand: "Bose",
-    barcode: "BSE-SB700",
-    model: "Smart Soundbar 700",
-    description: "Premium soundbar for meeting room audio enhancement"
-  },
-  // Office Supplies
-  {
-    id: "14",
-    name: "Whiteboard Markers Set",
-    category_id: "4",
-    brand: "Artline",
-    barcode: "ART-WB-12",
-    description: "Set of 12 assorted color whiteboard markers with fine tips"
-  },
-  {
-    id: "15",
-    name: "Premium Notebooks",
-    category_id: "4",
-    brand: "Moleskine",
-    barcode: "MOL-NB-A4",
-    model: "Classic Hard Cover",
-    description: "Professional notebooks for meeting notes and planning"
-  },
-  {
-    id: "16",
-    name: "Wireless Charging Pad",
-    category_id: "4",
-    brand: "Belkin",
-    barcode: "BLK-WCP15",
-    description: "Fast wireless charging pad for meeting room desk integration"
-  },
-  // Kitchen & Catering
-  {
-    id: "17",
-    name: "Coffee Machine",
-    category_id: "5",
-    brand: "Nespresso",
-    barcode: "NSP-VM200",
-    model: "Vertuo Plus",
-    description: "Professional coffee machine for office kitchen and meeting refreshments",
-    specifications: {
-      type: "Capsule system",
-      cup_sizes: "4 sizes",
-      water_tank: "1.1L"
-    }
-  },
-  {
-    id: "18",
-    name: "Mini Refrigerator",
-    category_id: "5",
-    brand: "Haier",
-    barcode: "HAI-MR126",
-    model: "HR-126WL",
-    description: "Compact refrigerator for meeting room refreshments and catering storage"
-  },
-  {
-    id: "19",
-    name: "Water Cooler",
-    category_id: "5",
-    brand: "Zip",
-    barcode: "ZIP-HC160",
-    description: "Filtered water cooler with hot and cold dispensing options"
-  },
-  // Wellness & Safety
-  {
-    id: "20",
-    name: "First Aid Kit",
-    category_id: "6",
-    brand: "St John Ambulance",
-    barcode: "SJA-FAK50",
-    description: "Comprehensive workplace first aid kit for 50 people"
-  },
-  {
-    id: "21",
-    name: "Air Purifier",
-    category_id: "6",
-    brand: "Dyson",
-    barcode: "DYS-AP01",
-    model: "Pure Cool TP01",
-    description: "HEPA air purifier and fan for meeting room air quality"
-  },
-  {
-    id: "22",
-    name: "Ergonomic Footrest",
-    category_id: "6",
-    brand: "Humanscale",
-    barcode: "HUM-FR300",
-    description: "Adjustable footrest for ergonomic workstation setup"
-  },
-  // Mobility
-  {
-    id: "23",
-    name: "Equipment Trolley",
-    category_id: "7",
-    brand: "Rubbermaid",
-    barcode: "RBM-ET3",
-    description: "Mobile trolley for transporting AV equipment and supplies"
-  },
-  {
-    id: "24",
-    name: "Laptop Cart",
-    category_id: "7",
-    brand: "Bretford",
-    barcode: "BRT-LC20",
-    description: "Mobile charging cart for laptops and tablets"
-  },
-  // Cleaning & Maintenance
-  {
-    id: "25",
-    name: "Cleaning Supply Kit",
-    category_id: "8",
-    brand: "Diversey",
-    barcode: "DIV-CSK01",
-    description: "Complete cleaning supply kit for office maintenance"
-  },
-  {
-    id: "26",
-    name: "HEPA Vacuum Cleaner",
-    category_id: "8",
-    brand: "Shark",
-    barcode: "SHK-NV752",
-    description: "Professional grade vacuum cleaner with HEPA filtration"
-  },
-  {
-    id: "_parking_type_",
-    name: "_PARKING_SPACES_",
-    category_id: "_parking_category_",
-    brand: "PlaceOS"
-  }
-];
-var ASSET_CONDITIONS = ["Excellent", "Good", "Fair", "Poor"];
-var ASSET_STATUS = ["Available", "In Use", "Maintenance", "Retired"];
-var MAINTENANCE_TYPES = ["Routine", "Repair", "Calibration", "Inspection"];
-var generateAssetHistory = (assetId) => {
-  const historyCount = predictableRandomInt(5, 1);
-  return Array(historyCount).fill(null).map((_3, i) => ({
-    id: `history-${assetId}-${i}`,
-    asset_id: assetId,
-    action: ["Assigned", "Returned", "Maintained", "Relocated"][predictableRandomInt(4)],
-    user_id: `staff-${predictableRandomInt(20) + 1}`,
-    location: `Floor ${predictableRandomInt(3) + 1}`,
-    timestamp: getUnixTime(subDays(Date.now(), predictableRandomInt(365))),
-    notes: "Asset management action recorded"
-  }));
-};
-var generateMaintenanceSchedule = (assetId) => {
-  if (predictableRandomInt(3) === 0)
-    return null;
-  return {
-    id: `maintenance-${assetId}`,
-    asset_id: assetId,
-    type: MAINTENANCE_TYPES[predictableRandomInt(MAINTENANCE_TYPES.length)],
-    frequency_days: [30, 60, 90, 180, 365][predictableRandomInt(5)],
-    last_service: getUnixTime(subDays(Date.now(), predictableRandomInt(90))),
-    next_service: getUnixTime(new Date(Date.now() + (predictableRandomInt(90) + 30) * 24 * 60 * 60 * 1e3)),
-    service_provider: "Internal IT" + (predictableRandomInt(3) === 0 ? "" : " / External Contractor"),
-    estimated_cost: predictableRandomInt(500, 50)
-  };
-};
-var MOCK_ASSETS = Array(150).fill(null).map((_3, i) => {
-  const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
-  const purchaseDate = subMonths(Date.now(), predictableRandomInt(36, 1));
-  const condition = ASSET_CONDITIONS[predictableRandomInt(ASSET_CONDITIONS.length)];
-  const status = ASSET_STATUS[predictableRandomInt(ASSET_STATUS.length)];
-  const assetId = `asset-${String(i + 1).padStart(4, "0")}`;
-  return {
-    id: assetId,
-    name: `${product.name} - ${assetId}`,
-    asset_type_id: product.id,
-    description: product.description || `${product.brand} ${product.name} for office use`,
-    model_number: product.model || `${product.brand}-${predictableRandomInt(9999)}`,
-    serial_number: `${product.brand?.substring(0, 3).toUpperCase()}${predictableRandomInt(999999999)}`,
-    identifier: `${product.barcode}-${String(i + 1).padStart(3, "0")}`,
-    barcode: product.barcode,
-    brand: product.brand,
-    condition,
-    status,
-    purchase_order_id: `PO-${Math.floor(i / 5) + 1}`,
-    // Group assets by purchase orders
-    purchase_date: getUnixTime(purchaseDate),
-    warranty_expiry: getUnixTime(new Date(purchaseDate.getTime() + predictableRandomInt(36, 12) * 30 * 24 * 60 * 60 * 1e3)),
-    purchase_price: predictableRandomInt(5e3, 100),
-    current_value: Math.max(predictableRandomInt(3e3, 50), 50),
-    // Depreciated value
-    location: {
-      building: `Building ${predictableRandomInt(2) + 1}`,
-      floor: predictableRandomInt(5) + 1,
-      room: `Room ${String(predictableRandomInt(50) + 1).padStart(2, "0")}`,
-      zone: `zone-${predictableRandomInt(3) + 1}`
-    },
-    assigned_to: status === "In Use" ? `staff-${predictableRandomInt(20) + 1}` : null,
-    category_id: product.category_id,
-    specifications: product.specifications || {},
-    other_data: {
-      history: generateAssetHistory(assetId),
-      maintenance_schedule: generateMaintenanceSchedule(assetId),
-      insurance_value: predictableRandomInt(6e3, 200),
-      depreciation_rate: predictableRandomInt(20, 5),
-      // 5-25% per year
-      energy_rating: product.category_id === "1" || product.category_id === "5" ? ["A+++", "A++", "A+", "A", "B"][predictableRandomInt(5)] : null,
-      dimensions: {
-        width: predictableRandomInt(100, 10),
-        height: predictableRandomInt(100, 5),
-        depth: predictableRandomInt(80, 10),
-        weight: predictableRandomInt(50, 1)
-      },
-      tags: [
-        product.brand?.toLowerCase(),
-        MOCK_CATEGORIES.find((c2) => c2.id === product.category_id)?.name.toLowerCase(),
-        condition.toLowerCase(),
-        ...status === "In Use" ? ["assigned"] : [],
-        ...product.category_id === "1" ? ["tech"] : []
-      ].filter(Boolean)
-    }
-  };
-});
-var MOCK_PURCHASE_ORDERS = Array(30).fill(null).map((_3, i) => {
-  const orderDate = subMonths(Date.now(), predictableRandomInt(36, 1));
-  const deliveryDate = new Date(orderDate.getTime() + predictableRandomInt(30) * 24 * 60 * 60 * 1e3);
-  return {
-    id: `PO-${i + 1}`,
-    purchase_order_number: `PO-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(i + 1).padStart(4, "0")}`,
-    invoice_number: `INV-${String(predictableRandomInt(99999) + 1e4)}`,
-    vendor: [
-      "Office Supplies Co",
-      "Tech Solutions Ltd",
-      "Furniture Plus",
-      "AV Equipment Pro"
-    ][predictableRandomInt(4)],
-    department: ["IT", "Facilities", "HR", "Finance"][predictableRandomInt(4)],
-    purchase_date: getUnixTime(orderDate),
-    delivery_date: getUnixTime(deliveryDate),
-    expected_service_start_date: getUnixTime(deliveryDate),
-    expected_service_end_date: getUnixTime(new Date(deliveryDate.getTime() + 3 * 365 * 24 * 60 * 60 * 1e3)),
-    // 3 years
-    total_amount: predictableRandomInt(5e4, 1e3),
-    currency: "AUD",
-    status: ["Pending", "Approved", "Delivered", "Complete"][predictableRandomInt(4)],
-    approver_id: `staff-${predictableRandomInt(5) + 1}`,
-    notes: i % 3 === 0 ? "Bulk order for office renovation" : i % 3 === 1 ? "Emergency replacement" : "Routine procurement",
-    payment_terms: [
-      "Net 30",
-      "Net 60",
-      "Payment on Delivery",
-      "Net 15"
-    ][predictableRandomInt(4)]
-  };
-});
-var MOCK_PARKING_ASSETS_CACHE = {};
-function generateMockParkingAssets(zone_id) {
-  if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
-    const parts = zone_id.split("-");
-    const id = parts[parts.length - 1];
-    MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6).fill(0).map((_3, idx) => {
-      const position = padString(idx % 18 + Math.floor(idx / 18) * 100, 3);
-      const assignee = predictableRandomInt(9999) % 4 === 0 ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)] : {};
-      return {
-        id: `park-${id}-${position}`,
-        map_id: `park-${position}`,
-        name: `${position}`,
-        bookable: predictableRandomInt(9999) % 4 !== 0,
-        assigned_to: assignee.email || "",
-        assigned_name: assignee.name || "",
-        asset_type_id: "_parking_type_",
-        zone_id,
-        notes: "",
-        place_groups: [],
-        features: [],
-        images: []
-      };
-    });
-  }
-  return MOCK_PARKING_ASSETS_CACHE[zone_id];
-}
-function getAllMockParkingAssets() {
-  return Object.values(MOCK_PARKING_ASSETS_CACHE).flat();
-}
-
-// libs/mocks/src/lib/api/assets.mock.ts
-var BASE_PATH = "/api/engine/v2";
-var update = (dataset) => (id, data) => {
-  const index = dataset.findIndex((e2) => e2.id === id);
-  if (index < 0)
-    throw {
-      status: 404,
-      message: `Unable to find booking with ID ${id}`
-    };
-  const new_event = __spreadValues({}, data);
-  dataset.splice(index, 1, new_event);
-  return new_event;
-};
-function registerMockAssets() {
-  Ko({
-    path: `${BASE_PATH}/asset_categories`,
-    metadata: {},
-    method: "GET",
-    callback: (req) => {
-      let results = MOCK_CATEGORIES;
-      if (req.query_params?.hidden !== void 0) {
-        const hidden = String(req.query_params.hidden) === "true";
-        results = results.filter((c2) => !!c2.hidden === hidden);
-      }
-      return results;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_categories/:id`,
-    metadata: {},
-    method: "GET",
-    callback: (_3) => {
-      const event = MOCK_CATEGORIES.find((e2) => e2.id === _3.route_params.id);
-      if (!event)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${_3.route_params.id}`
-        };
-      return event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_categories`,
-    metadata: {},
-    method: "POST",
-    callback: (request) => {
-      const new_event = __spreadProps(__spreadValues({}, request.body), {
-        id: `-category-${predictableRandomInt(999)}`
-      });
-      MOCK_CATEGORIES.push(new_event);
-      return new_event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_categories/:id`,
-    metadata: {},
-    method: "PUT",
-    callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_categories/:id`,
-    metadata: {},
-    method: "DELETE",
-    callback: (req) => {
-      const index = MOCK_CATEGORIES.findIndex((e2) => e2.id === req.route_params.id);
-      if (index < 0)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${req.route_params.id}`
-        };
-      MOCK_CATEGORIES.splice(index, 1);
-      return;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_types`,
-    metadata: {},
-    method: "GET",
-    callback: (req) => {
-      let results = MOCK_PRODUCTS;
-      if (req.query_params?.category_id) {
-        results = results.filter((p) => p.category_id === req.query_params.category_id);
-      }
-      return results;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_types/:id`,
-    metadata: {},
-    method: "GET",
-    callback: (_3) => {
-      const event = MOCK_PRODUCTS.find((e2) => e2.id === _3.route_params.id);
-      if (!event)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${_3.route_params.id}`
-        };
-      return event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_types`,
-    metadata: {},
-    method: "POST",
-    callback: (request) => {
-      const new_event = __spreadProps(__spreadValues({}, request.body), {
-        id: `-product-${predictableRandomInt(999)}`
-      });
-      MOCK_PRODUCTS.push(new_event);
-      return new_event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_types/:id`,
-    metadata: {},
-    method: "PUT",
-    callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_types/:id`,
-    metadata: {},
-    method: "DELETE",
-    callback: (req) => {
-      const index = MOCK_PRODUCTS.findIndex((e2) => e2.id === req.route_params.id);
-      if (index < 0)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${req.route_params.id}`
-        };
-      MOCK_PRODUCTS.splice(index, 1);
-      return;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_purchase_orders`,
-    metadata: {},
-    method: "GET",
-    callback: (_3) => {
-      const events2 = MOCK_PURCHASE_ORDERS;
-      return events2;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_purchase_orders/:id`,
-    metadata: {},
-    method: "GET",
-    callback: (_3) => {
-      const event = MOCK_PURCHASE_ORDERS.find((e2) => e2.id === _3.route_params.id);
-      if (!event)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${_3.route_params.id}`
-        };
-      return event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_purchase_orders`,
-    metadata: {},
-    method: "POST",
-    callback: (request) => {
-      const new_event = __spreadProps(__spreadValues({}, request.body), {
-        id: `-purchase-order-${predictableRandomInt(999)}`
-      });
-      MOCK_PURCHASE_ORDERS.push(new_event);
-      return new_event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_purchase_orders/:id`,
-    metadata: {},
-    method: "PUT",
-    callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
-  });
-  Ko({
-    path: `${BASE_PATH}/asset_purchase_orders/:id`,
-    metadata: {},
-    method: "DELETE",
-    callback: (req) => {
-      const index = MOCK_PURCHASE_ORDERS.findIndex((e2) => e2.id === req.route_params.id);
-      if (index < 0)
-        throw {
-          status: 404,
-          message: `Unable to find purchase order with ID ${req.route_params.id}`
-        };
-      MOCK_PURCHASE_ORDERS.splice(index, 1);
-      return;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/assets`,
-    metadata: {},
-    method: "GET",
-    callback: (req) => {
-      const type_id = req.query_params?.type_id;
-      const zone_id = req.query_params?.zone_id;
-      if (type_id === "_parking_type_" && zone_id) {
-        return generateMockParkingAssets(zone_id);
-      }
-      let results = [...MOCK_ASSETS, ...getAllMockParkingAssets()];
-      if (type_id) {
-        results = results.filter((a) => a.asset_type_id === type_id);
-      }
-      if (zone_id) {
-        results = results.filter((a) => a.zone_id === zone_id);
-      }
-      return results;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/assets/:id`,
-    metadata: {},
-    method: "GET",
-    callback: (_3) => {
-      const event = MOCK_ASSETS.find((e2) => e2.id === _3.route_params.id);
-      if (!event)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${_3.route_params.id}`
-        };
-      return event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/assets`,
-    metadata: {},
-    method: "POST",
-    callback: (request) => {
-      const new_event = __spreadProps(__spreadValues({}, request.body), {
-        id: `-asset-${predictableRandomInt(999)}`
-      });
-      MOCK_ASSETS.push(new_event);
-      return new_event;
-    }
-  });
-  Ko({
-    path: `${BASE_PATH}/assets/:id`,
-    metadata: {},
-    method: "PUT",
-    callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
-  });
-  Ko({
-    path: `${BASE_PATH}/assets/:id`,
-    metadata: {},
-    method: "DELETE",
-    callback: (req) => {
-      const index = MOCK_ASSETS.findIndex((e2) => e2.id === req.route_params.id);
-      if (index < 0)
-        throw {
-          status: 404,
-          message: `Unable to find booking with ID ${req.route_params.id}`
-        };
-      MOCK_ASSETS.splice(index, 1);
-      return;
-    }
-  });
-}
-
-// libs/mocks/src/lib/api/catering.data.ts
-var DIETARY_RESTRICTIONS = [
-  { id: "vegetarian", name: "Vegetarian", icon: "\u{1F331}" },
-  { id: "vegan", name: "Vegan", icon: "\u{1F33F}" },
-  { id: "gluten-free", name: "Gluten Free", icon: "\u{1F33E}" },
-  { id: "dairy-free", name: "Dairy Free", icon: "\u{1F95B}" },
-  { id: "nut-free", name: "Nut Free", icon: "\u{1F95C}" },
-  { id: "halal", name: "Halal", icon: "\u262A\uFE0F" },
-  { id: "kosher", name: "Kosher", icon: "\u2721\uFE0F" },
-  { id: "low-carb", name: "Low Carb", icon: "\u{1F957}" },
-  { id: "keto", name: "Ketogenic", icon: "\u{1F951}" },
-  { id: "paleo", name: "Paleo", icon: "\u{1F969}" }
-];
-var MOCK_MENU = [
-  // Beverages
-  {
-    id: "bev-001",
-    name: "Barista Coffee Selection",
-    unit_price: 450,
-    category: "beverages",
-    description: "Freshly brewed barista-quality coffee with premium beans",
-    dietary: ["vegetarian"],
-    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=300",
-    options: [
-      { id: "opt-001", name: "Espresso", group: "type" },
-      { id: "opt-002", name: "Cappuccino", group: "type" },
-      { id: "opt-003", name: "Flat White", group: "type" },
-      { id: "opt-004", name: "Latte", group: "type" },
-      { id: "opt-005", name: "Long Black", group: "type" },
-      { id: "opt-006", name: "Mocha", group: "type" },
-      { id: "opt-007", name: "Regular", group: "size" },
-      { id: "opt-008", name: "Large", group: "size", unit_price: 50 },
-      { id: "opt-009", name: "Oat Milk", group: "milk", unit_price: 60 },
-      {
-        id: "opt-010",
-        name: "Almond Milk",
-        group: "milk",
-        unit_price: 60
-      },
-      { id: "opt-011", name: "Soy Milk", group: "milk", unit_price: 50 },
-      {
-        id: "opt-012",
-        name: "Extra Shot",
-        group: "extras",
-        unit_price: 70
-      },
-      { id: "opt-013", name: "Decaf", group: "extras" }
-    ]
-  },
-  {
-    id: "bev-002",
-    name: "Premium Tea Selection",
-    unit_price: 350,
-    category: "beverages",
-    description: "Selection of premium loose leaf teas",
-    dietary: ["vegetarian", "vegan", "gluten-free", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=300",
-    options: [
-      { id: "opt-014", name: "Earl Grey", group: "type" },
-      { id: "opt-015", name: "English Breakfast", group: "type" },
-      { id: "opt-016", name: "Green Tea", group: "type" },
-      { id: "opt-017", name: "Chamomile", group: "type" },
-      { id: "opt-018", name: "Peppermint", group: "type" },
-      { id: "opt-019", name: "Jasmine", group: "type" },
-      {
-        id: "opt-020",
-        name: "Honey",
-        group: "additions",
-        unit_price: 30
-      },
-      {
-        id: "opt-021",
-        name: "Lemon",
-        group: "additions",
-        unit_price: 20
-      }
-    ]
-  },
-  {
-    id: "bev-003",
-    name: "Fresh Juice Bar",
-    unit_price: 550,
-    category: "beverages",
-    description: "Cold-pressed fresh juices and smoothies",
-    dietary: ["vegetarian", "vegan", "gluten-free", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?w=300",
-    options: [
-      { id: "opt-022", name: "Orange", group: "juice" },
-      { id: "opt-023", name: "Apple", group: "juice" },
-      { id: "opt-024", name: "Green Machine", group: "juice" },
-      { id: "opt-025", name: "Berry Blast", group: "smoothie" },
-      { id: "opt-026", name: "Tropical Paradise", group: "smoothie" },
-      {
-        id: "opt-027",
-        name: "Protein Boost",
-        group: "smoothie",
-        unit_price: 100
-      }
-    ]
-  },
-  {
-    id: "bev-004",
-    name: "Sparkling Water Station",
-    unit_price: 250,
-    category: "beverages",
-    description: "Premium sparkling and still water with fruit infusions",
-    dietary: ["vegetarian", "vegan", "gluten-free", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=300",
-    options: [
-      { id: "opt-028", name: "Still Water", group: "type" },
-      { id: "opt-029", name: "Sparkling Water", group: "type" },
-      { id: "opt-030", name: "Cucumber Mint", group: "infusion" },
-      { id: "opt-031", name: "Lemon Lime", group: "infusion" },
-      { id: "opt-032", name: "Berry Mix", group: "infusion" }
-    ]
-  },
-  // Breakfast
-  {
-    id: "brf-001",
-    name: "Artisan Pastry Selection",
-    unit_price: 650,
-    category: "breakfast",
-    description: "Fresh baked croissants, danish, and muffins",
-    dietary: ["vegetarian"],
-    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300",
-    options: [
-      { id: "opt-033", name: "Butter Croissant", group: "pastry" },
-      {
-        id: "opt-034",
-        name: "Almond Croissant",
-        group: "pastry",
-        unit_price: 100
-      },
-      { id: "opt-035", name: "Pain au Chocolat", group: "pastry" },
-      { id: "opt-036", name: "Blueberry Muffin", group: "muffin" },
-      { id: "opt-037", name: "Banana Walnut Muffin", group: "muffin" },
-      { id: "opt-038", name: "Double Choc Chip Muffin", group: "muffin" }
-    ]
-  },
-  {
-    id: "brf-002",
-    name: "Breakfast Bowl Bar",
-    unit_price: 1250,
-    category: "breakfast",
-    description: "Build-your-own breakfast bowls with fresh toppings",
-    dietary: ["vegetarian", "gluten-free"],
-    image: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=300",
-    options: [
-      { id: "opt-039", name: "Greek Yogurt", group: "base" },
-      { id: "opt-040", name: "Overnight Oats", group: "base" },
-      {
-        id: "opt-041",
-        name: "Acai Bowl",
-        group: "base",
-        unit_price: 200
-      },
-      { id: "opt-042", name: "Fresh Berries", group: "toppings" },
-      { id: "opt-043", name: "Granola", group: "toppings" },
-      { id: "opt-044", name: "Honey", group: "toppings" },
-      { id: "opt-045", name: "Chia Seeds", group: "toppings" },
-      { id: "opt-046", name: "Coconut Flakes", group: "toppings" }
-    ]
-  },
-  {
-    id: "brf-003",
-    name: "Executive Breakfast Platter",
-    unit_price: 1850,
-    category: "breakfast",
-    description: "Premium breakfast selection with eggs, bacon, and sides",
-    dietary: [],
-    image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=300",
-    options: [
-      { id: "opt-047", name: "Scrambled Eggs", group: "eggs" },
-      { id: "opt-048", name: "Poached Eggs", group: "eggs" },
-      {
-        id: "opt-049",
-        name: "Eggs Benedict",
-        group: "eggs",
-        unit_price: 300
-      },
-      { id: "opt-050", name: "Crispy Bacon", group: "protein" },
-      { id: "opt-051", name: "Sausages", group: "protein" },
-      {
-        id: "opt-052",
-        name: "Smoked Salmon",
-        group: "protein",
-        unit_price: 400
-      },
-      { id: "opt-053", name: "Hash Browns", group: "sides" },
-      { id: "opt-054", name: "Grilled Tomato", group: "sides" }
-    ]
-  },
-  // Salads
-  {
-    id: "sal-001",
-    name: "Mediterranean Power Bowl",
-    unit_price: 1450,
-    category: "salads",
-    description: "Fresh Mediterranean ingredients with quinoa and feta",
-    dietary: ["vegetarian", "gluten-free"],
-    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300",
-    options: [
-      {
-        id: "opt-055",
-        name: "Grilled Chicken",
-        group: "protein",
-        unit_price: 300
-      },
-      {
-        id: "opt-056",
-        name: "Falafel",
-        group: "protein",
-        unit_price: 200
-      },
-      {
-        id: "opt-057",
-        name: "Extra Feta",
-        group: "extras",
-        unit_price: 150
-      },
-      {
-        id: "opt-058",
-        name: "Avocado",
-        group: "extras",
-        unit_price: 200
-      }
-    ]
-  },
-  {
-    id: "sal-002",
-    name: "Asian Fusion Salad",
-    unit_price: 1350,
-    category: "salads",
-    description: "Crisp vegetables with sesame dressing and edamame",
-    dietary: ["vegetarian", "vegan", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300",
-    options: [
-      {
-        id: "opt-059",
-        name: "Teriyaki Chicken",
-        group: "protein",
-        unit_price: 300
-      },
-      { id: "opt-060", name: "Tofu", group: "protein", unit_price: 150 },
-      { id: "opt-061", name: "Crispy Noodles", group: "toppings" },
-      { id: "opt-062", name: "Sesame Seeds", group: "toppings" }
-    ]
-  },
-  // Sandwiches & Wraps
-  {
-    id: "snd-001",
-    name: "Gourmet Sandwich Selection",
-    unit_price: 1250,
-    category: "sandwiches",
-    description: "Premium sandwiches on artisan breads",
-    dietary: [],
-    image: "https://images.unsplash.com/photo-1553909489-cd47e0ef937f?w=300",
-    options: [
-      { id: "opt-063", name: "Turkey & Avocado", group: "filling" },
-      { id: "opt-064", name: "Ham & Swiss", group: "filling" },
-      {
-        id: "opt-065",
-        name: "Roast Beef & Horseradish",
-        group: "filling"
-      },
-      { id: "opt-066", name: "Caprese", group: "filling" },
-      { id: "opt-067", name: "Sourdough", group: "bread" },
-      { id: "opt-068", name: "Multigrain", group: "bread" },
-      { id: "opt-069", name: "Ciabatta", group: "bread" }
-    ]
-  },
-  {
-    id: "snd-002",
-    name: "Fresh Wrap Station",
-    unit_price: 1150,
-    category: "sandwiches",
-    description: "Build-your-own wraps with fresh ingredients",
-    dietary: ["vegetarian"],
-    image: "https://images.unsplash.com/photo-1565299585323-38174d4d6174?w=300",
-    options: [
-      { id: "opt-070", name: "Grilled Chicken", group: "protein" },
-      { id: "opt-071", name: "Tuna Salad", group: "protein" },
-      { id: "opt-072", name: "Hummus & Veggie", group: "protein" },
-      { id: "opt-073", name: "Spinach Tortilla", group: "wrap" },
-      { id: "opt-074", name: "Whole Wheat", group: "wrap" },
-      { id: "opt-075", name: "Sun-dried Tomato", group: "wrap" }
-    ]
-  },
-  // Hot Meals
-  {
-    id: "hot-001",
-    name: "Pasta Bar",
-    unit_price: 1650,
-    category: "hot-meals",
-    description: "Fresh pasta with choice of sauces and toppings",
-    dietary: ["vegetarian"],
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=300",
-    options: [
-      { id: "opt-076", name: "Penne", group: "pasta" },
-      { id: "opt-077", name: "Fettuccine", group: "pasta" },
-      { id: "opt-078", name: "Spaghetti", group: "pasta" },
-      { id: "opt-079", name: "Marinara", group: "sauce" },
-      { id: "opt-080", name: "Alfredo", group: "sauce" },
-      { id: "opt-081", name: "Pesto", group: "sauce" },
-      {
-        id: "opt-082",
-        name: "Grilled Chicken",
-        group: "protein",
-        unit_price: 300
-      },
-      {
-        id: "opt-083",
-        name: "Italian Sausage",
-        group: "protein",
-        unit_price: 350
-      }
-    ]
-  },
-  {
-    id: "hot-002",
-    name: "Asian Noodle Station",
-    unit_price: 1550,
-    category: "hot-meals",
-    description: "Wok-fried noodles with fresh vegetables",
-    dietary: ["dairy-free"],
-    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300",
-    options: [
-      { id: "opt-084", name: "Pad Thai", group: "dish" },
-      { id: "opt-085", name: "Singapore Noodles", group: "dish" },
-      { id: "opt-086", name: "Beef Black Bean", group: "dish" },
-      { id: "opt-087", name: "Vegetable Stir Fry", group: "dish" },
-      {
-        id: "opt-088",
-        name: "Extra Prawns",
-        group: "protein",
-        unit_price: 400
-      },
-      { id: "opt-089", name: "Tofu", group: "protein", unit_price: 150 }
-    ]
-  },
-  // Appetizers
-  {
-    id: "app-001",
-    name: "Charcuterie & Cheese Board",
-    unit_price: 2200,
-    category: "appetizers",
-    description: "Curated selection of meats, cheeses, and accompaniments",
-    dietary: [],
-    image: "https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300",
-    options: [
-      { id: "opt-090", name: "Small (6-8 people)", group: "size" },
-      {
-        id: "opt-091",
-        name: "Medium (10-12 people)",
-        group: "size",
-        unit_price: 800
-      },
-      {
-        id: "opt-092",
-        name: "Large (15-20 people)",
-        group: "size",
-        unit_price: 1600
-      },
-      {
-        id: "opt-093",
-        name: "Premium Selection",
-        group: "upgrade",
-        unit_price: 500
-      }
-    ]
-  },
-  {
-    id: "app-002",
-    name: "Fresh Spring Rolls",
-    unit_price: 950,
-    category: "appetizers",
-    description: "Vietnamese-style fresh rolls with dipping sauce",
-    dietary: ["dairy-free", "nut-free"],
-    image: "https://images.unsplash.com/photo-1539136788836-5699e78bfc75?w=300",
-    options: [
-      { id: "opt-094", name: "Prawn & Avocado", group: "filling" },
-      { id: "opt-095", name: "Chicken & Herbs", group: "filling" },
-      { id: "opt-096", name: "Tofu & Vegetables", group: "filling" },
-      { id: "opt-097", name: "Peanut Sauce", group: "sauce" },
-      { id: "opt-098", name: "Sweet Chili", group: "sauce" }
-    ]
-  },
-  // Desserts
-  {
-    id: "des-001",
-    name: "Artisan Dessert Platter",
-    unit_price: 1450,
-    category: "desserts",
-    description: "Selection of petit fours, macarons, and mini tarts",
-    dietary: ["vegetarian"],
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300",
-    options: [
-      { id: "opt-099", name: "Mixed Selection", group: "type" },
-      { id: "opt-100", name: "Chocolate Focus", group: "type" },
-      { id: "opt-101", name: "Fruit Focus", group: "type" },
-      {
-        id: "opt-102",
-        name: "Gluten-Free Options",
-        group: "dietary",
-        unit_price: 200
-      }
-    ]
-  },
-  {
-    id: "des-002",
-    name: "Fresh Fruit Display",
-    unit_price: 850,
-    category: "desserts",
-    description: "Seasonal fresh fruit beautifully presented",
-    dietary: ["vegetarian", "vegan", "gluten-free", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=300",
-    options: [
-      { id: "opt-103", name: "Regular Display", group: "size" },
-      {
-        id: "opt-104",
-        name: "Premium Exotic Fruits",
-        group: "upgrade",
-        unit_price: 300
-      },
-      {
-        id: "opt-105",
-        name: "Chocolate Dip",
-        group: "extras",
-        unit_price: 200
-      }
-    ]
-  },
-  // Platters
-  {
-    id: "plt-001",
-    name: "Executive Lunch Platter",
-    unit_price: 2850,
-    category: "platters",
-    description: "Complete lunch solution for meetings and events",
-    dietary: [],
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300",
-    options: [
-      { id: "opt-106", name: "Serves 8-10", group: "size" },
-      {
-        id: "opt-107",
-        name: "Serves 12-15",
-        group: "size",
-        unit_price: 1e3
-      },
-      {
-        id: "opt-108",
-        name: "Serves 18-20",
-        group: "size",
-        unit_price: 2e3
-      },
-      { id: "opt-109", name: "Vegetarian Option", group: "dietary" },
-      {
-        id: "opt-110",
-        name: "Gluten-Free Option",
-        group: "dietary",
-        unit_price: 200
-      }
-    ]
-  },
-  // Snacks
-  {
-    id: "snk-001",
-    name: "Healthy Snack Mix",
-    unit_price: 650,
-    category: "snacks",
-    description: "Mix of nuts, dried fruits, and seeds",
-    dietary: ["vegetarian", "vegan", "gluten-free", "dairy-free"],
-    image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=300",
-    options: [
-      { id: "opt-111", name: "Regular Mix", group: "type" },
-      { id: "opt-112", name: "Tropical Mix", group: "type" },
-      {
-        id: "opt-113",
-        name: "Protein Mix",
-        group: "type",
-        unit_price: 100
-      }
-    ]
-  }
-];
-var CATERING_PACKAGES = [
-  {
-    id: "pkg-001",
-    name: "Morning Meeting Package",
-    description: "Perfect for early morning meetings and briefings",
-    price: 2200,
-    serves: "8-12 people",
-    duration: "2-3 hours",
-    items: ["bev-001", "bev-002", "brf-001", "snk-001"],
-    dietary_options: ["vegetarian", "gluten-free"]
-  },
-  {
-    id: "pkg-002",
-    name: "Executive Lunch Package",
-    description: "Premium lunch solution for important meetings",
-    price: 4500,
-    serves: "8-12 people",
-    duration: "2-4 hours",
-    items: ["bev-001", "sal-001", "snd-001", "app-001", "des-001"],
-    dietary_options: ["vegetarian", "gluten-free"]
-  },
-  {
-    id: "pkg-003",
-    name: "All-Day Conference Package",
-    description: "Complete catering for full-day events",
-    price: 7500,
-    serves: "15-20 people",
-    duration: "8 hours",
-    items: [
-      "bev-001",
-      "bev-002",
-      "brf-002",
-      "sal-002",
-      "hot-001",
-      "app-002",
-      "des-002"
-    ],
-    dietary_options: ["vegetarian", "vegan", "gluten-free", "dairy-free"]
-  },
-  {
-    id: "pkg-004",
-    name: "Networking Reception Package",
-    description: "Elegant finger foods and drinks for networking events",
-    price: 3800,
-    serves: "20-30 people",
-    duration: "3-4 hours",
-    items: ["bev-003", "app-001", "app-002", "des-001"],
-    dietary_options: ["vegetarian", "dairy-free"]
-  },
-  {
-    id: "pkg-005",
-    name: "Training Workshop Package",
-    description: "Energizing meals for learning sessions",
-    price: 3200,
-    serves: "12-16 people",
-    duration: "6 hours",
-    items: ["bev-001", "brf-002", "snd-002", "snk-001"],
-    dietary_options: ["vegetarian", "vegan", "gluten-free"]
-  }
-];
-var SERVICE_TYPES = [
-  {
-    id: "buffet",
-    name: "Buffet Service",
-    description: "Self-service buffet setup",
-    setup_time: 30,
-    breakdown_time: 30,
-    staff_required: 1,
-    price_modifier: 1
-  },
-  {
-    id: "plated",
-    name: "Plated Service",
-    description: "Individual plated meals served to guests",
-    setup_time: 45,
-    breakdown_time: 45,
-    staff_required: 2,
-    price_modifier: 1.3
-  },
-  {
-    id: "station",
-    name: "Food Stations",
-    description: "Multiple themed food stations",
-    setup_time: 60,
-    breakdown_time: 45,
-    staff_required: 2,
-    price_modifier: 1.2
-  },
-  {
-    id: "cocktail",
-    name: "Cocktail Style",
-    description: "Pass-around finger foods and canap\xE9s",
-    setup_time: 30,
-    breakdown_time: 30,
-    staff_required: 3,
-    price_modifier: 1.4
-  }
-];
-var SUPPLIERS = [
-  {
-    id: "sup-001",
-    name: "Gourmet Events Catering",
-    rating: 4.8,
-    specialty: "Corporate Events",
-    location: "Sydney",
-    min_order: 1e3,
-    delivery_fee: 150,
-    setup_fee: 200
-  },
-  {
-    id: "sup-002",
-    name: "Fresh & Local Kitchen",
-    rating: 4.6,
-    specialty: "Healthy Options",
-    location: "Melbourne",
-    min_order: 800,
-    delivery_fee: 120,
-    setup_fee: 150
-  },
-  {
-    id: "sup-003",
-    name: "Premium Dining Solutions",
-    rating: 4.9,
-    specialty: "Executive Catering",
-    location: "Brisbane",
-    min_order: 1500,
-    delivery_fee: 200,
-    setup_fee: 300
-  }
-];
-function generateCateringOrder(event) {
-  const duration = Math.abs(differenceInMinutes(event.event_end * 1e3, event.event_start * 1e3));
-  const attendeeCount = event.attendees?.length || predictableRandomInt(15, 5);
-  let selectedItems = [];
-  let orderType = "individual";
-  let totalPrice = 0;
-  if (attendeeCount >= 8 && duration >= 120) {
-    const suitablePackages = CATERING_PACKAGES.filter((pkg) => {
-      const serves = parseInt(pkg.serves.split("-")[0]);
-      const maxServes = parseInt(pkg.serves.split("-")[1]) || serves + 5;
-      return attendeeCount >= serves && attendeeCount <= maxServes + 5;
-    });
-    if (suitablePackages.length > 0) {
-      const selectedPackage = suitablePackages[predictableRandomInt(suitablePackages.length)];
-      orderType = "package";
-      totalPrice = selectedPackage.price;
-      selectedItems = selectedPackage.items.map((itemId) => {
-        const item = MOCK_MENU.find((m3) => m3.id === itemId);
-        return __spreadProps(__spreadValues({}, item), {
-          quantity: Math.ceil(attendeeCount / 8),
-          package_item: true,
-          options: []
-        });
-      }).filter(Boolean);
-    }
-  }
-  if (selectedItems.length === 0) {
-    const itemCount = Math.min(predictableRandomInt(5, 2), Math.ceil(duration / 60));
-    const selectedItemIds = /* @__PURE__ */ new Set();
-    while (selectedItems.length < itemCount && selectedItemIds.size < MOCK_MENU.length) {
-      const item = MOCK_MENU[predictableRandomInt(MOCK_MENU.length)];
-      if (!selectedItemIds.has(item.id)) {
-        selectedItemIds.add(item.id);
-        const quantity = Math.max(1, Math.ceil(attendeeCount / 8));
-        const itemPrice = item.unit_price * quantity;
-        totalPrice += itemPrice;
-        selectedItems.push(__spreadProps(__spreadValues({}, item), {
-          quantity,
-          package_item: false,
-          options: item.options?.slice(0, predictableRandomInt(3)) || []
-        }));
-      }
-    }
-  }
-  const serviceType = SERVICE_TYPES[predictableRandomInt(SERVICE_TYPES.length)];
-  const serviceModifier = serviceType.price_modifier;
-  totalPrice *= serviceModifier;
-  const supplier = SUPPLIERS[predictableRandomInt(SUPPLIERS.length)];
-  const deliveryFee = supplier.delivery_fee;
-  const setupFee = supplier.setup_fee;
-  totalPrice += deliveryFee + setupFee;
-  const deliveryOffset = predictableRandomInt(30, 30);
-  const deliverAt = new Date(event.event_start * 1e3 - deliveryOffset * 60 * 1e3);
-  const dietaryNeeds = DIETARY_RESTRICTIONS.filter(() => predictableRandomInt(8) === 0);
-  return __spreadValues({
-    id: `order-${String(predictableRandomInt(999999, 1e5))}`,
-    event_id: event.id,
-    invoice_number: `INV-${(/* @__PURE__ */ new Date()).getFullYear()}-${String(predictableRandomInt(99999, 1e4))}`,
-    charge_code: `CC-${String(predictableRandomInt(9999, 1e3))}`,
-    order_type: orderType,
-    status: ["pending", "confirmed", "preparing", "delivered"][predictableRandomInt(4)],
-    // Timing
-    order_date: new Date(Date.now() - predictableRandomInt(7) * 24 * 60 * 60 * 1e3).toISOString(),
-    deliver_at: deliverAt.toISOString(),
-    setup_time: serviceType.setup_time,
-    breakdown_time: serviceType.breakdown_time,
-    // Service details
-    service_type: serviceType,
-    supplier,
-    guest_count: attendeeCount,
-    // Items and pricing
-    items: selectedItems,
-    subtotal: Math.floor(totalPrice - deliveryFee - setupFee),
-    delivery_fee: deliveryFee,
-    setup_fee: setupFee,
-    tax: Math.floor(totalPrice * 0.1),
-    // 10% tax
-    total: Math.floor(totalPrice * 1.1),
-    // Special requirements
-    dietary_requirements: dietaryNeeds.map((d3) => d3.name),
-    special_instructions: predictableRandomInt(3) === 0 ? [
-      "Please use company branded napkins",
-      "Set up 15 minutes before event start",
-      "Vegetarian options on separate table",
-      "Please include serving utensils",
-      "No pork products",
-      "Nut-free preparation required"
-    ][predictableRandomInt(6)] : "",
-    // Contact and delivery
-    delivery_contact: event.attendees?.[0]?.name || "Event Organizer",
-    delivery_phone: event.attendees?.[0]?.phone || "+61 2 9876 5432",
-    delivery_location: `Meeting Room - ${event.location || "TBC"}`,
-    access_instructions: "Reception will direct to meeting room",
-    // Billing
-    department: event.extension_data?.department || "General",
-    cost_center: event.extension_data?.cost_center || "events",
-    project_code: event.extension_data?.project_code || null,
-    // Metadata
-    notes: [
-      "Standard corporate catering order",
-      "Client meeting refreshments",
-      "Team celebration catering",
-      "Training session meals",
-      "Board meeting premium service"
-    ][predictableRandomInt(5)],
-    created_by: event.attendees?.[0]?.email || "system@place.tech",
-    last_modified: (/* @__PURE__ */ new Date()).toISOString()
-  }, predictableRandomInt(4) === 0 && {
-    rating: predictableRandomInt(5, 3) + 1,
-    // 4-5 stars
-    feedback: [
-      "Excellent food quality and presentation",
-      "Delivered on time, great service",
-      "Fresh ingredients, everyone loved it",
-      "Professional setup and cleanup",
-      "Good variety, accommodated dietary needs"
-    ][predictableRandomInt(5)],
-    would_recommend: true
-  });
-}
-
-// libs/mocks/src/lib/api/zone.data.ts
-var MOCK_ORGS = [
-  {
-    id: "zone-org",
-    created_at: getUnixTime(subMonths(Date.now(), 24)),
-    updated_at: getUnixTime(subMonths(Date.now(), 1)),
-    name: "PlaceOS Global",
-    display_name: "PlaceOS Global",
-    description: "Global headquarters and innovation centers for PlaceOS technology solutions",
-    tags: ["org", "headquarters", "technology"],
-    count: 2,
-    // Number of regions
-    capacity: 4500,
-    // Total capacity across all buildings
-    parent_id: "",
-    triggers: [],
-    settings: {
-      timezone: "Australia/Sydney",
-      booking_rules: {
-        advance_booking_days: 90,
-        max_booking_duration: 8 * 60,
-        // 8 hours
-        auto_release_minutes: 15
-      },
-      work_hours: {
-        start: "07:00",
-        end: "19:00",
-        days: [1, 2, 3, 4, 5]
-        // Monday to Friday
-      },
-      features: [
-        "wifi",
-        "parking",
-        "accessibility",
-        "catering",
-        "security"
-      ]
-    },
-    contact: {
-      email: "facilities@place.tech",
-      phone: "+61 2 8765 4321",
-      address: "Sydney Technology Park, NSW, Australia"
-    },
-    metadata: {
-      founded: 2018,
-      employee_count: 1200,
-      sustainability_rating: "A+",
-      certifications: [
-        "Green Building Council",
-        "ISO 14001",
-        "LEED Platinum"
-      ]
-    }
-  }
-];
-var MOCK_REGIONS = [
-  {
-    id: "region-sydney",
-    created_at: getUnixTime(subMonths(Date.now(), 18)),
-    updated_at: getUnixTime(subMonths(Date.now(), 2)),
-    name: "Sydney Region",
-    display_name: "Sydney Metropolitan Region",
-    description: "Primary business region covering Sydney and surrounding areas",
-    tags: ["region", "sydney", "metropolitan"],
-    count: 3,
-    // Number of buildings
-    capacity: 2700,
-    parent_id: "zone-org",
-    triggers: [],
-    settings: {
-      timezone: "Australia/Sydney",
-      region_code: "SYD",
-      business_hours: {
-        start: "07:00",
-        end: "19:00",
-        timezone: "Australia/Sydney"
-      }
-    },
-    contact: {
-      email: "sydney@place.tech",
-      phone: "+61 2 8765 4322",
-      address: "Sydney, NSW, Australia"
-    },
-    boundaries: {
-      north: -33.5,
-      south: -34.2,
-      east: 151.5,
-      west: 150.5
-    }
-  },
-  {
-    id: "region-melbourne",
-    created_at: getUnixTime(subMonths(Date.now(), 15)),
-    updated_at: getUnixTime(subMonths(Date.now(), 1)),
-    name: "Melbourne Region",
-    display_name: "Melbourne Metropolitan Region",
-    description: "Secondary business region covering Melbourne and Victoria",
-    tags: ["region", "melbourne", "metropolitan"],
-    count: 2,
-    // Number of buildings
-    capacity: 1800,
-    parent_id: "zone-org",
-    triggers: [],
-    settings: {
-      timezone: "Australia/Melbourne",
-      region_code: "MEL",
-      business_hours: {
-        start: "07:30",
-        end: "19:30",
-        timezone: "Australia/Melbourne"
-      }
-    },
-    contact: {
-      email: "melbourne@place.tech",
-      phone: "+61 3 8765 4323",
-      address: "Melbourne, VIC, Australia"
-    },
-    boundaries: {
-      north: -37.5,
-      south: -38.2,
-      east: 145.5,
-      west: 144.5
-    }
-  }
-];
-var MOCK_BUILDINGS = [
-  {
-    id: "bld-01",
-    name: "Innovation Hub",
-    display_name: "Innovation Hub",
-    description: "Modern workspace focused on collaboration and innovation with state-of-the-art facilities",
-    tags: ["building", "innovation", "modern", "headquarters"],
-    count: 4,
-    // Number of levels (including parking)
-    capacity: 1200,
-    parent_id: "region-sydney",
-    triggers: [],
-    levels: ["lvl-G", "lvl-1", "lvl-2", "lvl-P1"],
-    address: {
-      street: "123 Technology Drive",
-      suburb: "Sydney Olympic Park",
-      state: "NSW",
-      postcode: "2127",
-      country: "Australia",
-      coordinates: {
-        lat: -33.8473,
-        lng: 151.0647
-      }
-    },
-    features: {
-      parking_spaces: 300,
-      accessibility: true,
-      bike_storage: true,
-      shower_facilities: true,
-      cafe_on_site: true,
-      gym: true,
-      rooftop_garden: true,
-      ev_charging: 20,
-      security_level: "high"
-    },
-    building_details: {
-      year_built: 2020,
-      architect: "Foster + Partners",
-      total_floors: 12,
-      basement_levels: 2,
-      floor_area_sqm: 8500,
-      energy_rating: "6 Star Green Star",
-      construction_type: "Steel frame with glass facade",
-      elevator_count: 4,
-      stair_count: 3
-    }
-  },
-  {
-    id: "bld-02",
-    name: "Executive Center",
-    display_name: "Executive Center",
-    description: "Premium business center with executive suites, boardrooms, and high-end meeting facilities",
-    tags: ["building", "executive", "premium", "business"],
-    count: 5,
-    capacity: 800,
-    parent_id: "region-sydney",
-    triggers: [],
-    levels: ["lvl-G", "lvl-2", "lvl-3", "lvl-4", "lvl-P1"],
-    address: {
-      street: "456 Collins Street",
-      suburb: "Sydney CBD",
-      state: "NSW",
-      postcode: "2000",
-      country: "Australia",
-      coordinates: {
-        lat: -33.8688,
-        lng: 151.2093
-      }
-    },
-    features: {
-      parking_spaces: 200,
-      accessibility: true,
-      bike_storage: false,
-      shower_facilities: true,
-      cafe_on_site: true,
-      gym: false,
-      rooftop_garden: false,
-      ev_charging: 15,
-      security_level: "premium"
-    },
-    building_details: {
-      year_built: 2018,
-      architect: "Woods Bagot",
-      total_floors: 25,
-      basement_levels: 3,
-      floor_area_sqm: 6200,
-      energy_rating: "5 Star NABERS",
-      construction_type: "Reinforced concrete with marble facade",
-      elevator_count: 6,
-      stair_count: 2
-    }
-  },
-  {
-    id: "bld-03",
-    name: "Creative Campus",
-    display_name: "Creative Campus",
-    description: "Flexible workspace designed for creative teams with open collaboration areas and maker spaces",
-    tags: ["building", "creative", "flexible", "collaboration"],
-    count: 3,
-    capacity: 500,
-    parent_id: "region-sydney",
-    triggers: [],
-    levels: ["lvl-G", "lvl-M", "lvl-1"],
-    address: {
-      street: "789 Creative Boulevard",
-      suburb: "Pyrmont",
-      state: "NSW",
-      postcode: "2009",
-      country: "Australia",
-      coordinates: {
-        lat: -33.8688,
-        lng: 151.1957
-      }
-    },
-    features: {
-      parking_spaces: 150,
-      accessibility: true,
-      bike_storage: true,
-      shower_facilities: true,
-      cafe_on_site: true,
-      gym: true,
-      rooftop_garden: true,
-      ev_charging: 25,
-      security_level: "standard"
-    },
-    building_details: {
-      year_built: 2021,
-      architect: "BVN Architecture",
-      total_floors: 8,
-      basement_levels: 1,
-      floor_area_sqm: 4800,
-      energy_rating: "6 Star Green Star",
-      construction_type: "Timber and steel hybrid with living walls",
-      elevator_count: 2,
-      stair_count: 3
-    }
-  },
-  {
-    id: "bld-04",
-    name: "Melbourne Tower",
-    display_name: "Melbourne Tower",
-    description: "High-rise office building in Melbourne CBD with premium corporate facilities",
-    tags: ["building", "corporate", "high-rise", "premium"],
-    count: 6,
-    capacity: 1e3,
-    parent_id: "region-melbourne",
-    triggers: [],
-    levels: ["lvl-G", "lvl-1", "lvl-2", "lvl-3", "lvl-4", "lvl-P1"],
-    address: {
-      street: "100 Collins Street",
-      suburb: "Melbourne",
-      state: "VIC",
-      postcode: "3000",
-      country: "Australia",
-      coordinates: {
-        lat: -37.8136,
-        lng: 144.9631
-      }
-    },
-    features: {
-      parking_spaces: 250,
-      accessibility: true,
-      bike_storage: true,
-      shower_facilities: true,
-      cafe_on_site: true,
-      gym: true,
-      rooftop_garden: false,
-      ev_charging: 30,
-      security_level: "high"
-    },
-    building_details: {
-      year_built: 2019,
-      architect: "Hassell",
-      total_floors: 35,
-      basement_levels: 4,
-      floor_area_sqm: 12e3,
-      energy_rating: "5 Star Green Star",
-      construction_type: "Steel and glass with sustainable features",
-      elevator_count: 8,
-      stair_count: 4
-    }
-  },
-  {
-    id: "bld-05",
-    name: "Melbourne Innovation Lab",
-    display_name: "Melbourne Innovation Lab",
-    description: "State-of-the-art research and development facility with collaborative workspaces",
-    tags: ["building", "innovation", "research", "lab"],
-    count: 3,
-    capacity: 800,
-    parent_id: "region-melbourne",
-    triggers: [],
-    levels: ["lvl-G", "lvl-1", "lvl-2"],
-    address: {
-      street: "250 Exhibition Street",
-      suburb: "Melbourne",
-      state: "VIC",
-      postcode: "3000",
-      country: "Australia",
-      coordinates: {
-        lat: -37.8103,
-        lng: 144.9717
-      }
-    },
-    features: {
-      parking_spaces: 180,
-      accessibility: true,
-      bike_storage: true,
-      shower_facilities: true,
-      cafe_on_site: true,
-      gym: false,
-      rooftop_garden: true,
-      ev_charging: 20,
-      security_level: "high"
-    },
-    building_details: {
-      year_built: 2022,
-      architect: "ARM Architecture",
-      total_floors: 8,
-      basement_levels: 1,
-      floor_area_sqm: 7500,
-      energy_rating: "6 Star Green Star",
-      construction_type: "Cross-laminated timber and steel",
-      elevator_count: 3,
-      stair_count: 2
-    }
-  }
-];
-var MOCK_ZONES = [];
-var createMockLevel = (id, idx, building, levelCode = "1") => {
-  const levelNumber = levelCode === "G" ? 0 : levelCode === "M" ? 0.5 : levelCode.startsWith("P") ? -parseInt(levelCode.substring(1)) : parseInt(levelCode) || 1;
-  const isGroundFloor = levelCode === "G";
-  const isMezzanine = levelCode === "M";
-  const isParkingLevel = levelCode.startsWith("P");
-  let levelType = "office";
-  if (isParkingLevel)
-    levelType = "parking";
-  else if (isGroundFloor)
-    levelType = "lobby";
-  else if (isMezzanine)
-    levelType = "mixed-use";
-  const capacityByType = {
-    parking: 0,
-    lobby: 50,
-    "mixed-use": Math.floor(building.capacity * 0.2),
-    office: Math.floor(building.capacity * 0.4)
-  };
-  const levelName = isParkingLevel ? `Parking Level ${levelCode.substring(1)}` : isGroundFloor ? "Ground Floor" : isMezzanine ? "Mezzanine" : `Level ${levelCode}`;
-  const displayName = levelName;
-  const features = [];
-  if (isGroundFloor)
-    features.push("reception", "lobby", "cafe", "security");
-  if (isMezzanine)
-    features.push("meeting-rooms", "break-areas", "informal-seating");
-  if (levelType === "office")
-    features.push("workstations", "meeting-rooms", "collaboration-spaces");
-  if (isParkingLevel)
-    features.push("parking", "ev-charging", "bike-storage");
-  return {
-    id: `${building.id}_${id}`,
-    name: levelName,
-    display_name: displayName,
-    parent_id: building.id,
-    description: `${levelName} of ${building.name} featuring ${features.join(", ")}`,
-    tags: ["level", levelType, building.tags[1]].filter(Boolean),
-    map_id: `assets/maps/${building.id.replace("bld-", "level_")}${levelCode}.svg`,
-    code: `${building.name.substring(0, 3).toUpperCase()}-${levelCode}`,
-    type: levelType,
-    count: predictableRandomInt(15, 5),
-    // Number of spaces/rooms
-    capacity: capacityByType[levelType] || Math.floor(building.capacity * 0.3),
-    location: `${building.address.coordinates.lat},${building.address.coordinates.lng}`,
-    level_number: levelNumber,
-    floor_area_sqm: Math.floor(building.building_details.floor_area_sqm / building.count),
-    ceiling_height: levelType === "lobby" ? 4.5 : isParkingLevel ? 2.4 : 2.8,
-    features,
-    accessibility: {
-      wheelchair_accessible: true,
-      elevator_access: !isParkingLevel || building.building_details.elevator_count > 0,
-      accessible_bathrooms: levelType !== "parking",
-      hearing_loop: isGroundFloor || levelType === "office"
-    },
-    utilities: {
-      power_outlets: levelType === "office" ? "extensive" : "standard",
-      data_points: levelType === "office" ? "fiber_optic" : "standard",
-      hvac_zones: Math.ceil((capacityByType[levelType] || 50) / 50),
-      fire_safety: "compliant",
-      security_systems: building.features.security_level
-    },
-    spaces: {
-      meeting_rooms: levelType === "office" ? predictableRandomInt(8, 3) : isMezzanine ? predictableRandomInt(4, 2) : 0,
-      workstations: levelType === "office" ? Math.floor((capacityByType[levelType] || 0) * 0.8) : 0,
-      break_areas: levelType !== "parking" ? predictableRandomInt(3, 1) : 0,
-      storage_rooms: predictableRandomInt(4, 1),
-      bathrooms: isParkingLevel ? 1 : predictableRandomInt(4, 2),
-      parking_spaces: isParkingLevel ? Math.floor(building.features.parking_spaces / 2) : 0
-    },
-    created_at: getUnixTime(subMonths(Date.now(), predictableRandomInt(36, 6))),
-    updated_at: getUnixTime(subMonths(Date.now(), predictableRandomInt(3, 0))),
-    settings: {
-      booking_enabled: levelType !== "parking",
-      public_access: isGroundFloor,
-      after_hours_access: levelType === "office" ? "keycard" : "restricted",
-      temperature_range: {
-        min: 20,
-        max: 26
-      },
-      lighting: {
-        type: levelType === "office" ? "LED with daylight sensors" : "LED standard",
-        zones: Math.ceil((capacityByType[levelType] || 30) / 30)
-      }
-    },
-    maintenance: {
-      last_inspection: getUnixTime(subMonths(Date.now(), predictableRandomInt(6, 1))),
-      next_inspection: getUnixTime(new Date(Date.now() + predictableRandomInt(90, 30) * 24 * 60 * 60 * 1e3)),
-      cleaning_schedule: isParkingLevel ? "weekly" : "daily",
-      maintenance_contact: "Facilities Management"
-    }
-  };
-};
-var MOCK_LEVELS = MOCK_BUILDINGS.map((bld) => bld.levels.map((level, idx) => createMockLevel(level, idx, bld, level.split("-")[1]))).reduce((prev, current) => prev.concat(current), []);
-
-// libs/mocks/src/lib/api/spaces.data.ts
-var ROOM_FEATURES = {
-  "Meeting Room": [
-    "Whiteboard",
-    "Display Screen",
-    "Video Conference",
-    "Phone"
-  ],
-  "Conference Room": [
-    "Projector",
-    "Video Conference",
-    "Whiteboard",
-    "Audio System",
-    "Phone"
-  ],
-  Boardroom: [
-    "Large Display",
-    "Video Conference",
-    "Audio System",
-    "Whiteboard",
-    "Climate Control",
-    "Executive Seating"
-  ],
-  "Training Room": [
-    "Projector",
-    "Whiteboard",
-    "Flipchart",
-    "Audio System",
-    "Breakout Tables"
-  ],
-  "Phone Booth": ["Phone", "Acoustic Privacy", "Power Outlet"],
-  "Collaboration Space": [
-    "Whiteboard",
-    "Moveable Furniture",
-    "Power Outlets",
-    "Informal Seating"
-  ],
-  "Event Space": [
-    "Audio System",
-    "Projector",
-    "Stage/Platform",
-    "Catering Setup",
-    "Flexible Seating"
-  ],
-  "Break Room": [
-    "Kitchen Facilities",
-    "Refrigerator",
-    "Microwave",
-    "Coffee Machine",
-    "Seating"
-  ],
-  "Focus Room": [
-    "Acoustic Privacy",
-    "Desk",
-    "Power Outlets",
-    "Natural Light"
-  ],
-  "Presentation Room": [
-    "Large Display",
-    "Audio System",
-    "Tiered Seating",
-    "Lighting Control"
-  ]
-};
-var CAPACITY_RANGES = {
-  "Meeting Room": { min: 4, max: 12 },
-  "Conference Room": { min: 8, max: 20 },
-  Boardroom: { min: 10, max: 25 },
-  "Training Room": { min: 15, max: 50 },
-  "Phone Booth": { min: 1, max: 2 },
-  "Collaboration Space": { min: 6, max: 15 },
-  "Event Space": { min: 50, max: 200 },
-  "Break Room": { min: 10, max: 30 },
-  "Focus Room": { min: 1, max: 3 },
-  "Presentation Room": { min: 20, max: 100 }
-};
-var BUILDING_THEMES = {
-  "bld-01": {
-    name: "Innovation Hub",
-    floors: ["Ground", "Level 1", "Level 2"],
-    style: "Modern",
-    year: 2020
-  },
-  "bld-02": {
-    name: "Executive Center",
-    floors: ["Ground", "Level 2", "Level 3", "Level 4"],
-    style: "Premium",
-    year: 2018
-  },
-  "bld-03": {
-    name: "Creative Campus",
-    floors: ["Ground", "Mezzanine", "Level 1"],
-    style: "Collaborative",
-    year: 2021
-  },
-  "bld-04": {
-    name: "Melbourne Tower",
-    floors: ["Ground", "Level 1", "Level 2", "Level 3", "Level 4"],
-    style: "Corporate",
-    year: 2019
-  },
-  "bld-05": {
-    name: "Melbourne Innovation Lab",
-    floors: ["Ground", "Level 1", "Level 2"],
-    style: "Research",
-    year: 2022
-  }
-};
-var REALISTIC_ROOM_NAMES = [
-  // Meeting Rooms
-  {
-    name: "Sydney Harbour",
-    type: "Meeting Room",
-    theme: "Australian Cities"
-  },
-  { name: "Melbourne Cup", type: "Meeting Room", theme: "Australian Cities" },
-  {
-    name: "Brisbane River",
-    type: "Meeting Room",
-    theme: "Australian Cities"
-  },
-  { name: "Perth Skyline", type: "Meeting Room", theme: "Australian Cities" },
-  {
-    name: "Adelaide Hills",
-    type: "Meeting Room",
-    theme: "Australian Cities"
-  },
-  { name: "Darwin Sunset", type: "Meeting Room", theme: "Australian Cities" },
-  // Conference Rooms
-  { name: "Innovation Lab", type: "Conference Room", theme: "Business" },
-  { name: "Strategy Center", type: "Conference Room", theme: "Business" },
-  { name: "Think Tank", type: "Conference Room", theme: "Business" },
-  { name: "Solution Studio", type: "Conference Room", theme: "Business" },
-  { name: "Discovery Room", type: "Conference Room", theme: "Business" },
-  { name: "Vision Quest", type: "Conference Room", theme: "Business" },
-  // Boardrooms
-  { name: "Executive Boardroom", type: "Boardroom", theme: "Executive" },
-  { name: "Chairman's Suite", type: "Boardroom", theme: "Executive" },
-  { name: "Directors Lounge", type: "Boardroom", theme: "Executive" },
-  { name: "Leadership Circle", type: "Boardroom", theme: "Executive" },
-  // Training Rooms
-  { name: "Learning Hub Alpha", type: "Training Room", theme: "Education" },
-  {
-    name: "Development Center Beta",
-    type: "Training Room",
-    theme: "Education"
-  },
-  { name: "Skills Workshop", type: "Training Room", theme: "Education" },
-  { name: "Knowledge Exchange", type: "Training Room", theme: "Education" },
-  { name: "Growth Academy", type: "Training Room", theme: "Education" },
-  // Phone Booths
-  { name: "Call Pod 1", type: "Phone Booth", theme: "Functional" },
-  { name: "Call Pod 2", type: "Phone Booth", theme: "Functional" },
-  { name: "Call Pod 3", type: "Phone Booth", theme: "Functional" },
-  { name: "Call Pod 4", type: "Phone Booth", theme: "Functional" },
-  { name: "Privacy Booth A", type: "Phone Booth", theme: "Functional" },
-  { name: "Privacy Booth B", type: "Phone Booth", theme: "Functional" },
-  // Collaboration Spaces
-  { name: "Creative Corner", type: "Collaboration Space", theme: "Creative" },
-  { name: "Brainstorm Bay", type: "Collaboration Space", theme: "Creative" },
-  { name: "Idea Incubator", type: "Collaboration Space", theme: "Creative" },
-  {
-    name: "Innovation Intersection",
-    type: "Collaboration Space",
-    theme: "Creative"
-  },
-  { name: "Design Den", type: "Collaboration Space", theme: "Creative" },
-  // Event Spaces
-  { name: "Grand Auditorium", type: "Event Space", theme: "Events" },
-  { name: "Conference Hall", type: "Event Space", theme: "Events" },
-  { name: "Presentation Theater", type: "Event Space", theme: "Events" },
-  { name: "Multi-Purpose Arena", type: "Event Space", theme: "Events" },
-  // Break Rooms
-  { name: "Coffee Central", type: "Break Room", theme: "Social" },
-  { name: "Relaxation Station", type: "Break Room", theme: "Social" },
-  { name: "Social Hub", type: "Break Room", theme: "Social" },
-  { name: "Refresh & Recharge", type: "Break Room", theme: "Social" },
-  { name: "Community Kitchen", type: "Break Room", theme: "Social" },
-  // Focus Rooms
-  { name: "Deep Work Den", type: "Focus Room", theme: "Productivity" },
-  { name: "Concentration Cave", type: "Focus Room", theme: "Productivity" },
-  { name: "Quiet Quarters", type: "Focus Room", theme: "Productivity" },
-  { name: "Focus Flow", type: "Focus Room", theme: "Productivity" },
-  { name: "Zen Zone", type: "Focus Room", theme: "Productivity" },
-  // Presentation Rooms
-  { name: "Demo Theater", type: "Presentation Room", theme: "Presentation" },
-  {
-    name: "Showcase Auditorium",
-    type: "Presentation Room",
-    theme: "Presentation"
-  },
-  {
-    name: "Client Presentation Suite",
-    type: "Presentation Room",
-    theme: "Presentation"
-  }
-];
-var generateRoomCode = (building, floor, index) => {
-  const bldCode = building.split("-")[1];
-  const floorCode = floor.includes("Ground") ? "G" : floor.includes("Mezzanine") ? "M" : floor.match(/\d+/) ? floor.match(/\d+/)[0] : "1";
-  return `${bldCode}.${floorCode}.${String(index + 1).padStart(2, "0")}`;
-};
-var getRandomFeatures = (roomType) => {
-  const availableFeatures = ROOM_FEATURES[roomType] || [];
-  const numFeatures = predictableRandomInt(availableFeatures.length - 1, 2);
-  const selectedFeatures = [];
-  for (let i = 0; i < numFeatures; i++) {
-    const feature = availableFeatures[predictableRandomInt(availableFeatures.length)];
-    if (!selectedFeatures.includes(feature)) {
-      selectedFeatures.push(feature);
-    }
-  }
-  return selectedFeatures;
-};
-var getCapacityForRoomType = (roomType) => {
-  const range2 = CAPACITY_RANGES[roomType] || { min: 4, max: 12 };
-  return predictableRandomInt(range2.max - range2.min, range2.min);
-};
-var getZoneHierarchy = (buildingId, levelId) => {
-  const building = MOCK_BUILDINGS.find((b3) => b3.id === buildingId);
-  if (!building)
-    return ["zone-org", "region-sydney", buildingId, levelId];
-  const region = MOCK_REGIONS.find((r2) => r2.id === building.parent_id);
-  const orgId = region ? region.parent_id : "zone-org";
-  return [orgId, building.parent_id, buildingId, levelId];
-};
-var generateSpaceData = () => {
-  const spaces = [];
-  let spaceIndex = 0;
-  Object.entries(BUILDING_THEMES).forEach(([buildingId, buildingInfo]) => {
-    buildingInfo.floors.forEach((floor, floorIndex) => {
-      const floorId = `${buildingId}_lvl-${floorIndex}`;
-      const spacesPerFloor = predictableRandomInt(16, 5);
-      for (let i = 0; i < spacesPerFloor; i++) {
-        const roomData = REALISTIC_ROOM_NAMES[spaceIndex % REALISTIC_ROOM_NAMES.length];
-        const roomCode = generateRoomCode(buildingId, floor, i);
-        const capacity = getCapacityForRoomType(roomData.type);
-        const features = getRandomFeatures(roomData.type);
-        const isBookable = ![
-          "Break Room",
-          "Collaboration Space",
-          "Focus Room"
-        ].includes(roomData.type) || predictableRandomInt(3) === 0;
-        const imageCategories = {
-          "Meeting Room": "meeting-room",
-          "Conference Room": "conference-room",
-          Boardroom: "boardroom",
-          "Training Room": "training-room",
-          "Phone Booth": "phone-booth",
-          "Collaboration Space": "collaboration-space",
-          "Event Space": "event-space",
-          "Break Room": "break-room",
-          "Focus Room": "focus-room",
-          "Presentation Room": "presentation-room"
-        };
-        const space = {
-          id: `space-${spaceIndex + 1}`,
-          name: `${roomCode} ${roomData.name}`,
-          display_name: roomData.name,
-          map_id: `area-${roomCode.toLowerCase()}-status`,
-          zones: getZoneHierarchy(buildingId, floorId),
-          type: roomData.type,
-          capacity,
-          features,
-          images: [
-            `https://images.unsplash.com/photo-${15e8 + spaceIndex * 1e5}?w=800&h=600&fit=crop`,
-            ...capacity > 10 ? [
-              `https://images.unsplash.com/photo-${15e8 + spaceIndex * 1e5 + 5e4}?w=800&h=600&fit=crop`
-            ] : []
-          ],
-          bookable: isBookable,
-          level: {
-            id: floorId,
-            parent_id: buildingId,
-            name: floor,
-            display_name: floor,
-            capacity,
-            number: floorIndex.toString(),
-            map_id: `${buildingId}_${floorIndex}`,
-            tags: [
-              buildingInfo.style.toLowerCase(),
-              roomData.theme.toLowerCase()
-            ],
-            settings: {
-              booking_enabled: isBookable,
-              auto_release: roomData.type === "Meeting Room" || roomData.type === "Conference Room",
-              max_booking_duration: roomData.type === "Phone Booth" ? 60 : roomData.type === "Focus Room" ? 240 : roomData.type === "Event Space" ? 480 : 240
-            },
-            images: [
-              `https://images.unsplash.com/photo-${14e8 + floorIndex * 2e5}?w=1200&h=800&fit=crop`
-            ],
-            locations: {
-              id: floorId,
-              name: floor,
-              building: buildingInfo.name
-            }
-          },
-          // Additional metadata
-          building: buildingInfo.name,
-          building_id: buildingId,
-          floor,
-          floor_number: floorIndex,
-          room_code: roomCode,
-          theme: roomData.theme,
-          style: buildingInfo.style,
-          year_built: buildingInfo.year,
-          last_renovation: buildingInfo.year + predictableRandomInt(4, 1),
-          accessibility: {
-            wheelchair_accessible: predictableRandomInt(4) !== 0,
-            // 75% accessible
-            hearing_loop: [
-              "Boardroom",
-              "Event Space",
-              "Presentation Room"
-            ].includes(roomData.type),
-            braille_signage: predictableRandomInt(2) === 0
-          },
-          equipment: features.map((feature) => ({
-            name: feature,
-            status: [
-              "Working",
-              "Working",
-              "Working",
-              "Maintenance"
-            ][predictableRandomInt(4)],
-            last_serviced: new Date(Date.now() - predictableRandomInt(90) * 24 * 60 * 60 * 1e3).toISOString()
-          })),
-          amenities: {
-            natural_light: !roomData.name.toLowerCase().includes("pod") && predictableRandomInt(3) !== 0,
-            air_conditioning: true,
-            power_outlets: capacity * (roomData.type === "Training Room" ? 2 : 1),
-            wifi: true,
-            catering_available: [
-              "Conference Room",
-              "Boardroom",
-              "Training Room",
-              "Event Space"
-            ].includes(roomData.type),
-            parking_nearby: buildingId === "bld-01" || predictableRandomInt(2) === 0
-          },
-          booking_rules: {
-            advance_booking_days: roomData.type === "Event Space" ? 90 : roomData.type === "Boardroom" ? 60 : 30,
-            min_booking_duration: roomData.type === "Phone Booth" ? 15 : 30,
-            max_booking_duration: roomData.type === "Phone Booth" ? 60 : roomData.type === "Focus Room" ? 240 : 480,
-            buffer_time: roomData.type === "Event Space" ? 30 : 15,
-            approval_required: roomData.type === "Boardroom" || roomData.type === "Event Space"
-          },
-          cost_center: buildingInfo.name.toLowerCase().replace(/\s+/g, "-"),
-          hourly_rate: roomData.type === "Event Space" ? predictableRandomInt(200, 100) : roomData.type === "Boardroom" ? predictableRandomInt(100, 50) : roomData.type === "Phone Booth" ? 0 : predictableRandomInt(50, 10)
-        };
-        spaces.push(space);
-        spaceIndex++;
-      }
-    });
-  });
-  return spaces;
-};
-var rawSpaces = generateSpaceData();
-var MOCK_SPACES = rawSpaces.map((space) => generateMockSpace(__spreadProps(__spreadValues({}, space), {
-  features: space.features || [],
-  images: space.images || [
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop"
-  ]
-})));
 
 // libs/mocks/src/lib/api/bookings.data.ts
 var TRACKING = ["in_storage", "in_transit", "at_location"];
