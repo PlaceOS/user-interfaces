@@ -260,6 +260,11 @@ export class ApplicationSidebarComponent
                 icon: 'vibration',
             },
             {
+                name: 'Service Management',
+                route: ['/services'],
+                icon: 'home_repair_service',
+            },
+            {
                 id: 'internal-users',
                 name: i18n('APP.CONCIERGE.MENU_USER_LIST'),
                 icon: 'assignment_ind',

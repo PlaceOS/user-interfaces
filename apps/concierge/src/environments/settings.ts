@@ -29,6 +29,7 @@ const app = {
         'signage',
         'events',
         'email-templates',
+        'services',
     ],
     guests: { vaccine_check: true },
     delegated: false,

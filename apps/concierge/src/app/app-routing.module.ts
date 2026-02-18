@@ -171,6 +171,15 @@ const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'services',
+        loadChildren: () =>
+            import('./services/services.module').then(
+                (m) => m.ServicesModule,
+            ),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];
 
