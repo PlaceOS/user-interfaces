@@ -3110,6 +3110,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mb-5 {
   margin-bottom: calc(var(--spacing) * 5);
 }
+#placeos .mb-6 {
+  margin-bottom: calc(var(--spacing) * 6);
+}
 #placeos .mb-8 {
   margin-bottom: calc(var(--spacing) * 8);
 }
@@ -3229,6 +3232,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-3 {
   height: calc(var(--spacing) * 3);
+}
+#placeos .h-3\.5 {
+  height: calc(var(--spacing) * 3.5);
 }
 #placeos .h-3\/4 {
   height: calc(3/4 * 100%);
@@ -3491,6 +3497,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-h-\[85vh\] {
   max-height: 85vh;
 }
+#placeos .max-h-\[300px\] {
+  max-height: 300px;
+}
+#placeos .max-h-\[400px\] {
+  max-height: 400px;
+}
 #placeos .max-h-\[calc\(80vh-18rem\)\] {
   max-height: calc(80vh - 18rem);
 }
@@ -3619,6 +3631,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-3 {
   width: calc(var(--spacing) * 3);
+}
+#placeos .w-3\.5 {
+  width: calc(var(--spacing) * 3.5);
 }
 #placeos .w-3\/4 {
   width: calc(3/4 * 100%);
@@ -4333,6 +4348,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .gap-4 {
   gap: calc(var(--spacing) * 4);
 }
+#placeos .gap-6 {
+  gap: calc(var(--spacing) * 6);
+}
 :where(#placeos .space-y-1 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
   margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
@@ -4840,6 +4858,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-info-light {
   background-color: var(--info-light);
 }
+#placeos .bg-info\/10 {
+  background-color: var(--info);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-info\/10 {
+    background-color: color-mix(in oklab, var(--info) 10%, transparent);
+  }
+}
 #placeos .bg-info\/20 {
   background-color: var(--info);
 }
@@ -4917,6 +4943,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-warning-light {
   background-color: var(--warn-light);
 }
+#placeos .bg-warning\/10 {
+  background-color: var(--warn);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-warning\/10 {
+    background-color: color-mix(in oklab, var(--warn) 10%, transparent);
+  }
+}
 #placeos .bg-warning\/20 {
   background-color: var(--warn);
 }
@@ -4932,6 +4966,9 @@ input:where([type=button], [type=reset], [type=submit]),
   #placeos .bg-warning\/50 {
     background-color: color-mix(in oklab, var(--warn) 50%, transparent);
   }
+}
+#placeos .bg-white {
+  background-color: #ffffff;
 }
 #placeos .bg-none {
   background-image: none;
@@ -5133,6 +5170,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .pb-16 {
   padding-bottom: calc(var(--spacing) * 16);
+}
+#placeos .pb-20 {
+  padding-bottom: calc(var(--spacing) * 20);
 }
 #placeos .pb-22 {
   padding-bottom: calc(var(--spacing) * 22);
@@ -5353,6 +5393,30 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-base-content\! {
   color: var(--base-content) !important;
 }
+#placeos .text-base-content\/40 {
+  color: var(--base-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-base-content\/40 {
+    color: color-mix(in oklab, var(--base-content) 40%, transparent);
+  }
+}
+#placeos .text-base-content\/50 {
+  color: var(--base-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-base-content\/50 {
+    color: color-mix(in oklab, var(--base-content) 50%, transparent);
+  }
+}
+#placeos .text-base-content\/60 {
+  color: var(--base-content);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-base-content\/60 {
+    color: color-mix(in oklab, var(--base-content) 60%, transparent);
+  }
+}
 #placeos .text-base-content\/70 {
   color: var(--base-content);
 }
@@ -5457,6 +5521,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .subpixel-antialiased {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
+}
+#placeos .accent-primary {
+  accent-color: var(--primary);
 }
 #placeos .opacity-0 {
   opacity: 0%;
@@ -5650,6 +5717,11 @@ input:where([type=button], [type=reset], [type=submit]),
   -webkit-user-select: none;
   user-select: none;
 }
+@media (hover: hover) {
+  #placeos .group-hover\:opacity-100:is(:where(.group):hover *) {
+    opacity: 100%;
+  }
+}
 #placeos .first\:rounded-l:first-child {
   border-top-left-radius: 0.25rem;
   border-bottom-left-radius: 0.25rem;
@@ -5793,6 +5865,26 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (hover: hover) {
   #placeos .hover\:bg-base-content:hover {
     background-color: var(--base-content);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-base-content\/20:hover {
+    background-color: var(--base-content);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #placeos .hover\:bg-base-content\/20:hover {
+      background-color: color-mix(in oklab, var(--base-content) 20%, transparent);
+    }
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-error\/10:hover {
+    background-color: var(--error);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #placeos .hover\:bg-error\/10:hover {
+      background-color: color-mix(in oklab, var(--error) 10%, transparent);
+    }
   }
 }
 @media (hover: hover) {
@@ -6415,6 +6507,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (min-width: 64rem) {
   #placeos .lg\:max-w-1\/2 {
     max-width: calc(1/2 * 100%);
+  }
+}
+@media (min-width: 64rem) {
+  #placeos .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (min-width: 64rem) {
