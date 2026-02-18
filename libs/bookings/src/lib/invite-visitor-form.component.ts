@@ -829,18 +829,12 @@ export class InviteVisitorFormComponent
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (this.form.value.id) {
             const booking_ref = this._service.booking;
-            const is_group =
-                this.multiple &&
-                !!(
-                    this.form.value.parent_id ||
-                    this.form.value.group ||
-                    booking_ref?.parent_id ||
-                    booking_ref?.group
-                );
-            if (is_group) {
+            if (this.multiple) {
                 this._existing_siblings =
                     await this._service.loadGroupSiblings(
-                        booking_ref?.id ? booking_ref : new Booking(this.form.getRawValue()),
+                        booking_ref?.id
+                            ? booking_ref
+                            : new Booking(this.form.getRawValue()),
                     );
                 if (this._existing_siblings.length) {
                     const visitors = this._existing_siblings.map(
@@ -858,6 +852,29 @@ export class InviteVisitorFormComponent
                     );
                     this.form.patchValue({ assets: visitors });
                     this.syncVisitorInternational(visitors);
+                }
+                if (
+                    !this._existing_siblings.length &&
+                    booking_ref?.extension_data?.group_members?.length
+                ) {
+                    const visitors = booking_ref.extension_data.group_members
+                        .filter((member) => !!member?.email)
+                        .map(
+                            (member) =>
+                                new User({
+                                    name: member.name || member.email,
+                                    email: member.email,
+                                    organisation: member.company || '',
+                                    phone: member.phone || '',
+                                    extension_data: {
+                                        international: !!member.international,
+                                    },
+                                }),
+                        );
+                    if (visitors.length) {
+                        this.form.patchValue({ assets: visitors });
+                        this.syncVisitorInternational(visitors);
+                    }
                 }
             }
             if (!this.form.value.assets?.length) {

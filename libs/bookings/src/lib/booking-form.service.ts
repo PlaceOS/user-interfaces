@@ -654,6 +654,14 @@ export class BookingFormService extends AsyncHandler {
                 value.recurrence_end = available_period;
             }
         }
+        const group_members =
+            this._options.getValue().group &&
+            this._options.getValue().members?.length
+                ? this.mapGroupMembers(
+                      value.booking_type,
+                      this._options.getValue().members,
+                  )
+                : [];
         const result = await lastValueFrom(
             saveBooking(
                 new Booking({
@@ -670,6 +678,11 @@ export class BookingFormService extends AsyncHandler {
                         company: value.company,
                         ...(value.booking_type === 'visitor'
                             ? { international: !!value.international }
+                            : {}),
+                        ...(group_members.length
+                            ? {
+                                  group_members,
+                              }
                             : {}),
                         department:
                             value.user?.department || currentUser()?.department,
@@ -948,6 +961,21 @@ export class BookingFormService extends AsyncHandler {
         );
     }
 
+    public async loadGroupMembersForBooking(booking: Booking): Promise<User[]> {
+        if (!booking?.id) return [];
+        const type =
+            this._options.getValue().type || booking.booking_type || 'desk';
+        const is_visitor = type === 'visitor';
+        const sibling_list = await this.loadGroupSiblings(booking);
+        if (sibling_list.length) {
+            return this.mapGroupMembersFromBookings(sibling_list, is_visitor);
+        }
+        return this.mapGroupMembersFromExtension(
+            booking.extension_data?.group_members || [],
+            is_visitor,
+        );
+    }
+
     public async editFormForGroup(
         existing_siblings: Booking[],
     ): Promise<Booking> {
@@ -1040,6 +1068,83 @@ export class BookingFormService extends AsyncHandler {
             return error.error.message;
         }
         return i18n('BOOKINGS.ERROR_GENERIC');
+    }
+
+    private mapGroupMembers(type: BookingType, members: User[] = []) {
+        const user_list =
+            type === 'visitor'
+                ? members
+                : unique([currentUser(), ...(members || [])], 'email');
+        return user_list
+            .filter((member) => !!member?.email)
+            .map((member) => ({
+                id: member.id || '',
+                name: member.name || member.email,
+                email: member.email,
+                company: (member as any).company || member.organisation || '',
+                phone: member.phone || '',
+                international:
+                    !!(member as any).international ||
+                    !!member.extension_data?.international,
+            }));
+    }
+
+    private mapGroupMembersFromBookings(
+        bookings: Booking[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            bookings
+                .map((booking) =>
+                    is_visitor
+                        ? new User({
+                              name: booking.asset_name,
+                              email: booking.asset_id,
+                              organisation: booking.extension_data?.company,
+                              phone: booking.extension_data?.phone,
+                              extension_data: {
+                                  international:
+                                      !!booking.extension_data?.international,
+                              },
+                          })
+                        : new User({
+                              id: booking.user_id,
+                              name: booking.user_name || booking.user_email,
+                              email: booking.user_email,
+                              organisation: booking.extension_data?.company,
+                              phone: booking.extension_data?.phone,
+                          }),
+                )
+                .filter((member) => !!member?.email),
+            'email',
+        );
+    }
+
+    private mapGroupMembersFromExtension(
+        members: any[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            (members || [])
+                .filter((member) => !!member?.email)
+                .map((member) =>
+                    new User({
+                        id: member.id || '',
+                        name: member.name || member.email,
+                        email: member.email,
+                        organisation: member.company || member.organisation || '',
+                        phone: member.phone || '',
+                        extension_data: {
+                            ...(member.extension_data || {}),
+                            international: !!member.international,
+                        },
+                        international: is_visitor
+                            ? !!member.international
+                            : false,
+                    } as any),
+                ),
+            'email',
+        );
     }
 
     private async rollbackGroupBookings(booking_ids: string[]) {

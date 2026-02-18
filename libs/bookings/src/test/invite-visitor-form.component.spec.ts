@@ -24,6 +24,7 @@ describe('InviteVisitorFormComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 form: generateBookingForm(),
+                booking: new Booking(),
                 loading: new BehaviorSubject(''),
                 setOptions: jest.fn(),
                 postForm: jest.fn(async () => new Booking()),
@@ -91,5 +92,93 @@ describe('InviteVisitorFormComponent', () => {
         spectator.component.sent = true;
         spectator.detectChanges();
         expect('[sent]').toExist();
+    });
+
+    it('should load and show sibling visitors when editing a group booking', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([
+            new Booking({
+                id: 'booking-parent',
+                asset_name: 'Visitor One',
+                asset_id: 'visitor.one@example.com',
+                extension_data: { company: 'Org One' },
+            }),
+            new Booking({
+                id: 'booking-child',
+                parent_id: 'booking-parent',
+                asset_name: 'Visitor Two',
+                asset_id: 'visitor.two@example.com',
+                extension_data: { company: 'Org Two' },
+            }),
+        ]);
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_name: 'Visitor One',
+            asset_id: 'visitor.one@example.com',
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(service.loadGroupSiblings).toHaveBeenCalled();
+        expect(service.form.value.assets).toHaveLength(2);
+        expect(service.form.value.assets[0].email).toBe(
+            'visitor.one@example.com',
+        );
+        expect(service.form.value.assets[1].email).toBe(
+            'visitor.two@example.com',
+        );
+    });
+
+    it('should load group members from extension data when sibling lookup is empty', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([]);
+        (service as any).booking = new Booking({
+            id: 'booking-parent',
+            extension_data: {
+                group_members: [
+                    {
+                        name: 'Visitor One',
+                        email: 'visitor.one@example.com',
+                        company: 'Org One',
+                        international: true,
+                    },
+                    {
+                        name: 'Visitor Two',
+                        email: 'visitor.two@example.com',
+                        company: 'Org Two',
+                        international: false,
+                    },
+                ],
+            },
+        });
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_name: 'Visitor One',
+            asset_id: 'visitor.one@example.com',
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(service.form.value.assets).toHaveLength(2);
+        expect(service.form.value.assets[0].email).toBe(
+            'visitor.one@example.com',
+        );
+        expect(service.form.value.assets[1].email).toBe(
+            'visitor.two@example.com',
+        );
     });
 });
