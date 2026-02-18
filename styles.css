@@ -3257,6 +3257,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-3 {
   height: calc(var(--spacing) * 3);
 }
+#placeos .h-3\.5 {
+  height: calc(var(--spacing) * 3.5);
+}
 #placeos .h-3\/4 {
   height: calc(3/4 * 100%);
 }
@@ -3518,6 +3521,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-h-\[85vh\] {
   max-height: 85vh;
 }
+#placeos .max-h-\[300px\] {
+  max-height: 300px;
+}
+#placeos .max-h-\[400px\] {
+  max-height: 400px;
+}
 #placeos .max-h-\[calc\(80vh-18rem\)\] {
   max-height: calc(80vh - 18rem);
 }
@@ -3646,6 +3655,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .w-3 {
   width: calc(var(--spacing) * 3);
+}
+#placeos .w-3\.5 {
+  width: calc(var(--spacing) * 3.5);
 }
 #placeos .w-3\/4 {
   width: calc(3/4 * 100%);
@@ -4960,6 +4972,9 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--warn) 50%, transparent);
   }
 }
+#placeos .bg-white {
+  background-color: #ffffff;
+}
 #placeos .bg-none {
   background-image: none;
 }
@@ -5484,6 +5499,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .subpixel-antialiased {
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
+}
+#placeos .accent-primary {
+  accent-color: var(--primary);
 }
 #placeos .opacity-0 {
   opacity: 0%;
