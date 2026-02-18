@@ -38,7 +38,7 @@ import { RoomManagementService } from './room-management.service';
                         size: '6rem',
                     },
                     {
-                        key: 'type',
+                        key: 'code',
                         name: 'APP.CONCIERGE.ROOMS_TYPE' | translate,
                         size: '8rem',
                     },

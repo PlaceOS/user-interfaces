@@ -47,29 +47,36 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                 },
                 {
                     key: 'req_dining',
-                    name: 'Dining',
+                    name: 'Catering',
                     content: dining_req_template,
                     size: '5rem',
                     sortable: false,
                 },
                 {
                     key: 'req_av',
-                    name: 'AV/Tech',
+                    name: 'AV/Prod.',
                     content: av_req_template,
                     size: '5rem',
                     sortable: false,
                 },
                 {
                     key: 'req_safety',
-                    name: 'Safety',
+                    name: 'Security',
                     content: safety_req_template,
                     size: '5rem',
                     sortable: false,
                 },
                 {
                     key: 'req_events',
-                    name: 'Events',
+                    name: 'Event Coord.',
                     content: events_req_template,
+                    size: '5rem',
+                    sortable: false,
+                },
+                {
+                    key: 'req_parking',
+                    name: 'Parking',
+                    content: parking_req_template,
                     size: '5rem',
                     sortable: false,
                 },
@@ -237,6 +244,32 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
         <ng-template #events_req_template let-item="row">
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'events')) {
+                    @case ('approved') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                            <icon class="text-base text-white">done</icon>
+                        </span>
+                    }
+                    @case ('declined') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                            <icon class="text-base text-white">close</icon>
+                        </span>
+                    }
+                    @case ('pending') {
+                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                            <icon class="text-base text-white">schedule</icon>
+                        </span>
+                    }
+                    @default {
+                        <span class="opacity-30">&mdash;</span>
+                    }
+                }
+            </div>
+        </ng-template>
+
+        <!-- Parking requirement -->
+        <ng-template #parking_req_template let-item="row">
+            <div class="flex items-center justify-center p-2">
+                @switch (reqStatus(item, 'parking')) {
                     @case ('approved') {
                         <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
                             <icon class="text-base text-white">done</icon>

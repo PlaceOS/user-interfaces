@@ -476,6 +476,7 @@ export class EventSummaryDialogComponent {
         av_tech: 'bg-purple-600',
         safety: 'bg-red-600',
         events: 'bg-teal-600',
+        parking: 'bg-indigo-600',
     };
 
     serviceBadgeColor(category: string): string {

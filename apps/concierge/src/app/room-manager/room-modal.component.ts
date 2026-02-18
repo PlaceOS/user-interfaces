@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -48,84 +48,63 @@ import {
     ImageListFieldComponent,
 } from '@placeos/form-fields';
 import { lastValueFrom } from 'rxjs';
+import { CateringItem } from '@placeos/common';
+import { CateringStateService } from '@placeos/catering';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
+import {
+    UNIT_LABELS,
+    CATERING_TIER_OPTIONS,
+    TIER_CATEGORIES,
+    AV_CATEGORIES,
+    SETUP_CATEGORIES,
+    BUILDING_CATERING_TIER,
+    CateringTier,
+} from './ucla-catering-menu';
 
-const SPACE_TYPE_OPTIONS = [
-    { value: 'meeting_room', label: 'Meeting Room' },
-    { value: 'lecture_hall', label: 'Lecture Hall' },
-    { value: 'auditorium', label: 'Auditorium' },
-    { value: 'boardroom', label: 'Boardroom' },
-    { value: 'open_space', label: 'Open Space' },
-    { value: 'breakout', label: 'Breakout' },
-    { value: 'training_room', label: 'Training Room' },
-    { value: 'lab', label: 'Lab' },
-    { value: 'studio', label: 'Studio' },
-    { value: 'other', label: 'Other' },
+// ── UCLA Venue Types ──────────────────────────────────────────────
+const VENUE_TYPE_OPTIONS = [
+    { value: 'Event Space', label: 'Event Space' },
+    { value: 'Meeting Room', label: 'Meeting Room' },
+    { value: 'Conference Room', label: 'Conference Room' },
+    { value: 'Auditorium', label: 'Auditorium' },
+    { value: 'Ballroom', label: 'Ballroom' },
+    { value: 'Boardroom', label: 'Boardroom' },
+    { value: 'Outdoor Space', label: 'Outdoor Space' },
+    { value: 'Dining Venue', label: 'Dining Venue' },
+    { value: 'Gallery', label: 'Gallery' },
+    { value: 'Theater', label: 'Theater' },
+    { value: 'Classroom', label: 'Classroom' },
 ];
 
-const PRIMARY_USE_OPTIONS = [
-    { value: 'corporate', label: 'Corporate' },
-    { value: 'academic', label: 'Academic' },
-    { value: 'social', label: 'Social' },
-    { value: 'mixed', label: 'Mixed' },
-];
-
-const ENCLOSURE_LEVEL_OPTIONS = [
-    { value: 'fully_enclosed', label: 'Fully Enclosed' },
-    { value: 'semi_enclosed', label: 'Semi Enclosed' },
-    { value: 'open', label: 'Open' },
-];
-
-const RISK_PROFILE_OPTIONS = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'critical', label: 'Critical' },
-];
-
-const PRICING_MODEL_OPTIONS = [
-    { value: 'free', label: 'Free' },
-    { value: 'hourly', label: 'Hourly' },
-    { value: 'half_day', label: 'Half Day' },
-    { value: 'full_day', label: 'Full Day' },
-    { value: 'dynamic', label: 'Dynamic' },
-];
-
-const AV_EQUIPMENT_OPTIONS = [
-    { value: 'projector', label: 'Projector' },
-    { value: 'screen', label: 'Screen' },
-    { value: 'whiteboard', label: 'Whiteboard' },
-    { value: 'video_conf', label: 'Video Conferencing' },
-    { value: 'microphone', label: 'Microphone' },
-    { value: 'speakers', label: 'Speakers' },
-    { value: 'recording', label: 'Recording' },
-    { value: 'streaming', label: 'Streaming' },
+// ── UCLA AV & Technology ─────────────────────────────────────────
+const AV_SERVICE_OPTIONS = [
+    { value: 'av_equipment_support', label: 'Audio-Visual Equipment & Support' },
+    { value: 'sound_system', label: 'Sound System & Microphones' },
+    { value: 'projection_screens', label: 'Projection & Screens' },
+    { value: 'video_conferencing', label: 'Video Conferencing' },
+    { value: 'live_streaming', label: 'Live-Streaming & Recording' },
+    { value: 'smart_room_tech', label: 'Smart Room Technology' },
     { value: 'digital_signage', label: 'Digital Signage' },
+    { value: 'portable_av', label: 'Portable AV Equipment' },
+    { value: 'virtual_hybrid', label: 'Virtual & Hybrid Support' },
+    { value: 'instructional_tech', label: 'Instructional Technology' },
 ];
 
-const AV_INPUT_OPTIONS = [
-    { value: 'hdmi', label: 'HDMI' },
-    { value: 'usb_c', label: 'USB-C' },
-    { value: 'wireless', label: 'Wireless' },
-    { value: 'vga', label: 'VGA' },
-    { value: 'bluetooth', label: 'Bluetooth' },
-    { value: 'aux', label: 'AUX' },
+// ── UCLA Event Planning & Coordination ───────────────────────────
+const EVENT_SERVICE_OPTIONS = [
+    { value: 'event_planning', label: 'Event Planning & Management' },
+    { value: 'event_facilitators', label: 'Event Facilitators / Conference Managers' },
+    { value: 'event_staffing', label: 'Event Staffing' },
+    { value: 'room_setup_strike', label: 'Room Setup & Strike' },
+    { value: 'custodial_cleaning', label: 'Custodial & Cleaning' },
+    { value: 'security_coordination', label: 'Security Coordination' },
+    { value: 'ticketing_services', label: 'Ticketing Services' },
+    { value: 'photography_permitting', label: 'Photography & Film Permitting' },
+    { value: 'simultaneous_translation', label: 'Simultaneous Translation' },
+    { value: 'signage_displays', label: 'Signage & Displays' },
 ];
 
-const AV_SUPPORT_MODEL_OPTIONS = [
-    { value: 'self_service', label: 'Self Service' },
-    { value: 'on_request', label: 'On Request' },
-    { value: 'dedicated_tech', label: 'Dedicated Tech' },
-    { value: 'remote_support', label: 'Remote Support' },
-];
-
-const SEATING_TYPE_OPTIONS = [
-    { value: 'fixed', label: 'Fixed' },
-    { value: 'movable', label: 'Movable' },
-    { value: 'tiered', label: 'Tiered' },
-    { value: 'mixed', label: 'Mixed' },
-];
-
+// ── UCLA Layout Options ──────────────────────────────────────────
 const SUPPORTED_LAYOUT_OPTIONS = [
     { value: 'theatre', label: 'Theatre' },
     { value: 'classroom', label: 'Classroom' },
@@ -352,145 +331,80 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                     }
                 </form>
 
-                <!-- Collapsible: Space Classification -->
+                <!-- Venue Type -->
+                <div class="mb-3" [formGroup]="venue_form">
+                    <div class="flex flex-col">
+                        <label>Venue Type</label>
+                        <mat-form-field appearance="outline">
+                            <mat-select formControlName="venue_type" placeholder="Select venue type">
+                                @for (opt of venue_type_options; track opt.value) {
+                                    <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Collapsible: Layout & Configuration -->
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
-                        Space Classification
-                        <span class="text-xs opacity-50 ml-2">Type, use & enclosure</span>
+                        Layout & Configuration
+                        <span class="text-xs opacity-50 ml-2">Seating, layouts & square footage</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="flex flex-col min-w-0">
-                                <label>Space Type</label>
+                                <label>Square Footage</label>
                                 <mat-form-field appearance="outline">
-                                    <mat-select formControlName="space_type" placeholder="Select space type">
-                                        @for (opt of space_type_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
+                                    <input matInput type="number" formControlName="sqft" placeholder="0" [min]="0" />
                                 </mat-form-field>
                             </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Primary Use</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="primary_use" placeholder="Select primary use">
-                                        @for (opt of primary_use_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Enclosure Level</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="enclosure_level" placeholder="Select enclosure level">
-                                        @for (opt of enclosure_level_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
+                            <div class="flex items-center justify-center pt-4">
+                                <settings-toggle name="Furniture Movable" formControlName="furniture_movable"></settings-toggle>
                             </div>
                         </div>
-                    </div>
-                </details>
-
-                <!-- Collapsible: Capacity Model -->
-                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
-                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
-                        Capacity Model
-                        <span class="text-xs opacity-50 ml-2">Seated, standing, teaching & fire code limits</span>
-                    </summary>
-                    <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="flex flex-col min-w-0">
-                                <label>Seated Capacity</label>
-                                <a-counter class="w-full" formControlName="capacity_seated" [min]="0" [max]="9999"></a-counter>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Standing Capacity</label>
-                                <a-counter class="w-full" formControlName="capacity_standing" [min]="0" [max]="9999"></a-counter>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Teaching Capacity</label>
-                                <a-counter class="w-full" formControlName="capacity_teaching" [min]="0" [max]="9999"></a-counter>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Fire Code Max</label>
-                                <a-counter class="w-full" formControlName="capacity_fire_code" [min]="0" [max]="9999"></a-counter>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Collapsible: Safety & Risk -->
-                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
-                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
-                        Safety & Risk
-                        <span class="text-xs opacity-50 ml-2">Risk profile, exits & security</span>
-                    </summary>
-                    <div class="px-4 pb-4 pt-2 flex flex-col space-y-4" [formGroup]="venue_form">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="flex flex-col min-w-0">
-                                <label>Risk Profile</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="risk_profile" placeholder="Select risk profile">
-                                        @for (opt of risk_profile_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex flex-col justify-center pt-4">
-                                <settings-toggle name="Safety Approval Required" formControlName="safety_approval_required"></settings-toggle>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="flex flex-col min-w-0">
-                                <label>Emergency Exits</label>
-                                <a-counter class="w-full" formControlName="emergency_exits_count" [min]="0" [max]="20"></a-counter>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Security Threshold (attendees)</label>
-                                <a-counter class="w-full" formControlName="security_required_threshold" [min]="0" [max]="9999"></a-counter>
-                            </div>
-                        </div>
-                        <div class="flex flex-col">
-                            <label>Special Hazards</label>
+                        <div class="flex flex-col min-w-0">
+                            <label>Supported Layouts</label>
                             <mat-form-field appearance="outline">
-                                <textarea matInput formControlName="special_hazards" placeholder="Describe any special hazards"></textarea>
+                                <mat-select formControlName="supported_layouts" multiple placeholder="Select layouts">
+                                    @for (opt of supported_layout_options; track opt.value) {
+                                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                    }
+                                </mat-select>
                             </mat-form-field>
                         </div>
                     </div>
                 </details>
 
                 <!-- Pricing -->
-                <div class="mt-2 w-full overflow-hidden" [formGroup]="venue_form">
-                    <label class="font-medium text-sm mb-2 block">Pricing</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="flex flex-col min-w-0">
-                            <label>Pricing Model</label>
-                            <mat-form-field appearance="outline">
-                                <mat-select formControlName="pricing_model" placeholder="Select pricing model">
-                                    @for (opt of pricing_model_options; track opt.value) {
-                                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-col min-w-0">
-                            <label>Hourly Rate ($)</label>
-                            <mat-form-field appearance="outline">
-                                <input matInput type="number" formControlName="hourly_rate" placeholder="0" [min]="0" [max]="99999" />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-col min-w-0">
-                            <label>Base Price ($)</label>
-                            <mat-form-field appearance="outline">
-                                <input matInput type="number" formControlName="base_price" placeholder="0" [min]="0" [max]="99999" />
-                            </mat-form-field>
+                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
+                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
+                        Pricing
+                        <span class="text-xs opacity-50 ml-2">Hourly, half-day & full-day rates</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="flex flex-col min-w-0">
+                                <label>Hourly Rate ($)</label>
+                                <mat-form-field appearance="outline">
+                                    <input matInput type="number" formControlName="hourly_rate" placeholder="0" [min]="0" />
+                                </mat-form-field>
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <label>Half-Day Rate ($)</label>
+                                <mat-form-field appearance="outline">
+                                    <input matInput type="number" formControlName="half_day_rate" placeholder="0" [min]="0" />
+                                </mat-form-field>
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <label>Full-Day Rate ($)</label>
+                                <mat-form-field appearance="outline">
+                                    <input matInput type="number" formControlName="full_day_rate" placeholder="0" [min]="0" />
+                                </mat-form-field>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </details>
             }
 
             @if (current_page() === 2) {
@@ -540,87 +454,250 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                     </div>
                 </div>
 
-                <!-- Collapsible: AV & Technology -->
+                <!-- Collapsible: AV & Technology Services -->
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         AV & Technology
-                        <span class="text-xs opacity-50 ml-2">Equipment, inputs & support</span>
+                        <span class="text-xs opacity-50 ml-2">Equipment, staffing & tech support</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
-                        <div class="grid grid-cols-2 gap-2 mb-4">
-                            <div class="flex flex-col min-w-0">
-                                <label>AV Equipment</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="av_equipment" multiple placeholder="Select equipment">
-                                        @for (opt of av_equipment_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>AV Inputs</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="av_inputs" multiple placeholder="Select inputs">
-                                        @for (opt of av_input_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
+                        <div class="flex flex-col min-w-0 mb-4">
+                            <label>AV & Tech Services</label>
+                            <mat-form-field appearance="outline">
+                                <mat-select formControlName="av_services" multiple placeholder="Select available services">
+                                    @for (opt of av_service_options; track opt.value) {
+                                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
                         </div>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="flex flex-col min-w-0">
-                                <label>AV Support Model</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="av_support_model" placeholder="Select support model">
-                                        @for (opt of av_support_model_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <settings-toggle name="On-Site Technical Staff" formControlName="onsite_tech_staff"></settings-toggle>
+                            <settings-toggle name="After Hours AV Available" formControlName="after_hours_av"></settings-toggle>
+                        </div>
+                        <!-- AV Equipment & Staffing Catalog -->
+                        <label class="text-xs font-medium opacity-70 mb-1">AV Equipment & Staffing Catalog</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <icon matPrefix class="text-xl">search</icon>
+                            <input matInput placeholder="Search AV items..." [value]="av_search()" (input)="av_search.set($any($event.target).value)" />
+                        </mat-form-field>
+                        <div class="max-h-[300px] overflow-y-auto border border-base-200 rounded-lg">
+                            @for (cat of filtered_av_categories(); track cat.id) {
+                                <details class="border-b border-base-200 last:border-b-0">
+                                    <summary class="cursor-pointer px-3 py-2 font-medium text-xs hover:bg-base-100 select-none flex items-center justify-between sticky top-0 bg-white z-10">
+                                        <span>{{ cat.label }}</span>
+                                        <span class="text-xs opacity-50">{{ getAvEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
+                                    </summary>
+                                    <div class="px-3 pb-2">
+                                        <div class="flex items-center justify-between py-1 mb-1 border-b border-base-100">
+                                            <span class="text-xs font-medium opacity-60">Select All</span>
+                                            <button type="button" class="text-xs text-primary hover:underline" (click)="toggleAvCategory(cat.id)">
+                                                {{ isAvCategoryFullyEnabled(cat.id) ? 'Deselect All' : 'Select All' }}
+                                            </button>
+                                        </div>
+                                        @for (item of cat.items; track item.id) {
+                                            <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
+                                                 [class.opacity-50]="!isAvItemEnabled(item.id)">
+                                                <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
+                                                    <input type="checkbox" class="accent-primary w-3.5 h-3.5"
+                                                        [checked]="isAvItemEnabled(item.id)"
+                                                        (change)="toggleAvItem(item.id)" />
+                                                    <span class="truncate">{{ item.name }}</span>
+                                                </label>
+                                                <div class="flex items-center gap-1 shrink-0">
+                                                    <span class="text-xs opacity-50">$</span>
+                                                    <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
+                                                        [value]="getMenuItemPrice(item.id)"
+                                                        (change)="setMenuItemPrice(item.id, $any($event.target).value)"
+                                                        [min]="0" step="1" />
+                                                    <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                                </div>
+                                            </div>
                                         }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex items-center justify-center pt-4">
-                                <settings-toggle name="AV Support Required" formControlName="av_support_required"></settings-toggle>
-                            </div>
-                            <div class="flex items-center justify-center pt-4">
-                                <settings-toggle name="After Hours AV" formControlName="after_hours_av_supported"></settings-toggle>
-                            </div>
+                                    </div>
+                                </details>
+                            }
                         </div>
                     </div>
                 </details>
 
-                <!-- Collapsible: Layout & Furniture -->
+                <!-- Collapsible: Catering & Dining — UCLA Menu Catalog -->
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
-                        Layout & Furniture
-                        <span class="text-xs opacity-50 ml-2">Seating, layouts & furniture</span>
+                        Catering & Dining
+                        <span class="text-xs opacity-50 ml-2">UCLA menu catalog & pricing</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2 flex flex-col space-y-3">
+                        <!-- Catering Tier selector -->
+                        <div class="flex flex-col" [formGroup]="venue_form">
+                            <label class="text-xs opacity-70 mb-1">Service Level</label>
+                            <mat-form-field appearance="outline">
+                                <mat-select formControlName="catering_tier"
+                                    (selectionChange)="active_tier.set($event.value)">
+                                    @for (opt of catering_tier_options; track opt.value) {
+                                        <mat-option [value]="opt.value">
+                                            {{ opt.label }}
+                                            <span class="text-xs opacity-50 ml-1">— {{ opt.description }}</span>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <!-- Provider & Kitchen toggles -->
+                        <div class="grid grid-cols-2 gap-4 mb-2" [formGroup]="venue_form">
+                            <settings-toggle name="Kitchen Access" formControlName="kitchen_access"></settings-toggle>
+                            <settings-toggle name="Piano Available" formControlName="piano_available"></settings-toggle>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mb-2" [formGroup]="venue_form">
+                            <div class="flex flex-col">
+                                <label class="text-xs opacity-70">Catering Provider</label>
+                                <mat-form-field appearance="outline">
+                                    <input matInput formControlName="catering_provider" placeholder="e.g. UCLA Conferences & Catering" />
+                                </mat-form-field>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-xs opacity-70">Catering Notes</label>
+                                <mat-form-field appearance="outline">
+                                    <input matInput formControlName="catering_notes" placeholder="Additional notes" />
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <!-- Menu search -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <icon matPrefix class="text-xl">search</icon>
+                            <input matInput placeholder="Search menu items..." [value]="menu_search()" (input)="menu_search.set($any($event.target).value)" />
+                        </mat-form-field>
+
+                        <!-- Menu categories -->
+                        <div class="max-h-[400px] overflow-y-auto border border-base-200 rounded-lg">
+                            @for (cat of filtered_menu_categories(); track cat.id) {
+                                <details class="border-b border-base-200 last:border-b-0">
+                                    <summary class="cursor-pointer px-3 py-2 font-medium text-xs hover:bg-base-100 select-none flex items-center justify-between sticky top-0 bg-white z-10">
+                                        <span>
+                                            {{ cat.label }}
+                                            <span class="text-xs opacity-40 ml-1">{{ cat.description }}</span>
+                                        </span>
+                                        <span class="text-xs opacity-50">{{ getEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
+                                    </summary>
+                                    <div class="px-3 pb-2">
+                                        <!-- Select All toggle -->
+                                        <div class="flex items-center justify-between py-1 mb-1 border-b border-base-100">
+                                            <span class="text-xs font-medium opacity-60">Select All</span>
+                                            <button type="button" class="text-xs text-primary hover:underline" (click)="toggleCategory(cat.id)">
+                                                {{ isCategoryFullyEnabled(cat.id) ? 'Deselect All' : 'Select All' }}
+                                            </button>
+                                        </div>
+                                        @for (item of cat.items; track item.id) {
+                                            <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
+                                                 [class.opacity-50]="!isMenuItemEnabled(item.id)">
+                                                <!-- Checkbox + Name -->
+                                                <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
+                                                    <input type="checkbox"
+                                                        class="accent-primary w-3.5 h-3.5"
+                                                        [checked]="isMenuItemEnabled(item.id)"
+                                                        (change)="toggleMenuItem(item.id)" />
+                                                    <span class="truncate">{{ item.name }}</span>
+                                                </label>
+                                                <!-- Editable price -->
+                                                <div class="flex items-center gap-1 shrink-0">
+                                                    <span class="text-xs opacity-50">$</span>
+                                                    <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
+                                                        [value]="getMenuItemPrice(item.id)"
+                                                        (change)="setMenuItemPrice(item.id, $any($event.target).value)"
+                                                        [min]="0" step="0.50" />
+                                                    <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </details>
+                            }
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Collapsible: Setup & Furniture Rental -->
+                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
+                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
+                        Setup & Furniture Rental
+                        <span class="text-xs opacity-50 ml-2">Tables, bars & event furniture</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <icon matPrefix class="text-xl">search</icon>
+                            <input matInput placeholder="Search setup items..." [value]="setup_search()" (input)="setup_search.set($any($event.target).value)" />
+                        </mat-form-field>
+                        <div class="max-h-[300px] overflow-y-auto border border-base-200 rounded-lg">
+                            @for (cat of filtered_setup_categories(); track cat.id) {
+                                <div class="px-3 pb-2 pt-1">
+                                    <div class="flex items-center justify-between py-1 mb-1 border-b border-base-100">
+                                        <span class="text-xs font-medium opacity-60">{{ getSetupEnabledCount() }}/{{ cat.items.length }} selected</span>
+                                        <button type="button" class="text-xs text-primary hover:underline" (click)="toggleAllSetup()">
+                                            {{ isAllSetupEnabled() ? 'Deselect All' : 'Select All' }}
+                                        </button>
+                                    </div>
+                                    @for (item of cat.items; track item.id) {
+                                        <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
+                                             [class.opacity-50]="!isSetupItemEnabled(item.id)">
+                                            <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
+                                                <input type="checkbox" class="accent-primary w-3.5 h-3.5"
+                                                    [checked]="isSetupItemEnabled(item.id)"
+                                                    (change)="toggleSetupItem(item.id)" />
+                                                <span class="truncate">{{ item.name }}</span>
+                                            </label>
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <span class="text-xs opacity-50">$</span>
+                                                <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
+                                                    [value]="getMenuItemPrice(item.id)"
+                                                    (change)="setMenuItemPrice(item.id, $any($event.target).value)"
+                                                    [min]="0" step="1" />
+                                                <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <!-- Service Charge toggle -->
+                        <div class="mt-3 pt-2 border-t border-base-200" [formGroup]="venue_form">
+                            <settings-toggle name="After-Hours Service Charge (+$50)" formControlName="after_hours_service_charge"></settings-toggle>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Collapsible: Event Planning & Coordination -->
+                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
+                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
+                        Event Services
+                        <span class="text-xs opacity-50 ml-2">Planning, staffing & logistics</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="flex flex-col min-w-0">
-                                <label>Seating Type</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="seating_type" placeholder="Select seating type">
-                                        @for (opt of seating_type_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex flex-col min-w-0">
-                                <label>Supported Layouts</label>
-                                <mat-form-field appearance="outline">
-                                    <mat-select formControlName="supported_layouts" multiple placeholder="Select layouts">
-                                        @for (opt of supported_layout_options; track opt.value) {
-                                            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex items-center justify-center pt-4">
-                                <settings-toggle name="Furniture Movable" formControlName="furniture_movable"></settings-toggle>
-                            </div>
+                        <div class="flex flex-col min-w-0 mb-4">
+                            <label>Available Event Services</label>
+                            <mat-form-field appearance="outline">
+                                <mat-select formControlName="event_services" multiple placeholder="Select available services">
+                                    @for (opt of event_service_options; track opt.value) {
+                                        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Collapsible: Parking & WiFi -->
+                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
+                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
+                        Parking & WiFi
+                        <span class="text-xs opacity-50 ml-2">Connectivity & transportation</span>
+                    </summary>
+                    <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
+                        <div class="grid grid-cols-2 gap-4">
+                            <settings-toggle name="Complimentary WiFi" formControlName="wifi_available"></settings-toggle>
+                            <settings-toggle name="High-Speed WiFi" formControlName="high_speed_wifi"></settings-toggle>
+                            <settings-toggle name="On-Site Parking" formControlName="onsite_parking"></settings-toggle>
+                            <settings-toggle name="Visitor Transportation" formControlName="visitor_transportation"></settings-toggle>
                         </div>
                     </div>
                 </details>
@@ -629,44 +706,18 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Accessibility
-                        <span class="text-xs opacity-50 ml-2">Access, hearing & mobility</span>
+                        <span class="text-xs opacity-50 ml-2">ADA compliance & accommodations</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2 flex flex-col space-y-4" [formGroup]="venue_form">
                         <div class="grid grid-cols-2 gap-4">
-                            <settings-toggle name="Step-Free Access" formControlName="step_free_access"></settings-toggle>
-                            <settings-toggle name="Hearing Loop" formControlName="hearing_loop_available"></settings-toggle>
-                            <settings-toggle name="Accessible Restroom Nearby" formControlName="accessible_restroom_nearby"></settings-toggle>
+                            <settings-toggle name="ADA Accessible" formControlName="ada_accessible"></settings-toggle>
+                            <settings-toggle name="Hearing Loop" formControlName="hearing_loop"></settings-toggle>
+                            <settings-toggle name="Accessible Restroom Nearby" formControlName="accessible_restroom"></settings-toggle>
                             <settings-toggle name="Adjustable Lighting" formControlName="adjustable_lighting"></settings-toggle>
                         </div>
                         <div class="flex flex-col w-1/2">
                             <label>Wheelchair Capacity</label>
                             <a-counter class="w-full" formControlName="wheelchair_capacity" [min]="0" [max]="999"></a-counter>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Collapsible: Catering -->
-                <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
-                    <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
-                        Catering
-                        <span class="text-xs opacity-50 ml-2">Kitchen, providers & notes</span>
-                    </summary>
-                    <div class="px-4 pb-4 pt-2 flex flex-col space-y-4" [formGroup]="venue_form">
-                        <div class="grid grid-cols-2 gap-4">
-                            <settings-toggle name="Catering Available" formControlName="catering_available"></settings-toggle>
-                            <settings-toggle name="Kitchen Access" formControlName="kitchen_access"></settings-toggle>
-                        </div>
-                        <div class="flex flex-col">
-                            <label>Catering Providers</label>
-                            <mat-form-field appearance="outline">
-                                <input matInput formControlName="catering_providers" placeholder="Enter catering providers" />
-                            </mat-form-field>
-                        </div>
-                        <div class="flex flex-col">
-                            <label>Catering Notes</label>
-                            <mat-form-field appearance="outline">
-                                <textarea matInput formControlName="catering_notes" placeholder="Additional catering notes"></textarea>
-                            </mat-form-field>
                         </div>
                     </div>
                 </details>
@@ -891,6 +942,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         inject<MatDialogRef<RoomModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _catering = inject(CateringStateService);
 
     public loading = false;
     public current_page = signal<1 | 2>(1);
@@ -907,59 +959,285 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     /** Custom venue fields stored in org metadata */
     public venue_form = new FormGroup({
-        // Space Classification
-        space_type: new FormControl(''),
-        primary_use: new FormControl(''),
-        enclosure_level: new FormControl(''),
-        // Capacity Model
-        capacity_seated: new FormControl(0),
-        capacity_standing: new FormControl(0),
-        capacity_teaching: new FormControl(0),
-        capacity_fire_code: new FormControl(0),
-        // AV & Technology
-        av_equipment: new FormControl<string[]>([]),
-        av_inputs: new FormControl<string[]>([]),
-        av_support_model: new FormControl(''),
-        av_support_required: new FormControl(false),
-        after_hours_av_supported: new FormControl(false),
-        // Layout & Furniture
-        seating_type: new FormControl(''),
+        // Venue Type
+        venue_type: new FormControl(''),
+        // Layout & Configuration
+        sqft: new FormControl(0),
         supported_layouts: new FormControl<string[]>([]),
         furniture_movable: new FormControl(false),
-        // Safety & Risk
-        risk_profile: new FormControl(''),
-        safety_approval_required: new FormControl(false),
-        emergency_exits_count: new FormControl(0),
-        security_required_threshold: new FormControl(0),
-        special_hazards: new FormControl(''),
-        // Accessibility
-        step_free_access: new FormControl(false),
-        wheelchair_capacity: new FormControl(0),
-        hearing_loop_available: new FormControl(false),
-        accessible_restroom_nearby: new FormControl(false),
-        adjustable_lighting: new FormControl(false),
-        // Catering
-        catering_available: new FormControl(false),
-        kitchen_access: new FormControl(false),
-        catering_providers: new FormControl(''),
-        catering_notes: new FormControl(''),
         // Pricing
-        pricing_model: new FormControl(''),
         hourly_rate: new FormControl(0),
-        base_price: new FormControl(0),
+        half_day_rate: new FormControl(0),
+        full_day_rate: new FormControl(0),
+        // AV & Technology
+        av_services: new FormControl<string[]>([]),
+        onsite_tech_staff: new FormControl(false),
+        after_hours_av: new FormControl(false),
+        av_enabled_items: new FormControl<string[]>([]),
+        // Setup & Furniture Rental
+        setup_enabled_items: new FormControl<string[]>([]),
+        // Service Charges
+        after_hours_service_charge: new FormControl(false),
+        // Catering & Dining — UCLA Menu (food only)
+        catering_tier: new FormControl<CateringTier>('full_service'),
+        menu_enabled_items: new FormControl<string[]>([]),
+        menu_price_overrides: new FormControl<Record<string, number>>({}),
+        kitchen_access: new FormControl(false),
+        piano_available: new FormControl(false),
+        catering_provider: new FormControl(''),
+        catering_notes: new FormControl(''),
+        // Event Services
+        event_services: new FormControl<string[]>([]),
+        // Parking & WiFi
+        wifi_available: new FormControl(false),
+        high_speed_wifi: new FormControl(false),
+        onsite_parking: new FormControl(false),
+        visitor_transportation: new FormControl(false),
+        // Accessibility
+        ada_accessible: new FormControl(false),
+        hearing_loop: new FormControl(false),
+        accessible_restroom: new FormControl(false),
+        adjustable_lighting: new FormControl(false),
+        wheelchair_capacity: new FormControl(0),
     });
 
     /** Select options */
-    public readonly space_type_options = SPACE_TYPE_OPTIONS;
-    public readonly primary_use_options = PRIMARY_USE_OPTIONS;
-    public readonly enclosure_level_options = ENCLOSURE_LEVEL_OPTIONS;
-    public readonly risk_profile_options = RISK_PROFILE_OPTIONS;
-    public readonly pricing_model_options = PRICING_MODEL_OPTIONS;
-    public readonly av_equipment_options = AV_EQUIPMENT_OPTIONS;
-    public readonly av_input_options = AV_INPUT_OPTIONS;
-    public readonly av_support_model_options = AV_SUPPORT_MODEL_OPTIONS;
-    public readonly seating_type_options = SEATING_TYPE_OPTIONS;
+    public readonly venue_type_options = VENUE_TYPE_OPTIONS;
+    public readonly av_service_options = AV_SERVICE_OPTIONS;
+    public readonly event_service_options = EVENT_SERVICE_OPTIONS;
     public readonly supported_layout_options = SUPPORTED_LAYOUT_OPTIONS;
+
+    /** Menu — loaded from CateringStateService (same source as Catering Menu page) */
+    public readonly catering_tier_options = CATERING_TIER_OPTIONS;
+    public menu_search = signal('');
+    public av_search = signal('');
+    public setup_search = signal('');
+    public active_tier = signal<CateringTier>('full_service');
+    /** Live menu items from the catering service, grouped by category */
+    public catering_menu_items = signal<CateringItem[]>([]);
+    public catering_menu_categories = computed(() => {
+        const items = this.catering_menu_items();
+        const category_map = new Map<string, { id: string; label: string; description: string; items: CateringItem[] }>();
+        for (const item of items) {
+            if (!category_map.has(item.category)) {
+                category_map.set(item.category, {
+                    id: item.category,
+                    label: item.category.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+                    description: '',
+                    items: [],
+                });
+            }
+            category_map.get(item.category)!.items.push(item);
+        }
+        return Array.from(category_map.values());
+    });
+    public filtered_menu_categories = computed(() => {
+        const tier = this.active_tier();
+        const allowed = TIER_CATEGORIES[tier] || [];
+        const search = this.menu_search().toLowerCase().trim();
+        let categories = this.catering_menu_categories().filter((cat) =>
+            allowed.includes(cat.id),
+        );
+        if (search) {
+            categories = categories
+                .map((cat) => ({
+                    ...cat,
+                    items: cat.items.filter(
+                        (item) =>
+                            item.name.toLowerCase().includes(search) ||
+                            item.category.toLowerCase().includes(search) ||
+                            (item.tags || []).some((t: string) => t.toLowerCase().includes(search)),
+                    ),
+                }))
+                .filter((cat) => cat.items.length > 0);
+        }
+        return categories;
+    });
+
+    /** AV Equipment & Staffing items from the catering service */
+    public filtered_av_categories = computed(() => {
+        const search = this.av_search().toLowerCase().trim();
+        let categories = this.catering_menu_categories().filter((cat) =>
+            AV_CATEGORIES.includes(cat.id),
+        );
+        if (search) {
+            categories = categories
+                .map((cat) => ({
+                    ...cat,
+                    items: cat.items.filter((item) =>
+                        item.name.toLowerCase().includes(search) ||
+                        (item.tags || []).some((t: string) => t.toLowerCase().includes(search)),
+                    ),
+                }))
+                .filter((cat) => cat.items.length > 0);
+        }
+        return categories;
+    });
+
+    /** Setup & Furniture Rental items from the catering service */
+    public filtered_setup_categories = computed(() => {
+        const search = this.setup_search().toLowerCase().trim();
+        let categories = this.catering_menu_categories().filter((cat) =>
+            SETUP_CATEGORIES.includes(cat.id),
+        );
+        if (search) {
+            categories = categories
+                .map((cat) => ({
+                    ...cat,
+                    items: cat.items.filter((item) =>
+                        item.name.toLowerCase().includes(search) ||
+                        (item.tags || []).some((t: string) => t.toLowerCase().includes(search)),
+                    ),
+                }))
+                .filter((cat) => cat.items.length > 0);
+        }
+        return categories;
+    });
+
+    public isAvItemEnabled(item_id: string): boolean {
+        const enabled = this.venue_form.controls.av_enabled_items.value || [];
+        return enabled.includes(item_id);
+    }
+
+    public toggleAvItem(item_id: string): void {
+        const enabled = [...(this.venue_form.controls.av_enabled_items.value || [])];
+        const idx = enabled.indexOf(item_id);
+        if (idx >= 0) { enabled.splice(idx, 1); } else { enabled.push(item_id); }
+        this.venue_form.controls.av_enabled_items.setValue(enabled);
+    }
+
+    public getAvEnabledCount(category_id: string): number {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return 0;
+        const enabled = this.venue_form.controls.av_enabled_items.value || [];
+        return cat.items.filter((i) => enabled.includes(i.id)).length;
+    }
+
+    public toggleAvCategory(category_id: string): void {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return;
+        const enabled = [...(this.venue_form.controls.av_enabled_items.value || [])];
+        const all_in_cat = cat.items.map((i) => i.id);
+        const all_enabled = all_in_cat.every((id) => enabled.includes(id));
+        if (all_enabled) {
+            this.venue_form.controls.av_enabled_items.setValue(enabled.filter((id) => !all_in_cat.includes(id)));
+        } else {
+            this.venue_form.controls.av_enabled_items.setValue([...new Set([...enabled, ...all_in_cat])]);
+        }
+    }
+
+    public isAvCategoryFullyEnabled(category_id: string): boolean {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return false;
+        const enabled = this.venue_form.controls.av_enabled_items.value || [];
+        return cat.items.every((i) => enabled.includes(i.id));
+    }
+
+    public isSetupItemEnabled(item_id: string): boolean {
+        const enabled = this.venue_form.controls.setup_enabled_items.value || [];
+        return enabled.includes(item_id);
+    }
+
+    public toggleSetupItem(item_id: string): void {
+        const enabled = [...(this.venue_form.controls.setup_enabled_items.value || [])];
+        const idx = enabled.indexOf(item_id);
+        if (idx >= 0) { enabled.splice(idx, 1); } else { enabled.push(item_id); }
+        this.venue_form.controls.setup_enabled_items.setValue(enabled);
+    }
+
+    public getSetupEnabledCount(): number {
+        const cat = this.catering_menu_categories().find((c) => c.id === 'setup');
+        if (!cat) return 0;
+        const enabled = this.venue_form.controls.setup_enabled_items.value || [];
+        return cat.items.filter((i) => enabled.includes(i.id)).length;
+    }
+
+    public toggleAllSetup(): void {
+        const cat = this.catering_menu_categories().find((c) => c.id === 'setup');
+        if (!cat) return;
+        const enabled = [...(this.venue_form.controls.setup_enabled_items.value || [])];
+        const all_in_cat = cat.items.map((i) => i.id);
+        const all_enabled = all_in_cat.every((id) => enabled.includes(id));
+        if (all_enabled) {
+            this.venue_form.controls.setup_enabled_items.setValue(enabled.filter((id) => !all_in_cat.includes(id)));
+        } else {
+            this.venue_form.controls.setup_enabled_items.setValue([...new Set([...enabled, ...all_in_cat])]);
+        }
+    }
+
+    public isAllSetupEnabled(): boolean {
+        const cat = this.catering_menu_categories().find((c) => c.id === 'setup');
+        if (!cat) return false;
+        const enabled = this.venue_form.controls.setup_enabled_items.value || [];
+        return cat.items.every((i) => enabled.includes(i.id));
+    }
+
+    public isMenuItemEnabled(item_id: string): boolean {
+        const enabled = this.venue_form.controls.menu_enabled_items.value || [];
+        return enabled.includes(item_id);
+    }
+
+    public toggleMenuItem(item_id: string): void {
+        const enabled = [...(this.venue_form.controls.menu_enabled_items.value || [])];
+        const idx = enabled.indexOf(item_id);
+        if (idx >= 0) {
+            enabled.splice(idx, 1);
+        } else {
+            enabled.push(item_id);
+        }
+        this.venue_form.controls.menu_enabled_items.setValue(enabled);
+    }
+
+    public toggleCategory(category_id: string): void {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return;
+        const enabled = [...(this.venue_form.controls.menu_enabled_items.value || [])];
+        const all_in_cat = cat.items.map((i) => i.id);
+        const all_enabled = all_in_cat.every((id) => enabled.includes(id));
+        if (all_enabled) {
+            // Deselect all in category
+            this.venue_form.controls.menu_enabled_items.setValue(
+                enabled.filter((id) => !all_in_cat.includes(id)),
+            );
+        } else {
+            // Select all in category
+            const new_enabled = [...new Set([...enabled, ...all_in_cat])];
+            this.venue_form.controls.menu_enabled_items.setValue(new_enabled);
+        }
+    }
+
+    public isCategoryFullyEnabled(category_id: string): boolean {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return false;
+        const enabled = this.venue_form.controls.menu_enabled_items.value || [];
+        return cat.items.every((i) => enabled.includes(i.id));
+    }
+
+    public getEnabledCount(category_id: string): number {
+        const cat = this.catering_menu_categories().find((c) => c.id === category_id);
+        if (!cat) return 0;
+        const enabled = this.venue_form.controls.menu_enabled_items.value || [];
+        return cat.items.filter((i) => enabled.includes(i.id)).length;
+    }
+
+    public getMenuItemPrice(item_id: string): number {
+        const overrides = this.venue_form.controls.menu_price_overrides.value || {};
+        if (overrides[item_id] !== undefined) return overrides[item_id];
+        const item = this.catering_menu_items().find((i) => i.id === item_id);
+        // unit_price is in cents, convert to dollars for display
+        return item ? item.unit_price / 100 : 0;
+    }
+
+    public setMenuItemPrice(item_id: string, value: string): void {
+        const price = parseFloat(value) || 0;
+        const overrides = { ...(this.venue_form.controls.menu_price_overrides.value || {}) };
+        overrides[item_id] = price;
+        this.venue_form.controls.menu_price_overrides.setValue(overrides);
+    }
+
+    public getUnitLabel(unit: string): string {
+        return UNIT_LABELS[unit] || unit;
+    }
 
     /** Levels of encyption available for the system's settings */
     public encryption_levels: any[] = [
@@ -979,6 +1257,13 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        // Subscribe to live catering menu from CateringStateService
+        this.subscription(
+            'catering-menu',
+            this._catering.menu.subscribe((items) => {
+                this.catering_menu_items.set(items);
+            }),
+        );
         const { details } = await showMetadata(
             this._org.organisation.id,
             'settings',
@@ -991,6 +1276,18 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         const venue_settings = getItemWithKeys(['venue_settings'], details) || {};
         if (this._data.room.id && venue_settings[this._data.room.id]) {
             this.venue_form.patchValue(venue_settings[this._data.room.id]);
+        }
+        // Auto-detect catering tier from building if not already set
+        const saved_tier = this.venue_form.controls.catering_tier.value;
+        if (!saved_tier || saved_tier === 'full_service') {
+            const building_id = this._org.building?.id || '';
+            const room_zones = (this._data.room as any)?.zones || [];
+            const detected_bld = room_zones.find((z: string) => z.startsWith('bld-')) || building_id;
+            const tier = BUILDING_CATERING_TIER[detected_bld] || 'coordination';
+            this.venue_form.controls.catering_tier.setValue(tier);
+            this.active_tier.set(tier);
+        } else {
+            this.active_tier.set(saved_tier);
         }
         this._updateTimezoneList();
         this.subscription(

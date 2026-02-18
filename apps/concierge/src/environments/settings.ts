@@ -9,6 +9,7 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms',
     use_24_hour_time: false,
+    use_region: true,
     admin_group: 'concierge_admins',
     features: [
         'spaces',

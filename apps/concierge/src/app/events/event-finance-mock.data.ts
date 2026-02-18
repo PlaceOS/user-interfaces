@@ -257,17 +257,17 @@ function _totals(items: FinancialLineItem[]) {
 }
 
 const _q1_items: FinancialLineItem[] = [
-    _lineItem('li-001', 'Main Auditorium — Full Day Hire', 'venue_hire', 1, 2500, 0.1),
+    _lineItem('li-001', 'Royce Hall Auditorium — Full Day Hire', 'venue_hire', 1, 15000, 0.1),
     _lineItem('li-002', 'Morning Tea — 200 pax', 'catering', 200, 12.5, 0.1),
-    _lineItem('li-003', 'PA System & 2x Lapel Mics', 'av_equipment', 1, 850, 0.1),
+    _lineItem('li-003', 'Full Lighting & Sound Production', 'av_equipment', 1, 2200, 0.1),
     _lineItem('li-004', 'Lectern & Confidence Monitor', 'av_equipment', 1, 400, 0.1),
 ];
 
 const _offsite_items: FinancialLineItem[] = [
-    _lineItem('li-005', 'Conference Centre A — Full Day', 'venue_hire', 1, 4200, 0.1),
+    _lineItem('li-005', 'Centennial Ballroom — Luskin Conference Center — Full Day', 'venue_hire', 1, 8000, 0.1),
     _lineItem('li-006', 'Working Lunch — 40 pax', 'catering', 40, 35, 0.1),
-    _lineItem('li-007', 'AV Package — Projector + Audio', 'av_equipment', 1, 1200, 0.1),
-    _lineItem('li-008', 'Facilitator x 2 (8 hrs)', 'staffing', 2, 900, 0.1),
+    _lineItem('li-007', 'Smart Room Technology + AV Package', 'av_equipment', 1, 1200, 0.1),
+    _lineItem('li-008', 'Conference Services Planner x 2 (8 hrs)', 'staffing', 2, 900, 0.1),
 ];
 
 const _dinner_items: FinancialLineItem[] = [
@@ -277,22 +277,22 @@ const _dinner_items: FinancialLineItem[] = [
 ];
 
 const _awards_items: FinancialLineItem[] = [
-    _lineItem('li-012', 'Main Auditorium — Evening', 'venue_hire', 1, 3500, 0.1),
+    _lineItem('li-012', 'Royce Hall Auditorium — Evening', 'venue_hire', 1, 15000, 0.1),
     _lineItem('li-013', 'Stage Lighting Package', 'av_equipment', 1, 1800, 0.1),
-    _lineItem('li-014', 'Sound System — Full Production', 'av_equipment', 1, 2200, 0.1),
+    _lineItem('li-014', 'Full Lighting & Sound Production', 'av_equipment', 1, 2200, 0.1),
     _lineItem('li-015', 'Canape Service — 300 pax', 'catering', 300, 18, 0.1),
-    _lineItem('li-016', 'Security Staff x 3 (6 hrs)', 'security', 3, 350, 0.1),
+    _lineItem('li-016', 'UCPD Security Staff x 3 (6 hrs)', 'security', 3, 350, 0.1),
 ];
 
 const _community_items: FinancialLineItem[] = [
-    _lineItem('li-017', 'Campus Grounds — Full Day', 'venue_hire', 1, 1500, 0.1),
+    _lineItem('li-017', 'Bruin Plaza — ASUCLA — Full Day', 'venue_hire', 1, 5000, 0.1),
     _lineItem('li-018', 'BBQ Catering — 500 pax', 'catering', 500, 15, 0.1),
     _lineItem('li-019', 'Portable PA System', 'av_equipment', 2, 300, 0.1),
     _lineItem('li-020', 'Post-Event Grounds Clean', 'cleaning', 1, 850, 0.1),
 ];
 
 const _lunch_items: FinancialLineItem[] = [
-    _lineItem('li-021', 'Dining Hall B — 2 hrs', 'venue_hire', 1, 600, 0.1),
+    _lineItem('li-021', 'Morrison Room — University Club — 2 hrs', 'venue_hire', 1, 2000, 0.1),
     _lineItem('li-022', 'Buffet Lunch — 25 pax', 'catering', 25, 28, 0.1),
 ];
 
@@ -302,7 +302,7 @@ const _firedrill_items: FinancialLineItem[] = [
 ];
 
 const _hazmat_items: FinancialLineItem[] = [
-    _lineItem('li-025', 'Training Room 2 — Half Day', 'venue_hire', 1, 350, 0.1),
+    _lineItem('li-025', 'Sycamore — De Neve Plaza — Half Day', 'venue_hire', 1, 400, 0.1),
     _lineItem('li-026', 'EHS Trainer — 4 hrs', 'staffing', 1, 600, 0.1),
 ];
 

@@ -138,6 +138,7 @@ export class EventApprovalStateService {
                     av_tech: null,
                     safety: null,
                     events: null,
+                    parking: null,
                 };
 
                 requirements[parent.category] =

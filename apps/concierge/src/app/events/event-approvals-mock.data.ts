@@ -5,7 +5,8 @@ export type ApprovalCategory =
     | 'dining'
     | 'av_tech'
     | 'safety'
-    | 'events';
+    | 'events'
+    | 'parking';
 
 export type EventRole =
     | 'global_admin'
@@ -56,33 +57,35 @@ export const ROLE_DISPLAY_NAMES: Record<EventRole, string> = {
 
 export const CATEGORY_DISPLAY_NAMES: Record<ApprovalCategory, string> = {
     venue: 'Venue Booking',
-    dining: 'Dining & Catering',
-    av_tech: 'AV / Tech Setup',
-    safety: 'Safety & Compliance',
-    events: 'Events',
+    dining: 'Catering & Dining',
+    av_tech: 'AV & Production',
+    safety: 'Safety & Security',
+    events: 'Event Coordination',
+    parking: 'Parking & Transport',
 };
 
 export const CATEGORY_ICONS: Record<ApprovalCategory, string> = {
     venue: 'meeting_room',
     dining: 'restaurant',
-    av_tech: 'settings_input_hdmi',
-    safety: 'health_and_safety',
-    events: 'event',
+    av_tech: 'videocam',
+    safety: 'shield',
+    events: 'event_available',
+    parking: 'local_parking',
 };
 
 export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
     global_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking'],
         can_view: ['safety'],
         reject_safety: true,
     },
     campus_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking'],
         can_view: ['safety'],
         reject_safety: true,
     },
     venue_manager: {
-        can_approve: ['venue', 'dining'],
+        can_approve: ['venue', 'dining', 'parking'],
         can_view: [],
         reject_safety: false,
     },
@@ -97,7 +100,7 @@ export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
         reject_safety: false,
     },
     event_owner: {
-        can_approve: ['venue', 'dining', 'av_tech'],
+        can_approve: ['venue', 'dining', 'av_tech', 'parking'],
         can_view: [],
         reject_safety: true,
     },
@@ -118,7 +121,7 @@ export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
     },
     security: {
         can_approve: [],
-        can_view: ['safety', 'events'],
+        can_view: ['safety', 'events', 'parking'],
         reject_safety: true,
     },
     auditor: {
@@ -147,7 +150,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'venue',
         date: _makeDate(-1, 9, 0),
         duration_minutes: 120,
-        location: 'Main Auditorium',
+        location: 'Royce Hall Main Auditorium',
         organiser: 'Sarah Chen',
     },
     {
@@ -156,7 +159,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'venue',
         date: _makeDate(3, 10, 0),
         duration_minutes: 480,
-        location: 'Conference Centre A',
+        location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Mark Thompson',
     },
     {
@@ -165,7 +168,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'dining',
         date: _makeDate(2, 12, 0),
         duration_minutes: 90,
-        location: 'Dining Hall B',
+        location: 'Morrison Room — University Club',
         organiser: 'HR Team',
     },
     {
@@ -174,7 +177,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'dining',
         date: _makeDate(5, 18, 30),
         duration_minutes: 150,
-        location: 'Executive Dining Room',
+        location: 'Executive Dining Room — Anderson School',
         organiser: 'James Watt',
     },
     {
@@ -183,7 +186,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'av_tech',
         date: _makeDate(-1, 8, 0),
         duration_minutes: 60,
-        location: 'Main Auditorium',
+        location: 'Royce Hall Main Auditorium',
         organiser: 'Tech Services',
         parent_event: 'appr-001',
     },
@@ -193,17 +196,17 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'av_tech',
         date: _makeDate(3, 9, 30),
         duration_minutes: 60,
-        location: 'Conference Centre A',
+        location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Comms Team',
         parent_event: 'appr-002',
     },
     {
         id: 'appr-007',
-        title: 'Fire Drill — Building C',
+        title: 'Fire Drill — Covel Commons',
         category: 'safety',
         date: _makeDate(2, 10, 0),
         duration_minutes: 45,
-        location: 'Building C — All Floors',
+        location: 'Covel Commons — All Floors',
         organiser: 'Safety Officer',
     },
     {
@@ -212,7 +215,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'safety',
         date: _makeDate(6, 9, 30),
         duration_minutes: 60,
-        location: 'Training Room 2',
+        location: 'Sycamore — De Neve Plaza',
         organiser: 'EHS Team',
     },
     {
@@ -221,7 +224,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'events',
         date: _makeDate(7, 7, 0),
         duration_minutes: 720,
-        location: 'Campus Grounds',
+        location: 'Bruin Plaza — ASUCLA',
         organiser: 'Events Coordinator',
     },
     {
@@ -230,7 +233,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'events',
         date: _makeDate(10, 17, 0),
         duration_minutes: 240,
-        location: 'Main Auditorium',
+        location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
     },
     {
@@ -239,7 +242,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'dining',
         date: _makeDate(-1, 9, 0),
         duration_minutes: 120,
-        location: 'Main Auditorium',
+        location: 'Royce Hall Main Auditorium',
         organiser: 'R&D Admin',
         parent_event: 'appr-001',
     },
@@ -249,8 +252,28 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         category: 'dining',
         date: _makeDate(3, 12, 0),
         duration_minutes: 90,
-        location: 'Conference Centre A',
+        location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Facilities',
         parent_event: 'appr-002',
+    },
+    {
+        id: 'appr-013',
+        title: 'Leadership Offsite — Parking',
+        category: 'parking',
+        date: _makeDate(3, 9, 0),
+        duration_minutes: 480,
+        location: 'Luskin Conference Center — Lot 8',
+        organiser: 'Transportation Services',
+        parent_event: 'appr-002',
+    },
+    {
+        id: 'appr-014',
+        title: 'Community Day — Event Parking',
+        category: 'parking',
+        date: _makeDate(7, 6, 0),
+        duration_minutes: 840,
+        location: 'Structure 4 — ASUCLA',
+        organiser: 'Events Coordinator',
+        parent_event: 'appr-009',
     },
 ];

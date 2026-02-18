@@ -1,375 +1,429 @@
-import { padString, predictableRandomInt } from '@placeos/common';
+import { predictableRandomInt } from '@placeos/common';
 import { getUnixTime, subDays, subMonths } from 'date-fns';
-import { MOCK_STAFF } from './users.data';
 
 export const MOCK_CATEGORIES = [
     {
-        id: '1',
-        name: 'Technology',
-        description: 'Electronic devices and computing equipment',
+        id: '9',
+        name: 'AV Equipment',
+        description: 'Audio-visual equipment, projectors, monitors, cameras and accessories',
     },
     {
-        id: '2',
-        name: 'Furniture',
-        description: 'Office furniture and workspace equipment',
-    },
-    {
-        id: '3',
-        name: 'Audio Visual',
-        description: 'Presentation and meeting room equipment',
-    },
-    {
-        id: '4',
-        name: 'Office Supplies',
-        description: 'Stationery and consumable items',
-    },
-    {
-        id: '5',
-        name: 'Kitchen & Catering',
-        description: 'Kitchen appliances and catering equipment',
-    },
-    {
-        id: '6',
-        name: 'Wellness & Safety',
-        description: 'Health, safety, and wellness equipment',
-    },
-    {
-        id: '7',
-        name: 'Mobility',
-        description: 'Transportation and mobility aids',
-    },
-    {
-        id: '8',
-        name: 'Cleaning & Maintenance',
-        description: 'Cleaning supplies and maintenance tools',
-    },
-    {
-        id: '_parking_category_',
-        name: '_PARKING_SPACES_',
-        description: 'Parking spaces',
-        hidden: true,
+        id: '11',
+        name: 'Event Setup & Furniture',
+        description: 'Tables, bars, cocktail tables and event furniture rental',
     },
 ];
 
 export const MOCK_PRODUCTS = [
-    // Technology
+    // ── UCLA AV Equipment (category 9) ────────────────────────────────
     {
-        id: '1',
-        name: 'iPad Pro 12.9"',
-        category_id: '1',
+        id: '30',
+        name: 'Basic Meeting Room AV (University Club)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-BASIC-UC',
+        description: 'Basic AV package for University Club meeting rooms — includes projector, screen, podium mic',
+        specifications: { rental_price: '$500/event' },
+    },
+    {
+        id: '31',
+        name: 'Basic AV — Built-In Projector',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-BUILTIN',
+        description: 'Basic AV setup with venue built-in projector and audio',
+        specifications: { rental_price: '$400/event' },
+    },
+    {
+        id: '32',
+        name: 'Basic AV — Portable Projector (The Hill)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PORTABLE',
+        description: 'Portable projector package for Hill venues',
+        specifications: { rental_price: '$400/event' },
+    },
+    {
+        id: '33',
+        name: 'Portable Projector + Screen (Lounges)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PROJ-SCR',
+        description: 'Portable projector and screen combo for lounge areas',
+        specifications: { rental_price: '$250/each' },
+    },
+    {
+        id: '34',
+        name: 'Hard Wired Internet',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-INTERNET',
+        description: 'Dedicated hard-wired internet connection for events',
+        specifications: { rental_price: '$150/each' },
+    },
+    {
+        id: '35',
+        name: 'Acrylic Podium',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PODIUM',
+        description: 'Clear acrylic podium for presentations and speeches',
+        specifications: { rental_price: '$150/each' },
+    },
+    {
+        id: '36',
+        name: 'Additional Pad for Flipchart',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-FLIPPAD',
+        description: 'Replacement pad for flipchart easel',
+        specifications: { rental_price: '$20/each' },
+    },
+    {
+        id: '37',
+        name: 'Audio Mixer (16-channel)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MIX16',
+        description: '16-channel audio mixer for large events',
+        specifications: { channels: '16', rental_price: '$130/each' },
+    },
+    {
+        id: '38',
+        name: 'Audio Mixer (4-channel)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MIX4',
+        description: '4-channel audio mixer for small events',
+        specifications: { channels: '4', rental_price: '$65/each' },
+    },
+    {
+        id: '39',
+        name: 'Additional Microphone',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MIC',
+        description: 'Additional wired or wireless microphone',
+        specifications: { rental_price: '$200/each' },
+    },
+    {
+        id: '40',
+        name: 'Assisted Listening Device',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-ALD',
+        description: 'Assisted listening device for accessibility compliance',
+        specifications: { rental_price: '$50/each' },
+    },
+    {
+        id: '41',
+        name: 'Camera',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-CAM',
+        description: 'Video camera for event recording and live streaming',
+        specifications: { rental_price: '$300/each' },
+    },
+    {
+        id: '42',
+        name: 'Cisco Speakerphone',
+        category_id: '9',
+        brand: 'Cisco',
+        barcode: 'UCLA-AV-CISCO',
+        description: 'Cisco speakerphone for conference calls and hybrid meetings',
+        specifications: { rental_price: '$300/each' },
+    },
+    {
+        id: '43',
+        name: 'Confidence Monitor 55"',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MON55',
+        description: '55-inch confidence monitor for speaker reference',
+        specifications: { size: '55 inch', rental_price: '$350/each' },
+    },
+    {
+        id: '44',
+        name: 'Confidence Monitor 65"',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MON65',
+        description: '65-inch confidence monitor for speaker reference',
+        specifications: { size: '65 inch', rental_price: '$550/each' },
+    },
+    {
+        id: '45',
+        name: 'Confidence Monitor 85"',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MON85',
+        description: '85-inch confidence monitor for large venues',
+        specifications: { size: '85 inch', rental_price: '$750/each' },
+    },
+    {
+        id: '46',
+        name: 'Monitor 42"',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MON42',
+        description: '42-inch display monitor',
+        specifications: { size: '42 inch', rental_price: '$200/each' },
+    },
+    {
+        id: '47',
+        name: 'OWL USB Webcam',
+        category_id: '9',
+        brand: 'Meeting Owl',
+        barcode: 'UCLA-AV-OWL',
+        description: 'OWL 360-degree USB webcam for hybrid meetings',
+        specifications: { rental_price: '$350/each' },
+    },
+    {
+        id: '48',
+        name: 'Slide Advancer',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-SLIDE',
+        description: 'Wireless slide advancer remote',
+        specifications: { rental_price: '$50/each' },
+    },
+    {
+        id: '49',
+        name: 'Speaker Timer',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-TIMER',
+        description: 'Digital speaker timer display',
+        specifications: { rental_price: '$350/each' },
+    },
+    {
+        id: '50',
+        name: 'PerfectCue',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-CUE',
+        description: 'PerfectCue presentation cue system',
+        specifications: { rental_price: '$350/each' },
+    },
+    {
+        id: '51',
+        name: 'Laptop — MacBook',
+        category_id: '9',
         brand: 'Apple',
-        barcode: 'APL-IPD-PRO-12',
-        model: 'MHNK3X/A',
-        description:
-            'Latest generation iPad Pro with M2 chip, perfect for presentations and digital collaboration',
-        specifications: {
-            screen_size: '12.9 inch',
-            storage: '256GB',
-            connectivity: 'Wi-Fi + Cellular',
-            color: 'Space Gray',
-        },
+        barcode: 'UCLA-AV-MAC',
+        description: 'MacBook laptop for presentations',
+        specifications: { rental_price: '$250/each' },
     },
     {
-        id: '2',
-        name: 'iPhone 14 Pro',
-        category_id: '1',
-        brand: 'Apple',
-        barcode: 'APL-IPH-14P',
-        model: 'MQ0G3X/A',
-        description:
-            'Professional smartphone for business communications and mobile productivity',
-        specifications: {
-            storage: '128GB',
-            color: 'Deep Purple',
-            connectivity: '5G',
-        },
+        id: '52',
+        name: 'Laptop — PC',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PC',
+        description: 'PC laptop for presentations',
+        specifications: { rental_price: '$250/each' },
     },
     {
-        id: '3',
-        name: 'MacBook Pro 16"',
-        category_id: '1',
-        brand: 'Apple',
-        barcode: 'APL-MBP-16',
-        model: 'MK1E3X/A',
-        description:
-            'High-performance laptop for development and creative work',
-        specifications: {
-            processor: 'M2 Pro',
-            memory: '16GB',
-            storage: '512GB SSD',
-            color: 'Space Gray',
-        },
+        id: '53',
+        name: 'Moon Balloon',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-MOON',
+        description: 'Moon balloon lighting for outdoor events',
+        specifications: { rental_price: '$800/each' },
     },
     {
-        id: '4',
-        name: 'Surface Pro 9',
-        category_id: '1',
-        brand: 'Microsoft',
-        barcode: 'MSF-SP9-256',
-        model: 'QEZ-00001',
-        description: '2-in-1 tablet and laptop for versatile productivity',
-        specifications: {
-            processor: 'Intel Core i5',
-            memory: '8GB',
-            storage: '256GB SSD',
-        },
+        id: '54',
+        name: 'Power Panel',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PWRPNL',
+        description: 'Electrical power panel for large events',
+        specifications: { rental_price: '$600/each' },
     },
     {
-        id: '5',
-        name: 'Wireless Presenter Remote',
-        category_id: '1',
-        brand: 'Logitech',
-        barcode: 'LOG-R400',
-        model: 'R400',
-        description:
-            'Professional wireless presenter with laser pointer and intuitive controls',
+        id: '55',
+        name: 'Power Strip',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PWRSTR',
+        description: 'Power strip extension',
+        specifications: { rental_price: '$30/each' },
+    },
+    {
+        id: '56',
+        name: 'Power Extension',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-PWREXT',
+        description: 'Power extension cord',
+        specifications: { rental_price: '$30/each' },
+    },
+    {
+        id: '57',
+        name: 'HDMI Cable (6-Foot)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-HDMI',
+        description: '6-foot HDMI cable',
+        specifications: { length: '6 feet', rental_price: '$30/each' },
+    },
+    {
+        id: '58',
+        name: 'Network Cable (10-Foot)',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-NET',
+        description: '10-foot network/ethernet cable',
+        specifications: { length: '10 feet', rental_price: '$30/each' },
+    },
+    {
+        id: '59',
+        name: 'Laptop Adapters',
+        category_id: '9',
+        brand: 'UCLA AV',
+        barcode: 'UCLA-AV-ADAPT',
+        description: 'Assorted laptop video adapters (USB-C, HDMI, VGA)',
+        specifications: { rental_price: '$30/each' },
     },
 
-    // Furniture
+    // ── UCLA Event Setup & Furniture (category 11) ──────────────────
     {
-        id: '6',
-        name: 'Aeron Chair',
-        category_id: '2',
-        brand: 'Herman Miller',
-        barcode: 'HM-AER-B',
-        model: 'AE113AWBPJG1C7',
-        description:
-            'Ergonomic office chair with advanced lumbar support and breathable mesh',
-        specifications: {
-            size: 'Size B (Medium)',
-            color: 'Graphite',
-            material: 'Pellicle mesh',
-            adjustments: 'Full feature',
-        },
+        id: '70',
+        name: '12-ft Registration Table + 4 Chairs + Wastebaskets',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-REG',
+        description: 'Registration table package with chairs and wastebaskets',
+        specifications: { rental_price: 'Included', size: '12 feet' },
     },
     {
-        id: '7',
-        name: 'Standing Desk Converter',
-        category_id: '2',
-        brand: 'Varidesk',
-        barcode: 'VAR-SD36',
-        model: 'Pro Plus 36',
-        description:
-            'Height-adjustable desk converter for ergonomic workspace flexibility',
-        specifications: {
-            width: '36 inches',
-            weight_capacity: '35 lbs',
-            height_range: '11.5" - 15.5"',
-        },
+        id: '71',
+        name: '12-ft Bar',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-BAR12',
+        description: '12-foot bar for events and receptions',
+        specifications: { rental_price: 'Included', size: '12 feet' },
     },
     {
-        id: '8',
-        name: 'Modular Sofa System',
-        category_id: '2',
-        brand: 'Steelcase',
-        barcode: 'STC-MSS-3',
-        model: 'Gesture Lounge',
-        description:
-            'Flexible seating solution for collaborative spaces and break areas',
+        id: '72',
+        name: '6-ft Front & Back Bar',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-BAR6',
+        description: '6-foot front and back bar',
+        specifications: { rental_price: 'Included', size: '6 feet' },
     },
     {
-        id: '9',
-        name: 'Conference Table',
-        category_id: '2',
-        brand: 'Knoll',
-        barcode: 'KNL-CT-12',
-        model: 'Florence 12-Person',
-        description:
-            'Premium conference table with integrated cable management',
-        specifications: {
-            seats: '12 people',
-            material: 'Oak veneer',
-            shape: 'Rectangular',
-        },
-    },
-
-    // Audio Visual
-    {
-        id: '10',
-        name: '4K Laser Projector',
-        category_id: '3',
-        brand: 'Epson',
-        barcode: 'EPS-LS500',
-        model: 'EpiqVision Ultra LS500',
-        description:
-            'Ultra-short throw 4K laser projector for meeting rooms and presentations',
-        specifications: {
-            resolution: '4K UHD',
-            brightness: '4000 lumens',
-            technology: 'Laser',
-            connectivity: 'HDMI, USB-C, Wireless',
-        },
+        id: '73',
+        name: "6' Buffet Table",
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-BUF6',
+        description: "6' buffet table for catering setup",
+        specifications: { rental_price: 'Included', size: '6 feet' },
     },
     {
-        id: '11',
-        name: 'Wireless Microphone System',
-        category_id: '3',
-        brand: 'Shure',
-        barcode: 'SHR-SM58',
-        model: 'SM58-LC',
-        description:
-            'Professional wireless microphone for presentations and events',
+        id: '74',
+        name: "12' Buffet Table",
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-BUF12',
+        description: "12' buffet table for catering setup",
+        specifications: { rental_price: 'Included', size: '12 feet' },
     },
     {
-        id: '12',
-        name: '86" Interactive Display',
-        category_id: '3',
-        brand: 'Microsoft',
-        barcode: 'MSF-SH2-86',
-        model: 'Surface Hub 2S 85"',
-        description:
-            'Large format interactive display for collaborative meetings and workshops',
-        specifications: {
-            size: '85 inches',
-            resolution: '4K',
-            touch_points: '20 simultaneous',
-            connectivity: 'Multiple inputs',
-        },
+        id: '75',
+        name: "18' Buffet Table",
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-BUF18',
+        description: "18' buffet table for catering setup",
+        specifications: { rental_price: 'Included', size: '18 feet' },
     },
     {
-        id: '13',
-        name: 'Soundbar System',
-        category_id: '3',
-        brand: 'Bose',
-        barcode: 'BSE-SB700',
-        model: 'Smart Soundbar 700',
-        description: 'Premium soundbar for meeting room audio enhancement',
-    },
-
-    // Office Supplies
-    {
-        id: '14',
-        name: 'Whiteboard Markers Set',
-        category_id: '4',
-        brand: 'Artline',
-        barcode: 'ART-WB-12',
-        description:
-            'Set of 12 assorted color whiteboard markers with fine tips',
+        id: '76',
+        name: "6' Table",
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-T6',
+        description: "6' table — $15/each",
+        specifications: { rental_price: '$15/each', size: '6 feet' },
     },
     {
-        id: '15',
-        name: 'Premium Notebooks',
-        category_id: '4',
-        brand: 'Moleskine',
-        barcode: 'MOL-NB-A4',
-        model: 'Classic Hard Cover',
-        description: 'Professional notebooks for meeting notes and planning',
+        id: '77',
+        name: "8' Table",
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-T8',
+        description: "8' table — $20/each",
+        specifications: { rental_price: '$20/each', size: '8 feet' },
     },
     {
-        id: '16',
-        name: 'Wireless Charging Pad',
-        category_id: '4',
-        brand: 'Belkin',
-        barcode: 'BLK-WCP15',
-        description:
-            'Fast wireless charging pad for meeting room desk integration',
+        id: '78',
+        name: '6\'x18" Seminar (Classroom) Table',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-SEM',
+        description: 'Seminar/classroom table — $10/each',
+        specifications: { rental_price: '$10/each' },
+    },
+    {
+        id: '79',
+        name: '30" Standing Cocktail Tables',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-CKT30',
+        description: '30" standing cocktail table — $10/each',
+        specifications: { rental_price: '$10/each', height: '30 inches' },
+    },
+    {
+        id: '80',
+        name: '36" Seated Cocktail Tables + 4 Chairs',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-CKT36',
+        description: '36" seated cocktail table with 4 chairs — $15/each',
+        specifications: { rental_price: '$15/each', height: '36 inches' },
+    },
+    {
+        id: '81',
+        name: '42" Round Table',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-RND42',
+        description: '42" round table — $8/each',
+        specifications: { rental_price: '$8/each', diameter: '42 inches' },
+    },
+    {
+        id: '82',
+        name: '60" Round Table',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-RND60',
+        description: '60" round table — $12/each',
+        specifications: { rental_price: '$12/each', diameter: '60 inches' },
+    },
+    {
+        id: '83',
+        name: '66" Round Table',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-RND66',
+        description: '66" round table — $15/each',
+        specifications: { rental_price: '$15/each', diameter: '66 inches' },
+    },
+    {
+        id: '84',
+        name: '72" Round Table',
+        category_id: '11',
+        brand: 'UCLA Events',
+        barcode: 'UCLA-SETUP-RND72',
+        description: '72" round table — $20/each',
+        specifications: { rental_price: '$20/each', diameter: '72 inches' },
     },
 
-    // Kitchen & Catering
-    {
-        id: '17',
-        name: 'Coffee Machine',
-        category_id: '5',
-        brand: 'Nespresso',
-        barcode: 'NSP-VM200',
-        model: 'Vertuo Plus',
-        description:
-            'Professional coffee machine for office kitchen and meeting refreshments',
-        specifications: {
-            type: 'Capsule system',
-            cup_sizes: '4 sizes',
-            water_tank: '1.1L',
-        },
-    },
-    {
-        id: '18',
-        name: 'Mini Refrigerator',
-        category_id: '5',
-        brand: 'Haier',
-        barcode: 'HAI-MR126',
-        model: 'HR-126WL',
-        description:
-            'Compact refrigerator for meeting room refreshments and catering storage',
-    },
-    {
-        id: '19',
-        name: 'Water Cooler',
-        category_id: '5',
-        brand: 'Zip',
-        barcode: 'ZIP-HC160',
-        description:
-            'Filtered water cooler with hot and cold dispensing options',
-    },
-
-    // Wellness & Safety
-    {
-        id: '20',
-        name: 'First Aid Kit',
-        category_id: '6',
-        brand: 'St John Ambulance',
-        barcode: 'SJA-FAK50',
-        description: 'Comprehensive workplace first aid kit for 50 people',
-    },
-    {
-        id: '21',
-        name: 'Air Purifier',
-        category_id: '6',
-        brand: 'Dyson',
-        barcode: 'DYS-AP01',
-        model: 'Pure Cool TP01',
-        description: 'HEPA air purifier and fan for meeting room air quality',
-    },
-    {
-        id: '22',
-        name: 'Ergonomic Footrest',
-        category_id: '6',
-        brand: 'Humanscale',
-        barcode: 'HUM-FR300',
-        description: 'Adjustable footrest for ergonomic workstation setup',
-    },
-
-    // Mobility
-    {
-        id: '23',
-        name: 'Equipment Trolley',
-        category_id: '7',
-        brand: 'Rubbermaid',
-        barcode: 'RBM-ET3',
-        description:
-            'Mobile trolley for transporting AV equipment and supplies',
-    },
-    {
-        id: '24',
-        name: 'Laptop Cart',
-        category_id: '7',
-        brand: 'Bretford',
-        barcode: 'BRT-LC20',
-        description: 'Mobile charging cart for laptops and tablets',
-    },
-
-    // Cleaning & Maintenance
-    {
-        id: '25',
-        name: 'Cleaning Supply Kit',
-        category_id: '8',
-        brand: 'Diversey',
-        barcode: 'DIV-CSK01',
-        description: 'Complete cleaning supply kit for office maintenance',
-    },
-    {
-        id: '26',
-        name: 'HEPA Vacuum Cleaner',
-        category_id: '8',
-        brand: 'Shark',
-        barcode: 'SHK-NV752',
-        description: 'Professional grade vacuum cleaner with HEPA filtration',
-    },
-    {
-        id: '_parking_type_',
-        name: '_PARKING_SPACES_',
-        category_id: '_parking_category_',
-        brand: 'PlaceOS',
-    },
 ];
 
 const ASSET_CONDITIONS = ['Excellent', 'Good', 'Fair', 'Poor'];
@@ -419,7 +473,7 @@ const generateMaintenanceSchedule = (assetId: string) => {
     };
 };
 
-export const MOCK_ASSETS = Array(150)
+export const MOCK_ASSETS = Array(MOCK_PRODUCTS.length * 3)
     .fill(null)
     .map((_, i) => {
         const product = MOCK_PRODUCTS[i % MOCK_PRODUCTS.length];
@@ -437,7 +491,7 @@ export const MOCK_ASSETS = Array(150)
                 product.description ||
                 `${product.brand} ${product.name} for office use`,
             model_number:
-                product.model ||
+                (product as any).model ||
                 `${product.brand}-${predictableRandomInt(9999)}`,
             serial_number: `${product.brand?.substring(0, 3).toUpperCase()}${predictableRandomInt(999999999)}`,
             identifier: `${product.barcode}-${String(i + 1).padStart(3, '0')}`,
@@ -472,12 +526,7 @@ export const MOCK_ASSETS = Array(150)
                 maintenance_schedule: generateMaintenanceSchedule(assetId),
                 insurance_value: predictableRandomInt(6000, 200),
                 depreciation_rate: predictableRandomInt(20, 5), // 5-25% per year
-                energy_rating:
-                    product.category_id === '1' || product.category_id === '5'
-                        ? ['A+++', 'A++', 'A+', 'A', 'B'][
-                              predictableRandomInt(5)
-                          ]
-                        : null,
+                energy_rating: null,
                 dimensions: {
                     width: predictableRandomInt(100, 10),
                     height: predictableRandomInt(100, 5),
@@ -528,7 +577,7 @@ export const MOCK_PURCHASE_ORDERS = Array(30)
                 ),
             ), // 3 years
             total_amount: predictableRandomInt(50000, 1000),
-            currency: 'AUD',
+            currency: 'USD',
             status: ['Pending', 'Approved', 'Delivered', 'Complete'][
                 predictableRandomInt(4)
             ],
@@ -575,42 +624,3 @@ export const getAssetsRequiringMaintenance = () =>
         ); // Due within 7 days
     });
 
-const MOCK_PARKING_ASSETS_CACHE: Record<string, any[]> = {};
-
-export function generateMockParkingAssets(zone_id: string) {
-    if (!MOCK_PARKING_ASSETS_CACHE[zone_id]) {
-        const parts = zone_id.split('-');
-        const id = parts[parts.length - 1];
-        MOCK_PARKING_ASSETS_CACHE[zone_id] = new Array(18 * 6)
-            .fill(0)
-            .map((_, idx) => {
-                const position = padString(
-                    (idx % 18) + Math.floor(idx / 18) * 100,
-                    3,
-                );
-                const assignee =
-                    predictableRandomInt(9999) % 4 === 0
-                        ? MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)]
-                        : ({} as any);
-                return {
-                    id: `park-${id}-${position}`,
-                    map_id: `park-${position}`,
-                    name: `${position}`,
-                    bookable: predictableRandomInt(9999) % 4 !== 0,
-                    assigned_to: assignee.email || '',
-                    assigned_name: assignee.name || '',
-                    asset_type_id: '_parking_type_',
-                    zone_id,
-                    notes: '',
-                    place_groups: [],
-                    features: [],
-                    images: [],
-                };
-            });
-    }
-    return MOCK_PARKING_ASSETS_CACHE[zone_id];
-}
-
-export function getAllMockParkingAssets() {
-    return Object.values(MOCK_PARKING_ASSETS_CACHE).flat();
-}
