@@ -57526,15 +57526,15 @@ function userSignal() {
 // libs/common/src/lib/version.ts
 var VERSION6 = {
   "dirty": false,
-  "raw": "32f47c8",
-  "hash": "32f47c8",
+  "raw": "c9e6ead",
+  "hash": "c9e6ead",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "32f47c8",
+  "suffix": "c9e6ead",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1770872496518
+  "time": 1771393098121
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -157572,4 +157572,4 @@ qr/esm/decode.js:
   limitations under the License.
   *)
 */
-//# sourceMappingURL=chunk-7QG6NVBP.js.map
+//# sourceMappingURL=chunk-X7MCBCYR.js.map

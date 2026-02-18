@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-BNK6OWAQ.js";
+} from "./chunk-3Q5CDBL6.js";
 import {
   AsyncHandler,
   AsyncPipe,
@@ -70,7 +70,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-7QG6NVBP.js";
+} from "./chunk-X7MCBCYR.js";
 
 // apps/workplace/src/app/control/list-item.component.ts
 var _c0 = () => ["/explore"];
@@ -480,4 +480,4 @@ var ControlModule = _ControlModule;
 export {
   ControlModule
 };
-//# sourceMappingURL=control.module-MG25CJZU.js.map
+//# sourceMappingURL=control.module-VUDFKFNS.js.map
