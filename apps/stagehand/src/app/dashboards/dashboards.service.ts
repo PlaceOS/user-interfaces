@@ -222,6 +222,8 @@ export class DashboardsService extends AsyncHandler {
     private _system_modules_cache = new Map<string, string[]>();
     /** Track in-flight module queries to prevent duplicate requests */
     private _pending_module_queries = new Map<string, Promise<string[]>>();
+    /** Track current alert subscription scope to avoid unnecessary resets */
+    private _alert_scope = '';
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -382,9 +384,21 @@ export class DashboardsService extends AsyncHandler {
     }
 
     public async listenForDashboardAlerts(force = false) {
-        this.dashboard_alerts.set([]);
         const dashboard = this.dashboard();
         if (!dashboard && !force) return;
+        const alert_scope = [
+            dashboard?.id || 'disconnected',
+            this.region_id() || '',
+            this.building_id() || '',
+        ].join('|');
+        const scope_changed = this._alert_scope !== alert_scope;
+        if (!scope_changed && this._mqtt_broker && this._connected) return;
+
+        if (scope_changed) {
+            this.dashboard_alerts.set([]);
+            this._alerts.set([]);
+        }
+        this._alert_scope = alert_scope;
         if (!this._mqtt_broker) await this._initialiseBroker();
         this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }
