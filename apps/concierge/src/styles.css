@@ -11,3 +11,66 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
     overflow: hidden;
 }
+
+@media print {
+    @page {
+        size: auto;
+        margin: 0;
+    }
+
+    .mat-mdc-snackbar-surface {
+        display: none !important;
+    }
+
+    html,
+    body,
+    body#placeos {
+        height: auto !important;
+        width: auto !important;
+        max-height: none !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+    }
+
+    html,
+    body {
+        font-size: 4mm !important;
+    }
+
+    [printable-view],
+    [printable-view] > * {
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+        break-before: avoid-page !important;
+        break-after: avoid-page !important;
+        break-inside: avoid-page !important;
+    }
+
+    /* Prevent regular app content from affecting print pagination */
+    body#placeos > *:not(.cdk-overlay-container) {
+        display: none !important;
+    }
+
+    .cdk-overlay-container,
+    .cdk-global-overlay-wrapper,
+    .cdk-overlay-pane {
+        position: static !important;
+        inset: auto !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        transform: none !important;
+    }
+
+    .cdk-overlay-container [printable-view] {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
+    }
+}
