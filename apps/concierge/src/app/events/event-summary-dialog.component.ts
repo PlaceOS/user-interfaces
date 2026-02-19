@@ -8,6 +8,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { IconComponent } from '@placeos/components';
+import { CalendarEvent } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 
 import {
@@ -26,7 +27,8 @@ import {
 import { generateFinancePdf } from './event-finance-pdf.util';
 
 export interface EventSummaryData {
-    event: MockApprovalEvent;
+    event?: MockApprovalEvent;
+    calendar_event?: CalendarEvent;
 }
 
 interface ApprovalItem {
@@ -229,100 +231,111 @@ interface ApprovalItem {
 
                 <!-- Right column -->
                 <div class="flex-1 px-6 py-5 space-y-6">
-                    <!-- Approval Progress -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-sm font-semibold opacity-70">
-                                Approval Progress
-                            </h4>
-                            <span class="text-sm font-medium">
-                                {{ approvalPercent() }}% Complete
-                            </span>
-                        </div>
-                        <mat-progress-bar
-                            mode="determinate"
-                            [value]="approvalPercent()"
-                            class="rounded"
-                        />
-                        <div class="mt-1 text-xs opacity-50">
-                            {{ approvedCount() }} of {{ approval_items.length }} approvals complete
-                        </div>
-                    </div>
-
-                    <!-- Approval Timeline -->
-                    <div>
-                        <h4 class="mb-3 text-sm font-semibold opacity-70">
-                            Approval Timeline
-                        </h4>
-
-                        <!-- Submitted entry -->
-                        <div class="flex items-start space-x-3 pb-4">
-                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-info">
-                                <icon class="text-sm text-white">send</icon>
-                            </span>
-                            <div>
-                                <div class="text-sm font-medium">Event Submitted</div>
-                                <div class="text-xs opacity-50">
-                                    {{ formatDateTime(event.date - 7 * 24 * 60 * 60 * 1000) }}
-                                </div>
+                    @if (approval_items.length) {
+                        <!-- Approval Progress -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold opacity-70">
+                                    Approval Progress
+                                </h4>
+                                <span class="text-sm font-medium">
+                                    {{ approvalPercent() }}% Complete
+                                </span>
+                            </div>
+                            <mat-progress-bar
+                                mode="determinate"
+                                [value]="approvalPercent()"
+                                class="rounded"
+                            />
+                            <div class="mt-1 text-xs opacity-50">
+                                {{ approvedCount() }} of {{ approval_items.length }} approvals complete
                             </div>
                         </div>
 
-                        <!-- Approval entries -->
-                        <div class="space-y-3">
-                            @for (item of approval_items; track item.id) {
-                                <div class="flex items-start space-x-3">
-                                    @switch (item.status) {
-                                        @case ('approved') {
-                                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success">
-                                                <icon class="text-sm text-white">check_circle</icon>
-                                            </span>
-                                        }
-                                        @case ('declined') {
-                                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-error">
-                                                <icon class="text-sm text-white">cancel</icon>
-                                            </span>
-                                        }
-                                        @default {
-                                            <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning">
-                                                <icon class="text-sm text-white">schedule</icon>
-                                            </span>
-                                        }
-                                    }
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between">
-                                            <div class="text-sm font-medium">
-                                                {{ categoryName(item.category) }}
-                                            </div>
-                                            <span
-                                                class="text-xs font-medium"
-                                                [class.text-success]="item.status === 'approved'"
-                                                [class.text-error]="item.status === 'declined'"
-                                                [class.text-warning]="item.status === 'pending'"
-                                            >
-                                                {{ item.status === 'approved' ? 'Approved' : item.status === 'declined' ? 'Declined' : 'Pending' }}
-                                            </span>
-                                        </div>
-                                        @if (item.status === 'approved') {
-                                            <div class="text-xs opacity-50 mt-0.5">
-                                                Completed
-                                            </div>
-                                        }
-                                        @if (item.status === 'pending') {
-                                            <div class="text-xs text-warning mt-0.5">
-                                                Awaiting approval
-                                            </div>
-                                        }
-                                        @if (item.status === 'declined') {
-                                            <div class="text-xs text-error mt-0.5">
-                                                Action required
-                                            </div>
-                                        }
+                        <!-- Approval Timeline -->
+                        <div>
+                            <h4 class="mb-3 text-sm font-semibold opacity-70">
+                                Approval Timeline
+                            </h4>
+
+                            <!-- Submitted entry -->
+                            <div class="flex items-start space-x-3 pb-4">
+                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-info">
+                                    <icon class="text-sm text-white">send</icon>
+                                </span>
+                                <div>
+                                    <div class="text-sm font-medium">Event Submitted</div>
+                                    <div class="text-xs opacity-50">
+                                        {{ formatDateTime(event.date - 7 * 24 * 60 * 60 * 1000) }}
                                     </div>
                                 </div>
-                            }
+                            </div>
+
+                            <!-- Approval entries -->
+                            <div class="space-y-3">
+                                @for (item of approval_items; track item.id) {
+                                    <div class="flex items-start space-x-3">
+                                        @switch (item.status) {
+                                            @case ('approved') {
+                                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success">
+                                                    <icon class="text-sm text-white">check_circle</icon>
+                                                </span>
+                                            }
+                                            @case ('declined') {
+                                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-error">
+                                                    <icon class="text-sm text-white">cancel</icon>
+                                                </span>
+                                            }
+                                            @default {
+                                                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warning">
+                                                    <icon class="text-sm text-white">schedule</icon>
+                                                </span>
+                                            }
+                                        }
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between">
+                                                <div class="text-sm font-medium">
+                                                    {{ categoryName(item.category) }}
+                                                </div>
+                                                <span
+                                                    class="text-xs font-medium"
+                                                    [class.text-success]="item.status === 'approved'"
+                                                    [class.text-error]="item.status === 'declined'"
+                                                    [class.text-warning]="item.status === 'pending'"
+                                                >
+                                                    {{ item.status === 'approved' ? 'Approved' : item.status === 'declined' ? 'Declined' : 'Pending' }}
+                                                </span>
+                                            </div>
+                                            @if (item.status === 'approved') {
+                                                <div class="text-xs opacity-50 mt-0.5">
+                                                    Completed
+                                                </div>
+                                            }
+                                            @if (item.status === 'pending') {
+                                                <div class="text-xs text-warning mt-0.5">
+                                                    Awaiting approval
+                                                </div>
+                                            }
+                                            @if (item.status === 'declined') {
+                                                <div class="text-xs text-error mt-0.5">
+                                                    Action required
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div>
+                    } @else {
+                        <!-- No approvals needed — event confirmed -->
+                        <div class="rounded border border-success/30 bg-success/5 p-5 text-center">
+                            <span class="flex mx-auto mb-2 h-10 w-10 items-center justify-center rounded-full bg-success">
+                                <icon class="text-xl text-white">check_circle</icon>
+                            </span>
+                            <p class="text-sm font-semibold text-success">Event Confirmed</p>
+                            <p class="text-xs opacity-60 mt-1">No approvals required for this event.</p>
+                        </div>
+                    }
 
                     <!-- Related Services -->
                     @if (child_events.length) {
@@ -370,41 +383,68 @@ export class EventSummaryDialogComponent {
         currency: 'USD',
     });
 
+    /** Returns a MockApprovalEvent (real or synthesised from CalendarEvent). */
     get event(): MockApprovalEvent {
-        return this.data.event;
+        if (this.data.event) return this.data.event;
+        const ce = this.data.calendar_event!;
+        return {
+            id: ce.id,
+            title: ce.title,
+            category: 'venue' as ApprovalCategory,
+            date: ce.date,
+            duration_minutes: ce.duration,
+            location: (ce as any).space?.display_name || ce.location || '',
+            organiser: ce.organiser?.name || ce.host || 'Unknown',
+        };
     }
 
     get parent_event(): MockApprovalEvent | null {
-        if (!this.event.parent_event) return null;
+        if (!this.data.event?.parent_event) return null;
         return (
             MOCK_APPROVAL_EVENTS.find(
-                (e) => e.id === this.event.parent_event,
+                (e) => e.id === this.data.event!.parent_event,
             ) || null
         );
     }
 
     get child_events(): MockApprovalEvent[] {
+        if (!this.data.event) return [];
         return MOCK_APPROVAL_EVENTS.filter(
-            (e) => e.parent_event === this.event.id,
+            (e) => e.parent_event === this.data.event!.id,
         );
     }
 
     /** Build the approval checklist from the event and its children. */
     get approval_items(): ApprovalItem[] {
-        const root = this.parent_event || this.event;
-        const children = MOCK_APPROVAL_EVENTS.filter(
-            (e) => e.parent_event === root.id,
-        );
-        return [root, ...children].map((evt) => ({
-            id: evt.id,
-            category: evt.category,
-            title: evt.title,
-            status: this.getStatus(evt.id),
-        }));
+        if (this.data.event) {
+            const root = this.parent_event || this.event;
+            const children = MOCK_APPROVAL_EVENTS.filter(
+                (e) => e.parent_event === root.id,
+            );
+            return [root, ...children].map((evt) => ({
+                id: evt.id,
+                category: evt.category,
+                title: evt.title,
+                status: this.getStatus(evt.id),
+            }));
+        }
+        const ce = this.data.calendar_event;
+        if (!ce) return [];
+        const reqs = (ce as any).extension_data?.requirements;
+        if (!reqs) return [];
+        return Object.entries(reqs)
+            .filter(([_, status]) => status !== undefined)
+            .map(([category, status]) => ({
+                id: `${ce.id}-${category}`,
+                category: category as ApprovalCategory,
+                title: CATEGORY_DISPLAY_NAMES[category as ApprovalCategory] || category,
+                status: (status as string) || 'pending',
+            }));
     }
 
     /** The quote linked to this event (or its parent). */
     get quote(): FinancialDocument | null {
+        if (!this.data.event) return null;
         const root_id = this.parent_event?.id || this.event.id;
         return (
             MOCK_FINANCIAL_DOCUMENTS.find(
@@ -415,6 +455,7 @@ export class EventSummaryDialogComponent {
 
     /** The deposit invoice linked to this event's quote. Only shown when all approvals have been actioned. */
     get deposit(): FinancialDocument | null {
+        if (!this.data.event) return null;
         const q = this.quote;
         if (!q) return null;
         const all_actioned = this.approval_items.every(
@@ -462,6 +503,9 @@ export class EventSummaryDialogComponent {
     }
 
     organiserEmail(): string {
+        if (this.data.calendar_event) {
+            return this.data.calendar_event.organiser?.email || this.data.calendar_event.host || '';
+        }
         return (
             this.event.organiser
                 .toLowerCase()

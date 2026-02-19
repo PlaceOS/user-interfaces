@@ -29,6 +29,7 @@ import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
+import { RoomListTimelineComponent } from './room-list-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
 @Component({
@@ -42,7 +43,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 <div class="w-px flex-1"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
-                        [ngModel]="period | async"
+                        [ngModel]="dropdown_period | async"
                         (ngModelChange)="setPeriod($event)"
                     >
                         <mat-option value="day">
@@ -53,6 +54,18 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+                <button
+                    matRipple
+                    class="flex h-12 items-center space-x-1 rounded border px-3 text-sm font-medium"
+                    [class.border-primary]="(period | async) === 'list'"
+                    [class.text-primary]="(period | async) === 'list'"
+                    [class.border-base-300]="(period | async) !== 'list'"
+                    [ngClass]="(period | async) === 'list' ? 'bg-primary/10' : ''"
+                    (click)="toggleList()"
+                >
+                    <icon class="text-xl">view_list</icon>
+                    <span>List</span>
+                </button>
                 <button
                     icon
                     matRipple
@@ -112,15 +125,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 <div class="flex flex-1 items-center justify-end space-x-4 pr-2">
                     <div class="flex items-center space-x-1">
                         <div class="h-3 w-3 rounded-full bg-success"></div>
-                        <span class="text-xs opacity-60">Approved</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <div class="h-3 w-3 rounded-full bg-warning"></div>
-                        <span class="text-xs opacity-60">Pending</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <div class="h-3 w-3 rounded-full bg-error"></div>
-                        <span class="text-xs opacity-60">Declined</span>
+                        <span class="text-xs opacity-60">Confirmed</span>
                     </div>
                 </div>
             </div>
@@ -131,6 +136,8 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                     <room-week-bookings-timeline
                         class="relative z-0 w-1/2 flex-1"
                     />
+                } @else if ((period | async) === 'list') {
+                    <room-list-timeline class="relative z-0 w-1/2 flex-1" />
                 }
                 @if (has_approvals) {
                     <room-bookings-approvals class="relative z-10" />
@@ -151,6 +158,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
         MatRippleModule,
         FormsModule,
         RoomBookingsTimelineComponent,
+        RoomListTimelineComponent,
         RoomWeekBookingsTimelineComponent,
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
@@ -167,6 +175,13 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    private _base_period: 'day' | 'week' = 'day';
+    public readonly dropdown_period = this.period.pipe(
+        map((p) => {
+            if (p === 'day' || p === 'week') this._base_period = p;
+            return this._base_period;
+        }),
+    );
     public readonly downloading = signal(false);
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
@@ -200,6 +215,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
+    public toggleList() {
+        const current = this._state.getPeriod();
+        this.setPeriod(current === 'list' ? this._base_period : 'list');
+    }
+
     public get has_approvals() {
         return this._org.binding('approvals');
     }
@@ -217,8 +237,9 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('period')) {
+                    const p = params.get('period');
                     this._state.setPeriod(
-                        params.get('period') === 'day' ? 'day' : 'week',
+                        p === 'day' ? 'day' : p === 'list' ? 'list' : 'week',
                     );
                 }
                 if (this.use_region) return;

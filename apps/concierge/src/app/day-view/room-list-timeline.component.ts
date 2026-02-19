@@ -31,9 +31,10 @@ import { debounceTime, map, shareReplay, startWith } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
+import { IconComponent } from '@placeos/components';
 
 @Component({
-    selector: 'room-bookings-timeline',
+    selector: 'room-list-timeline',
     template: `
         @if (timezone && tz) {
             <div
@@ -64,83 +65,87 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 ></room-booking-search>
             </div>
         </div>
-        <div timeline class="z-0 grid h-1/2 w-full flex-1 overflow-auto">
+        <div
+            list-grid
+            class="z-0 grid h-1/2 w-full flex-1 overflow-auto"
+        >
+            <!-- Top-left corner: timezone -->
             <div
-                timezone
-                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
+                class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center border-r border-b border-base-300"
             >
                 <div class="text-xs opacity-30">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
-                <div
-                    class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
-                ></div>
-                <div
-                    class="bg-base-300 absolute right-0 bottom-0 h-px w-2"
-                ></div>
             </div>
+            <!-- Hour headers (top row, scrolls horizontally) -->
             <div
-                space-headers
+                hour-headers
                 class="border-base-300 bg-base-100 sticky top-0 z-20 flex items-center border-b"
-                [style.width]="(spaces | async)?.length * block_width + 'rem'"
+                [style.width]="hours.length * hour_col_width + 'rem'"
             >
-                @for (space of spaces | async; track space) {
+                @for (hour of hours; track hour) {
                     <div
-                        class="relative flex h-full w-56 items-center justify-center px-4"
+                        class="relative flex h-full items-end justify-center border-l border-base-200 pb-1"
+                        [style.width]="hour_col_width + 'rem'"
                     >
-                        <div class="truncate px-4">
-                            {{ space.display_name || space.name }}
-                        </div>
-                        <div
-                            class="bg-base-300 absolute bottom-0 -left-px h-2 w-px"
-                        ></div>
+                        <span class="text-xs opacity-60">{{
+                            formatHour(hour)
+                        }}</span>
                     </div>
                 }
             </div>
+            <!-- Space names (left column, scrolls vertically) -->
             <div
-                hour-blocks
-                class="border-base-300 bg-base-100 sticky left-0 z-10 overflow-visible border-r"
-                [style.height]="block_range * block_height + 'rem'"
+                space-names
+                class="border-base-300 bg-base-100 sticky left-0 z-10 border-r"
             >
-                @for (hour of hours; track hour; let i = $index) {
+                @for (space of spaces | async; track space.id) {
                     <div
-                        class="relative w-full"
-                        [style.height]="block_height + 'rem'"
+                        class="flex items-center border-b border-base-200 px-3"
+                        [style.height]="row_height + 'rem'"
+                        [matTooltip]="
+                            space.display_name || space.name
+                        "
                     >
-                        <div
-                            class="bg-base-300 absolute -top-px right-0 h-px w-2"
-                        ></div>
-                        @if (i !== 0) {
-                            <div
-                                class="absolute -top-px right-3 -translate-y-1/2 text-xs opacity-60"
-                            >
-                                {{ formatHour(hour) }}
-                            </div>
-                        }
+                        <span class="block w-full truncate text-xs font-medium">
+                            {{
+                                space.display_name || space.name
+                            }}
+                        </span>
                     </div>
                 }
-                @if ((show_time | async) && timeToOffset(now) < 100) {
-                    <div
-                        class="bg-secondary absolute right-0 h-2 w-2 translate-x-1/2 -translate-y-1/2 rounded-full"
-                        [style.top]="'calc(' + timeToOffset(now) + '% + 1px)'"
-                    ></div>
-                }
             </div>
-            <div space-blocks class="relative overflow-hidden">
-                @for (hour of hours; track hour; let i = $index) {
+            <!-- Event grid (main area) -->
+            <div
+                event-grid
+                class="relative"
+                [style.width]="hours.length * hour_col_width + 'rem'"
+            >
+                <!-- Row backgrounds + horizontal lines -->
+                @for (
+                    space of spaces | async;
+                    track space.id;
+                    let i = $index
+                ) {
                     <div
-                        class="border-base-200 relative w-full border-b"
-                        [style.height]="block_height + 'rem'"
+                        class="border-b border-base-200"
+                        [ngClass]="i % 2 === 1 ? 'bg-base-200/30' : ''"
+                        [style.height]="row_height + 'rem'"
                     ></div>
                 }
-                @for (space of spaces | async; track space; let i = $index) {
+                <!-- Vertical hour lines -->
+                @for (hour of hours; track hour; let j = $index) {
                     <div
-                        class="bg-base-200 absolute top-0 h-full w-px"
-                        [style.left]="'calc(' + i * block_width + 'rem - 1px)'"
+                        class="absolute top-0 h-full border-l border-base-200"
+                        [style.left]="j * hour_col_width + 'rem'"
                     ></div>
                 }
-
-                @for (space of spaces | async; track space.id; let i = $index) {
+                <!-- Events positioned by space row and hour offset -->
+                @for (
+                    space of spaces | async;
+                    track space.id;
+                    let i = $index
+                ) {
                     @for (
                         event of (events | async)[space.id] || [];
                         track event.id
@@ -150,20 +155,28 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                             (ui_options | async).show_overflow
                         ) {
                             <button
-                                event
                                 matRipple
-                                class="absolute w-52 text-left hover:opacity-90"
-                                [style.left]="i * block_width + 0.25 + 'rem'"
-                                [style.top]="timeToOffset(event.date) + '%'"
+                                class="absolute overflow-hidden text-left hover:opacity-90"
+                                [style.top]="
+                                    i * row_height + 0.125 + 'rem'
+                                "
                                 [style.height]="
-                                    endToOffset(event.duration) + '%'
+                                    row_height - 0.25 + 'rem'
+                                "
+                                [style.left]="
+                                    timeToHorizontalOffset(event.date) + '%'
+                                "
+                                [style.width]="
+                                    durationToWidth(event.duration) + '%'
                                 "
                                 (click)="viewEvent(event, space.id)"
                                 [matTooltip]="eventTooltip(event)"
                             >
                                 <div
-                                    class="bg-base-100 relative h-full w-full overflow-hidden rounded-lg border border-base-200 px-3 py-1 text-xs shadow-sm"
-                                    [class.opacity-60]="event.state === 'done'"
+                                    class="bg-base-100 relative h-full w-full overflow-hidden rounded border border-base-200 px-2 py-0.5 text-[11px] shadow-sm"
+                                    [class.opacity-60]="
+                                        event.state === 'done'
+                                    "
                                 >
                                     @if (event.is_system_event) {
                                         <div class="bg-secondary absolute inset-0 opacity-20"></div>
@@ -174,17 +187,18 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                     }
                                     @if (!event.is_system_event) {
                                         <div class="relative">
-                                            <p class="truncate font-medium text-base-content">
+                                            <p class="truncate pl-1 font-medium text-base-content">
                                                 {{
                                                     event.all_day
                                                         ? 'All Day'
                                                         : (event.date
-                                                          | date: time_format : tz)
+                                                          | date
+                                                              : time_format
+                                                              : tz)
                                                 }}
-                                                &ndash;
-                                                {{ event.title }}
+                                                &ndash; {{ event.title }}
                                             </p>
-                                            <p class="truncate text-base-content opacity-70">
+                                            <p class="truncate pl-1 text-base-content opacity-70">
                                                 {{
                                                     event.organiser?.name ||
                                                         event.host
@@ -197,10 +211,13 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         }
                     }
                 }
+                <!-- Current time indicator -->
                 @if (show_time | async) {
                     <div
-                        class="bg-secondary absolute inset-x-0 h-[2px]"
-                        [style.top]="timeToOffset(now) + '%'"
+                        class="bg-secondary absolute top-0 h-full w-[2px]"
+                        [style.left]="
+                            timeToHorizontalOffset(now) + '%'
+                        "
                     ></div>
                 }
             </div>
@@ -214,9 +231,9 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 max-width: 100%;
             }
 
-            [timeline] {
-                grid-template-columns: 4rem auto;
-                grid-template-rows: 3.5rem auto;
+            [list-grid] {
+                grid-template-columns: 12rem auto;
+                grid-template-rows: 2.5rem auto;
             }
         `,
     ],
@@ -229,7 +246,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
         MatTooltipModule,
     ],
 })
-export class RoomBookingsTimelineComponent
+export class RoomListTimelineComponent
     extends AsyncHandler
     implements OnInit
 {
@@ -238,7 +255,8 @@ export class RoomBookingsTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    public block_width = 14;
+    public readonly hour_col_width = 7;
+    public readonly row_height = 3;
     public readonly ui_options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly date = this._state.date;
@@ -272,7 +290,7 @@ export class RoomBookingsTimelineComponent
     ]).pipe(
         debounceTime(300),
         map(([spaces, events, date]) => {
-            const map = {};
+            const event_map = {};
             const offset = this.timezone
                 ? getTimezoneDifferenceInHours(this.timezone)
                 : 0;
@@ -285,7 +303,7 @@ export class RoomBookingsTimelineComponent
                 -offset,
             ).valueOf();
             for (const space of spaces) {
-                map[space.id] = events
+                event_map[space.id] = events
                     .filter(
                         (event) =>
                             event.resources.find(
@@ -297,10 +315,11 @@ export class RoomBookingsTimelineComponent
                             event.system?.email === space.email,
                     )
                     .filter(
-                        (event) => event.date_end >= start && event.date <= end,
+                        (event) =>
+                            event.date_end >= start && event.date <= end,
                     );
             }
-            return map;
+            return event_map;
         }),
         startWith({}),
         shareReplay(1),
@@ -345,10 +364,6 @@ export class RoomBookingsTimelineComponent
         return Math.min(24, Math.max(this.block_end - this.block_start, 1));
     }
 
-    public get block_height() {
-        return +this._settings.get('app.events.block_height') || 3;
-    }
-
     public get time_format() {
         return this._settings.time_format;
     }
@@ -363,14 +378,13 @@ export class RoomBookingsTimelineComponent
     private _date_pipe = new DatePipe('en');
 
     public eventTooltip(event: CalendarEvent) {
-        const tooltip = `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
+        return `Start: ${event.all_day ? 'All Day' : this._date_pipe.transform(event.date, this.time_format)}
 Title:  ${event.title}
 Host:  ${event.organiser?.name || event.host}`;
-        return tooltip;
     }
 
     public ngOnInit() {
-        this.subscription('poll', this._state.startPolling());
+        this.subscription('poll', this._state.startPolling('list'));
         this.subscription(
             'hour_list',
             this._org.active_building.subscribe(() => {
@@ -382,14 +396,12 @@ Host:  ${event.organiser?.name || event.host}`;
         this.hours = this._hour_list.filter(
             (h) => h >= this.block_start && h < this.block_end,
         );
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const offset = !this.timezone
-            ? 0
-            : getTimezoneDifferenceInHours(current_tz, this.timezone);
     }
 
-    public timeToOffset(date: number) {
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    /** Horizontal offset as percentage of the total grid width */
+    public timeToHorizontalOffset(date: number) {
+        const current_tz =
+            Intl.DateTimeFormat().resolvedOptions().timeZone;
         const offset = !this.timezone
             ? 0
             : getTimezoneDifferenceInHours(this.timezone, current_tz);
@@ -398,11 +410,14 @@ Host:  ${event.organiser?.name || event.host}`;
             this.block_start - offset,
         );
         const diff = differenceInMinutes(date, start_time);
-
-        return +((Math.max(0, diff / 60) / this.block_range) * 100).toFixed(2);
+        return +(
+            (Math.max(0, diff / 60) / this.block_range) *
+            100
+        ).toFixed(2);
     }
 
-    public endToOffset(duration: number) {
+    /** Width as percentage of total grid width based on duration */
+    public durationToWidth(duration: number) {
         return +(
             (Math.min(this.block_range, duration / 60) / this.block_range) *
             100
@@ -412,7 +427,7 @@ Host:  ${event.organiser?.name || event.host}`;
     public viewEvent(
         event: CalendarEvent,
         space_id: string,
-        scroll_to = false,
+        _scroll_to = false,
     ) {
         if (event.is_system_event) return;
         const mock = MOCK_APPROVAL_EVENTS.find((e) => e.id === event.id);
@@ -422,5 +437,4 @@ Host:  ${event.organiser?.name || event.host}`;
                 : { calendar_event: event }) as EventSummaryData,
         });
     }
-
 }

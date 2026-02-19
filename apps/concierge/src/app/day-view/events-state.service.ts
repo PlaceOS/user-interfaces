@@ -98,7 +98,7 @@ export class EventsStateService extends AsyncHandler {
     /** Emitter for poll events */
     private _poll = new BehaviorSubject<number>(0);
     /** Period to list bookings for */
-    private _period = new BehaviorSubject<'month' | 'week' | 'day'>('day');
+    private _period = new BehaviorSubject<'month' | 'week' | 'day' | 'list'>('day');
     /** Event to display */
     private _event = new BehaviorSubject<CalendarEvent>(null);
     /** Event to display */
@@ -427,10 +427,14 @@ export class EventsStateService extends AsyncHandler {
         return this._date.getValue();
     }
 
+    public getPeriod() {
+        return this._period.getValue();
+    }
+
     public readonly setFilters = (details: BookingFilters) =>
         this._filters.next(details);
     public readonly setDate = (date: number) => this._date.next(date);
-    public readonly setPeriod = (period: 'day' | 'week' | 'month') =>
+    public readonly setPeriod = (period: 'day' | 'week' | 'month' | 'list') =>
         this._period.next(period);
     public readonly setZones = (zones: string[]) => this._zones.next(zones);
     public readonly setEvent = (event: CalendarEvent) =>
@@ -445,7 +449,7 @@ export class EventsStateService extends AsyncHandler {
     }
 
     public startPolling(
-        period: 'day' | 'week' | 'month' = 'day',
+        period: 'day' | 'week' | 'month' | 'list' = 'day',
         delay: number = 30 * 1000,
     ) {
         this._period.next(period);

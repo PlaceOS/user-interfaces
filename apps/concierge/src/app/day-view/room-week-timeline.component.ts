@@ -12,10 +12,6 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import {
-    EventDetailsModalComponent,
-    SetupBreakdownModalComponent,
-} from '@placeos/events';
-import {
     EventSummaryDialogComponent,
     EventSummaryData,
 } from '../events/event-summary-dialog.component';
@@ -29,7 +25,7 @@ import {
     startOfMinute,
     startOfWeek,
 } from 'date-fns';
-import { combineLatest, lastValueFrom } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
@@ -132,48 +128,49 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         ) {
                             <button
                                 matRipple
-                                class="hover:bg-base-200 flex w-full space-x-2 rounded-sm p-2 text-left"
+                                class="mb-1 w-full text-left hover:opacity-90"
                                 (click)="viewEvent(event, event.system?.id)"
                             >
                                 <div
-                                    class="my-1.5 h-2 w-2 rounded-full"
-                                    [class.bg-success]="event.status === 'approved'"
-                                    [class.bg-warning]="event.status === 'tentative' || (!event.status && event.status !== 'declined' && event.status !== 'cancelled')"
-                                    [class.bg-error]="event.status === 'declined' || event.status === 'cancelled'"
-                                ></div>
-                                <div class="w-1/2 flex-1">
+                                    class="bg-base-100 relative w-full overflow-hidden rounded-lg border border-base-200 px-3 py-1 text-xs shadow-sm"
+                                    [class.opacity-60]="event.state === 'done'"
+                                >
                                     <div
-                                        class="truncate text-sm"
-                                        [class.line-through]="
-                                            event.state === 'done'
-                                        "
-                                    >
-                                        {{ event.title }}
-                                    </div>
-                                    <div class="flex-1 text-xs opacity-60">
-                                        {{
-                                            event.date | date: time_format : tz
-                                        }}
-                                        &ndash;
-                                        {{
-                                            event.date_end
-                                                | date: time_format : tz
-                                        }}
-                                        @if (tz) {
-                                            <span>{{
+                                        class="bg-success absolute inset-0 opacity-25"
+                                    ></div>
+                                    <div class="relative">
+                                        <p
+                                            class="truncate font-medium text-base-content"
+                                            [class.line-through]="event.state === 'done'"
+                                        >
+                                            {{ event.title }}
+                                        </p>
+                                        <p class="text-base-content opacity-70">
+                                            {{
+                                                event.date
+                                                    | date: time_format : tz
+                                            }}
+                                            &ndash;
+                                            {{
                                                 event.date_end
-                                                    | date: 'zzzz' : tz
-                                            }}</span>
-                                        }
-                                    </div>
-                                    <div class="truncate text-xs opacity-30">
-                                        {{ event.system?.display_name }}
-                                    </div>
-                                    <div class="truncate text-xs opacity-30">
-                                        {{
-                                            (event.host | user | async)?.name ||
-                                                event.host
-                                        }}
+                                                    | date: time_format : tz
+                                            }}
+                                            @if (tz) {
+                                                <span>{{
+                                                    event.date_end
+                                                        | date: 'zzzz' : tz
+                                                }}</span>
+                                            }
+                                        </p>
+                                        <p class="truncate text-base-content opacity-50">
+                                            {{ event.system?.display_name }}
+                                        </p>
+                                        <p class="truncate text-base-content opacity-50">
+                                            {{
+                                                (event.host | user | async)
+                                                    ?.name || event.host
+                                            }}
+                                        </p>
                                     </div>
                                 </div>
                             </button>
@@ -218,8 +215,6 @@ export class RoomWeekBookingsTimelineComponent
     public hours = Array.from({ length: 24 }, (_, i) => i);
     public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
-
-    public readonly remove = this._state.removeBooking;
 
     public readonly days = combineLatest([
         this.date,
@@ -347,33 +342,10 @@ export class RoomWeekBookingsTimelineComponent
     ) {
         if (event.is_system_event) return;
         const mock = MOCK_APPROVAL_EVENTS.find((e) => e.id === event.id);
-        if (mock) {
-            this._dialog.open(EventSummaryDialogComponent, {
-                data: { event: mock } as EventSummaryData,
-            });
-            return;
-        }
-        const ref = this._dialog.open(EventDetailsModalComponent, {
-            data: {
-                event,
-                edit_fn: (e) => this.edit(e),
-                remove_fn: (e) => this.remove(e),
-            },
+        this._dialog.open(EventSummaryDialogComponent, {
+            data: (mock
+                ? { event: mock }
+                : { calendar_event: event }) as EventSummaryData,
         });
-        ref.componentInstance.hide_edit.set(
-            !this._settings.get('app.events.allow_edit'),
-        );
-        this.subscription(
-            'actions',
-            ref.componentInstance.action.subscribe((action) => {
-                if (!action.includes('breakdown')) return;
-                const ref = this._dialog.open(SetupBreakdownModalComponent, {
-                    data: event,
-                });
-                lastValueFrom(ref.afterClosed()).then((data) => {
-                    if (data) this._state.replace(data);
-                });
-            }),
-        );
     }
 }
