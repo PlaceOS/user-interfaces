@@ -50,6 +50,7 @@ describe('BootstrapComponent', () => {
     });
 
     beforeEach(() => {
+        window.PLACEOS_PUBLIC_MODE = false;
         localStorage.clear();
         spectator = createComponent();
     });
@@ -183,4 +184,12 @@ describe('BootstrapComponent', () => {
         // TODO: Fix
         // expect(router.navigate).toHaveBeenCalled();
     }));
+
+    it('should show public mode blocker when enabled', () => {
+        window.PLACEOS_PUBLIC_MODE = true;
+        spectator.detectChanges();
+        expect(spectator.query('h2')?.textContent?.trim()).toBe(
+            'Public mode is enabled',
+        );
+    });
 });

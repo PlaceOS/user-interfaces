@@ -7,6 +7,7 @@ import {
     BuildingLevel,
     firstTruthyValueFrom,
     Identity,
+    isPublicMode,
     OrganisationService,
     Region,
     SettingsService,
@@ -372,6 +373,21 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                     ({{ version.time | date: 'shortTime' }})
                 </div>
             </div>
+            @if (is_public_mode()) {
+                <div
+                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                >
+                    <div class="max-w-xl space-y-2">
+                        <h2 class="text-3xl font-semibold">
+                            Public mode is enabled
+                        </h2>
+                        <p class="text-lg opacity-80">
+                            Setup is disabled while this kiosk is in public
+                            mode.
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     `,
     styles: [
@@ -424,6 +440,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly regions = this._org.region_list;
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
+    public readonly is_public_mode = isPublicMode;
 
     public setRegion(region: Region) {
         this._org.region = region;
