@@ -17,7 +17,15 @@ import {
     CATEGORY_ICONS,
     MOCK_APPROVAL_EVENTS,
     MockApprovalEvent,
+    EventOrderDetail,
+    getEventOrder,
+    getEventFamilyOrders,
 } from './event-approvals-mock.data';
+import {
+    CateringMenuItem,
+    UNIT_LABELS,
+    getMenuItemById,
+} from '../room-manager/ucla-catering-menu';
 import { EventApprovalStateService } from './event-approval-state.service';
 import { EventFinanceStateService } from './event-finance-state.service';
 import {
@@ -36,6 +44,20 @@ interface ApprovalItem {
     category: ApprovalCategory;
     title: string;
     status: string;
+}
+
+interface ResolvedOrderItem {
+    menu_item: CateringMenuItem;
+    quantity: number;
+    notes?: string;
+    line_total: number;
+}
+
+interface OrderGroup {
+    label: string;
+    icon: string;
+    items: ResolvedOrderItem[];
+    subtotal: number;
 }
 
 @Component({
@@ -129,6 +151,64 @@ interface ApprovalItem {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Order Details -->
+                    @if (order_groups.length) {
+                        <div>
+                            <h4 class="mb-3 text-sm font-semibold opacity-70">
+                                {{ order_section_title }}
+                            </h4>
+                            @if (event_order?.guest_count) {
+                                <div class="mb-3 flex items-center space-x-2 text-xs opacity-60">
+                                    <icon class="text-sm">group</icon>
+                                    <span>{{ event_order.guest_count }} guests</span>
+                                </div>
+                            }
+                            <div class="rounded border border-base-300 divide-y divide-base-300">
+                                @for (group of order_groups; track group.label) {
+                                    <div class="p-3 space-y-2">
+                                        <div class="flex items-center space-x-2 text-sm font-medium">
+                                            <icon class="text-base opacity-50">{{ group.icon }}</icon>
+                                            <span>{{ group.label }}</span>
+                                        </div>
+                                        <div class="space-y-1.5 text-sm">
+                                            @for (item of group.items; track item.menu_item.id) {
+                                                <div class="flex justify-between items-start">
+                                                    <div class="flex-1 min-w-0">
+                                                        <div>{{ item.menu_item.name }}</div>
+                                                        <div class="text-xs opacity-50">
+                                                            {{ item.quantity }} &times;
+                                                            {{ formatCurrency(item.menu_item.default_price) }}{{ unitLabel(item.menu_item.unit) }}
+                                                        </div>
+                                                        @if (item.notes) {
+                                                            <div class="text-xs italic opacity-40 mt-0.5">
+                                                                {{ item.notes }}
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="font-medium whitespace-nowrap pl-3">
+                                                        {{ formatCurrency(item.line_total) }}
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        @if (group.items.length > 1) {
+                                            <div class="flex justify-between text-xs pt-1 border-t border-base-200">
+                                                <span class="opacity-50">Subtotal</span>
+                                                <span class="font-medium">{{ formatCurrency(group.subtotal) }}</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            @if (order_groups.length > 1) {
+                                <div class="flex justify-between text-sm font-semibold mt-2 px-1">
+                                    <span>Total</span>
+                                    <span>{{ formatCurrency(order_grand_total) }}</span>
+                                </div>
+                            }
+                        </div>
+                    }
 
                     <!-- Payment & Invoice -->
                     @if (all_declined) {
@@ -479,6 +559,46 @@ export class EventSummaryDialogComponent {
         );
     }
 
+    /** Order for this specific event. */
+    get event_order(): EventOrderDetail | undefined {
+        if (!this.data.event) return undefined;
+        return getEventOrder(this.data.event.id);
+    }
+
+    /** Resolved order groups ready for display. */
+    get order_groups(): OrderGroup[] {
+        if (!this.data.event) return [];
+        const evt = this.data.event;
+        const is_parent = !evt.parent_event &&
+            MOCK_APPROVAL_EVENTS.some((e) => e.parent_event === evt.id);
+        if (is_parent) {
+            return this._resolveAggregatedOrders(evt.id);
+        }
+        const order = getEventOrder(evt.id);
+        if (!order) return [];
+        return this._resolveOrderGroups(order);
+    }
+
+    /** Grand total across all order groups. */
+    get order_grand_total(): number {
+        return this.order_groups.reduce((sum, g) => sum + g.subtotal, 0);
+    }
+
+    /** Section title based on event category. */
+    get order_section_title(): string {
+        if (!this.data.event) return 'Order Details';
+        const is_parent = !this.data.event.parent_event &&
+            MOCK_APPROVAL_EVENTS.some((e) => e.parent_event === this.data.event!.id);
+        if (is_parent) return 'Order Details';
+        const titles: Record<string, string> = {
+            dining: 'Catering Order',
+            av_tech: 'AV & Equipment',
+            setup: 'Setup & Furniture',
+            services: 'Event Services',
+        };
+        return titles[this.data.event.category] || 'Order Details';
+    }
+
     approvedCount(): number {
         return this.approval_items.filter((i) => i.status === 'approved')
             .length;
@@ -592,5 +712,86 @@ export class EventSummaryDialogComponent {
 
     downloadQuotePdf(): void {
         if (this.quote) generateFinancePdf(this.quote);
+    }
+
+    unitLabel(unit: string): string {
+        return UNIT_LABELS[unit] || '';
+    }
+
+    /** Resolve an order into display groups by menu category. */
+    private _resolveOrderGroups(order: EventOrderDetail): OrderGroup[] {
+        const group_map = new Map<string, ResolvedOrderItem[]>();
+        for (const line of order.items) {
+            const menu_item = getMenuItemById(line.menu_item_id);
+            if (!menu_item) continue;
+            const key = menu_item.category;
+            const resolved: ResolvedOrderItem = {
+                menu_item,
+                quantity: line.quantity,
+                notes: line.notes,
+                line_total: line.quantity * menu_item.default_price,
+            };
+            if (!group_map.has(key)) group_map.set(key, []);
+            group_map.get(key)!.push(resolved);
+        }
+        const groups: OrderGroup[] = [];
+        for (const [key, items] of group_map) {
+            groups.push({
+                label: this._categoryGroupLabel(key),
+                icon: this._categoryGroupIcon(key),
+                items,
+                subtotal: items.reduce((s, i) => s + i.line_total, 0),
+            });
+        }
+        return groups;
+    }
+
+    /** Merge all child orders for a parent event, then resolve. */
+    private _resolveAggregatedOrders(parent_id: string): OrderGroup[] {
+        const family_orders = getEventFamilyOrders(parent_id);
+        if (!family_orders.length) return [];
+        const merged: EventOrderDetail = {
+            event_id: parent_id,
+            items: family_orders.flatMap((o) => o.items),
+        };
+        return this._resolveOrderGroups(merged);
+    }
+
+    private _categoryGroupLabel(category: string): string {
+        const labels: Record<string, string> = {
+            breakfast: 'Breakfast',
+            brunch: 'Brunch',
+            lunch: 'Lunch',
+            dinner: 'Dinner',
+            breaks: 'Breaks & Snacks',
+            reception: 'Reception & Hors d\'oeuvres',
+            beverages: 'Beverages',
+            bakery: 'Bakery & Pastries',
+            gameday: 'Gameday',
+            setup: 'Setup & Furniture',
+            av_rental: 'AV Equipment',
+            av_staffing: 'AV Staffing',
+            service_charges: 'Service Charges',
+        };
+        return labels[category] || category;
+    }
+
+    private _categoryGroupIcon(category: string): string {
+        const icons: Record<string, string> = {
+            breakfast: 'free_breakfast',
+            brunch: 'brunch_dining',
+            lunch: 'lunch_dining',
+            dinner: 'dinner_dining',
+            breaks: 'cookie',
+            reception: 'wine_bar',
+            beverages: 'local_cafe',
+            bakery: 'bakery_dining',
+            gameday: 'sports_football',
+            setup: 'table_restaurant',
+            av_rental: 'videocam',
+            av_staffing: 'engineering',
+            service_charges: 'receipt_long',
+        };
+        return icons[category] || 'category';
     }
 }
