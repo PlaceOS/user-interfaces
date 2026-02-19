@@ -166,7 +166,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-X7MCBCYR.js";
+} from "./chunk-OQ4KCA3E.js";
 
 // libs/events/src/lib/new-space-select-modal/new-space-details.component.ts
 var _c0 = (a0) => ({ count: a0 });
@@ -5801,4 +5801,4 @@ export {
   RecurrenceFieldComponent,
   SpaceListFieldComponent
 };
-//# sourceMappingURL=chunk-WAPEOFEM.js.map
+//# sourceMappingURL=chunk-JNAUHNDA.js.map

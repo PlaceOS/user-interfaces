@@ -1,7 +1,7 @@
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-3Q5CDBL6.js";
+} from "./chunk-WDA7GWYE.js";
 import {
   AsyncPipe,
   AuthenticatedImageDirective,
@@ -75,7 +75,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-X7MCBCYR.js";
+} from "./chunk-OQ4KCA3E.js";
 
 // apps/workplace/src/app/deals/deal-details-modal.component.ts
 function DealDetailsModalComponent_Conditional_2_Template(rf, ctx) {
@@ -737,4 +737,4 @@ var DealsModule = _DealsModule;
 export {
   DealsModule
 };
-//# sourceMappingURL=deals.module-QU5HDFYM.js.map
+//# sourceMappingURL=deals.module-F6PWQFUF.js.map
