@@ -49,7 +49,10 @@ describe('BootstrapComponent', () => {
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        localStorage.clear();
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -131,6 +134,40 @@ describe('BootstrapComponent', () => {
         expect(localStorage.removeItem).toHaveBeenCalledWith(
             'KIOSK.orientation',
         );
+    });
+
+    it('should navigate to checkin preferences when action is preferences', () => {
+        const router = spectator.inject(Router);
+        spectator.setRouteQueryParam('action', 'preferences');
+        spectator.setRouteQueryParam('token', 'abc.123');
+        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
+        spectator.component.active_level.set(
+            new BuildingLevel({ id: 'lvl-1' }),
+        );
+        spectator.detectChanges();
+
+        spectator.component.bootstrapKiosk();
+
+        expect(router.navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'preferences',
+        ], {
+            queryParams: { action: 'preferences', token: 'abc.123' },
+        });
+    });
+
+    it('should bypass bootstrap when action is preferences on load', async () => {
+        const router = spectator.inject(Router);
+        spectator.setRouteQueryParam('action', 'preferences');
+        spectator.setRouteQueryParam('token', 'abc.123');
+        await spectator.component.ngOnInit();
+
+        expect(router.navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'preferences',
+        ], {
+            queryParams: { action: 'preferences', token: 'abc.123' },
+        });
     });
 
     it('should re-direct if already bootstrapped', fakeAsync(async () => {
