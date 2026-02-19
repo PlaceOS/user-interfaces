@@ -207,7 +207,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-DD6FSJBZ.js";
+} from "./chunk-H3WNL4XF.js";
 
 // libs/bookings/src/lib/desk-settings-modal.component.ts
 function DeskSettingsModalComponent_Conditional_0_Template(rf, ctx) {
@@ -19269,4 +19269,4 @@ var CheckinStateService = _CheckinStateService;
 export {
   CheckinStateService
 };
-//# sourceMappingURL=chunk-RZ75WKU5.js.map
+//# sourceMappingURL=chunk-36G2TEZH.js.map

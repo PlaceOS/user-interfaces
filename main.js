@@ -1,6 +1,6 @@
 import {
   CheckinStateService
-} from "./chunk-RZ75WKU5.js";
+} from "./chunk-36G2TEZH.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -247,7 +247,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-DD6FSJBZ.js";
+} from "./chunk-H3WNL4XF.js";
 
 // node_modules/@angular/animations/fesm2022/util-CPU6TNml.mjs
 var LINE_START = "\n - ";
@@ -11989,11 +11989,11 @@ var routes = [
   { path: "register", component: VisitorRegistrationComponent },
   {
     path: "explore",
-    loadChildren: () => import("./explore.module-Z2YIR3IK.js").then((m) => m.AppExploreModule)
+    loadChildren: () => import("./explore.module-7DQ644LW.js").then((m) => m.AppExploreModule)
   },
   {
     path: "checkin",
-    loadChildren: () => import("./checkin.module-YGEVW23F.js").then((m) => m.VisitorCheckinModule)
+    loadChildren: () => import("./checkin.module-HIFFK67U.js").then((m) => m.VisitorCheckinModule)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
