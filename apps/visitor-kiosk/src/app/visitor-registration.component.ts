@@ -35,10 +35,12 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 [src]="background"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
-            <img
-                src="assets/img/building.png"
-                class="absolute right-0 bottom-0 w-[60%]"
-            />
+            @if (!hide_building_image) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
             @if (!loading) {
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
@@ -239,6 +241,10 @@ export class VisitorRegistrationComponent implements OnInit {
 
     public get allow_pass_number() {
         return this._settings.get('app.allow_pass_number');
+    }
+
+    public get hide_building_image() {
+        return this._settings.get('app.hide_building_image');
     }
 
     public get allow_registration_time_options() {

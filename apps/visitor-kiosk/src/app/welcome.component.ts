@@ -144,10 +144,12 @@ import {
                     </button>
                 }
             </mat-menu>
-            <img
-                src="assets/img/building.png"
-                class="absolute right-0 bottom-0 w-[60%]"
-            />
+            @if (!hide_building_image()) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
         </div>
     `,
     styles: [
@@ -184,6 +186,7 @@ export class WelcomeComponent
     public readonly hide_explore = settingSignal('hide_explore');
     public readonly background = settingSignal('welcome_background');
     public readonly can_register = settingSignal('allow_self_registration');
+    public readonly hide_building_image = settingSignal('hide_building_image');
     public readonly welcome_message = settingSignal('welcome_message');
     public readonly locales = settingSignal('locales');
     public readonly active_locale = computed(() => {

@@ -159,6 +159,10 @@ import { UploadButtonComponent } from './upload-button.component';
                             name="Hide Explore Map option"
                             formControlName="hide_explore"
                         ></settings-toggle>
+                        <settings-toggle
+                            name="Hide Building Image"
+                            formControlName="hide_building_image"
+                        ></settings-toggle>
                     </div>
                 </section>
                 <section
@@ -477,6 +481,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         allow_pass_number: new FormControl(false),
         allow_printing_label: new FormControl(false),
         hide_explore: new FormControl(false),
+        hide_building_image: new FormControl(false),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
             show_legend: new FormControl(false),
@@ -547,8 +552,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
                     ...form_value[key],
                 };
             } else {
-                new_settings[key] =
-                    this.existing_settings[key] || form_value[key];
+                new_settings[key] = form_value[key];
             }
         }
         for (const key in new_settings) {
