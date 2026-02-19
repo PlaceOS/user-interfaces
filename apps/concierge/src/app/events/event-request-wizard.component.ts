@@ -23,6 +23,7 @@ import {
     MockApprovalEvent,
 } from './event-approvals-mock.data';
 import { EventApprovalStateService } from './event-approval-state.service';
+import { ServicesStateService } from '../services/services-state.service';
 
 interface VenueOption {
     id: string;
@@ -222,6 +223,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
     { key: 'events', label: CATEGORY_DISPLAY_NAMES['events'], icon: CATEGORY_ICONS['events'] },
     { key: 'parking', label: CATEGORY_DISPLAY_NAMES['parking'], icon: CATEGORY_ICONS['parking'] },
     { key: 'safety', label: CATEGORY_DISPLAY_NAMES['safety'], icon: CATEGORY_ICONS['safety'] },
+    { key: 'services', label: CATEGORY_DISPLAY_NAMES['services'], icon: CATEGORY_ICONS['services'] },
 ];
 
 @Component({
@@ -576,6 +578,169 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             }
                         </div>
 
+                        <!-- CNSI Event Services -->
+                        @if (isServiceSelected('services')) {
+                            <label class="mt-2 text-sm font-medium"
+                                >Event Service Packages</label
+                            >
+                            <p
+                                class="text-base-content/50 -mt-2 text-xs"
+                            >
+                                Select specific CNSI service packages for
+                                this event.
+                            </p>
+                            <div class="mb-1 flex items-center gap-2">
+                                <span class="text-xs font-medium"
+                                    >Pricing:</span
+                                >
+                                <button
+                                    class="rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors"
+                                    [class]="
+                                        cnsi_rate_type() === 'internal'
+                                            ? 'bg-primary text-primary-content'
+                                            : 'bg-base-200 hover:bg-base-300'
+                                    "
+                                    (click)="
+                                        cnsi_rate_type.set('internal')
+                                    "
+                                    type="button"
+                                >
+                                    Internal
+                                </button>
+                                <button
+                                    class="rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-colors"
+                                    [class]="
+                                        cnsi_rate_type() === 'external'
+                                            ? 'bg-primary text-primary-content'
+                                            : 'bg-base-200 hover:bg-base-300'
+                                    "
+                                    (click)="
+                                        cnsi_rate_type.set('external')
+                                    "
+                                    type="button"
+                                >
+                                    External
+                                </button>
+                            </div>
+                            @for (
+                                group of cnsi_service_groups();
+                                track group.label
+                            ) {
+                                <div class="mt-1 text-xs font-semibold opacity-60">
+                                    {{ group.label }}
+                                </div>
+                                <div
+                                    class="rounded-lg border border-base-200 divide-y divide-base-200 overflow-hidden"
+                                >
+                                    @for (
+                                        svc of group.items;
+                                        track svc.id
+                                    ) {
+                                        <label
+                                            class="flex cursor-pointer items-start gap-2.5 px-3 py-2.5 transition-colors"
+                                            [class]="
+                                                isCnsiServiceSelected(
+                                                    svc.id
+                                                )
+                                                    ? 'bg-primary/5'
+                                                    : 'hover:bg-base-200/50'
+                                            "
+                                        >
+                                            <mat-checkbox
+                                                class="mt-0.5"
+                                                [checked]="
+                                                    isCnsiServiceSelected(
+                                                        svc.id
+                                                    )
+                                                "
+                                                (change)="
+                                                    toggleCnsiService(
+                                                        svc.id,
+                                                        $event.checked
+                                                    )
+                                                "
+                                            ></mat-checkbox>
+                                            <icon
+                                                class="mt-0.5 text-base"
+                                                [class]="
+                                                    isCnsiServiceSelected(
+                                                        svc.id
+                                                    )
+                                                        ? 'text-primary'
+                                                        : 'text-base-content/40'
+                                                "
+                                                >{{
+                                                    svc.icon ||
+                                                    'misc_services'
+                                                }}</icon
+                                            >
+                                            <div class="min-w-0 flex-1">
+                                                <div
+                                                    class="text-sm font-medium"
+                                                >
+                                                    {{ svc.name }}
+                                                </div>
+                                                <div
+                                                    class="flex items-center gap-2 text-[11px] text-base-content/40"
+                                                >
+                                                    @if (svc.space) {
+                                                        <span
+                                                            class="flex items-center gap-0.5"
+                                                        >
+                                                            <icon
+                                                                class="text-[11px]"
+                                                                >location_on</icon
+                                                            >
+                                                            {{ svc.space }}
+                                                        </span>
+                                                    }
+                                                    @if (svc.duration) {
+                                                        <span
+                                                            class="flex items-center gap-0.5"
+                                                        >
+                                                            <icon
+                                                                class="text-[11px]"
+                                                                >schedule</icon
+                                                            >
+                                                            {{
+                                                                svc.duration
+                                                            }}
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <span
+                                                class="text-primary mt-0.5 text-xs font-semibold whitespace-nowrap"
+                                            >
+                                                {{
+                                                    cnsi_rate_type() ===
+                                                    'internal'
+                                                        ? svc.internal_price
+                                                        : svc.external_price
+                                                }}
+                                            </span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            @if (selected_cnsi_services().length) {
+                                <div
+                                    class="bg-primary/10 border-primary/20 mt-2 rounded-lg border px-3 py-2 text-xs"
+                                >
+                                    <strong>{{
+                                        selected_cnsi_services().length
+                                    }}</strong>
+                                    package{{
+                                        selected_cnsi_services().length > 1
+                                            ? 's'
+                                            : ''
+                                    }}
+                                    selected &mdash; Est.
+                                    {{ cnsiServicesTotal() }}
+                                </div>
+                            }
+                        }
+
                         <label class="text-sm font-medium"
                             >Expected Attendance</label
                         >
@@ -749,6 +914,29 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                         }}</span>
                                     </div>
                                 }
+                                @if (
+                                    selected_cnsi_services().length
+                                ) {
+                                    <div class="flex justify-between">
+                                        <span class="opacity-60"
+                                            >Packages</span
+                                        >
+                                        <span class="text-right">{{
+                                            selectedCnsiServiceNames()
+                                        }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="opacity-60"
+                                            >Est. Total</span
+                                        >
+                                        <span
+                                            class="text-primary font-medium"
+                                            >{{
+                                                cnsiServicesTotal()
+                                            }}</span
+                                        >
+                                    </div>
+                                }
                             </div>
                         </div>
                     </section>
@@ -819,6 +1007,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
 export class EventRequestWizardComponent {
     private _router = inject(Router);
     private _approval_state = inject(EventApprovalStateService);
+    private _services_state = inject(ServicesStateService);
 
     readonly current_step = signal(1);
     readonly completed_steps = signal<number[]>([]);
@@ -836,6 +1025,27 @@ export class EventRequestWizardComponent {
     readonly all_locations = UCLA_LOCATIONS;
     readonly location_query = signal('');
     readonly active_venue_type = signal('indoor');
+
+    readonly selected_cnsi_services = signal<string[]>([]);
+    readonly cnsi_rate_type = signal<'internal' | 'external'>('internal');
+
+    private readonly _cnsi_category_meta: Record<string, string> = {
+        package: 'Event Packages',
+        alacarte: 'A La Carte',
+        addon: 'AV Add-ons',
+        space: 'Space / Venue',
+    };
+
+    readonly cnsi_service_groups = computed(() => {
+        const services = this._services_state.services();
+        const categories = ['package', 'alacarte', 'addon', 'space'];
+        return categories
+            .map((cat) => ({
+                label: this._cnsi_category_meta[cat] || cat,
+                items: services.filter((s) => s.category === cat),
+            }))
+            .filter((g) => g.items.length > 0);
+    });
 
     readonly filtered_locations = computed(() => {
         const query = this.location_query().toLowerCase();
@@ -933,6 +1143,43 @@ export class EventRequestWizardComponent {
 
     getCategoryName(cat: ApprovalCategory): string {
         return CATEGORY_DISPLAY_NAMES[cat];
+    }
+
+    isCnsiServiceSelected(id: string): boolean {
+        return this.selected_cnsi_services().includes(id);
+    }
+
+    toggleCnsiService(id: string, checked: boolean): void {
+        this.selected_cnsi_services.update((list) =>
+            checked ? [...list, id] : list.filter((s) => s !== id),
+        );
+    }
+
+    cnsiServicesTotal(): string {
+        const ids = this.selected_cnsi_services();
+        const services = this._services_state
+            .services()
+            .filter((s) => ids.includes(s.id));
+        const rate_key =
+            this.cnsi_rate_type() === 'internal'
+                ? 'internal_price'
+                : 'external_price';
+        let total = 0;
+        for (const svc of services) {
+            const raw = svc[rate_key].replace(/[^0-9.]/g, '');
+            const val = parseFloat(raw);
+            if (!isNaN(val)) total += val;
+        }
+        return `$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    selectedCnsiServiceNames(): string {
+        const ids = this.selected_cnsi_services();
+        return this._services_state
+            .services()
+            .filter((s) => ids.includes(s.id))
+            .map((s) => s.name)
+            .join(', ');
     }
 
     isCurrentStepValid(): boolean {
