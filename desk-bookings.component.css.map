@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["desk-bookings.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
