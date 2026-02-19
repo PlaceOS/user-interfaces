@@ -212,7 +212,7 @@ export class CateringMenuComponent {
     private _org = inject(OrganisationService);
 
     public get currency_code() {
-        return this._org.building?.currency || 'USD';
+        return this._org.currency_code;
     }
 
     public show_children: Record<string, boolean> = {};

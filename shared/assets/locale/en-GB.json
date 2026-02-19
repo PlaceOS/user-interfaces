@@ -684,7 +684,7 @@
         "SUCCESS_WITHOUT_SPACE": "You meeting has been successfully booked for {{ date }} at {{ time }}",
         "SUCCESS_WITH_SPACE_ALLDAY": "Your room booking for {{ level }}, {{ space }} has been successfully booked for {{ date }}",
         "SUCCESS_WITHOUT_SPACE_ALLDAY": "Your meeting has been successfully booked for {{ date }}",
-        "SUCCESS_WAIT_APPROVED": "Please allow up to 5 minutes for your booking to be approved.",
+        "SUCCESS_WAIT_APPROVED": "Please allow for some time for your booking to be approved.",
         "BOOK_NEARBY_DESK": "Book nearby desk",
         "SPACE_SELECT_SIZE": "Select room size",
         "SPACE_SELECT_SIZE_X": "Min. {{ count }} people",

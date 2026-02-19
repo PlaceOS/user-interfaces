@@ -48,7 +48,7 @@ export interface UserDetails extends User {
                 <div class="mb-[0.25em] text-[1.5em] text-black">
                     {{ user().name }}
                 </div>
-                <div>
+                <div class="text-black">
                     {{
                         'APP.VISITOR_KIOSK.LABEL_HOST'
                             | translate

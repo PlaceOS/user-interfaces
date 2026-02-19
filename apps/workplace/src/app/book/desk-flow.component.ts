@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
     Desk,
     firstTruthyValueFrom,
     nextValueFrom,
@@ -59,6 +60,21 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
         const { id, booking_type } = this._state.form.value;
         if (!id || booking_type !== 'desk') this._state.newForm('desk');
         this._state.form.patchValue({ booking_type: 'desk' });
+        if (id && booking_type === 'desk') {
+            const booking = new Booking(this._state.form.getRawValue());
+            const is_group =
+                !!booking.parent_id ||
+                !!booking.group ||
+                !!booking.extension_data?.group_members?.length;
+            if (is_group) {
+                const members =
+                    await this._state.loadGroupMembersForBooking(booking);
+                this._state.setOptions({
+                    group: true,
+                    members,
+                });
+            }
+        }
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {

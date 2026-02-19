@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { PlaceOS_Service, setMocks } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
+import { parseTokenFromUrl } from './checkin/token-from-url';
 
 @Component({
     selector: 'app-root',
@@ -35,6 +36,13 @@ export class AppComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        const on_checkin_preferences = window.location.href.includes(
+            '#/checkin/preferences',
+        );
+        if (on_checkin_preferences) {
+            const url_token = parseTokenFromUrl(window.location.href);
+            if (url_token) this._placeos.setInitialToken(url_token);
+        }
         setMocks(mocksInit);
         this._placeos.init();
     }

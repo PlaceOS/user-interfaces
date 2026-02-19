@@ -379,7 +379,7 @@ export class ScheduleStateService extends AsyncHandler {
             switchMap(([[date, end_date], options]) =>
                 this._bookingQuery('visitor', options.period, date, end_date),
             ),
-            map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+            map((_) => _.filter((_) => !_.linked_event)),
             tap(() =>
                 this.timeout('end_loading', () => this._loading.set(false)),
             ),

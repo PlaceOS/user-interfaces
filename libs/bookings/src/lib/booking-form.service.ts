@@ -401,6 +401,12 @@ export class BookingFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
+        this.subscription(
+            'all_day_change',
+            this.form.get('all_day').valueChanges.subscribe((all_day) => {
+                if (!all_day) this.form.patchValue({ duration: 60 });
+            }),
+        );
         this.timeout('date', async () =>
             this.form.patchValue({
                 date: booking.date,
@@ -705,6 +711,14 @@ export class BookingFormService extends AsyncHandler {
                 value.recurrence_end = available_period;
             }
         }
+        const group_members =
+            this._options.getValue().group &&
+            this._options.getValue().members?.length
+                ? this.mapGroupMembers(
+                      value.booking_type,
+                      this._options.getValue().members,
+                  )
+                : [];
         const result = await lastValueFrom(
             saveBooking(
                 new Booking({
@@ -721,6 +735,11 @@ export class BookingFormService extends AsyncHandler {
                         company: value.company,
                         ...(value.booking_type === 'visitor'
                             ? { international: !!value.international }
+                            : {}),
+                        ...(group_members.length
+                            ? {
+                                  group_members,
+                              }
                             : {}),
                         department:
                             value.user?.department || currentUser()?.department,
@@ -907,6 +926,186 @@ export class BookingFormService extends AsyncHandler {
         return user_booking;
     }
 
+    public async postFormForVisitorGroup() {
+        const { members, group } = this._options.getValue();
+        if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
+        if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
+        const rollback_on_group_error =
+            this.setting('rollback_group_bookings') === true;
+        const form = this.form.getRawValue();
+        const group_name = `${currentUser().email}[${format(
+            Date.now(),
+            'yyyy-MM-dd',
+        )}]`;
+        const booking_ids: string[] = [];
+        let parent_id = '';
+        let first_booking: Booking = null;
+        try {
+            for (const visitor of members) {
+                if (!visitor.email) continue;
+                this.form.patchValue({
+                    ...form,
+                    asset_id: visitor.email,
+                    asset_name: visitor.name,
+                    international:
+                        (visitor as any).international ||
+                        !!visitor.extension_data?.international,
+                    company:
+                        (visitor as any).company ||
+                        visitor.organisation,
+                    phone: visitor.phone,
+                    parent_id,
+                    group: group_name,
+                    assets: [],
+                    attendees: [
+                        new User({
+                            name: visitor.name,
+                            email: visitor.email,
+                            organisation:
+                                (visitor as any).company ||
+                                visitor.organisation,
+                            phone: visitor.phone,
+                        }),
+                    ],
+                });
+                const bkn = await this.postForm(true).catch((error) => {
+                    throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
+                });
+                if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn?.id && !parent_id) {
+                    parent_id = bkn.id;
+                    first_booking = bkn;
+                }
+            }
+        } catch (error) {
+            if (rollback_on_group_error && booking_ids.length) {
+                await this.rollbackGroupBookings(booking_ids);
+            }
+            throw this._error_message(error);
+        }
+        return first_booking;
+    }
+
+    public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
+        if (!booking?.id) return [];
+        const parent_id = booking.parent_id || booking.id;
+        const { type } = this._options.getValue();
+        return lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(booking.date),
+                period_end: getUnixTime(
+                    addMinutes(booking.date, booking.duration),
+                ),
+                type,
+            }).pipe(
+                map((list) =>
+                    list.filter(
+                        (b) =>
+                            b.id === parent_id || b.parent_id === parent_id,
+                    ),
+                ),
+            ),
+        );
+    }
+
+    public async loadGroupMembersForBooking(booking: Booking): Promise<User[]> {
+        if (!booking?.id) return [];
+        const type =
+            this._options.getValue().type || booking.booking_type || 'desk';
+        const is_visitor = type === 'visitor';
+        const sibling_list = await this.loadGroupSiblings(booking);
+        if (sibling_list.length) {
+            return this.mapGroupMembersFromBookings(sibling_list, is_visitor);
+        }
+        return this.mapGroupMembersFromExtension(
+            booking.extension_data?.group_members || [],
+            is_visitor,
+        );
+    }
+
+    public async editFormForGroup(
+        existing_siblings: Booking[],
+    ): Promise<Booking> {
+        const { members, type } = this._options.getValue();
+        if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
+        const form = this.form.getRawValue();
+        const base_form = { ...form, id: '' };
+        const parent_id = form.parent_id || form.id;
+        const group_name =
+            form.group ||
+            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`;
+        const is_visitor = type === 'visitor';
+        const sibling_map: Record<string, Booking> = {};
+        for (const s of existing_siblings) {
+            const key = is_visitor ? s.asset_id : s.user_email;
+            if (key) sibling_map[key] = s;
+        }
+        const member_keys = new Set(members.map((m) => m.email));
+        const to_delete = existing_siblings.filter((s) => {
+            const key = is_visitor ? s.asset_id : s.user_email;
+            return key && !member_keys.has(key);
+        });
+        await Promise.all(
+            to_delete.map((s) => lastValueFrom(removeBooking(s.id))),
+        );
+        let first_result: Booking = null;
+        try {
+            for (const member of members) {
+                if (!member.email) continue;
+                const existing = sibling_map[member.email];
+                const booking_id = existing?.id || '';
+                if (is_visitor) {
+                    this.form.patchValue({
+                        ...base_form,
+                        id: booking_id,
+                        parent_id: booking_id === parent_id ? '' : parent_id,
+                        group: group_name,
+                        asset_id: member.email,
+                        asset_name: member.name,
+                        international:
+                            (member as any).international ||
+                            !!member.extension_data?.international,
+                        company:
+                            (member as any).company || member.organisation,
+                        phone: member.phone,
+                        assets: [],
+                        attendees: [
+                            new User({
+                                name: member.name,
+                                email: member.email,
+                                organisation:
+                                    (member as any).company ||
+                                    member.organisation,
+                                phone: member.phone,
+                            }),
+                        ],
+                    });
+                } else {
+                    this.form.patchValue({
+                        ...base_form,
+                        id: booking_id,
+                        parent_id: booking_id === parent_id ? '' : parent_id,
+                        group: group_name,
+                        user: member as any,
+                        user_email: member.email,
+                        user_id: member.id,
+                        ...(existing
+                            ? {
+                                  asset_id: existing.asset_id,
+                                  asset_name: existing.asset_name,
+                              }
+                            : {}),
+                    });
+                }
+                const bkn = await this.postForm(true);
+                if (!first_result) first_result = bkn;
+            }
+        } catch (error) {
+            throw this._error_message(error);
+        }
+        return first_result;
+    }
+
     private _error_message(error: any) {
         if (typeof error === 'string') return error;
         if (error instanceof Error && error.message) return error.message;
@@ -916,6 +1115,83 @@ export class BookingFormService extends AsyncHandler {
             return error.error.message;
         }
         return i18n('BOOKINGS.ERROR_GENERIC');
+    }
+
+    private mapGroupMembers(type: BookingType, members: User[] = []) {
+        const user_list =
+            type === 'visitor'
+                ? members
+                : unique([currentUser(), ...(members || [])], 'email');
+        return user_list
+            .filter((member) => !!member?.email)
+            .map((member) => ({
+                id: member.id || '',
+                name: member.name || member.email,
+                email: member.email,
+                company: (member as any).company || member.organisation || '',
+                phone: member.phone || '',
+                international:
+                    !!(member as any).international ||
+                    !!member.extension_data?.international,
+            }));
+    }
+
+    private mapGroupMembersFromBookings(
+        bookings: Booking[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            bookings
+                .map((booking) =>
+                    is_visitor
+                        ? new User({
+                              name: booking.asset_name,
+                              email: booking.asset_id,
+                              organisation: booking.extension_data?.company,
+                              phone: booking.extension_data?.phone,
+                              extension_data: {
+                                  international:
+                                      !!booking.extension_data?.international,
+                              },
+                          })
+                        : new User({
+                              id: booking.user_id,
+                              name: booking.user_name || booking.user_email,
+                              email: booking.user_email,
+                              organisation: booking.extension_data?.company,
+                              phone: booking.extension_data?.phone,
+                          }),
+                )
+                .filter((member) => !!member?.email),
+            'email',
+        );
+    }
+
+    private mapGroupMembersFromExtension(
+        members: any[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            (members || [])
+                .filter((member) => !!member?.email)
+                .map((member) =>
+                    new User({
+                        id: member.id || '',
+                        name: member.name || member.email,
+                        email: member.email,
+                        organisation: member.company || member.organisation || '',
+                        phone: member.phone || '',
+                        extension_data: {
+                            ...(member.extension_data || {}),
+                            international: !!member.international,
+                        },
+                        international: is_visitor
+                            ? !!member.international
+                            : false,
+                    } as any),
+                ),
+            'email',
+        );
     }
 
     private async rollbackGroupBookings(booking_ids: string[]) {

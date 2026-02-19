@@ -411,12 +411,19 @@ export class EventFormService extends AsyncHandler {
 
     public newForm(event = new CalendarEvent()) {
         this._loading.next('');
+        const lock_start_time =
+            !!event.id &&
+            (event.state === 'started' || event.state === 'in_progress');
+        (this._form as any)._lock_start_time = lock_start_time;
         this._form.reset({
             ...event,
             catering: event.extension_data.catering,
             catering_charge_code:
                 event.extension_data.catering?.[0]?.charge_code,
             catering_notes: event.extension_data.catering?.[0]?.notes,
+        });
+        this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
+            emitEvent: false,
         });
         if (!event.id) return;
         sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));

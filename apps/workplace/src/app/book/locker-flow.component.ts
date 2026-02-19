@@ -10,6 +10,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
     currentUser,
     OrganisationService,
     SettingsService,
@@ -123,6 +124,23 @@ export class BookLockerFlowComponent extends AsyncHandler implements OnInit {
         this._state.setOptions({ type: 'locker' });
         if (!this._state.form.value.id) this._state.newForm('locker');
         this._state.form.patchValue({ booking_type: 'locker' });
+        if (this._state.form.value.id) {
+            const booking = new Booking(this._state.form.getRawValue());
+            const is_group =
+                !!booking.parent_id ||
+                !!booking.group ||
+                !!booking.extension_data?.group_members?.length;
+            if (is_group) {
+                this._state
+                    .loadGroupMembersForBooking(booking)
+                    .then((members) =>
+                        this._state.setOptions({
+                            group: true,
+                            members,
+                        }),
+                    );
+            }
+        }
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
