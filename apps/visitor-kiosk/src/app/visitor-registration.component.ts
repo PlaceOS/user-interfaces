@@ -14,13 +14,17 @@ import {
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { UserSearchFieldComponent } from '@placeos/form-fields';
+import {
+    DurationFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
 
 @Component({
@@ -150,6 +154,26 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 />
                             </mat-form-field>
                         }
+                        @if (allow_registration_time_options) {
+                            <div class="relative mt-4 flex justify-end">
+                                <mat-checkbox
+                                    class="absolute -top-2 right-0"
+                                    formControlName="all_day"
+                                >
+                                    {{ 'COMMON.ALL_DAY' | translate }}
+                                </mat-checkbox>
+                            </div>
+                            <label form="duration">
+                                {{ 'FORM.DURATION' | translate }}
+                            </label>
+                            <a-duration-field
+                                name="duration"
+                                formControlName="duration"
+                                [time]="form.value.date"
+                                [max]="max_duration"
+                                [disabled]="form.value.all_day"
+                            ></a-duration-field>
+                        }
                     </div>
                     <div
                         class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
@@ -178,11 +202,13 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         TranslatePipe,
         IconComponent,
         MatRippleModule,
+        MatCheckboxModule,
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
         UserSearchFieldComponent,
+        DurationFieldComponent,
         RouterModule,
     ],
 })
@@ -213,6 +239,25 @@ export class VisitorRegistrationComponent implements OnInit {
 
     public get allow_pass_number() {
         return this._settings.get('app.allow_pass_number');
+    }
+
+    public get allow_registration_time_options() {
+        const setting = this._settings.get(
+            'app.allow_registration_time_options',
+        );
+        if (setting !== undefined) return !!setting;
+        return !!(
+            this._settings.get('app.visitors.allow_all_day') ??
+            this._settings.get('app.bookings.allow_all_day')
+        );
+    }
+
+    public get max_duration() {
+        return (
+            this._settings.get('app.visitors.max_duration') ||
+            this._settings.get('app.bookings.max_duration') ||
+            180
+        );
     }
 
     public get induction_after_details() {
