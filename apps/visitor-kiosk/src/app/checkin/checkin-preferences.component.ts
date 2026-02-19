@@ -41,6 +41,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { showEventMetadata, updateEventMetadata } from '@placeos/events';
 import { CheckinStateService } from './checkin-state.service';
+import { parseTokenFromUrl } from './token-from-url';
 
 @Component({
     selector: 'checkin-preferences',
@@ -145,6 +146,7 @@ export class CheckinPreferencesComponent
     private _checkin = inject(CheckinStateService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _last_jwt = '';
 
     public loading = signal(false);
     public type = signal<'save' | 'menu'>('menu');
@@ -200,7 +202,12 @@ export class CheckinPreferencesComponent
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
-                const jwt = params.get('jwt') || params.get('token');
+                const jwt =
+                    params.get('jwt') ||
+                    params.get('token') ||
+                    parseTokenFromUrl(window.location.href);
+                if (!jwt || jwt === this._last_jwt) return;
+                this._last_jwt = jwt;
                 if (jwt) {
                     setToken(jwt);
                     const data = parseJWT(jwt);

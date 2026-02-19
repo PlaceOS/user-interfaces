@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SettingsService } from '@placeos/common';
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
+import { parseTokenFromUrl } from '../../app/checkin/token-from-url';
 
 describe('CheckinPreferencesComponent', () => {
     let spectator: SpectatorRouting<CheckinPreferencesComponent>;
@@ -38,5 +39,19 @@ describe('CheckinPreferencesComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should parse token from hash route query', () => {
+        const token = parseTokenFromUrl(
+            'https://example.test/#/checkin/preferences?token=abc.123',
+        );
+        expect(token).toBe('abc.123');
+    });
+
+    it('should parse jwt from pre-hash URL query', () => {
+        const token = parseTokenFromUrl(
+            'https://example.test/?jwt=abc.123#/checkin/preferences',
+        );
+        expect(token).toBe('abc.123');
     });
 });
