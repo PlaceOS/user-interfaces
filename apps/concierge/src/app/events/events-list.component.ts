@@ -21,6 +21,7 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
+import { EventSyncService } from './event-sync.service';
 
 @Component({
     selector: 'app-event-list',
@@ -142,6 +143,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventStateService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _event_sync = inject(EventSyncService);
 
     public readonly period = this._state.options.pipe(
         map((_) => _.period),
@@ -157,6 +159,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this._event_sync.connect();
         this.subscription('poll_events', this._state.startPolling());
         this.subscription(
             'period',
