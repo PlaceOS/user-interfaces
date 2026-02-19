@@ -250,32 +250,42 @@ export class RichTextInputComponent
     }
 
     public toggleBold() {
-        this._toggleFormat('B', () => this._editor.removeBold(), () =>
-            this._editor.bold(),
+        this._toggleFormat(
+            'B',
+            () => this._editor.removeBold(),
+            () => this._editor.bold(),
         );
     }
 
     public toggleItalic() {
-        this._toggleFormat('I', () => this._editor.removeItalic(), () =>
-            this._editor.italic(),
+        this._toggleFormat(
+            'I',
+            () => this._editor.removeItalic(),
+            () => this._editor.italic(),
         );
     }
 
     public toggleUnderline() {
-        this._toggleFormat('U', () => this._editor.removeUnderline(), () =>
-            this._editor.underline(),
+        this._toggleFormat(
+            'U',
+            () => this._editor.removeUnderline(),
+            () => this._editor.underline(),
         );
     }
 
     public makeUnorderedList() {
-        this._toggleFormat('UL', () => this._editor.removeList(), () =>
-            this._editor.makeUnorderedList(),
+        this._toggleFormat(
+            'UL',
+            () => this._editor.removeList(),
+            () => this._editor.makeUnorderedList(),
         );
     }
 
     public makeOrderedList() {
-        this._toggleFormat('OL', () => this._editor.removeList(), () =>
-            this._editor.makeOrderedList(),
+        this._toggleFormat(
+            'OL',
+            () => this._editor.removeList(),
+            () => this._editor.makeOrderedList(),
         );
     }
 
@@ -364,7 +374,7 @@ export class RichTextInputComponent
             if (!file) return;
             this._uploads.uploadFile(file, true).then((upload_id) => {
                 if (!upload_id) return;
-                const link = `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+                const link = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
                 this._setAuth();
                 setTimeout(() => {
                     this._insertUploadedFile(link, file, images_only);
@@ -421,7 +431,11 @@ export class RichTextInputComponent
         this._refreshToolbarState();
     }
 
-    private _insertUploadedFile(link: string, file: File, images_only: boolean) {
+    private _insertUploadedFile(
+        link: string,
+        file: File,
+        images_only: boolean,
+    ) {
         const is_image = file.type.startsWith('image/');
         if (images_only || is_image) {
             this._editor.insertHTML(`<img src="${link}" alt="${file.name}" />`);
