@@ -129,7 +129,22 @@ interface ApprovalItem {
                     </div>
 
                     <!-- Payment & Invoice -->
-                    @if (quote) {
+                    @if (all_declined) {
+                        <div>
+                            <h4 class="mb-3 text-sm font-semibold opacity-70">
+                                Payment & Invoice
+                            </h4>
+                            <div class="rounded border border-error/30 bg-error/5 p-4 text-center">
+                                <icon class="text-error text-3xl mb-2">cancel</icon>
+                                <p class="text-sm font-medium text-error">
+                                    Event Request Cancelled
+                                </p>
+                                <p class="text-xs opacity-60 mt-1">
+                                    All approvals were declined. No deposit required.
+                                </p>
+                            </div>
+                        </div>
+                    } @else if (quote) {
                         <div>
                             <h4 class="mb-3 text-sm font-semibold opacity-70">
                                 Payment & Invoice
@@ -398,16 +413,28 @@ export class EventSummaryDialogComponent {
         );
     }
 
-    /** The deposit invoice linked to this event's quote. */
+    /** The deposit invoice linked to this event's quote. Only shown when all approvals have been actioned. */
     get deposit(): FinancialDocument | null {
         const q = this.quote;
         if (!q) return null;
+        const all_actioned = this.approval_items.every(
+            (i) => i.status === 'approved' || i.status === 'declined',
+        );
+        if (!all_actioned) return null;
         return (
             MOCK_FINANCIAL_DOCUMENTS.find(
                 (d) =>
                     d.converted_from === q.id &&
                     d.invoice_type === 'deposit',
             ) || null
+        );
+    }
+
+    /** True when every approval has been declined — event is effectively cancelled */
+    get all_declined(): boolean {
+        const items = this.approval_items;
+        return (
+            items.length > 0 && items.every((i) => i.status === 'declined')
         );
     }
 
@@ -445,11 +472,21 @@ export class EventSummaryDialogComponent {
     quoteStatusLabel(): string {
         const q = this.quote;
         if (!q) return '';
+        const has_pending = this.approval_items.some(
+            (i) => i.status === 'pending',
+        );
+        if (has_pending && q.status === 'draft')
+            return 'Awaiting Approvals';
         return q.status.charAt(0).toUpperCase() + q.status.slice(1);
     }
 
     quoteStatusClass(): string {
         const s = this.quote?.status;
+        const has_pending = this.approval_items.some(
+            (i) => i.status === 'pending',
+        );
+        if (has_pending && s === 'draft')
+            return 'bg-warning/20 text-warning';
         if (s === 'accepted') return 'bg-success/20 text-success';
         if (s === 'draft') return 'bg-base-200 text-base-content';
         if (s === 'sent') return 'bg-info/20 text-info';
@@ -478,6 +515,7 @@ export class EventSummaryDialogComponent {
         events: 'bg-teal-600',
         parking: 'bg-indigo-600',
         setup: 'bg-orange-600',
+        services: 'bg-cyan-600',
     };
 
     serviceBadgeColor(category: string): string {

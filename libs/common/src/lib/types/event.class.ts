@@ -97,6 +97,8 @@ export interface EventExtensionData {
     shared_event?: boolean;
     /** Access level of the event */
     view_access: 'PRIVATE' | 'OPEN' | 'PUBLIC';
+    /** Selected event services */
+    event_services?: { id: string; name: string; category: string; internal_price: string; external_price: string }[];
 }
 
 export interface EventListQueryParams {

@@ -351,22 +351,46 @@ export class EventFinanceStateService {
     /** Check whether all approval categories for an event have been accepted. */
     public allApprovalsAccepted(event_id: string): boolean {
         const statuses = this._approval_state.status;
+        const all_events = this._getEventFamily(event_id);
+        return all_events.every((e) => statuses[e.id] === 'approved');
+    }
+
+    /** Check whether all approvals have been actioned (approved or declined). */
+    public allApprovalsActioned(event_id: string): boolean {
+        const statuses = this._approval_state.status;
+        const all_events = this._getEventFamily(event_id);
+        return all_events.every(
+            (e) =>
+                statuses[e.id] === 'approved' ||
+                statuses[e.id] === 'declined',
+        );
+    }
+
+    /** Check whether ALL approvals for an event are declined. */
+    public allApprovalsDeclined(event_id: string): boolean {
+        const statuses = this._approval_state.status;
+        const all_events = this._getEventFamily(event_id);
+        return all_events.every((e) => statuses[e.id] === 'declined');
+    }
+
+    /** Get parent + children events for a given event ID. */
+    private _getEventFamily(event_id: string): typeof MOCK_APPROVAL_EVENTS {
         const parent_event = MOCK_APPROVAL_EVENTS.find(
             (e) => e.id === event_id && !e.parent_event,
         );
         if (!parent_event) {
-            const child = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+            const child = MOCK_APPROVAL_EVENTS.find(
+                (e) => e.id === event_id,
+            );
             if (child?.parent_event) {
-                return this.allApprovalsAccepted(child.parent_event);
+                return this._getEventFamily(child.parent_event);
             }
-            return statuses[event_id] === 'approved';
+            return MOCK_APPROVAL_EVENTS.filter((e) => e.id === event_id);
         }
-
         const children = MOCK_APPROVAL_EVENTS.filter(
             (e) => e.parent_event === parent_event.id,
         );
-        const all_events = [parent_event, ...children];
-        return all_events.every((e) => statuses[e.id] === 'approved');
+        return [parent_event, ...children];
     }
 
     /** Approve a single billable category on a sent quote. Auto-accepts when all categories approved. */
@@ -415,10 +439,9 @@ export class EventFinanceStateService {
     // ── Private ────────────────────────────────────────────────────
 
     /**
-     * When all approvals for an event become accepted:
-     * 1. Update draft quote notes
-     * 2. Auto-generate a deposit invoice (50%) and mark it as 'invoiced'
-     * 3. Mark the quote as 'accepted' (deposit sent)
+     * When all approvals for an event are actioned (approved/declined):
+     * - All declined → cancel the quote
+     * - At least one approved → accept quote + generate deposit invoice
      */
     private _syncWithApprovals(
         _statuses: Record<string, string>,
@@ -430,11 +453,30 @@ export class EventFinanceStateService {
         const updated = docs.map((d) => {
             if (d.doc_type !== 'quote') return d;
 
-            const all_approved = this.allApprovalsAccepted(d.event_id);
+            const all_actioned = this.allApprovalsActioned(d.event_id);
+            const all_declined = this.allApprovalsDeclined(d.event_id);
 
-            // When all approvals accepted for a draft quote → auto-generate deposit + accept
-            if (d.status === 'draft' && all_approved) {
-                // Check no deposit already exists
+            // All declined → cancel the quote
+            if (d.status === 'draft' && all_actioned && all_declined) {
+                changed = true;
+                this._appendAudit(
+                    d.id,
+                    'cancelled',
+                    'All approvals declined — quote cancelled',
+                );
+                return {
+                    ...d,
+                    status: 'cancelled' as FinancialDocStatus,
+                    notes: d.notes.replace(
+                        /Awaiting all event approvals before sending\./,
+                        'All approvals declined. Event request cancelled.',
+                    ),
+                    last_updated: Date.now(),
+                };
+            }
+
+            // All actioned with at least one approved → accept + generate deposit
+            if (d.status === 'draft' && all_actioned && !all_declined) {
                 const has_deposit = docs.some(
                     (x) =>
                         x.converted_from === d.id &&
@@ -443,7 +485,6 @@ export class EventFinanceStateService {
                 if (!has_deposit) {
                     changed = true;
 
-                    // Create deposit invoice
                     const pct = DEPOSIT_PERCENT;
                     const deposit_ratio = pct / 100;
                     const deposit_id = `fin-dep-${Date.now()}-${d.id}`;
@@ -483,27 +524,21 @@ export class EventFinanceStateService {
                         `Deposit invoice ${deposit_number} auto-generated (${pct}% of ${d.doc_number})`,
                     );
                     this._appendAudit(
-                        deposit_id,
-                        'emailed',
-                        `Deposit invoice auto-sent to ${d.bill_to}`,
-                    );
-                    this._appendAudit(
                         d.id,
                         'accepted',
-                        `All approvals accepted — deposit invoice ${deposit_number} sent`,
+                        `All approvals actioned — deposit invoice ${deposit_number} sent`,
                     );
 
                     notifySuccess(
                         `Deposit invoice ${deposit_number} auto-sent to ${d.bill_to}`,
                     );
 
-                    // Update the quote to 'accepted'
                     return {
                         ...d,
                         status: 'accepted' as FinancialDocStatus,
                         notes: d.notes.replace(
                             /Awaiting all event approvals before sending\./,
-                            `All event approvals accepted. Deposit invoice ${deposit_number} sent.`,
+                            `Approvals complete. Deposit invoice ${deposit_number} sent.`,
                         ),
                         last_updated: Date.now(),
                     };
@@ -513,14 +548,14 @@ export class EventFinanceStateService {
             // Revert notes if approvals are removed while still draft
             if (
                 d.status === 'draft' &&
-                !all_approved &&
-                d.notes.includes('All event approvals accepted')
+                !all_actioned &&
+                d.notes.includes('Approvals complete')
             ) {
                 changed = true;
                 return {
                     ...d,
                     notes: d.notes.replace(
-                        /All event approvals accepted[^.]*\./,
+                        /Approvals complete[^.]*\./,
                         'Awaiting all event approvals before sending.',
                     ),
                     last_updated: Date.now(),

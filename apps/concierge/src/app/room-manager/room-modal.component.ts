@@ -60,6 +60,7 @@ import {
     BUILDING_CATERING_TIER,
     CateringTier,
 } from './ucla-catering-menu';
+import { ServicesStateService } from '../services/services-state.service';
 
 // ── UCLA Venue Types ──────────────────────────────────────────────
 const VENUE_TYPE_OPTIONS = [
@@ -670,11 +671,11 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Event Services
-                        <span class="text-xs opacity-50 ml-2">Planning, staffing & logistics</span>
+                        <span class="text-xs opacity-50 ml-2">Planning, staffing & CNSI packages</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="flex flex-col min-w-0 mb-4">
-                            <label>Available Event Services</label>
+                            <label>General Event Services</label>
                             <mat-form-field appearance="outline">
                                 <mat-select formControlName="event_services" multiple placeholder="Select available services">
                                     @for (opt of event_service_options; track opt.value) {
@@ -682,6 +683,39 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     }
                                 </mat-select>
                             </mat-form-field>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <label class="mb-1">CNSI Service Packages</label>
+                            <p class="text-xs opacity-50 mb-2">
+                                Select packages and add-ons from Service Management available at this venue.
+                            </p>
+                            @for (group of managed_service_groups(); track group.label) {
+                                <div class="mb-3">
+                                    <div class="text-xs font-semibold opacity-60 mb-1">{{ group.label }}</div>
+                                    <div class="rounded border border-base-200 divide-y divide-base-200">
+                                        @for (svc of group.items; track svc.id) {
+                                            <label class="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-base-200/50">
+                                                <input
+                                                    type="checkbox"
+                                                    class="checkbox checkbox-sm"
+                                                    [checked]="isManagedServiceSelected(svc.id)"
+                                                    (change)="toggleManagedService(svc.id)"
+                                                />
+                                                <icon class="text-base-content/40 text-lg">{{ svc.icon || 'misc_services' }}</icon>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium">{{ svc.name }}</div>
+                                                    <div class="text-xs opacity-50">{{ svc.internal_price }} (internal) · {{ svc.external_price }} (external)</div>
+                                                </div>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            @if (managed_service_groups().length === 0) {
+                                <div class="text-xs text-base-content/50 rounded border border-base-200 px-3 py-4 text-center">
+                                    No services configured. Add services via Service Management.
+                                </div>
+                            }
                         </div>
                     </div>
                 </details>
@@ -943,6 +977,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _catering = inject(CateringStateService);
+    private _services_state = inject(ServicesStateService);
 
     public loading = false;
     public current_page = signal<1 | 2>(1);
@@ -988,6 +1023,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         catering_notes: new FormControl(''),
         // Event Services
         event_services: new FormControl<string[]>([]),
+        managed_services: new FormControl<string[]>([]),
         // Parking & WiFi
         wifi_available: new FormControl(false),
         high_speed_wifi: new FormControl(false),
@@ -1006,6 +1042,36 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     public readonly av_service_options = AV_SERVICE_OPTIONS;
     public readonly event_service_options = EVENT_SERVICE_OPTIONS;
     public readonly supported_layout_options = SUPPORTED_LAYOUT_OPTIONS;
+
+    private readonly _svc_category_labels: Record<string, string> = {
+        package: 'Event Packages',
+        alacarte: 'A La Carte',
+        addon: 'AV Add-ons',
+        space: 'Space / Venue',
+    };
+
+    public readonly managed_service_groups = computed(() => {
+        const services = this._services_state.services();
+        const categories = ['package', 'alacarte', 'addon', 'space'];
+        return categories
+            .map((cat) => ({
+                label: this._svc_category_labels[cat] || cat,
+                items: services.filter((s) => s.category === cat),
+            }))
+            .filter((g) => g.items.length > 0);
+    });
+
+    public isManagedServiceSelected(id: string): boolean {
+        return (this.venue_form.value.managed_services || []).includes(id);
+    }
+
+    public toggleManagedService(id: string): void {
+        const current = this.venue_form.value.managed_services || [];
+        const updated = current.includes(id)
+            ? current.filter((s) => s !== id)
+            : [...current, id];
+        this.venue_form.patchValue({ managed_services: updated });
+    }
 
     /** Menu — loaded from CateringStateService (same source as Catering Menu page) */
     public readonly catering_tier_options = CATERING_TIER_OPTIONS;

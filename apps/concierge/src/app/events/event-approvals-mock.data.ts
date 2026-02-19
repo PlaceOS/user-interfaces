@@ -7,7 +7,8 @@ export type ApprovalCategory =
     | 'safety'
     | 'events'
     | 'parking'
-    | 'setup';
+    | 'setup'
+    | 'services';
 
 export type EventRole =
     | 'global_admin'
@@ -64,6 +65,7 @@ export const CATEGORY_DISPLAY_NAMES: Record<ApprovalCategory, string> = {
     events: 'Event Coordination',
     parking: 'Parking & Transport',
     setup: 'Setup & Furniture',
+    services: 'Event Services',
 };
 
 export const CATEGORY_ICONS: Record<ApprovalCategory, string> = {
@@ -74,21 +76,22 @@ export const CATEGORY_ICONS: Record<ApprovalCategory, string> = {
     events: 'event_available',
     parking: 'local_parking',
     setup: 'table_restaurant',
+    services: 'home_repair_service',
 };
 
 export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
     global_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup', 'services'],
         can_view: ['safety'],
         reject_safety: true,
     },
     campus_admin: {
-        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup'],
+        can_approve: ['venue', 'dining', 'av_tech', 'events', 'parking', 'setup', 'services'],
         can_view: ['safety'],
         reject_safety: true,
     },
     venue_manager: {
-        can_approve: ['venue', 'dining', 'parking', 'setup'],
+        can_approve: ['venue', 'dining', 'parking', 'setup', 'services'],
         can_view: [],
         reject_safety: false,
     },
@@ -103,7 +106,7 @@ export const ROLE_PERMISSIONS: Record<EventRole, RolePermission> = {
         reject_safety: false,
     },
     event_owner: {
-        can_approve: ['venue', 'dining', 'av_tech', 'parking', 'setup'],
+        can_approve: ['venue', 'dining', 'av_tech', 'parking', 'setup', 'services'],
         can_view: [],
         reject_safety: true,
     },
@@ -362,5 +365,37 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Tech Services',
         parent_event: 'appr-009',
+    },
+
+    // ── Services approvals ────────────────────────────────────────────
+    {
+        id: 'appr-023',
+        title: 'Q1 Town Hall — Event Services',
+        category: 'services',
+        date: _makeDate(-1, 9, 0),
+        duration_minutes: 120,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'Sarah Chen',
+        parent_event: 'appr-001',
+    },
+    {
+        id: 'appr-024',
+        title: 'Leadership Offsite — Event Services',
+        category: 'services',
+        date: _makeDate(3, 10, 0),
+        duration_minutes: 480,
+        location: 'Centennial Ballroom — Luskin Conference Center',
+        organiser: 'Mark Thompson',
+        parent_event: 'appr-002',
+    },
+    {
+        id: 'appr-025',
+        title: 'Annual Awards Night — Event Services',
+        category: 'services',
+        date: _makeDate(10, 17, 0),
+        duration_minutes: 240,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'People & Culture',
+        parent_event: 'appr-010',
     },
 ];

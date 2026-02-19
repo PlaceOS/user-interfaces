@@ -3,7 +3,7 @@ import { CalendarEvent, Space } from '@placeos/common';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { updateSpaceList } from '@placeos/events';
-import { getUnixTime } from 'date-fns';
+import { addMinutes, getUnixTime, isPast } from 'date-fns';
 
 import {
     CATEGORY_DISPLAY_NAMES,
@@ -14,15 +14,24 @@ import {
 
 type ActionStatus = 'approved' | 'declined';
 
+function _autoApprovePastEvents(): Record<string, ActionStatus> {
+    const statuses: Record<string, ActionStatus> = {};
+    for (const evt of MOCK_APPROVAL_EVENTS) {
+        const event_end = addMinutes(evt.date, evt.duration_minutes);
+        if (isPast(event_end)) {
+            statuses[evt.id] = 'approved';
+        }
+    }
+    return statuses;
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class EventApprovalStateService {
-    private _status = new BehaviorSubject<Record<string, ActionStatus>>({
-        'appr-001': 'approved',
-        'appr-005': 'approved',
-        'appr-011': 'approved',
-    });
+    private _status = new BehaviorSubject<Record<string, ActionStatus>>(
+        _autoApprovePastEvents(),
+    );
     private _role = new BehaviorSubject<EventRole>('global_admin');
 
     public readonly status$ = this._status.asObservable();
@@ -140,6 +149,7 @@ export class EventApprovalStateService {
                     events: null,
                     parking: null,
                     setup: null,
+                    services: null,
                 };
 
                 requirements[parent.category] =

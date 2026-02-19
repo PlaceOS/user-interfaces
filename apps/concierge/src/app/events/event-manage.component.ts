@@ -1,8 +1,9 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -48,6 +49,7 @@ import {
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
 import { EventStateService } from './event-state.service';
+import { ServicesStateService } from '../services/services-state.service';
 
 const EMPTY = [];
 
@@ -465,6 +467,224 @@ const EMPTY = [];
                                 formControlName="images"
                             ></image-list-field>
                         </ng-container>
+                        <!-- SERVICES -->
+                        <div class="bg-base-200 h-px w-full"></div>
+                        <h3 class="py-4 text-2xl font-medium">
+                            Event Services
+                        </h3>
+                        <p class="text-base-content/60 -mt-2 mb-2 text-sm">
+                            Select the services required for this event.
+                        </p>
+                        @if (available_services().length === 0) {
+                            <div
+                                class="text-base-content/50 rounded border border-base-200 px-4 py-6 text-center text-sm"
+                            >
+                                No services available. Add services via
+                                Service Management.
+                            </div>
+                        } @else {
+                            <div class="mb-3 flex items-center gap-2">
+                                <span class="text-sm font-medium">
+                                    Pricing:
+                                </span>
+                                <button
+                                    class="rounded-full px-3 py-0.5 text-xs font-medium transition-colors"
+                                    [class]="
+                                        service_rate_type() === 'internal'
+                                            ? 'bg-primary text-primary-content'
+                                            : 'bg-base-200 hover:bg-base-300'
+                                    "
+                                    (click)="
+                                        service_rate_type.set('internal')
+                                    "
+                                    type="button"
+                                >
+                                    Internal (UCLA)
+                                </button>
+                                <button
+                                    class="rounded-full px-3 py-0.5 text-xs font-medium transition-colors"
+                                    [class]="
+                                        service_rate_type() === 'external'
+                                            ? 'bg-primary text-primary-content'
+                                            : 'bg-base-200 hover:bg-base-300'
+                                    "
+                                    (click)="
+                                        service_rate_type.set('external')
+                                    "
+                                    type="button"
+                                >
+                                    External
+                                </button>
+                            </div>
+                            @for (
+                                group of service_groups();
+                                track group.label
+                            ) {
+                                <h4
+                                    class="mt-3 mb-1 flex items-center gap-1.5 text-sm font-semibold"
+                                >
+                                    <icon class="text-base opacity-60">{{
+                                        group.icon
+                                    }}</icon>
+                                    {{ group.label }}
+                                </h4>
+                                <div
+                                    class="rounded-lg border border-base-200 divide-y divide-base-200 overflow-hidden"
+                                >
+                                    @for (
+                                        svc of group.items;
+                                        track svc.id
+                                    ) {
+                                        <label
+                                            class="flex cursor-pointer items-start gap-3 px-3 py-3 transition-colors"
+                                            [class]="
+                                                isServiceSelected(svc.id)
+                                                    ? 'bg-primary/5'
+                                                    : 'hover:bg-base-200/50'
+                                            "
+                                        >
+                                            <mat-checkbox
+                                                class="mt-0.5"
+                                                [checked]="
+                                                    isServiceSelected(
+                                                        svc.id
+                                                    )
+                                                "
+                                                (change)="
+                                                    toggleService(svc.id)
+                                                "
+                                            ></mat-checkbox>
+                                            <icon
+                                                class="mt-0.5 text-lg"
+                                                [class]="
+                                                    isServiceSelected(svc.id)
+                                                        ? 'text-primary'
+                                                        : 'text-base-content/40'
+                                                "
+                                                >{{
+                                                    svc.icon || 'misc_services'
+                                                }}</icon
+                                            >
+                                            <div class="min-w-0 flex-1">
+                                                <div
+                                                    class="text-sm font-medium"
+                                                >
+                                                    {{ svc.name }}
+                                                </div>
+                                                @if (svc.description) {
+                                                    <div
+                                                        class="mt-0.5 text-xs text-base-content/50"
+                                                    >
+                                                        {{
+                                                            svc.description
+                                                        }}
+                                                    </div>
+                                                }
+                                                <div
+                                                    class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1"
+                                                >
+                                                    @if (svc.space) {
+                                                        <span
+                                                            class="flex items-center gap-0.5 text-xs text-base-content/40"
+                                                        >
+                                                            <icon
+                                                                class="text-xs"
+                                                                >location_on</icon
+                                                            >
+                                                            {{ svc.space }}
+                                                        </span>
+                                                    }
+                                                    @if (svc.duration) {
+                                                        <span
+                                                            class="flex items-center gap-0.5 text-xs text-base-content/40"
+                                                        >
+                                                            <icon
+                                                                class="text-xs"
+                                                                >schedule</icon
+                                                            >
+                                                            {{ svc.duration }}
+                                                        </span>
+                                                    }
+                                                </div>
+                                                @if (
+                                                    svc.features?.length
+                                                ) {
+                                                    <div
+                                                        class="mt-1.5 flex flex-wrap gap-1"
+                                                    >
+                                                        @for (
+                                                            feat of svc.features;
+                                                            track feat
+                                                        ) {
+                                                            <span
+                                                                class="rounded-full bg-base-200 px-2 py-0.5 text-[10px] text-base-content/60"
+                                                                >{{
+                                                                    feat
+                                                                }}</span
+                                                            >
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                            <span
+                                                class="text-primary mt-0.5 text-sm font-semibold whitespace-nowrap"
+                                            >
+                                                {{
+                                                    service_rate_type() ===
+                                                    'internal'
+                                                        ? svc.internal_price
+                                                        : svc.external_price
+                                                }}
+                                            </span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                            @if (selected_services().length) {
+                                <div
+                                    class="bg-primary/10 border-primary/20 mt-3 rounded-lg border px-4 py-3"
+                                >
+                                    <div
+                                        class="flex items-center justify-between"
+                                    >
+                                        <div class="text-sm">
+                                            <strong>{{
+                                                selected_services().length
+                                            }}</strong>
+                                            service{{
+                                                selected_services().length >
+                                                1
+                                                    ? 's'
+                                                    : ''
+                                            }}
+                                            selected
+                                        </div>
+                                        <div
+                                            class="text-primary text-sm font-bold"
+                                        >
+                                            Est. Total:
+                                            {{
+                                                selectedServicesTotal()
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="text-base-content/50 mt-1.5 flex flex-wrap gap-1.5"
+                                    >
+                                        @for (
+                                            name of selectedServiceNames();
+                                            track name
+                                        ) {
+                                            <span
+                                                class="bg-primary/20 text-primary rounded-full px-2 py-0.5 text-[11px] font-medium"
+                                                >{{ name }}</span
+                                            >
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <!-- END SERVICES -->
                     </section>
                     @if (!loading()) {
                         <footer
@@ -499,6 +719,7 @@ const EMPTY = [];
         MatSelectModule,
         MatInputModule,
         MatChipsModule,
+        MatCheckboxModule,
         MatAutocompleteModule,
         FormsModule,
         ReactiveFormsModule,
@@ -516,6 +737,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _services_state = inject(ServicesStateService);
 
     public readonly loading = signal(false);
     public timezones: string[] = [];
@@ -524,6 +746,34 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
 
     public readonly form = this._form_state.form;
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
+
+    public readonly selected_services = signal<string[]>([]);
+    public readonly service_rate_type = signal<'internal' | 'external'>(
+        'internal',
+    );
+    public readonly available_services = this._services_state.services;
+
+    private readonly _category_meta: Record<
+        string,
+        { label: string; icon: string }
+    > = {
+        package: { label: 'Event Packages', icon: 'inventory_2' },
+        alacarte: { label: 'A La Carte', icon: 'restaurant_menu' },
+        addon: { label: 'AV Add-ons', icon: 'settings_input_hdmi' },
+        space: { label: 'Space / Venue', icon: 'meeting_room' },
+    };
+
+    public readonly service_groups = computed(() => {
+        const services = this.available_services();
+        const categories = ['package', 'alacarte', 'addon', 'space'];
+        return categories
+            .map((cat) => ({
+                label: this._category_meta[cat]?.label || cat,
+                icon: this._category_meta[cat]?.icon || 'category',
+                items: services.filter((s) => s.category === cat),
+            }))
+            .filter((g) => g.items.length > 0);
+    });
     public readonly building_list = this._org.building_list;
     public readonly active_levels = this._org.active_levels;
     public readonly available_spaces = this._form_state.available_spaces;
@@ -639,6 +889,13 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                         ),
                         ...metadata,
                     });
+                    const saved_services =
+                        booking.extension_data?.event_services || [];
+                    if (saved_services.length) {
+                        this.selected_services.set(
+                            saved_services.map((s: { id: string }) => s.id),
+                        );
+                    }
                     if (!this.form.value.view_access)
                         this.form.patchValue({ view_access: 'OPEN' });
                 }
@@ -696,6 +953,43 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         }
     }
 
+    public isServiceSelected(id: string): boolean {
+        return this.selected_services().includes(id);
+    }
+
+    public toggleService(id: string): void {
+        this.selected_services.update((list) =>
+            list.includes(id)
+                ? list.filter((s) => s !== id)
+                : [...list, id],
+        );
+    }
+
+    public selectedServicesTotal(): string {
+        const ids = this.selected_services();
+        const services = this.available_services().filter((s) =>
+            ids.includes(s.id),
+        );
+        const rate_key =
+            this.service_rate_type() === 'internal'
+                ? 'internal_price'
+                : 'external_price';
+        let total = 0;
+        for (const svc of services) {
+            const raw = svc[rate_key].replace(/[^0-9.]/g, '');
+            const val = parseFloat(raw);
+            if (!isNaN(val)) total += val;
+        }
+        return `$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    public selectedServiceNames(): string[] {
+        const ids = this.selected_services();
+        return this.available_services()
+            .filter((s) => ids.includes(s.id))
+            .map((s) => s.name);
+    }
+
     public async save() {
         this.form.markAllAsTouched();
         if (!this.form.valid) {
@@ -718,11 +1012,22 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             resources.push(resource);
         }
         resources = unique(resources, 'email');
+        const selected_svc_ids = this.selected_services();
+        const selected_svc_details = this.available_services()
+            .filter((s) => selected_svc_ids.includes(s.id))
+            .map((s) => ({
+                id: s.id,
+                name: s.name,
+                category: s.category,
+                internal_price: s.internal_price,
+                external_price: s.external_price,
+            }));
         this.form.patchValue({
             resources,
             creator: currentUser()?.email,
             host: this._state.calendar,
             shared_event: true,
+            event_services: selected_svc_details,
         });
         const date = this.form.getRawValue().date;
         const res = await this._form_state

@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { IconComponent } from '@placeos/components';
+import { notifyError, notifySuccess } from '@placeos/common';
 import { isMock } from '@placeos/ts-client';
 import { format } from 'date-fns';
 
@@ -513,6 +514,18 @@ export class EventApprovalsComponent {
 
     setStatus(event_id: string, status: 'approved' | 'declined'): void {
         this._approval_state.setStatus(event_id, status);
+        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+        if (status === 'declined' && event) {
+            const organiser_email =
+                event.organiser
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, '.') + '@ucla.edu';
+            notifyError(
+                `Rejection email sent to ${organiser_email}: "${event.title}" has been declined.`,
+            );
+        } else if (status === 'approved') {
+            notifySuccess('Approval recorded successfully.');
+        }
     }
 
     formatDate(ts: number): string {
