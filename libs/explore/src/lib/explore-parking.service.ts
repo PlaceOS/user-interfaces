@@ -33,8 +33,8 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
 import { queryParkingSpacesForZones } from '@placeos/assets';
+import { OrganisationService } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
@@ -178,6 +178,7 @@ export class ExploreParkingService extends AsyncHandler {
                     },
                     rules,
                 )?.hidden;
+                console.log('Assigned:', assigned, space.id);
                 this._users[space.id] = assigned;
                 this._plate_numbers[space.id] =
                     event?.extension_data?.plate_number ||
@@ -273,13 +274,10 @@ export class ExploreParkingService extends AsyncHandler {
                     return;
                 }
                 if (deny_parking_access) {
-                    const space_zone = this._org.levelWithID([
-                        space.zone_id,
-                    ]);
+                    const space_zone = this._org.levelWithID([space.zone_id]);
                     return notifyError(
                         i18n('EXPLORE.PARKING_PERMISSIONS_ERROR', {
-                            name:
-                                space_zone?.display_name || space_zone?.name,
+                            name: space_zone?.display_name || space_zone?.name,
                         }),
                     );
                 }
