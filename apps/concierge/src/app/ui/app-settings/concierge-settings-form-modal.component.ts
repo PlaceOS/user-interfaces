@@ -1242,6 +1242,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Show assigned users on parking map"
+                                        formControlName="show_users"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Disable reservations"
                                         formControlName="disable_bookings"
                                     ></settings-toggle>
@@ -1411,6 +1415,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(true),
+            show_users: new FormControl(false),
             disable_bookings: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
