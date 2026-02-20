@@ -25,7 +25,7 @@ import { BookingFormService } from '@placeos/bookings';
             </p>
             @if (true) {
                 <p>
-                    Please allow up to 5 minutes for you booking to be approved.
+                    Please allow for some time for your booking to be approved.
                 </p>
             }
             <a btn matRipple [routerLink]="['/book', 'desks']" class="w-64">
