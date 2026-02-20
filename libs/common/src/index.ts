@@ -19,6 +19,7 @@ export * from './lib/shorten.fn';
 export * from './lib/timezone-helpers';
 export * from './lib/uploads.service';
 export * from './lib/user-idle-time.service';
+export * from './lib/public-mode';
 
 export * from './lib/types/asset-request.class';
 export * from './lib/types/asset.class';

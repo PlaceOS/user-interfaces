@@ -156,9 +156,105 @@ import { UploadButtonComponent } from './upload-button.component';
                             formControlName="allow_printing_label"
                         ></settings-toggle>
                         <settings-toggle
+                            name="Allow Visitor Photo"
+                            formControlName="allow_user_photo"
+                        ></settings-toggle>
+                        <settings-toggle
+                            name="Allow Registration Time Options"
+                            formControlName="allow_registration_time_options"
+                        ></settings-toggle>
+                        <settings-toggle
+                            name="Allow Beverages"
+                            formControlName="allow_beverages"
+                        ></settings-toggle>
+                        <settings-toggle
                             name="Hide Explore Map option"
                             formControlName="hide_explore"
                         ></settings-toggle>
+                        <settings-toggle
+                            name="Hide Building Image"
+                            formControlName="hide_building_image"
+                        ></settings-toggle>
+                    </div>
+                    <div>
+                        <label for="standalone-visitor-location">
+                            Standalone Visitor Location
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="standalone-visitor-location"
+                                formControlName="standalone_visitor_location"
+                                placeholder="zone-system-id"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        <label for="checked-in-template">
+                            Checked In Template
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <textarea
+                                matInput
+                                name="checked-in-template"
+                                formControlName="checked_in_template"
+                                placeholder="Welcome &gt;visitor_name&lt;"
+                            ></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div
+                        class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
+                        formGroupName="visitor_label_size"
+                    >
+                        <h3
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
+                        >
+                            Visitor Label Size
+                        </h3>
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <div>
+                                <label for="label-width">Width (mm)</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        type="number"
+                                        name="label-width"
+                                        formControlName="width"
+                                    />
+                                </mat-form-field>
+                            </div>
+                            <div>
+                                <label for="label-height">Height (mm)</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        type="number"
+                                        name="label-height"
+                                        formControlName="height"
+                                    />
+                                </mat-form-field>
+                            </div>
+                            <div>
+                                <label for="label-scale">Scale</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <input
+                                        matInput
+                                        type="number"
+                                        name="label-scale"
+                                        formControlName="scale"
+                                    />
+                                </mat-form-field>
+                            </div>
+                        </div>
                     </div>
                 </section>
                 <section
@@ -419,6 +515,44 @@ import { UploadButtonComponent } from './upload-button.component';
                         ></settings-toggle>
                     </div>
                 </section>
+                <section
+                    booking
+                    class="border-base-300 relative rounded-sm border px-4 pt-4 pb-2"
+                    formGroupName="visitors"
+                >
+                    <h3
+                        class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
+                    >
+                        Visitor Booking Rules
+                    </h3>
+                    <div>
+                        <label for="max-duration">Max Duration</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="max-duration"
+                                formControlName="max_duration"
+                            >
+                                <mat-option [value]="60">1 Hour</mat-option>
+                                <mat-option [value]="90"
+                                    >1 Hour 30 Minutes</mat-option
+                                >
+                                <mat-option [value]="120">2 Hours</mat-option>
+                                <mat-option [value]="180">3 Hours</mat-option>
+                                <mat-option [value]="240">4 Hours</mat-option>
+                                <mat-option [value]="300">5 Hours</mat-option>
+                                <mat-option [value]="360">6 Hours</mat-option>
+                                <mat-option [value]="420">7 Hours</mat-option>
+                                <mat-option [value]="480">8 Hours</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="-mx-2 flex flex-wrap items-center">
+                        <settings-toggle
+                            name="Allow all day bookings"
+                            formControlName="allow_all_day"
+                        ></settings-toggle>
+                    </div>
+                </section>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -474,9 +608,24 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         induction_details: new FormControl(''),
         induction_after_details: new FormControl(false),
         allow_self_registration: new FormControl(false),
+        allow_registration_time_options: new FormControl(false),
         allow_pass_number: new FormControl(false),
         allow_printing_label: new FormControl(false),
+        allow_user_photo: new FormControl(false),
+        allow_beverages: new FormControl(false),
         hide_explore: new FormControl(false),
+        hide_building_image: new FormControl(false),
+        checked_in_template: new FormControl(''),
+        standalone_visitor_location: new FormControl(''),
+        visitor_label_size: new FormGroup({
+            width: new FormControl(25),
+            height: new FormControl(15),
+            scale: new FormControl(4),
+        }),
+        visitors: new FormGroup({
+            allow_all_day: new FormControl(false),
+            max_duration: new FormControl(180),
+        }),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
             show_legend: new FormControl(false),
@@ -547,8 +696,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
                     ...form_value[key],
                 };
             } else {
-                new_settings[key] =
-                    this.existing_settings[key] || form_value[key];
+                new_settings[key] = form_value[key];
             }
         }
         for (const key in new_settings) {

@@ -293,6 +293,65 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                     }
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="workplace-url-path">Workplace URL Path</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="workplace-url-path"
+                                    formControlName="workplace_url_path"
+                                    placeholder="/workplace"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <label for="kiosk-url-path">Map Kiosk URL Path</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="kiosk-url-path"
+                                    formControlName="kiosk_url_path"
+                                    placeholder="/map-kiosk"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label for="control-path">Control URL Path</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="control-path"
+                                    formControlName="control_path"
+                                    placeholder="/control"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div>
+                            <label for="signage-path">Signage URL Path</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="signage-path"
+                                    formControlName="signage_path"
+                                    placeholder="/signage"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="short-url-public-key">Short URL Public Key</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="short-url-public-key"
+                                formControlName="short_url_public_key"
+                                placeholder="your-short-url-public-key"
+                            />
+                        </mat-form-field>
+                    </div>
                     <div>
                         <label for="week-start">Week Start</label>
                         <mat-form-field appearance="outline" class="w-full">
@@ -673,6 +732,74 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                 </div>
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead users can
+                                            create bookings from the room
+                                            booking manager
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Allow all day bookings"
@@ -725,6 +852,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Allow Visibility options"
                                         formControlName="allow_visibility"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow editing bookings"
+                                        formControlName="allow_edit"
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -813,6 +944,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Allow setting pass number for visitors"
                                         formControlName="allow_pass_number"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow printing visitor labels"
+                                        formControlName="allow_printing_label"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Allow international flag for visitors"
@@ -1242,8 +1377,16 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_all_day"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Show assigned users on parking map"
+                                        formControlName="show_users"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Disable reservations"
                                         formControlName="disable_bookings"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show booking requests"
+                                        formControlName="show_requests"
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1279,7 +1422,156 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'lockers'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="available-period">
+                                        Available Period
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="available-period"
+                                            formControlName="available_period"
+                                        >
+                                            <mat-option [value]="1"
+                                                >1 Day</mat-option
+                                            >
+                                            <mat-option [value]="2"
+                                                >2 Days</mat-option
+                                            >
+                                            <mat-option [value]="3"
+                                                >3 Days</mat-option
+                                            >
+                                            <mat-option [value]="4"
+                                                >4 Days</mat-option
+                                            >
+                                            <mat-option [value]="5"
+                                                >5 Days</mat-option
+                                            >
+                                            <mat-option [value]="6"
+                                                >6 Days</mat-option
+                                            >
+                                            <mat-option [value]="7"
+                                                >1 Week</mat-option
+                                            >
+                                            <mat-option [value]="8"
+                                                >8 Days</mat-option
+                                            >
+                                            <mat-option [value]="9"
+                                                >9 Days</mat-option
+                                            >
+                                            <mat-option [value]="10"
+                                                >10 Days</mat-option
+                                            >
+                                            <mat-option [value]="11"
+                                                >11 Days</mat-option
+                                            >
+                                            <mat-option [value]="12"
+                                                >12 Days</mat-option
+                                            >
+                                            <mat-option [value]="13"
+                                                >13 Days</mat-option
+                                            >
+                                            <mat-option [value]="14">
+                                                2 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="21">
+                                                3 Weeks
+                                            </mat-option>
+                                            <mat-option [value]="30">
+                                                1 Month
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-hint>
+                                            Number of days ahead the user is
+                                            able to book
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                            <mat-option [value]="780"
+                                                >13 Hours</mat-option
+                                            >
+                                            <mat-option [value]="840"
+                                                >14 Hours</mat-option
+                                            >
+                                            <mat-option [value]="900"
+                                                >15 Hours</mat-option
+                                            >
+                                            <mat-option [value]="960"
+                                                >16 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1020"
+                                                >17 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1080"
+                                                >18 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1140"
+                                                >19 Hours</mat-option
+                                            >
+                                            <mat-option [value]="1200"
+                                                >20 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
                                     <settings-toggle
                                         name="Default bookings to all day"
                                         formControlName="all_day_default"
@@ -1375,6 +1667,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         short_url_public_key: new FormControl(''),
         control_path: new FormControl(''),
         signage_path: new FormControl(''),
+        workplace_url_path: new FormControl(''),
         admin_group: new FormControl(''),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
@@ -1391,13 +1684,16 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             block_end: new FormControl(24),
             block_height: new FormControl(3),
             max_duration: new FormControl(360),
+            available_period: new FormControl(14),
             can_book_for_others: new FormControl(false),
             can_book_for_anyone: new FormControl(false),
             allow_visibility: new FormControl(false),
+            allow_edit: new FormControl(true),
         }),
         visitors: new FormGroup({
             has_parking: new FormControl(false),
             allow_pass_number: new FormControl(false),
+            allow_printing_label: new FormControl(false),
             allow_international: new FormControl(false),
             show_calendar_links: new FormControl(false),
             hide_fields: new FormControl([]),
@@ -1411,13 +1707,18 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(true),
+            show_users: new FormControl(false),
             disable_bookings: new FormControl(false),
+            show_requests: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
         }),
         lockers: new FormGroup({
+            allow_all_day: new FormControl(true),
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            available_period: new FormControl(14),
+            max_duration: new FormControl(480),
             hide_end_time: new FormControl(false),
             disabled_start_time: new FormControl(false),
             disabled_date_select: new FormControl(false),

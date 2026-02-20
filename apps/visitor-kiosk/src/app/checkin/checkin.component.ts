@@ -18,10 +18,12 @@ import { startOfMinute } from 'date-fns';
             <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
             </div>
-            <img
-                src="assets/img/building.png"
-                class="absolute right-0 bottom-0 w-[60%]"
-            />
+            @if (!hide_building_image) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
         </div>
     `,
     styles: [
@@ -45,5 +47,9 @@ export class CheckinComponent {
 
     public get background() {
         return this._settings.get('app.welcome_background');
+    }
+
+    public get hide_building_image() {
+        return this._settings.get('app.hide_building_image');
     }
 }

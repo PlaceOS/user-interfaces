@@ -7,6 +7,7 @@ import {
     BuildingLevel,
     firstTruthyValueFrom,
     Identity,
+    isPublicMode,
     OrganisationService,
     Region,
     SettingsService,
@@ -372,6 +373,21 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                     ({{ version.time | date: 'shortTime' }})
                 </div>
             </div>
+            @if (is_public_mode()) {
+                <div
+                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                >
+                    <div class="max-w-xl space-y-2">
+                        <h2 class="text-3xl font-semibold">
+                            Public mode is enabled
+                        </h2>
+                        <p class="text-lg opacity-80">
+                            Setup is disabled while this kiosk is in public
+                            mode.
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     `,
     styles: [
@@ -400,6 +416,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _startup_action = '';
 
     public get version() {
         return VERSION;
@@ -423,6 +440,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly regions = this._org.region_list;
     public readonly buildings = this._org.active_buildings;
     public readonly levels = this._org.active_levels;
+    public readonly is_public_mode = isPublicMode;
 
     public setRegion(region: Region) {
         this._org.region = region;
@@ -449,9 +467,14 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
         this.active_region.set(this._org.region);
+        this._startup_action = this.getActionParamFromUrl();
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('action')) {
+                    this._startup_action =
+                        params.get('action')?.trim().toLowerCase() || '';
+                }
                 if (params.has('osk')) {
                     const osk_enabled = params.get('osk') === 'true';
                     localStorage.setItem('OSK.enabled', `${osk_enabled}`);
@@ -518,10 +541,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     );
                 }
             }
-            const path = this._settings.get('app.default_route') || 'welcome';
-            const route = path.split('/');
-            route[0] = `/${route[0]}`;
-            this._router.navigate(route);
+            this.navigateToStartupRoute();
         }
         this.loading.set('');
     }
@@ -531,20 +551,78 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading.set('Checking for existing parameters...');
+        if (this._startup_action === 'preferences') {
+            this.navigateToStartupRoute();
+            this.loading.set('');
+            return;
+        }
         if (localStorage) {
             const building_id = localStorage.getItem('KIOSK.building');
             const level_id = localStorage.getItem('KIOSK.level');
             if (building_id && level_id) {
-                const path =
-                    this._settings.get('app.default_route') || 'welcome';
-                const route = path.split('/');
-                route[0] = `/${route[0]}`;
-                this._router.navigate(route);
+                this._router.navigate(this.getStartupRoute());
             }
         }
 
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
         this.loading.set('');
+    }
+
+    private getStartupRoute() {
+        if (this._startup_action === 'preferences') {
+            return ['/checkin', 'preferences'];
+        }
+        const path = this._settings.get('app.default_route') || 'welcome';
+        const route = path.split('/');
+        route[0] = `/${route[0]}`;
+        return route;
+    }
+
+    private navigateToStartupRoute() {
+        const route = this.getStartupRoute();
+        if (route[0] === '/checkin' && route[1] === 'preferences') {
+            this._router.navigate(route, {
+                queryParams: this.getMergedQueryParamsFromUrl(),
+            });
+            return;
+        }
+        this._router.navigate(route);
+    }
+
+    private getActionParamFromUrl() {
+        return (
+            this.getMergedQueryParamsFromUrl().action?.trim().toLowerCase() ||
+            ''
+        );
+    }
+
+    private getMergedQueryParamsFromUrl() {
+        const query_params: Record<string, string> = {};
+        try {
+            const parsed_url = new URL(
+                window.location.href,
+                window.location.origin,
+            );
+            parsed_url.searchParams.forEach((value, key) => {
+                query_params[key] = value;
+            });
+            const hash_route = parsed_url.hash?.replace(/^#/, '') || '';
+            const hash_query = hash_route.includes('?')
+                ? hash_route.split('?')[1]
+                : '';
+            new URLSearchParams(hash_query).forEach((value, key) => {
+                query_params[key] = value;
+            });
+        } catch {
+            /* Ignore invalid URL and fallback to route params only */
+        }
+        this._route.snapshot.queryParamMap.keys.forEach((key) => {
+            const value = this._route.snapshot.queryParamMap.get(key);
+            if (value !== null) {
+                query_params[key] = value;
+            }
+        });
+        return query_params;
     }
 }

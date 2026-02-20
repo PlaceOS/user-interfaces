@@ -36,10 +36,8 @@ export class AppComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        const on_checkin_preferences = window.location.href.includes(
-            '#/checkin/preferences',
-        );
-        if (on_checkin_preferences) {
+        const on_public = window.location.href.includes('public=true');
+        if (on_public) {
             const url_token = parseTokenFromUrl(window.location.href);
             if (url_token) this._placeos.setInitialToken(url_token);
         }

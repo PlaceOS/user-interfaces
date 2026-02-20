@@ -42,6 +42,7 @@ const app = {
     allow_self_registration: true,
     allow_registration_time_options: false,
     allow_user_photo: true,
+    hide_building_image: false,
     explore,
     home,
     welcome_background: 'assets/img/skyline.png',

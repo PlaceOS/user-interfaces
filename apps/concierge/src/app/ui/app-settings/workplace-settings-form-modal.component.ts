@@ -885,6 +885,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Allow booking for any users"
+                                        formControlName="can_book_for_anyone"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
@@ -903,6 +907,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Allow external attendees"
                                         formControlName="allow_externals"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Enforce room capacity limits"
+                                        formControlName="strict_capacity_check"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Allow Visibility options"
@@ -978,6 +986,60 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'desks'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                                 <div>
                                     <label for="available-period">
                                         Available Period
@@ -1128,6 +1190,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide End Time option"
                                         formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1606,6 +1672,60 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div>
                                     <label for="available-period">
                                         Available Period
                                     </label>
@@ -1689,8 +1809,16 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Default bookings to all day"
                                         formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show assigned users on parking map"
+                                        formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Allow user selecting booking time"
@@ -1711,6 +1839,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide End time option"
                                         formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1746,7 +1878,65 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'lockers'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
                                     <settings-toggle
                                         name="Default bookings to all day"
                                         formControlName="all_day_default"
@@ -1758,6 +1948,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide End time option"
                                         formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow user selecting booking time"
+                                        formControlName="allow_time_changes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Disable Date selection"
@@ -1858,11 +2056,13 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             allow_all_day: new FormControl(false),
             booking_unavailable: new FormControl(false),
             can_book_for_others: new FormControl(false),
+            can_book_for_anyone: new FormControl(false),
             has_assets: new FormControl(false),
             hide_user_actions: new FormControl(false),
             multiple_spaces: new FormControl(false),
             room_as_host: new FormControl(false),
             allow_externals: new FormControl(false),
+            strict_capacity_check: new FormControl(false),
             hide_notes: new FormControl(false),
             hide_attendees: new FormControl(false),
             allow_recurrence: new FormControl(false),
@@ -1908,6 +2108,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             show_calendar_links: new FormControl(false),
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
+            max_duration: new FormControl(480),
+            use_building_timezone: new FormControl(false),
             hide_map: new FormControl(false),
             height_enabled: new FormControl(false),
             hide_checkin: new FormControl(false),
@@ -1916,6 +2118,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
             all_day_default: new FormControl(false),
+            show_users: new FormControl(false),
             allow_time_changes: new FormControl(false),
             auto_allocation: new FormControl(false),
             can_book_for_others: new FormControl(false),
@@ -1924,11 +2127,17 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             show_calendar_links: new FormControl(false),
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
+            max_duration: new FormControl(480),
+            use_building_timezone: new FormControl(false),
             hide_end_time: new FormControl(false),
         }),
         lockers: new FormGroup({
+            allow_all_day: new FormControl(false),
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            allow_time_changes: new FormControl(false),
+            use_building_timezone: new FormControl(false),
+            max_duration: new FormControl(480),
             hide_end_time: new FormControl(false),
             disabled_start_time: new FormControl(false),
             disabled_date_select: new FormControl(false),

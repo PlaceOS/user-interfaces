@@ -16,17 +16,28 @@ import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 @Component({
     selector: '[printable]',
     template: `
-        <ng-container *ngTemplateOutlet="content()"></ng-container>
+        <div class="printable-screen-view">
+            <ng-container *ngTemplateOutlet="content()"></ng-container>
+        </div>
 
         <ng-template cdk-portal>
             <div
                 printable-view
-                class="pointer-events-none fixed top-0 left-0 hidden flex-col items-end print:flex"
+                class="pointer-events-none hidden print:block"
             >
                 <ng-container *ngTemplateOutlet="content()"></ng-container>
             </div>
         </ng-template>
     `,
+    styles: [
+        `
+            @media print {
+                .printable-screen-view {
+                    display: none !important;
+                }
+            }
+        `,
+    ],
     imports: [CommonModule, PortalModule],
 })
 export class PrintableComponent
@@ -56,21 +67,13 @@ export class PrintableComponent
                 if (this._overlay_ref) this.close();
                 const _portal = this._portal();
                 if (!_portal) return;
-                const default_x = 'end';
-                const default_y = 'top';
                 this._overlay_ref = this._overlay.create({
                     hasBackdrop: false,
                     positionStrategy: this._overlay
                         .position()
-                        .flexibleConnectedTo(document.body)
-                        .withPositions([
-                            {
-                                originX: default_x,
-                                originY: default_y,
-                                overlayX: default_x,
-                                overlayY: default_y,
-                            },
-                        ]),
+                        .global()
+                        .left('0')
+                        .top('0'),
                 });
                 this._overlay_ref.attach(_portal);
             },
