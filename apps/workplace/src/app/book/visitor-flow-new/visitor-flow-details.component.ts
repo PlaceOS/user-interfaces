@@ -13,6 +13,7 @@ import {
     OrganisationService,
     settingSignal,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -273,38 +274,72 @@ export class VisitorFlowDetailsComponent implements OnInit {
     }
 
     public ngOnInit() {
-        // Initialize with single mode
-        this._booking_form.setOptions({ group: false });
+        const value = this.form.getRawValue();
+        const has_assets = Array.isArray(value.assets) && value.assets.length;
+        const is_group =
+            !!value.asset_id &&
+            (value.asset_id === 'multiple@place.tech' || has_assets > 1);
+        this.active_form.set(is_group ? 'group' : 'single');
+        this._booking_form.setOptions({ group: is_group });
         const zones = this.form.value?.zones || [];
-        const is_edit = !!this.form.value?.id;
-        const selected_building_id = this.selected_building_id();
-        this.form.patchValue({ user: currentUser() });
-        if (!zones.length && selected_building_id) {
-            this.form.patchValue({ zones: [selected_building_id] });
-            return;
+        if (!this.form.value?.user_email) {
+            this.form.patchValue({ user: currentUser() });
         }
-        if (is_edit && selected_building_id && zones[0] !== selected_building_id) {
-            this.form.patchValue({ zones: [selected_building_id] });
+        if (!zones.length && this._org.building?.id) {
+            this.form.patchValue({ zones: [this._org.building.id] });
+            return;
         }
     }
 
     public setActiveForm(form: VisitorFormType) {
         this.active_form.set(form);
         this._booking_form.setOptions({ group: form === 'group' });
+        const value = this.form.getRawValue();
 
         if (form === 'single') {
+            const [visitor] = (value.assets || []) as User[];
+            const use_selected_visitor =
+                !!visitor?.email &&
+                (!value.asset_id || value.asset_id === 'multiple@place.tech');
             this.form.patchValue({
                 user: currentUser(),
                 assets: [],
-                asset_id: '',
-                asset_name: ''
+                asset_id: use_selected_visitor
+                    ? visitor.email
+                    : value.asset_id === 'multiple@place.tech'
+                      ? ''
+                      : value.asset_id,
+                asset_name: use_selected_visitor
+                    ? visitor.name || visitor.email
+                    : value.asset_name || '',
+                company: use_selected_visitor
+                    ? (visitor as any).company || visitor.organisation || ''
+                    : value.company || '',
+                phone: use_selected_visitor
+                    ? visitor.phone || value.phone || ''
+                    : value.phone || '',
             });
         } else {
+            const assets = [...(value.assets || [])];
+            if (value.asset_id && value.asset_id !== 'multiple@place.tech') {
+                assets.unshift(
+                    new User({
+                        name: value.asset_name || value.asset_id,
+                        email: value.asset_id,
+                        organisation: value.company || '',
+                        phone: value.phone || '',
+                    }),
+                );
+            }
+            const unique_assets = assets.filter(
+                (item, index, list) =>
+                    !!item?.email &&
+                    list.findIndex((_) => _.email === item.email) === index,
+            );
             this.form.patchValue({
                 user: currentUser(),
                 asset_id: 'multiple@place.tech',
-                asset_name: '',
-                company: ''
+                assets: unique_assets,
             });
         }
     }

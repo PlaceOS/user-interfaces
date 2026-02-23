@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -210,32 +210,6 @@ export class VisitorFlowInvitesComponent
         return !is_group_mode;
     });
 
-    constructor() {
-        super();
-        // Effect to update form when mode changes
-        effect(() => {
-            const is_group = this.options()?.group === true;
-            // Only update if form exists
-            if (this.form) {
-                if (is_group) {
-                    // Group mode: set placeholder for multiple visitors
-                    this.form.patchValue({
-                        asset_id: 'multiple@place.tech',
-                        asset_name: '',
-                        company: ''
-                    }, { emitEvent: false });
-                } else {
-                    // Single mode: clear group fields
-                    this.form.patchValue({
-                        assets: [],
-                        asset_id: '',
-                        asset_name: ''
-                    }, { emitEvent: false });
-                }
-            }
-        });
-    }
-
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
         return this.visitors().filter(
@@ -297,12 +271,17 @@ export class VisitorFlowInvitesComponent
                 ?.valueChanges.subscribe((_) => this.search_term.set(_ || '')),
         );
 
-        // Set default title
-        this.form.patchValue({ title: 'Visit' });
+        if (
+            !this.form.value.id &&
+            !this.form.value.title &&
+            !this.form.value.description
+        ) {
+            this.form.patchValue({ title: 'Visit', description: 'Visit' });
+        }
 
         // Initialize based on current mode
         const is_group = this.options()?.group === true;
-        if (is_group) {
+        if (is_group && !this.form.value.asset_id) {
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         }
     }

@@ -162,6 +162,10 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         this._booking_form.form.markAllAsTouched();
 
         const is_multiple = this.is_multiple();
+        const visitor_reason =
+            this.form_value()?.title ||
+            this.form_value()?.description ||
+            'Visit';
 
         // Validate form
         if (!this._booking_form.form.valid) {
@@ -182,6 +186,10 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         try {
             const asset_name = this.form_value()?.asset_name;
+            this._booking_form.form.patchValue({
+                title: visitor_reason,
+                description: visitor_reason,
+            });
             this._booking_form.last_count = is_multiple
                 ? this.form_value()?.assets?.length || 1
                 : 1;
@@ -225,18 +233,25 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
 
     private async _bookForMany() {
         const group = `grp-${randomString(8)}`;
-        const value = this._booking_form.form.value;
-        const assets = value.assets;
+        const value = this._booking_form.form.getRawValue();
+        const visitor_reason = value.title || value.description || 'Visit';
+        const assets = [...(value.assets || [])];
+        let is_first = true;
 
         for (const user of assets) {
             if (!user.email) continue;
+            const booking_id = value.id && is_first ? value.id : '';
+            is_first = false;
             this._booking_form.form.patchValue({
                 ...value,
+                id: booking_id,
                 booking_type: 'visitor',
                 asset_id: user.email,
                 asset_name: user.name,
                 user: currentUser(),
-                description: group,
+                title: visitor_reason,
+                description: visitor_reason,
+                group,
                 name: user.name,
                 assets: [],
                 attendees: [

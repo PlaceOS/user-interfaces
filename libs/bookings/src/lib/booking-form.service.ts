@@ -50,6 +50,7 @@ import {
 import {
     catchError,
     debounceTime,
+    distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
     first,
@@ -141,6 +142,36 @@ export class BookingFormService extends AsyncHandler {
     private _booking = new BehaviorSubject<Booking>(null);
     private _resource_use: Record<string, string> = {};
     private _loading = new BehaviorSubject<string>('');
+    private readonly _rules_options = this._options.pipe(
+        map(({ type }) => type),
+        distinctUntilChanged(),
+    );
+    private readonly _availability_options = this._options.pipe(
+        map(({ type, zones, zone_id, features, show_fav }) => ({
+            type,
+            zones: zones || [],
+            zone_id: zone_id || '',
+            features: features || [],
+            show_fav: !!show_fav,
+        })),
+        distinctUntilChanged((prev, next) => {
+            const same_zones =
+                prev.zones.length === next.zones.length &&
+                prev.zones.every((zone, idx) => zone === next.zones[idx]);
+            const same_features =
+                prev.features.length === next.features.length &&
+                prev.features.every(
+                    (feature, idx) => feature === next.features[idx],
+                );
+            return (
+                prev.type === next.type &&
+                prev.zone_id === next.zone_id &&
+                prev.show_fav === next.show_fav &&
+                same_zones &&
+                same_features
+            );
+        }),
+    );
     private _favourites: Record<BookingType, WritableSignal<string[]>> = {
         ' ': settingSignal('favorites', [], true),
         room: settingSignal(SETTING_KEYS.FAVORITE_ROOMS, [], true),
@@ -218,8 +249,8 @@ export class BookingFormService extends AsyncHandler {
 
     public readonly booking_rules: Observable<
         Record<string, BookingRuleset[]>
-    > = combineLatest([this._org.building_list, this._options]).pipe(
-        switchMap(([list, { type }]) =>
+    > = combineLatest([this._org.building_list, this._rules_options]).pipe(
+        switchMap(([list, type]) =>
             Promise.all(
                 list.map((bld) =>
                     lastValueFrom(
@@ -241,7 +272,7 @@ export class BookingFormService extends AsyncHandler {
 
     public readonly available_resources: Observable<BookingAsset[]> =
         combineLatest([
-            this.options,
+            this._availability_options,
             this.resources,
             this.booking_rules,
             merge(this.form.get('user').valueChanges, timer(1000)),
@@ -620,14 +651,19 @@ export class BookingFormService extends AsyncHandler {
         if (!ignore_check) {
             const host =
                 value.user?.email || value.user_email || currentUser()?.email;
-            await this._checkResourceAvailable(
-                {
-                    ...booking,
-                    ...value,
-                    user_email: host,
-                },
-                this._options.getValue().type,
-            );
+            const booking_type =
+                value.booking_type || this._options.getValue().type;
+            const skip_asset_availability = booking_type === 'visitor';
+            if (!skip_asset_availability) {
+                await this._checkResourceAvailable(
+                    {
+                        ...booking,
+                        ...value,
+                        user_email: host,
+                    },
+                    this._options.getValue().type,
+                );
+            }
             await this._checkResourceRules(
                 value.resources,
                 value.date,
