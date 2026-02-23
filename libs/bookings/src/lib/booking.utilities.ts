@@ -36,6 +36,7 @@ function setBookingAsset(form: FormGroup, resource: any) {
         {
             asset_id: resource.id,
             asset_name: resource.name,
+            name: resource.display_name || resource.name || resource.id,
             map_id: resource.map_id || resource.id,
             description: resource.name,
             zones: resource.zone
@@ -145,7 +146,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 booked_by: user,
                 booked_by_id: user?.id,
                 booked_by_email: user?.email,
-                name: user?.name,
             },
             { emitEvent: false },
         );
