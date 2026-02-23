@@ -37,7 +37,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     }
                 </p>
             </div>
-            @if (recent_visitors().length > 0 && false) {
+            @if (recent_visitors().length > 0) {
                 <div class="flex flex-wrap gap-2 pt-2">
                     @for (
                         visitor of recent_visitors() | slice: 0 : 4;
