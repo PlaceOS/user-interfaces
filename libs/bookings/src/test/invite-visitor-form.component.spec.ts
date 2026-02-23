@@ -5,7 +5,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
-import { Booking, OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService, User } from '@placeos/common';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
@@ -180,5 +180,93 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.form.value.assets[1].email).toBe(
             'visitor.two@example.com',
         );
+    });
+
+    it('should persist edited reason from title when sending invite', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        await spectator.component.ngOnInit();
+        service.form.patchValue({
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor Name',
+            title: 'Vendor Interview',
+            description: 'Visit',
+        });
+
+        await spectator.component.sendInvite();
+
+        expect(service.postForm).toHaveBeenCalled();
+        expect(service.form.value.description).toBe('Vendor Interview');
+        expect(service.form.value.title).toBe('Vendor Interview');
+    });
+
+    it('should edit as a group when converting single visitor booking to multiple', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([]);
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+            assets: [
+                {
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                },
+                {
+                    name: 'Visitor Two',
+                    email: 'visitor.two@example.com',
+                },
+            ],
+        });
+        await spectator.component.ngOnInit();
+
+        await spectator.component.sendInvite();
+
+        expect(service.editFormForGroup).toHaveBeenCalledTimes(1);
+        expect((service.editFormForGroup as jest.Mock).mock.calls[0][0][0].id).toBe(
+            'booking-parent',
+        );
+        expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
+    });
+
+    it('should not overwrite existing visitor email with multiple placeholder when editing', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'original.visitor@example.com',
+            asset_name: 'Original Visitor',
+            company: 'Original Company',
+            phone: '1234',
+            attendees: [
+                new User({
+                    email: 'original.visitor@example.com',
+                    name: 'Original Visitor',
+                    organisation: 'Original Company',
+                    phone: '1234',
+                }),
+            ],
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(service.form.value.asset_id).toBe('original.visitor@example.com');
     });
 });

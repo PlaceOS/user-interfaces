@@ -186,13 +186,60 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
-                <div>{{ row.asset_name || row.asset_id }}</div>
+                <button
+                    class="cursor-pointer border-none bg-transparent p-0 text-left underline decoration-dotted underline-offset-2"
+                    customTooltip
+                    [content]="visitor_details_tooltip"
+                    [xPosition]="'start'"
+                    [yPosition]="'bottom'"
+                >
+                    {{ row.asset_name || row.asset_id }}
+                </button>
                 @if (row.asset_name && row.asset_id) {
                     <div class="text-xs opacity-30">
                         {{ row.asset_id }}
                     </div>
                 }
             </div>
+            <ng-template #visitor_details_tooltip>
+                <div
+                    class="bg-base-100 border-base-300 my-2 w-72 gap-2 rounded-lg border p-2 shadow-lg"
+                >
+                    <div class="text-base-content text-lg font-medium">
+                        {{ row.asset_name || row.asset_id }}
+                    </div>
+                    <div
+                        class="border-base-200 flex flex-col rounded-lg border px-2 py-1"
+                    >
+                        <div class="text-sm font-medium">
+                            {{ 'FORM.PHONE' | translate }}
+                        </div>
+                        <div class="text-base-content/80 pb-2 text-xs">
+                            {{
+                                row.extension_data?.phone ||
+                                    row.attendees?.[0]?.phone ||
+                                    '-'
+                            }}
+                        </div>
+                        <div class="text-sm font-medium">
+                            {{ 'BOOKINGS.VISITOR_COMPANY' | translate }}
+                        </div>
+                        <div class="text-base-content/80 pb-2 text-xs">
+                            {{
+                                row.extension_data?.company ||
+                                    row.attendees?.[0]?.organisation ||
+                                    '-'
+                            }}
+                        </div>
+                        <div class="text-sm font-medium">
+                            {{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                        </div>
+                        <div class="text-base-content/80 text-xs">
+                            {{ row.title || row.description || '-' }}
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
         </ng-template>
         <ng-template #host_template let-row="row">
             <div class="px-4 py-2">

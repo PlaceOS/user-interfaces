@@ -701,7 +701,7 @@ export class InviteVisitorFormComponent
                     this.syncVisitorInternational(_ || []),
                 ),
         );
-        if (this.multiple)
+        if (this.multiple && !this.form.value.id)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
     }
@@ -779,8 +779,11 @@ export class InviteVisitorFormComponent
         if (!this.form.value.user_email || !this.can_book_for_others) {
             this.form.patchValue({ user: currentUser() });
         }
+        const visitor_reason =
+            this.form.value.title || this.form.value.description || 'Visit';
         this.form.patchValue({
-            description: this.form.value.description || this.form.value.title,
+            title: visitor_reason,
+            description: visitor_reason,
         });
         const old_visitors = this._settings.get('visitor-invitees') || [];
         const { asset_id, asset_name, company, international, assets } =
@@ -829,11 +832,11 @@ export class InviteVisitorFormComponent
         this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');
-        this.form.patchValue({
-            booking_type: 'visitor',
-            zones: [this._org.building?.id],
-        });
-        if (this.multiple)
+        this.form.patchValue({ booking_type: 'visitor' });
+        if (!this.form.value.zones?.length) {
+            this.form.patchValue({ zones: [this._org.building?.id] });
+        }
+        if (this.multiple && !this.form.value.id)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (this.form.value.id) {
             const booking_ref = this._service.booking;
@@ -901,6 +904,20 @@ export class InviteVisitorFormComponent
                     });
                 }
             }
+            if (!this.multiple && this.form.value.assets?.length) {
+                const [visitor] = this.form.value.assets as User[];
+                if (visitor?.email) {
+                    this.form.patchValue({
+                        asset_id: visitor.email,
+                        asset_name: visitor.name || visitor.email,
+                        company:
+                            (visitor as any).company ||
+                            visitor.organisation ||
+                            this.form.value.company,
+                        phone: visitor.phone || this.form.value.phone,
+                    });
+                }
+            }
         }
     }
 
@@ -946,9 +963,12 @@ export class InviteVisitorFormComponent
             group: true,
             members: visitor_members,
         });
-        if (this.is_edit && this._existing_siblings.length) {
+        if (this.is_edit) {
+            const existing_siblings = this._existing_siblings.length
+                ? this._existing_siblings
+                : [new Booking(this.form.getRawValue())];
             await this._service
-                .editFormForGroup(this._existing_siblings)
+                .editFormForGroup(existing_siblings)
                 .catch((e) => {
                     notifyError(e);
                     this.loading_many = false;

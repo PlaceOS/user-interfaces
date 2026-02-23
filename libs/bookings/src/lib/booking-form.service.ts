@@ -657,12 +657,14 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
+        const selected_zones = [
+            ...(value?.zones || []),
+            ...(value.booking_asset?.zones || []),
+        ].filter((_) => _);
         value.zones = unique(
-            [
-                ...(value?.zones || []),
-                ...(this._booking.getValue()?.zones || []),
-                ...(value.booking_asset?.zones || []),
-            ].filter((_) => _),
+            selected_zones.length
+                ? selected_zones
+                : [...(this._booking.getValue()?.zones || [])],
         );
         this._loading.next('Saving booking');
         delete value.booking_asset;
@@ -724,7 +726,12 @@ export class BookingFormService extends AsyncHandler {
                 new Booking({
                     ...this._options.getValue(),
                     ...value,
-                    description: value.asset_name || value.description,
+                    description:
+                        value.booking_type === 'visitor'
+                            ? value.description ||
+                              value.title ||
+                              value.asset_name
+                            : value.asset_name || value.description,
                     user_name: value.user?.name || value.user_name,
                     user_email: value.user?.email || value.user_email,
                     extension_data: {
@@ -945,6 +952,7 @@ export class BookingFormService extends AsyncHandler {
                 if (!visitor.email) continue;
                 this.form.patchValue({
                     ...form,
+                    id: '',
                     asset_id: visitor.email,
                     asset_name: visitor.name,
                     international:
