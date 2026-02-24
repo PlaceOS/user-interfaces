@@ -17,6 +17,7 @@ import {
     nextValueFrom,
     OrganisationService,
     SettingsService,
+    settingSignal,
 } from '@placeos/common';
 import {
     BuildingPipe,
@@ -30,6 +31,7 @@ import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
@@ -183,7 +185,15 @@ const EMPTY = [];
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if ((period | async) === 'day') {
-                    <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
+                    @if (day_timeline_view() === 'inverted') {
+                        <room-bookings-inverted-timeline
+                            class="relative z-0 w-1/2 flex-1"
+                        />
+                    } @else {
+                        <room-bookings-timeline
+                            class="relative z-0 w-1/2 flex-1"
+                        />
+                    }
                 } @else if ((period | async) === 'week') {
                     <room-week-bookings-timeline
                         class="relative z-0 w-1/2 flex-1"
@@ -209,6 +219,7 @@ const EMPTY = [];
         MatRippleModule,
         MatCheckboxModule,
         FormsModule,
+        RoomBookingsInvertedTimelineComponent,
         RoomBookingsTimelineComponent,
         RoomWeekBookingsTimelineComponent,
         RoomBookingsApprovalsComponent,
@@ -223,6 +234,10 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _user_pipe = inject(UserPipe);
+    public readonly day_timeline_view = settingSignal(
+        'events.day_timeline_view',
+        'default',
+    );
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
