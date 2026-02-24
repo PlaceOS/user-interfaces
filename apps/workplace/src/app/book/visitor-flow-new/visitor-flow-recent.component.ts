@@ -145,17 +145,14 @@ export class VisitorFlowRecentComponent implements OnInit {
         const visitor_history = this._settings.get('visitor-invitees') || [];
         this.visitors.update((list) => {
             for (const item of visitor_history) {
+                if (typeof item !== 'string') continue;
                 const [email, name, company] = item.split('|');
+                const safe_email = this.toSafeValue(email);
+                if (!safe_email) continue;
                 list.push({
-                    email,
-                    name:
-                        name && name !== 'null' && name !== 'undefined'
-                            ? name
-                            : '',
-                    company:
-                        company && company !== 'null' && company !== 'undefined'
-                            ? company
-                            : '',
+                    email: safe_email,
+                    name: this.toSafeValue(name),
+                    company: this.toSafeValue(company),
                 } as any);
             }
             return list;
@@ -187,6 +184,11 @@ export class VisitorFlowRecentComponent implements OnInit {
         const companyName = domain.split('.')[0];
         // Capitalize first letter
         return companyName.charAt(0).toUpperCase() + companyName.slice(1);
+    }
+
+    private toSafeValue(value: any): string {
+        if (!value || value === 'null' || value === 'undefined') return '';
+        return `${value}`.trim();
     }
 
     private enrichVisitorData(visitor: any): any {

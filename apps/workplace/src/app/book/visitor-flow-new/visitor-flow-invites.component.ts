@@ -258,8 +258,15 @@ export class VisitorFlowInvitesComponent
         const visitors = this._settings.get('visitor-invitees') || [];
         this.visitors.update((list) => {
             for (const item of visitors) {
+                if (typeof item !== 'string') continue;
                 const [email, name, company] = item.split('|');
-                list.push({ email, name, company } as any);
+                const safe_email = this.toSafeValue(email);
+                if (!safe_email) continue;
+                list.push({
+                    email: safe_email,
+                    name: this.toSafeValue(name),
+                    company: this.toSafeValue(company),
+                } as any);
             }
             return list;
         });
@@ -297,20 +304,31 @@ export class VisitorFlowInvitesComponent
     }
 
     public setVisitor(item: any) {
+        const asset_id = item?.asset_id || item?.email || '';
+        const asset_name = item?.asset_name || item?.name || asset_id;
+        const company = item?.company || item?.organisation || '';
+        if (!asset_id) return;
+
         this.form.patchValue({
-            asset_id: item.email,
-            asset_name: item.name,
-            company: item.company,
+            asset_id,
+            asset_name,
+            company,
             phone: item.phone,
         });
 
         // Save to visitor history
-        const { asset_id, asset_name, company } = item;
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
         this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitors.filter((_: string) => !_.includes(asset_id)),
+            ...old_visitors.filter(
+                (_: string) => `${_}`.split('|')[0] !== asset_id,
+            ),
             visitor_details,
         ]);
+    }
+
+    private toSafeValue(value: any): string {
+        if (!value || value === 'null' || value === 'undefined') return '';
+        return `${value}`.trim();
     }
 }
