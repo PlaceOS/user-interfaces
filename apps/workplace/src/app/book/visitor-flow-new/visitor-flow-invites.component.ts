@@ -2,9 +2,9 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRippleModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,7 +13,7 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
 
 @Component({
@@ -23,7 +23,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
             <div [formGroup]="form">
                 @if (is_single()) {
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="flex flex-1 flex-col">
                             <label for="visitor-name">
@@ -39,7 +39,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
                                             | translate
                                     "
-                                    (focus)="search_term.set(form.value.asset_name)"
+                                    (focus)="
+                                        search_term.set(form.value.asset_name)
+                                    "
                                     [matAutocomplete]="name_auto"
                                 />
                             </mat-form-field>
@@ -49,13 +51,16 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         [value]="item.name"
                                         (click)="setVisitor(item)"
                                     >
-                                        <div class="flex flex-col leading-tight">
+                                        <div
+                                            class="flex flex-col leading-tight"
+                                        >
                                             <div>{{ item.name }}</div>
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
                                                     item.organisation
-                                                        ? '| ' + item.organisation
+                                                        ? '| ' +
+                                                          item.organisation
                                                         : ''
                                                 }}
                                             </div>
@@ -79,7 +84,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
                                             | translate
                                     "
-                                    (focus)="search_term.set(form.value.asset_id)"
+                                    (focus)="
+                                        search_term.set(form.value.asset_id)
+                                    "
                                     [matAutocomplete]="email_auto"
                                 />
                                 <mat-error>
@@ -92,13 +99,16 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         [value]="item.email"
                                         (click)="setVisitor(item)"
                                     >
-                                        <div class="flex flex-col leading-tight">
+                                        <div
+                                            class="flex flex-col leading-tight"
+                                        >
                                             <div>{{ item.name }}</div>
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
                                                     item.organisation
-                                                        ? '| ' + item.organisation
+                                                        ? '| ' +
+                                                          item.organisation
                                                         : ''
                                                 }}
                                             </div>
@@ -109,11 +119,11 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                         </div>
                     </div>
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="flex flex-1 flex-col">
                             <label for="company">{{
-                                'BOOKINGS.VISITOR_COMPANY' | translate
+                                'COMMON.ORGANISATION' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -121,7 +131,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                     name="company"
                                     formControlName="company"
                                     [placeholder]="
-                                        'BOOKINGS.VISITOR_COMPANY' | translate
+                                        'COMMON.ORGANISATION' | translate
                                     "
                                 />
                             </mat-form-field>
@@ -200,7 +210,7 @@ export class VisitorFlowInvitesComponent
     public readonly search_term = signal<string>('');
     public readonly visitors = signal<User[]>([]);
     public readonly options = toSignal(this._booking_form.options, {
-        initialValue: { type: 'visitor', group: false }
+        initialValue: { type: 'visitor', group: false },
     });
 
     public readonly is_single = computed(() => {
