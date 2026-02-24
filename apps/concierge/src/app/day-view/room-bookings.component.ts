@@ -16,6 +16,7 @@ import {
     jsonToCsv,
     nextValueFrom,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -30,6 +31,8 @@ import { combineLatest } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { RoomBookingsListComponent } from './room-bookings-list.component';
+import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
@@ -78,6 +81,34 @@ const EMPTY = [];
                     </div>
                     <icon class="text-2xl">add</icon>
                 </button>
+                <div
+                    class="border-base-300 bg-base-100 ml-2 flex rounded border"
+                >
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded-none"
+                        [class.bg-secondary]="view() === 'timeline'"
+                        [class.text-secondary-content]="view() === 'timeline'"
+                        [class.opacity-70]="view() !== 'timeline'"
+                        [matTooltip]="'COMMON.DAY' | translate"
+                        (click)="setView('timeline')"
+                    >
+                        <icon class="text-2xl">view_timeline</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded-none"
+                        [class.bg-secondary]="view() === 'list'"
+                        [class.text-secondary-content]="view() === 'list'"
+                        [class.opacity-70]="view() !== 'list'"
+                        [matTooltip]="'COMMON.LIST' | translate"
+                        (click)="setView('list')"
+                    >
+                        <icon class="text-2xl">view_list</icon>
+                    </button>
+                </div>
             </div>
             <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
@@ -182,12 +213,24 @@ const EMPTY = [];
                 </div>
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
-                @if ((period | async) === 'day') {
-                    <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
-                } @else if ((period | async) === 'week') {
-                    <room-week-bookings-timeline
-                        class="relative z-0 w-1/2 flex-1"
-                    />
+                @if (view() === 'timeline') {
+                    @if ((period | async) === 'day') {
+                        @if (day_timeline_view() === 'inverted') {
+                            <room-bookings-inverted-timeline
+                                class="relative z-0 w-1/2 flex-1"
+                            />
+                        } @else {
+                            <room-bookings-timeline
+                                class="relative z-0 w-1/2 flex-1"
+                            />
+                        }
+                    } @else {
+                        <room-week-bookings-timeline
+                            class="relative z-0 w-1/2 flex-1"
+                        />
+                    }
+                } @else {
+                    <room-bookings-list class="relative z-0 w-1/2 flex-1" />
                 }
                 @if (has_approvals) {
                     <room-bookings-approvals class="relative z-10" />
@@ -209,8 +252,10 @@ const EMPTY = [];
         MatRippleModule,
         MatCheckboxModule,
         FormsModule,
+        RoomBookingsInvertedTimelineComponent,
         RoomBookingsTimelineComponent,
         RoomWeekBookingsTimelineComponent,
+        RoomBookingsListComponent,
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
         BuildingPipe,
@@ -223,10 +268,15 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _user_pipe = inject(UserPipe);
+    public readonly day_timeline_view = settingSignal(
+        'events.day_timeline_view',
+        'default',
+    );
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
     public readonly downloading = signal(false);
+    public readonly view = signal<'timeline' | 'list'>('timeline');
     public readonly ui_options = this._state.options;
     public readonly levels = combineLatest([
         this._org.active_building,
@@ -255,6 +305,14 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             queryParamsHandling: 'merge',
         });
         this._state.setPeriod(p);
+    };
+    public readonly setView = (view: 'timeline' | 'list') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view },
+            queryParamsHandling: 'merge',
+        });
+        this.view.set(view);
     };
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
@@ -305,6 +363,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 if (params.has('period')) {
                     this._state.setPeriod(
                         params.get('period') === 'day' ? 'day' : 'week',
+                    );
+                }
+                if (params.has('view')) {
+                    this.view.set(
+                        params.get('view') === 'list' ? 'list' : 'timeline',
                     );
                 }
                 if (this.use_region) return;

@@ -242,7 +242,7 @@ import { BookingFormService } from './booking-form.service';
                     </div>
                     @if (allow_international() && form.value.assets?.length) {
                         <div class="mb-2 flex flex-col">
-                            <label>International by Visitor</label>
+                            <label>International Visitors</label>
                             <div class="flex flex-wrap gap-x-4 gap-y-2">
                                 @for (
                                     item of form.value.assets;
@@ -529,9 +529,7 @@ export class VisitorInviteFormComponent
                     .map((item) => {
                         return `${item.email}|${item.name || item.email}|${
                             (item as any).company || item.organisation || ''
-                        }|${
-                            this.getVisitorInternational(item) ? '1' : '0'
-                        }`;
+                        }|${this.getVisitorInternational(item) ? '1' : '0'}`;
                     }),
             ]);
         } else {

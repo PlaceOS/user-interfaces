@@ -322,8 +322,10 @@ import { BookingFormService } from './booking-form.service';
                                     form.value.assets?.length
                                 ) {
                                     <div class="mb-2 flex flex-col">
-                                        <label>International by Visitor</label>
-                                        <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                        <label>International Visitors</label>
+                                        <div
+                                            class="flex flex-wrap gap-x-4 gap-y-2"
+                                        >
                                             @for (
                                                 item of form.value.assets;
                                                 track item.id || item.email
@@ -800,9 +802,7 @@ export class InviteVisitorFormComponent
                     .map((item) => {
                         return `${item.email}|${item.name || item.email}|${
                             (item as any).company || item.organisation || ''
-                        }|${
-                            this.getVisitorInternational(item) ? '1' : '0'
-                        }`;
+                        }|${this.getVisitorInternational(item) ? '1' : '0'}`;
                     }),
             ]);
         } else {
@@ -841,12 +841,11 @@ export class InviteVisitorFormComponent
         if (this.form.value.id) {
             const booking_ref = this._service.booking;
             if (this.multiple) {
-                this._existing_siblings =
-                    await this._service.loadGroupSiblings(
-                        booking_ref?.id
-                            ? booking_ref
-                            : new Booking(this.form.getRawValue()),
-                    );
+                this._existing_siblings = await this._service.loadGroupSiblings(
+                    booking_ref?.id
+                        ? booking_ref
+                        : new Booking(this.form.getRawValue()),
+                );
                 if (this._existing_siblings.length) {
                     const visitors = this._existing_siblings.map(
                         (s) =>
@@ -953,8 +952,7 @@ export class InviteVisitorFormComponent
                         international: this.getVisitorInternational(user),
                         extension_data: {
                             ...(user.extension_data || {}),
-                            international:
-                                this.getVisitorInternational(user),
+                            international: this.getVisitorInternational(user),
                         },
                     } as any),
             );

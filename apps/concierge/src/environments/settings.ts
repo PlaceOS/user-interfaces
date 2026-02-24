@@ -39,6 +39,7 @@ const app = {
     events: {
         allow_setup_breakdown: false,
         use_building_timezone: false,
+        day_timeline_view: 'inverted',
         block_start: 7,
         block_end: 19,
         block_height: 5,

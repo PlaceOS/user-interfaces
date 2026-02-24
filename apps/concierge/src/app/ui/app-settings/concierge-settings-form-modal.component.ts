@@ -471,6 +471,31 @@ import { UploadButtonComponent } from './upload-button.component';
                             <div class="content px-4 pt-4 pb-2">
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
+                                        <label for="day-timeline-view">
+                                            Day Timeline Default View
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="day-timeline-view"
+                                                formControlName="day_timeline_view"
+                                            >
+                                                <mat-option value="default">
+                                                    Timeline
+                                                </mat-option>
+                                                <mat-option value="inverted">
+                                                    Timeline (Rooms Vertical)
+                                                </mat-option>
+                                            </mat-select>
+                                            <mat-hint>
+                                                Default day timeline layout for
+                                                room bookings
+                                            </mat-hint>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
                                         <label for="block-start"
                                             >Block Start Time</label
                                         >
@@ -1680,6 +1705,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             strict_capacity_check: new FormControl(false),
             allow_multiday: new FormControl(false),
             use_building_timezone: new FormControl(false),
+            day_timeline_view: new FormControl('default'),
             block_start: new FormControl(0),
             block_end: new FormControl(24),
             block_height: new FormControl(3),
