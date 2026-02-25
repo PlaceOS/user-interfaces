@@ -7,6 +7,7 @@ import {
     Booking,
     Building,
     BuildingLevel,
+    currentUser,
     firstTruthyValueFrom,
     formatRecurrence,
     fromBookingRecurrence,
@@ -107,6 +108,9 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                         <icon class="text-xl">update</icon>
                         <div class="text-sm">{{ formatted_recurrence }}</div>
                     </div>
+                }
+                @if (show_booked_for) {
+                    <p class="text-sm">Booked for {{ booked_for_name }}</p>
                 }
                 @if (is_group && group_bookings().length > 0) {
                     <div
@@ -284,6 +288,19 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
     public get show_links() {
         return this._settings.get('app.desks.show_calendar_links');
+    }
+
+    public get booked_for_name() {
+        return this.last_event?.user_name || this.last_event?.user_email || '';
+    }
+
+    public get show_booked_for() {
+        if (!this.booked_for_name) return false;
+        const current_email = currentUser()?.email?.toLowerCase() || '';
+        const booked_for_email =
+            this.last_event?.user_email?.toLowerCase() || '';
+        if (!booked_for_email || !current_email) return false;
+        return booked_for_email !== current_email;
     }
 
     public readonly viewCalendarLinks = () =>
