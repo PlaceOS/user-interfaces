@@ -165,42 +165,52 @@ import { NewSpaceMapComponent } from './new-space-map.component';
                 }
             </main>
             <footer
-                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
+                [class.justify-between]="allow_multiple"
+                [class.justify-end]="!allow_multiple"
             >
-                <button
-                    btn
-                    matRipple
-                    name="space-return"
-                    [mat-dialog-close]="selected"
-                    class="inverse bg-base-100 text-secondary"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple) {
+                    <button
+                        btn
+                        matRipple
+                        name="space-return"
+                        [mat-dialog-close]="selected"
+                        class="inverse bg-base-100 text-secondary"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-xl">done</icon>
+                            <div class="pr-2">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <button
                     btn
                     matRipple
                     name="toggle-space"
                     [disabled]="!displayed()"
-                    [class.inverse]="isSelected(displayed()?.id)"
-                    (click)="
-                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    [class.inverse]="
+                        allow_multiple && isSelected(displayed()?.id)
                     "
+                    (click)="toggleDisplayedSpace()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed()?.id) ? 'remove' : 'add'
+                            allow_multiple
+                                ? isSelected(displayed()?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed()?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple
+                                    ? ((isSelected(displayed()?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Item'
                             }}
                         </div>
                     </div>
@@ -264,6 +274,10 @@ export class NewSpaceSelectModalComponent {
         return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) || [];
     }
 
+    public get allow_multiple() {
+        return !!this._settings.get('app.events.allow_multiple_spaces');
+    }
+
     constructor() {
         const _data = this._data;
 
@@ -280,10 +294,18 @@ export class NewSpaceSelectModalComponent {
         const list = this.selected.filter((_) => _.id !== item.id);
         if (state) list.push(item);
         this.selected = list;
-        if (!this._settings.get('app.events.allow_multiple_spaces') && state) {
+        if (!this.allow_multiple && state) {
             this.selected = [item];
             this._dialog_ref.close([item]);
         }
+    }
+
+    public toggleDisplayedSpace() {
+        if (!this.displayed()) return;
+        this.setSelected(
+            this.displayed(),
+            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+        );
     }
 
     public toggleFavourite(item: Space) {
