@@ -256,20 +256,7 @@ export class VisitorFlowInvitesComponent
 
         // Load previous visitors from settings
         const visitors = this._settings.get('visitor-invitees') || [];
-        this.visitors.update((list) => {
-            for (const item of visitors) {
-                if (typeof item !== 'string') continue;
-                const [email, name, company] = item.split('|');
-                const safe_email = this.toSafeValue(email);
-                if (!safe_email) continue;
-                list.push({
-                    email: safe_email,
-                    name: this.toSafeValue(name),
-                    company: this.toSafeValue(company),
-                } as any);
-            }
-            return list;
-        });
+        this.visitors.set(this.parseRecentVisitors(visitors));
 
         // Initialize search term
         this.search_term.set('');
@@ -304,7 +291,7 @@ export class VisitorFlowInvitesComponent
     }
 
     public setVisitor(item: any) {
-        const asset_id = item?.asset_id || item?.email || '';
+        const asset_id = this.normalizeEmail(item?.asset_id || item?.email);
         const asset_name = item?.asset_name || item?.name || asset_id;
         const company = item?.company || item?.organisation || '';
         if (!asset_id) return;
@@ -319,10 +306,13 @@ export class VisitorFlowInvitesComponent
         // Save to visitor history
         const visitor_details = `${asset_id}|${asset_name}|${company}`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
+        const old_visitor_records = this.parseRecentVisitors(old_visitors)
+            .filter((visitor) => visitor.email !== asset_id)
+            .map((visitor) => {
+                return `${visitor.email}|${visitor.name || ''}|${(visitor as any).company || ''}`;
+            });
         this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitors.filter(
-                (_: string) => `${_}`.split('|')[0] !== asset_id,
-            ),
+            ...old_visitor_records,
             visitor_details,
         ]);
     }
@@ -330,5 +320,30 @@ export class VisitorFlowInvitesComponent
     private toSafeValue(value: any): string {
         if (!value || value === 'null' || value === 'undefined') return '';
         return `${value}`.trim();
+    }
+
+    private normalizeEmail(value: any): string {
+        const email = this.toSafeValue(value)
+            .replace(/^mailto:/i, '')
+            .replace(/[<>"']/g, '');
+        return email.toLowerCase();
+    }
+
+    private parseRecentVisitors(visitor_history: string[]): User[] {
+        const unique_visitors = new Map<string, User>();
+        for (let index = visitor_history.length - 1; index >= 0; index--) {
+            const item = visitor_history[index];
+            if (typeof item !== 'string') continue;
+            const [email, name, company] = item.split('|');
+            const parsed_visitor = {
+                email: this.normalizeEmail(email),
+                name: this.toSafeValue(name),
+                company: this.toSafeValue(company),
+            };
+            const email_key = parsed_visitor.email;
+            if (!email_key || unique_visitors.has(email_key)) continue;
+            unique_visitors.set(email_key, parsed_visitor as any);
+        }
+        return [...unique_visitors.values()].reverse();
     }
 }

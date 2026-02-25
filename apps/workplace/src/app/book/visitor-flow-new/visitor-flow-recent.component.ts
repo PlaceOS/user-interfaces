@@ -9,14 +9,14 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     selector: 'visitor-flow-recent',
     template: `
         <div
-            class="bg-grad relative mx-auto mb-4 w-full max-w-full space-y-2 rounded-xl border border-base-300 p-4 text-white shadow"
+            class="bg-grad border-base-300 relative mx-auto mb-4 w-full max-w-full space-y-2 rounded-xl border p-4 text-white shadow"
         >
             <div class="flex items-center justify-between pb-2">
                 <div
                     class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
                 >
                     <div
-                        class="absolute inset-0 bg-brand-content opacity-20"
+                        class="bg-brand-content absolute inset-0 opacity-20"
                     ></div>
                     <div>Quick Action</div>
                 </div>
@@ -129,10 +129,9 @@ export class VisitorFlowRecentComponent implements OnInit {
     });
 
     public readonly recent_visitors = computed(() => {
-        return this.visitors()
-            .slice(-5)
-            .reverse()
-            .map((v) => this.enrichVisitorData(v));
+        return this.visitors().slice(0, 5).map((visitor) => {
+            return this.enrichVisitorData(visitor);
+        });
     });
 
     public readonly selected_visitors = computed(() => {
@@ -143,20 +142,7 @@ export class VisitorFlowRecentComponent implements OnInit {
     public ngOnInit() {
         // Load visitor history
         const visitor_history = this._settings.get('visitor-invitees') || [];
-        this.visitors.update((list) => {
-            for (const item of visitor_history) {
-                if (typeof item !== 'string') continue;
-                const [email, name, company] = item.split('|');
-                const safe_email = this.toSafeValue(email);
-                if (!safe_email) continue;
-                list.push({
-                    email: safe_email,
-                    name: this.toSafeValue(name),
-                    company: this.toSafeValue(company),
-                } as any);
-            }
-            return list;
-        });
+        this.visitors.set(this.parseRecentVisitors(visitor_history));
     }
 
     public isVisitorSelected(visitor: any): boolean {
@@ -189,6 +175,31 @@ export class VisitorFlowRecentComponent implements OnInit {
     private toSafeValue(value: any): string {
         if (!value || value === 'null' || value === 'undefined') return '';
         return `${value}`.trim();
+    }
+
+    private normalizeEmail(value: any): string {
+        const email = this.toSafeValue(value)
+            .replace(/^mailto:/i, '')
+            .replace(/[<>"']/g, '');
+        return email.toLowerCase();
+    }
+
+    private parseRecentVisitors(visitor_history: string[]): User[] {
+        const unique_visitors = new Map<string, User>();
+        for (let index = visitor_history.length - 1; index >= 0; index--) {
+            const item = visitor_history[index];
+            if (typeof item !== 'string') continue;
+            const [email, name, company] = item.split('|');
+            const parsed_visitor = {
+                email: this.normalizeEmail(email),
+                name: this.toSafeValue(name),
+                company: this.toSafeValue(company),
+            };
+            const email_key = parsed_visitor.email;
+            if (!email_key || unique_visitors.has(email_key)) continue;
+            unique_visitors.set(email_key, parsed_visitor as any);
+        }
+        return [...unique_visitors.values()];
     }
 
     private enrichVisitorData(visitor: any): any {
