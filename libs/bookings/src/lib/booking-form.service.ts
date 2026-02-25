@@ -991,11 +991,12 @@ export class BookingFormService extends AsyncHandler {
         try {
             for (const visitor of members) {
                 if (!visitor.email) continue;
+                const visitor_name = visitor.name || visitor.email;
                 this.form.patchValue({
                     ...form,
                     id: '',
                     asset_id: visitor.email,
-                    asset_name: visitor.name,
+                    asset_name: visitor_name,
                     international:
                         (visitor as any).international ||
                         !!visitor.extension_data?.international,
@@ -1003,10 +1004,14 @@ export class BookingFormService extends AsyncHandler {
                     phone: visitor.phone,
                     parent_id,
                     group: group_name,
+                    zones:
+                        form.zones?.length
+                            ? [...form.zones]
+                            : [...(this._booking.getValue()?.zones || [])],
                     assets: [],
                     attendees: [
                         new User({
-                            name: visitor.name,
+                            name: visitor_name,
                             email: visitor.email,
                             organisation:
                                 (visitor as any).company ||
@@ -1101,22 +1106,29 @@ export class BookingFormService extends AsyncHandler {
                 const existing = sibling_map[member.email];
                 const booking_id = existing?.id || '';
                 if (is_visitor) {
+                    const member_name = member.name || member.email;
                     this.form.patchValue({
                         ...base_form,
                         id: booking_id,
                         parent_id: booking_id === parent_id ? '' : parent_id,
                         group: group_name,
                         asset_id: member.email,
-                        asset_name: member.name,
+                        asset_name: member_name,
                         international:
                             (member as any).international ||
                             !!member.extension_data?.international,
                         company: (member as any).company || member.organisation,
                         phone: member.phone,
+                        zones:
+                            base_form.zones?.length
+                                ? [...base_form.zones]
+                                : existing?.zones?.length
+                                  ? [...existing.zones]
+                                  : [...(this._booking.getValue()?.zones || [])],
                         assets: [],
                         attendees: [
                             new User({
-                                name: member.name,
+                                name: member_name,
                                 email: member.email,
                                 organisation:
                                     (member as any).company ||

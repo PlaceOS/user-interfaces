@@ -16,6 +16,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SettingsService } from '@placeos/common';
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
+const wait = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
 describe('InviteVisitorFormComponent', () => {
     let spectator: SpectatorRouting<InviteVisitorFormComponent>;
     const createComponent = createRoutingFactory({
@@ -125,6 +128,7 @@ describe('InviteVisitorFormComponent', () => {
         });
 
         await spectator.component.ngOnInit();
+        await wait(0);
 
         expect(service.loadGroupSiblings).toHaveBeenCalled();
         expect(service.form.value.assets).toHaveLength(2);
@@ -200,7 +204,6 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.sendInvite();
 
         expect(service.postForm).toHaveBeenCalled();
-        expect(service.form.value.description).toBe('Vendor Interview');
         expect(service.form.value.title).toBe('Vendor Interview');
     });
 
@@ -268,5 +271,92 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(service.form.value.asset_id).toBe('original.visitor@example.com');
+    });
+
+    it('should keep start time available when date control is disabled', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        const booking_date = Date.now() - 10 * 60 * 1000;
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: booking_date,
+            duration: 60,
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        });
+        service.form.get('date').disable();
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.form_date).toBe(booking_date);
+    });
+
+    it('should set reason on title only when sending invite', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        await spectator.component.ngOnInit();
+        service.form.patchValue({
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor Name',
+            title: '',
+            description: '',
+        });
+
+        await spectator.component.sendInvite();
+
+        expect(service.postForm).toHaveBeenCalled();
+        expect(service.form.value.title).toBe('Visit');
+        expect(service.form.value.description || '').toBe('');
+    });
+
+    it('should not block init while loading sibling visitors', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as jest.Mock).mockImplementation(
+            () => new Promise(() => {}),
+        );
+        (service as any).booking = new Booking({
+            id: 'booking-parent',
+            extension_data: {
+                group_members: [
+                    {
+                        name: 'Visitor One',
+                        email: 'visitor.one@example.com',
+                    },
+                    {
+                        name: 'Visitor Two',
+                        email: 'visitor.two@example.com',
+                    },
+                ],
+            },
+        });
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+        });
+
+        const result = await Promise.race([
+            spectator.component.ngOnInit().then(() => 'ready'),
+            wait(100).then(() => 'timeout'),
+        ]);
+
+        expect(result).toBe('ready');
+        expect(service.form.value.assets).toHaveLength(2);
     });
 });

@@ -56,4 +56,5 @@ describe('ScheduleComponent', () => {
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
+
 });

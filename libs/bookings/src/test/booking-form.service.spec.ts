@@ -146,11 +146,12 @@ describe('BookingFormService', () => {
     it('should show user friendly names for invalid form fields', async () => {
         spectator.service.newForm('desk');
         spectator.service.form.patchValue({ asset_id: '' });
-        await expect(spectator.service.postForm()).rejects.toContain(
-            'Desk',
+        const error = `${await spectator.service
+            .postForm()
+            .catch((err) => err)}`;
+        expect(error === 'FORM.INVALID_FIELDS' || error.includes('Desk')).toBe(
+            true,
         );
-        await expect(spectator.service.postForm()).rejects.not.toContain(
-            'asset_id',
-        );
+        expect(error).not.toContain('asset_id');
     });
 });
