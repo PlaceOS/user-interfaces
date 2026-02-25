@@ -95,10 +95,9 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
                     [active]="selected_ids.includes(displayed?.id)"
+                    [single_select]="!allow_multiple"
                     [hide_map]="view === 'map'"
-                    (activeChange)="
-                        setSelected(displayed, !isSelected(displayed?.id))
-                    "
+                    (activeChange)="toggleDisplayedDesk()"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
                     (close)="displayed = null"
@@ -132,20 +131,22 @@ export const FAV_DESK_KEY = 'favourite_desks';
             <footer
                 class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
-                <button
-                    btn
-                    matRipple
-                    name="desk-return"
-                    [mat-dialog-close]="selected"
-                    class="clear text-secondary"
-                >
-                    <div class="flex items-center">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="mr-1 underline">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple) {
+                    <button
+                        btn
+                        matRipple
+                        name="desk-return"
+                        [mat-dialog-close]="selected"
+                        class="clear text-secondary"
+                    >
+                        <div class="flex items-center">
+                            <icon class="text-xl">done</icon>
+                            <div class="mr-1 underline">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <p class="text-sm opacity-60">
                     {{
                         'BOOKINGS.DESK_ADDED_COUNT'
@@ -157,19 +158,25 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     matRipple
                     name="toggle-desk"
                     [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [class.inverse]="allow_multiple && isSelected(displayed?.id)"
+                    (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            allow_multiple
+                                ? isSelected(displayed?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple
+                                    ? ((isSelected(displayed?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Item'
                             }}
                         </div>
                     </div>
@@ -211,6 +218,10 @@ export class DeskSelectModalComponent {
         return this._settings.get<string[]>(FAV_DESK_KEY) || [];
     }
 
+    public get allow_multiple() {
+        return !!this._data.options?.group;
+    }
+
     constructor() {
         const _data = this._data;
 
@@ -233,6 +244,14 @@ export class DeskSelectModalComponent {
             this.displayed = null;
             setTimeout(() => this._dialog_ref.close([item]), 50);
         }
+    }
+
+    public toggleDisplayedDesk() {
+        if (!this.displayed) return;
+        this.setSelected(
+            this.displayed,
+            this.allow_multiple ? !this.isSelected(this.displayed?.id) : true,
+        );
     }
 
     public toggleFavourite(item: BookingAsset) {

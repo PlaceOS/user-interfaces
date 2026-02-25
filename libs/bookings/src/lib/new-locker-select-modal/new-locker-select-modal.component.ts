@@ -162,9 +162,9 @@ export const FAV_LOCKER_KEY = 'favourite_lockers';
                     class="inverse bg-base-100 text-secondary"
                 >
                     <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
+                        <icon class="text-xl">done</icon>
                         <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                            {{ 'COMMON.CONFIRM_SELECTION' | translate }}
                         </div>
                     </div>
                 </button>

@@ -97,6 +97,7 @@ import { SpaceSelectMapComponent } from './space-map.component';
                     [class.inset-0]="displayed"
                     [hide_map]="view === 'map'"
                     [active]="selected_ids.includes(displayed?.id)"
+                    [single_select]="!allow_multiple"
                     (activeChange)="setSelected(displayed, $event)"
                     [fav]="displayed && this.favorites.includes(displayed?.id)"
                     (toggleFav)="toggleFavourite(displayed)"
@@ -131,20 +132,22 @@ import { SpaceSelectMapComponent } from './space-map.component';
             <footer
                 class="border-base-200 hidden w-full items-center justify-between border-t p-2 sm:flex"
             >
-                <button
-                    btn
-                    matRipple
-                    name="spaces-return"
-                    [mat-dialog-close]="selected"
-                    class="clear text-secondary"
-                >
-                    <div class="flex items-center">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="mr-1 underline">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple) {
+                    <button
+                        btn
+                        matRipple
+                        name="spaces-return"
+                        [mat-dialog-close]="selected"
+                        class="clear text-secondary"
+                    >
+                        <div class="flex items-center">
+                            <icon class="text-xl">done</icon>
+                            <div class="mr-1 underline">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <p class="text-sm opacity-60">
                     {{
                         'CALENDAR_EVENT.SPACE_SELECT_COUNT'
@@ -156,19 +159,25 @@ import { SpaceSelectMapComponent } from './space-map.component';
                     matRipple
                     name="toggle-space"
                     [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [class.inverse]="allow_multiple && isSelected(displayed?.id)"
+                    (click)="toggleDisplayedSpace()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            allow_multiple
+                                ? isSelected(displayed?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple
+                                    ? ((isSelected(displayed?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Item'
                             }}
                         </div>
                     </div>
@@ -219,6 +228,10 @@ export class SpaceSelectModalComponent {
         return this._settings.get<string[]>('favourite_spaces') || [];
     }
 
+    public get allow_multiple() {
+        return !!this._settings.get('app.events.allow_multiple_spaces');
+    }
+
     constructor() {
         const _data = this._data;
 
@@ -235,10 +248,18 @@ export class SpaceSelectModalComponent {
         const list = this.selected.filter((_) => _.id !== item.id);
         if (state) list.push(item);
         this.selected = list;
-        if (!this._settings.get('app.events.allow_multiple_spaces') && state) {
+        if (!this.allow_multiple && state) {
             this.selected = [item];
             this._dialog_ref.close([item]);
         }
+    }
+
+    public toggleDisplayedSpace() {
+        if (!this.displayed) return;
+        this.setSelected(
+            this.displayed,
+            this.allow_multiple ? !this.isSelected(this.displayed?.id) : true,
+        );
     }
 
     public toggleFavourite(item: Space) {

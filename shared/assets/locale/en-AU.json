@@ -2,6 +2,7 @@
     "COMMON": {
         "BACK": "Back",
         "BACK_TO_FORM": "Back to form",
+        "CONFIRM_SELECTION": "Confirm Selection",
         "CONFIRM": "Confirm",
         "SUBMIT": "Submit",
         "CONTINUE": "Continue",

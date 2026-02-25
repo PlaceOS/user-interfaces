@@ -139,20 +139,22 @@ import { BookingAsset } from '../booking-form.service';
                     btn
                     matRipple
                     name="toggle-desk-details"
-                    [class.inverse]="active()"
+                    [class.inverse]="!single_select() && active()"
                     class="w-full"
                     (click)="activeChange.emit()"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            active() ? 'remove' : 'add'
+                            single_select() ? 'done' : active() ? 'remove' : 'add'
                         }}</icon>
                         <p>
                             {{
-                                (active()
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                single_select()
+                                    ? 'Select Item'
+                                    : ((active()
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
                             }}
                         </p>
                     </div>
@@ -181,6 +183,7 @@ export class DeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);
+    public readonly single_select = input(false);
     public readonly hide_map = input(false);
 
     public readonly close = output<void>();

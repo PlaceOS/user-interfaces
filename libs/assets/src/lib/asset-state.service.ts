@@ -126,6 +126,7 @@ export class AssetStateService {
     );
 
     public readonly category_list = this._org.active_building.pipe(
+        filter((bld) => !!bld),
         switchMap((bld) => queryAssetCategories({ zone_id: bld.id })),
         map((_) =>
             _.sort((a, b) => a.name.localeCompare(b.name)).filter(
