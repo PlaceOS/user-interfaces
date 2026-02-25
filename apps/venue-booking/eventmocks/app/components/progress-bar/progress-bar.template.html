@@ -1,0 +1,8 @@
+<div class="progress-bar-container">
+    <div class="progress-bar">
+        <div class="progress-step" ng-repeat="step in $ctrl.steps" ng-class="{active: $ctrl.currentStep >= step.step, complete: $ctrl.currentStep > step.step}">
+            <div class="step-circle">{{step.step}}</div>
+            <span>{{step.label}}</span>
+        </div>
+    </div>
+</div>

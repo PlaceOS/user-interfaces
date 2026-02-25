@@ -1,0 +1,29 @@
+{
+  "name": "ucla-events-app",
+  "version": "1.0.0",
+  "description": "UCLA Event Management System - Event intake and approval tracking",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8080 -o",
+    "build": "npm run build:css",
+    "build:css": "echo 'CSS build placeholder'",
+    "test": "echo 'Tests coming soon'"
+  },
+  "keywords": [
+    "ucla",
+    "events",
+    "placeos",
+    "angularjs"
+  ],
+  "author": "UCLA",
+  "license": "MIT",
+  "dependencies": {
+    "angular": "^1.8.3",
+    "angular-route": "^1.8.3",
+    "angular-sanitize": "^1.8.3",
+    "angular-animate": "^1.8.3"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

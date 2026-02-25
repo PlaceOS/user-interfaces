@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html ng-app="uclaEventsApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCLA Event Management System</title>
+
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular-animate.min.js"></script>
+
+    <!-- Dexie.js for IndexedDB -->
+    <script src="https://unpkg.com/dexie@3.2.4/dist/dexie.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="app/components/ai-assistant/ai-assistant.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- App Core -->
+    <script src="app/app.module.js"></script>
+    <script src="app/app.config.js"></script>
+    <script src="app/app.routes.js"></script>
+
+    <!-- Services -->
+    <script src="app/services/database.service.js"></script>
+    <script src="app/services/placeos-api.service.js"></script>
+    <script src="app/services/policy-engine.service.js"></script>
+    <script src="app/services/approval-workflow.service.js"></script>
+    <script src="app/services/document-management.service.js"></script>
+    <script src="app/services/auth.service.js"></script>
+    <script src="app/services/payment.service.js"></script>
+    <script src="app/services/venue-sync.service.js"></script>
+    <script src="app/services/event-sync.service.js"></script>
+
+    <!-- Controllers -->
+    <script src="app/controllers/nav.controller.js"></script>
+
+    <!-- Components -->
+    <script src="app/components/login/login.component.js"></script>
+    <script src="app/components/landing/landing.component.js"></script>
+    <script src="app/components/venue-search/venue-search.component.js"></script>
+    <script src="app/components/event-request/event-request.component.js"></script>
+    <script src="app/components/my-events/my-events.component.js"></script>
+    <script src="app/components/approval-timeline/approval-timeline.component.js"></script>
+    <script src="app/components/progress-bar/progress-bar.component.js"></script>
+    <script src="app/components/ai-assistant/ai-assistant.component.js"></script>
+    <script src="app/components/payment-modal/payment-modal.component.js"></script>
+    <script src="app/components/invoice-view/invoice-view.component.js"></script>
+</head>
+<body>
+    <div class="app-container" ng-controller="NavController as nav">
+        <!-- Navigation (hidden on login page) -->
+        <nav class="app-nav" ng-if="!nav.isLoginPage()">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <a href="#!/" class="nav-brand-link">
+                        <h1>UCLA Event Management</h1>
+                    </a>
+                </div>
+                <div class="nav-links">
+                    <a href="#!/" ng-click="nav.scrollToHowItWorks($event)" class="nav-link">How It Works</a>
+                    <a href="#!/find-venue" class="nav-link">Find Venue</a>
+                    <a href="#!/request-event" class="nav-link">Request Event</a>
+                    <a href="#!/my-events" class="nav-link">My Events</a>
+                </div>
+                <!-- Burger Menu Button -->
+                <button class="burger-menu-btn" ng-click="nav.toggleMenu()">
+                    <span class="burger-icon"><span class="material-icons">menu</span></span>
+                </button>
+            </div>
+
+            <!-- Burger Menu Overlay -->
+            <div class="burger-menu-overlay" ng-class="{'active': nav.menuOpen}" ng-click="nav.closeMenu()"></div>
+            <div class="burger-menu" ng-class="{'active': nav.menuOpen}">
+                <div class="burger-menu-header">
+                    <h3>Menu</h3>
+                    <button class="close-menu-btn" ng-click="nav.closeMenu()">✕</button>
+                </div>
+                <div class="burger-menu-content">
+                    <!-- User Info Section -->
+                    <div class="user-info-section" ng-if="nav.isAuthenticated()">
+                        <div class="user-avatar">
+                            <span class="material-icons">account_circle</span>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name">{{ nav.currentUser.name }}</span>
+                            <span class="user-role">{{ nav.currentUser.roleLabel }}</span>
+                        </div>
+                    </div>
+
+                    <a href="#!/help" class="burger-menu-item" ng-click="nav.closeMenu()">
+                        <span class="menu-item-icon"><span class="material-icons">help_outline</span></span>
+                        <span>Help</span>
+                    </a>
+                    <button class="burger-menu-item" ng-click="nav.switchPersona()" ng-if="nav.isAuthenticated()">
+                        <span class="menu-item-icon"><span class="material-icons">swap_horiz</span></span>
+                        <span>Switch Account</span>
+                    </button>
+                    <button class="burger-menu-item logout-item" ng-click="nav.logout()" ng-if="nav.isAuthenticated()">
+                        <span class="menu-item-icon"><span class="material-icons">logout</span></span>
+                        <span>Sign Out</span>
+                    </button>
+                    <a href="#!/login" class="burger-menu-item" ng-click="nav.closeMenu()" ng-if="!nav.isAuthenticated()">
+                        <span class="menu-item-icon"><span class="material-icons">login</span></span>
+                        <span>Sign In</span>
+                    </a>
+                    <div class="burger-menu-section">
+                        <div class="menu-section-title">Settings</div>
+                        <div class="setting-item">
+                            <span>Text Size</span>
+                            <div class="text-size-controls">
+                                <button ng-click="nav.decreaseTextSize()" class="text-size-btn">A-</button>
+                                <span class="text-size-value">{{nav.textSize}}%</span>
+                                <button ng-click="nav.increaseTextSize()" class="text-size-btn">A+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Bottom Navigation (hidden on login page) -->
+        <nav class="mobile-bottom-nav" ng-if="!nav.isLoginPage()">
+            <a href="#!/find-venue" class="mobile-nav-link">
+                <span class="mobile-nav-icon"><span class="material-icons">search</span></span>
+                <span class="mobile-nav-label">Find Venue</span>
+            </a>
+            <a href="#!/request-event" class="mobile-nav-link">
+                <span class="mobile-nav-icon"><span class="material-icons">edit_calendar</span></span>
+                <span class="mobile-nav-label">Request Event</span>
+            </a>
+            <a href="#!/my-events" class="mobile-nav-link">
+                <span class="mobile-nav-icon"><span class="material-icons">list_alt</span></span>
+                <span class="mobile-nav-label">My Events</span>
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div ng-view></div>
+        </main>
+
+        <!-- Footer (hidden on login page) -->
+        <footer class="app-footer" ng-if="!nav.isLoginPage()">
+            <p>&copy; 2025 UCLA Event Management System</p>
+        </footer>
+    </div>
+    <ai-assistant></ai-assistant>
+</body>
+</html>

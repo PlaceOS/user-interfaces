@@ -41,6 +41,12 @@
                     },
                     "apps/venue-booking/src/manifest.webmanifest"
                 ],
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/venue-booking/src/environments/settings.ts"
+                    }
+                ],
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
                     "apps/venue-booking/src/styles.css",

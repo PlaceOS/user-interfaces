@@ -1,0 +1,207 @@
+<div class="event-request-page">
+    <div class="page-header">
+        <h1>Request Event</h1>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-step"
+                     ng-repeat="step in $ctrl.steps"
+                     ng-class="{active: $ctrl.currentStep === step.step, complete: $ctrl.currentStep > step.step}">
+                    <div class="step-circle">
+                        <span ng-if="$ctrl.currentStep <= step.step">{{ step.step }}</span>
+                        <span class="material-icons" ng-if="$ctrl.currentStep > step.step">check</span>
+                    </div>
+                    <span>{{ step.label }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="alert alert-error" ng-if="$ctrl.error">
+        {{ $ctrl.error }}
+    </div>
+
+    <!-- Success Message -->
+    <div class="alert alert-success" ng-if="$ctrl.success">
+        <strong>Success!</strong> Your event request has been submitted. Redirecting...
+    </div>
+
+    <!-- Step 1: Event Details -->
+    <div class="form-step" ng-show="$ctrl.currentStep === 1">
+        <h2>Event Details</h2>
+        <div class="form-group">
+            <label>Event Title *</label>
+            <input type="text" ng-model="$ctrl.eventData.title" class="form-control" placeholder="Enter event title">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Event Date & Time *</label>
+                <input type="datetime-local" ng-model="$ctrl.eventData.event_start" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Duration (hours) *</label>
+                <input type="number" ng-model="$ctrl.eventData.duration" class="form-control" min="1" max="24">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Venue *</label>
+            <input type="text" ng-model="$ctrl.eventData.venue" class="form-control" placeholder="Enter venue name">
+        </div>
+
+        <div class="form-group">
+            <label>Event Description</label>
+            <textarea ng-model="$ctrl.eventData.description" class="form-control" rows="4" placeholder="Describe your event"></textarea>
+        </div>
+    </div>
+
+    <!-- Step 2: Organizer Info -->
+    <div class="form-step" ng-show="$ctrl.currentStep === 2">
+        <h2>Organizer Information</h2>
+        <div class="form-group">
+            <label>Organizer Name *</label>
+            <input type="text" ng-model="$ctrl.eventData.organizer_name" class="form-control" placeholder="Full name">
+        </div>
+
+        <div class="form-group">
+            <label>Organizer Email *</label>
+            <input type="email" ng-model="$ctrl.eventData.organizer_email" class="form-control" placeholder="email@ucla.edu">
+        </div>
+
+        <div class="form-group">
+            <label>Organizer Phone</label>
+            <input type="tel" ng-model="$ctrl.eventData.organizer_phone" class="form-control" placeholder="(310) XXX-XXXX">
+        </div>
+    </div>
+
+    <!-- Step 3: Requirements -->
+    <div class="form-step" ng-show="$ctrl.currentStep === 3">
+        <h2>Event Requirements</h2>
+
+        <div class="form-group">
+            <label>Select Required Services:</label>
+            <div class="checkbox-grid">
+                <div class="checkbox-item" ng-repeat="option in $ctrl.requestItemOptions">
+                    <label>
+                        <input type="checkbox"
+                               ng-checked="$ctrl.isItemSelected(option.value)"
+                               ng-click="$ctrl.toggleRequestItem(option.value)">
+                        <span class="checkbox-label">
+                            <strong>{{ option.label }}</strong>
+                            <small>{{ option.description }}</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Expected Attendance</label>
+                <input type="number" ng-model="$ctrl.eventData.attendance_count" ng-change="$ctrl.updateApprovalPreview()" class="form-control" min="1">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" ng-model="$ctrl.eventData.is_outdoor" ng-change="$ctrl.updateApprovalPreview()">
+                Outdoor Event
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" ng-model="$ctrl.eventData.is_major_event" ng-change="$ctrl.updateApprovalPreview()">
+                Major Event (500+ attendees or high-profile)
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>Special Requirements</label>
+            <textarea ng-model="$ctrl.eventData.special_requirements" class="form-control" rows="3" placeholder="Any additional requirements or notes"></textarea>
+        </div>
+
+        <!-- Approval Preview -->
+        <div class="approval-preview" ng-if="$ctrl.approvalPreview">
+            <h3><span class="material-icons">assignment</span> Approval Preview</h3>
+            <div class="preview-content">
+                <div class="preview-section">
+                    <strong>Required Approvals:</strong>
+                    <ul>
+                        <li ng-repeat="stage in $ctrl.approvalPreview.required_stages">
+                            {{ stage }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="preview-section">
+                    <strong>Required Documents:</strong>
+                    <ul ng-if="$ctrl.approvalPreview.required_documents.length > 0">
+                        <li ng-repeat="doc in $ctrl.approvalPreview.required_documents">
+                            {{ doc }}
+                        </li>
+                    </ul>
+                    <p ng-if="$ctrl.approvalPreview.required_documents.length === 0">
+                        No documents required
+                    </p>
+                </div>
+                <div class="preview-section">
+                    <strong>Estimated Approval Time:</strong>
+                    <span>{{ $ctrl.approvalPreview.sla_hours }} hours</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Documents -->
+    <div class="form-step" ng-show="$ctrl.currentStep === 4">
+        <h2>Upload Documents</h2>
+        <p class="help-text">Upload required documents now or you can upload them later from your event details page.</p>
+
+        <div class="document-upload" ng-if="$ctrl.documents.length > 0">
+            <div class="document-item" ng-repeat="doc in $ctrl.documents">
+                <div class="document-info">
+                    <strong>{{ doc.name }}</strong>
+                    <span class="required-badge" ng-if="doc.required">Required</span>
+                </div>
+
+                <div class="upload-section" ng-if="!doc.uploaded">
+                    <input type="file"
+                           id="file-{{ doc.type }}"
+                           accept=".pdf,.jpg,.jpeg,.png"
+                           ng-model-options="{updateOn: 'change'}"
+                           onchange="angular.element(this).scope().$ctrl.onFileSelected(this.getAttribute('data-doc-type'), this.files); angular.element(this).scope().$apply()"
+                           data-doc-type="{{ doc.type }}">
+                    <label for="file-{{ doc.type }}" class="btn btn-secondary">Choose File</label>
+                </div>
+
+                <div class="uploaded-section" ng-if="doc.uploaded && doc.file">
+                    <span class="file-name"><span class="material-icons">check_circle</span> {{ doc.file.name }}</span>
+                    <button class="btn-icon" ng-click="$ctrl.removeDocument(doc.type)"><span class="material-icons">close</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-documents" ng-if="$ctrl.documents.length === 0">
+            <p>No documents required for this event based on your selections.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="form-navigation">
+        <button class="btn btn-secondary" ng-click="$ctrl.cancel()" ng-if="$ctrl.currentStep === 1">Cancel</button>
+        <button class="btn btn-secondary" ng-click="$ctrl.previousStep()" ng-if="$ctrl.currentStep > 1">Previous</button>
+
+        <div class="spacer"></div>
+
+        <button class="btn btn-primary" ng-click="$ctrl.nextStep()" ng-if="$ctrl.currentStep < $ctrl.totalSteps">
+            Next
+        </button>
+        <button class="btn btn-primary" ng-click="$ctrl.submitEvent()" ng-if="$ctrl.currentStep === $ctrl.totalSteps" ng-disabled="$ctrl.loading">
+            <span ng-if="!$ctrl.loading">Submit Event Request</span>
+            <span ng-if="$ctrl.loading">Submitting...</span>
+        </button>
+    </div>
+</div>
