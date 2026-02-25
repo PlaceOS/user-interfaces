@@ -1511,6 +1511,7 @@ export class BookingFormService extends AsyncHandler {
         const id = use_region
             ? this._org.building?.parent_id
             : this._org.building?.id;
+        if (!id) return of([]);
         if (use_region) {
             const id = this._org.building.parent_id;
             const buildings = this._org.buildings.filter(
