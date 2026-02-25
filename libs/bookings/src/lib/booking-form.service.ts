@@ -555,7 +555,7 @@ export class BookingFormService extends AsyncHandler {
                 this._invalid_field_mappings(),
             );
             throw i18n('FORM.INVALID_FIELDS', {
-                fields: invalid_fields.join(', '),
+                field_list: invalid_fields.join(', '),
             });
         }
         this.form.patchValue({
@@ -921,10 +921,9 @@ export class BookingFormService extends AsyncHandler {
                     phone: visitor.phone,
                     parent_id,
                     group: group_name,
-                    zones:
-                        form.zones?.length
-                            ? [...form.zones]
-                            : [...(this._booking.getValue()?.zones || [])],
+                    zones: form.zones?.length
+                        ? [...form.zones]
+                        : [...(this._booking.getValue()?.zones || [])],
                     assets: [],
                     attendees: [
                         new User({
@@ -1036,12 +1035,11 @@ export class BookingFormService extends AsyncHandler {
                             !!member.extension_data?.international,
                         company: (member as any).company || member.organisation,
                         phone: member.phone,
-                        zones:
-                            base_form.zones?.length
-                                ? [...base_form.zones]
-                                : existing?.zones?.length
-                                  ? [...existing.zones]
-                                  : [...(this._booking.getValue()?.zones || [])],
+                        zones: base_form.zones?.length
+                            ? [...base_form.zones]
+                            : existing?.zones?.length
+                              ? [...existing.zones]
+                              : [...(this._booking.getValue()?.zones || [])],
                         assets: [],
                         attendees: [
                             new User({
