@@ -142,4 +142,15 @@ describe('BookingFormService', () => {
         expect(spectator.service.clearForm).toBeCalled();
         spy.mockRestore();
     });
+
+    it('should show user friendly names for invalid form fields', async () => {
+        spectator.service.newForm('desk');
+        spectator.service.form.patchValue({ asset_id: '' });
+        await expect(spectator.service.postForm()).rejects.toContain(
+            'Desk',
+        );
+        await expect(spectator.service.postForm()).rejects.not.toContain(
+            'asset_id',
+        );
+    });
 });

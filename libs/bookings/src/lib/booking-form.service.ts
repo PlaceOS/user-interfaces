@@ -636,10 +636,15 @@ export class BookingFormService extends AsyncHandler {
 
     public async postForm(ignore_check = false) {
         if (!this.form) throw 'No form for booking';
-        if (!this.form.valid)
-            throw `Some form fields are invalid. [${getInvalidFields(
+        if (!this.form.valid) {
+            const invalid_fields = getInvalidFields(
                 this.form,
-            ).join(', ')}]`;
+                this._invalid_field_mappings(),
+            );
+            throw i18n('FORM.INVALID_FIELDS', {
+                fields: invalid_fields.join(', '),
+            });
+        }
         this.form.patchValue({
             booking_type:
                 this.form.getRawValue().booking_type ||
@@ -994,9 +999,7 @@ export class BookingFormService extends AsyncHandler {
                     international:
                         (visitor as any).international ||
                         !!visitor.extension_data?.international,
-                    company:
-                        (visitor as any).company ||
-                        visitor.organisation,
+                    company: (visitor as any).company || visitor.organisation,
                     phone: visitor.phone,
                     parent_id,
                     group: group_name,
@@ -1044,8 +1047,7 @@ export class BookingFormService extends AsyncHandler {
             }).pipe(
                 map((list) =>
                     list.filter(
-                        (b) =>
-                            b.id === parent_id || b.parent_id === parent_id,
+                        (b) => b.id === parent_id || b.parent_id === parent_id,
                     ),
                 ),
             ),
@@ -1109,8 +1111,7 @@ export class BookingFormService extends AsyncHandler {
                         international:
                             (member as any).international ||
                             !!member.extension_data?.international,
-                        company:
-                            (member as any).company || member.organisation,
+                        company: (member as any).company || member.organisation,
                         phone: member.phone,
                         assets: [],
                         attendees: [
@@ -1159,6 +1160,38 @@ export class BookingFormService extends AsyncHandler {
             return error.error.message;
         }
         return i18n('BOOKINGS.ERROR_GENERIC');
+    }
+
+    private _invalid_field_mappings(): Record<string, string> {
+        const resource_label = this._resource_type_label();
+        return {
+            date: 'Start Time',
+            duration: 'Duration',
+            asset_id: resource_label,
+        };
+    }
+
+    private _resource_type_label(): string {
+        const form_booking_type = this.form.getRawValue().booking_type;
+        const booking_type =
+            form_booking_type && form_booking_type !== ' '
+                ? form_booking_type
+                : this._options.getValue().type;
+        switch (booking_type) {
+            case 'desk':
+                return 'Desk';
+            case 'parking':
+                return 'Parking Space';
+            case 'locker':
+                return 'Locker';
+            case 'room':
+            case 'group-event':
+                return 'Room';
+            case 'visitor':
+                return 'Visitor';
+            default:
+                return 'Resource';
+        }
     }
 
     private mapGroupMembers(type: BookingType, members: User[] = []) {
@@ -1218,21 +1251,23 @@ export class BookingFormService extends AsyncHandler {
         return unique(
             (members || [])
                 .filter((member) => !!member?.email)
-                .map((member) =>
-                    new User({
-                        id: member.id || '',
-                        name: member.name || member.email,
-                        email: member.email,
-                        organisation: member.company || member.organisation || '',
-                        phone: member.phone || '',
-                        extension_data: {
-                            ...(member.extension_data || {}),
-                            international: !!member.international,
-                        },
-                        international: is_visitor
-                            ? !!member.international
-                            : false,
-                    } as any),
+                .map(
+                    (member) =>
+                        new User({
+                            id: member.id || '',
+                            name: member.name || member.email,
+                            email: member.email,
+                            organisation:
+                                member.company || member.organisation || '',
+                            phone: member.phone || '',
+                            extension_data: {
+                                ...(member.extension_data || {}),
+                                international: !!member.international,
+                            },
+                            international: is_visitor
+                                ? !!member.international
+                                : false,
+                        } as any),
                 ),
             'email',
         );
