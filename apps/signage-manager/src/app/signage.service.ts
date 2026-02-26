@@ -107,12 +107,8 @@ export class SignageService {
 
     public previewMedia(item: SignageMedia) {
         this._dialog.open(MediaPreviewModalComponent, {
-            data: {
-                url: item.media_url || item.media_uri,
-                type: item.media_type,
-                name: item.name,
-                save: false,
-            },
+            data: item,
+            panelClass: 'fullscreen-dialog',
         });
     }
 
