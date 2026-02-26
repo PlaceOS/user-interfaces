@@ -23,6 +23,8 @@ import {
     updateSignageMedia,
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
+    updateSystem,
+    updateZone,
 } from '@placeos/ts-client';
 import { startWith } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
@@ -37,6 +39,7 @@ import {
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
+import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
@@ -161,6 +164,9 @@ export class SignageService {
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly playlist_search_term = signal('');
 
+    public readonly selected_zone = signal<any>(null);
+    public readonly zone_search_term = signal('');
+
     private readonly _playlists = toSignal(this.playlists, {
         initialValue: [] as SignagePlaylist[],
     });
@@ -169,6 +175,17 @@ export class SignageService {
         const term = this.playlist_search_term().toLowerCase();
         return this._playlists().filter((p) =>
             p.name.toLowerCase().includes(term),
+        );
+    });
+
+    private readonly _zones = toSignal(this.zones, {
+        initialValue: [] as any[],
+    });
+
+    public readonly filtered_zones = computed(() => {
+        const term = this.zone_search_term().toLowerCase();
+        return this._zones().filter((z) =>
+            (z.display_name || z.name).toLowerCase().includes(term),
         );
     });
 
@@ -452,6 +469,74 @@ export class SignageService {
         const playlist_id = await lastValueFrom(ref.afterClosed());
         if (!playlist_id) return;
         await this.addMediaToPlaylist(playlist_id, media_id);
+    }
+
+    public async addPlaylistToZone(zone: any) {
+        const ref = this._dialog.open(PlaylistSelectModalComponent, {
+            data: { zone_id: zone.id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const playlist_id = await lastValueFrom(ref.afterClosed());
+        if (!playlist_id) return;
+        if (zone.playlists?.includes(playlist_id)) {
+            notifyError('Playlist already assigned to this zone.');
+            return;
+        }
+        const playlists = [...(zone.playlists || []), playlist_id];
+        const updated = await lastValueFrom(
+            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        );
+        this.selected_zone.set(updated);
+        this.changed();
+        notifySuccess('Playlist added to zone');
+    }
+
+    public async removePlaylistFromZone(zone: any, playlist_id: string) {
+        const playlists = (zone.playlists || []).filter(
+            (id: string) => id !== playlist_id,
+        );
+        const updated = await lastValueFrom(
+            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+        );
+        this.selected_zone.set(updated);
+        this.changed();
+        notifySuccess('Playlist removed from zone');
+    }
+
+    public async addDisplayToZone(zone: any) {
+        const ref = this._dialog.open(DisplaySelectModalComponent, {
+            data: { zone_id: zone.id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const display_id = await lastValueFrom(ref.afterClosed());
+        if (!display_id) return;
+        const displays = await lastValueFrom(this.displays);
+        const display = displays.find((d: any) => d.id === display_id);
+        if (!display) return;
+        if (display.zones?.includes(zone.id)) {
+            notifyError('Display already assigned to this zone.');
+            return;
+        }
+        const zones = [...(display.zones || []), zone.id];
+        await lastValueFrom(
+            updateSystem(display.id, { zones, version: display.version } as any, 'patch'),
+        );
+        this.changed();
+        notifySuccess('Display added to zone');
+    }
+
+    public async removeDisplayFromZone(zone: any, display_id: string) {
+        const displays = await lastValueFrom(this.displays);
+        const display = displays.find((d: any) => d.id === display_id);
+        if (!display) return;
+        const zones = (display.zones || []).filter(
+            (id: string) => id !== zone.id,
+        );
+        await lastValueFrom(
+            updateSystem(display.id, { zones, version: display.version } as any, 'patch'),
+        );
+        this.changed();
+        notifySuccess('Display removed from zone');
     }
 
     private _getMediaMetadata(file: File) {

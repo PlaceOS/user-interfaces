@@ -48,7 +48,7 @@ import { SignageService } from '../signage.service';
             </div>
             @if (items().length > 0) {
                 <div
-                    class="flex-1 overflow-auto px-3 py-2"
+                    class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
                     (cdkDropListDropped)="onDrop($event)"
                 >

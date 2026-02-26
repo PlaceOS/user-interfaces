@@ -105,7 +105,7 @@ import { PlaylistListComponent } from './playlist-list.component';
                         }
                         <div class="flex min-h-0 flex-1 flex-row">
                             <playlist-items
-                                class="flex-1"
+                                class="w-px max-w-full flex-1"
                                 [class.tablet-hidden]="view_tab() === 'details'"
                             />
                             <playlist-item-details

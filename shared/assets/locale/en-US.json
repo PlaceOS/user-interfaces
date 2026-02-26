@@ -69,6 +69,7 @@
         "AVAILABLE_COUNT": "{{ count }} of {{ total }} available",
         "ITEM_COUNT": "{{ count }} items",
         "ITEM_COUNT_1": "{{ count }} item",
+        "ITEM_COUNT_N": "{{ count }} items",
         "VIEW_LIST": "View List",
         "TIME": "Time",
         "TODAY_TIME": "Today, {{ time }}",

@@ -44,6 +44,13 @@ const APP_ROUTES: Routes = [
             ),
     },
     {
+        path: 'zones/:id',
+        loadComponent: () =>
+            import('./zones/zones.component').then(
+                (m) => m.ZonesSectionComponent,
+            ),
+    },
+    {
         path: 'zones',
         loadComponent: () =>
             import('./zones/zones.component').then(
