@@ -38,6 +38,7 @@ import { SignageService } from '../signage.service';
                     <div
                         cdkDrag
                         class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80"
+                        [class.opacity-60]="isExpired(media_item)"
                     >
                         <div
                             class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
@@ -51,6 +52,13 @@ import { SignageService } from '../signage.service';
                             (click)="previewItem(media_item)"
                             class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
                         >
+                            @if (isExpired(media_item)) {
+                                <div
+                                    class="bg-error text-error-content absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 py-1 text-center text-xs font-bold tracking-wide"
+                                >
+                                    EXPIRED
+                                </div>
+                            }
                             @if (media_item.media_type === 'webpage') {
                                 <div
                                     class="flex h-full w-full items-center justify-center"
@@ -253,6 +261,10 @@ export class MediaListComponent implements OnChanges, OnInit {
     public readonly media = toSignal(this._service.filtered_media, {
         initialValue: [] as SignageMedia[],
     });
+
+    public isExpired(item: SignageMedia): boolean {
+        return !!item.valid_until && item.valid_until * 1000 < Date.now();
+    }
 
     public readonly previewFile = (event: Event) =>
         this._service.previewFileFromInput(event);
