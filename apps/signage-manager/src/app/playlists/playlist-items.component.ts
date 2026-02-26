@@ -21,7 +21,7 @@ import { SignageService } from '../signage.service';
     template: `
         @if (selected_playlist()) {
             <div
-                class="bg-base-100 border-base-300 mx-2 flex items-center gap-2 rounded-b-lg border px-4 py-3"
+                class="bg-base-100 border-base-300 mx-2 hidden items-center gap-2 rounded-b-lg border px-4 py-3 lg:flex"
             >
                 <icon class="shrink-0 text-2xl opacity-60">playlist_play</icon>
                 <div class="min-w-0 flex-1">
