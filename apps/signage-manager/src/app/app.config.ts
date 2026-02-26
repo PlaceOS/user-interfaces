@@ -23,6 +23,13 @@ const APP_ROUTES: Routes = [
             ),
     },
     {
+        path: 'playlists/:id',
+        loadComponent: () =>
+            import('./playlists/playlists.component').then(
+                (m) => m.PlaylistsSectionComponent,
+            ),
+    },
+    {
         path: 'playlists',
         loadComponent: () =>
             import('./playlists/playlists.component').then(

@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     notifyError,
@@ -10,14 +10,21 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import {
     addSignageMedia,
+    addSignagePlaylist,
     listSignagePlaylistMedia,
     querySignageMedia,
     querySignagePlaylists,
+    querySystems,
+    queryZones,
     removeSignageMedia,
+    removeSignagePlaylist,
     SignageMedia,
+    SignagePlaylist,
     updateSignageMedia,
+    updateSignagePlaylist,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { startWith } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
@@ -29,6 +36,7 @@ import {
 } from 'rxjs/operators';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
@@ -99,6 +107,164 @@ export class SignageService {
         ),
         shareReplay(1),
     );
+
+    public readonly displays = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([building]) => !!building?.id),
+        debounceTime(300),
+        switchMap(([building]) =>
+            querySystems({
+                zone_id: building?.id,
+                limit: 500,
+                signage: true,
+            } as any).pipe(catchError(() => of({ data: [] }))),
+        ),
+        map((result: any) =>
+            (result.data || [])
+                .filter((s) => s.signage)
+                .sort((a, b) =>
+                    (a.display_name || a.name).localeCompare(
+                        b.display_name || b.name,
+                    ),
+                ),
+        ),
+        startWith([]),
+        shareReplay(1),
+    );
+
+    public readonly zones = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([building]) => !!building?.id),
+        debounceTime(300),
+        switchMap(() =>
+            queryZones({
+                limit: 250,
+                tags: 'signage',
+            } as any).pipe(catchError(() => of({ data: [] }))),
+        ),
+        map((result: any) =>
+            (result.data || []).sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
+        startWith([]),
+        shareReplay(1),
+    );
+
+    public readonly selected_playlist = signal<SignagePlaylist | null>(null);
+    public readonly selected_playlist_item = signal<SignageMedia | null>(null);
+    public readonly playlist_search_term = signal('');
+
+    private readonly _playlists = toSignal(this.playlists, {
+        initialValue: [] as SignagePlaylist[],
+    });
+
+    public readonly filtered_playlists = computed(() => {
+        const term = this.playlist_search_term().toLowerCase();
+        return this._playlists().filter((p) =>
+            p.name.toLowerCase().includes(term),
+        );
+    });
+
+    private readonly _playlist_change = new BehaviorSubject(Date.now());
+    private readonly _selected_playlist$ = toObservable(this.selected_playlist);
+
+    public readonly playlist_media_items$ = combineLatest([
+        this._selected_playlist$,
+        this._playlist_change,
+    ]).pipe(
+        switchMap(([playlist]) => {
+            if (!playlist?.id) return of([]);
+            return listSignagePlaylistMedia(playlist.id).pipe(
+                switchMap((result) => {
+                    const item_ids = result.items || [];
+                    if (!item_ids.length) return of([]);
+                    return this.media.pipe(
+                        map((all_media) =>
+                            item_ids
+                                .map((id) => all_media.find((m) => m.id === id))
+                                .filter(Boolean),
+                        ),
+                    );
+                }),
+                catchError(() => of([])),
+            );
+        }),
+        shareReplay(1),
+    );
+
+    public async addPlaylist() {
+        const ref = this._dialog.open(PlaylistEditModalComponent, {
+            data: { playlist: new SignagePlaylist({}) },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await lastValueFrom(ref.afterClosed());
+        if (result) {
+            this.changed();
+        }
+    }
+
+    public async editPlaylist(playlist: SignagePlaylist) {
+        const ref = this._dialog.open(PlaylistEditModalComponent, {
+            data: { playlist },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await lastValueFrom(ref.afterClosed());
+        if (result) {
+            if (this.selected_playlist()?.id === playlist.id) {
+                this.selected_playlist.set(result);
+            }
+            this.changed();
+        }
+    }
+
+    public async removePlaylist(playlist: SignagePlaylist) {
+        if (!playlist?.id) return;
+        const result = await openConfirmModal(
+            {
+                title: 'Remove playlist?',
+                content: `Delete "${playlist.name}"?`,
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        await lastValueFrom(removeSignagePlaylist(playlist.id));
+        if (this.selected_playlist()?.id === playlist.id) {
+            this.selected_playlist.set(null);
+            this.selected_playlist_item.set(null);
+        }
+        this.changed();
+        notifySuccess('Playlist removed');
+        result.close();
+    }
+
+    public async removeMediaFromPlaylist(
+        playlist_id: string,
+        media_id: string,
+    ) {
+        const media_list = await lastValueFrom(
+            listSignagePlaylistMedia(playlist_id),
+        );
+        const new_items = (media_list.items || []).filter(
+            (id) => id !== media_id,
+        );
+        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
+        notifySuccess('Item removed from playlist');
+        this._playlist_change.next(Date.now());
+        this.changed();
+    }
+
+    public async reorderPlaylistMedia(playlist_id: string, items: string[]) {
+        await lastValueFrom(updateSignagePlaylistMedia(playlist_id, items));
+        this._playlist_change.next(Date.now());
+    }
 
     public changed() {
         this._change.next(Date.now());
