@@ -4,29 +4,25 @@ import { IconComponent } from '@placeos/components';
 import { NAV_ITEMS } from './nav-items';
 
 @Component({
-    selector: 'nav-sidebar',
+    selector: 'nav-footer',
     template: `
         <div
-            class="bg-secondary text-secondary-content border-base-100 relative z-30 hidden h-full border-r p-2 shadow-lg sm:block"
+            class="bg-secondary text-secondary-content border-base-100 border-t px-2 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.18)] sm:hidden"
         >
             <div
-                logo
-                class="bg-base-300/30 mx-auto flex h-20 w-20 items-center justify-center rounded-xl"
+                class="mx-auto flex max-w-screen-sm items-center justify-around gap-1"
             >
-                <div class="opacity-20">LOGO</div>
-            </div>
-            <div class="flex flex-col gap-4 p-2">
                 @for (item of nav_items; track item.route) {
                     <a
-                        class="hover:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
+                        class="hover:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
                     >
-                        <icon class="text-3xl">{{ item.icon }}</icon>
-                        <div class="text-sm font-medium">{{ item.label }}</div>
+                        <icon class="text-2xl">{{ item.icon }}</icon>
+                        <div class="truncate font-medium">{{ item.label }}</div>
                         <div
                             active
-                            class="bg-base-100 absolute inset-y-0 top-0 -right-4 w-2 rounded-l-lg"
+                            class="bg-base-100 absolute inset-x-2 -top-2 left-1 h-1 rounded-b"
                         ></div>
                     </a>
                 }
@@ -42,6 +38,7 @@ import { NAV_ITEMS } from './nav-items';
             a:not(.active) [active] {
                 opacity: 0;
             }
+
             a.active [active] {
                 opacity: 1;
             }
@@ -49,6 +46,6 @@ import { NAV_ITEMS } from './nav-items';
     ],
     imports: [RouterModule, IconComponent],
 })
-export class NavSidebarComponent {
+export class NavFooterComponent {
     public readonly nav_items = NAV_ITEMS;
 }

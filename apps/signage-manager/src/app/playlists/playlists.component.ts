@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
+import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 
 @Component({
     selector: 'playlists-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex">
-            <nav-sidebar class="h-full" />
-            <main class="h-full w-1/2 flex-1"></main>
+        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
+            <nav-sidebar class="sm:h-full" />
+            <main class="h w-full flex-1 overflow-auto sm:w-1/2"></main>
+            <nav-footer />
         </div>
     `,
     styles: [``],
-    imports: [NavSidebarComponent],
+    imports: [NavSidebarComponent, NavFooterComponent],
 })
 export class PlaylistsSectionComponent {}
