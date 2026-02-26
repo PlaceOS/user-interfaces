@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
+import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -35,6 +37,12 @@ import { ParkingStateService } from './parking-state.service';
                     key: 'date',
                     name: 'FORM.TIME' | translate,
                     content: date_template,
+                },
+                {
+                    key: 'request_type',
+                    name: 'BOOKINGS.PARKING_REQUEST_TYPE' | translate,
+                    content: request_type_template,
+                    size: '9rem',
                 },
                 {
                     key: 'user_name',
@@ -63,7 +71,7 @@ import { ParkingStateService } from './parking-state.service';
                     key: 'actions',
                     name: ' ',
                     content: action_template,
-                    size: '6.5rem',
+                    size: '6rem',
                     sortable: false,
                 },
             ]"
@@ -80,6 +88,11 @@ import { ParkingStateService } from './parking-state.service';
                           ' - ' +
                           (row.date_end | date: time_format)
                 }}
+            </div>
+        </ng-template>
+        <ng-template #request_type_template let-row="row">
+            <div class="px-4 py-2">
+                {{ request_type_label(request_type(row)) | translate }}
             </div>
         </ng-template>
         <ng-template #person_template let-row="row">
@@ -207,7 +220,20 @@ import { ParkingStateService } from './parking-state.service';
             </mat-menu>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center justify-end space-x-2">
+            <div
+                class="mx-auto flex w-full items-center justify-end space-x-2 px-2"
+            >
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                    "
+                    [disabled]="request_type(row) !== 'special'"
+                    (click)="viewSpecialNeedsRequest(row)"
+                >
+                    <icon class="text-2xl">description</icon>
+                </button>
                 <button
                     icon
                     matRipple
@@ -222,20 +248,6 @@ import { ParkingStateService } from './parking-state.service';
                     (click)="assignSpace(row)"
                 >
                     <icon class="text-2xl">add_location</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [disabled]="
-                        row.checked_in ||
-                        row.state === 'in_progress' ||
-                        row.status === 'ended' ||
-                        row.instance
-                    "
-                    [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
-                    (click)="editReservation(row)"
-                >
-                    <icon class="text-2xl">edit</icon>
                 </button>
             </div>
         </ng-template>
@@ -260,6 +272,7 @@ export class ParkingRequestsListComponent
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -273,6 +286,13 @@ export class ParkingRequestsListComponent
                 b.asset_id?.startsWith('unallocated'),
             );
             const s = search.toLowerCase();
+            const type_index = (i) =>
+                this.request_type(i) == 'special'
+                    ? 2
+                    : this.request_type(i) == 'after_hours'
+                      ? 1
+                      : 0;
+            unallocated.sort((a, b) => type_index(a) - type_index(b));
             return !s
                 ? unallocated
                 : unallocated.filter(
@@ -286,10 +306,26 @@ export class ParkingRequestsListComponent
         }),
     );
 
-    public readonly reject = (e) => this._state.rejectBooking(e);
-    public readonly approve = (e) => this._state.approveBooking(e);
-    public readonly editReservation = (e) => this._state.editReservation(e);
-    public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly reject = (e: Booking) => this._state.rejectBooking(e);
+    public readonly approve = (e: Booking) => this._state.approveBooking(e);
+    public readonly editReservation = (e: Booking) =>
+        this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly viewSpecialNeedsRequest = (booking: Booking) =>
+        this._dialog.open(ParkingSpecialRequestModalComponent, {
+            data: { booking },
+        });
+    public readonly request_type = (booking: Booking) =>
+        booking?.extension_data?.request_type || '';
+
+    private readonly _request_type_labels: Record<string, string> = {
+        standard: 'Standard',
+        special: 'P2',
+        after_hours: 'After-hours',
+    };
+
+    public readonly request_type_label = (request_type: string) =>
+        this._request_type_labels[request_type] || 'COMMON.EMPTY';
 
     public get time_format() {
         return this._settings.time_format;

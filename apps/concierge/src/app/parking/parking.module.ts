@@ -4,6 +4,7 @@ import { Route, RouterModule } from '@angular/router';
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
 import { ParkingMapComponent } from './parking-map.component';
 import { ParkingRequestsListComponent } from './parking-requests-list.component';
+import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import { ParkingSpaceListComponent } from './parking-space-list.component';
 import { ParkingUsersListComponent } from './parking-users-list.component';
 import { ParkingComponent } from './parking.component';
@@ -50,6 +51,7 @@ const ROUTES: Route[] = [
         ParkingComponent,
         ParkingBookingsListComponent,
         ParkingRequestsListComponent,
+        ParkingSpecialRequestModalComponent,
         ParkingSpaceListComponent,
         ParkingUsersListComponent,
         ParkingMapComponent,

@@ -120,7 +120,7 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
                                 <div
                                     class="flex w-full flex-col font-mono text-sm"
                                 >
-                                    <div>{{ space.name || space.id }}</div>
+                                    <div>{{ space_label(space) }}</div>
                                 </div>
                             </button>
                         }
@@ -304,6 +304,7 @@ export class ParkingAssignSpaceModalComponent
                     hover: true,
                     data: {
                         ...space,
+                        name: this.space_label(space),
                         user: space.assigned_to || '',
                         plate_number: '',
                         status: is_selected
@@ -345,17 +346,26 @@ export class ParkingAssignSpaceModalComponent
         this._refreshStyles();
     }
 
+    public readonly space_label = (space: PlaceAsset) =>
+        (space as any)?.identifier ||
+        space?.name ||
+        (space as any)?.display_name ||
+        (space as any)?.metadata?.display_name ||
+        (space as any)?.extension_data?.display_name ||
+        '';
+
     public async confirmAssign() {
         const space = this.selected_space();
         if (!space) return;
         this.loading.set(true);
         try {
+            const asset_name = this.space_label(space);
             await updateBooking(this._data.booking.id, {
                 asset_id: space.id,
-                asset_name: space.name,
+                asset_name,
                 extension_data: {
                     ...this._data.booking.extension_data,
-                    asset_name: space.name,
+                    asset_name,
                 },
             } as any).toPromise();
             await approveBooking(this._data.booking.id).toPromise();
