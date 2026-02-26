@@ -1,0 +1,131 @@
+{
+    "name": "signage-manager",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/signage-manager/src",
+    "prefix": "placeos",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:application",
+            "options": {
+                "baseHref": "./",
+                "outputPath": "dist/apps/signage-manager",
+                "index": "apps/signage-manager/src/index.html",
+                "polyfills": [],
+                "tsConfig": "apps/signage-manager/tsconfig.app.json",
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/signage-manager/src/environments/settings.ts"
+                    }
+                ],
+                "assets": [
+                    "apps/signage-manager/src/favicon.ico",
+                    "apps/signage-manager/src/assets",
+                    {
+                        "glob": "**",
+                        "input": "shared/assets",
+                        "output": "/assets/"
+                    },
+                    {
+                        "glob": "*.woff2",
+                        "input": "node_modules/material-symbols",
+                        "output": "/assets/"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    },
+                    "apps/signage-manager/src/manifest.webmanifest"
+                ],
+                "styles": [
+                    "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
+                    "apps/signage-manager/src/styles.css",
+                    "shared/styles/application.css"
+                ],
+                "scripts": [],
+                "extractLicenses": false,
+                "sourceMap": true,
+                "optimization": false,
+                "namedChunks": true,
+                "browser": "apps/signage-manager/src/main.ts"
+            },
+            "configurations": {
+                "staging": {
+                    "optimization": true,
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/signage-manager/src/environments/environment.ts",
+                            "with": "apps/signage-manager/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/signage-manager/src/environments/settings.ts"
+                        }
+                    ],
+                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                },
+                "production": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/signage-manager/src/environments/environment.ts",
+                            "with": "apps/signage-manager/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/signage-manager/src/environments/settings.ts"
+                        }
+                    ],
+                    "optimization": true,
+                    "outputHashing": "all",
+                    "sourceMap": false,
+                    "namedChunks": false,
+                    "extractLicenses": true,
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "1.5mb",
+                            "maximumError": "2mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "6kb",
+                            "maximumError": "10kb"
+                        }
+                    ],
+                    "serviceWorker": "apps/signage-manager/ngsw-config.json"
+                }
+            }
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "options": {
+                "proxyConfig": "config/proxy.conf.js",
+                "buildTarget": "signage-manager:build"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "signage-manager:build:production"
+                }
+            },
+            "continuous": true
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/apps/signage-manager"],
+            "options": {
+                "jestConfig": "apps/signage-manager/jest.config.ts"
+            }
+        }
+    }
+}
