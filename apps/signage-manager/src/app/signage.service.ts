@@ -26,6 +26,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 
 @Injectable({
     providedIn: 'root',
@@ -90,6 +91,18 @@ export class SignageService {
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
         notifySuccess('Playlist updated');
         this.changed();
+    }
+
+    public async addMediaToPlaylist(playlist_id: string, media_id: string) {
+        const media_list = await lastValueFrom(
+            listSignagePlaylistMedia(playlist_id),
+        );
+        if (media_list.items?.includes(media_id)) {
+            notifyError('Media already exists in this playlist.');
+            return;
+        }
+        const new_items = [...(media_list.items || []), media_id];
+        await this.updatePlaylistMedia(playlist_id, new_items);
     }
 
     public previewMedia(item: SignageMedia) {
@@ -190,6 +203,16 @@ export class SignageService {
         this.changed();
         notifySuccess('Media removed');
         result.close();
+    }
+
+    public async openPlaylistSelectModal(media_id: string) {
+        const ref = this._dialog.open(PlaylistSelectModalComponent, {
+            data: { media_id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const playlist_id = await lastValueFrom(ref.afterClosed());
+        if (!playlist_id) return;
+        await this.addMediaToPlaylist(playlist_id, media_id);
     }
 
     public editMedia() {

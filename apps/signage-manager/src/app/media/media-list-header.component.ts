@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,9 +24,19 @@ import { SignageService } from '../signage.service';
             <div class="py-2">
                 <h3 class="text-2xl font-medium">Signage Media</h3>
                 <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT' | translate: { count: item_count() }
-                    }}
+                    @if (search()) {
+                        {{
+                            item_count() +
+                                ' of ' +
+                                ('COMMON.ITEM_COUNT'
+                                    | translate: { count: total_count() })
+                        }}
+                    } @else {
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate: { count: total_count() }
+                        }}
+                    }
                 </div>
             </div>
             <div class="w-px flex-1"></div>
@@ -99,8 +110,15 @@ import { SignageService } from '../signage.service';
 })
 export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
+    private readonly _media = toSignal(this._service.filtered_media, {
+        initialValue: [],
+    });
+    private readonly _all_media = toSignal(this._service.media, {
+        initialValue: [],
+    });
     public readonly link = signal('');
-    public readonly item_count = signal(0);
+    public readonly item_count = computed(() => this._media().length);
+    public readonly total_count = computed(() => this._all_media().length);
     public readonly search = this._service.search_term;
 
     public readonly previewFile = (event) =>
