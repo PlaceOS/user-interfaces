@@ -8,18 +8,23 @@ import {
     signal,
 } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
+    UploadsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
+import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
 const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
@@ -314,6 +319,119 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                         }
                     </div>
                 </div>
+                @if (form().value.request_type === 'special') {
+                    <!-- P2 SPECIAL NEEDS DETAILS -->
+                    <div
+                        class="gradient border-base-content text-warning flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                    >
+                        <icon>description</icon>
+                        <div>
+                            {{
+                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                            }}
+                        </div>
+                    </div>
+                    <div class="space-y-6 p-4">
+                        <div>
+                            <label class="mb-2 block text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_REASON_FOR_REQUEST' | translate
+                                }}
+                                <span class="text-error">*</span>
+                            </label>
+                            <textarea
+                                matInput
+                                formControlName="notes"
+                                rows="6"
+                                class="border-base-content w-full rounded-lg border p-4 text-base"
+                                [placeholder]="
+                                    'BOOKINGS.P2_REASON_PLACEHOLDER' | translate
+                                "
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <div class="mb-2 text-sm font-medium">
+                                {{
+                                    'BOOKINGS.P2_ATTACH_SUPPORTING_DOCS'
+                                        | translate
+                                }}
+                            </div>
+                            <label
+                                class="border-base-300 hover:border-info flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                for="p2-supporting-docs"
+                            >
+                                <icon class="mt-0.5 text-xl">upload_file</icon>
+                                <div>
+                                    <div class="font-medium">
+                                        {{
+                                            'BOOKINGS.P2_UPLOAD_FILE'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-sm opacity-70">
+                                        {{
+                                            'BOOKINGS.P2_ACCEPTED_FORMATS'
+                                                | translate
+                                        }}
+                                    </div>
+                                </div>
+                            </label>
+                            <input
+                                id="p2-supporting-docs"
+                                type="file"
+                                class="hidden"
+                                multiple
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                (change)="onSupportingDocsSelected($event)"
+                            />
+                            @if (supporting_doc_names().length) {
+                                <div class="mt-3 space-y-2">
+                                    @for (
+                                        file_name of supporting_doc_names();
+                                        track $index
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 flex items-center justify-between rounded-lg border p-1"
+                                        >
+                                            <div
+                                                class="truncate px-4 py-2 text-sm"
+                                            >
+                                                {{ file_name }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        previewSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>open_in_new</icon>
+                                                </button>
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    (click)="
+                                                        removeSupportingDoc(
+                                                            $index
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
 
                 <!-- SHIFT SELECTION -->
                 <div
@@ -634,6 +752,7 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
         IconComponent,
         DateFieldComponent,
         SettingsToggleComponent,
+        MatRippleModule,
     ],
 })
 export class ParkingRequestFormDetailsComponent
@@ -642,6 +761,8 @@ export class ParkingRequestFormDetailsComponent
 {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _uploads = inject(UploadsService);
+    private _dialog = inject(MatDialog);
 
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(false);
@@ -671,6 +792,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly shift_type = signal<string>('day_worker');
     public readonly start_time_mins = signal<number>(420);
     public readonly end_time_mins = signal<number>(1020);
+    public readonly supporting_doc_names = signal<string[]>([]);
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
         index,
@@ -741,6 +863,12 @@ export class ParkingRequestFormDetailsComponent
     public ngOnInit() {
         const form = this.form();
         if (!form) return;
+        this.supporting_doc_names.set(
+            form.value.p2_document_names ||
+                (form.value.attachments || []).map((url) =>
+                    this._fileNameFromUrl(url),
+                ),
+        );
         const is_edit = !!form.value.id;
         const date = form.getRawValue().date;
         if (is_edit && date) {
@@ -843,6 +971,65 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
+
+    public async onSupportingDocsSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files || []);
+        const valid_files = files.filter(
+            (file) => file.size <= 10 * 1024 * 1024,
+        );
+        if (valid_files.length !== files.length) {
+            notifyError('Some files exceeded 10MB and were skipped.');
+        }
+        const existing_urls: string[] = this.form()?.value.attachments || [];
+        const existing_names: string[] =
+            this.form()?.value.p2_document_names || [];
+        const new_urls: string[] = [];
+        const uploaded_names: string[] = [];
+        for (const file of valid_files) {
+            const upload_id = await this._uploads
+                .uploadFile(file, true)
+                .catch(() => '');
+            if (!upload_id) continue;
+            uploaded_names.push(file.name);
+            new_urls.push(
+                `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
+            );
+        }
+        const names = [...existing_names, ...uploaded_names];
+        const urls = [...existing_urls, ...new_urls];
+        this.supporting_doc_names.set(names);
+        this.form()?.patchValue({
+            p2_document_names: names,
+            attachments: urls,
+        });
+        input.value = '';
+    }
+
+    public removeSupportingDoc(index: number) {
+        const names = [...(this.form()?.value.p2_document_names || [])];
+        const urls = [...(this.form()?.value.attachments || [])];
+        if (index < 0 || index >= names.length) return;
+        names.splice(index, 1);
+        if (index < urls.length) urls.splice(index, 1);
+        this.supporting_doc_names.set(names);
+        this.form()?.patchValue({
+            p2_document_names: names,
+            attachments: urls,
+        });
+    }
+
+    public previewSupportingDoc(index: number) {
+        const urls = [...(this.form()?.value.attachments || [])];
+        const url = urls[index];
+        if (!url) return;
+        this._dialog.open(FullscreenEmbedComponent, { data: url });
+    }
+
+    private _fileNameFromUrl(url: string): string {
+        const last_part = `${url || ''}`.split('/').pop() || '';
+        return decodeURIComponent(last_part || 'Uploaded file');
+    }
 
     public getBayInfo(bld: any): string {
         const metadata = bld.metadata || {};

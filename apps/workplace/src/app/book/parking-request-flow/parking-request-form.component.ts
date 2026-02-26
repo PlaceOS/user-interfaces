@@ -46,8 +46,8 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                             }}
                         </div>
                     </div>
-                    <div class="px-4 pt-3 pb-1">
-                        <p class="text-sm opacity-60">
+                    <div class="px-6 py-4">
+                        <p class="opacity-60">
                             {{
                                 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
                             }}
@@ -131,9 +131,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                         <!-- Conditional after-hours warning -->
                         @if (form.value.request_type === 'after_hours') {
-                            <div
-                                class="text-warning flex items-center gap-2"
-                            >
+                            <div class="text-warning flex items-center gap-2">
                                 <icon class="text-lg">error</icon>
                                 <span class="text-sm">{{
                                     'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
@@ -255,6 +253,9 @@ export class ParkingRequestFormComponent
             request_type: 'standard',
             vehicle_type: 'car',
             space_restrictions: false,
+            prefer_booked_location_first: false,
+            p2_document_names: [],
+            attachments: [],
             recurrence_type: 'none',
         };
         if (!this.form.getRawValue().date) {
@@ -263,9 +264,7 @@ export class ParkingRequestFormComponent
             defaults.duration = 600;
         }
         this.form.patchValue(defaults);
-        const parking_user = await nextValueFrom(
-            this._parking.user_details,
-        );
+        const parking_user = await nextValueFrom(this._parking.user_details);
         if (parking_user?.email) {
             if (!this.form.value.plate_number) {
                 this.form.patchValue({
@@ -298,6 +297,14 @@ export class ParkingRequestFormComponent
             description: 'Parking Request',
             title: this.form.value.title || 'Parking Request',
         });
+        if (
+            this.form.value.request_type === 'special' &&
+            !`${this.form.value.notes || ''}`.trim()
+        ) {
+            return notifyError(
+                'Reason for request is required for P2 Special Needs Request.',
+            );
+        }
         const building = this._org.building;
         this.form.patchValue({
             zones: [
