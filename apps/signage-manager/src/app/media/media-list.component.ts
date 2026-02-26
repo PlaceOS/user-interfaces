@@ -261,7 +261,7 @@ export class MediaListComponent implements OnChanges, OnInit {
         this._service.previewMedia(item);
 
     public readonly editItem = (item: SignageMedia) =>
-        this._service.editMedia();
+        this._service.editMedia(item);
 
     public readonly removeItem = (item: SignageMedia) =>
         this._service.removeMedia(item);

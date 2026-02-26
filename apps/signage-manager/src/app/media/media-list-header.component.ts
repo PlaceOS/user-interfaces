@@ -12,8 +12,16 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { isValidUrl } from '@placeos/events';
 import { SignageService } from '../signage.service';
+
+function isValidUrl(url: string): boolean {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
+}
 
 @Component({
     selector: 'media-list-header',

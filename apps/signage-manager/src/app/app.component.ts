@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks } from '@placeos/common';
+import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -31,9 +31,11 @@ import { mocksInit } from '@placeos/mocks';
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
+    private _uploads = inject(UploadsService);
 
-    public ngOnInit(): void {
+    public async ngOnInit() {
         setMocks(mocksInit);
-        this._placeos.init();
+        await this._placeos.init();
+        this._uploads.init();
     }
 }
