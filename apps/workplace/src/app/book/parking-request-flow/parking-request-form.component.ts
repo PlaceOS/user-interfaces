@@ -45,7 +45,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                                 ) | translate
                             }}
                         </h1>
-                        <p class="text-sm opacity-60">
+                        <p class="opacity-60">
                             {{
                                 'BOOKINGS.PARKING_REQUEST_SUBTITLE' | translate
                             }}
@@ -61,84 +61,10 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 
                 <!-- SUMMARY + SUBMISSION -->
                 <div
-                    class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-4"
+                    class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-2"
                 >
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                    >
-                        <icon class="text-lg">info</icon>
-                        {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
-                    </h3>
-
-                    <!-- Allocation info box -->
-                    <div
-                        class="bg-base-200 border-base-300 flex items-start gap-3 rounded-lg border p-4"
-                    >
-                        <icon class="text-warning mt-0.5 shrink-0 text-xl"
-                            >campaign</icon
-                        >
-                        <p
-                            class="text-sm"
-                            [innerHTML]="
-                                'BOOKINGS.PARKING_ALLOCATION_INFO' | translate
-                            "
-                        ></p>
-                    </div>
-
-                    <!-- Info bullets -->
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <icon class="text-success text-lg"
-                                >check_circle</icon
-                            >
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_ADVANCE_DAYS'
-                                        | translate
-                                            : {
-                                                  days: available_days(),
-                                              }
-                                "
-                            ></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <icon class="text-success text-lg"
-                                >check_circle</icon
-                            >
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_APPROVAL_GROUP'
-                                        | translate
-                                "
-                            ></span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <icon class="text-warning text-lg">warning</icon>
-                            <span
-                                class="text-sm"
-                                [innerHTML]="
-                                    'BOOKINGS.PARKING_MANUAL_APPROVAL'
-                                        | translate
-                                "
-                            ></span>
-                        </div>
-                    </div>
-
-                    <!-- Conditional after-hours warning -->
-                    @if (form.value.request_type === 'after_hours') {
-                        <div class="text-warning flex items-center gap-2">
-                            <icon class="text-lg">error</icon>
-                            <span class="text-sm">{{
-                                'BOOKINGS.PARKING_AFTER_HOURS_WARNING'
-                                    | translate
-                            }}</span>
-                        </div>
-                    }
-
                     <!-- Buttons -->
-                    <div class="flex items-center justify-end gap-3 pt-2">
+                    <div class="flex items-center justify-end gap-3">
                         @if (loading()) {
                             <mat-spinner diameter="32"></mat-spinner>
                         } @else {
@@ -222,6 +148,7 @@ export class ParkingRequestFormComponent
             request_type: 'standard',
             vehicle_type: 'car',
             space_restrictions: false,
+            prefer_booked_location_first: false,
             recurrence_type: 'none',
         };
         if (!this.form.getRawValue().date) {
@@ -230,9 +157,7 @@ export class ParkingRequestFormComponent
             defaults.duration = 540;
         }
         this.form.patchValue(defaults);
-        const parking_user = await nextValueFrom(
-            this._parking.user_details,
-        );
+        const parking_user = await nextValueFrom(this._parking.user_details);
         if (parking_user?.email) {
             if (!this.form.value.plate_number) {
                 this.form.patchValue({

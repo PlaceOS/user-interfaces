@@ -20,6 +20,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
+import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
 const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
     business: { start: 540, end: 1020 },
@@ -153,23 +154,21 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                                         isDaySelected(day.index)
                                                     "
                                                     [class.border-base-300]="
-                                                        !isDaySelected(day.index)
+                                                        !isDaySelected(
+                                                            day.index
+                                                        )
                                                     "
                                                     (click)="
                                                         $event.stopPropagation();
                                                         toggleDay(day.index)
                                                     "
                                                 >
-                                                    {{
-                                                        day.date | date: 'EEE'
-                                                    }}
+                                                    {{ day.date | date: 'EEE' }}
                                                 </button>
                                             }
                                         </div>
                                         @if (max_weeks() > 1) {
-                                            <div
-                                                class="text-sm font-medium"
-                                            >
+                                            <div class="text-sm font-medium">
                                                 {{
                                                     'BOOKINGS.PARKING_FREQUENCY_NUM_WEEKS'
                                                         | translate
@@ -207,8 +206,7 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                                             )
                                                                 | translate
                                                                     : {
-                                                                          weeks:
-                                                                              w,
+                                                                          weeks: w,
                                                                       }
                                                         }}
                                                     </button>
@@ -324,10 +322,7 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                             <label class="mb-1 block text-sm font-medium">
                                 {{ 'BOOKINGS.PARKING_SHIFT_TYPE' | translate }}
                             </label>
-                            <mat-form-field
-                                appearance="outline"
-                                class="w-full sm:w-80"
-                            >
+                            <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     [value]="shift_type()"
                                     (selectionChange)="
@@ -353,63 +348,72 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                 </mat-select>
                             </mat-form-field>
                         </div>
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <label class="mb-1 block text-sm font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_START_TIME'
-                                            | translate
-                                    }}
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        [value]="start_time_mins()"
-                                        (selectionChange)="
-                                            setStartTime($event.value)
-                                        "
+                        @if (shift_type() === 'custom') {
+                            <div class="flex gap-4">
+                                <div class="flex-1">
+                                    <label
+                                        class="mb-1 block text-sm font-medium"
                                     >
-                                        @for (
-                                            opt of time_options;
-                                            track opt.value
-                                        ) {
-                                            <mat-option [value]="opt.value">{{
-                                                opt.label
-                                            }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="flex-1">
-                                <label class="mb-1 block text-sm font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_END_TIME' | translate
-                                    }}
-                                </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <mat-select
-                                        [value]="end_time_mins()"
-                                        (selectionChange)="
-                                            setEndTime($event.value)
-                                        "
+                                        {{
+                                            'BOOKINGS.PARKING_START_TIME'
+                                                | translate
+                                        }}
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
                                     >
-                                        @for (
-                                            opt of time_options;
-                                            track opt.value
-                                        ) {
-                                            <mat-option [value]="opt.value">{{
-                                                opt.label
-                                            }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
+                                        <mat-select
+                                            [value]="start_time_mins()"
+                                            (selectionChange)="
+                                                setStartTime($event.value)
+                                            "
+                                        >
+                                            @for (
+                                                opt of time_options;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex-1">
+                                    <label
+                                        class="mb-1 block text-sm font-medium"
+                                    >
+                                        {{
+                                            'BOOKINGS.PARKING_END_TIME'
+                                                | translate
+                                        }}
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            [value]="end_time_mins()"
+                                            (selectionChange)="
+                                                setEndTime($event.value)
+                                            "
+                                        >
+                                            @for (
+                                                opt of time_options;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
 
@@ -474,6 +478,14 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                 </div>
                             }
                         </div>
+                        <settings-toggle
+                            formControlName="prefer_booked_location_first"
+                        >
+                            {{
+                                'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
+                                    | translate
+                            }}
+                        </settings-toggle>
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
@@ -590,6 +602,7 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
         TranslatePipe,
         IconComponent,
         DateFieldComponent,
+        SettingsToggleComponent,
     ],
 })
 export class ParkingRequestFormDetailsComponent
@@ -628,7 +641,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
 
-    public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5].map((index) => ({
+    public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
         index,
         date: addDays(startOfWeek(Date.now(), { weekStartsOn: 1 }), index - 1),
     }));
@@ -678,7 +691,7 @@ export class ParkingRequestFormDetailsComponent
         const weeks = this.num_weeks();
         const dates: number[] = [];
         for (let w = 0; w < weeks; w++) {
-            for (let d = 0; d < 5; d++) {
+            for (let d = 0; d < 7; d++) {
                 if (selected.has(d + 1)) {
                     dates.push(addDays(week_start, w * 7 + d).valueOf());
                 }
@@ -719,7 +732,7 @@ export class ParkingRequestFormDetailsComponent
         if (is_daily) {
             if (form.value.recurrence_days) {
                 const days = new Set<number>();
-                for (let i = 1; i <= 5; i++) {
+                for (let i = 1; i <= 7; i++) {
                     if (form.value.recurrence_days & (1 << i)) days.add(i);
                 }
                 if (days.size > 0) this.selected_days.set(days);
@@ -731,9 +744,7 @@ export class ParkingRequestFormDetailsComponent
                     1,
                     Math.ceil(diff / (7 * 24 * 60 * 60 * 1000)),
                 );
-                this.num_weeks.set(
-                    Math.min(weeks, this.max_weeks()),
-                );
+                this.num_weeks.set(Math.min(weeks, this.max_weeks()));
             }
         }
     }
@@ -776,7 +787,7 @@ export class ParkingRequestFormDetailsComponent
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_days: this._computeDaysBitmask(),
-                recurrence_end: endOfDay(addDays(week_start, 4)).valueOf(),
+                recurrence_end: endOfDay(addDays(week_start, 6)).valueOf(),
             });
         }
     }
@@ -848,9 +859,12 @@ export class ParkingRequestFormDetailsComponent
         if (!form || this.booking_frequency() !== 'daily') return;
         const date = form.getRawValue().date || Date.now();
         const week_start = startOfWeek(date, { weekStartsOn: 1 });
-        const last_friday = addDays(week_start, (this.num_weeks() - 1) * 7 + 4);
+        const last_day_of_week = addDays(
+            week_start,
+            (this.num_weeks() - 1) * 7 + 6,
+        );
         form.patchValue({
-            recurrence_end: endOfDay(last_friday).valueOf(),
+            recurrence_end: endOfDay(last_day_of_week).valueOf(),
         });
     }
 
