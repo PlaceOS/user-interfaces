@@ -36,7 +36,15 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    endOfWeek,
+    getUnixTime,
+    set,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     debounceTime,
@@ -54,6 +62,7 @@ import { ParkingUserModalComponent } from './parking-user-modal.component';
 
 export interface ParkingOptions {
     date: number;
+    period: 'day' | 'week';
     search: string;
     zones: string[];
 }
@@ -76,6 +85,7 @@ export class ParkingStateService extends AsyncHandler {
     private _change = new BehaviorSubject(0);
     private _options = new BehaviorSubject<ParkingOptions>({
         date: Date.now(),
+        period: 'day',
         search: '',
         zones: [],
     });
@@ -156,10 +166,20 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
+            const period_start =
+                options.period === 'week'
+                    ? startOfWeek(options.date, {
+                          weekStartsOn: this._week_start,
+                      })
+                    : startOfDay(options.date);
+            const period_end =
+                options.period === 'week'
+                    ? endOfWeek(options.date, { weekStartsOn: this._week_start })
+                    : endOfDay(options.date);
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
             return queryBookings({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(endOfDay(options.date)),
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')
@@ -492,5 +512,9 @@ export class ParkingStateService extends AsyncHandler {
         }).toPromise();
         const filtered = booking_list.filter((_) => _.asset_id === space.id);
         await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+    }
+
+    private get _week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+        return this._settings.get('app.week_start') || 0;
     }
 }
