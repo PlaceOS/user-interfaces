@@ -172,7 +172,7 @@ export class Booking {
     }
 
     public get is_all_day() {
-        return this.all_day || this.duration >= 12 * 60;
+        return this.all_day || this.duration >= 18 * 60;
     }
 
     _valid_asset_cache = [];

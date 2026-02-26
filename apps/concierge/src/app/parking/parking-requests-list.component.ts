@@ -12,8 +12,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
-import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
+import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -36,7 +36,7 @@ import { ParkingStateService } from './parking-state.service';
             />
         } @else {
             <simple-table
-                class="block min-w-304 text-sm"
+                class="block min-w-360 text-sm"
                 [data]="filtered_events"
                 [columns]="[
                     {
@@ -56,6 +56,13 @@ import { ParkingStateService } from './parking-state.service';
                         name: 'BOOKINGS.PARKING_REQUEST_TYPE' | translate,
                         content: request_type_template,
                         size: '9rem',
+                    },
+                    {
+                        key: 'submission_date',
+                        name: 'COMMON.CREATED_AT' | translate,
+                        content: submission_template,
+                        size: '9rem',
+                        sortable: false,
                     },
                     {
                         key: 'user_name',
@@ -109,6 +116,18 @@ import { ParkingStateService } from './parking-state.service';
         <ng-template #request_type_template let-row="row">
             <div class="px-4 py-2">
                 {{ request_type_label(request_type(row)) | translate }}
+            </div>
+        </ng-template>
+        <ng-template #submission_template let-row="row">
+            <div class="px-4 py-2">
+                @if (request_submitted_at(row)) {
+                    {{
+                        request_submitted_at(row)
+                            | date: 'MMM d, ' + time_format
+                    }}
+                } @else {
+                    {{ 'COMMON.EMPTY' | translate }}
+                }
             </div>
         </ng-template>
         <ng-template #person_template let-row="row">
@@ -309,7 +328,15 @@ export class ParkingRequestsListComponent
                     : this.request_type(i) == 'after_hours'
                       ? 1
                       : 0;
-            unallocated.sort((a, b) => type_index(a) - type_index(b));
+            unallocated.sort((a, b) => {
+                const type_diff = type_index(a) - type_index(b);
+                if (type_diff !== 0) return type_diff;
+                const submitted_a = this.request_submitted_at(a);
+                const submitted_b = this.request_submitted_at(b);
+                if (submitted_a !== submitted_b)
+                    return submitted_b - submitted_a;
+                return b.date - a.date;
+            });
             return !s
                 ? unallocated
                 : unallocated.filter(
@@ -334,6 +361,23 @@ export class ParkingRequestsListComponent
         });
     public readonly request_type = (booking: Booking) =>
         booking?.extension_data?.request_type || '';
+    public readonly request_submitted_at = (booking: Booking): number => {
+        const value =
+            booking?.extension_data?.submitted_at ||
+            booking?.extension_data?.submission_date ||
+            booking?.extension_data?.created_at ||
+            booking?.extension_data?.created ||
+            0;
+        if (!value) return 0;
+        if (typeof value === 'string') {
+            const parsed_value = Date.parse(value);
+            return Number.isFinite(parsed_value) ? parsed_value : 0;
+        }
+        if (typeof value === 'number') {
+            return value < 1_000_000_000_000 ? value * 1000 : value;
+        }
+        return 0;
+    };
 
     private readonly _request_type_labels: Record<string, string> = {
         standard: 'Standard',
