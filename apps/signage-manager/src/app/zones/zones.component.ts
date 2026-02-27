@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -77,7 +77,7 @@ import { ZoneListComponent } from './zone-list.component';
                                     "
                                     (click)="view_tab.set('playlists')"
                                 >
-                                    Playlists
+                                    Playlists ({{ playlist_count() }})
                                 </button>
                                 <button
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
@@ -95,7 +95,7 @@ import { ZoneListComponent } from './zone-list.component';
                                     "
                                     (click)="view_tab.set('displays')"
                                 >
-                                    Displays
+                                    Displays ({{ display_count() }})
                                 </button>
                             </div>
                         }
@@ -142,10 +142,30 @@ export class ZonesSectionComponent {
     private readonly _zones = toSignal(this._service.zones, {
         initialValue: [],
     });
+    private readonly _playlists = toSignal(this._service.playlists, {
+        initialValue: [],
+    });
+    private readonly _displays = toSignal(this._service.displays, {
+        initialValue: [],
+    });
     private readonly _route_id = toSignal(
         this._route.paramMap.pipe(map((p) => p.get('id') || '')),
         { initialValue: '' },
     );
+
+    public readonly playlist_count = computed(() => {
+        const zone = this.selected_zone();
+        if (!zone) return 0;
+        return this._playlists().filter((p) => zone.playlists?.includes(p.id))
+            .length;
+    });
+
+    public readonly display_count = computed(() => {
+        const zone = this.selected_zone();
+        if (!zone) return 0;
+        return this._displays().filter((d) => d.zones?.includes(zone.id))
+            .length;
+    });
 
     private _route_resolved = false;
 
