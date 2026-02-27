@@ -562,8 +562,8 @@ export class LandingDeskWeekComponent
             data: {
                 booking,
                 edit_fn: (b) => this._schedule.editBooking(b),
-                remove_fn: (b, s) => {
-                    this._schedule.remove(b, s);
+                remove_fn: async (b, s) => {
+                    await this._schedule.remove(b, s);
                     this.selected_date.set(Date.now());
                 },
                 end_fn: (b) => this._schedule.end(b),
