@@ -1,6 +1,9 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { IconComponent } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
@@ -13,13 +16,24 @@ import { SignageService } from '../signage.service';
         >
             <div class="border-base-300 border-b px-4 py-3">
                 <h4 class="text-lg font-medium">Playlists</h4>
-                <p class="text-xs opacity-60">
+                <p class="mb-2 text-xs opacity-60">
                     Drag media onto a playlist to add it
                 </p>
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript -mx-2 w-[calc(100%+1rem)]"
+                >
+                    <input
+                        matInput
+                        placeholder="Search playlists"
+                        [ngModel]="search()"
+                        (ngModelChange)="search.set($event)"
+                    />
+                </mat-form-field>
             </div>
             <div class="flex-1 overflow-auto p-2">
-                @if (playlists()?.length) {
-                    @for (playlist of playlists(); track playlist.id) {
+                @if (filtered_playlists()?.length) {
+                    @for (playlist of filtered_playlists(); track playlist.id) {
                         <div
                             cdkDropList
                             [id]="'playlist-' + $index"
@@ -71,13 +85,27 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    imports: [DragDropModule, IconComponent],
+    imports: [
+        DragDropModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        IconComponent,
+    ],
 })
 export class PlaylistSidebarComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly playlists = toSignal(this._service.playlists, {
+    private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [] as SignagePlaylist[],
+    });
+
+    public readonly search = signal('');
+    public readonly filtered_playlists = computed(() => {
+        const term = this.search().toLowerCase();
+        const list = this._playlists();
+        if (!term) return list;
+        return list.filter((p) => p.name.toLowerCase().includes(term));
     });
 
     public async onDrop(playlist: SignagePlaylist, event: CdkDragDrop<any>) {
