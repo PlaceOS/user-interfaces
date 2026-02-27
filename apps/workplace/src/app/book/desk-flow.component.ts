@@ -100,6 +100,7 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                         );
                     }
                     this._state.form.patchValue({
+                        asset_id: asset.id,
                         resources: [
                             new Desk({
                                 id: asset.id,

@@ -779,6 +779,7 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
                             ) {
                                 this.form().patchValue({
                                     resources: [matching_resource],
+                                    asset_id: matching_resource.id,
                                 });
                                 this.selected.set([matching_resource.id]);
                             }
@@ -849,10 +850,16 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
             const new_resources = resources.find(({ id }) => id === space.id)
                 ? resources.filter(({ id }) => id !== space.id)
                 : [...resources, space];
-            this.form().patchValue({ resources: new_resources });
+            this.form().patchValue({
+                resources: new_resources,
+                asset_id: new_resources[0]?.id || '',
+            });
             this.selected.set(new_resources.map(({ id }) => id));
         } else {
-            this.form().patchValue({ resources: [space] });
+            this.form().patchValue({
+                resources: [space],
+                asset_id: space.id,
+            });
             this.selected.set([space.id]);
             // Close filters on mobile after selecting a space
             this.filters_open.set(false);

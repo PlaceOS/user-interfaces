@@ -440,7 +440,10 @@ export class NewDeskFormDetailsComponent
         const form = this.form();
         if (changes.form && form) {
             if (this.selected_desk?.id) {
-                form.patchValue({ resources: [this.selected_desk] });
+                form.patchValue({
+                    resources: [this.selected_desk],
+                    asset_id: this.selected_desk.id,
+                });
             }
         }
     }
