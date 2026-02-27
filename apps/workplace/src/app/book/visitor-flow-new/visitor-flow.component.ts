@@ -10,6 +10,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    SettingsService,
     User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -128,6 +129,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
 })
 export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
+    private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _existing_siblings: Booking[] = [];
@@ -223,6 +225,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             this._booking_form.last_count = is_multiple
                 ? this.form_value()?.assets?.length || 1
                 : 1;
+            this._saveRecentVisitors(is_multiple);
             await (is_multiple ? this._bookForMany() : this._bookForOne());
             const name = is_multiple ? i18n('BOOKINGS.VISITORS') : asset_name;
             notifySuccess(
@@ -242,6 +245,35 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             );
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    private _saveRecentVisitors(is_multiple: boolean) {
+        const old_visitors: string[] =
+            this._settings.get('visitor-invitees') || [];
+        const value = this._booking_form.form.getRawValue();
+        const toEntry = (email: string, name = '', org = '') =>
+            `${email}|${name}|${org}`;
+        if (is_multiple && value.assets?.length) {
+            const emails = new Set(
+                value.assets.map((a) => a.email).filter(Boolean),
+            );
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter(
+                    (v) => !emails.has(`${v}`.split('|')[0]),
+                ),
+                ...value.assets
+                    .filter((a) => !!a.email)
+                    .map((a) => toEntry(a.email, a.name, a.organisation)),
+            ]);
+        } else {
+            const { asset_id, asset_name, company } = value;
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter(
+                    (v) => `${v}`.split('|')[0] !== asset_id,
+                ),
+                toEntry(asset_id, asset_name, company),
+            ]);
         }
     }
 
