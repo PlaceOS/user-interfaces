@@ -12,95 +12,6 @@ import { SignageService } from '../signage.service';
         @if (selected_display()) {
             <div class="flex h-full flex-col overflow-hidden">
                 <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
-                    @if (activeTab() === 'details') {
-                    <!-- Details panel -->
-                    <div
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
-                    >
-                        <div
-                            class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
-                        >
-                            <h5
-                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
-                            >
-                                <icon class="text-lg">info</icon>
-                                Details
-                            </h5>
-                        </div>
-                        <div class="space-y-4 p-4">
-                            <div>
-                                <div
-                                    class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                >
-                                    Name
-                                </div>
-                                <div class="mt-1">
-                                    {{
-                                        selected_display().display_name ||
-                                            selected_display().name
-                                    }}
-                                </div>
-                            </div>
-                            @if (selected_display().description) {
-                                <div>
-                                    <div
-                                        class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                    >
-                                        Description
-                                    </div>
-                                    <div class="mt-1">
-                                        {{ selected_display().description }}
-                                    </div>
-                                </div>
-                            }
-                            <div>
-                                <div
-                                    class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                >
-                                    Zones
-                                </div>
-                                <div class="mt-1">
-                                    {{ display_zones().length }}
-                                </div>
-                            </div>
-                            <div>
-                                <div
-                                    class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                >
-                                    Playlists
-                                </div>
-                                <div class="mt-1">
-                                    {{ display_playlists().length }}
-                                </div>
-                            </div>
-                            @if (selected_display().email) {
-                                <div>
-                                    <div
-                                        class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                    >
-                                        Email
-                                    </div>
-                                    <div class="mt-1">
-                                        {{ selected_display().email }}
-                                    </div>
-                                </div>
-                            }
-                            @if (selected_display().map_id) {
-                                <div>
-                                    <div
-                                        class="text-xs font-medium tracking-wider uppercase opacity-50"
-                                    >
-                                        Map ID
-                                    </div>
-                                    <div class="mt-1">
-                                        {{ selected_display().map_id }}
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    }
-
                     @if (activeTab() === 'schedule') {
                     <!-- Schedule panel -->
                     <div
@@ -308,7 +219,7 @@ export class DisplayContentComponent {
     private readonly _service = inject(SignageService);
 
     public readonly activeTab =
-        input<'details' | 'schedule' | 'playlists' | 'zones'>('details');
+        input<'schedule' | 'playlists' | 'zones'>('schedule');
     public readonly selected_display = this._service.selected_display;
 
     private readonly _playlists = toSignal(this._service.playlists, {

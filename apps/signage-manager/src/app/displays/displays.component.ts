@@ -66,24 +66,6 @@ import { DisplayListComponent } from './display-list.component';
                                 <button
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'details'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'details'
-                                    "
-                                    (click)="view_tab.set('details')"
-                                >
-                                    Details
-                                </button>
-                                <button
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
                                         view_tab() === 'schedule'
                                     "
                                     [class.border-b-2]="
@@ -178,8 +160,8 @@ export class DisplaysSectionComponent {
     private readonly _router = inject(Router);
 
     public readonly view_tab = signal<
-        'details' | 'schedule' | 'playlists' | 'zones'
-    >('details');
+        'schedule' | 'playlists' | 'zones'
+    >('schedule');
     public readonly selected_display = this._service.selected_display;
 
     private readonly _displays = toSignal(this._service.displays, {
@@ -216,7 +198,7 @@ export class DisplaysSectionComponent {
     constructor() {
         effect(() => {
             this.selected_display();
-            this.view_tab.set('details');
+            this.view_tab.set('schedule');
         });
 
         effect(() => {
