@@ -5,12 +5,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
-    currentUser,
+    Booking,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
-    randomString,
     User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -131,6 +130,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _existing_siblings: Booking[] = [];
 
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
@@ -156,6 +156,36 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     this._booking_form.setView(param.get('step') as any);
             }),
         );
+        this._loadGroupVisitors();
+    }
+
+    private async _loadGroupVisitors() {
+        const value = this._booking_form.form.getRawValue();
+        if (!value.id) return;
+        const booking = this._booking_form.booking;
+        const is_group =
+            !!booking?.parent_id ||
+            !!booking?.group ||
+            !!booking?.extension_data?.group_members?.length;
+        if (!is_group) return;
+        const siblings =
+            await this._booking_form.loadGroupSiblings(booking);
+        if (!siblings?.length) return;
+        this._existing_siblings = siblings;
+        const visitors = siblings.map(
+            (s) =>
+                new User({
+                    name: s.asset_name,
+                    email: s.asset_id,
+                    organisation: s.extension_data?.company,
+                    phone: s.extension_data?.phone,
+                }),
+        );
+        this._booking_form.form.patchValue({
+            assets: visitors,
+            asset_id: 'multiple@place.tech',
+        });
+        this._booking_form.setOptions({ group: true });
     }
 
     public async confirmBooking() {
@@ -232,38 +262,29 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     private async _bookForMany() {
-        const group = `grp-${randomString(8)}`;
         const value = this._booking_form.form.getRawValue();
         const visitor_reason = value.title || value.description || 'Visit';
-        const assets = [...(value.assets || [])];
-        let is_first = true;
-
-        for (const user of assets) {
-            if (!user.email) continue;
-            const booking_id = value.id && is_first ? value.id : '';
-            is_first = false;
-            this._booking_form.form.patchValue({
-                ...value,
-                id: booking_id,
-                booking_type: 'visitor',
-                asset_id: user.email,
-                asset_name: user.name,
-                user: currentUser(),
-                title: visitor_reason,
-                description: visitor_reason,
-                group,
-                name: user.name,
-                assets: [],
-                attendees: [
+        const assets: User[] = value.assets || [];
+        const visitor_members = assets
+            .filter((_) => !!_.email)
+            .map(
+                (user) =>
                     new User({
-                        name: user.name,
-                        email: user.email,
-                        organisation: user.company || user.organisation,
-                        phone: user.phone,
-                    }),
-                ],
-            });
-            await this._booking_form.postForm();
+                        ...user,
+                        name: user.name || user.email,
+                    } as any),
+            );
+        this._booking_form.setOptions({
+            type: 'visitor',
+            group: true,
+            members: visitor_members,
+        });
+        if (value.id && this._existing_siblings.length) {
+            await this._booking_form.editFormForGroup(
+                this._existing_siblings,
+            );
+        } else {
+            await this._booking_form.postFormForVisitorGroup();
         }
     }
 }

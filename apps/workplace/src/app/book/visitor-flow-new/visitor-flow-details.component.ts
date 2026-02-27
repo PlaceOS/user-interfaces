@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -222,6 +222,17 @@ export class VisitorFlowDetailsComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+
+    private _options = toSignal(this._booking_form.options, {
+        initialValue: { type: 'visitor' as const, group: false },
+    });
+
+    private _sync_group = effect(() => {
+        const is_group = this._options()?.group === true;
+        if (is_group && this.active_form() !== 'group') {
+            this.active_form.set('group');
+        }
+    });
 
     public readonly active_form = signal<VisitorFormType>('single');
     public readonly form_type_config = signal({
