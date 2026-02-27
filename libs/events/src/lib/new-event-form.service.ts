@@ -474,6 +474,7 @@ export class EventFormService extends AsyncHandler {
             throw e;
         };
         this.addLoadingTag(Tags.PostBooking);
+        try {
         const event = this._event.getValue();
         const space_list = this.form.value.resources || [];
         let spaces = space_list.filter(
@@ -682,6 +683,10 @@ export class EventFormService extends AsyncHandler {
         );
         this.loadLastSuccess();
         return true;
+        } catch (e) {
+            this.removeLoadingTag(Tags.PostBooking);
+            throw e;
+        }
     }
 
     private async _handlePayments() {
