@@ -167,6 +167,9 @@ export class SignageService {
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
 
+    public readonly selected_display = signal<any>(null);
+    public readonly display_search_term = signal('');
+
     private readonly _playlists = toSignal(this.playlists, {
         initialValue: [] as SignagePlaylist[],
     });
@@ -186,6 +189,17 @@ export class SignageService {
         const term = this.zone_search_term().toLowerCase();
         return this._zones().filter((z) =>
             (z.display_name || z.name).toLowerCase().includes(term),
+        );
+    });
+
+    private readonly _displays = toSignal(this.displays, {
+        initialValue: [] as any[],
+    });
+
+    public readonly filtered_displays = computed(() => {
+        const term = this.display_search_term().toLowerCase();
+        return this._displays().filter((d) =>
+            (d.display_name || d.name).toLowerCase().includes(term),
         );
     });
 
@@ -537,6 +551,38 @@ export class SignageService {
         );
         this.changed();
         notifySuccess('Display removed from zone');
+    }
+
+    public async addPlaylistToDisplay(display: any) {
+        const ref = this._dialog.open(PlaylistSelectModalComponent, {
+            data: { display_id: display.id },
+            panelClass: 'mobile-fullscreen',
+        });
+        const playlist_id = await lastValueFrom(ref.afterClosed());
+        if (!playlist_id) return;
+        if (display.playlists?.includes(playlist_id)) {
+            notifyError('Playlist already assigned to this display.');
+            return;
+        }
+        const playlists = [...(display.playlists || []), playlist_id];
+        const updated = await lastValueFrom(
+            updateSystem(display.id, { playlists, version: display.version } as any, 'patch'),
+        );
+        this.selected_display.set(updated);
+        this.changed();
+        notifySuccess('Playlist added to display');
+    }
+
+    public async removePlaylistFromDisplay(display: any, playlist_id: string) {
+        const playlists = (display.playlists || []).filter(
+            (id: string) => id !== playlist_id,
+        );
+        const updated = await lastValueFrom(
+            updateSystem(display.id, { playlists, version: display.version } as any, 'patch'),
+        );
+        this.selected_display.set(updated);
+        this.changed();
+        notifySuccess('Playlist removed from display');
     }
 
     private _getMediaMetadata(file: File) {

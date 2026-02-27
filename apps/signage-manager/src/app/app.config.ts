@@ -37,6 +37,13 @@ const APP_ROUTES: Routes = [
             ),
     },
     {
+        path: 'displays/:id',
+        loadComponent: () =>
+            import('./displays/displays.component').then(
+                (m) => m.DisplaysSectionComponent,
+            ),
+    },
+    {
         path: 'displays',
         loadComponent: () =>
             import('./displays/displays.component').then(
