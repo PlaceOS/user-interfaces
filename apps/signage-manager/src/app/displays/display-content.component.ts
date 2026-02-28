@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 import { SignageService } from '../signage.service';
+import { DisplayScheduleComponent } from './display-schedule.component';
 
 @Component({
     selector: 'display-content',
@@ -15,24 +16,9 @@ import { SignageService } from '../signage.service';
                     @if (activeTab() === 'schedule') {
                     <!-- Schedule panel -->
                     <div
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
                     >
-                        <div
-                            class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
-                        >
-                            <h5
-                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
-                            >
-                                <icon class="text-lg">schedule</icon>
-                                Schedule
-                            </h5>
-                        </div>
-                        <div
-                            class="flex flex-col items-center justify-center space-y-2 p-6 opacity-30"
-                        >
-                            <icon class="text-4xl">schedule</icon>
-                            <p class="text-sm">Coming soon</p>
-                        </div>
+                        <display-schedule />
                     </div>
                     }
 
@@ -213,7 +199,13 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, RouterLink, IconComponent],
+    imports: [
+        MatRippleModule,
+        MatTooltipModule,
+        RouterLink,
+        IconComponent,
+        DisplayScheduleComponent,
+    ],
 })
 export class DisplayContentComponent {
     private readonly _service = inject(SignageService);
