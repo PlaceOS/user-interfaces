@@ -119,8 +119,13 @@ import { SignageService } from '../signage.service';
                                     display of zone_displays();
                                     track display.id
                                 ) {
-                                    <div
-                                        class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3"
+                                    <a
+                                        matRipple
+                                        class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
+                                        [routerLink]="[
+                                            '/displays',
+                                            display.id,
+                                        ]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -143,7 +148,7 @@ import { SignageService } from '../signage.service';
                                                 </div>
                                             }
                                         </div>
-                                    </div>
+                                    </a>
                                 }
                             } @else {
                                 <div

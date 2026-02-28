@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
+import { RouterLink } from '@angular/router';
 import { IconComponent, MediaDurationPipe } from '@placeos/components';
 import { MediaAnimation } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
@@ -174,8 +175,13 @@ import { SignageService } from '../signage.service';
                                     display of playlist_displays();
                                     track display.id
                                 ) {
-                                    <div
-                                        class="border-base-300 flex items-center gap-3 rounded-lg border px-4 py-3"
+                                    <a
+                                        matRipple
+                                        class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
+                                        [routerLink]="[
+                                            '/displays',
+                                            display.id,
+                                        ]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -198,7 +204,7 @@ import { SignageService } from '../signage.service';
                                                 </div>
                                             }
                                         </div>
-                                    </div>
+                                    </a>
                                 }
                             } @else {
                                 <div
@@ -219,8 +225,13 @@ import { SignageService } from '../signage.service';
                         <div class="h-full gap-2 overflow-auto">
                             @if (playlist_zones().length > 0) {
                                 @for (zone of playlist_zones(); track zone.id) {
-                                    <div
-                                        class="border-base-300 flex items-center gap-3 rounded-lg border px-4 py-3"
+                                    <a
+                                        matRipple
+                                        class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
+                                        [routerLink]="[
+                                            '/zones',
+                                            zone.id,
+                                        ]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -243,7 +254,7 @@ import { SignageService } from '../signage.service';
                                                 </div>
                                             }
                                         </div>
-                                    </div>
+                                    </a>
                                 }
                             } @else {
                                 <div
@@ -277,7 +288,7 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    imports: [MatRippleModule, MatTabsModule, IconComponent, MediaDurationPipe],
+    imports: [MatRippleModule, MatTabsModule, RouterLink, IconComponent, MediaDurationPipe],
 })
 export class PlaylistItemDetailsComponent {
     private readonly _service = inject(SignageService);
