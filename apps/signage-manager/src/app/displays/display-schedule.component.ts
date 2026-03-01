@@ -1,18 +1,12 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DatePipe } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
-import {
-    addDays,
-    format,
-    isSameDay,
-    startOfDay,
-    startOfWeek,
-} from 'date-fns';
+import { addDays, format, isSameDay, startOfDay, startOfWeek } from 'date-fns';
 import { SignageService } from '../signage.service';
 
 const BLOCK_PALETTE = [
@@ -25,6 +19,10 @@ const BLOCK_PALETTE = [
     { bg: '#cffafe', text: '#155e75' },
 ];
 
+const DAY_COUNT = 7;
+const MINUTES_PER_DAY = 1440;
+const DEFAULT_PLAYLIST_DURATION = 60;
+
 interface ScheduleBlock {
     playlist: SignagePlaylist;
     day_index: number;
@@ -36,14 +34,10 @@ interface ScheduleBlock {
     label: string;
 }
 
-interface AllDaySpan {
-    playlist: SignagePlaylist;
-    start_day_index: number;
-    end_day_index: number;
-    row_index: number;
-    bg_color: string;
-    text_color: string;
-}
+type ScheduleBlockBase = Omit<
+    ScheduleBlock,
+    'playlist' | 'day_index' | 'bg_color' | 'text_color'
+>;
 
 function matchesCronPart(value: number, cron_part: string): boolean {
     if (cron_part === '*') return true;
@@ -71,6 +65,13 @@ function formatTime(minutes: number): string {
     const h = Math.floor(minutes / 60) % 24;
     const m = minutes % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function formatTimeRange(
+    start_minutes: number,
+    duration_minutes: number,
+): string {
+    return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
 }
 
 function parsePlayAt(play_at: string): Date | null {
@@ -101,15 +102,14 @@ function isDayInRange(
 function getCronBlocksForDay(
     cron: string,
     play_hours: string,
-): Omit<ScheduleBlock, 'playlist' | 'day_index' | 'bg_color' | 'text_color'>[] {
+): ScheduleBlockBase[] {
     const parts = cron.trim().split(/\s+/);
     if (parts.length !== 5) return [];
     const [minute_part, hour_part] = parts;
-    const duration = play_hours ? parseDurationMinutes(play_hours) : 60;
-    const blocks: Omit<
-        ScheduleBlock,
-        'playlist' | 'day_index' | 'bg_color' | 'text_color'
-    >[] = [];
+    const duration = play_hours
+        ? parseDurationMinutes(play_hours)
+        : DEFAULT_PLAYLIST_DURATION;
+    const blocks: ScheduleBlockBase[] = [];
     for (let h = 0; h < 24; h++) {
         if (!matchesCronPart(h, hour_part)) continue;
         for (let m = 0; m < 60; m++) {
@@ -119,7 +119,7 @@ function getCronBlocksForDay(
                 start_minutes: start_mins,
                 duration_minutes: duration,
                 all_day: false,
-                label: `${formatTime(start_mins)} – ${formatTime(start_mins + duration)}`,
+                label: formatTimeRange(start_mins, duration),
             });
         }
     }
@@ -178,11 +178,10 @@ function generateScheduleBlocks(
         } else if (has_at) {
             const at_date = parsePlayAt(play_at);
             if (!at_date || !isSameDay(day, at_date)) continue;
-            const start_mins =
-                at_date.getHours() * 60 + at_date.getMinutes();
+            const start_mins = at_date.getHours() * 60 + at_date.getMinutes();
             const duration = has_hours
                 ? parseDurationMinutes(play_hours)
-                : 60;
+                : DEFAULT_PLAYLIST_DURATION;
             blocks.push({
                 playlist,
                 day_index: i,
@@ -191,7 +190,7 @@ function generateScheduleBlocks(
                 all_day: false,
                 bg_color: color.bg,
                 text_color: color.text,
-                label: `${formatTime(start_mins)} – ${formatTime(start_mins + duration)}`,
+                label: formatTimeRange(start_mins, duration),
             });
         } else if (is_range) {
             const [start_str, end_str] = play_hours.split('-');
@@ -200,7 +199,7 @@ function generateScheduleBlocks(
             const duration =
                 end_mins > start_mins
                     ? end_mins - start_mins
-                    : 1440 - start_mins + end_mins;
+                    : MINUTES_PER_DAY - start_mins + end_mins;
             blocks.push({
                 playlist,
                 day_index: i,
@@ -216,7 +215,7 @@ function generateScheduleBlocks(
                 playlist,
                 day_index: i,
                 start_minutes: 0,
-                duration_minutes: 1440,
+                duration_minutes: MINUTES_PER_DAY,
                 all_day: true,
                 bg_color: color.bg,
                 text_color: color.text,
@@ -227,63 +226,7 @@ function generateScheduleBlocks(
     return blocks;
 }
 
-function buildAllDaySpans(blocks: ScheduleBlock[]): AllDaySpan[] {
-    const sorted_blocks = [...blocks]
-        .filter((block) => block.all_day)
-        .sort((left, right) => {
-            if (left.playlist.id !== right.playlist.id) {
-                return left.playlist.id.localeCompare(right.playlist.id);
-            }
-            return left.day_index - right.day_index;
-        });
-    const merged_spans: Omit<AllDaySpan, 'row_index'>[] = [];
-    for (const block of sorted_blocks) {
-        const last_span = merged_spans[merged_spans.length - 1];
-        if (
-            last_span &&
-            last_span.playlist.id === block.playlist.id &&
-            last_span.end_day_index + 1 === block.day_index
-        ) {
-            last_span.end_day_index = block.day_index;
-            continue;
-        }
-        merged_spans.push({
-            playlist: block.playlist,
-            start_day_index: block.day_index,
-            end_day_index: block.day_index,
-            bg_color: block.bg_color,
-            text_color: block.text_color,
-        });
-    }
-
-    const row_end_indexes: number[] = [];
-    return merged_spans
-        .sort((left, right) => {
-            if (left.start_day_index !== right.start_day_index) {
-                return left.start_day_index - right.start_day_index;
-            }
-            return left.end_day_index - right.end_day_index;
-        })
-        .map((span) => {
-            let row_index = row_end_indexes.findIndex(
-                (end_index) => end_index < span.start_day_index,
-            );
-            if (row_index < 0) {
-                row_index = row_end_indexes.length;
-                row_end_indexes.push(span.end_day_index);
-            } else {
-                row_end_indexes[row_index] = span.end_day_index;
-            }
-            return { ...span, row_index };
-        });
-}
-
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-const HOURS = Array.from({ length: 24 }, (_, i) => ({
-    label: `${i % 12 || 12} ${i >= 12 ? 'PM' : 'AM'}`,
-    index: i,
-}));
 
 @Component({
     selector: 'display-schedule',
@@ -291,7 +234,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
         <div class="flex h-full flex-col overflow-hidden">
             <!-- Navigation -->
             <div
-                class="border-base-200 flex items-center gap-1 border-b px-3 py-2"
+                class="border-base-200 flex items-center justify-center gap-1 border-b px-3 py-2"
             >
                 <button
                     icon
@@ -309,6 +252,9 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
                 >
                     <icon>today</icon>
                 </button>
+                <span class="ml-2 text-sm font-medium">
+                    {{ weekLabel() }}
+                </span>
                 <button
                     icon
                     matRipple
@@ -317,9 +263,6 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
                 >
                     <icon>chevron_right</icon>
                 </button>
-                <span class="ml-2 text-sm font-medium">
-                    {{ weekLabel() }}
-                </span>
             </div>
 
             @if (display_playlists().length === 0) {
@@ -332,228 +275,154 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
                     </p>
                 </div>
             } @else {
-                <!-- Calendar grid -->
-                <div class="relative min-h-0 flex-1">
-                    <div class="absolute inset-0 overflow-auto">
-                        <div style="min-width: calc(5rem + 42rem)">
-                            <!-- Day headers (sticky top) -->
+                <div timeline class="z-0 grid min-h-0 flex-1 overflow-auto">
+                    <div
+                        day-headers
+                        class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-w-[calc(100%-5rem)] items-center border-b"
+                        [style.width]="days().length * 12 + 'rem'"
+                    >
+                        @for (day of days(); track day) {
                             <div
-                                class="border-base-200 bg-base-100 sticky top-0 z-30 flex h-14 border-b"
+                                class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center py-2 leading-tight"
                             >
+                                <div class="text-[10px] uppercase opacity-50">
+                                    {{ dayNames[$index] }}
+                                </div>
                                 <div
-                                    class="bg-base-100 sticky left-0 z-10 w-20 shrink-0"
+                                    class="truncate text-sm"
+                                    [class.text-info]="isToday(day)"
+                                    [class.font-semibold]="isToday(day)"
+                                >
+                                    {{ day | date: 'EEE, MMM d' }}
+                                </div>
+                                @if (isToday(day)) {
+                                    <div
+                                        class="text-info absolute bottom-1 left-1/2 -translate-x-1/2 text-[10px]"
+                                    >
+                                        Today
+                                    </div>
+                                }
+                                <div
+                                    class="bg-base-300 absolute bottom-0 -left-px h-2 w-px"
                                 ></div>
-                                @for (day of days(); track $index) {
-                                    <div
-                                        class="border-base-200 flex flex-1 flex-col items-center justify-center border-r"
-                                    >
-                                        <div
-                                            class="text-[10px] uppercase opacity-50"
-                                        >
-                                            {{ dayNames[$index] }}
-                                        </div>
-                                        <div
-                                            class="text-sm"
-                                            [class.text-info]="isToday(day)"
-                                            [class.font-bold]="
-                                                isToday(day)
-                                            "
-                                        >
-                                            {{ day | date: 'd' }}
-                                        </div>
-                                    </div>
-                                }
                             </div>
-
-                            <!-- All-day row -->
+                        }
+                    </div>
+                    <div
+                        date-blocks
+                        class="relative flex min-w-[calc(100%-5rem)]"
+                        [style.width]="days().length * 12 + 'rem'"
+                    >
+                        @for (
+                            day of days();
+                            track day;
+                            let day_index = $index
+                        ) {
                             <div
-                                class="border-base-200 relative border-b"
-                                [style.min-height.px]="allDayRowHeight()"
+                                class="border-base-200 min-w-48 flex-1 border-r p-2 last:border-none"
                             >
-                                <div class="flex h-full">
-                                    <div
-                                        class="bg-base-100 sticky left-0 z-10 flex w-20 shrink-0 items-center justify-end pr-2"
-                                    >
-                                        <span class="text-[10px] opacity-40"
-                                            >All Day</span
-                                        >
-                                    </div>
-                                    @for (day of days(); track $index) {
-                                        <div
-                                            class="border-base-200 flex-1 border-r"
-                                        ></div>
-                                    }
-                                </div>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0"
-                                    style="left: 5rem"
-                                >
-                                    @for (
-                                        span of allDaySpans();
-                                        track span.playlist.id +
-                                            '_' +
-                                            span.start_day_index +
-                                            '_' +
-                                            span.end_day_index
-                                    ) {
-                                        <a
-                                            [routerLink]="[
-                                                '/playlists',
-                                                span.playlist.id,
-                                            ]"
-                                            class="pointer-events-auto absolute overflow-hidden truncate rounded px-1.5 py-0.5 text-[10px] font-medium no-underline"
-                                            [style.background-color]="
-                                                span.bg_color
-                                            "
-                                            [style.color]="span.text_color"
-                                            [style.left]="
-                                                'calc(' +
-                                                (span.start_day_index / 7) *
-                                                    100 +
-                                                '% + 2px)'
-                                            "
-                                            [style.width]="
-                                                'calc(' +
-                                                ((span.end_day_index -
-                                                    span.start_day_index +
-                                                    1) /
-                                                    7) *
-                                                    100 +
-                                                '% - 4px)'
-                                            "
-                                            [style.top.px]="
-                                                span.row_index * 24 + 4
-                                            "
-                                            [style.height.px]="18"
-                                            [matTooltip]="span.playlist.name"
-                                        >
-                                            {{ span.playlist.name }}
-                                        </a>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Hour grid -->
-                            <div class="relative">
-                                @for (
-                                    hour of hours;
-                                    track hour.index
-                                ) {
-                                    <div
-                                        class="border-base-200 flex h-10 border-b"
-                                    >
-                                        <div
-                                            class="bg-base-100 sticky left-0 z-10 relative w-20 shrink-0"
-                                        >
-                                            @if (hour.index > 0) {
+                                @if (day_blocks()[day_index].all_day.length) {
+                                    <div class="mb-2 space-y-1">
+                                        @for (
+                                            block of day_blocks()[day_index]
+                                                .all_day;
+                                            track block.playlist.id +
+                                                '_' +
+                                                block.day_index
+                                        ) {
+                                            <a
+                                                [routerLink]="[
+                                                    '/playlists',
+                                                    block.playlist.id,
+                                                ]"
+                                                class="border-base-200 hover:border-info flex w-full items-center gap-2 rounded-sm border px-2 py-1.5 text-left no-underline"
+                                                [matTooltip]="
+                                                    block_tooltip(block)
+                                                "
+                                            >
                                                 <div
-                                                    class="absolute top-0 right-2 -translate-y-1/2 text-[10px] whitespace-nowrap opacity-50"
-                                                >
-                                                    {{ hour.label }}
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="flex-1"></div>
-                                    </div>
-                                }
-
-                                <!-- Day columns overlay -->
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex"
-                                    style="left: 5rem"
-                                >
-                                    @for (
-                                        day of days();
-                                        track $index;
-                                        let i = $index
-                                    ) {
-                                        <div
-                                            class="border-base-200 relative flex-1 border-r"
-                                        >
-                                            @for (
-                                                block of timedBlocks()[
-                                                    i
-                                                ];
-                                                track block.playlist.id +
-                                                    '_' +
-                                                    block.start_minutes
-                                            ) {
-                                                <a
-                                                    [routerLink]="[
-                                                        '/playlists',
-                                                        block.playlist.id,
-                                                    ]"
-                                                    matRipple
-                                                    class="pointer-events-auto absolute inset-x-0.5 overflow-hidden rounded border border-black/10 no-underline shadow-sm"
+                                                    class="h-2 w-2 shrink-0 rounded-full"
                                                     [style.background-color]="
-                                                        block.bg_color
-                                                    "
-                                                    [style.color]="
                                                         block.text_color
                                                     "
-                                                    [style.top]="
-                                                        (block.start_minutes /
-                                                            1440) *
-                                                            100 +
-                                                        '%'
-                                                    "
-                                                    [style.height]="
-                                                        (block.duration_minutes /
-                                                            1440) *
-                                                            100 +
-                                                        '%'
-                                                    "
-                                                    [style.min-height.px]="
-                                                        18
-                                                    "
-                                                    [matTooltip]="
-                                                        block.playlist
-                                                            .name +
-                                                        ' · ' +
-                                                        block.label
-                                                    "
-                                                >
+                                                ></div>
+                                                <div class="min-w-0 flex-1">
                                                     <div
-                                                        class="truncate px-1.5 py-0.5 text-[10px] leading-tight"
+                                                        class="truncate text-sm font-medium"
                                                     >
-                                                        <div
-                                                            class="font-medium"
-                                                        >
-                                                            {{
-                                                                block
-                                                                    .playlist
-                                                                    .name
-                                                            }}
-                                                        </div>
-                                                        <div
-                                                            class="opacity-75"
-                                                        >
-                                                            {{
-                                                                block.label
-                                                            }}
-                                                        </div>
+                                                        {{
+                                                            block.playlist.name
+                                                        }}
                                                     </div>
-                                                </a>
-                                            }
-                                            @if (isToday(day)) {
-                                                <div
-                                                    class="border-error pointer-events-none absolute inset-x-0 z-10 h-0 border-t-2"
-                                                    [style.top]="
-                                                        nowOffset *
-                                                            100 +
-                                                        '%'
-                                                    "
-                                                >
                                                     <div
-                                                        class="bg-error absolute top-0 left-0 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                                                    ></div>
+                                                        class="text-xs opacity-60"
+                                                    >
+                                                        All day
+                                                    </div>
                                                 </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                                @if (day_blocks()[day_index].timed.length) {
+                                    <div class="space-y-1">
+                                        @for (
+                                            block of day_blocks()[day_index]
+                                                .timed;
+                                            track block.playlist.id +
+                                                '_' +
+                                                block.day_index +
+                                                '_' +
+                                                block.start_minutes
+                                        ) {
+                                            <a
+                                                [routerLink]="[
+                                                    '/playlists',
+                                                    block.playlist.id,
+                                                ]"
+                                                class="hover:bg-base-200 flex w-full gap-2 rounded-sm px-2 py-2 text-left no-underline"
+                                                [matTooltip]="
+                                                    block_tooltip(block)
+                                                "
+                                            >
+                                                <div
+                                                    class="my-1.5 h-2 w-2 shrink-0 rounded-full"
+                                                    [style.background-color]="
+                                                        block.text_color
+                                                    "
+                                                ></div>
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm"
+                                                    >
+                                                        {{
+                                                            block.playlist.name
+                                                        }}
+                                                    </div>
+                                                    <div
+                                                        class="text-xs opacity-60"
+                                                    >
+                                                        {{ block.label }}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                                @if (
+                                    !day_blocks()[day_index].all_day.length &&
+                                    !day_blocks()[day_index].timed.length
+                                ) {
+                                    <div
+                                        class="flex min-h-24 items-center justify-center rounded-sm border border-dashed opacity-30"
+                                    >
+                                        <span class="text-xs">
+                                            No scheduled playlists
+                                        </span>
+                                    </div>
+                                }
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             }
@@ -565,6 +434,11 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+            }
+
+            [timeline] {
+                grid-template-columns: 5rem;
+                grid-template-rows: 3.5rem;
             }
         `,
     ],
@@ -592,7 +466,9 @@ export class DisplayScheduleComponent {
     });
 
     public readonly days = computed(() =>
-        Array.from({ length: 7 }, (_, i) => addDays(this.week_start(), i)),
+        Array.from({ length: DAY_COUNT }, (_, i) =>
+            addDays(this.week_start(), i),
+        ),
     );
 
     public readonly display_playlists = computed(() => {
@@ -606,35 +482,33 @@ export class DisplayScheduleComponent {
     public readonly schedule_entries = computed(() => {
         const playlists = this.display_playlists();
         const days = this.days();
-        const blocks: ScheduleBlock[] = [];
-        playlists.forEach((playlist, idx) => {
-            blocks.push(...generateScheduleBlocks(playlist, days, idx));
-        });
-        return blocks;
+        return playlists.flatMap((playlist, index) =>
+            generateScheduleBlocks(playlist, days, index),
+        );
     });
 
-    public readonly allDaySpans = computed(() =>
-        buildAllDaySpans(this.schedule_entries()),
-    );
-
-    public readonly timedBlocks = computed(() => {
-        const result: ScheduleBlock[][] = Array.from(
-            { length: 7 },
-            () => [],
-        );
+    public readonly day_blocks = computed(() => {
+        const result: { all_day: ScheduleBlock[]; timed: ScheduleBlock[] }[] =
+            Array.from({ length: DAY_COUNT }, () => ({
+                all_day: [],
+                timed: [],
+            }));
         for (const block of this.schedule_entries()) {
-            if (!block.all_day) result[block.day_index].push(block);
+            if (block.all_day) {
+                result[block.day_index].all_day.push(block);
+            } else {
+                result[block.day_index].timed.push(block);
+            }
+        }
+        for (const day_blocks of result) {
+            day_blocks.all_day.sort((left, right) =>
+                left.playlist.name.localeCompare(right.playlist.name),
+            );
+            day_blocks.timed.sort(
+                (left, right) => left.start_minutes - right.start_minutes,
+            );
         }
         return result;
-    });
-
-    public readonly allDayRowHeight = computed(() => {
-        const row_count =
-            Math.max(
-                -1,
-                ...this.allDaySpans().map((span) => span.row_index),
-            ) + 1;
-        return Math.max(28, row_count * 24 + 8);
     });
 
     public readonly weekLabel = computed(() => {
@@ -649,27 +523,25 @@ export class DisplayScheduleComponent {
         return `${format(start, 'MMM d')} – ${format(end, 'd, yyyy')}`;
     });
 
-    public readonly hours = HOURS;
     public readonly dayNames = DAY_NAMES;
-
-    public get nowOffset(): number {
-        const now = new Date();
-        return (now.getHours() * 60 + now.getMinutes()) / 1440;
-    }
 
     public isToday(day: Date): boolean {
         return isSameDay(day, new Date());
     }
 
-    public previousWeek() {
+    public block_tooltip(block: ScheduleBlock): string {
+        return `${block.playlist.name} · ${block.label}`;
+    }
+
+    public previousWeek(): void {
         this.week_offset.update((v) => v - 1);
     }
 
-    public nextWeek() {
+    public nextWeek(): void {
         this.week_offset.update((v) => v + 1);
     }
 
-    public goToToday() {
+    public goToToday(): void {
         this.week_offset.set(0);
     }
 }
