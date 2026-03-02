@@ -33,8 +33,8 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                         <new-catering-item-list-item
                             class="block"
                             [item]="item"
-                            [active]="active() === item.custom_id"
-                            [selected]="true"
+                            [active]="isActive(item)"
+                            [show_count]="true"
                             [favourite]="isFavourite(item.id)"
                             (toggleFav)="toggleFav.emit(item)"
                             (select)="selectItem(item, true)"
@@ -56,8 +56,8 @@ import { NewCateringItemListItemComponent } from './new-catering-item-list-item.
                             <new-catering-item-list-item
                                 class="block"
                                 [item]="item"
-                                [active]="active() === item.custom_id"
-                                [selected]="selected().includes(item.custom_id)"
+                                [active]="isActive(item)"
+                                [show_count]="false"
                                 [favourite]="isFavourite(item.id)"
                                 [code]="code"
                                 (toggleFav)="toggleFav.emit(item)"
@@ -100,7 +100,7 @@ export class NewCateringItemListComponent implements OnChanges {
     private _state = inject(CateringOrderStateService);
 
     public readonly active = input('');
-    public readonly selected = input('');
+    public readonly selected = input<string[]>([]);
     public readonly selected_items = input<CateringItem[]>([]);
     public readonly favorites = input<string[]>([]);
     public readonly toggleFav = output<CateringItem>();
@@ -122,6 +122,10 @@ export class NewCateringItemListComponent implements OnChanges {
 
     public isFavourite(item_id: string) {
         return this.favorites()?.includes(item_id);
+    }
+
+    public isActive(item: CateringItem) {
+        return this.active() === item.custom_id;
     }
 
     public selectItem(item: CateringItem, clear_state = false) {

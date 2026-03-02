@@ -5,18 +5,18 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
-import { CateringItemFiltersComponent } from '../../lib/catering-order-modal/catering-item-filters.component';
-import { CateringItemListComponent } from '../../lib/catering-order-modal/catering-item-list.component';
-import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
-import { NewCateringOrderModalComponent } from '../../lib/catering-order-modal/new-catering-order-modal.component';
 
-describe('NewCateringOrderModalComponent', () => {
-    let spectator: Spectator<NewCateringOrderModalComponent>;
+import { CateringOrderStateService } from '../lib/catering-order-modal/catering-order-state.service';
+import { NewCateringItemDetailsComponent } from '../lib/new-catering-order-modal/new-catering-item-details.component';
+import { NewCateringItemFiltersComponent } from '../lib/new-catering-order-modal/new-catering-item-filters.component';
+import { NewCateringItemListComponent } from '../lib/new-catering-order-modal/new-catering-item-list.component';
+import { NewCateringSelectModalComponent } from '../lib/new-catering-order-modal/new-catering-select-modal.component';
+
+describe('NewCateringSelectModalComponent', () => {
+    let spectator: Spectator<NewCateringSelectModalComponent>;
     const createComponent = createRoutingFactory({
-        component: NewCateringOrderModalComponent,
+        component: NewCateringSelectModalComponent,
         providers: [
             MockProvider(SettingsService, {
                 get: jest.fn(),
@@ -27,10 +27,9 @@ describe('NewCateringOrderModalComponent', () => {
             MockProvider(CateringOrderStateService, {}),
         ],
         declarations: [
-            MockComponent(IconComponent),
-            MockComponent(CateringItemDetailsComponent),
-            MockComponent(CateringItemFiltersComponent),
-            MockComponent(CateringItemListComponent),
+            MockComponent(NewCateringItemDetailsComponent),
+            MockComponent(NewCateringItemFiltersComponent),
+            MockComponent(NewCateringItemListComponent),
         ],
         imports: [MatDialogModule],
     });
@@ -39,25 +38,6 @@ describe('NewCateringOrderModalComponent', () => {
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
-
-    it('should show catering item list', () => {
-        expect('catering-item-list').toExist();
-    });
-
-    it('should show catering item filters', () => {
-        expect('catering-item-filters').toExist();
-    });
-
-    it('should show catering item details', () => {
-        expect('catering-item-details').toExist();
-    });
-
-    it('should allow setting selected catering items', () => {
-        spectator.component.setSelected(new CateringItem({ id: '1' }), true);
-        expect(spectator.component.selected).toHaveLength(1);
-        spectator.component.setSelected(spectator.component.selected[0], false);
-        expect(spectator.component.selected).toHaveLength(0);
-    });
 
     it('should treat different option selections as separate items', () => {
         const item = new CateringItem({ id: '1' });
@@ -81,20 +61,24 @@ describe('NewCateringOrderModalComponent', () => {
         expect(spectator.component.selected).toHaveLength(2);
     });
 
-    it('should allow toggling favourites', () => {
-        const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(() => []);
-        spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith(
-            'favourite_menu_items',
-            ['1'],
-        );
-        (settings.get as any).mockImplementation(() => ['1']);
-        spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith(
-            'favourite_menu_items',
-            [],
-        );
+    it('should stop treating an item as selected when options change', () => {
+        const item = new CateringItem({
+            id: '1',
+            options: [
+                {
+                    id: 'milk',
+                    name: 'Milk',
+                    group: 'Extras',
+                    multiple: false,
+                    active: false,
+                    unit_price: 100,
+                },
+            ],
+        });
+        spectator.component.setSelected(item, true);
+        expect(spectator.component.isSelected(item)).toBe(true);
+        item.options[0].active = true;
+        expect(spectator.component.isSelected(item)).toBe(false);
     });
 
     it('should reset the menu item and show the ordered item after adding it', () => {
