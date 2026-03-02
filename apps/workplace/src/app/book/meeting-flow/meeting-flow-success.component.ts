@@ -112,7 +112,10 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly last_event = this._event_form.last_success;
 
     public get allow_desk_booking() {
-        return this._settings.get('app.features').includes('desks');
+        return (
+            (this._settings.get('app.features') || []).includes('desks') &&
+            this._settings.get('app.events.hide_nearby_desks') !== true
+        );
     }
 
     public get space() {
