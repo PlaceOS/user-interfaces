@@ -218,6 +218,9 @@ export class NewCateringOrderModalComponent {
     public setSelected(item: CateringItem, state: boolean) {
         if (!item) return;
         const selection_key = this.selectionKey(item);
+        const existing_index = this.selected.findIndex(
+            (_) => this.selectionKey(_) === selection_key,
+        );
         const existing = this.selected.find(
             (_) => this.selectionKey(_) === selection_key,
         );
@@ -236,7 +239,7 @@ export class NewCateringOrderModalComponent {
         }
         if (item.in_order) {
             const new_item = new CateringItem({ ...item, in_order: true });
-            list.push(new_item);
+            this.insertSelection(list, new_item, existing_index);
             this.displayed = new_item;
             this.selected = list;
             return;
@@ -246,10 +249,22 @@ export class NewCateringOrderModalComponent {
             quantity: (existing?.quantity || 0) + (item.quantity || 1),
             in_order: true,
         });
-        list.push(new_item);
+        this.insertSelection(list, new_item, existing_index);
         this.resetMenuItem(item);
         this.displayed = new_item;
         this.selected = list;
+    }
+
+    public insertSelection(
+        list: CateringItem[],
+        item: CateringItem,
+        existing_index: number,
+    ) {
+        if (existing_index < 0 || existing_index >= list.length) {
+            list.push(item);
+            return;
+        }
+        list.splice(existing_index, 0, item);
     }
 
     public resetMenuItem(item: CateringItem) {

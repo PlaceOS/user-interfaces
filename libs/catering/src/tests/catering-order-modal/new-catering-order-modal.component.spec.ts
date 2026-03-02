@@ -143,4 +143,29 @@ describe('NewCateringOrderModalComponent', () => {
         expect(spectator.component.displayed).toBeNull();
         expect(spectator.component.selected).toHaveLength(0);
     });
+
+    it('should keep an ordered item in place when updating its quantity', () => {
+        const first = new CateringItem({ id: '1', quantity: 1, in_order: true });
+        const second = new CateringItem({
+            id: '2',
+            quantity: 2,
+            in_order: true,
+        });
+        const third = new CateringItem({ id: '3', quantity: 1, in_order: true });
+        spectator.component.selected = [first, second, third];
+        spectator.component.displayed = second;
+
+        spectator.component.setSelected(
+            new CateringItem({ ...second, quantity: 5, in_order: true }),
+            true,
+        );
+
+        expect(spectator.component.selected.map((item) => item.id)).toEqual([
+            '1',
+            '2',
+            '3',
+        ]);
+        expect(spectator.component.selected[1].quantity).toBe(5);
+        expect(spectator.component.displayed?.id).toBe('2');
+    });
 });
