@@ -163,12 +163,21 @@ export class MeetingFlowSuccessComponent implements OnInit {
 
     public async ngOnInit() {
         this.loading.set(true);
-        await firstTruthyValueFrom(this._org.initialised);
-        const space = this.last_event()?.space;
-        if (space) {
-            this.space.set(
-                await this._space_pipe.transform(space.email || space.id),
-            );
+        if ((this._org as any).initialised) {
+            await firstTruthyValueFrom((this._org as any).initialised);
+        }
+        const event_space = this.last_event()?.space;
+        if (event_space) {
+            this.space.set(new Space(event_space));
+            try {
+                this.space.set(
+                    await this._space_pipe.transform(
+                        event_space.email || event_space.id,
+                    ),
+                );
+            } catch {
+                /* Falls back to event space details when org data is unavailable */
+            }
         }
         setTimeout(() => this.loading.set(false), 500);
     }
