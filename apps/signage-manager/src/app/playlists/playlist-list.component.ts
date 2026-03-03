@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,10 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
-import {
-    listSignagePlaylistMedia,
-    SignagePlaylist,
-} from '@placeos/ts-client';
+import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
 
@@ -19,7 +16,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
     selector: 'playlist-list',
     template: `
         <div
-            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r"
+            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r sm:max-w-80"
         >
             <div class="border-base-300 border-b p-2">
                 <mat-form-field

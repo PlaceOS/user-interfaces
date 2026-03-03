@@ -11,7 +11,7 @@ import { SignageService } from '../signage.service';
     selector: 'display-list',
     template: `
         <div
-            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r"
+            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r sm:max-w-80"
         >
             <div class="border-base-300 border-b p-2">
                 <mat-form-field

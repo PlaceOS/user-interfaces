@@ -11,7 +11,7 @@ import { SignageService } from '../signage.service';
     selector: 'zone-list',
     template: `
         <div
-            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r"
+            class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r sm:max-w-80"
         >
             <div class="border-base-300 border-b p-2">
                 <mat-form-field
@@ -35,9 +35,7 @@ import { SignageService } from '../signage.service';
                         [class.text-primary-content]="
                             selected()?.id === zone.id
                         "
-                        [class.hover:bg-base-200]="
-                            selected()?.id !== zone.id
-                        "
+                        [class.hover:bg-base-200]="selected()?.id !== zone.id"
                         [routerLink]="['/zones', zone.id]"
                     >
                         <icon class="shrink-0 text-2xl">layers</icon>
