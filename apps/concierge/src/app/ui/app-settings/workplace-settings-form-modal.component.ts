@@ -925,6 +925,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="hide_attendees"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Hide nearby desk action"
+                                        info="Hide the book nearby desks button on the meeting success view"
+                                        formControlName="hide_nearby_desks"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Allow recurring meetings"
                                         formControlName="allow_recurrence"
                                     ></settings-toggle>
@@ -2065,6 +2070,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             strict_capacity_check: new FormControl(false),
             hide_notes: new FormControl(false),
             hide_attendees: new FormControl(false),
+            hide_nearby_desks: new FormControl(false),
             allow_recurrence: new FormControl(false),
             all_day_default: new FormControl(false),
             allow_multiday: new FormControl(false),
