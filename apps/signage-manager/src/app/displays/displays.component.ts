@@ -1,7 +1,9 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
+import { settingSignal } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
@@ -29,7 +31,7 @@ import { DisplayListComponent } from './display-list.component';
                     >
                         @if (selected_display()) {
                             <div
-                                class="bg-base-100 border-base-300 mx-2 flex items-center gap-2 rounded-b-lg border px-4 py-3"
+                                class="bg-base-100 border-base-300 mx-2 flex items-center gap-2 rounded-b-lg border px-2 py-1"
                             >
                                 <button
                                     icon
@@ -42,7 +44,7 @@ import { DisplayListComponent } from './display-list.component';
                                 <icon class="shrink-0 text-2xl opacity-60"
                                     >tv</icon
                                 >
-                                <div class="min-w-0 flex-1">
+                                <div class="min-w-0 flex-1 py-2">
                                     <h4 class="truncate text-lg font-medium">
                                         {{
                                             selected_display().display_name ||
@@ -53,12 +55,20 @@ import { DisplayListComponent } from './display-list.component';
                                         <div
                                             class="truncate text-sm opacity-60"
                                         >
-                                            {{
-                                                selected_display().description
-                                            }}
+                                            {{ selected_display().description }}
                                         </div>
                                     }
                                 </div>
+                                <a
+                                    icon
+                                    matRipple
+                                    matTooltip="Open signage panel"
+                                    [href]="panel_link()"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <icon>open_in_new</icon>
+                                </a>
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
@@ -104,15 +114,11 @@ import { DisplayListComponent } from './display-list.component';
                                     [class.border-primary]="
                                         view_tab() === 'zones'
                                     "
-                                    [class.border-b-2]="
-                                        view_tab() === 'zones'
-                                    "
+                                    [class.border-b-2]="view_tab() === 'zones'"
                                     [class.text-primary]="
                                         view_tab() === 'zones'
                                     "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'zones'
-                                    "
+                                    [class.opacity-60]="view_tab() !== 'zones'"
                                     (click)="view_tab.set('zones')"
                                 >
                                     Zones ({{ zone_count() }})
@@ -151,6 +157,7 @@ import { DisplayListComponent } from './display-list.component';
         DisplayListComponent,
         DisplayContentComponent,
         MatRippleModule,
+        MatTooltipModule,
         IconComponent,
     ],
 })
@@ -159,9 +166,10 @@ export class DisplaysSectionComponent {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
 
-    public readonly view_tab = signal<
-        'schedule' | 'playlists' | 'zones'
-    >('schedule');
+    public readonly signage_path = settingSignal('signage_path');
+    public readonly view_tab = signal<'schedule' | 'playlists' | 'zones'>(
+        'schedule',
+    );
     public readonly selected_display = this._service.selected_display;
 
     private readonly _displays = toSignal(this._service.displays, {
@@ -191,6 +199,12 @@ export class DisplaysSectionComponent {
         if (!display) return 0;
         return this._zones().filter((z) => display.zones?.includes(z.id))
             .length;
+    });
+    public readonly panel_link = computed(() => {
+        const display = this.selected_display();
+        if (!display?.id) return '';
+        const signage_path = this.signage_path() || '/signage';
+        return `${signage_path.replace(/\/$/, '')}/#/signage/${encodeURIComponent(display.id)}?debug=true`;
     });
 
     private _route_resolved = false;
