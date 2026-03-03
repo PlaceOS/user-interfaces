@@ -18,7 +18,7 @@ import { DisplayListComponent } from './display-list.component';
     template: `
         <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
             <nav-sidebar class="sm:h-full" />
-            <div class="flex min-h-0 flex-1 flex-col">
+            <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <display-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
                     <display-list
@@ -126,7 +126,7 @@ import { DisplayListComponent } from './display-list.component';
                             </div>
                         }
                         <display-content
-                            class="flex-1"
+                            class="h-1/2 flex-1"
                             [activeTab]="view_tab()"
                         />
                     </div>
