@@ -94,6 +94,15 @@ function dataURLtoFile(dataURL, filename) {
     return new File([uint8Array], filename, { type: mimeType });
 }
 
+function cleanPlaylistPayload(playlist: Partial<SignagePlaylist>) {
+    // Temporary workaround until the backend ignores blank playlist fields.
+    return Object.fromEntries(
+        Object.entries(playlist).filter(
+            ([, value]) => value !== '' && value !== null && value !== undefined,
+        ),
+    ) as Partial<SignagePlaylist>;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -266,10 +275,15 @@ export class SignageStateService extends AsyncHandler {
     }
 
     public async savePlaylist(playlist: Partial<SignagePlaylist>) {
+        const clean_playlist = cleanPlaylistPayload(playlist);
         const call = lastValueFrom(
-            playlist.id
-                ? updateSignagePlaylist(playlist.id, playlist, 'put')
-                : addSignagePlaylist(playlist),
+            clean_playlist.id
+                ? updateSignagePlaylist(
+                      clean_playlist.id,
+                      clean_playlist,
+                      'put',
+                  )
+                : addSignagePlaylist(clean_playlist),
         );
         const new_playlist = await call;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_SAVE_SUCCESS'));

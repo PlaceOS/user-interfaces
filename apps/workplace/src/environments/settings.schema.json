@@ -109,6 +109,16 @@
                 }
             }
         },
+        "events": {
+            "type": "object",
+            "description": "Data associated with meeting booking flow",
+            "properties": {
+                "hide_nearby_desks": {
+                    "type": "boolean",
+                    "description": "Whether to hide the book nearby desks action on the meeting success view"
+                }
+            }
+        },
         "desks": {
             "type": "object",
             "description": "Data associated wth desk booking flow",

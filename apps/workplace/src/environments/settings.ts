@@ -71,6 +71,7 @@ const events = {
     allow_all_day: true,
     hide_notes: false,
     hide_attendees: false,
+    hide_nearby_desks: false,
     features_label: '',
     features_on_form: false,
     booking_unavailable: false,
