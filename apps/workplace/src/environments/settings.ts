@@ -67,7 +67,6 @@ const events = {
     can_book_for_others: false,
     has_catering: true,
     has_assets: true,
-    catering_enabled: 'bld-01',
     allow_all_day: true,
     hide_notes: false,
     hide_attendees: false,
