@@ -84,6 +84,46 @@ describe('signage-media-upload util', () => {
         });
     });
 
+    it('rejects MP4 uploads with AV1 by default', async () => {
+        const file = new File([createMp4File(['av01', 'mp4a'])], 'clip.mp4', {
+            type: 'video/mp4',
+        });
+
+        await expect(validateSignageMediaFile(file)).resolves.toMatchObject({
+            valid: false,
+        });
+    });
+
+    it('accepts MP4 uploads with AV1 when extended codecs are enabled', async () => {
+        const file = new File([createMp4File(['av01', 'mp4a'])], 'clip.mp4', {
+            type: 'video/mp4',
+        });
+
+        await expect(
+            validateSignageMediaFile(file, {
+                allow_extended_video_codecs: true,
+            }),
+        ).resolves.toEqual({
+            valid: true,
+            media_type: 'video',
+        });
+    });
+
+    it('accepts MOV uploads with H.265 when extended codecs are enabled', async () => {
+        const file = new File([createMp4File(['hvc1', 'mp4a'])], 'clip.mov', {
+            type: 'video/quicktime',
+        });
+
+        await expect(
+            validateSignageMediaFile(file, {
+                allow_extended_video_codecs: true,
+            }),
+        ).resolves.toEqual({
+            valid: true,
+            media_type: 'video',
+        });
+    });
+
     it('accepts MOV uploads with H.264 video and AAC audio', async () => {
         const file = new File([createMp4File(['avc1', 'mp4a'])], 'clip.mov', {
             type: 'video/quicktime',
@@ -125,6 +165,25 @@ describe('signage-media-upload util', () => {
         );
 
         await expect(validateSignageMediaFile(file)).resolves.toEqual({
+            valid: true,
+            media_type: 'video',
+        });
+    });
+
+    it('accepts WEBM uploads with AV1 when extended codecs are enabled', async () => {
+        const file = new File(
+            [createWebmFile(['V_AV1', 'A_OPUS'])],
+            'clip.webm',
+            {
+                type: 'video/webm',
+            },
+        );
+
+        await expect(
+            validateSignageMediaFile(file, {
+                allow_extended_video_codecs: true,
+            }),
+        ).resolves.toEqual({
             valid: true,
             media_type: 'video',
         });
