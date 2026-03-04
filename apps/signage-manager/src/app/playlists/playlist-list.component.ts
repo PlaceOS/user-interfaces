@@ -50,7 +50,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         [routerLink]="['/playlists', playlist.id]"
                     >
                         <div
-                            class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                            class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
                         >
                             @if (
                                 playlist_thumbnail_media()[playlist.id]?.length
@@ -180,8 +180,10 @@ export class PlaylistListComponent {
     public readonly search = this._service.playlist_search_term;
     public readonly playlists = this._service.filtered_playlists;
     public readonly selected = this._service.selected_playlist;
-    public readonly playlist_thumbnail_media = this._service.playlist_thumbnail_media;
-    public readonly playlist_approval_status = this._service.playlist_approval_status;
+    public readonly playlist_thumbnail_media =
+        this._service.playlist_thumbnail_media;
+    public readonly playlist_approval_status =
+        this._service.playlist_approval_status;
 
     constructor() {
         effect(() => {

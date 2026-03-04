@@ -1,10 +1,16 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
+
+type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
 
 @Component({
     selector: 'zone-content',
@@ -43,37 +49,107 @@ import { SignageService } from '../signage.service';
                                 ) {
                                     <a
                                         matRipple
-                                        class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
+                                        class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1 no-underline transition-colors"
                                         [routerLink]="[
                                             '/playlists',
                                             playlist.id,
                                         ]"
                                     >
-                                        <icon
-                                            class="shrink-0 text-xl opacity-60"
-                                            >playlist_play</icon
+                                        <div
+                                            class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
                                         >
+                                            @if (
+                                                playlist_thumbnail_media()[
+                                                    playlist.id
+                                                ]?.length
+                                            ) {
+                                                @for (
+                                                    media of playlist_thumbnail_media()[
+                                                        playlist.id
+                                                    ];
+                                                    track media;
+                                                    let i = $index;
+                                                    let len = $count
+                                                ) {
+                                                    <img
+                                                        auth
+                                                        [source]="media"
+                                                        class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
+                                                        [style.top]="
+                                                            0.3 -
+                                                            (len - 1) *
+                                                                0.125 +
+                                                            (len - 1 - i) *
+                                                                0.25 +
+                                                            'rem'
+                                                        "
+                                                        [style.left]="
+                                                            0.3 -
+                                                            (len - 1) *
+                                                                0.125 +
+                                                            (len - 1 - i) *
+                                                                0.25 +
+                                                            'rem'
+                                                        "
+                                                        [style.z-index]="i"
+                                                    />
+                                                }
+                                            } @else {
+                                                <div
+                                                    class="text-base-content/35 flex h-full w-full items-center justify-center"
+                                                >
+                                                    <icon class="text-2xl">
+                                                        playlist_play
+                                                    </icon>
+                                                </div>
+                                            }
+                                        </div>
                                         <div class="min-w-0 flex-1">
                                             <div
                                                 class="truncate text-sm font-medium"
                                             >
                                                 {{ playlist.name }}
                                             </div>
+                                            <div class="mt-1 flex flex-wrap gap-1">
+                                                @if (!playlist.enabled) {
+                                                    <span
+                                                        class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                    >
+                                                        Disabled
+                                                    </span>
+                                                }
+                                                @switch (getStatus(playlist)) {
+                                                    @case ('expired') {
+                                                        <span
+                                                            class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                        >
+                                                            Expired
+                                                        </span>
+                                                    }
+                                                    @case ('pending') {
+                                                        <span
+                                                            class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                        >
+                                                            Pending
+                                                        </span>
+                                                    }
+                                                    @case ('awaiting_approval') {
+                                                        <span
+                                                            class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                        >
+                                                            Awaiting Approval
+                                                        </span>
+                                                    }
+                                                }
+                                            </div>
                                             @if (playlist.description) {
                                                 <div
-                                                    class="truncate text-xs opacity-50"
+                                                    class="mt-0.5 truncate text-xs opacity-50"
                                                 >
                                                     {{ playlist.description }}
                                                 </div>
                                             }
                                         </div>
-                                        @if (!playlist.enabled) {
-                                            <span
-                                                class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                            >
-                                                Disabled
-                                            </span>
-                                        }
                                     </a>
                                 }
                             } @else {
@@ -195,13 +271,23 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, RouterLink, IconComponent],
+    imports: [
+        MatRippleModule,
+        MatTooltipModule,
+        RouterLink,
+        AuthenticatedImageDirective,
+        IconComponent,
+    ],
 })
 export class ZoneContentComponent {
     private readonly _service = inject(SignageService);
 
     public readonly activeTab = input<'playlists' | 'displays'>('playlists');
     public readonly selected_zone = this._service.selected_zone;
+    public readonly playlist_thumbnail_media =
+        this._service.playlist_thumbnail_media;
+    public readonly playlist_approval_status =
+        this._service.playlist_approval_status;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],
@@ -222,6 +308,12 @@ export class ZoneContentComponent {
         return this._displays().filter((d) => d.zones?.includes(zone.id));
     });
 
+    constructor() {
+        effect(() => {
+            this._service.queuePlaylistMeta(this.zone_playlists());
+        });
+    }
+
     public addPlaylist() {
         const zone = this.selected_zone();
         if (zone) this._service.addPlaylistToZone(zone);
@@ -230,5 +322,17 @@ export class ZoneContentComponent {
     public addDisplay() {
         const zone = this.selected_zone();
         if (zone) this._service.addDisplayToZone(zone);
+    }
+
+    public getStatus(playlist: SignagePlaylist): PlaylistStatus {
+        const now_s = Math.floor(Date.now() / 1000);
+        if (playlist.valid_until && playlist.valid_until < now_s)
+            return 'expired';
+        if (playlist.valid_from && playlist.valid_from > now_s)
+            return 'pending';
+        const approvals = this.playlist_approval_status();
+        if (playlist.id in approvals && !approvals[playlist.id])
+            return 'awaiting_approval';
+        return null;
     }
 }
