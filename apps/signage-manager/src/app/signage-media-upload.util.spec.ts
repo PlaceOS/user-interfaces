@@ -14,9 +14,11 @@ describe('signage-media-upload util', () => {
         expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.svg');
         expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.webm');
         expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.mp4');
+        expect(SIGNAGE_MEDIA_FILE_ACCEPT).toContain('.mov');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('image/*');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heic');
         expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heif');
+        expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.mov');
     });
 
     it('accepts supported image formats by mime type', async () => {
@@ -82,9 +84,30 @@ describe('signage-media-upload util', () => {
         });
     });
 
+    it('accepts MOV uploads with H.264 video and AAC audio', async () => {
+        const file = new File([createMp4File(['avc1', 'mp4a'])], 'clip.mov', {
+            type: 'video/quicktime',
+        });
+
+        await expect(validateSignageMediaFile(file)).resolves.toEqual({
+            valid: true,
+            media_type: 'video',
+        });
+    });
+
     it('rejects MP4 uploads with unsupported codecs', async () => {
         const file = new File([createMp4File(['hvc1', 'mp4a'])], 'clip.mp4', {
             type: 'video/mp4',
+        });
+
+        await expect(validateSignageMediaFile(file)).resolves.toMatchObject({
+            valid: false,
+        });
+    });
+
+    it('rejects MOV uploads with unsupported codecs', async () => {
+        const file = new File([createMp4File(['hvc1', 'mp4a'])], 'clip.mov', {
+            type: 'video/quicktime',
         });
 
         await expect(validateSignageMediaFile(file)).resolves.toMatchObject({

@@ -12,6 +12,8 @@ export const SIGNAGE_MEDIA_FILE_ACCEPT = [
     'video/webm',
     '.mp4',
     'video/mp4',
+    '.mov',
+    'video/quicktime',
 ].join(',');
 export const SIGNAGE_MEDIA_PICKER_ACCEPT = [
     'image/*',
@@ -21,6 +23,8 @@ export const SIGNAGE_MEDIA_PICKER_ACCEPT = [
     'video/webm',
     '.mp4',
     'video/mp4',
+    '.mov',
+    'video/quicktime',
 ].join(',');
 export const SIGNAGE_MEDIA_MAX_WIDTH = 3840;
 export const SIGNAGE_MEDIA_MAX_HEIGHT = 2160;
@@ -43,8 +47,12 @@ const IMAGE_SOURCE_EXTENSIONS = new Set([
     'tif',
     'tiff',
 ]);
-const VIDEO_MIME_TYPES = new Set(['video/webm', 'video/mp4']);
-const VIDEO_EXTENSIONS = new Set(['webm', 'mp4']);
+const VIDEO_MIME_TYPES = new Set([
+    'video/webm',
+    'video/mp4',
+    'video/quicktime',
+]);
+const VIDEO_EXTENSIONS = new Set(['webm', 'mp4', 'mov']);
 
 const MP4_ALLOWED_VIDEO_CODECS = new Set(['avc1', 'avc3']);
 const MP4_ALLOWED_AUDIO_CODECS = new Set(['mp4a']);
@@ -96,12 +104,12 @@ const MP4_CONTAINER_BOXES = new Set([
 ]);
 
 const SUPPORTED_FORMATS_ERROR =
-    'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM and MP4.';
+    'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM, MP4, and MOV.';
 const VIDEO_CODEC_ERROR =
-    'Unsupported video codec. Use MP4 with H.264 video and AAC audio, or WEBM with VP8/VP9 video and Vorbis/Opus audio for broad browser support.';
+    'Unsupported video codec. Use MP4 or MOV with H.264 video and AAC audio, or WEBM with VP8/VP9 video and Vorbis/Opus audio for broad browser support.';
 const MEDIA_DIMENSIONS_ERROR = `Maximum supported resolution is ${SIGNAGE_MEDIA_MAX_WIDTH}x${SIGNAGE_MEDIA_MAX_HEIGHT} (4K).`;
 
-type VideoContainer = 'mp4' | 'webm';
+type VideoContainer = 'mp4' | 'mov' | 'webm';
 
 export interface UploadValidationResult {
     valid: boolean;
@@ -160,6 +168,11 @@ export function getVideoContainer(file: File): VideoContainer | null {
     if (matchesAllowedType(file, new Set(['video/mp4']), new Set(['mp4']))) {
         return 'mp4';
     }
+    if (
+        matchesAllowedType(file, new Set(['video/quicktime']), new Set(['mov']))
+    ) {
+        return 'mov';
+    }
     if (matchesAllowedType(file, new Set(['video/webm']), new Set(['webm']))) {
         return 'webm';
     }
@@ -168,9 +181,9 @@ export function getVideoContainer(file: File): VideoContainer | null {
 
 async function validateVideoCodecs(file: File, container: VideoContainer) {
     const data = await readFileAsArrayBuffer(file);
-    return container === 'mp4'
-        ? validateMp4Codecs(data)
-        : validateWebmCodecs(data);
+    return container === 'webm'
+        ? validateWebmCodecs(data)
+        : validateMp4Codecs(data);
 }
 
 function matchesAllowedType(
