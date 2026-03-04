@@ -29,7 +29,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="bg-base-300 absolute inset-0">
+        <div class="bg-base-200 absolute inset-0">
             <div
                 form
                 class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
@@ -104,7 +104,8 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
             </div>
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
                 <div class="text-xs opacity-40">
-                    {{ 'COMMON.CONTROLS_VERSION' | translate }}: {{ version.hash }}
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
                 </div>
                 <div class="text-xs opacity-40">
                     {{ version.time | date: 'longDate' }}
@@ -139,7 +140,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
-    public get version() { return VERSION; }
+    public get version() {
+        return VERSION;
+    }
 
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
@@ -180,6 +183,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
+        log('BOOTSTRAP', 'Initialising...');
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -204,6 +208,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
         if (!this.active_display || !localStorage) {
+            log(
+                'BOOTSTRAP',
+                `Unable to bootstrap panel. Reason: ${!this.active_display ? 'No display ID set' : 'Local Storage unavailable'}`,
+            );
             this.loading.set('');
             return;
         }
@@ -231,6 +239,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
+        log('BOOTSTRAP', `No bootstrap details found for system`);
         this.loading.set('');
     }
 }
