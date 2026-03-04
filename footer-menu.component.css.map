@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["footer-menu.component.ts"],
+  "sourcesContent": ["\n            a.active icon {\n                color: var(--secondary) !important;\n            }\n\n            a.active {\n                font-weight: 500;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
+  "mappings": "AACY,CAAA,CAAA,OAAA,KACI,MAAA,IAAA,sBACJ,CAEA,CAAA,CAJA,OAKI,YAAA,GACJ,CAEA,CAAA,KAAA,CARA,QAQA,CAAA,UARA,iBAUI,QAAA,IACJ",
+  "names": []
+}

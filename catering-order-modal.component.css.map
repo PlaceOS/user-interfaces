@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering-order-modal.component.ts"],
+  "sourcesContent": ["\n            .list {\n                height: 24em;\n                min-width: 32em;\n                max-width: calc(100vw - 1em);\n            }\n\n            footer button {\n                min-width: 12em;\n            }\n\n            input {\n                position: relative;\n                width: 100%;\n                padding: 1em;\n                border: none;\n                border-radius: 0 !important;\n                border-top: 1px solid #ccc;\n                border-bottom: 1px solid #ccc;\n                outline: none;\n                font-size: 1em;\n            }\n\n            input:focus {\n                border: none;\n                border-top: 2px solid var(--secondary);\n                border-bottom: 2px solid var(--secondary);\n                box-shadow: none;\n            }\n\n            input.error::placeholder {\n                color: rgba(var(--error), 0.45);\n            }\n        "],
+  "mappings": "AACY,CAAA,KACI,OAAA,KACA,UAAA,KACA,UAAA,KAAA,MAAA,EAAA,IACJ,CAEA,OAAA,OACI,UAAA,IACJ,CAEA,MACI,SAAA,SACA,MAAA,aACA,IACA,OAAA,mBACA,YACA,WAAA,IAAA,MAAA,KACA,cAAA,IAAA,MAAA,KACA,QAAA,KACA,UAAA,GACJ,CAEA,KAAA,OACI,OAAA,KACA,WAAA,IAAA,MAAA,IAAA,aACA,cAAA,IAAA,MAAA,IAAA,aACA,WAAA,IACJ,CAEA,KAAA,CAAA,KAAA,cACI,MAAA,KAAA,IAAA,QAAA,CAAA,IACJ",
+  "names": []
+}
