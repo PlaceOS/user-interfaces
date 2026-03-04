@@ -62,7 +62,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="region"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="'COMMON.REGION_ALL' | translate"
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 @for (reg of regions | async; track reg) {
                                     <mat-option [value]="reg">
@@ -99,9 +99,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="(options | async)?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                                "
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
                                 @for (lvl of levels | async; track lvl) {
