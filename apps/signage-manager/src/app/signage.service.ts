@@ -346,18 +346,27 @@ export class SignageService {
         const element = event.target as HTMLInputElement;
         if (!element?.files?.length) return;
         try {
-            const prepared = await this._prepareUploadMedia(
-                element.files.item(0),
-            );
-            if (!prepared) return;
+            await this.previewFiles(element.files, playlist_id);
+        } finally {
+            element.value = '';
+        }
+    }
+
+    public async previewFiles(
+        files: ArrayLike<File> | Iterable<File> | null | undefined,
+        playlist_id = '',
+    ) {
+        if (!files) return;
+        const upload_files = Array.from(files);
+        for (const file of upload_files) {
+            const prepared = await this._prepareUploadMedia(file);
+            if (!prepared) continue;
             await this.editMedia(
                 new SignageMedia({}),
                 prepared.file,
                 playlist_id,
                 prepared.metadata,
             );
-        } finally {
-            element.value = '';
         }
     }
 
