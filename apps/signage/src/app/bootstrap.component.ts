@@ -182,7 +182,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        this._org.limit_init = true;
         log('BOOTSTRAP', 'Initialising...');
         this.subscription(
             'route.query',
@@ -199,6 +199,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+        await firstTruthyValueFrom(this._org.initialised);
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
 
