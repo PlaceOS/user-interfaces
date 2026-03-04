@@ -111,6 +111,10 @@ const MEDIA_DIMENSIONS_ERROR = `Maximum supported resolution is ${SIGNAGE_MEDIA_
 
 type VideoContainer = 'mp4' | 'mov' | 'webm';
 
+export interface SignageMediaValidationOptions {
+    allow_extended_video_codecs?: boolean;
+}
+
 export interface UploadValidationResult {
     valid: boolean;
     error?: string;
@@ -129,6 +133,7 @@ export interface SignageMediaMetadata extends SignageMediaDimensions {
 
 export async function validateSignageMediaFile(
     file: File,
+    options: SignageMediaValidationOptions = {},
 ): Promise<UploadValidationResult> {
     if (isSupportedImageFile(file)) {
         return { valid: true, media_type: 'image' };
@@ -137,7 +142,7 @@ export async function validateSignageMediaFile(
     if (!container) {
         return { valid: false, error: SUPPORTED_FORMATS_ERROR };
     }
-    const is_valid_codec = await validateVideoCodecs(file, container);
+    const is_valid_codec = await validateVideoCodecs(file, container, options);
     if (!is_valid_codec) {
         return { valid: false, error: VIDEO_CODEC_ERROR };
     }
@@ -179,11 +184,15 @@ export function getVideoContainer(file: File): VideoContainer | null {
     return null;
 }
 
-async function validateVideoCodecs(file: File, container: VideoContainer) {
+async function validateVideoCodecs(
+    file: File,
+    container: VideoContainer,
+    options: SignageMediaValidationOptions,
+) {
     const data = await readFileAsArrayBuffer(file);
     return container === 'webm'
-        ? validateWebmCodecs(data)
-        : validateMp4Codecs(data);
+        ? validateWebmCodecs(data, options)
+        : validateMp4Codecs(data, options);
 }
 
 function matchesAllowedType(
@@ -201,8 +210,14 @@ function getFileExtension(file_name = '') {
     return parts.length > 1 ? parts.pop() || '' : '';
 }
 
-function validateMp4Codecs(data: ArrayBuffer) {
+function validateMp4Codecs(
+    data: ArrayBuffer,
+    options: SignageMediaValidationOptions,
+) {
     const sample_entries = getMp4SampleEntryTypes(data);
+    const allowed_video_codecs = options.allow_extended_video_codecs
+        ? new Set([...MP4_ALLOWED_VIDEO_CODECS, 'av01', 'hev1', 'hvc1'])
+        : MP4_ALLOWED_VIDEO_CODECS;
     const video_codecs = sample_entries.filter((codec) =>
         MP4_VIDEO_CODECS.has(codec),
     );
@@ -211,13 +226,19 @@ function validateMp4Codecs(data: ArrayBuffer) {
     );
     return (
         video_codecs.length > 0 &&
-        video_codecs.every((codec) => MP4_ALLOWED_VIDEO_CODECS.has(codec)) &&
+        video_codecs.every((codec) => allowed_video_codecs.has(codec)) &&
         audio_codecs.every((codec) => MP4_ALLOWED_AUDIO_CODECS.has(codec))
     );
 }
 
-function validateWebmCodecs(data: ArrayBuffer) {
+function validateWebmCodecs(
+    data: ArrayBuffer,
+    options: SignageMediaValidationOptions,
+) {
     const bytes = new Uint8Array(data);
+    const allowed_video_codecs = options.allow_extended_video_codecs
+        ? new Set([...WEBM_ALLOWED_VIDEO_CODECS, 'V_AV1'])
+        : WEBM_ALLOWED_VIDEO_CODECS;
     const video_codecs = [...WEBM_VIDEO_CODECS].filter((codec) =>
         containsAscii(bytes, codec),
     );
@@ -226,7 +247,7 @@ function validateWebmCodecs(data: ArrayBuffer) {
     );
     return (
         video_codecs.length > 0 &&
-        video_codecs.every((codec) => WEBM_ALLOWED_VIDEO_CODECS.has(codec)) &&
+        video_codecs.every((codec) => allowed_video_codecs.has(codec)) &&
         audio_codecs.every((codec) => WEBM_ALLOWED_AUDIO_CODECS.has(codec))
     );
 }

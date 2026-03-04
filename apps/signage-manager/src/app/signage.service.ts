@@ -7,6 +7,7 @@ import {
     notifySuccess,
     notifyWarn,
     OrganisationService,
+    SettingsService,
     UploadsService,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -74,6 +75,7 @@ interface PreparedUploadMedia {
 })
 export class SignageService {
     private readonly _org = inject(OrganisationService);
+    private readonly _settings = inject(SettingsService);
     private readonly _uploads = inject(UploadsService);
     private readonly _dialog = inject(MatDialog);
     private readonly _change = new BehaviorSubject(Date.now());
@@ -518,7 +520,10 @@ export class SignageService {
             return null;
         }
         const normalized_file = await this._normalizeImageUpload(file);
-        const validation = await validateSignageMediaFile(normalized_file);
+        const validation = await validateSignageMediaFile(
+            normalized_file,
+            this._mediaValidationOptions(),
+        );
         if (!validation.valid) {
             notifyError(validation.error);
             return null;
@@ -796,6 +801,14 @@ export class SignageService {
 
     private _replaceFileExtension(file_name: string, next_extension: string) {
         return file_name.replace(/\.[^.]+$/, '') + `.${next_extension}`;
+    }
+
+    private _mediaValidationOptions() {
+        return {
+            allow_extended_video_codecs: !!this._settings.get(
+                'app.media_allow_extended_video_codecs',
+            ),
+        };
     }
 
     private _generateVideoThumbnail(
