@@ -1,13 +1,15 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@placeos/components';
-import { listSignagePlaylistMedia, SignagePlaylist } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+} from '@placeos/components';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
@@ -18,7 +20,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         <div
             class="bg-base-100 border-base-300 h-full min-w-64 overflow-auto border-r sm:max-w-80"
         >
-            <div class="border-base-300 border-b p-2">
+            <div
+                class="border-base-300 bg-base-100 sticky top-0 z-10 border-b p-2"
+            >
                 <mat-form-field
                     appearance="outline"
                     class="no-subscript w-full"
@@ -35,7 +39,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 @for (playlist of playlists(); track playlist.id) {
                     <a
                         matRipple
-                        class="border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
+                        class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
                         [class.text-primary-content]="
                             selected()?.id === playlist.id
@@ -45,14 +49,54 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         "
                         [routerLink]="['/playlists', playlist.id]"
                     >
-                        <icon class="shrink-0 text-2xl">playlist_play</icon>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2">
-                                <div class="truncate font-medium">
-                                    {{ playlist.name }}
+                        <div
+                            class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                        >
+                            @if (
+                                playlist_thumbnail_media()[playlist.id]?.length
+                            ) {
+                                @for (
+                                    media of playlist_thumbnail_media()[
+                                        playlist.id
+                                    ];
+                                    track media;
+                                    let i = $index;
+                                    let len = $count
+                                ) {
+                                    <img
+                                        auth
+                                        [source]="media"
+                                        class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
+                                        [style.top]="
+                                            0.3 -
+                                            (len - 1) * 0.125 +
+                                            (len - 1 - i) * 0.25 +
+                                            'rem'
+                                        "
+                                        [style.left]="
+                                            0.3 -
+                                            (len - 1) * 0.125 +
+                                            (len - 1 - i) * 0.25 +
+                                            'rem'
+                                        "
+                                        [style.z-index]="i"
+                                    />
+                                }
+                            } @else {
+                                <div
+                                    class="text-base-content/35 flex h-full w-full items-center justify-center"
+                                >
+                                    <icon class="text-2xl">playlist_play</icon>
                                 </div>
+                            }
+                        </div>
+                        <div class="min-w-0 flex-1 pr-2">
+                            <div
+                                class="flex items-center gap-2 truncate font-medium"
+                            >
+                                {{ playlist.name }}
                             </div>
-                            <div class="mt-1 flex flex-wrap gap-1">
+                            <div class="flex flex-wrap gap-1">
                                 @if (!playlist.enabled) {
                                     <span
                                         class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
@@ -126,6 +170,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatFormFieldModule,
         MatInputModule,
         MatMenuModule,
+        AuthenticatedImageDirective,
         IconComponent,
     ],
 })
@@ -135,13 +180,12 @@ export class PlaylistListComponent {
     public readonly search = this._service.playlist_search_term;
     public readonly playlists = this._service.filtered_playlists;
     public readonly selected = this._service.selected_playlist;
-
-    private readonly _approval_status = signal<Record<string, boolean>>({});
+    public readonly playlist_thumbnail_media = this._service.playlist_thumbnail_media;
+    public readonly playlist_approval_status = this._service.playlist_approval_status;
 
     constructor() {
         effect(() => {
-            const list = this.playlists();
-            this._loadApprovalStatus(list);
+            this._service.queuePlaylistMeta(this.playlists());
         });
     }
 
@@ -151,7 +195,7 @@ export class PlaylistListComponent {
             return 'expired';
         if (playlist.valid_from && playlist.valid_from > now_s)
             return 'pending';
-        const approvals = this._approval_status();
+        const approvals = this.playlist_approval_status();
         if (playlist.id in approvals && !approvals[playlist.id])
             return 'awaiting_approval';
         return null;
@@ -163,20 +207,5 @@ export class PlaylistListComponent {
 
     public removePlaylist(playlist: SignagePlaylist) {
         this._service.removePlaylist(playlist);
-    }
-
-    private async _loadApprovalStatus(playlists: SignagePlaylist[]) {
-        const status: Record<string, boolean> = {};
-        for (const playlist of playlists) {
-            try {
-                const media = await lastValueFrom(
-                    listSignagePlaylistMedia(playlist.id),
-                );
-                status[playlist.id] = media.approved;
-            } catch {
-                // Skip playlists that fail to load
-            }
-        }
-        this._approval_status.set(status);
     }
 }

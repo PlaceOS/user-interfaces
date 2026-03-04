@@ -14,6 +14,7 @@ import { openConfirmModal } from '@placeos/components';
 import {
     addSignageMedia,
     listSignagePlaylistMedia,
+    mediaThumbnail,
     querySignageMedia,
     querySignagePlaylists,
     querySystems,
@@ -68,6 +69,36 @@ interface PreparedUploadMedia {
     file: File;
     media_type: 'image' | 'video';
     metadata: SignageMediaMetadata;
+}
+
+interface PlaylistMetaState {
+    media_ids: string[];
+    updated_at: number;
+    approved?: boolean;
+}
+
+const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
+
+function loadPlaylistMetaSessionCache(): Record<string, PlaylistMetaState> {
+    if (typeof sessionStorage === 'undefined') return {};
+    try {
+        const stored_value = sessionStorage.getItem(PLAYLIST_META_SESSION_KEY);
+        return stored_value ? JSON.parse(stored_value) : {};
+    } catch {
+        return {};
+    }
+}
+
+function persistPlaylistMetaSessionCache(
+    cache: Record<string, PlaylistMetaState>,
+) {
+    if (typeof sessionStorage === 'undefined') return;
+    try {
+        sessionStorage.setItem(
+            PLAYLIST_META_SESSION_KEY,
+            JSON.stringify(cache),
+        );
+    } catch {}
 }
 
 @Injectable({
@@ -187,6 +218,14 @@ export class SignageService {
 
     public readonly selected_display = signal<any>(null);
     public readonly display_search_term = signal('');
+    private readonly _playlist_meta_state = signal<
+        Record<string, PlaylistMetaState>
+    >(loadPlaylistMetaSessionCache());
+    private readonly _playlist_meta_loading = signal<Record<string, boolean>>(
+        {},
+    );
+    private readonly _playlist_meta_queue: Record<string, SignagePlaylist> = {};
+    private _playlist_meta_processing = false;
 
     private readonly _playlists = toSignal(this.playlists, {
         initialValue: [] as SignagePlaylist[],
@@ -197,6 +236,28 @@ export class SignageService {
         return this._playlists().filter((p) =>
             p.name.toLowerCase().includes(term),
         );
+    });
+    public readonly playlist_approval_status = computed(() => {
+        const result: Record<string, boolean> = {};
+        for (const [playlist_id, data] of Object.entries(
+            this._playlist_meta_state(),
+        )) {
+            if (typeof data.approved === 'boolean') {
+                result[playlist_id] = data.approved;
+            }
+        }
+        return result;
+    });
+    public readonly playlist_thumbnail_media = computed(() => {
+        const result: Record<string, string[]> = {};
+        for (const [playlist_id, data] of Object.entries(
+            this._playlist_meta_state(),
+        )) {
+            result[playlist_id] = (data.media_ids || []).map((id) =>
+                mediaThumbnail(id),
+            );
+        }
+        return result;
     });
 
     private readonly _zones = toSignal(this.zones, {
@@ -257,6 +318,17 @@ export class SignageService {
         if (result) {
             this.changed();
         }
+    }
+
+    public queuePlaylistMeta(playlists: SignagePlaylist | SignagePlaylist[]) {
+        const list = Array.isArray(playlists) ? playlists : [playlists];
+        for (const playlist of list) {
+            if (!playlist?.id || !this._needsPlaylistMetaRefresh(playlist)) {
+                continue;
+            }
+            this._playlist_meta_queue[playlist.id] = playlist;
+        }
+        this._processPlaylistMetaQueue();
     }
 
     public async editPlaylist(playlist: SignagePlaylist) {
@@ -335,6 +407,80 @@ export class SignageService {
         }
         const new_items = [...(media_list.items || []), media_id];
         await this.updatePlaylistMedia(playlist_id, new_items);
+    }
+
+    private _needsPlaylistMetaRefresh(playlist: SignagePlaylist) {
+        const meta = this._playlist_meta_state()[playlist.id];
+        const loading = this._playlist_meta_loading()[playlist.id];
+        const queued = !!this._playlist_meta_queue[playlist.id];
+        const playlist_updated_at = playlist.updated_at || 0;
+        return (
+            !loading &&
+            !queued &&
+            (meta?.updated_at !== playlist_updated_at ||
+                typeof meta?.approved !== 'boolean')
+        );
+    }
+
+    private async _processPlaylistMetaQueue() {
+        if (this._playlist_meta_processing) return;
+        this._playlist_meta_processing = true;
+        try {
+            while (true) {
+                const next_playlist = Object.values(
+                    this._playlist_meta_queue,
+                )[0];
+                if (!next_playlist) break;
+                delete this._playlist_meta_queue[next_playlist.id];
+                const playlist_updated_at = next_playlist.updated_at || 0;
+                this._playlist_meta_loading.update((state) => ({
+                    ...state,
+                    [next_playlist.id]: true,
+                }));
+                try {
+                    const media = await lastValueFrom(
+                        listSignagePlaylistMedia(next_playlist.id),
+                    );
+                    this._setPlaylistMeta(next_playlist.id, {
+                        media_ids: (media.items || []).slice(0, 3),
+                        updated_at: playlist_updated_at,
+                        approved: media.approved,
+                    });
+                } catch {
+                    this._setPlaylistMeta(next_playlist.id, {
+                        media_ids: [],
+                        updated_at: playlist_updated_at,
+                    });
+                } finally {
+                    this._playlist_meta_loading.update((state) => ({
+                        ...state,
+                        [next_playlist.id]: false,
+                    }));
+                }
+            }
+        } finally {
+            this._playlist_meta_processing = false;
+        }
+    }
+
+    private _setPlaylistMeta(playlist_id: string, data: PlaylistMetaState) {
+        this._updatePlaylistMetaState((state) => ({
+            ...state,
+            [playlist_id]: data,
+        }));
+    }
+
+    private _updatePlaylistMetaState(
+        updater: (
+            state: Record<string, PlaylistMetaState>,
+        ) => Record<string, PlaylistMetaState>,
+    ) {
+        let next_state: Record<string, PlaylistMetaState> = {};
+        this._playlist_meta_state.update((state) => {
+            next_state = updater(state);
+            return next_state;
+        });
+        persistPlaylistMetaSessionCache(next_state);
     }
 
     public previewMedia(item: SignageMedia) {
