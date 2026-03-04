@@ -62,10 +62,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="region"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.REGION_ALL' | translate"
                             >
                                 @for (reg of regions | async; track reg) {
                                     <mat-option [value]="reg">
