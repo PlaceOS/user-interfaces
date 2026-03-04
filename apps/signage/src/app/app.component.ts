@@ -33,7 +33,6 @@ export class AppComponent implements OnInit {
     private _org = inject(OrganisationService);
 
     public ngOnInit(): void {
-        this._org.limit_init = true;
         setMocks(mocksInit);
         this._placeos.init();
     }
