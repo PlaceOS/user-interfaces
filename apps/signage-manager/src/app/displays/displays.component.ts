@@ -13,6 +13,15 @@ import { DisplayContentComponent } from './display-content.component';
 import { DisplayHeaderComponent } from './display-header.component';
 import { DisplayListComponent } from './display-list.component';
 
+const TAB_QUERY_PARAM = 'tab';
+
+function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zones' {
+    if (value === 'playlists' || value === 'zones') {
+        return value;
+    }
+    return 'schedule';
+}
+
 @Component({
     selector: 'displays-section',
     template: `
@@ -88,7 +97,7 @@ import { DisplayListComponent } from './display-list.component';
                                     [class.opacity-60]="
                                         view_tab() !== 'schedule'
                                     "
-                                    (click)="view_tab.set('schedule')"
+                                    (click)="setViewTab('schedule')"
                                 >
                                     Schedule
                                 </button>
@@ -106,7 +115,7 @@ import { DisplayListComponent } from './display-list.component';
                                     [class.opacity-60]="
                                         view_tab() !== 'playlists'
                                     "
-                                    (click)="view_tab.set('playlists')"
+                                    (click)="setViewTab('playlists')"
                                 >
                                     Playlists ({{ playlist_count() }})
                                 </button>
@@ -120,7 +129,7 @@ import { DisplayListComponent } from './display-list.component';
                                         view_tab() === 'zones'
                                     "
                                     [class.opacity-60]="view_tab() !== 'zones'"
-                                    (click)="view_tab.set('zones')"
+                                    (click)="setViewTab('zones')"
                                 >
                                     Zones ({{ zone_count() }})
                                 </button>
@@ -186,6 +195,10 @@ export class DisplaysSectionComponent {
         this._route.paramMap.pipe(map((p) => p.get('id') || '')),
         { initialValue: '' },
     );
+    private readonly _route_tab = toSignal(
+        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
+        { initialValue: null as string | null },
+    );
 
     public readonly playlist_count = computed(() => {
         const display = this.selected_display();
@@ -212,8 +225,10 @@ export class DisplaysSectionComponent {
 
     constructor() {
         effect(() => {
-            this.selected_display();
-            this.view_tab.set('schedule');
+            const route_tab = parseDisplayTab(this._route_tab());
+            if (route_tab !== this.view_tab()) {
+                this.view_tab.set(route_tab);
+            }
         });
 
         effect(() => {
@@ -238,5 +253,16 @@ export class DisplaysSectionComponent {
     public deselectDisplay() {
         this._service.selected_display.set(null);
         this._router.navigate(['/displays'], {});
+    }
+
+    public setViewTab(tab: 'schedule' | 'playlists' | 'zones') {
+        if (tab === this.view_tab()) return;
+        this.view_tab.set(tab);
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { [TAB_QUERY_PARAM]: tab },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }

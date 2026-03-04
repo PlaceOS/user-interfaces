@@ -48,6 +48,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             selected()?.id !== playlist.id
                         "
                         [routerLink]="['/playlists', playlist.id]"
+                        queryParamsHandling="merge"
                     >
                         <div
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"

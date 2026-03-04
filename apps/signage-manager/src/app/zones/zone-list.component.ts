@@ -37,6 +37,7 @@ import { SignageService } from '../signage.service';
                         "
                         [class.hover:bg-base-200]="selected()?.id !== zone.id"
                         [routerLink]="['/zones', zone.id]"
+                        queryParamsHandling="merge"
                     >
                         <icon class="shrink-0 text-2xl">layers</icon>
                         <div class="min-w-0 flex-1">

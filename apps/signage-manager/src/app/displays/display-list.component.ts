@@ -39,6 +39,7 @@ import { SignageService } from '../signage.service';
                             selected()?.id !== display.id
                         "
                         [routerLink]="['/displays', display.id]"
+                        queryParamsHandling="merge"
                     >
                         <icon class="shrink-0 text-2xl">tv</icon>
                         <div class="min-w-0 flex-1">

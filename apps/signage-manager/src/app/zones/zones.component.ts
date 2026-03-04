@@ -11,6 +11,12 @@ import { ZoneContentComponent } from './zone-content.component';
 import { ZoneHeaderComponent } from './zone-header.component';
 import { ZoneListComponent } from './zone-list.component';
 
+const TAB_QUERY_PARAM = 'tab';
+
+function parseZoneTab(value: string | null): 'playlists' | 'displays' {
+    return value === 'displays' ? 'displays' : 'playlists';
+}
+
 @Component({
     selector: 'zones-section',
     template: `
@@ -75,7 +81,7 @@ import { ZoneListComponent } from './zone-list.component';
                                     [class.opacity-60]="
                                         view_tab() !== 'playlists'
                                     "
-                                    (click)="view_tab.set('playlists')"
+                                    (click)="setViewTab('playlists')"
                                 >
                                     Playlists ({{ playlist_count() }})
                                 </button>
@@ -93,7 +99,7 @@ import { ZoneListComponent } from './zone-list.component';
                                     [class.opacity-60]="
                                         view_tab() !== 'displays'
                                     "
-                                    (click)="view_tab.set('displays')"
+                                    (click)="setViewTab('displays')"
                                 >
                                     Displays ({{ display_count() }})
                                 </button>
@@ -152,6 +158,10 @@ export class ZonesSectionComponent {
         this._route.paramMap.pipe(map((p) => p.get('id') || '')),
         { initialValue: '' },
     );
+    private readonly _route_tab = toSignal(
+        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
+        { initialValue: null as string | null },
+    );
 
     public readonly playlist_count = computed(() => {
         const zone = this.selected_zone();
@@ -171,8 +181,10 @@ export class ZonesSectionComponent {
 
     constructor() {
         effect(() => {
-            this.selected_zone();
-            this.view_tab.set('playlists');
+            const route_tab = parseZoneTab(this._route_tab());
+            if (route_tab !== this.view_tab()) {
+                this.view_tab.set(route_tab);
+            }
         });
 
         effect(() => {
@@ -194,5 +206,16 @@ export class ZonesSectionComponent {
     public deselectZone() {
         this._service.selected_zone.set(null);
         this._router.navigate(['/zones'], {});
+    }
+
+    public setViewTab(tab: 'playlists' | 'displays') {
+        if (tab === this.view_tab()) return;
+        this.view_tab.set(tab);
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { [TAB_QUERY_PARAM]: tab },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }

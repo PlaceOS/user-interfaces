@@ -13,6 +13,12 @@ import { PlaylistItemDetailsComponent } from './playlist-item-details.component'
 import { PlaylistItemsComponent } from './playlist-items.component';
 import { PlaylistListComponent } from './playlist-list.component';
 
+const TAB_QUERY_PARAM = 'tab';
+
+function parsePlaylistTab(value: string | null): 'items' | 'details' {
+    return value === 'details' ? 'details' : 'items';
+}
+
 @Component({
     selector: 'playlists-section',
     template: `
@@ -95,7 +101,7 @@ import { PlaylistListComponent } from './playlist-list.component';
                                         view_tab() === 'items'
                                     "
                                     [class.opacity-60]="view_tab() !== 'items'"
-                                    (click)="view_tab.set('items')"
+                                    (click)="setViewTab('items')"
                                 >
                                     Items
                                 </button>
@@ -113,7 +119,7 @@ import { PlaylistListComponent } from './playlist-list.component';
                                     [class.opacity-60]="
                                         view_tab() !== 'details'
                                     "
-                                    (click)="view_tab.set('details')"
+                                    (click)="setViewTab('details')"
                                 >
                                     Details
                                 </button>
@@ -194,10 +200,21 @@ export class PlaylistsSectionComponent {
         this._route.paramMap.pipe(map((p) => p.get('id') || '')),
         { initialValue: '' },
     );
+    private readonly _route_tab = toSignal(
+        this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
+        { initialValue: null as string | null },
+    );
 
     private _route_resolved = false;
 
     constructor() {
+        effect(() => {
+            const route_tab = parsePlaylistTab(this._route_tab());
+            if (route_tab !== this.view_tab()) {
+                this.view_tab.set(route_tab);
+            }
+        });
+
         // Sync selected playlist from route param
         effect(() => {
             const id = this._route_id();
@@ -217,12 +234,6 @@ export class PlaylistsSectionComponent {
                 this._service.selected_playlist.set(null);
                 this._service.selected_playlist_item.set(null);
             }
-        });
-
-        // Reset to items tab when playlist changes
-        effect(() => {
-            this.selected_playlist();
-            this.view_tab.set('items');
         });
     }
 
@@ -245,5 +256,16 @@ export class PlaylistsSectionComponent {
         this._service.selected_playlist.set(null);
         this._service.selected_playlist_item.set(null);
         this._router.navigate(['/playlists'], {});
+    }
+
+    public setViewTab(tab: 'items' | 'details') {
+        if (tab === this.view_tab()) return;
+        this.view_tab.set(tab);
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { [TAB_QUERY_PARAM]: tab },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }
