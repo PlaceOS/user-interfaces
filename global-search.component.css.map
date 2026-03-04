@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["global-search.component.ts"],
+  "sourcesContent": ["\n            [search] {\n                transition:\n                    width 200ms,\n                    opacity 200ms;\n            }\n        "],
+  "mappings": "AACY,CAAA,QACI,gCAGJ",
+  "names": []
+}
