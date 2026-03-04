@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-search.component.ts"],
+  "sourcesContent": ["\n            :host {\n                z-index: 99;\n                position: relative;\n            }\n\n            [role='search'] {\n                height: 3rem;\n                width: 0;\n                border-radius: 1.5rem;\n                border: 1px solid var(--base-300);\n                transition: width 200ms opacity 200ms;\n                opacity: 0;\n                pointer-events: none;\n            }\n\n            [role='search'].show {\n                width: 24rem;\n                opacity: 1;\n                pointer-events: auto;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,GACA,SAAA,QACJ,CAEA,CAAA,aACI,OAAA,KACA,MAAA,gBACA,OACA,OAAA,IAAA,MAAA,IAAA,YACA,WAAA,MAAA,IAAA,QAAA,IACA,QAAA,EACA,eAAA,IACJ,CAEA,CAAA,YAAA,CAAA,KACI,MAAA,MACA,QAAA,EACA,eAAA,IACJ",
+  "names": []
+}
