@@ -27,15 +27,23 @@ import { DateFieldComponent } from '@placeos/form-fields';
 import { MediaAnimation, SignageMedia } from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
-import { lastValueFrom } from 'rxjs';
+import {
+    getVideoContainer,
+    isSupportedImageFile,
+    SignageMediaMetadata,
+} from '../signage-media-upload.util';
 
 export interface MediaEditModalData {
     media: SignageMedia;
     file?: File;
-    file_metadata?: [boolean, number];
+    file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
     playlist_id?: string;
-    onAdd: (f: File, m: SignageMedia) => Promise<SignageMedia>;
+    onAdd: (
+        f: File,
+        m: SignageMedia,
+        file_metadata?: SignageMediaMetadata,
+    ) => Promise<SignageMedia>;
     onEdit: (id: string, data: any) => Promise<void>;
     preview: (item: any) => void;
 }
@@ -288,9 +296,9 @@ export class MediaEditModalComponent implements OnDestroy {
     public get media_type() {
         if (!this.file) return this.item.media_type;
         return (
-            (this.file.type.includes('video')
+            (getVideoContainer(this.file)
                 ? 'video'
-                : this.file.type.includes('image')
+                : isSupportedImageFile(this.file)
                   ? 'image'
                   : '') || this.item.media_type
         );
@@ -321,7 +329,7 @@ export class MediaEditModalComponent implements OnDestroy {
         }
         if (this._data.file_metadata) {
             (this.item as any).video_length = Math.floor(
-                this._data.file_metadata[1] * 1000,
+                this._data.file_metadata.duration * 1000,
             );
         }
     }
@@ -360,12 +368,14 @@ export class MediaEditModalComponent implements OnDestroy {
             throw e;
         };
         if (this.item.id) {
-            await this._data
-                .onEdit(this.item.id, new_media)
-                .catch(onError);
+            await this._data.onEdit(this.item.id, new_media).catch(onError);
         } else {
             await this._data
-                .onAdd(this.file, new SignageMedia(new_media))
+                .onAdd(
+                    this.file,
+                    new SignageMedia(new_media),
+                    this._data.file_metadata,
+                )
                 .catch(onError);
         }
         this._dialog_ref.disableClose = false;

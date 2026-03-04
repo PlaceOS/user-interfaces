@@ -3,14 +3,15 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
     notifyError,
+    notifyInfo,
     notifySuccess,
+    notifyWarn,
     OrganisationService,
     UploadsService,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
     addSignageMedia,
-    addSignagePlaylist,
     listSignagePlaylistMedia,
     querySignageMedia,
     querySignagePlaylists,
@@ -21,12 +22,10 @@ import {
     SignageMedia,
     SignagePlaylist,
     updateSignageMedia,
-    updateSignagePlaylist,
     updateSignagePlaylistMedia,
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
-import { startWith } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     catchError,
@@ -34,13 +33,23 @@ import {
     filter,
     map,
     shareReplay,
+    startWith,
     switchMap,
 } from 'rxjs/operators';
+import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
-import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import {
+    getVideoContainer,
+    isImageSourceFile,
+    isSupportedImageFile,
+    SIGNAGE_MEDIA_PICKER_ACCEPT,
+    SignageMediaMetadata,
+    validateSignageMediaDimensions,
+    validateSignageMediaFile,
+} from './signage-media-upload.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -54,6 +63,12 @@ function dataURLtoFile(data_url: string, filename: string) {
     return new File([uint8_array], filename, { type: mime_type });
 }
 
+interface PreparedUploadMedia {
+    file: File;
+    media_type: 'image' | 'video';
+    metadata: SignageMediaMetadata;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -62,6 +77,7 @@ export class SignageService {
     private readonly _uploads = inject(UploadsService);
     private readonly _dialog = inject(MatDialog);
     private readonly _change = new BehaviorSubject(Date.now());
+    public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
     public readonly search_term = signal('');
     private search_term$ = toObservable(this.search_term);
@@ -329,16 +345,17 @@ export class SignageService {
     public async previewFileFromInput(event: Event, playlist_id = '') {
         const element = event.target as HTMLInputElement;
         if (!element?.files?.length) return;
-        const file = element.files.item(0);
-        if (
-            !file ||
-            (!file.type.includes('image') && !file.type.includes('video'))
-        ) {
-            notifyError('Please select an image or video file.');
-            return;
-        }
         try {
-            await this.editMedia(new SignageMedia({}), file, playlist_id);
+            const prepared = await this._prepareUploadMedia(
+                element.files.item(0),
+            );
+            if (!prepared) return;
+            await this.editMedia(
+                new SignageMedia({}),
+                prepared.file,
+                playlist_id,
+                prepared.metadata,
+            );
         } finally {
             element.value = '';
         }
@@ -359,22 +376,36 @@ export class SignageService {
         media: SignageMedia = new SignageMedia({}),
         file?: File,
         playlist_id = '',
+        prepared_file_metadata?: SignageMediaMetadata,
     ) {
+        const file_metadata = file
+            ? prepared_file_metadata || (await this._getMediaMetadata(file))
+            : {
+                  is_landscape: media.orientation === 'landscape',
+                  duration: 0,
+                  width: 0,
+                  height: 0,
+              };
+        const dimensions_validation =
+            validateSignageMediaDimensions(file_metadata);
+        if (!dimensions_validation.valid) {
+            notifyWarn(dimensions_validation.error);
+        }
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
                 media,
                 file,
-                file_metadata: file
-                    ? await this._getMediaMetadata(file)
-                    : [media.orientation === 'landscape', 0],
+                file_metadata,
                 file_thumbnail: file
                     ? await this._generateThumbnail(file, 1024, 720)
                     : '',
                 playlist_id,
-                onAdd: (f: File, m: SignageMedia) =>
-                    this._addMedia(f, m, playlist_id),
-                onEdit: (id: string, data: any) =>
-                    this._editMedia(id, data),
+                onAdd: (
+                    f: File,
+                    m: SignageMedia,
+                    file_metadata?: SignageMediaMetadata,
+                ) => this._addMedia(f, m, playlist_id, file_metadata),
+                onEdit: (id: string, data: any) => this._editMedia(id, data),
                 preview: (item) => this.previewMedia(item),
             },
         });
@@ -395,10 +426,11 @@ export class SignageService {
         file: File | undefined,
         media_item: SignageMedia,
         playlist_id = '',
+        file_metadata?: SignageMediaMetadata,
     ) {
         let result: SignageMedia;
         if (file) {
-            result = await this.addMedia(file, media_item);
+            result = await this.addMedia(file, media_item, file_metadata);
         } else {
             const data = { ...new SignageMedia(media_item) };
             for (const key in data) {
@@ -420,20 +452,30 @@ export class SignageService {
     public async addMedia(
         file: File,
         media_item: SignageMedia = new SignageMedia({}),
+        file_metadata?: SignageMediaMetadata,
     ) {
-        const [is_landscape] = await this._getMediaMetadata(file);
+        const prepared =
+            (file_metadata &&
+                (await this._prepareUploadMedia(file, file_metadata))) ||
+            (await this._prepareUploadMedia(file));
+        if (!prepared) {
+            throw new Error('Please select a media file to upload.');
+        }
+        const { file: upload_file, media_type, metadata } = prepared;
+        const { is_landscape } = metadata;
         const thumbnail_image = await this._generateThumbnail(
-            file,
+            upload_file,
             1280,
             720,
         ).catch(() => null);
-        const media_id = await this._uploads.uploadFileWithPermissions(file);
+        const media_id =
+            await this._uploads.uploadFileWithPermissions(upload_file);
         const media_url = `${
             location.origin
         }/api/engine/v2/uploads/${encodeURIComponent(media_id)}/url`;
         let thumbnail_id = '';
         if (thumbnail_image) {
-            const name_parts = file.name.split('.');
+            const name_parts = upload_file.name.split('.');
             name_parts.pop();
             const name = `thumb+${name_parts.join('.')}.jpg`;
             thumbnail_id = await this._uploads.uploadFile(
@@ -443,10 +485,10 @@ export class SignageService {
         const data = {
             ...new SignageMedia({
                 ...media_item,
-                name: media_item.name || file.name,
+                name: media_item.name || upload_file.name,
                 media_id,
                 media_uri: media_url,
-                media_type: file.type.includes('image') ? 'image' : 'video',
+                media_type,
                 orientation: is_landscape ? 'landscape' : 'portrait',
                 thumbnail_id,
             }),
@@ -456,6 +498,46 @@ export class SignageService {
         }
         const result = await lastValueFrom(addSignageMedia(data));
         return result;
+    }
+
+    private async _prepareUploadMedia(
+        file: File | null,
+        metadata?: SignageMediaMetadata,
+    ): Promise<PreparedUploadMedia | null> {
+        if (!file) {
+            notifyError('Please select a media file to upload.');
+            return null;
+        }
+        const normalized_file = await this._normalizeImageUpload(file);
+        const validation = await validateSignageMediaFile(normalized_file);
+        if (!validation.valid) {
+            notifyError(validation.error);
+            return null;
+        }
+        return {
+            file: normalized_file,
+            media_type: validation.media_type,
+            metadata:
+                metadata || (await this._getMediaMetadata(normalized_file)),
+        };
+    }
+
+    private async _normalizeImageUpload(file: File) {
+        if (isSupportedImageFile(file) || getVideoContainer(file)) {
+            return file;
+        }
+        if (!isImageSourceFile(file)) {
+            return file;
+        }
+        try {
+            const converted_file = await this._convertImageToWebp(file);
+            notifyInfo(
+                `Converted ${file.name} to ${converted_file.name} for browser compatibility.`,
+            );
+            return converted_file;
+        } catch {
+            return file;
+        }
     }
 
     public async removeMedia(item: SignageMedia) {
@@ -533,7 +615,11 @@ export class SignageService {
         }
         const zones = [...(display.zones || []), zone.id];
         await lastValueFrom(
-            updateSystem(display.id, { zones, version: display.version } as any, 'patch'),
+            updateSystem(
+                display.id,
+                { zones, version: display.version } as any,
+                'patch',
+            ),
         );
         this.changed();
         notifySuccess('Display added to zone');
@@ -547,7 +633,11 @@ export class SignageService {
             (id: string) => id !== zone.id,
         );
         await lastValueFrom(
-            updateSystem(display.id, { zones, version: display.version } as any, 'patch'),
+            updateSystem(
+                display.id,
+                { zones, version: display.version } as any,
+                'patch',
+            ),
         );
         this.changed();
         notifySuccess('Display removed from zone');
@@ -566,7 +656,11 @@ export class SignageService {
         }
         const playlists = [...(display.playlists || []), playlist_id];
         const updated = await lastValueFrom(
-            updateSystem(display.id, { playlists, version: display.version } as any, 'patch'),
+            updateSystem(
+                display.id,
+                { playlists, version: display.version } as any,
+                'patch',
+            ),
         );
         this.selected_display.set(updated);
         this.changed();
@@ -578,7 +672,11 @@ export class SignageService {
             (id: string) => id !== playlist_id,
         );
         const updated = await lastValueFrom(
-            updateSystem(display.id, { playlists, version: display.version } as any, 'patch'),
+            updateSystem(
+                display.id,
+                { playlists, version: display.version } as any,
+                'patch',
+            ),
         );
         this.selected_display.set(updated);
         this.changed();
@@ -586,23 +684,30 @@ export class SignageService {
     }
 
     private _getMediaMetadata(file: File) {
-        return new Promise<[boolean, number]>((resolve) => {
+        return new Promise<SignageMediaMetadata>((resolve) => {
             const url = URL.createObjectURL(file);
-            if (file.type.includes('video')) {
+            if (getVideoContainer(file)) {
                 const video = document.createElement('video');
                 video.src = url;
                 video.addEventListener('loadedmetadata', () => {
-                    resolve([
-                        video.videoWidth > video.videoHeight,
-                        video.duration,
-                    ]);
+                    resolve({
+                        is_landscape: video.videoWidth > video.videoHeight,
+                        duration: video.duration,
+                        width: video.videoWidth,
+                        height: video.videoHeight,
+                    });
                     URL.revokeObjectURL(url);
                 });
                 video.load();
             } else {
                 const img = new Image();
                 img.onload = () => {
-                    resolve([img.width > img.height, 0]);
+                    resolve({
+                        is_landscape: img.width > img.height,
+                        duration: 0,
+                        width: img.width,
+                        height: img.height,
+                    });
                     URL.revokeObjectURL(url);
                 };
                 img.src = url;
@@ -615,12 +720,9 @@ export class SignageService {
         max_width: number,
         max_height: number,
     ) {
-        if (file.type.includes('video')) {
+        if (getVideoContainer(file)) {
             return this._generateVideoThumbnail(file, max_width, max_height);
-        } else if (
-            file.type.includes('image') ||
-            file.type.includes('svg')
-        ) {
+        } else if (isSupportedImageFile(file)) {
             return this._generateImageThumbnail(file, max_width, max_height);
         }
         return '';
@@ -647,6 +749,44 @@ export class SignageService {
             };
             img.onerror = reject;
         });
+    }
+
+    private async _convertImageToWebp(file: File) {
+        const image = await this._loadImage(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Unable to convert image');
+        ctx.drawImage(image, 0, 0);
+        const blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, 'image/webp', 0.92),
+        );
+        if (!blob) throw new Error('Unable to convert image');
+        return new File([blob], this._replaceFileExtension(file.name, 'webp'), {
+            type: 'image/webp',
+            lastModified: file.lastModified,
+        });
+    }
+
+    private _loadImage(file: File) {
+        return new Promise<HTMLImageElement>((resolve, reject) => {
+            const image = new Image();
+            const url = URL.createObjectURL(file);
+            image.onload = () => {
+                URL.revokeObjectURL(url);
+                resolve(image);
+            };
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject(new Error('Unable to load image'));
+            };
+            image.src = url;
+        });
+    }
+
+    private _replaceFileExtension(file_name: string, next_extension: string) {
+        return file_name.replace(/\.[^.]+$/, '') + `.${next_extension}`;
     }
 
     private _generateVideoThumbnail(

@@ -99,6 +99,7 @@ function isValidUrl(url: string): boolean {
                 <input
                     type="file"
                     class="absolute inset-0 opacity-0"
+                    [attr.accept]="file_accept"
                     (change)="previewFile($event)"
                 />
             </button>
@@ -128,6 +129,7 @@ export class MediaListHeaderComponent {
     public readonly item_count = computed(() => this._media().length);
     public readonly total_count = computed(() => this._all_media().length);
     public readonly search = this._service.search_term;
+    public readonly file_accept = this._service.media_upload_accept;
 
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
