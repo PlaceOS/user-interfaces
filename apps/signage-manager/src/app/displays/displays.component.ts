@@ -62,6 +62,7 @@ import { DisplayListComponent } from './display-list.component';
                                 <a
                                     icon
                                     matRipple
+                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Open signage panel"
                                     [href]="panel_link()"
                                     target="_blank"

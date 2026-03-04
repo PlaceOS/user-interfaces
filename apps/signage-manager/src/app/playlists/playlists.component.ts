@@ -49,9 +49,24 @@ import { PlaylistListComponent } from './playlist-list.component';
                                         {{ selected_playlist().name }}
                                     </h4>
                                 </div>
+                                @if (requires_approval()) {
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
+                                        matTooltip="Approve playlist"
+                                        [disabled]="!is_admin()"
+                                        (click)="approvePlaylist()"
+                                    >
+                                        <icon class="text-warning"
+                                            >order_approve</icon
+                                        >
+                                    </button>
+                                }
                                 <button
                                     icon
                                     matRipple
+                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Edit playlist"
                                     (click)="editPlaylist()"
                                 >
@@ -60,6 +75,7 @@ import { PlaylistListComponent } from './playlist-list.component';
                                 <button
                                     icon
                                     matRipple
+                                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Delete playlist"
                                     (click)="removePlaylist()"
                                 >
@@ -167,6 +183,9 @@ export class PlaylistsSectionComponent {
 
     public readonly view_tab = signal<'items' | 'details'>('items');
     public readonly selected_playlist = this._service.selected_playlist;
+    public readonly requires_approval =
+        this._service.selected_playlist_requires_approval;
+    public readonly is_admin = this._service.is_admin;
 
     private readonly _playlists = toSignal(this._service.playlists, {
         initialValue: [],
@@ -215,6 +234,11 @@ export class PlaylistsSectionComponent {
     public removePlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.removePlaylist(playlist);
+    }
+
+    public approvePlaylist() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._service.approvePlaylist(playlist);
     }
 
     public deselectPlaylist() {

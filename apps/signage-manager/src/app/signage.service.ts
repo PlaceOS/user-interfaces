@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    currentUser,
     notifyError,
     notifyInfo,
     notifySuccess,
@@ -41,6 +42,7 @@ import {
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 import {
@@ -237,6 +239,21 @@ export class SignageService {
             p.name.toLowerCase().includes(term),
         );
     });
+
+    public readonly is_admin = computed(() => {
+        const groups = currentUser().groups || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        return (
+            groups.includes(admin_group) || groups.includes('placeos_admin')
+        );
+    });
+
+    public readonly selected_playlist_requires_approval = computed(() => {
+        const playlist = this.selected_playlist();
+        if (!playlist?.id) return false;
+        const approvals = this.playlist_approval_status();
+        return playlist.id in approvals && !approvals[playlist.id];
+    });
     public readonly playlist_approval_status = computed(() => {
         const result: Record<string, boolean> = {};
         for (const [playlist_id, data] of Object.entries(
@@ -284,26 +301,41 @@ export class SignageService {
 
     private readonly _playlist_change = new BehaviorSubject(Date.now());
     private readonly _selected_playlist$ = toObservable(this.selected_playlist);
+    public readonly playlist_media_loading = signal(false);
 
     public readonly playlist_media_items$ = combineLatest([
         this._selected_playlist$,
         this._playlist_change,
     ]).pipe(
         switchMap(([playlist]) => {
-            if (!playlist?.id) return of([]);
+            if (!playlist?.id) {
+                this.playlist_media_loading.set(false);
+                return of([]);
+            }
+            this.playlist_media_loading.set(true);
             return listSignagePlaylistMedia(playlist.id).pipe(
                 switchMap((result) => {
                     const item_ids = result.items || [];
-                    if (!item_ids.length) return of([]);
+                    if (!item_ids.length) {
+                        this.playlist_media_loading.set(false);
+                        return of([]);
+                    }
                     return this.media.pipe(
                         map((all_media) =>
                             item_ids
                                 .map((id) => all_media.find((m) => m.id === id))
                                 .filter(Boolean),
                         ),
+                        map((items) => {
+                            this.playlist_media_loading.set(false);
+                            return items;
+                        }),
                     );
                 }),
-                catchError(() => of([])),
+                catchError(() => {
+                    this.playlist_media_loading.set(false);
+                    return of([]);
+                }),
             );
         }),
         shareReplay(1),
@@ -366,6 +398,14 @@ export class SignageService {
         result.close();
     }
 
+    public approvePlaylist(playlist: SignagePlaylist) {
+        if (!playlist?.id) return;
+        this._dialog.open(PlaylistApproveModalComponent, {
+            data: { playlist },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
     public async removeMediaFromPlaylist(
         playlist_id: string,
         media_id: string,
@@ -377,6 +417,7 @@ export class SignageService {
             (id) => id !== media_id,
         );
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, new_items));
+        this.setPlaylistApprovalStatus(playlist_id, false);
         notifySuccess('Item removed from playlist');
         this._playlist_change.next(Date.now());
         this.changed();
@@ -384,6 +425,7 @@ export class SignageService {
 
     public async reorderPlaylistMedia(playlist_id: string, items: string[]) {
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, items));
+        this.setPlaylistApprovalStatus(playlist_id, false);
         this._playlist_change.next(Date.now());
     }
 
@@ -393,6 +435,7 @@ export class SignageService {
 
     public async updatePlaylistMedia(playlist_id: string, list: string[]) {
         await lastValueFrom(updateSignagePlaylistMedia(playlist_id, list));
+        this.setPlaylistApprovalStatus(playlist_id, false);
         notifySuccess('Playlist updated');
         this.changed();
     }
@@ -468,6 +511,19 @@ export class SignageService {
             ...state,
             [playlist_id]: data,
         }));
+    }
+
+    public setPlaylistApprovalStatus(playlist_id: string, approved: boolean) {
+        const playlist =
+            this._playlists().find((item) => item.id === playlist_id) ||
+            this.selected_playlist();
+        const current_state = this._playlist_meta_state()[playlist_id];
+        this._setPlaylistMeta(playlist_id, {
+            media_ids: current_state?.media_ids || [],
+            updated_at:
+                current_state?.updated_at || playlist?.updated_at || Date.now(),
+            approved,
+        });
     }
 
     private _updatePlaylistMetaState(

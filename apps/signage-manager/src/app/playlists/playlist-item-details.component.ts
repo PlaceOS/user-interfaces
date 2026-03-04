@@ -178,10 +178,7 @@ import { SignageService } from '../signage.service';
                                     <a
                                         matRipple
                                         class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
-                                        [routerLink]="[
-                                            '/displays',
-                                            display.id,
-                                        ]"
+                                        [routerLink]="['/displays', display.id]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -222,16 +219,13 @@ import { SignageService } from '../signage.service';
                         <ng-template mat-tab-label>
                             Zones ({{ playlist_zones().length }})
                         </ng-template>
-                        <div class="h-full gap-2 overflow-auto">
+                        <div class="h-full gap-2 overflow-auto p-2">
                             @if (playlist_zones().length > 0) {
                                 @for (zone of playlist_zones(); track zone.id) {
                                     <a
                                         matRipple
                                         class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
-                                        [routerLink]="[
-                                            '/zones',
-                                            zone.id,
-                                        ]"
+                                        [routerLink]="['/zones', zone.id]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -288,7 +282,13 @@ import { SignageService } from '../signage.service';
             }
         `,
     ],
-    imports: [MatRippleModule, MatTabsModule, RouterLink, IconComponent, MediaDurationPipe],
+    imports: [
+        MatRippleModule,
+        MatTabsModule,
+        RouterLink,
+        IconComponent,
+        MediaDurationPipe,
+    ],
 })
 export class PlaylistItemDetailsComponent {
     private readonly _service = inject(SignageService);

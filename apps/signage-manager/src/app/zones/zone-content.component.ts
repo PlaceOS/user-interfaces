@@ -35,6 +35,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             <button
                                 icon
                                 matRipple
+                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 matTooltip="Add playlist"
                                 (click)="addPlaylist()"
                             >
@@ -77,16 +78,14 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                         class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
                                                         [style.top]="
                                                             0.3 -
-                                                            (len - 1) *
-                                                                0.125 +
+                                                            (len - 1) * 0.125 +
                                                             (len - 1 - i) *
                                                                 0.25 +
                                                             'rem'
                                                         "
                                                         [style.left]="
                                                             0.3 -
-                                                            (len - 1) *
-                                                                0.125 +
+                                                            (len - 1) * 0.125 +
                                                             (len - 1 - i) *
                                                                 0.25 +
                                                             'rem'
@@ -110,7 +109,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             >
                                                 {{ playlist.name }}
                                             </div>
-                                            <div class="mt-1 flex flex-wrap gap-1">
+                                            <div
+                                                class="mt-1 flex flex-wrap gap-1"
+                                            >
                                                 @if (!playlist.enabled) {
                                                     <span
                                                         class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
@@ -133,7 +134,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                             Pending
                                                         </span>
                                                     }
-                                                    @case ('awaiting_approval') {
+                                                    @case (
+                                                        'awaiting_approval'
+                                                    ) {
                                                         <span
                                                             class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                         >
@@ -183,6 +186,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             <button
                                 icon
                                 matRipple
+                                class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 matTooltip="Add display"
                                 (click)="addDisplay()"
                             >
@@ -198,10 +202,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     <a
                                         matRipple
                                         class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
-                                        [routerLink]="[
-                                            '/displays',
-                                            display.id,
-                                        ]"
+                                        [routerLink]="['/displays', display.id]"
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"

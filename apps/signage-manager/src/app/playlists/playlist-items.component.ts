@@ -7,6 +7,7 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
@@ -29,6 +30,19 @@ import { SignageService } from '../signage.service';
                         {{ selected_playlist().name }}
                     </h4>
                 </div>
+                @if (requires_approval()) {
+                    <button
+                        btn
+                        matRipple
+                        class="bg-warning text-warning-content h-10 shrink-0 rounded-lg px-3"
+                        [disabled]="!is_admin()"
+                        [matTooltip]="approval_tooltip()"
+                        (click)="approvePlaylist()"
+                    >
+                        <icon class="mr-2 text-xl">order_approve</icon>
+                        <span>Approve</span>
+                    </button>
+                }
                 <button
                     icon
                     matRipple
@@ -46,7 +60,14 @@ import { SignageService } from '../signage.service';
                     <icon class="text-error">delete</icon>
                 </button>
             </div>
-            @if (items().length > 0) {
+            @if (loading()) {
+                <div
+                    class="flex flex-1 flex-col items-center justify-center space-y-3 p-8 opacity-70"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>Loading playlist items...</p>
+                </div>
+            } @else if (items().length > 0) {
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
@@ -207,6 +228,7 @@ import { SignageService } from '../signage.service';
         DragDropModule,
         MatRippleModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         AuthenticatedImageDirective,
@@ -218,9 +240,17 @@ export class PlaylistItemsComponent {
 
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly selected_item = this._service.selected_playlist_item;
+    public readonly requires_approval =
+        this._service.selected_playlist_requires_approval;
+    public readonly is_admin = this._service.is_admin;
+    public readonly loading = this._service.playlist_media_loading;
     public readonly items = toSignal(this._service.playlist_media_items$, {
         initialValue: [] as SignageMedia[],
     });
+    public readonly approval_tooltip = () =>
+        this.is_admin()
+            ? 'Approve playlist'
+            : 'Only admins can approve playlists';
 
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
@@ -238,6 +268,11 @@ export class PlaylistItemsComponent {
     public removePlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.removePlaylist(playlist);
+    }
+
+    public approvePlaylist() {
+        const playlist = this.selected_playlist();
+        if (playlist) this._service.approvePlaylist(playlist);
     }
 
     public async removeItem(item: SignageMedia) {
