@@ -40,7 +40,12 @@ describe('InviteVisitorFormComponent', () => {
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 building_list: new BehaviorSubject([]),
-            }),
+                buildings: [
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ],
+                building: { id: 'bld-1', name: 'Building One' },
+            } as any),
             MockProvider(SettingsService, { get: jest.fn() }),
         ],
         imports: [
@@ -61,6 +66,20 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
+
+    it('should resolve selected building from booking zones and patch selected building', async () => {
+        const service = spectator.inject(BookingFormService);
+        await spectator.component.ngOnInit();
+        service.form.patchValue({
+            zones: ['org-1', 'bld-2'],
+        });
+
+        expect(spectator.component.selected_building_id).toBe('bld-2');
+
+        spectator.component.setBuilding('bld-1');
+
+        expect(service.form.value.zones).toEqual(['bld-1']);
+    });
 
     it('should contain form fields', () => {
         expect('a-date-field').toExist();
@@ -138,6 +157,43 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.form.value.assets[1].email).toBe(
             'visitor.two@example.com',
         );
+    });
+
+    it('should prefer group member names when sibling booking asset names are reason text', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as jest.Mock).mockResolvedValue([
+            new Booking({
+                id: 'booking-parent',
+                asset_name: 'Vendor Interview',
+                asset_id: 'visitor.one@example.com',
+                extension_data: {
+                    group_members: [
+                        {
+                            name: 'Visitor One',
+                            email: 'visitor.one@example.com',
+                            company: 'Org One',
+                        },
+                    ],
+                },
+            }),
+        ]);
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_name: 'Vendor Interview',
+            asset_id: 'visitor.one@example.com',
+        });
+
+        await spectator.component.ngOnInit();
+        await wait(0);
+
+        expect(service.form.value.assets[0].name).toBe('Visitor One');
     });
 
     it('should load group members from extension data when sibling lookup is empty', async () => {
@@ -273,6 +329,54 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.form.value.asset_id).toBe('original.visitor@example.com');
     });
 
+    it('should load siblings before edit submit when sibling cache is still empty', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        const load_group_siblings = service.loadGroupSiblings as jest.Mock;
+        load_group_siblings.mockReset();
+        load_group_siblings
+            .mockImplementationOnce(() => new Promise(() => {}))
+            .mockResolvedValueOnce([
+                new Booking({
+                    id: 'booking-parent',
+                    asset_name: 'Visitor One',
+                    asset_id: 'visitor.one@example.com',
+                }),
+                new Booking({
+                    id: 'booking-child',
+                    parent_id: 'booking-parent',
+                    asset_name: 'Visitor Two',
+                    asset_id: 'visitor.two@example.com',
+                }),
+            ]);
+        service.form.patchValue({
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+            assets: [
+                {
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                },
+            ],
+        });
+
+        await spectator.component.ngOnInit();
+        await spectator.component.sendInvite();
+
+        expect(load_group_siblings.mock.calls.length).toBeGreaterThanOrEqual(2);
+        expect(service.editFormForGroup).toHaveBeenCalled();
+        const last_call =
+            (service.editFormForGroup as jest.Mock).mock.calls.at(-1) || [];
+        expect(last_call[0]).toHaveLength(2);
+    });
+
     it('should keep start time available when date control is disabled', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
@@ -294,6 +398,7 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(spectator.component.form_date).toBe(booking_date);
+        expect(spectator.component.is_start_time_disabled).toBe(true);
     });
 
     it('should set reason on title only when sending invite', async () => {
@@ -316,6 +421,65 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.postForm).toHaveBeenCalled();
         expect(service.form.value.title).toBe('Visit');
         expect(service.form.value.description || '').toBe('');
+    });
+
+    it('should keep preloaded edit booking date when initialising visitor form', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        sessionStorage.removeItem('PLACEOS.booking_form');
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
+        const booking_date = Date.now() - 15 * 60 * 1000;
+        service.form.patchValue({
+            id: 'booking-edit',
+            booking_type: 'visitor',
+            date: booking_date,
+            duration: 60,
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(service.form.getRawValue().id).toBe('booking-edit');
+        expect(service.form.getRawValue().date).toBe(booking_date);
+    });
+
+    it('should keep preloaded edit booking date when booking only has visitor type', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        );
+        sessionStorage.removeItem('PLACEOS.booking_form');
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
+        const booking_date = Date.now() - 20 * 60 * 1000;
+        (service as any).booking = new Booking({
+            id: 'booking-edit-type-only',
+            type: 'visitor',
+            booking_type: ' ',
+            date: booking_date,
+            duration: 60,
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        });
+        service.form.patchValue({
+            id: 'booking-edit-type-only',
+            booking_type: ' ',
+            date: booking_date,
+            duration: 60,
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        });
+
+        await spectator.component.ngOnInit();
+
+        expect(service.form.getRawValue().id).toBe('booking-edit-type-only');
+        expect(service.form.getRawValue().date).toBe(booking_date);
     });
 
     it('should not block init while loading sibling visitors', async () => {

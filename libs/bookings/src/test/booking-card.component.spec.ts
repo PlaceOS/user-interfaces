@@ -50,4 +50,26 @@ describe('BookingCardComponent', () => {
         spectator.detectChanges();
         expect('[day]').toExist();
     });
+
+    it('should show visitor name instead of reason when attendee is present', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'visitor',
+                type: 'visitor',
+                title: 'Vendor Interview',
+                description: 'Vendor Interview',
+                asset_name: 'Vendor Interview',
+                asset_id: 'visitor.one@example.com',
+                attendees: [
+                    {
+                        name: 'Visitor One',
+                        email: 'visitor.one@example.com',
+                    },
+                ],
+            } as any),
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component.resource_label).toBe('Visitor One');
+    });
 });
