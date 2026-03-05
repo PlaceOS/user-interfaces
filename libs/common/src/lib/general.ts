@@ -142,21 +142,28 @@ export function randomString(
  * @param csv CSV data to parse
  */
 export function csvToJson(csv: string, delimiter = ','): HashMap[] {
+    const escaped_delimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const objPattern = new RegExp(
-        '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
+        `(${escaped_delimiter}|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^${escaped_delimiter}\\r\\n]*))`,
         'gi',
     );
     let arrMatches = null;
     const arrData = [[]];
     while ((arrMatches = objPattern.exec(csv))) {
-        if (arrMatches[1].length && arrMatches[1] !== ',') arrData.push([]);
+        if (arrMatches[1].length && arrMatches[1] !== delimiter)
+            arrData.push([]);
         arrData[arrData.length - 1].push(
             arrMatches[2]
                 ? arrMatches[2]?.replace(new RegExp('""', 'g'), '"')
                 : arrMatches[3],
         );
     }
-    const headers: string[] = arrData.splice(0, 1)[0];
+    const headers: string[] = (arrData.splice(0, 1)[0] || []).map(
+        (header, index) => {
+            const value = header || '';
+            return index === 0 ? value.replace(/^\uFEFF/, '') : value;
+        },
+    );
     const elements = arrData.map((row) => {
         const element = {};
         for (let i = 0; i < row.length; i++) {
@@ -205,17 +212,36 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => key in json[0]);
-        return `${valid_keys.join(seperator)}\n${json
+        const map_cell = (value: any) => {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'object') return JSON.stringify(value);
+            return `${value}`;
+        };
+        const escape_cell = (value: string) => {
+            const escaped_value = value.replace(/"/g, '""');
+            const should_wrap =
+                escaped_value.includes(seperator) ||
+                escaped_value.includes('"') ||
+                escaped_value.includes('\n') ||
+                escaped_value.includes('\r');
+            return should_wrap ? `"${escaped_value}"` : escaped_value;
+        };
+        const header_row = valid_keys.map((key) => escape_cell(key)).join(seperator);
+        const rows = json
             .map((item) =>
                 valid_keys
-                    .map((key) =>
-                        (JSON.stringify(item[key]) || '')?.replace(',', '|'),
-                    )
+                    .map((key) => escape_cell(map_cell(item[key])))
                     .join(seperator),
-            )
-            .join('\n')}`;
+            );
+        return [header_row, ...rows].join('\r\n');
     }
     return '';
+}
+
+function textFileType(filename: string) {
+    if (filename.endsWith('.csv')) return 'text/csv';
+    if (filename.endsWith('.tsv')) return 'text/tab-separated-values';
+    return 'text/plain';
 }
 
 /**
@@ -224,11 +250,24 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
  * @param contents Contents of the file to download
  */
 export function downloadFile(filename: string, contents: string) {
+    const lower_filename = filename.toLowerCase();
+    const file_type = textFileType(lower_filename);
+    const should_prefix_bom =
+        lower_filename.endsWith('.csv') || lower_filename.endsWith('.tsv');
+    const data = `${should_prefix_bom ? '\uFEFF' : ''}${contents}`;
     const element = document.createElement('a');
-    element.setAttribute(
-        'href',
-        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents),
-    );
+    const use_blob_url = !!window.URL?.createObjectURL;
+    if (use_blob_url) {
+        const blob = new Blob([data], { type: `${file_type};charset=utf-8` });
+        const object_url = window.URL.createObjectURL(blob);
+        element.setAttribute('href', object_url);
+        setTimeout(() => window.URL.revokeObjectURL(object_url), 0);
+    } else {
+        element.setAttribute(
+            'href',
+            `data:${file_type};charset=utf-8,${encodeURIComponent(data)}`,
+        );
+    }
     element.setAttribute('download', filename);
 
     element.style.display = 'none';
