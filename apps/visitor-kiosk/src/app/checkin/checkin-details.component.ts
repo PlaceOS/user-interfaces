@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
-import { nextValueFrom, SettingsService } from '@placeos/common';
+import { nextValueFrom, settingSignal } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { first } from 'rxjs/operators';
 import { CheckinStateService } from './checkin-state.service';
@@ -13,7 +13,7 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: '[checkin-details]',
     template: `
-        @if ((form | async) && !loading) {
+        @if ((form | async) && !loading()) {
             <form
                 [formGroup]="form | async"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
@@ -98,7 +98,7 @@ import { CheckinStateService } from './checkin-state.service';
                         />
                     </mat-form-field>
                 </div>
-                @if (allow_pass_number) {
+                @if (allow_pass_number()) {
                     <div field class="flex flex-col">
                         <label form="pass">
                             {{ 'BOOKINGS.VISITOR_PASS' | translate }}
@@ -174,26 +174,27 @@ import { CheckinStateService } from './checkin-state.service';
 export class CheckinDetailsComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
-    private _settings = inject(SettingsService);
 
     public readonly form = this._checkin.form;
-
-    public loading = false;
-
-    public get induction_after_details() {
-        return this._settings.get('app.induction_after_details');
-    }
-
-    public get allow_pass_number() {
-        return this._settings.get('app.allow_pass_number');
-    }
-
-    public get allow_user_photo() {
-        return (
-            this._settings.get('app.allow_user_photo') &&
-            this._settings.get('app.allow_printing_label') !== false
-        );
-    }
+    public readonly loading = signal(false);
+    public readonly induction_after_details = settingSignal(
+        'induction_after_details',
+        false,
+    );
+    public readonly allow_pass_number = settingSignal(
+        'allow_pass_number',
+        false,
+    );
+    public readonly induction_available = computed(
+        () =>
+            settingSignal('induction_enabled', false)() &&
+            settingSignal('induction_details')(),
+    );
+    public readonly allow_user_photo = computed(
+        () =>
+            settingSignal('allow_user_photo', false)() &&
+            settingSignal('allow_printing_label', false)(),
+    );
 
     public async ngOnInit() {
         const form = await nextValueFrom(this.form.pipe(first()));
@@ -206,20 +207,20 @@ export class CheckinDetailsComponent implements OnInit {
     }
 
     public async updateGuest(update = true) {
-        this.loading = true;
+        this.loading.set(true);
         if (update) await this._checkin.updateGuest();
         const result = await this._checkin
             .checkinGuest()
             .then(() => true)
             .catch(() => false);
-        this.loading = false;
+        this.loading.set(false);
         if (!result) return;
-        if (this.induction_after_details) {
+        if (this.induction_after_details() && this.induction_available()) {
             this._router.navigate(['/checkin', 'induction']);
         } else {
             this._router.navigate([
                 '/checkin',
-                this.allow_user_photo ? 'photo' : 'results',
+                this.allow_user_photo() ? 'photo' : 'results',
             ]);
         }
     }
