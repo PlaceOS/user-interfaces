@@ -4,6 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent } from '@placeos/components';
+import { SignageMedia } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
@@ -14,6 +15,7 @@ import { PlaylistItemsComponent } from './playlist-items.component';
 import { PlaylistListComponent } from './playlist-list.component';
 
 const TAB_QUERY_PARAM = 'tab';
+const ITEM_QUERY_PARAM = 'item';
 
 function parsePlaylistTab(value: string | null): 'items' | 'details' {
     return value === 'details' ? 'details' : 'items';
@@ -204,6 +206,13 @@ export class PlaylistsSectionComponent {
         this._route.queryParamMap.pipe(map((p) => p.get(TAB_QUERY_PARAM))),
         { initialValue: null as string | null },
     );
+    private readonly _route_item_id = toSignal(
+        this._route.queryParamMap.pipe(map((p) => p.get(ITEM_QUERY_PARAM))),
+        { initialValue: null as string | null },
+    );
+    private readonly _playlist_items = toSignal(this._service.playlist_media_items$, {
+        initialValue: [] as SignageMedia[],
+    });
 
     private _route_resolved = false;
 
@@ -234,6 +243,16 @@ export class PlaylistsSectionComponent {
                 this._service.selected_playlist.set(null);
                 this._service.selected_playlist_item.set(null);
             }
+        });
+
+        // Sync selected media item from query param
+        effect(() => {
+            const item_id = this._route_item_id();
+            if (!item_id) return;
+            const items = this._playlist_items();
+            if (!items.length) return;
+            const matched_item = items.find((item) => item.id === item_id);
+            this._service.selected_playlist_item.set(matched_item || null);
         });
     }
 

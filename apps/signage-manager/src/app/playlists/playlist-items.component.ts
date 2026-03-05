@@ -32,21 +32,21 @@ import { SignageService } from '../signage.service';
                 </div>
                 @if (requires_approval()) {
                     <button
-                        btn
+                        icon
                         matRipple
-                        class="bg-warning text-warning-content h-10 shrink-0 rounded-lg px-3"
+                        class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         [disabled]="!is_admin()"
                         [matTooltip]="approval_tooltip()"
                         (click)="approvePlaylist()"
                     >
-                        <icon class="mr-2 text-xl">order_approve</icon>
-                        <span>Approve</span>
+                        <icon class="text-warning">order_approve</icon>
                     </button>
                 }
                 <button
                     icon
                     matRipple
                     matTooltip="Edit playlist"
+                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                     (click)="editPlaylist()"
                 >
                     <icon>edit</icon>
@@ -55,6 +55,7 @@ import { SignageService } from '../signage.service';
                     icon
                     matRipple
                     matTooltip="Delete playlist"
+                    class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                     (click)="removePlaylist()"
                 >
                     <icon class="text-error">delete</icon>

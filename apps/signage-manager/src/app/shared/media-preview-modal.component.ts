@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -153,8 +154,18 @@ import { SignageService } from '../signage.service';
                                         playlist of containing_playlists();
                                         track playlist.id
                                     ) {
-                                        <div
-                                            class="flex items-center space-x-2 py-1"
+                                        <a
+                                            matRipple
+                                            mat-dialog-close
+                                            class="hover:bg-base-200 flex items-center space-x-2 rounded px-2 py-1 no-underline"
+                                            [routerLink]="[
+                                                '/playlists',
+                                                playlist.id,
+                                            ]"
+                                            [queryParams]="{
+                                                tab: 'items',
+                                                item: item.id,
+                                            }"
                                         >
                                             <icon
                                                 class="text-base-content/60 text-xl"
@@ -163,7 +174,7 @@ import { SignageService } from '../signage.service';
                                             <span class="text-sm">{{
                                                 playlist.name
                                             }}</span>
-                                        </div>
+                                        </a>
                                     }
                                 </div>
                             } @else {
@@ -190,6 +201,7 @@ import { SignageService } from '../signage.service';
         CommonModule,
         MatRippleModule,
         MatDialogModule,
+        RouterLink,
         IconComponent,
         AuthenticatedImageDirective,
         MediaDurationPipe,
