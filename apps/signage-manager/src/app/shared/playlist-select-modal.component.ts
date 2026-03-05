@@ -16,12 +16,18 @@ import { SignageService } from '../signage.service';
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Add to Playlist</h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                type="button"
+                matRipple
+                mat-dialog-close
+                aria-label="Close add playlist dialog"
+            >
                 <icon>close</icon>
             </button>
         </header>
         <main
-            class="h-[65vh] min-w-lg max-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:min-w-0 max-md:max-w-none max-md:flex-1"
+            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
             <mat-form-field
                 appearance="outline"
@@ -32,20 +38,18 @@ import { SignageService } from '../signage.service';
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
                     placeholder="Search playlists"
+                    aria-label="Search playlists"
                 />
             </mat-form-field>
             @if (filtered_playlists()?.length > 0) {
-                @for (
-                    playlist of filtered_playlists();
-                    track playlist.id
-                ) {
+                @for (playlist of filtered_playlists(); track playlist.id) {
                     <button
+                        type="button"
                         matRipple
                         class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
                         [mat-dialog-close]="playlist.id"
                     >
-                        <icon
-                            class="text-base-content/60 shrink-0 text-2xl"
+                        <icon class="text-base-content/60 shrink-0 text-2xl"
                             >playlist_play</icon
                         >
                         <div class="min-w-0 flex-1">
@@ -54,7 +58,7 @@ import { SignageService } from '../signage.service';
                             </div>
                             @if (playlist.description) {
                                 <div
-                                    class="truncate text-xs opacity-30"
+                                    class="text-base-content/70 truncate text-xs"
                                 >
                                     {{ playlist.description }}
                                 </div>
@@ -66,8 +70,10 @@ import { SignageService } from '../signage.service';
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
-                    <icon class="text-8xl opacity-30">playlist_play</icon>
-                    <div class="opacity-30">No playlists found</div>
+                    <icon class="text-base-content/70 text-8xl"
+                        >playlist_play</icon
+                    >
+                    <div class="text-base-content/70">No playlists found</div>
                 </div>
             }
         </main>

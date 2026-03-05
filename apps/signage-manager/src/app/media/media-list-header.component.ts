@@ -57,16 +57,19 @@ function isValidUrl(url: string): boolean {
                     placeholder="Search"
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
+                    aria-label="Search media"
                 />
             </mat-form-field>
             <button
                 icon
+                type="button"
                 matRipple
                 customTooltip
                 [content]="add_link_template"
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                 matTooltip="Add from link"
                 matTooltipPosition="left"
+                aria-label="Add media from link"
             >
                 <icon>link</icon>
             </button>
@@ -75,10 +78,16 @@ function isValidUrl(url: string): boolean {
                     class="border-base-300 bg-base-100 my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border p-4 shadow-sm"
                 >
                     <mat-form-field appearance="outline" class="no-subscript">
-                        <input matInput placeholder="URL" [(ngModel)]="link" />
+                        <input
+                            matInput
+                            placeholder="URL"
+                            [(ngModel)]="link"
+                            aria-label="Media URL"
+                        />
                     </mat-form-field>
                     <button
                         btn
+                        type="button"
                         matRipple
                         class="w-full"
                         (click)="addFromLink()"
@@ -90,19 +99,24 @@ function isValidUrl(url: string): boolean {
             </ng-template>
             <button
                 icon
+                type="button"
                 matRipple
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
                 matTooltip="Upload media"
                 matTooltipPosition="left"
+                aria-label="Upload media file"
+                (click)="upload_input.click()"
             >
                 <icon>add</icon>
-                <input
-                    type="file"
-                    class="absolute inset-0 opacity-0"
-                    [attr.accept]="file_accept"
-                    (change)="previewFile($event)"
-                />
             </button>
+            <input
+                #upload_input
+                type="file"
+                class="sr-only"
+                [attr.accept]="file_accept"
+                aria-label="Upload media file"
+                (change)="previewFile($event)"
+            />
         </div>
     `,
     imports: [

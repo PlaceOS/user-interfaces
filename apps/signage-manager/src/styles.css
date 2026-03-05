@@ -11,6 +11,34 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role='button']:focus-visible,
+[role='tab']:focus-visible,
+[mat-menu-item]:focus-visible {
+    outline: 3px solid var(--color-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    top: -10rem;
+    left: 1rem;
+    z-index: 1000;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-base-100, #ffffff);
+    color: var(--color-base-content, #111827);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
 :root {
     --bg: #212121;
     --transition-delay: 1000ms;

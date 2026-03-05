@@ -35,13 +35,17 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         placeholder="Search playlists"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
+                        aria-label="Search playlists"
                     />
                 </mat-form-field>
             </div>
             <div class="flex-1 overflow-auto p-2">
                 @if (filtered_playlists()?.length) {
                     @for (playlist of filtered_playlists(); track playlist.id) {
-                        <a [routerLink]="['/playlists', playlist.id]">
+                        <a
+                            [routerLink]="['/playlists', playlist.id]"
+                            [attr.aria-label]="'Open playlist ' + playlist.name"
+                        >
                             <div
                                 cdkDropList
                                 [id]="'playlist-' + $index"
@@ -69,6 +73,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             <img
                                                 auth
                                                 [source]="media"
+                                                alt=""
                                                 class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
                                                 [style.top]="
                                                     0.3 -
@@ -133,7 +138,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     </div>
                                     @if (playlist.description) {
                                         <div
-                                            class="mt-0.5 truncate text-xs opacity-50"
+                                            class="text-base-content/70 mt-0.5 truncate text-xs"
                                         >
                                             {{ playlist.description }}
                                         </div>
@@ -144,7 +149,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                     }
                 } @else {
                     <div
-                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                        class="text-base-content/70 flex flex-col items-center justify-center p-8"
                     >
                         <icon class="text-4xl">playlist_play</icon>
                         <p class="mt-2 text-sm">No playlists</p>

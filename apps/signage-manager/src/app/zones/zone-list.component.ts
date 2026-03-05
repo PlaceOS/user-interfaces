@@ -23,6 +23,7 @@ import { SignageService } from '../signage.service';
                         placeholder="Search zones"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
+                        aria-label="Search zones"
                     />
                 </mat-form-field>
             </div>
@@ -38,6 +39,9 @@ import { SignageService } from '../signage.service';
                         [class.hover:bg-base-200]="selected()?.id !== zone.id"
                         [routerLink]="['/zones', zone.id]"
                         queryParamsHandling="merge"
+                        [attr.aria-label]="
+                            'Open zone ' + (zone.display_name || zone.name)
+                        "
                     >
                         <icon class="shrink-0 text-2xl">layers</icon>
                         <div class="min-w-0 flex-1">
@@ -47,10 +51,10 @@ import { SignageService } from '../signage.service';
                             @if (zone.description) {
                                 <div
                                     class="mt-0.5 truncate text-xs"
-                                    [class.opacity-50]="
+                                    [class.opacity-70]="
                                         selected()?.id !== zone.id
                                     "
-                                    [class.opacity-70]="
+                                    [class.opacity-90]="
                                         selected()?.id === zone.id
                                     "
                                 >
@@ -62,7 +66,7 @@ import { SignageService } from '../signage.service';
                 }
             } @else {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">layers</icon>
                     <p>No zones found.</p>

@@ -15,12 +15,18 @@ import { SignageService } from '../signage.service';
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">Add Display</h2>
-            <button icon matRipple mat-dialog-close>
+            <button
+                icon
+                type="button"
+                matRipple
+                mat-dialog-close
+                aria-label="Close add display dialog"
+            >
                 <icon>close</icon>
             </button>
         </header>
         <main
-            class="h-[65vh] min-w-lg max-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:min-w-0 max-md:max-w-none max-md:flex-1"
+            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
             <mat-form-field
                 appearance="outline"
@@ -31,11 +37,13 @@ import { SignageService } from '../signage.service';
                     [ngModel]="search()"
                     (ngModelChange)="search.set($event)"
                     placeholder="Search displays"
+                    aria-label="Search displays"
                 />
             </mat-form-field>
             @if (filtered_displays()?.length > 0) {
                 @for (display of filtered_displays(); track display.id) {
                     <button
+                        type="button"
                         matRipple
                         class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
                         [mat-dialog-close]="display.id"
@@ -45,12 +53,12 @@ import { SignageService } from '../signage.service';
                         >
                         <div class="min-w-0 flex-1">
                             <div class="truncate">
-                                {{
-                                    display.display_name || display.name
-                                }}
+                                {{ display.display_name || display.name }}
                             </div>
                             @if (display.description) {
-                                <div class="truncate text-xs opacity-30">
+                                <div
+                                    class="text-base-content/70 truncate text-xs"
+                                >
                                     {{ display.description }}
                                 </div>
                             }
@@ -61,8 +69,8 @@ import { SignageService } from '../signage.service';
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
-                    <icon class="text-8xl opacity-30">tv</icon>
-                    <div class="opacity-30">No displays found</div>
+                    <icon class="text-base-content/70 text-8xl">tv</icon>
+                    <div class="text-base-content/70">No displays found</div>
                 </div>
             }
         </main>

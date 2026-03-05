@@ -22,6 +22,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                     @if (activeTab() === 'schedule') {
                         <!-- Schedule panel -->
                         <div
+                            id="display-schedule-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-schedule-tab"
                             class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
                         >
                             <display-schedule />
@@ -31,23 +34,28 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                     @if (activeTab() === 'playlists') {
                         <!-- Playlists panel -->
                         <div
+                            id="display-playlists-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-playlists-tab"
                             class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
                         >
                             <div
                                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                             >
                                 <h5
-                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
+                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
                                 >
                                     <icon class="text-lg">playlist_play</icon>
                                     Playlists ({{ display_playlists().length }})
                                 </h5>
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Add playlist"
                                     (click)="addPlaylist()"
+                                    aria-label="Add playlist to display"
                                 >
                                     <icon>add</icon>
                                 </button>
@@ -58,120 +66,142 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         playlist of display_playlists();
                                         track playlist.id
                                     ) {
-                                        <a
-                                            matRipple
-                                            class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1 no-underline transition-colors"
-                                            [routerLink]="[
-                                                '/playlists',
-                                                playlist.id,
-                                            ]"
+                                        <div
+                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
                                         >
-                                            <div
-                                                class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                                            <a
+                                                matRipple
+                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                                [routerLink]="[
+                                                    '/playlists',
+                                                    playlist.id,
+                                                ]"
+                                                [attr.aria-label]="
+                                                    'Open playlist ' +
+                                                    playlist.name
+                                                "
                                             >
-                                                @if (
-                                                    playlist_thumbnail_media()[
-                                                        playlist.id
-                                                    ]?.length
-                                                ) {
-                                                    @for (
-                                                        media of playlist_thumbnail_media()[
+                                                <div
+                                                    class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                                                >
+                                                    @if (
+                                                        playlist_thumbnail_media()[
                                                             playlist.id
-                                                        ];
-                                                        track media;
-                                                        let i = $index;
-                                                        let len = $count
+                                                        ]?.length
                                                     ) {
-                                                        <img
-                                                            auth
-                                                            [source]="media"
-                                                            class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                            [style.top]="
-                                                                0.3 -
-                                                                (len - 1) *
-                                                                    0.125 +
-                                                                (len - 1 - i) *
-                                                                    0.25 +
-                                                                'rem'
-                                                            "
-                                                            [style.left]="
-                                                                0.3 -
-                                                                (len - 1) *
-                                                                    0.125 +
-                                                                (len - 1 - i) *
-                                                                    0.25 +
-                                                                'rem'
-                                                            "
-                                                            [style.z-index]="i"
-                                                        />
-                                                    }
-                                                } @else {
-                                                    <div
-                                                        class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                                    >
-                                                        <icon class="text-2xl">
-                                                            playlist_play
-                                                        </icon>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div class="min-w-0 flex-1">
-                                                <div
-                                                    class="truncate text-sm font-medium"
-                                                >
-                                                    {{ playlist.name }}
-                                                </div>
-                                                <div
-                                                    class="mt-1 flex flex-wrap gap-1"
-                                                >
-                                                    @if (!playlist.enabled) {
-                                                        <span
-                                                            class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                        @for (
+                                                            media of playlist_thumbnail_media()[
+                                                                playlist.id
+                                                            ];
+                                                            track media;
+                                                            let i = $index;
+                                                            let len = $count
+                                                        ) {
+                                                            <img
+                                                                auth
+                                                                [source]="media"
+                                                                alt=""
+                                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
+                                                                [style.top]="
+                                                                    0.3 -
+                                                                    (len - 1) *
+                                                                        0.125 +
+                                                                    (len -
+                                                                        1 -
+                                                                        i) *
+                                                                        0.25 +
+                                                                    'rem'
+                                                                "
+                                                                [style.left]="
+                                                                    0.3 -
+                                                                    (len - 1) *
+                                                                        0.125 +
+                                                                    (len -
+                                                                        1 -
+                                                                        i) *
+                                                                        0.25 +
+                                                                    'rem'
+                                                                "
+                                                                [style.z-index]="
+                                                                    i
+                                                                "
+                                                            />
+                                                        }
+                                                    } @else {
+                                                        <div
+                                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
                                                         >
-                                                            Disabled
-                                                        </span>
+                                                            <icon
+                                                                class="text-2xl"
+                                                            >
+                                                                playlist_play
+                                                            </icon>
+                                                        </div>
                                                     }
-                                                    @switch (
-                                                        getStatus(playlist)
-                                                    ) {
-                                                        @case ('expired') {
-                                                            <span
-                                                                class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                                            >
-                                                                Expired
-                                                            </span>
-                                                        }
-                                                        @case ('pending') {
-                                                            <span
-                                                                class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
-                                                            >
-                                                                Pending
-                                                            </span>
-                                                        }
-                                                        @case (
-                                                            'awaiting_approval'
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm font-medium"
+                                                    >
+                                                        {{ playlist.name }}
+                                                    </div>
+                                                    <div
+                                                        class="mt-1 flex flex-wrap gap-1"
+                                                    >
+                                                        @if (
+                                                            !playlist.enabled
                                                         ) {
                                                             <span
-                                                                class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                             >
-                                                                Awaiting
-                                                                Approval
+                                                                Disabled
                                                             </span>
                                                         }
+                                                        @switch (
+                                                            getStatus(playlist)
+                                                        ) {
+                                                            @case ('expired') {
+                                                                <span
+                                                                    class="bg-error text-error-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                >
+                                                                    Expired
+                                                                </span>
+                                                            }
+                                                            @case ('pending') {
+                                                                <span
+                                                                    class="bg-info text-info-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                >
+                                                                    Pending
+                                                                </span>
+                                                            }
+                                                            @case (
+                                                                'awaiting_approval'
+                                                            ) {
+                                                                <span
+                                                                    class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+                                                                >
+                                                                    Awaiting
+                                                                    Approval
+                                                                </span>
+                                                            }
+                                                        }
+                                                    </div>
+                                                    @if (
+                                                        playlist.description
+                                                    ) {
+                                                        <div
+                                                            class="mt-0.5 truncate text-xs text-base-content/70"
+                                                        >
+                                                            {{
+                                                                playlist.description
+                                                            }}
+                                                        </div>
                                                     }
                                                 </div>
-                                                @if (playlist.description) {
-                                                    <div
-                                                        class="mt-0.5 truncate text-xs opacity-50"
-                                                    >
-                                                        {{
-                                                            playlist.description
-                                                        }}
-                                                    </div>
-                                                }
-                                            </div>
+                                            </a>
                                             <button
                                                 icon
+                                                type="button"
                                                 matRipple
                                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 mr-1 rounded-lg border hover:shadow-md"
                                                 matTooltip="Remove playlist"
@@ -181,16 +211,21 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                         playlist.id
                                                     )
                                                 "
+                                                [attr.aria-label]="
+                                                    'Remove playlist ' +
+                                                    playlist.name +
+                                                    ' from display'
+                                                "
                                             >
-                                                <icon class="text-error"
-                                                    >close</icon
-                                                >
+                                                <icon class="text-error">
+                                                    close
+                                                </icon>
                                             </button>
-                                        </a>
+                                        </div>
                                     }
                                 } @else {
                                     <div
-                                        class="flex flex-col items-center justify-center space-y-2 p-6 opacity-30"
+                                        class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
                                     >
                                         <icon class="text-4xl"
                                             >playlist_remove</icon
@@ -208,13 +243,16 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                     @if (activeTab() === 'zones') {
                         <!-- Zones panel -->
                         <div
+                            id="display-zones-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-zones-tab"
                             class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
                         >
                             <div
                                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                             >
                                 <h5
-                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
+                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
                                 >
                                     <icon class="text-lg">layers</icon>
                                     Zones ({{ display_zones().length }})
@@ -230,6 +268,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             matRipple
                                             class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
                                             [routerLink]="['/zones', zone.id]"
+                                            [attr.aria-label]="
+                                                'Open zone ' +
+                                                (zone.display_name || zone.name)
+                                            "
                                         >
                                             <icon
                                                 class="shrink-0 text-xl opacity-60"
@@ -246,7 +288,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                 </div>
                                                 @if (zone.description) {
                                                     <div
-                                                        class="truncate text-xs opacity-50"
+                                                        class="truncate text-xs text-base-content/70"
                                                     >
                                                         {{ zone.description }}
                                                     </div>
@@ -256,7 +298,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     }
                                 } @else {
                                     <div
-                                        class="flex flex-col items-center justify-center space-y-2 p-6 opacity-30"
+                                        class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
                                     >
                                         <icon class="text-4xl"
                                             >layers_clear</icon
@@ -272,9 +314,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 </div>
             </div>
         } @else {
-            <div
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
-            >
+            <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
                 <icon class="text-6xl">tv</icon>
                 <p>Select a display to view its details.</p>
             </div>

@@ -33,30 +33,36 @@ import { SignageService } from '../signage.service';
                 @if (requires_approval()) {
                     <button
                         icon
+                        type="button"
                         matRipple
                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                         [disabled]="!is_admin()"
                         [matTooltip]="approval_tooltip()"
                         (click)="approvePlaylist()"
+                        aria-label="Approve selected playlist"
                     >
                         <icon class="text-warning">order_approve</icon>
                     </button>
                 }
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="Edit playlist"
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                     (click)="editPlaylist()"
+                    aria-label="Edit selected playlist"
                 >
                     <icon>edit</icon>
                 </button>
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="Delete playlist"
                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                     (click)="removePlaylist()"
+                    aria-label="Delete selected playlist"
                 >
                     <icon class="text-error">delete</icon>
                 </button>
@@ -72,11 +78,14 @@ import { SignageService } from '../signage.service';
                 <div
                     class="w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
+                    role="list"
                     (cdkDropListDropped)="onDrop($event)"
                 >
                     @for (item of items(); track item.id) {
                         <div
                             cdkDrag
+                            role="button"
+                            tabindex="0"
                             class="bg-base-100 border-base-300 mb-2 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
                             [class.bg-primary]="selected_item()?.id === item.id"
                             [class.text-primary-content]="
@@ -86,6 +95,9 @@ import { SignageService } from '../signage.service';
                                 selected_item()?.id !== item.id
                             "
                             (click)="selectItem(item)"
+                            (keydown.enter)="selectItemWithKeyboard($event, item)"
+                            (keydown.space)="selectItemWithKeyboard($event, item)"
+                            [attr.aria-label]="'Select media item ' + item.name"
                         >
                             <icon
                                 cdkDragHandle
@@ -99,6 +111,7 @@ import { SignageService } from '../signage.service';
                                     <img
                                         auth
                                         [source]="item.thumbnail_url"
+                                        [alt]="item.name + ' thumbnail'"
                                         class="h-full w-full object-cover"
                                     />
                                 } @else {
@@ -157,6 +170,7 @@ import { SignageService } from '../signage.service';
                             </div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 [matMenuTriggerFor]="item_menu"
                                 (click)="$event.stopPropagation()"
@@ -166,6 +180,7 @@ import { SignageService } from '../signage.service';
                             </button>
                             <mat-menu #item_menu="matMenu">
                                 <button
+                                    type="button"
                                     mat-menu-item
                                     (click)="previewItem(item)"
                                 >
@@ -175,6 +190,7 @@ import { SignageService } from '../signage.service';
                                     </div>
                                 </button>
                                 <button
+                                    type="button"
                                     mat-menu-item
                                     (click)="removeItem(item)"
                                 >
@@ -192,17 +208,13 @@ import { SignageService } from '../signage.service';
                     }
                 </div>
             } @else {
-                <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
-                >
+                <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
                     <icon class="text-6xl">queue_music</icon>
                     <p>No items in this playlist.</p>
                 </div>
             }
         } @else {
-            <div
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
-            >
+            <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
                 <icon class="text-6xl">playlist_play</icon>
                 <p>Select a playlist to view its items.</p>
             </div>
@@ -255,6 +267,12 @@ export class PlaylistItemsComponent {
 
     public selectItem(item: SignageMedia) {
         this._service.selected_playlist_item.set(item);
+    }
+
+    public selectItemWithKeyboard(event: Event, item: SignageMedia) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.selectItem(item);
     }
 
     public previewItem(item: SignageMedia) {

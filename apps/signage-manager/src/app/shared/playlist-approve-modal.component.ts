@@ -43,7 +43,13 @@ interface PlaylistApproveModalData {
             <header class="bg-base-200 rounded-sm p-2">
                 <h2 class="px-2 text-xl font-medium">Approve Playlist</h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button
+                        icon
+                        type="button"
+                        matRipple
+                        mat-dialog-close
+                        aria-label="Close approve playlist dialog"
+                    >
                         <icon>close</icon>
                     </button>
                 }
@@ -62,7 +68,7 @@ interface PlaylistApproveModalData {
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Version to approve</h3>
-                                <div class="font-mono text-xs opacity-50">
+                                <div class="font-mono text-xs text-base-content/70">
                                     {{
                                         current_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -79,15 +85,22 @@ interface PlaylistApproveModalData {
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
                                         <button
+                                            type="button"
                                             class="bg-base-200 relative h-10 w-10 shrink-0 overflow-hidden rounded-sm"
                                             matRipple
                                             (click)="previewItem(item)"
+                                            [attr.aria-label]="
+                                                'Preview ' + item.name
+                                            "
                                         >
                                             @if (item.thumbnail_url) {
                                                 <img
                                                     auth
                                                     [source]="
                                                         item.thumbnail_url
+                                                    "
+                                                    [alt]="
+                                                        item.name + ' thumbnail'
                                                     "
                                                     class="h-full w-full object-cover"
                                                 />
@@ -106,7 +119,7 @@ interface PlaylistApproveModalData {
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                                        class="flex flex-col items-center justify-center p-8 text-base-content/70"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">No items</p>
@@ -123,7 +136,7 @@ interface PlaylistApproveModalData {
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Previous version</h3>
-                                <div class="font-mono text-xs opacity-50">
+                                <div class="font-mono text-xs text-base-content/70">
                                     {{
                                         previous_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -140,15 +153,22 @@ interface PlaylistApproveModalData {
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
                                         <button
+                                            type="button"
                                             class="bg-base-200 h-10 w-10 shrink-0 overflow-hidden rounded-sm"
                                             matRipple
                                             (click)="previewItem(item)"
+                                            [attr.aria-label]="
+                                                'Preview ' + item.name
+                                            "
                                         >
                                             @if (item.thumbnail_url) {
                                                 <img
                                                     auth
                                                     [source]="
                                                         item.thumbnail_url
+                                                    "
+                                                    [alt]="
+                                                        item.name + ' thumbnail'
                                                     "
                                                     class="h-full w-full object-cover"
                                                 />
@@ -160,7 +180,7 @@ interface PlaylistApproveModalData {
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                                        class="flex flex-col items-center justify-center p-8 text-base-content/70"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">No items</p>
@@ -175,6 +195,7 @@ interface PlaylistApproveModalData {
                 >
                     <button
                         btn
+                        type="button"
                         matRipple
                         class="inverse bg-base-100 w-40"
                         [disabled]="!has_previous_version()"
@@ -182,7 +203,13 @@ interface PlaylistApproveModalData {
                     >
                         Undo Changes
                     </button>
-                    <button btn matRipple class="w-40" (click)="approve()">
+                    <button
+                        btn
+                        type="button"
+                        matRipple
+                        class="w-40"
+                        (click)="approve()"
+                    >
                         Approve
                     </button>
                 </footer>

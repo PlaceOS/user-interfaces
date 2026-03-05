@@ -24,7 +24,7 @@ import { SignageService } from '../signage.service';
                             <div class="space-y-4 p-4">
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Name
                                     </div>
@@ -35,7 +35,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().description) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                         >
                                             Description
                                         </div>
@@ -46,7 +46,7 @@ import { SignageService } from '../signage.service';
                                 }
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Status
                                     </div>
@@ -66,7 +66,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Playback
                                     </div>
@@ -80,7 +80,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Default Duration
                                     </div>
@@ -93,7 +93,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Default Animation
                                     </div>
@@ -104,7 +104,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().orientation) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                         >
                                             Orientation
                                         </div>
@@ -118,7 +118,7 @@ import { SignageService } from '../signage.service';
                                 }
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                     >
                                         Items
                                     </div>
@@ -129,7 +129,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().valid_from) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                         >
                                             Valid From
                                         </div>
@@ -141,7 +141,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().valid_until) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                         >
                                             Valid Until
                                         </div>
@@ -153,7 +153,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().play_count) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                         >
                                             Play Count
                                         </div>
@@ -179,6 +179,11 @@ import { SignageService } from '../signage.service';
                                         matRipple
                                         class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
                                         [routerLink]="['/displays', display.id]"
+                                        [attr.aria-label]="
+                                            'Open display ' +
+                                            (display.display_name ||
+                                                display.name)
+                                        "
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -195,7 +200,7 @@ import { SignageService } from '../signage.service';
                                             </div>
                                             @if (display.description) {
                                                 <div
-                                                    class="truncate text-xs opacity-50"
+                                                    class="truncate text-xs text-base-content/70"
                                                 >
                                                     {{ display.description }}
                                                 </div>
@@ -205,7 +210,7 @@ import { SignageService } from '../signage.service';
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                                    class="flex flex-col items-center justify-center space-y-2 p-8 text-base-content/70"
                                 >
                                     <icon class="text-4xl">tv_off</icon>
                                     <p class="text-sm">
@@ -226,6 +231,10 @@ import { SignageService } from '../signage.service';
                                         matRipple
                                         class="border-base-300 hover:bg-base-200 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
                                         [routerLink]="['/zones', zone.id]"
+                                        [attr.aria-label]="
+                                            'Open zone ' +
+                                            (zone.display_name || zone.name)
+                                        "
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -242,7 +251,7 @@ import { SignageService } from '../signage.service';
                                             </div>
                                             @if (zone.description) {
                                                 <div
-                                                    class="truncate text-xs opacity-50"
+                                                    class="truncate text-xs text-base-content/70"
                                                 >
                                                     {{ zone.description }}
                                                 </div>
@@ -252,7 +261,7 @@ import { SignageService } from '../signage.service';
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                                    class="flex flex-col items-center justify-center space-y-2 p-8 text-base-content/70"
                                 >
                                     <icon class="text-4xl">location_off</icon>
                                     <p class="text-sm">
@@ -266,7 +275,7 @@ import { SignageService } from '../signage.service';
             </div>
         } @else {
             <div
-                class="border-base-300 flex min-w-60 flex-1 flex-col items-center justify-center space-y-2 border-l p-8 opacity-30"
+                class="border-base-300 flex min-w-60 flex-1 flex-col items-center justify-center space-y-2 border-l p-8 text-base-content/70"
             >
                 <icon class="text-6xl">info</icon>
                 <p>Select a playlist to view details.</p>

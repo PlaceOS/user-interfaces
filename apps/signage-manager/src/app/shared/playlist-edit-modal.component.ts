@@ -59,6 +59,7 @@ export interface PlaylistEditModalData {
                         name="name"
                         [placeholder]="'FORM.NAME' | translate"
                         formControlName="name"
+                        aria-label="Playlist name"
                     />
                     <mat-error>{{
                         'FORM.NAME_REQUIRED' | translate
@@ -126,6 +127,7 @@ export interface PlaylistEditModalData {
                                     'APP.CONCIERGE.SIGNAGE_ORIENTATION_NONE'
                                         | translate
                                 "
+                                aria-label="Playlist orientation"
                             >
                                 <mat-option value="unspecified">
                                     {{
@@ -160,6 +162,7 @@ export interface PlaylistEditModalData {
                                     'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
                                         | translate
                                 "
+                                aria-label="Default animation"
                             >
                                 <mat-option [value]="0">{{
                                     'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
@@ -203,6 +206,7 @@ export interface PlaylistEditModalData {
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
                         formControlName="description"
                         class="min-h-32"
+                        aria-label="Playlist description"
                     ></textarea>
                 </mat-form-field>
                 <div class="flex space-x-4">

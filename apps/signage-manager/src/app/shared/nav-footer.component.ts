@@ -6,7 +6,8 @@ import { NAV_ITEMS } from './nav-items';
 @Component({
     selector: 'nav-footer',
     template: `
-        <div
+        <nav
+            aria-label="Primary navigation"
             class="bg-secondary text-secondary-content border-base-100 border-t px-2 py-2 shadow-[0_-8px_24px_rgba(0,0,0,0.18)] sm:hidden"
         >
             <div
@@ -14,9 +15,14 @@ import { NAV_ITEMS } from './nav-items';
             >
                 @for (item of nav_items; track item.route) {
                     <a
-                        class="hover:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
+                        #route_active="routerLinkActive"
+                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
+                        [attr.aria-label]="item.label"
+                        [attr.aria-current]="
+                            route_active.isActive ? 'page' : null
+                        "
                     >
                         <icon class="text-2xl">{{ item.icon }}</icon>
                         <div class="truncate font-medium">{{ item.label }}</div>
@@ -27,7 +33,7 @@ import { NAV_ITEMS } from './nav-items';
                     </a>
                 }
             </div>
-        </div>
+        </nav>
     `,
     styles: [
         `

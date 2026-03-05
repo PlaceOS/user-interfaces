@@ -43,9 +43,11 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                             >
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectPlaylist()"
+                                    aria-label="Back to playlists list"
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -60,11 +62,13 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 @if (requires_approval()) {
                                     <button
                                         icon
+                                        type="button"
                                         matRipple
                                         class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                         matTooltip="Approve playlist"
                                         [disabled]="!is_admin()"
                                         (click)="approvePlaylist()"
+                                        aria-label="Approve selected playlist"
                                     >
                                         <icon class="text-warning"
                                             >order_approve</icon
@@ -73,27 +77,35 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                 }
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Edit playlist"
                                     (click)="editPlaylist()"
+                                    aria-label="Edit selected playlist"
                                 >
                                     <icon>edit</icon>
                                 </button>
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                     matTooltip="Delete playlist"
                                     (click)="removePlaylist()"
+                                    aria-label="Delete selected playlist"
                                 >
                                     <icon class="text-error">delete</icon>
                                 </button>
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
+                                role="tablist"
+                                aria-label="Playlist details tabs"
                             >
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'items'
@@ -104,10 +116,17 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     "
                                     [class.opacity-60]="view_tab() !== 'items'"
                                     (click)="setViewTab('items')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'items'
+                                    "
+                                    aria-controls="playlist-items-panel"
+                                    id="playlist-items-tab"
                                 >
                                     Items
                                 </button>
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'details'
@@ -122,6 +141,11 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                         view_tab() !== 'details'
                                     "
                                     (click)="setViewTab('details')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'details'
+                                    "
+                                    aria-controls="playlist-details-panel"
+                                    id="playlist-details-tab"
                                 >
                                     Details
                                 </button>
@@ -129,10 +153,16 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                         }
                         <div class="flex min-h-0 flex-1 flex-row">
                             <playlist-items
+                                id="playlist-items-panel"
+                                role="tabpanel"
+                                aria-labelledby="playlist-items-tab"
                                 class="w-px max-w-full flex-1"
                                 [class.tablet-hidden]="view_tab() === 'details'"
                             />
                             <playlist-item-details
+                                id="playlist-details-panel"
+                                role="tabpanel"
+                                aria-labelledby="playlist-details-tab"
                                 class="bg-base-100"
                                 [class.tablet-hidden]="view_tab() === 'items'"
                                 [class.tablet-full]="view_tab() === 'details'"

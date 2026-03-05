@@ -23,6 +23,7 @@ import { SignageService } from '../signage.service';
                         placeholder="Search displays"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
+                        aria-label="Search displays"
                     />
                 </mat-form-field>
             </div>
@@ -40,6 +41,10 @@ import { SignageService } from '../signage.service';
                         "
                         [routerLink]="['/displays', display.id]"
                         queryParamsHandling="merge"
+                        [attr.aria-label]="
+                            'Open display ' +
+                            (display.display_name || display.name)
+                        "
                     >
                         <icon class="shrink-0 text-2xl">tv</icon>
                         <div class="min-w-0 flex-1">
@@ -49,10 +54,10 @@ import { SignageService } from '../signage.service';
                             @if (display.description) {
                                 <div
                                     class="mt-0.5 truncate text-xs"
-                                    [class.opacity-50]="
+                                    [class.opacity-70]="
                                         selected()?.id !== display.id
                                     "
-                                    [class.opacity-70]="
+                                    [class.opacity-90]="
                                         selected()?.id === display.id
                                     "
                                 >
@@ -64,7 +69,7 @@ import { SignageService } from '../signage.service';
                 }
             } @else {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">tv</icon>
                     <p>No displays found.</p>

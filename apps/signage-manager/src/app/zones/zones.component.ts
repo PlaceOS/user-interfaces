@@ -39,9 +39,11 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                             >
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectZone()"
+                                    aria-label="Back to zones list"
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -57,7 +59,7 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     </h4>
                                     @if (selected_zone().description) {
                                         <div
-                                            class="truncate text-sm opacity-60"
+                                            class="truncate text-sm text-base-content/80"
                                         >
                                             {{ selected_zone().description }}
                                         </div>
@@ -66,8 +68,12 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                role="tablist"
+                                aria-label="Zone details tabs"
                             >
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
@@ -82,10 +88,17 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                         view_tab() !== 'playlists'
                                     "
                                     (click)="setViewTab('playlists')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'playlists'
+                                    "
+                                    aria-controls="zone-playlists-panel"
+                                    id="zone-playlists-tab"
                                 >
                                     Playlists ({{ playlist_count() }})
                                 </button>
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'displays'
@@ -100,6 +113,11 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                         view_tab() !== 'displays'
                                     "
                                     (click)="setViewTab('displays')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'displays'
+                                    "
+                                    aria-controls="zone-displays-panel"
+                                    id="zone-displays-tab"
                                 >
                                     Displays ({{ display_count() }})
                                 </button>

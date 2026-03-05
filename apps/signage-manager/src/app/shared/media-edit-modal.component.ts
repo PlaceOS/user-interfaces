@@ -68,12 +68,15 @@ export interface MediaEditModalData {
             <form [formGroup]="form">
                 <div class="flex flex-col">
                     <button
+                        type="button"
                         matRipple
                         class="bg-base-300 border-base-300 pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
                         (click)="preview()"
+                        aria-label="Preview media"
                     >
                         @if (media_type === 'webpage') {
                             <iframe
+                                title="Media preview"
                                 class="h-screen w-full object-contain object-center"
                                 [src]="url | safe: 'resource'"
                             ></iframe>
@@ -82,6 +85,7 @@ export interface MediaEditModalData {
                                 class="h-full w-full object-contain object-center"
                                 auth
                                 [source]="thumbnail || url"
+                                [alt]="form.value.name || 'Media preview'"
                             />
                         }
                         <div
@@ -97,6 +101,7 @@ export interface MediaEditModalData {
                             name="name"
                             formControlName="name"
                             [placeholder]="'FORM.NAME' | translate"
+                            aria-label="Media name"
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -142,7 +147,7 @@ export interface MediaEditModalData {
                                         | mediaDuration: true
                                 }}
                             } @else {
-                                <span class="opacity-30">
+                                <span class="text-base-content/70">
                                     {{ 'COMMON.DEFAULT' | translate }} ({{
                                         item.video_length
                                             ? (item.video_length / 1000
@@ -172,6 +177,7 @@ export interface MediaEditModalData {
                             name="animation"
                             formControlName="animation"
                             placeholder="Playlist Default"
+                            aria-label="Animation"
                         >
                             <mat-option [value]="0">{{
                                 'APP.CONCIERGE.SIGNAGE_ANIMATION_DEFAULT'
@@ -213,6 +219,7 @@ export interface MediaEditModalData {
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
                             formControlName="description"
                             class="min-h-32"
+                            aria-label="Media description"
                         ></textarea>
                     </mat-form-field>
                     <div class="flex space-x-4">

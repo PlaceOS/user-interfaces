@@ -44,9 +44,11 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                             >
                                 <button
                                     icon
+                                    type="button"
                                     matRipple
                                     class="sm:hidden"
                                     (click)="deselectDisplay()"
+                                    aria-label="Back to displays list"
                                 >
                                     <icon>arrow_back</icon>
                                 </button>
@@ -62,7 +64,7 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                     </h4>
                                     @if (selected_display().description) {
                                         <div
-                                            class="truncate text-sm opacity-60"
+                                            class="truncate text-sm text-base-content/80"
                                         >
                                             {{ selected_display().description }}
                                         </div>
@@ -76,14 +78,19 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                     [href]="panel_link()"
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    aria-label="Open signage panel in new tab"
                                 >
                                     <icon>open_in_new</icon>
                                 </a>
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
+                                role="tablist"
+                                aria-label="Display details tabs"
                             >
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'schedule'
@@ -98,10 +105,17 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                         view_tab() !== 'schedule'
                                     "
                                     (click)="setViewTab('schedule')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'schedule'
+                                    "
+                                    aria-controls="display-schedule-panel"
+                                    id="display-schedule-tab"
                                 >
                                     Schedule
                                 </button>
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
@@ -116,10 +130,17 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                         view_tab() !== 'playlists'
                                     "
                                     (click)="setViewTab('playlists')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'playlists'
+                                    "
+                                    aria-controls="display-playlists-panel"
+                                    id="display-playlists-tab"
                                 >
                                     Playlists ({{ playlist_count() }})
                                 </button>
                                 <button
+                                    type="button"
+                                    role="tab"
                                     class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'zones'
@@ -130,6 +151,11 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                     "
                                     [class.opacity-60]="view_tab() !== 'zones'"
                                     (click)="setViewTab('zones')"
+                                    [attr.aria-selected]="
+                                        view_tab() === 'zones'
+                                    "
+                                    aria-controls="display-zones-panel"
+                                    id="display-zones-tab"
                                 >
                                     Zones ({{ zone_count() }})
                                 </button>

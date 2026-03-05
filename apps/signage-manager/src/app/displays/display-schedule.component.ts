@@ -238,17 +238,21 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             >
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="Previous week"
                     (click)="previousWeek()"
+                    aria-label="Show previous week"
                 >
                     <icon>chevron_left</icon>
                 </button>
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="This week"
                     (click)="goToToday()"
+                    aria-label="Show this week"
                 >
                     <icon>today</icon>
                 </button>
@@ -257,9 +261,11 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 </span>
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="Next week"
                     (click)="nextWeek()"
+                    aria-label="Show next week"
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -267,7 +273,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
             @if (display_playlists().length === 0) {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 opacity-30"
+                    class="flex flex-1 flex-col items-center justify-center space-y-2 text-base-content/70"
                 >
                     <icon class="text-4xl">event_busy</icon>
                     <p class="text-sm">
@@ -285,7 +291,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                             <div
                                 class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center py-2 leading-tight"
                             >
-                                <div class="text-[10px] uppercase opacity-50">
+                                <div class="text-[10px] uppercase text-base-content/70">
                                     {{ dayNames[$index] }}
                                 </div>
                                 <div
@@ -355,7 +361,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-xs opacity-60"
+                                                        class="text-xs text-base-content/70"
                                                     >
                                                         All day
                                                     </div>
@@ -400,7 +406,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-xs opacity-60"
+                                                        class="text-xs text-base-content/70"
                                                     >
                                                         {{ block.label }}
                                                     </div>
@@ -414,7 +420,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                     !day_blocks()[day_index].timed.length
                                 ) {
                                     <div
-                                        class="flex min-h-24 items-center justify-center rounded-sm border border-dashed opacity-30"
+                                        class="flex min-h-24 items-center justify-center rounded-sm border border-dashed text-base-content/70"
                                     >
                                         <span class="text-xs">
                                             No scheduled playlists

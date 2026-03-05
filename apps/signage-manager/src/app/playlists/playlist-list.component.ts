@@ -32,6 +32,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         placeholder="Search playlists"
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
+                        aria-label="Search playlists"
                     />
                 </mat-form-field>
             </div>
@@ -49,6 +50,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         "
                         [routerLink]="['/playlists', playlist.id]"
                         queryParamsHandling="merge"
+                        [attr.aria-label]="'Open playlist ' + playlist.name"
                     >
                         <div
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
@@ -67,6 +69,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     <img
                                         auth
                                         [source]="media"
+                                        alt=""
                                         class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
                                         [style.top]="
                                             0.3 -
@@ -132,10 +135,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             @if (playlist.description) {
                                 <div
                                     class="mt-0.5 truncate text-xs"
-                                    [class.opacity-50]="
+                                    [class.opacity-70]="
                                         selected()?.id !== playlist.id
                                     "
-                                    [class.opacity-70]="
+                                    [class.opacity-90]="
                                         selected()?.id === playlist.id
                                     "
                                 >
@@ -147,7 +150,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 }
             } @else {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
                     <icon class="text-6xl">playlist_play</icon>
                     <p>No playlists found.</p>

@@ -19,6 +19,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
             <div class="flex h-full flex-col overflow-hidden">
                 <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 lg:flex-row">
                     <div
+                        id="zone-playlists-panel"
+                        role="tabpanel"
+                        aria-labelledby="zone-playlists-tab"
                         class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
                         [class.tablet-hidden]="activeTab() === 'displays'"
                         [class.tablet-full]="activeTab() === 'playlists'"
@@ -27,17 +30,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                         >
                             <h5
-                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
+                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
                             >
                                 <icon class="text-lg">playlist_play</icon>
                                 Playlists ({{ zone_playlists().length }})
                             </h5>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 matTooltip="Add playlist"
                                 (click)="addPlaylist()"
+                                aria-label="Add playlist to zone"
                             >
                                 <icon>add</icon>
                             </button>
@@ -55,6 +60,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             '/playlists',
                                             playlist.id,
                                         ]"
+                                        [attr.aria-label]="
+                                            'Open playlist ' + playlist.name
+                                        "
                                     >
                                         <div
                                             class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
@@ -75,6 +83,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                     <img
                                                         auth
                                                         [source]="media"
+                                                        alt=""
                                                         class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
                                                         [style.top]="
                                                             0.3 -
@@ -147,7 +156,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             </div>
                                             @if (playlist.description) {
                                                 <div
-                                                    class="mt-0.5 truncate text-xs opacity-50"
+                                                    class="mt-0.5 truncate text-xs text-base-content/70"
                                                 >
                                                     {{ playlist.description }}
                                                 </div>
@@ -157,7 +166,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-6 opacity-30"
+                                    class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
                                 >
                                     <icon class="text-4xl"
                                         >playlist_remove</icon
@@ -170,6 +179,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         </div>
                     </div>
                     <div
+                        id="zone-displays-panel"
+                        role="tabpanel"
+                        aria-labelledby="zone-displays-tab"
                         class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
                         [class.tablet-hidden]="activeTab() === 'playlists'"
                         [class.tablet-full]="activeTab() === 'displays'"
@@ -178,17 +190,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                         >
                             <h5
-                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase opacity-60"
+                                class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
                             >
                                 <icon class="text-lg">tv</icon>
                                 Displays ({{ zone_displays().length }})
                             </h5>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 class="border-base-200 hover:bg-base-200 hover:border-base-300 rounded-lg border hover:shadow-md"
                                 matTooltip="Add display"
                                 (click)="addDisplay()"
+                                aria-label="Add display to zone"
                             >
                                 <icon>add</icon>
                             </button>
@@ -203,6 +217,11 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                         matRipple
                                         class="border-base-300 bg-base-100 hover:bg-base-200 mb-2 flex items-center gap-3 rounded-lg border px-4 py-3 no-underline transition-colors"
                                         [routerLink]="['/displays', display.id]"
+                                        [attr.aria-label]="
+                                            'Open display ' +
+                                            (display.display_name ||
+                                                display.name)
+                                        "
                                     >
                                         <icon
                                             class="shrink-0 text-xl opacity-60"
@@ -219,7 +238,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                             </div>
                                             @if (display.description) {
                                                 <div
-                                                    class="truncate text-xs opacity-50"
+                                                    class="truncate text-xs text-base-content/70"
                                                 >
                                                     {{ display.description }}
                                                 </div>
@@ -229,7 +248,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-6 opacity-30"
+                                    class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
                                 >
                                     <icon class="text-4xl">tv_off</icon>
                                     <p class="text-sm">
@@ -242,9 +261,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 </div>
             </div>
         } @else {
-            <div
-                class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
-            >
+            <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
                 <icon class="text-6xl">layers</icon>
                 <p>Select a zone to view its details.</p>
             </div>

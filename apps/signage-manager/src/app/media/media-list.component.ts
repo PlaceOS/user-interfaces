@@ -30,6 +30,7 @@ import { SignageService } from '../signage.service';
                 class="grid w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 cdkDropList
                 id="media-list"
+                role="list"
                 [cdkDropListData]="media()"
                 [cdkDropListConnectedTo]="playlist_ids"
                 (cdkDropListDropped)="drop($event)"
@@ -37,6 +38,7 @@ import { SignageService } from '../signage.service';
                 @for (media_item of media(); track media_item.id) {
                     <div
                         cdkDrag
+                        role="listitem"
                         class="border-base-300 bg-base-100 relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80"
                         [class.opacity-60]="isExpired(media_item)"
                     >
@@ -48,9 +50,11 @@ import { SignageService } from '../signage.service';
                         </div>
                         <button
                             preview
+                            type="button"
                             matRipple
                             (click)="previewItem(media_item)"
                             class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
+                            [attr.aria-label]="'Preview ' + media_item.name"
                         >
                             @if (isExpired(media_item)) {
                                 <div
@@ -71,6 +75,7 @@ import { SignageService } from '../signage.service';
                                 <img
                                     auth
                                     [source]="media_item.thumbnail_url"
+                                    [alt]="media_item.name + ' thumbnail'"
                                     class="absolute -inset-px rounded-lg object-contain"
                                 />
                                 <div
@@ -143,6 +148,7 @@ import { SignageService } from '../signage.service';
                             </div>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 [matMenuTriggerFor]="menu"
                                 aria-label="Media Actions"
@@ -151,6 +157,7 @@ import { SignageService } from '../signage.service';
                             </button>
                             <mat-menu #menu="matMenu">
                                 <button
+                                    type="button"
                                     mat-menu-item
                                     (click)="editItem(media_item)"
                                 >
@@ -161,6 +168,7 @@ import { SignageService } from '../signage.service';
                                 </button>
                                 @if (sidebar_hidden()) {
                                     <button
+                                        type="button"
                                         mat-menu-item
                                         (click)="
                                             addToPlaylist(media_item.id)
@@ -179,6 +187,7 @@ import { SignageService } from '../signage.service';
                                     </button>
                                 }
                                 <button
+                                    type="button"
                                     mat-menu-item
                                     (click)="previewItem(media_item)"
                                 >
@@ -190,6 +199,7 @@ import { SignageService } from '../signage.service';
                                     </div>
                                 </button>
                                 <button
+                                    type="button"
                                     mat-menu-item
                                     (click)="removeItem(media_item)"
                                 >
@@ -206,9 +216,7 @@ import { SignageService } from '../signage.service';
                 }
             </div>
         } @else {
-            <div
-                class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
-            >
+            <div class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
                 <icon class="text-6xl">hide_image</icon>
                 <p>No media items found.</p>
             </div>

@@ -29,7 +29,13 @@ import { SignageService } from '../signage.service';
                 class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
                 <h2 class="truncate text-xl font-medium">{{ item.name }}</h2>
-                <button icon matRipple mat-dialog-close>
+                <button
+                    icon
+                    type="button"
+                    matRipple
+                    mat-dialog-close
+                    aria-label="Close media preview"
+                >
                     <icon>close</icon>
                 </button>
             </header>
@@ -43,6 +49,7 @@ import { SignageService } from '../signage.service';
                         <img
                             auth
                             [source]="media_url"
+                            [alt]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
                         />
                     } @else if (item.media_type === 'video') {
@@ -50,16 +57,18 @@ import { SignageService } from '../signage.service';
                             auth
                             [source]="media_url"
                             controls
+                            [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
                         ></video>
                     } @else if (item.media_type === 'webpage') {
                         <iframe
                             [src]="safe_url()"
+                            [title]="item.name"
                             class="h-full w-full border-0 bg-white"
                         ></iframe>
                     } @else {
                         <div
-                            class="flex flex-col items-center justify-center space-y-2 opacity-30"
+                            class="flex flex-col items-center justify-center space-y-2 text-base-content/70"
                         >
                             <icon class="text-8xl">hide_image</icon>
                             <p>Preview not available</p>
@@ -73,7 +82,7 @@ import { SignageService } from '../signage.service';
                         @if (item.description) {
                             <div>
                                 <div
-                                    class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                    class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                 >
                                     Description
                                 </div>
@@ -84,7 +93,7 @@ import { SignageService } from '../signage.service';
                         }
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                             >
                                 Type
                             </div>
@@ -111,7 +120,7 @@ import { SignageService } from '../signage.service';
                         @if (item.play_time) {
                             <div>
                                 <div
-                                    class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                    class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                                 >
                                     Duration
                                 </div>
@@ -122,7 +131,7 @@ import { SignageService } from '../signage.service';
                         }
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                             >
                                 Animation
                             </div>
@@ -132,7 +141,7 @@ import { SignageService } from '../signage.service';
                         </div>
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                             >
                                 Orientation
                             </div>
@@ -142,12 +151,14 @@ import { SignageService } from '../signage.service';
                         </div>
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase opacity-40"
+                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
                             >
                                 Playlists
                             </div>
                             @if (loading_playlists()) {
-                                <div class="text-sm opacity-40">Loading...</div>
+                                <div class="text-sm text-base-content/70">
+                                    Loading...
+                                </div>
                             } @else if (containing_playlists().length > 0) {
                                 <div class="space-y-1">
                                     @for (
@@ -178,7 +189,7 @@ import { SignageService } from '../signage.service';
                                     }
                                 </div>
                             } @else {
-                                <div class="text-sm opacity-40">
+                                <div class="text-sm text-base-content/70">
                                     Not in any playlists
                                 </div>
                             }

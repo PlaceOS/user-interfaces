@@ -10,10 +10,11 @@ import { mocksInit } from '@placeos/mocks';
 @Component({
     selector: 'app-root',
     template: `
+        <a class="skip-link" href="#main-content">Skip to main content</a>
         <global-banner />
-        <div class="relative h-1/2 w-full flex-1">
+        <main id="main-content" tabindex="-1" class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
-        </div>
+        </main>
         <global-loading />
         <!-- <debug-console *ngIf="debug"></debug-console> -->
     `,
