@@ -62,4 +62,35 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should show title', () => expect('[title]').toExist());
+
+    it('should format visitor name nicely in booking details', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'visitor',
+                asset_name: 'jane.doe@example.com',
+                asset_id: 'jane.doe@example.com',
+            }),
+        );
+
+        expect(spectator.component.visitor_display_name()).toBe('Jane Doe');
+        expect(spectator.component.visitor_email_label()).toBe(
+            'jane.doe@example.com',
+        );
+    });
+
+    it('should prefer attendee name over reason text for visitor title', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'visitor',
+                title: 'Vendor Interview',
+                description: 'Vendor Interview',
+                asset_name: 'Vendor Interview',
+                asset_id: 'visitor.one@example.com',
+                attendees: [{ name: 'Visitor One', email: 'visitor.one@example.com' }],
+            } as any),
+        );
+
+        expect(spectator.component.display_title()).toBe('Visitor One');
+        expect(spectator.component.visitor_reason()).toBe('Vendor Interview');
+    });
 });

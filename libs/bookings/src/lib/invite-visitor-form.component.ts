@@ -78,12 +78,8 @@ import { BookingFormService } from './booking-form.service';
                                     </label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
-                                            [ngModel]="form.value.zones[0]"
-                                            (ngModelChange)="
-                                                form.patchValue({
-                                                    zones: [$event],
-                                                })
-                                            "
+                                            [ngModel]="selected_building_id"
+                                            (ngModelChange)="setBuilding($event)"
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
@@ -131,6 +127,7 @@ import { BookingFormService } from './booking-form.service';
                                         <a-time-field
                                             name="start-time"
                                             [ngModel]="form_date"
+                                            [disabled]="is_start_time_disabled"
                                             (ngModelChange)="
                                                 form.patchValue({
                                                     date: $event,
@@ -437,11 +434,11 @@ import { BookingFormService } from './booking-form.service';
                 <div
                     class="z-0 m-8 h-1/2 w-full max-w-lg flex-1 space-y-2 overflow-auto"
                 >
-                    <h2 class="text-3xl">
-                        {{
-                            (multiple
-                                ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
-                                : 'BOOKINGS.VISITOR_SENT_SINGLE'
+                            <h2 class="text-3xl">
+                                {{
+                                    (multiple
+                                        ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
+                                        : 'BOOKINGS.VISITOR_SENT_SINGLE'
                             )
                                 | translate
                                     : {
@@ -455,7 +452,7 @@ import { BookingFormService } from './booking-form.service';
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
                         {{
-                            (multiple() && last_count > 1
+                            (multiple && last_count > 1
                                 ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_SENT_MSG'
                             )
@@ -541,7 +538,7 @@ import { BookingFormService } from './booking-form.service';
                             (click)="sent = false"
                         >
                             {{
-                                (multiple() && last_count > 1
+                                (multiple && last_count > 1
                                     ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
                                     : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
                                 ) | translate
@@ -663,6 +660,19 @@ export class InviteVisitorFormComponent
         return this.form?.getRawValue()?.date;
     }
 
+    public get is_start_time_disabled() {
+        return this.form?.get('date')?.disabled || false;
+    }
+
+    public get selected_building_id() {
+        const building_list = this._org.buildings || [];
+        const zone_list = this.form?.getRawValue()?.zones || [];
+        return (
+            building_list.find((building) => zone_list.includes(building.id))
+                ?.id || this._org.building?.id
+        );
+    }
+
     constructor() {
         super();
     }
@@ -727,6 +737,10 @@ export class InviteVisitorFormComponent
             phone: item.phone,
             international: !!item.international,
         });
+    }
+
+    public setBuilding(building_id: string) {
+        this.form.patchValue({ zones: building_id ? [building_id] : [] });
     }
 
     public setVisitorInternational(item: User, international: boolean) {
@@ -833,7 +847,15 @@ export class InviteVisitorFormComponent
 
     private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._service.loadForm();
+        const form_snapshot = this.form?.getRawValue?.() as any;
+        const is_visitor_booking =
+            (booking: Record<string, any>) =>
+                booking?.booking_type === 'visitor' || booking?.type === 'visitor';
+        const keep_preloaded_edit =
+            !!form_snapshot.id &&
+            (is_visitor_booking(form_snapshot) ||
+                is_visitor_booking(this._service.booking as any));
+        if (!keep_preloaded_edit) this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');
         this.form.patchValue({ booking_type: 'visitor' });
@@ -898,16 +920,24 @@ export class InviteVisitorFormComponent
             await this._service.loadGroupSiblings(booking_ref);
         if (!this._existing_siblings.length) return;
         const visitors = this._existing_siblings.map(
-            (s) =>
-                new User({
-                    name: s.asset_name,
+            (s) => {
+                const group_member = (
+                    s.extension_data?.group_members || []
+                ).find((member) => member?.email === s.asset_id);
+                return new User({
+                    name: group_member?.name || s.asset_name || s.asset_id,
                     email: s.asset_id,
-                    organisation: s.extension_data?.company,
-                    phone: s.extension_data?.phone,
+                    organisation:
+                        group_member?.company || s.extension_data?.company,
+                    phone: group_member?.phone || s.extension_data?.phone,
                     extension_data: {
-                        international: !!s.extension_data?.international,
+                        international: !!(
+                            group_member?.international ||
+                            s.extension_data?.international
+                        ),
                     },
-                }),
+                });
+            },
         );
         this.form.patchValue({ assets: visitors });
         this.syncVisitorInternational(visitors);
@@ -973,9 +1003,16 @@ export class InviteVisitorFormComponent
             members: visitor_members,
         });
         if (this.is_edit) {
-            const existing_siblings = this._existing_siblings.length
-                ? this._existing_siblings
-                : [new Booking(this.form.getRawValue())];
+            let existing_siblings = this._existing_siblings;
+            if (!existing_siblings.length) {
+                existing_siblings = await this._service.loadGroupSiblings(
+                    new Booking(this.form.getRawValue()),
+                );
+            }
+            if (!existing_siblings.length) {
+                existing_siblings = [new Booking(this.form.getRawValue())];
+            }
+            this._existing_siblings = existing_siblings;
             await this._service
                 .editFormForGroup(existing_siblings)
                 .catch((e) => {

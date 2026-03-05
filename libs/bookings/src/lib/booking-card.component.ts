@@ -105,11 +105,7 @@ import { ParkingService } from './parking.service';
                                 }
                             </icon>
                             <div class="mx-2 w-1/2 flex-1 truncate">
-                                {{
-                                    raw_description() ||
-                                        booking()?.asset_name ||
-                                        booking()?.asset_id
-                                }}
+                                {{ resource_label }}
                             </div>
                         </div>
                         @if (location) {
@@ -295,7 +291,7 @@ export class BookingCardComponent
     public get location() {
         const zones = this.booking()?.zones || [];
         const level = this._org.levelWithID(zones);
-        const building = this._org.buildings.find(
+        const building = (this._org.buildings || []).find(
             (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
         );
         return `${
@@ -325,6 +321,17 @@ export class BookingCardComponent
         )} (${dur})`;
     }
 
+    public get resource_label() {
+        const booking = this.booking();
+        if (!booking) return '';
+        if (booking.booking_type !== 'visitor') {
+            return (
+                this.raw_description() || booking.asset_name || booking.asset_id
+            );
+        }
+        return this._visitorDisplayNameFor(booking);
+    }
+
     public removeHtmlTags(html: string) {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
@@ -350,5 +357,53 @@ export class BookingCardComponent
             };
             this._dialog.open(view_component, { data });
         });
+    }
+
+    private _visitorDisplayNameFor(booking: Booking) {
+        const asset_id = `${booking?.asset_id || ''}`.trim();
+        const group_member_name = this._visitorGroupMemberName(booking);
+        if (group_member_name) return group_member_name;
+        const attendee_name = this._visitorAttendeeName(booking);
+        if (attendee_name) return attendee_name;
+        const asset_name = `${booking?.asset_name || ''}`.trim();
+        const reason_values = [
+            `${booking?.title || ''}`.trim().toLowerCase(),
+            `${booking?.description || ''}`.trim().toLowerCase(),
+        ].filter((_) => !!_);
+        if (
+            asset_name &&
+            asset_name.toLowerCase() !== asset_id.toLowerCase() &&
+            !reason_values.includes(asset_name.toLowerCase())
+        ) {
+            return asset_name;
+        }
+        return this._formatEmailName(asset_id || asset_name || 'Visitor');
+    }
+
+    private _visitorGroupMemberName(booking: Booking) {
+        const member = (booking.extension_data?.group_members || []).find(
+            (item) => item?.email === booking.asset_id,
+        );
+        const name = `${member?.name || ''}`.trim();
+        return name || '';
+    }
+
+    private _visitorAttendeeName(booking: Booking) {
+        const attendee =
+            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
+            booking.attendees?.[0];
+        const name = `${attendee?.name || ''}`.trim();
+        return name || '';
+    }
+
+    private _formatEmailName(value: string) {
+        if (!value.includes('@')) return value;
+        const [local_part] = value.split('@');
+        const formatted_local = local_part
+            .replace(/[._-]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        if (!formatted_local) return value;
+        return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
     }
 }

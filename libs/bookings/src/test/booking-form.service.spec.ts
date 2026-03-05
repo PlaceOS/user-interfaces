@@ -5,7 +5,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { PaymentsService } from '@placeos/payments';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { OrganisationService } from '@placeos/common';
+import { Booking, OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { BookingFormService } from '../lib/booking-form.service';
 
@@ -154,4 +154,24 @@ describe('BookingFormService', () => {
         );
         expect(error).not.toContain('asset_id');
     });
+
+    it('should keep past start time when loading an in-progress booking for edit', () => {
+        jest.useFakeTimers();
+        const booking_date = Date.now() - 10 * 60 * 1000;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'visitor',
+                date: booking_date,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+            }),
+        );
+        jest.runAllTimers();
+
+        expect(spectator.service.form.getRawValue().date).toBe(booking_date);
+        jest.useRealTimers();
+    });
+
 });

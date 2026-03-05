@@ -423,6 +423,7 @@ export class BookingFormService extends AsyncHandler {
                 },
                 [null, undefined, ''],
             ),
+            { emitEvent: false },
         );
         this.subscription(
             'form_change',
@@ -446,6 +447,9 @@ export class BookingFormService extends AsyncHandler {
         );
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
+        // Persist immediately to avoid edit-flow races where the consumer
+        // reloads from session before async form change events occur.
+        this.storeForm();
         this.timeout('set-resource', async () => {
             const resources = this.form.getRawValue().resources;
             if (!resources?.length) return;
@@ -555,7 +559,13 @@ export class BookingFormService extends AsyncHandler {
             },
             [null, undefined, ''],
         );
-        this.form.patchValue(booking_data);
+        this.form.patchValue(booking_data, { emitEvent: false });
+        this.timeout('load-date', async () =>
+            this.form.patchValue({
+                date: booking.date,
+                duration: booking.duration,
+            }),
+        );
         this.setOptions({
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
@@ -1229,16 +1239,28 @@ export class BookingFormService extends AsyncHandler {
     ) {
         return unique(
             bookings
-                .map((booking) =>
-                    is_visitor
+                .map((booking) => {
+                    const group_member = (
+                        booking.extension_data?.group_members || []
+                    ).find((member) => member?.email === booking.asset_id);
+                    return is_visitor
                         ? new User({
-                              name: booking.asset_name,
+                              name:
+                                  group_member?.name ||
+                                  booking.asset_name ||
+                                  booking.asset_id,
                               email: booking.asset_id,
-                              organisation: booking.extension_data?.company,
-                              phone: booking.extension_data?.phone,
+                              organisation:
+                                  group_member?.company ||
+                                  booking.extension_data?.company,
+                              phone:
+                                  group_member?.phone ||
+                                  booking.extension_data?.phone,
                               extension_data: {
-                                  international:
-                                      !!booking.extension_data?.international,
+                                  international: !!(
+                                      group_member?.international ||
+                                      booking.extension_data?.international
+                                  ),
                               },
                           })
                         : new User({
@@ -1247,8 +1269,8 @@ export class BookingFormService extends AsyncHandler {
                               email: booking.user_email,
                               organisation: booking.extension_data?.company,
                               phone: booking.extension_data?.phone,
-                          }),
-                )
+                          });
+                })
                 .filter((member) => !!member?.email),
             'email',
         );
