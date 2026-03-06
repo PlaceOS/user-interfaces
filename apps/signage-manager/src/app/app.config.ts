@@ -37,6 +37,13 @@ const APP_ROUTES: Routes = [
             ),
     },
     {
+        path: 'schedules',
+        loadComponent: () =>
+            import('./schedules/schedules.component').then(
+                (m) => m.SchedulesSectionComponent,
+            ),
+    },
+    {
         path: 'displays/:id',
         loadComponent: () =>
             import('./displays/displays.component').then(

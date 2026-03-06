@@ -5,236 +5,21 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
-import { addDays, format, isSameDay, startOfDay, startOfWeek } from 'date-fns';
+import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
 import { SignageService } from '../signage.service';
-
-const BLOCK_PALETTE = [
-    { bg: '#dbeafe', text: '#1e40af' },
-    { bg: '#d1fae5', text: '#065f46' },
-    { bg: '#fef3c7', text: '#92400e' },
-    { bg: '#fee2e2', text: '#991b1b' },
-    { bg: '#ede9fe', text: '#5b21b6' },
-    { bg: '#fce7f3', text: '#9d174d' },
-    { bg: '#cffafe', text: '#155e75' },
-];
-
-const DAY_COUNT = 7;
-const MINUTES_PER_DAY = 1440;
-const DEFAULT_PLAYLIST_DURATION = 60;
-
-interface ScheduleBlock {
-    playlist: SignagePlaylist;
-    day_index: number;
-    start_minutes: number;
-    duration_minutes: number;
-    all_day: boolean;
-    bg_color: string;
-    text_color: string;
-    label: string;
-}
-
-type ScheduleBlockBase = Omit<
+import {
+    DAY_COUNT,
+    DAY_NAMES,
     ScheduleBlock,
-    'playlist' | 'day_index' | 'bg_color' | 'text_color'
->;
-
-function matchesCronPart(value: number, cron_part: string): boolean {
-    if (cron_part === '*') return true;
-    if (cron_part.includes(','))
-        return cron_part
-            .split(',')
-            .some((item) => matchesCronPart(value, item));
-    if (cron_part.includes('-')) {
-        const [start, end] = cron_part.split('-').map(Number);
-        return value >= start && value <= end;
-    }
-    if (cron_part.includes('/')) {
-        const [, step] = cron_part.split('/');
-        return value % Number(step) === 0;
-    }
-    return Number(cron_part) === value;
-}
-
-function parseDurationMinutes(hhmm: string): number {
-    const [h, m] = hhmm.split(':').map(Number);
-    return (h || 0) * 60 + (m || 0);
-}
-
-function formatTime(minutes: number): string {
-    const h = Math.floor(minutes / 60) % 24;
-    const m = minutes % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
-
-function formatTimeRange(
-    start_minutes: number,
-    duration_minutes: number,
-): string {
-    return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
-}
-
-function parsePlayAt(play_at: string): Date | null {
-    if (!play_at || play_at === '0') return null;
-    const num = Number(play_at);
-    if (!isNaN(num) && num > 0) return new Date(num * 1000);
-    const date = new Date(play_at);
-    return isNaN(date.getTime()) ? null : date;
-}
-
-function isDayInRange(
-    day: Date,
-    valid_from?: number,
-    valid_until?: number,
-): boolean {
-    const day_start = startOfDay(day).getTime();
-    if (valid_from) {
-        const from_start = startOfDay(new Date(valid_from * 1000)).getTime();
-        if (day_start < from_start) return false;
-    }
-    if (valid_until) {
-        const until_start = startOfDay(new Date(valid_until * 1000)).getTime();
-        if (day_start > until_start) return false;
-    }
-    return true;
-}
-
-function getCronBlocksForDay(
-    cron: string,
-    play_hours: string,
-): ScheduleBlockBase[] {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return [];
-    const [minute_part, hour_part] = parts;
-    const duration = play_hours
-        ? parseDurationMinutes(play_hours)
-        : DEFAULT_PLAYLIST_DURATION;
-    const blocks: ScheduleBlockBase[] = [];
-    for (let h = 0; h < 24; h++) {
-        if (!matchesCronPart(h, hour_part)) continue;
-        for (let m = 0; m < 60; m++) {
-            if (!matchesCronPart(m, minute_part)) continue;
-            const start_mins = h * 60 + m;
-            blocks.push({
-                start_minutes: start_mins,
-                duration_minutes: duration,
-                all_day: false,
-                label: formatTimeRange(start_mins, duration),
-            });
-        }
-    }
-    return blocks;
-}
-
-function doesCronMatchDay(cron: string, day: Date): boolean {
-    const parts = cron.trim().split(/\s+/);
-    if (parts.length !== 5) return false;
-    const [, , dom_part, month_part, dow_part] = parts;
-    const month = day.getMonth() + 1;
-    const day_of_month = day.getDate();
-    const day_of_week = day.getDay();
-    if (!matchesCronPart(month, month_part)) return false;
-    if (dom_part === '*' && dow_part === '*') return true;
-    if (dom_part !== '*' && dow_part === '*')
-        return matchesCronPart(day_of_month, dom_part);
-    if (dom_part === '*' && dow_part !== '*')
-        return matchesCronPart(day_of_week, dow_part);
-    return (
-        matchesCronPart(day_of_month, dom_part) ||
-        matchesCronPart(day_of_week, dow_part)
-    );
-}
-
-function generateScheduleBlocks(
-    playlist: SignagePlaylist,
-    days: Date[],
-    palette_index: number,
-): ScheduleBlock[] {
-    const color = BLOCK_PALETTE[palette_index % BLOCK_PALETTE.length];
-    const blocks: ScheduleBlock[] = [];
-    const { play_hours, play_at, play_cron, valid_from, valid_until } =
-        playlist;
-    const has_cron = !!play_cron?.trim();
-    const has_at = !!play_at && play_at !== '0';
-    const has_hours = !!play_hours?.trim();
-    const is_range = has_hours && play_hours.includes('-');
-
-    for (let i = 0; i < days.length; i++) {
-        const day = days[i];
-        if (!isDayInRange(day, valid_from, valid_until)) continue;
-
-        if (has_cron) {
-            if (!doesCronMatchDay(play_cron, day)) continue;
-            const cron_blocks = getCronBlocksForDay(play_cron, play_hours);
-            for (const cb of cron_blocks) {
-                blocks.push({
-                    ...cb,
-                    playlist,
-                    day_index: i,
-                    bg_color: color.bg,
-                    text_color: color.text,
-                });
-            }
-        } else if (has_at) {
-            const at_date = parsePlayAt(play_at);
-            if (!at_date || !isSameDay(day, at_date)) continue;
-            const start_mins = at_date.getHours() * 60 + at_date.getMinutes();
-            const duration = has_hours
-                ? parseDurationMinutes(play_hours)
-                : DEFAULT_PLAYLIST_DURATION;
-            blocks.push({
-                playlist,
-                day_index: i,
-                start_minutes: start_mins,
-                duration_minutes: duration,
-                all_day: false,
-                bg_color: color.bg,
-                text_color: color.text,
-                label: formatTimeRange(start_mins, duration),
-            });
-        } else if (is_range) {
-            const [start_str, end_str] = play_hours.split('-');
-            const start_mins = parseDurationMinutes(start_str);
-            const end_mins = parseDurationMinutes(end_str);
-            const duration =
-                end_mins > start_mins
-                    ? end_mins - start_mins
-                    : MINUTES_PER_DAY - start_mins + end_mins;
-            blocks.push({
-                playlist,
-                day_index: i,
-                start_minutes: start_mins,
-                duration_minutes: duration,
-                all_day: false,
-                bg_color: color.bg,
-                text_color: color.text,
-                label: `${start_str} – ${end_str}`,
-            });
-        } else {
-            blocks.push({
-                playlist,
-                day_index: i,
-                start_minutes: 0,
-                duration_minutes: MINUTES_PER_DAY,
-                all_day: true,
-                bg_color: color.bg,
-                text_color: color.text,
-                label: playlist.name,
-            });
-        }
-    }
-    return blocks;
-}
-
-const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    buildScheduleBlocks,
+} from '../schedules/signage-schedule.util';
 
 @Component({
     selector: 'display-schedule',
     template: `
         <div class="flex h-full flex-col overflow-hidden">
-            <!-- Navigation -->
             <div
-                class="border-base-200 flex items-center justify-center gap-1 border-b px-3 py-2"
+                class="border-base-200 flex items-center justify-center gap-0.5 border-b px-3 py-2"
             >
                 <button
                     icon
@@ -256,7 +41,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                 >
                     <icon>today</icon>
                 </button>
-                <span class="ml-2 text-sm font-medium">
+                <span class="ml-1.5 text-sm font-medium">
                     {{ weekLabel() }}
                 </span>
                 <button
@@ -273,7 +58,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
             @if (display_playlists().length === 0) {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center space-y-2 text-base-content/70"
+                    class="flex flex-1 flex-col items-center justify-center gap-3 text-base-content/40"
                 >
                     <icon class="text-4xl">event_busy</icon>
                     <p class="text-sm">
@@ -290,8 +75,12 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                         @for (day of days(); track day) {
                             <div
                                 class="relative flex h-full min-w-48 flex-1 flex-col items-center justify-center py-2 leading-tight"
+                                [class.today-column]="isToday(day)"
                             >
-                                <div class="text-[10px] uppercase text-base-content/70">
+                                <div
+                                    class="text-[10px] font-medium uppercase tracking-wide text-base-content/45"
+                                    [class.text-info]="isToday(day)"
+                                >
                                     {{ dayNames[$index] }}
                                 </div>
                                 <div
@@ -299,18 +88,13 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                     [class.text-info]="isToday(day)"
                                     [class.font-semibold]="isToday(day)"
                                 >
-                                    {{ day | date: 'EEE, MMM d' }}
+                                    {{ day | date: 'MMM d' }}
                                 </div>
-                                @if (isToday(day)) {
+                                @if ($index !== 0) {
                                     <div
-                                        class="text-info absolute bottom-1 left-1/2 -translate-x-1/2 text-[10px]"
-                                    >
-                                        Today
-                                    </div>
+                                        class="absolute top-0 -left-px h-2 w-px bg-base-content/10"
+                                    ></div>
                                 }
-                                <div
-                                    class="bg-base-300 absolute bottom-0 -left-px h-2 w-px"
-                                ></div>
                             </div>
                         }
                     </div>
@@ -325,7 +109,8 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                             let day_index = $index
                         ) {
                             <div
-                                class="border-base-200 min-w-48 flex-1 border-r p-2 last:border-none"
+                                class="min-w-48 flex-1 border-r border-base-content/[0.06] p-2 last:border-none"
+                                [class.today-column]="isToday(day)"
                             >
                                 @if (day_blocks()[day_index].all_day.length) {
                                     <div class="mb-2 space-y-1">
@@ -341,27 +126,27 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                                     '/playlists',
                                                     block.playlist.id,
                                                 ]"
-                                                class="border-base-200 hover:border-info flex w-full items-center gap-2 rounded-sm border px-2 py-1.5 text-left no-underline"
+                                                class="flex w-full items-center gap-2 rounded-md border border-base-content/10 px-2 py-1.5 text-left no-underline transition-colors hover:border-info/40"
                                                 [matTooltip]="
                                                     block_tooltip(block)
                                                 "
                                             >
                                                 <div
-                                                    class="h-2 w-2 shrink-0 rounded-full"
+                                                    class="h-1.5 w-1.5 shrink-0 rounded-full"
                                                     [style.background-color]="
                                                         block.text_color
                                                     "
                                                 ></div>
                                                 <div class="min-w-0 flex-1">
                                                     <div
-                                                        class="truncate text-sm font-medium"
+                                                        class="truncate text-[13px] font-medium leading-tight"
                                                     >
                                                         {{
                                                             block.playlist.name
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-xs text-base-content/70"
+                                                        class="text-[11px] text-base-content/45"
                                                     >
                                                         All day
                                                     </div>
@@ -371,7 +156,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                     </div>
                                 }
                                 @if (day_blocks()[day_index].timed.length) {
-                                    <div class="space-y-1">
+                                    <div class="space-y-0.5">
                                         @for (
                                             block of day_blocks()[day_index]
                                                 .timed;
@@ -386,27 +171,27 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                                     '/playlists',
                                                     block.playlist.id,
                                                 ]"
-                                                class="hover:bg-base-200 flex w-full gap-2 rounded-sm px-2 py-2 text-left no-underline"
+                                                class="flex w-full gap-2 rounded-md px-2 py-1.5 text-left no-underline transition-colors hover:bg-base-content/[0.04]"
                                                 [matTooltip]="
                                                     block_tooltip(block)
                                                 "
                                             >
                                                 <div
-                                                    class="my-1.5 h-2 w-2 shrink-0 rounded-full"
+                                                    class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full"
                                                     [style.background-color]="
                                                         block.text_color
                                                     "
                                                 ></div>
                                                 <div class="min-w-0 flex-1">
                                                     <div
-                                                        class="truncate text-sm"
+                                                        class="truncate text-[13px] leading-tight"
                                                     >
                                                         {{
                                                             block.playlist.name
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-xs text-base-content/70"
+                                                        class="text-[11px] tabular-nums text-base-content/45"
                                                     >
                                                         {{ block.label }}
                                                     </div>
@@ -420,10 +205,13 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                                     !day_blocks()[day_index].timed.length
                                 ) {
                                     <div
-                                        class="flex min-h-24 items-center justify-center rounded-sm border border-dashed text-base-content/70"
+                                        class="flex min-h-20 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-base-content/10 text-base-content/25"
                                     >
-                                        <span class="text-xs">
-                                            No scheduled playlists
+                                        <icon class="text-base"
+                                            >event_busy</icon
+                                        >
+                                        <span class="text-[11px]">
+                                            No playlists
                                         </span>
                                     </div>
                                 }
@@ -445,6 +233,14 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             [timeline] {
                 grid-template-columns: 5rem;
                 grid-template-rows: 3.5rem;
+            }
+
+            .today-column {
+                background-color: color-mix(
+                    in srgb,
+                    var(--info) 4%,
+                    transparent
+                );
             }
         `,
     ],
@@ -485,12 +281,13 @@ export class DisplayScheduleComponent {
         );
     });
 
+    public readonly display_assignments = computed(() =>
+        this.display_playlists().map((playlist) => ({ playlist })),
+    );
+
     public readonly schedule_entries = computed(() => {
-        const playlists = this.display_playlists();
         const days = this.days();
-        return playlists.flatMap((playlist, index) =>
-            generateScheduleBlocks(playlist, days, index),
-        );
+        return buildScheduleBlocks(this.display_assignments(), days);
     });
 
     public readonly day_blocks = computed(() => {
