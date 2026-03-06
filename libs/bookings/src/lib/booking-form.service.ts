@@ -419,7 +419,9 @@ export class BookingFormService extends AsyncHandler {
                 {
                     ...booking.extension_data,
                     ...booking,
-                    _in_progress: booking.state === 'started',
+                    _in_progress:
+                        booking.state === 'started' ||
+                        booking.state === 'in_progress',
                 },
                 [null, undefined, ''],
             ),

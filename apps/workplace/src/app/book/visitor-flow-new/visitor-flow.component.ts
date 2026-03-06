@@ -36,7 +36,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         >
                             <icon>info</icon>
                             <div>
-                                {{ 'BOOKINGS.VISITOR_TIME_HEADER' | translate }}
+                                {{ visit_heading() | translate }}
                             </div>
                         </div>
                         <visitor-flow-details />
@@ -45,10 +45,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         >
                             <icon>info</icon>
                             <div>
-                                {{
-                                    'BOOKINGS.VISITOR_DETAILS_HEADER'
-                                        | translate
-                                }}
+                                {{ 'BOOKINGS.VISITOR_DETAILS_HEADER' | translate }}
                             </div>
                         </div>
                         <visitor-flow-invites />
@@ -146,6 +143,11 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
 
     public readonly is_multiple = computed(
         () => !!this.form_value()?.assets?.length,
+    );
+    public readonly visit_heading = computed(() =>
+        this.form_value()?.id
+            ? 'BOOKINGS.EDIT_VISITOR_DETAILS'
+            : 'BOOKINGS.VISITOR_TIME_HEADER',
     );
 
     public ngOnInit() {

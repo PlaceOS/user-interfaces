@@ -22,6 +22,7 @@ import {
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
+import { addHours, addMinutes } from 'date-fns';
 
 type VisitorFormType = 'single' | 'group';
 
@@ -30,67 +31,69 @@ type VisitorFormType = 'single' | 'group';
     template: `
         <div class="w-full p-4">
             <!-- Mobile select dropdown -->
-            <div class="mb-4 flex w-full sm:hidden">
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript w-full"
-                >
-                    <mat-select
-                        [ngModel]="active_form()"
-                        (ngModelChange)="setActiveForm($event)"
-                        [ngModelOptions]="{ standalone: true }"
+            @if (!is_edit()) {
+                <div class="mb-4 flex w-full sm:hidden">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
                     >
-                        <mat-select-trigger>
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">{{
-                                    form_type_config()[active_form()].icon
-                                }}</icon>
-                                <span>{{
-                                    form_type_config()[active_form()].label
-                                        | translate
-                                }}</span>
-                            </div>
-                        </mat-select-trigger>
-                        <mat-option value="single">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">person</icon>
-                                <span>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</span>
-                            </div>
-                        </mat-option>
-                        <mat-option value="group">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">group</icon>
-                                <span>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</span>
-                            </div>
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <!-- Desktop button toggle -->
-            <div
-                class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
-                    [class.clear]="active_form() !== 'single'"
-                    (click)="setActiveForm('single')"
+                        <mat-select
+                            [ngModel]="active_form()"
+                            (ngModelChange)="setActiveForm($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">{{
+                                        form_type_config()[active_form()].icon
+                                    }}</icon>
+                                    <span>{{
+                                        form_type_config()[active_form()].label
+                                            | translate
+                                    }}</span>
+                                </div>
+                            </mat-select-trigger>
+                            <mat-option value="single">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">person</icon>
+                                    <span>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</span>
+                                </div>
+                            </mat-option>
+                            <mat-option value="group">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">group</icon>
+                                    <span>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Desktop button toggle -->
+                <div
+                    class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
                 >
-                    <icon class="text-xl">person</icon>
-                    <div>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
-                    [class.clear]="active_form() !== 'group'"
-                    (click)="setActiveForm('group')"
-                >
-                    <icon class="text-xl">group</icon>
-                    <div>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</div>
-                </button>
-            </div>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                        [class.clear]="active_form() !== 'single'"
+                        (click)="setActiveForm('single')"
+                    >
+                        <icon class="text-xl">person</icon>
+                        <div>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</div>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                        [class.clear]="active_form() !== 'group'"
+                        (click)="setActiveForm('group')"
+                    >
+                        <icon class="text-xl">group</icon>
+                        <div>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</div>
+                    </button>
+                </div>
+            }
             <div class="mt-4" [formGroup]="form">
                 @if (buildings && (buildings | async)?.length > 1) {
                     <div class="flex flex-col">
@@ -153,6 +156,7 @@ type VisitorFormType = 'single' | 'group';
                                     form.patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
+                                [disabled]="is_edit_in_progress()"
                                 [use_24hr]="use_24hr()"
                             />
                         </div>
@@ -233,6 +237,14 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this.active_form.set('group');
         }
     });
+    private _timing_fields_locked = false;
+    private _sync_timing_fields = effect(() => {
+        const should_disable = this.is_edit_in_progress();
+        if (this._timing_fields_locked === should_disable) return;
+        this._timing_fields_locked = should_disable;
+        const action = should_disable ? 'disable' : 'enable';
+        this.form.get('date')?.[action]({ emitEvent: false });
+    });
 
     public readonly active_form = signal<VisitorFormType>('single');
     public readonly form_type_config = signal({
@@ -242,6 +254,17 @@ export class VisitorFlowDetailsComponent implements OnInit {
 
     public readonly form_value = toSignal(this.form.valueChanges, {
         initialValue: this.form.value,
+    });
+    public readonly is_edit = computed(() => !!this.form_value()?.id);
+    public readonly is_edit_in_progress = computed(() => {
+        if (!this.is_edit()) return false;
+        const booking_date = Number(this.form_value()?.date || 0);
+        if (!booking_date) return false;
+        const duration = Number(this.form_value()?.duration || 0);
+        const end_date = this.form_value()?.all_day
+            ? addHours(booking_date, 24).valueOf()
+            : addMinutes(booking_date, duration).valueOf();
+        return Date.now() >= booking_date && Date.now() < end_date;
     });
     public readonly selected_building_id = computed(() => {
         const zones = this.form_value()?.zones || [];
@@ -303,6 +326,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
     }
 
     public setActiveForm(form: VisitorFormType) {
+        if (this.is_edit() || this.active_form() === form) return;
         this.active_form.set(form);
         this._booking_form.setOptions({ group: form === 'group' });
         const value = this.form.getRawValue();

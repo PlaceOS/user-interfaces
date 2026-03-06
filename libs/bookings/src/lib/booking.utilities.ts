@@ -134,7 +134,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         update_master: new FormControl(false),
         self_registered: new FormControl(false),
         is_assgined: new FormControl(false),
-        _in_progress: new FormControl(booking.state === 'started'),
+        _in_progress: new FormControl(
+            booking.state === 'started' || booking.state === 'in_progress',
+        ),
     });
     form.controls.user.valueChanges.subscribe((user) => {
         if (!user) return;
@@ -226,7 +228,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             form.get('date')?.enable({ emitEvent: false });
         }
     });
-    if (booking.state === 'started') form.get('date').disable();
+    if (booking.state === 'started' || booking.state === 'in_progress') {
+        form.get('date').disable();
+    }
     return form;
 }
 
