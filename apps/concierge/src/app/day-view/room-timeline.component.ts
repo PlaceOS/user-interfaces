@@ -169,7 +169,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                         <div class="bg-secondary absolute inset-0 opacity-20"></div>
                                     } @else {
                                         <div
-                                            class="bg-success absolute inset-0 opacity-25"
+                                            [class]="'absolute inset-0 opacity-25 ' + statusBg(event)"
                                         ></div>
                                     }
                                     @if (!event.is_system_event) {
@@ -407,6 +407,13 @@ Host:  ${event.organiser?.name || event.host}`;
             (Math.min(this.block_range, duration / 60) / this.block_range) *
             100
         ).toFixed(2);
+    }
+
+    public statusBg(event: CalendarEvent): string {
+        if (!event.extension_data?.shared_event) return 'bg-success';
+        if (event.status === 'declined') return 'bg-error';
+        if (event.status === 'tentative') return 'bg-warning';
+        return 'bg-success';
     }
 
     public viewEvent(

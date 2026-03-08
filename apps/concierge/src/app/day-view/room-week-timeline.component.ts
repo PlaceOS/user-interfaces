@@ -136,7 +136,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                                     [class.opacity-60]="event.state === 'done'"
                                 >
                                     <div
-                                        class="bg-success absolute inset-0 opacity-25"
+                                        [class]="'absolute inset-0 opacity-25 ' + statusBg(event)"
                                     ></div>
                                     <div class="relative">
                                         <p
@@ -333,6 +333,13 @@ export class RoomWeekBookingsTimelineComponent
 
     public ngOnInit() {
         this.subscription('poll', this._state.poll());
+    }
+
+    public statusBg(event: CalendarEvent): string {
+        if (!event.extension_data?.shared_event) return 'bg-success';
+        if (event.status === 'declined') return 'bg-error';
+        if (event.status === 'tentative') return 'bg-warning';
+        return 'bg-success';
     }
 
     public viewEvent(
