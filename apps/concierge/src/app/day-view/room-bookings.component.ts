@@ -127,6 +127,14 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         <div class="h-3 w-3 rounded-full bg-success"></div>
                         <span class="text-xs opacity-60">Confirmed</span>
                     </div>
+                    <div class="flex items-center space-x-1">
+                        <div class="h-3 w-3 rounded-full bg-warning"></div>
+                        <span class="text-xs opacity-60">Pending</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <div class="h-3 w-3 rounded-full bg-error"></div>
+                        <span class="text-xs opacity-60">Rejected</span>
+                    </div>
                 </div>
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">

@@ -139,6 +139,11 @@ const DAY_IN_MINUTES = 24 * 60;
             .cancelled {
                 background-color: #ccc;
             }
+
+            .pending {
+                background-color: #ca8a04;
+                color: #fff;
+            }
         `,
     ],
     standalone: false,
@@ -173,11 +178,10 @@ export class DayviewEventComponent implements OnChanges {
 
     public get type() {
         const event = this.event();
-        return event.guests.length
-            ? 'external'
-            : event.status === 'declined'
-              ? 'cancelled'
-              : 'internal';
+        if (event.guests.length) return 'external';
+        if (event.status === 'declined') return 'cancelled';
+        if (event.status === 'tentative') return 'pending';
+        return 'internal';
     }
 
     public get time_format() {
