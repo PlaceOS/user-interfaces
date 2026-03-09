@@ -576,7 +576,8 @@ export class EventFormService extends AsyncHandler {
             const user_email = currentUser()?.email.toLowerCase() || '';
             const is_owner =
                 this.form.value.host.toLowerCase() === user_email ||
-                this.form.value.creator.toLowerCase() === user_email;
+                this.form.value.creator.toLowerCase() === user_email ||
+                this.form.value.calendar.toLowerCase() === user_email;
             if ((is_owner && !ignore_owner) || force_calendar)
                 query.calendar =
                     this.form.value.host || this.form.value.creator;
