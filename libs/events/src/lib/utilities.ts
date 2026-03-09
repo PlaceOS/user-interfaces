@@ -111,6 +111,9 @@ export function generateEventForm(
         event_services: new FormControl(
             event.extension_data?.event_services || [],
         ),
+        refund_deadline: new FormControl(
+            event.extension_data?.refund_deadline || null,
+        ),
     });
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email),

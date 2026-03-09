@@ -154,6 +154,20 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}</mat-error>
                     </mat-form-field>
                 </div>
+                <div class="flex flex-1 flex-col space-y-2">
+                    <label for="refund-deadline">Refund Deadline</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            type="date"
+                            name="refund-deadline"
+                            placeholder="Refund deadline date"
+                            [ngModel]="refund_deadline"
+                            (ngModelChange)="refund_deadline = $event"
+                            [ngModelOptions]="{ standalone: true }"
+                        />
+                    </mat-form-field>
+                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -179,6 +193,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
     public readonly purchase_orders = this._state.purchase_orders;
     public product: AssetGroup;
     public loading = '';
+    public refund_deadline = '';
 
     public get base_route() {
         return this._state.base_route;
@@ -198,6 +213,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue(asset);
+                    this.refund_deadline = asset.other_data?.refund_deadline || '';
                     this.loading = '';
                 }
                 if (params.get('group_id')) {
@@ -228,8 +244,10 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
         }
         this.loading = 'Saving Product...';
         const data = this.form.value;
+        const other_data = { ...(data.other_data || {}), refund_deadline: this.refund_deadline || undefined };
         const item = await saveAsset({
             ...data,
+            other_data,
             zone_id: this._org.building.id,
         } as any)
             .toPromise()

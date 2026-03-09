@@ -435,6 +435,7 @@ export class EventFinanceStateService {
             last_updated: Date.now(),
             notes: `Final balance (${100 - pct}%) for ${quote.doc_number}. Deposit of ${pct}% already invoiced.`,
             converted_from: quote_id,
+            refund_deadline: quote.refund_deadline,
         };
 
         docs.push(invoice);
@@ -649,6 +650,7 @@ export class EventFinanceStateService {
                         notes: `Deposit invoice (${pct}%) for ${d.doc_number}. Auto-generated upon approval completion.`,
                         attachment_names: [],
                         converted_from: d.id,
+                        refund_deadline: d.refund_deadline,
                     };
 
                     new_invoices.push(deposit);

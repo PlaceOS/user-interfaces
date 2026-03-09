@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -143,6 +143,21 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         formControlName="images"
                     ></image-list-field>
                 </div>
+                <div class="flex flex-col space-y-2">
+                    <label for="refund-lead-days">Refund Lead Time (days)</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            type="number"
+                            name="refund-lead-days"
+                            placeholder="Days before event for refund cutoff"
+                            [ngModel]="refund_lead_days"
+                            (ngModelChange)="refund_lead_days = $event"
+                            [ngModelOptions]="{ standalone: true }"
+                            [min]="0"
+                        />
+                    </mat-form-field>
+                </div>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -152,6 +167,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         FullscreenModalShellComponent,
         ImageListFieldComponent,
         MatFormFieldModule,
+        FormsModule,
         ReactiveFormsModule,
         MatInputModule,
         MatSelectModule,
@@ -166,6 +182,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly form = generateAssetGroupForm();
+    public refund_lead_days: number | null = null;
     public readonly new_category = new BehaviorSubject<AssetCategory>(null);
     public readonly categories = combineLatest([
         this._state.categories,
@@ -194,6 +211,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue(product);
+                    this.refund_lead_days = (product as any).refund_lead_days ?? null;
                     this.loading = '';
                 }
             }),
@@ -212,7 +230,8 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await lastValueFrom(saveAssetGroup(data as any)).catch(
+        const save_data = { ...data, refund_lead_days: this.refund_lead_days ?? undefined };
+        const item = await lastValueFrom(saveAssetGroup(save_data as any)).catch(
             (e) => {
                 this.loading = '';
                 notifyError(`Error saving Product: ${e.message}`);

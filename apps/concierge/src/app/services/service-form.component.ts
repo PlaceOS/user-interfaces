@@ -123,6 +123,21 @@ import { ServicesStateService } from './services-state.service';
                     </div>
                 </div>
 
+                <label class="text-sm font-medium">
+                    Refund Lead Time (days)
+                </label>
+                <mat-form-field appearance="outline" class="w-full">
+                    <input
+                        matInput
+                        type="number"
+                        formControlName="refund_lead_days"
+                        placeholder="e.g. 7"
+                    />
+                    <mat-hint>
+                        Days before event date when refund cutoff applies
+                    </mat-hint>
+                </mat-form-field>
+
                 <label class="text-sm font-medium">Icon</label>
                 <mat-form-field appearance="outline" class="w-full">
                     <input
@@ -185,6 +200,7 @@ export class ServiceFormComponent implements OnInit {
         description: new FormControl(''),
         internal_price: new FormControl('', [Validators.required]),
         external_price: new FormControl('', [Validators.required]),
+        refund_lead_days: new FormControl<number | null>(null),
         icon: new FormControl(''),
     });
 

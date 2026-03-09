@@ -44,6 +44,8 @@ export interface MockApprovalEvent {
     is_adhoc?: boolean;
     /** Unix ms timestamp of when the ad-hoc service was added */
     added_date?: number;
+    /** Unix ms — cancellation before this date is refundable */
+    refund_deadline?: number;
 }
 
 export const ROLE_DISPLAY_NAMES: Record<EventRole, string> = {
@@ -153,6 +155,11 @@ function _makeDate(days_offset: number, hour: number, minute: number): number {
     ).valueOf();
 }
 
+/** Returns a refund deadline: event_date minus lead_days (in ms). */
+function _refundDeadline(event_date: number, lead_days: number): number {
+    return addDays(event_date, -lead_days).valueOf();
+}
+
 export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
     {
         id: 'appr-001',
@@ -162,6 +169,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 120,
         location: 'Royce Hall Main Auditorium',
         organiser: 'Sarah Chen',
+        refund_deadline: _refundDeadline(_makeDate(-1, 9, 0), 14),
     },
     {
         id: 'appr-002',
@@ -171,6 +179,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 480,
         location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Mark Thompson',
+        refund_deadline: _refundDeadline(_makeDate(3, 10, 0), 14),
     },
     {
         id: 'appr-003',
@@ -180,6 +189,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 90,
         location: 'Morrison Room — University Club',
         organiser: 'HR Team',
+        refund_deadline: _refundDeadline(_makeDate(2, 12, 0), 14),
     },
     {
         id: 'appr-004',
@@ -189,6 +199,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 150,
         location: 'Executive Dining Room — Anderson School',
         organiser: 'James Watt',
+        refund_deadline: _refundDeadline(_makeDate(5, 18, 30), 14),
     },
     {
         id: 'appr-005',
@@ -199,6 +210,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'Tech Services',
         parent_event: 'appr-001',
+        refund_deadline: _refundDeadline(_makeDate(-1, 8, 0), 7),
     },
     {
         id: 'appr-006',
@@ -209,6 +221,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Comms Team',
         parent_event: 'appr-002',
+        refund_deadline: _refundDeadline(_makeDate(3, 9, 30), 7),
     },
     {
         id: 'appr-007',
@@ -218,6 +231,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 45,
         location: 'Covel Commons — All Floors',
         organiser: 'Safety Officer',
+        refund_deadline: _refundDeadline(_makeDate(2, 10, 0), 7),
     },
     {
         id: 'appr-008',
@@ -227,6 +241,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 60,
         location: 'Sycamore — De Neve Plaza',
         organiser: 'EHS Team',
+        refund_deadline: _refundDeadline(_makeDate(6, 9, 30), 7),
     },
     {
         id: 'appr-009',
@@ -236,6 +251,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 720,
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Events Coordinator',
+        refund_deadline: _refundDeadline(_makeDate(7, 7, 0), 7),
     },
     {
         id: 'appr-010',
@@ -245,6 +261,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         duration_minutes: 240,
         location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
+        refund_deadline: _refundDeadline(_makeDate(10, 17, 0), 7),
     },
     {
         id: 'appr-011',
@@ -255,6 +272,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'R&D Admin',
         parent_event: 'appr-001',
+        refund_deadline: _refundDeadline(_makeDate(-1, 9, 0), 14),
     },
     {
         id: 'appr-012',
@@ -265,6 +283,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Facilities',
         parent_event: 'appr-002',
+        refund_deadline: _refundDeadline(_makeDate(3, 12, 0), 14),
     },
     {
         id: 'appr-013',
@@ -275,6 +294,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Luskin Conference Center — Lot 8',
         organiser: 'Transportation Services',
         parent_event: 'appr-002',
+        refund_deadline: _refundDeadline(_makeDate(3, 9, 0), 7),
     },
     {
         id: 'appr-014',
@@ -285,6 +305,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Structure 4 — ASUCLA',
         organiser: 'Events Coordinator',
         parent_event: 'appr-009',
+        refund_deadline: _refundDeadline(_makeDate(7, 6, 0), 7),
     },
     {
         id: 'appr-015',
@@ -295,6 +316,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Events Coordinator',
         parent_event: 'appr-009',
+        refund_deadline: _refundDeadline(_makeDate(7, 6, 0), 7),
     },
 
     // ── Awards Night child approvals ────────────────────────────────
@@ -307,6 +329,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
         parent_event: 'appr-010',
+        refund_deadline: _refundDeadline(_makeDate(10, 16, 0), 14),
     },
     {
         id: 'appr-017',
@@ -317,6 +340,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
         parent_event: 'appr-010',
+        refund_deadline: _refundDeadline(_makeDate(10, 17, 0), 14),
     },
     {
         id: 'appr-018',
@@ -327,6 +351,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'Tech Services',
         parent_event: 'appr-010',
+        refund_deadline: _refundDeadline(_makeDate(10, 15, 0), 7),
     },
     {
         id: 'appr-019',
@@ -337,6 +362,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'UCPD',
         parent_event: 'appr-010',
+        refund_deadline: _refundDeadline(_makeDate(10, 16, 0), 7),
     },
 
     // ── Community Day child approvals ───────────────────────────────
@@ -349,6 +375,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Events Coordinator',
         parent_event: 'appr-009',
+        refund_deadline: _refundDeadline(_makeDate(7, 7, 0), 14),
     },
     {
         id: 'appr-021',
@@ -359,6 +386,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Events Coordinator',
         parent_event: 'appr-009',
+        refund_deadline: _refundDeadline(_makeDate(7, 11, 0), 14),
     },
     {
         id: 'appr-022',
@@ -369,6 +397,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Bruin Plaza — ASUCLA',
         organiser: 'Tech Services',
         parent_event: 'appr-009',
+        refund_deadline: _refundDeadline(_makeDate(7, 6, 30), 7),
     },
 
     // ── Services approvals ────────────────────────────────────────────
@@ -381,6 +410,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'Sarah Chen',
         parent_event: 'appr-001',
+        refund_deadline: _refundDeadline(_makeDate(-1, 9, 0), 7),
     },
     {
         id: 'appr-024',
@@ -391,6 +421,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Centennial Ballroom — Luskin Conference Center',
         organiser: 'Mark Thompson',
         parent_event: 'appr-002',
+        refund_deadline: _refundDeadline(_makeDate(3, 10, 0), 7),
     },
     {
         id: 'appr-025',
@@ -401,6 +432,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
         parent_event: 'appr-010',
+        refund_deadline: _refundDeadline(_makeDate(10, 17, 0), 7),
     },
 
     // ── Ad-hoc / last-minute additions ──────────────────────────────
@@ -415,6 +447,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         parent_event: 'appr-001',
         is_adhoc: true,
         added_date: _makeDate(-1, 7, 30),
+        refund_deadline: _refundDeadline(_makeDate(-1, 9, 0), 7),
     },
     {
         id: 'appr-027',
@@ -427,6 +460,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         parent_event: 'appr-010',
         is_adhoc: true,
         added_date: _makeDate(10, 10, 0),
+        refund_deadline: _refundDeadline(_makeDate(10, 16, 0), 7),
     },
     {
         id: 'appr-028',
@@ -439,6 +473,7 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         parent_event: 'appr-002',
         is_adhoc: true,
         added_date: _makeDate(3, 8, 0),
+        refund_deadline: _refundDeadline(_makeDate(3, 12, 0), 14),
     },
 ];
 

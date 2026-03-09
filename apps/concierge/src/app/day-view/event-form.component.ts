@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -192,6 +192,16 @@ import { map, tap } from 'rxjs/operators';
                                     Catering Order notes are required
                                 </mat-error>
                             </mat-form-field>
+                            <div class="flex flex-col space-y-1 mt-1">
+                                <label class="text-xs font-medium opacity-60">Catering Refund Deadline</label>
+                                <input
+                                    type="date"
+                                    class="rounded border border-base-300 bg-base-100 px-2 py-1.5 text-sm"
+                                    [ngModel]="catering_refund_deadline"
+                                    (ngModelChange)="catering_refund_deadline = $event"
+                                    [ngModelOptions]="{ standalone: true }"
+                                />
+                            </div>
                         }
                     </div>
                 }
@@ -231,6 +241,7 @@ import { map, tap } from 'rxjs/operators';
     styles: [``],
     imports: [
         CommonModule,
+        FormsModule,
         MatFormFieldModule,
         MatInputModule,
         DateFieldComponent,
@@ -251,6 +262,7 @@ export class EventFormComponent {
     private _catering = inject(CateringOrderStateService);
 
     public readonly form = input<FormGroup>(undefined);
+    public catering_refund_deadline = '';
 
     public code_filter = new BehaviorSubject('');
 

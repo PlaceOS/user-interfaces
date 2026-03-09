@@ -404,6 +404,13 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 </mat-form-field>
                             </div>
                         </div>
+                        <div class="flex flex-col min-w-0 mt-2">
+                            <label>Refund Lead Time (days)</label>
+                            <mat-form-field appearance="outline">
+                                <input matInput type="number" formControlName="refund_lead_days" placeholder="e.g. 14" [min]="0" />
+                                <mat-hint>Days before event date when refund cutoff applies</mat-hint>
+                            </mat-form-field>
+                        </div>
                     </div>
                 </details>
             }
@@ -1004,6 +1011,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         hourly_rate: new FormControl(0),
         half_day_rate: new FormControl(0),
         full_day_rate: new FormControl(0),
+        refund_lead_days: new FormControl<number | null>(null),
         // AV & Technology
         av_services: new FormControl<string[]>([]),
         onsite_tech_staff: new FormControl(false),

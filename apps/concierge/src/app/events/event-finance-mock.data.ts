@@ -70,6 +70,8 @@ export interface FinancialDocument {
     invoice_type?: InvoiceType;
     /** The deposit percentage used (e.g. 50). Set on both deposit and final invoices. */
     deposit_percent?: number;
+    /** Unix ms — cancellation before this date is refundable. Linked from the event's refund_deadline. */
+    refund_deadline?: number;
 }
 
 /** Returns the unique billable categories present in a document's line items. */
@@ -241,6 +243,12 @@ function _makeDate(days_offset: number, hour: number, minute: number): number {
     ).valueOf();
 }
 
+/** Look up the refund_deadline from the linked mock approval event. */
+function _eventRefundDeadline(event_id: string): number | undefined {
+    const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+    return event?.refund_deadline;
+}
+
 // ── Mock data ──────────────────────────────────────────────────────
 
 function _lineItem(
@@ -375,6 +383,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         attachment_names: ['Q1_TownHall_Quote.pdf'],
         converted_from: undefined,
         approved_categories: ['venue_hire', 'catering', 'av_equipment', 'staffing'],
+        refund_deadline: _eventRefundDeadline('appr-001'),
     },
     // ── Q1 Town Hall — deposit invoice (50%), already paid ──
     {
@@ -402,6 +411,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Deposit invoice (50%) for QUO-2026-001. Payment received.',
         attachment_names: [],
         converted_from: 'fin-001',
+        refund_deadline: _eventRefundDeadline('appr-001'),
     },
     // ── Leadership Offsite (appr-002) — quote draft, awaiting approvals ──
     {
@@ -421,6 +431,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Awaiting all event approvals before sending.',
         attachment_names: ['Leadership_Offsite_Quote.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-002'),
     },
     // ── Welcome Lunch (appr-003) — quote draft, awaiting approvals ──
     {
@@ -440,6 +451,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Awaiting all event approvals before sending.',
         attachment_names: ['Welcome_Lunch_Quote.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-003'),
     },
     // ── Board Dinner (appr-004) — quote draft, awaiting approvals ──
     {
@@ -459,6 +471,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Dietary requirements confirmed. Awaiting all event approvals before sending.',
         attachment_names: ['Board_Dinner_Quote.pdf', 'Menu_Options.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-004'),
     },
     // ── Awards Night (appr-010) — quote draft ──
     {
@@ -478,6 +491,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Draft — awaiting final AV costs. Awaiting all event approvals before sending.',
         attachment_names: [],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-010'),
     },
     // ── Community Day (appr-009) — quote draft, awaiting approvals ──
     {
@@ -497,6 +511,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Includes grounds restoration. Awaiting all event approvals before sending.',
         attachment_names: ['Community_Day_Quote.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-009'),
     },
     // ── Fire Drill (appr-007) — quote draft, awaiting approvals ──
     {
@@ -516,6 +531,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Marshals confirmed. Awaiting all event approvals before sending.',
         attachment_names: ['Fire_Drill_Quote.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-007'),
     },
     // ── Hazmat Briefing (appr-008) — quote draft, awaiting approvals ──
     {
@@ -535,6 +551,7 @@ export const MOCK_FINANCIAL_DOCUMENTS: FinancialDocument[] = [
         notes: 'Awaiting all event approvals before sending.',
         attachment_names: ['Hazmat_Quote.pdf'],
         converted_from: undefined,
+        refund_deadline: _eventRefundDeadline('appr-008'),
     },
 ];
 

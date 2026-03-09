@@ -561,28 +561,60 @@ interface OrderGroup {
                             <div class="space-y-1.5">
                                 @for (child of regular_child_events; track child.id) {
                                     <div
-                                        class="flex items-center justify-between text-sm"
                                         [class.opacity-40]="getStatus(child.id) === 'declined'"
                                     >
-                                        <div class="flex items-center space-x-2 min-w-0">
+                                        <div class="flex items-center justify-between text-sm">
+                                            <div class="flex items-center space-x-2 min-w-0">
+                                                <span
+                                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+                                                    [class]="serviceBadgeColor(child.category)"
+                                                >
+                                                    <icon class="text-xs text-white">{{
+                                                        categoryIcon(child.category)
+                                                    }}</icon>
+                                                </span>
+                                                <span [class.line-through]="getStatus(child.id) === 'declined'">
+                                                    {{ child.title }}
+                                                </span>
+                                            </div>
                                             <span
-                                                class="flex h-6 w-6 shrink-0 items-center justify-center rounded"
-                                                [class]="serviceBadgeColor(child.category)"
+                                                class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                                                [class]="serviceStatusClass(getStatus(child.id))"
                                             >
-                                                <icon class="text-xs text-white">{{
-                                                    categoryIcon(child.category)
-                                                }}</icon>
-                                            </span>
-                                            <span [class.line-through]="getStatus(child.id) === 'declined'">
-                                                {{ child.title }}
+                                                {{ serviceStatusLabel(getStatus(child.id)) }}
                                             </span>
                                         </div>
-                                        <span
-                                            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                                            [class]="serviceStatusClass(getStatus(child.id))"
-                                        >
-                                            {{ serviceStatusLabel(getStatus(child.id)) }}
-                                        </span>
+                                        @if (child.refund_deadline && getStatus(child.id) !== 'declined') {
+                                            <div class="ml-8 mt-0.5 flex items-center space-x-1">
+                                                @if (editing_refund_id() === child.id) {
+                                                    <input
+                                                        type="date"
+                                                        class="rounded border border-base-300 bg-base-100 px-1.5 py-0.5 text-xs"
+                                                        [ngModel]="editing_refund_date()"
+                                                        (ngModelChange)="editing_refund_date.set($event)"
+                                                    />
+                                                    <button icon matRipple class="h-5 w-5 text-success" (click)="saveEditRefund(child.id)">
+                                                        <icon class="text-xs">check</icon>
+                                                    </button>
+                                                    <button icon matRipple class="h-5 w-5 text-error" (click)="cancelEditRefund()">
+                                                        <icon class="text-xs">close</icon>
+                                                    </button>
+                                                } @else {
+                                                    @if (isRefundable(child)) {
+                                                        <span class="text-xs text-success">
+                                                            Refundable until {{ formatRefundDeadline(child) }}
+                                                        </span>
+                                                    } @else {
+                                                        <span class="text-xs text-error">
+                                                            Non-refundable (since {{ formatRefundDeadline(child) }})
+                                                        </span>
+                                                    }
+                                                    <button icon matRipple class="h-5 w-5 opacity-40 hover:opacity-100" (click)="startEditRefund(child)">
+                                                        <icon class="text-[10px]">edit</icon>
+                                                    </button>
+                                                }
+                                            </div>
+                                        }
                                     </div>
                                 }
                             </div>
@@ -734,6 +766,8 @@ export class EventSummaryDialogComponent {
 
     readonly show_cancelled = signal(false);
     readonly show_adhoc = signal(true);
+    readonly editing_refund_id = signal<string | null>(null);
+    readonly editing_refund_date = signal('');
 
     readonly ADHOC_CATEGORY_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] = [
         { key: 'dining', label: 'Catering & Dining', icon: 'restaurant' },
@@ -1139,6 +1173,40 @@ export class EventSummaryDialogComponent {
 
     updateDialogField(field: string, value: any): void {
         this.dialog_edit_form.set({ ...this.dialog_edit_form(), [field]: value });
+    }
+
+    // ── Refund deadline editing ────────────────────────────────────
+
+    isRefundable(child: MockApprovalEvent): boolean {
+        return !child.refund_deadline || Date.now() < child.refund_deadline;
+    }
+
+    formatRefundDeadline(child: MockApprovalEvent): string {
+        if (!child.refund_deadline) return '';
+        return format(child.refund_deadline, 'd MMM yyyy');
+    }
+
+    startEditRefund(child: MockApprovalEvent): void {
+        this.editing_refund_id.set(child.id);
+        this.editing_refund_date.set(
+            child.refund_deadline
+                ? format(child.refund_deadline, 'yyyy-MM-dd')
+                : '',
+        );
+    }
+
+    saveEditRefund(child_id: string): void {
+        const date_str = this.editing_refund_date();
+        const evt = MOCK_APPROVAL_EVENTS.find((e) => e.id === child_id);
+        if (evt && date_str) {
+            evt.refund_deadline = new Date(date_str).valueOf();
+        }
+        this.editing_refund_id.set(null);
+        this._approval_state.refresh();
+    }
+
+    cancelEditRefund(): void {
+        this.editing_refund_id.set(null);
     }
 
     formatCurrency(value: number): string {

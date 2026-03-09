@@ -575,6 +575,17 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                         <span>{{ svc.label }}</span>
                                     </div>
                                 </mat-checkbox>
+                                @if (isServiceSelected(svc.key)) {
+                                    <div class="ml-8 mt-1 mb-1 flex items-center space-x-2">
+                                        <label class="text-xs opacity-60 whitespace-nowrap">Refund deadline:</label>
+                                        <input
+                                            type="date"
+                                            class="rounded border border-base-300 bg-base-100 px-2 py-0.5 text-xs"
+                                            [value]="getServiceDeadline(svc.key)"
+                                            (change)="setServiceDeadline(svc.key, $any($event.target).value)"
+                                        />
+                                    </div>
+                                }
                             }
                         </div>
 
@@ -913,6 +924,15 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                             selectedServiceNames()
                                         }}</span>
                                     </div>
+                                    <div class="mt-1 space-y-1 rounded border border-base-300 p-2">
+                                        <div class="text-xs font-medium opacity-60">Refund Deadlines</div>
+                                        @for (svc of selectedServices(); track svc) {
+                                            <div class="flex justify-between text-xs">
+                                                <span>{{ getCategoryName(svc) }}</span>
+                                                <span class="font-medium">{{ getServiceDeadline(svc) }}</span>
+                                            </div>
+                                        }
+                                    </div>
                                 }
                                 @if (
                                     selected_cnsi_services().length
@@ -1028,6 +1048,7 @@ export class EventRequestWizardComponent {
 
     readonly selected_cnsi_services = signal<string[]>([]);
     readonly cnsi_rate_type = signal<'internal' | 'external'>('internal');
+    readonly service_refund_deadlines = signal<Record<string, string>>({});
 
     private readonly _cnsi_category_meta: Record<string, string> = {
         package: 'Event Packages',
@@ -1124,11 +1145,44 @@ export class EventRequestWizardComponent {
         const current = this.form.controls.services.value || [];
         if (checked) {
             this.form.controls.services.setValue([...current, key]);
+            // Auto-populate refund deadline if not already set
+            if (!this.service_refund_deadlines()[key]) {
+                this.service_refund_deadlines.update((d) => ({
+                    ...d,
+                    [key]: this._defaultDeadlineDate(key),
+                }));
+            }
         } else {
             this.form.controls.services.setValue(
                 current.filter((s) => s !== key),
             );
         }
+    }
+
+    defaultDeadlineDays(category: ApprovalCategory): number {
+        return category === 'venue' || category === 'dining' ? 14 : 7;
+    }
+
+    getServiceDeadline(key: ApprovalCategory): string {
+        const deadlines = this.service_refund_deadlines();
+        if (deadlines[key]) return deadlines[key];
+        const fallback = this._defaultDeadlineDate(key);
+        this.service_refund_deadlines.update((d) => ({ ...d, [key]: fallback }));
+        return fallback;
+    }
+
+    setServiceDeadline(key: ApprovalCategory, value: string): void {
+        this.service_refund_deadlines.update((d) => ({ ...d, [key]: value }));
+    }
+
+    private _defaultDeadlineDate(category: ApprovalCategory): string {
+        const date_str = this.form.controls.date.value;
+        if (!date_str) return '';
+        const [y, m, d] = date_str.split('-').map(Number);
+        const event_date = new Date(y, m - 1, d);
+        const lead = this.defaultDeadlineDays(category);
+        event_date.setDate(event_date.getDate() - lead);
+        return event_date.toISOString().slice(0, 10);
     }
 
     selectedServices(): ApprovalCategory[] {
@@ -1246,7 +1300,11 @@ export class EventRequestWizardComponent {
         // Generate unique ID prefix
         const id_base = `appr-${Date.now().toString(36)}`;
 
+        // Parse refund deadlines from signal
+        const deadlines = this.service_refund_deadlines();
+
         // Always create parent venue event
+        const venue_deadline_str = deadlines['venue'];
         const parent_event: MockApprovalEvent = {
             id: `${id_base}-venue`,
             title: val.title,
@@ -1255,6 +1313,9 @@ export class EventRequestWizardComponent {
             duration_minutes: val.duration_minutes,
             location: val.location,
             organiser: val.organiser_name,
+            refund_deadline: venue_deadline_str
+                ? new Date(venue_deadline_str).valueOf()
+                : undefined,
         };
         MOCK_APPROVAL_EVENTS.push(parent_event);
 
@@ -1262,6 +1323,7 @@ export class EventRequestWizardComponent {
         const services = val.services || [];
         for (const svc of services) {
             if (svc === 'venue') continue;
+            const deadline_str = deadlines[svc];
             const child_event: MockApprovalEvent = {
                 id: `${id_base}-${svc}`,
                 title: `${val.title} — ${CATEGORY_DISPLAY_NAMES[svc]}`,
@@ -1271,6 +1333,9 @@ export class EventRequestWizardComponent {
                 location: val.location,
                 organiser: val.organiser_name,
                 parent_event: parent_event.id,
+                refund_deadline: deadline_str
+                    ? new Date(deadline_str).valueOf()
+                    : undefined,
             };
             MOCK_APPROVAL_EVENTS.push(child_event);
         }

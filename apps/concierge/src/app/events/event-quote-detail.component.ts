@@ -92,6 +92,19 @@ import { EventFinanceStateService } from './event-finance-state.service';
                             <div class="opacity-60">Cost Centre</div>
                             <div>{{ document()!.cost_centre }}</div>
                         </div>
+                        @if (document()!.refund_deadline) {
+                            <div class="mt-3 flex items-center space-x-2 text-sm">
+                                <icon class="text-base" [class]="isRefundable() ? 'text-success' : 'text-error'">
+                                    {{ isRefundable() ? 'verified' : 'block' }}
+                                </icon>
+                                <span [class]="isRefundable() ? 'text-success' : 'text-error'" class="font-medium">
+                                    {{ isRefundable()
+                                        ? 'Refundable until ' + formatDate(document()!.refund_deadline!)
+                                        : 'Non-refundable (since ' + formatDate(document()!.refund_deadline!) + ')'
+                                    }}
+                                </span>
+                            </div>
+                        }
                     </div>
 
                     <!-- Line items -->
@@ -848,6 +861,15 @@ export class EventQuoteDetailComponent {
 
     categoryBadgeColor(category: string): string {
         return this._category_badge_colors[category] || 'bg-gray-500';
+    }
+
+    isRefundable(): boolean {
+        const doc = this.document();
+        return !!doc?.refund_deadline && Date.now() < doc.refund_deadline;
+    }
+
+    formatDate(ts: number): string {
+        return format(ts, 'd MMM yyyy');
     }
 
     updateEditField(field: string, value: any): void {

@@ -11,6 +11,8 @@ export interface ServiceItem {
     external_price: string;
     icon: string;
     features?: string[];
+    /** Default number of days before event date for refund cutoff */
+    refund_lead_days?: number;
 }
 
 let _id_counter = 100;

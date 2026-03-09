@@ -290,6 +290,19 @@ export interface CateringItemModalData {
                     >
                     </settings-toggle>
                 </div>
+                <div class="flex flex-col space-y-2 mb-4">
+                    <label for="refund-lead-days">Refund Lead Time (days)</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            type="number"
+                            name="refund-lead-days"
+                            placeholder="Days before event for refund cutoff"
+                            formControlName="refund_lead_days"
+                            [min]="0"
+                        />
+                    </mat-form-field>
+                </div>
                 @if (form.controls.images) {
                     <div class="flex flex-col">
                         <label for="images">{{
@@ -386,6 +399,7 @@ export class CateringItemModalComponent {
         accept_points: new FormControl(this.item.accept_points || false),
         discount_cap: new FormControl(this.item.discount_cap || 0),
         images: new FormControl(this.item.images || []),
+        refund_lead_days: new FormControl((this.item as any).refund_lead_days ?? null),
     });
     /** Whether changes are being saved */
     public loading = false;

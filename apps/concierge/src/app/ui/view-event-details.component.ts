@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { addMinutes, format } from 'date-fns';
+import { addMinutes, format as formatDate } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -86,6 +86,19 @@ import { EventsStateService } from '../day-view/events-state.service';
                         }}</span
                     >
                 </div>
+                @if (refund_deadline) {
+                    <div class="mb-2 flex items-center">
+                        <icon class="mr-1" [class]="is_refundable ? 'text-success' : 'text-error'">
+                            {{ is_refundable ? 'verified' : 'block' }}
+                        </icon>
+                        <span [class]="is_refundable ? 'text-success' : 'text-error'" class="text-sm font-medium">
+                            {{ is_refundable
+                                ? 'Refundable until ' + refund_deadline_display
+                                : 'Non-refundable (since ' + refund_deadline_display + ')'
+                            }}
+                        </span>
+                    </div>
+                }
                 <div class="flex items-center">
                     <icon class="mr-1">format_align_left</icon>
                     <span class="opacity-60">Notes</span>
@@ -186,9 +199,9 @@ export class ViewEventDetailsComponent {
     public get time() {
         const date = new Date(this.event().date);
         return (
-            format(date, this.time_format) +
+            formatDate(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event().duration), this.time_format)
+            formatDate(addMinutes(date, this.event().duration), this.time_format)
         );
     }
 
@@ -198,5 +211,17 @@ export class ViewEventDetailsComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get refund_deadline(): number | undefined {
+        return this.event()?.extension_data?.refund_deadline;
+    }
+
+    public get is_refundable(): boolean {
+        return !!this.refund_deadline && Date.now() < this.refund_deadline;
+    }
+
+    public get refund_deadline_display(): string {
+        return this.refund_deadline ? formatDate(this.refund_deadline, 'd MMM yyyy') : '';
     }
 }
