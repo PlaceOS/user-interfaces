@@ -92,13 +92,16 @@ export class EventApprovalStateService {
         this._status.next({ ...this._status.getValue() });
     }
 
-    public readonly approved_calendar_events$ = this._status.pipe(
-        map((statuses) => {
+    public readonly approved_calendar_events$ = combineLatest([
+        this._status,
+        this.all_events$,
+    ]).pipe(
+        map(([statuses, all]) => {
             const approved_ids = Object.entries(statuses)
                 .filter(([_, s]) => s === 'approved')
                 .map(([id]) => id);
             const approved_events = approved_ids
-                .map((id) => MOCK_APPROVAL_EVENTS.find((e) => e.id === id))
+                .map((id) => all.find((e) => e.id === id))
                 .filter(Boolean);
 
             // Group by parent: standalone events + children under their parent
@@ -115,15 +118,11 @@ export class EventApprovalStateService {
             const calendar_events: CalendarEvent[] = [];
 
             for (const [parent_id, children] of parent_map) {
-                // Find the parent venue event (may or may not be approved itself)
-                const parent =
-                    MOCK_APPROVAL_EVENTS.find((e) => e.id === parent_id);
-                // Use parent details for the calendar entry if it exists
+                const parent = all.find((e) => e.id === parent_id);
                 const primary = parent || children[0];
                 const approved_services = children.map(
                     (c) => CATEGORY_DISPLAY_NAMES[c.category],
                 );
-                // If parent is a venue and is approved, include it in services
                 if (
                     parent &&
                     !children.includes(parent) &&
@@ -140,10 +139,13 @@ export class EventApprovalStateService {
         }),
     );
 
-    /** All mock events as CalendarEvents with correct approval status */
-    public readonly all_calendar_events$ = this._status.pipe(
-        map((statuses) => {
-            return MOCK_APPROVAL_EVENTS.map((event) => {
+    /** All events as CalendarEvents with correct approval status */
+    public readonly all_calendar_events$ = combineLatest([
+        this._status,
+        this.all_events$,
+    ]).pipe(
+        map(([statuses, all]) => {
+            return all.map((event) => {
                 const status = statuses[event.id];
                 const response_status =
                     status === 'approved'
@@ -161,14 +163,17 @@ export class EventApprovalStateService {
     );
 
     /** Root/standalone events grouped with children's requirement statuses */
-    public readonly grouped_calendar_events$ = this._status.pipe(
-        map((statuses) => {
-            const root_events = MOCK_APPROVAL_EVENTS.filter(
+    public readonly grouped_calendar_events$ = combineLatest([
+        this._status,
+        this.all_events$,
+    ]).pipe(
+        map(([statuses, all]) => {
+            const root_events = all.filter(
                 (e) => !e.parent_event,
             );
 
             return root_events.map((parent) => {
-                const children = MOCK_APPROVAL_EVENTS.filter(
+                const children = all.filter(
                     (e) => e.parent_event === parent.id,
                 );
 
