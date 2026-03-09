@@ -110,8 +110,13 @@ export class VisitorReportListComponent {
                         booking.extension_data?.asset_name ||
                         booking.description ||
                         booking.asset_id,
+                    visitor_email:
+                        booking.asset_id ||
+                        booking.extension_data?.visitor_email ||
+                        '',
                     date: booking.date,
                     host: booking.user_name || booking.user_email,
+                    host_email: booking.user_email || booking.booked_by_email,
 
                     checked_in: i18n(
                         booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',

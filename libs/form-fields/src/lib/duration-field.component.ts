@@ -317,7 +317,10 @@ export class DurationFieldComponent
             time += step;
         }
         blocks.sort((a, b) => a.id - b.id);
-        return blocks;
+        return blocks.filter(
+            (option, index, options) =>
+                index === 0 || options[index - 1].id !== option.id,
+        );
     }
 
     private _updateOption() {

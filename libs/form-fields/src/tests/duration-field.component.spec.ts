@@ -87,4 +87,17 @@ describe('DurationFieldComponent', () => {
         });
         spectator.component.setValue(duration);
     });
+
+    it('should de-duplicate merged custom duration options', () => {
+        spectator.setInput({
+            min: 30,
+            max: 90,
+            step: 30,
+            custom_options: [30, 45, 90, 90],
+        });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
+            30, 45, 60, 90,
+        ]);
+    });
 });
