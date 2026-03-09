@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +23,7 @@ import {
     ROLE_PERMISSIONS,
 } from './event-approvals-mock.data';
 import { EventApprovalStateService } from './event-approval-state.service';
+import { EventSyncService } from './event-sync.service';
 import {
     EventSummaryDialogComponent,
     EventSummaryData,
@@ -55,6 +56,16 @@ import {
                         }
                     </span>
                 </button>
+                @if (_sync.connected$ | async) {
+                    <span
+                        class="ml-2 flex items-center space-x-1 text-xs opacity-50"
+                    >
+                        <icon class="text-success text-xs"
+                            >cloud_done</icon
+                        >
+                        <span>Sync active</span>
+                    </span>
+                }
 
                 @if (is_mock) {
                     <mat-form-field
@@ -119,9 +130,19 @@ import {
                                             class="mb-1 flex items-center justify-between"
                                         >
                                             <div
-                                                class="text-sm font-semibold"
+                                                class="flex items-center space-x-1 text-sm font-semibold"
                                             >
-                                                {{ event.title }}
+                                                <span>{{ event.title }}</span>
+                                                @if (
+                                                    event.id.startsWith(
+                                                        'sync-'
+                                                    )
+                                                ) {
+                                                    <span
+                                                        class="rounded bg-blue-100 px-1 text-[10px] font-normal text-blue-600"
+                                                        >Eventmocks</span
+                                                    >
+                                                }
                                             </div>
                                             <button
                                                 icon
@@ -368,6 +389,7 @@ import {
     ],
     imports: [
         CommonModule,
+        AsyncPipe,
         FormsModule,
         MatSelectModule,
         MatFormFieldModule,
@@ -379,9 +401,14 @@ import {
 })
 export class EventApprovalsComponent {
     readonly _approval_state = inject(EventApprovalStateService);
+    readonly _sync = inject(EventSyncService);
     private _dialog = inject(MatDialog);
     readonly is_mock = isMock();
     collapsed = false;
+
+    private _all_events = toSignal(this._approval_state.all_events$, {
+        initialValue: MOCK_APPROVAL_EVENTS,
+    });
 
     readonly show_declined = input(false);
     readonly delegated = signal<Record<string, EventRole>>({});
@@ -404,6 +431,7 @@ export class EventApprovalsComponent {
         const role = this.role();
         const statuses = this.status();
         const show_declined = this.show_declined();
+        const all_events = this._all_events();
         const perms = ROLE_PERMISSIONS[role];
         const visible_categories = [
             ...perms.can_approve,
@@ -415,7 +443,7 @@ export class EventApprovalsComponent {
         ) {
             visible_categories.push('safety');
         }
-        let events = MOCK_APPROVAL_EVENTS.filter((e) =>
+        let events = all_events.filter((e) =>
             visible_categories.includes(e.category),
         );
         if (show_declined) {
@@ -472,16 +500,14 @@ export class EventApprovalsComponent {
     }
 
     getParentTitle(parent_id: string): string {
-        const parent = MOCK_APPROVAL_EVENTS.find(
-            (e) => e.id === parent_id,
-        );
+        const all = this._all_events();
+        const parent = all.find((e) => e.id === parent_id);
         return parent?.title || '';
     }
 
     getChildren(event_id: string): MockApprovalEvent[] {
-        return MOCK_APPROVAL_EVENTS.filter(
-            (e) => e.parent_event === event_id,
-        );
+        const all = this._all_events();
+        return all.filter((e) => e.parent_event === event_id);
     }
 
     getCategoryIcon(category: ApprovalCategory): string {
@@ -514,7 +540,8 @@ export class EventApprovalsComponent {
 
     setStatus(event_id: string, status: 'approved' | 'declined'): void {
         this._approval_state.setStatus(event_id, status);
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === event_id);
         if (status === 'declined' && event) {
             const organiser_email =
                 event.organiser

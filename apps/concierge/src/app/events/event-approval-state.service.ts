@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CalendarEvent, Space } from '@placeos/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { updateSpaceList } from '@placeos/events';
 import { addMinutes, getUnixTime, isPast } from 'date-fns';
@@ -11,6 +11,7 @@ import {
     MockApprovalEvent,
     MOCK_APPROVAL_EVENTS,
 } from './event-approvals-mock.data';
+import { EventSyncService } from './event-sync.service';
 
 type ActionStatus = 'approved' | 'declined';
 
@@ -29,6 +30,8 @@ function _autoApprovePastEvents(): Record<string, ActionStatus> {
     providedIn: 'root',
 })
 export class EventApprovalStateService {
+    private _sync = inject(EventSyncService);
+
     private _status = new BehaviorSubject<Record<string, ActionStatus>>(
         _autoApprovePastEvents(),
     );
@@ -36,6 +39,17 @@ export class EventApprovalStateService {
 
     public readonly status$ = this._status.asObservable();
     public readonly role$ = this._role.asObservable();
+
+    /** Merged list of mock + synced events from eventmocks */
+    public readonly all_events$ = combineLatest([
+        this._sync.synced_events$,
+        of(MOCK_APPROVAL_EVENTS),
+    ]).pipe(map(([synced, mock]) => [...mock, ...synced]));
+
+    constructor() {
+        this._sync.connect();
+        this._sync.fetchEvents();
+    }
 
     public get status(): Record<string, ActionStatus> {
         return this._status.getValue();
@@ -54,6 +68,23 @@ export class EventApprovalStateService {
             ...this._status.getValue(),
             [event_id]: status,
         });
+
+        // If this is a synced event, POST to sync server
+        if (event_id.startsWith('sync-')) {
+            const parts = event_id.replace('sync-', '').split('-');
+            const original_event_id = parts[0];
+            const category = parts.slice(1).join('-') || 'venue';
+            this._sync
+                .postStatus(
+                    original_event_id,
+                    category,
+                    status,
+                    'Concierge Admin',
+                )
+                .catch((err) =>
+                    console.warn('[Sync] Failed to post status:', err),
+                );
+        }
     }
 
     /** Force all observables to re-evaluate (e.g. after adding mock events) */
