@@ -314,9 +314,15 @@ interface OrderGroup {
                                                         <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100" (click)="dialogStartEdit(item)">
                                                             <icon class="text-xs">edit</icon>
                                                         </button>
-                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialogRemoveItem(item.id)">
-                                                            <icon class="text-xs">delete</icon>
-                                                        </button>
+                                                        @if (dialog_confirming_delete_id() === item.id) {
+                                                            <span class="text-xs text-error font-medium">Delete?</span>
+                                                            <button matRipple class="rounded bg-error px-1.5 py-0.5 text-xs font-medium text-white" (click)="dialogConfirmRemove(item.id)">Yes</button>
+                                                            <button matRipple class="rounded border border-base-300 px-1.5 py-0.5 text-xs font-medium" (click)="dialog_confirming_delete_id.set(null)">No</button>
+                                                        } @else {
+                                                            <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialog_confirming_delete_id.set(item.id)">
+                                                                <icon class="text-xs">delete</icon>
+                                                            </button>
+                                                        }
                                                     }
                                                 </div>
                                             </div>
@@ -1092,6 +1098,7 @@ export class EventSummaryDialogComponent {
 
     readonly dialog_editing_item_id = signal<string | null>(null);
     readonly dialog_adding_new_item = signal(false);
+    readonly dialog_confirming_delete_id = signal<string | null>(null);
     readonly dialog_edit_form = signal<{
         description: string;
         quantity: number;
@@ -1145,6 +1152,11 @@ export class EventSummaryDialogComponent {
         const q = this.quote;
         if (!q) return;
         this._finance_state.removeLineItem(q.id, item_id);
+    }
+
+    dialogConfirmRemove(item_id: string): void {
+        this.dialogRemoveItem(item_id);
+        this.dialog_confirming_delete_id.set(null);
     }
 
     dialogStartAdd(): void {
