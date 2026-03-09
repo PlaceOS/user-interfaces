@@ -95939,15 +95939,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "c85c9ba",
-  "hash": "c85c9ba",
+  "raw": "b05d8ac",
+  "hash": "b05d8ac",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c85c9ba",
+  "suffix": "b05d8ac",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1771461538868
+  "time": 1773018127157
 };
 
 // libs/common/src/lib/settings.service.ts
