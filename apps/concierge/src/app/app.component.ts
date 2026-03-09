@@ -5,6 +5,7 @@ import { mocksInit } from '@placeos/mocks';
 @Component({
     selector: 'app-root',
     template: `
+        <h1 class="sr-only">Concierge</h1>
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>

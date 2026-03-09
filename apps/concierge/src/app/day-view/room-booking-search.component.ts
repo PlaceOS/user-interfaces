@@ -37,6 +37,7 @@ import { EventsStateService } from './events-state.service';
                 (ngModelChange)="search.next($event)"
                 (blur)="hideSearch()"
                 [placeholder]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
+                [attr.aria-label]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
             />
             @if (show) {
                 <icon

@@ -19,7 +19,7 @@ import {
         <div class="border-base-200 flex items-center border-b p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
-                    <img auth class="h-12" [source]="logo?.src || logo" />
+                    <img auth class="h-12" [source]="logo?.src || logo" alt="Home" />
                 </a>
             </div>
             <!-- <mat-form-field

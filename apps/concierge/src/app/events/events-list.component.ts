@@ -48,6 +48,7 @@ import { EventStateService } from './event-state.service';
                     <mat-select
                         [ngModel]="period | async"
                         (ngModelChange)="setPeriodType($event)"
+                        [attr.aria-label]="'COMMON.VIEW_PERIOD' | translate"
                     >
                         <mat-option value="week">{{
                             'COMMON.WEEK' | translate
@@ -61,6 +62,7 @@ import { EventStateService } from './event-state.service';
                     <mat-select
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
+                        [attr.aria-label]="'COMMON.DATE_RANGE' | translate"
                     >
                         @for (range of period_list; track range.id) {
                             <mat-option [value]="range.id">
@@ -119,7 +121,7 @@ import { EventStateService } from './event-state.service';
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
                 <div class="bg-base-100 absolute inset-0 opacity-80"></div>
-                <p class="max-w-lg text-lg opacity-60">
+                <p class="max-w-lg text-lg text-gray-600">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>
             </div>

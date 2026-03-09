@@ -45,6 +45,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                     <mat-select
                         [ngModel]="dropdown_period | async"
                         (ngModelChange)="setPeriod($event)"
+                        [attr.aria-label]="'COMMON.VIEW_PERIOD' | translate"
                     >
                         <mat-option value="day">
                             {{ 'COMMON.DAY' | translate }}
@@ -89,13 +90,14 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         [ngModel]="zones | async"
                         (ngModelChange)="updateZones($event)"
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                        [attr.aria-label]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
                         @for (level of levels | async; track level) {
                             <mat-option [value]="level.id">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
-                                        <div class="text-xs opacity-30">
+                                        <div class="text-xs text-gray-600">
                                             {{
                                                 (level.parent_id | building)
                                                     ?.display_name
@@ -125,15 +127,15 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 <div class="flex flex-1 items-center justify-end space-x-4 pr-2">
                     <div class="flex items-center space-x-1">
                         <div class="h-3 w-3 rounded-full bg-success"></div>
-                        <span class="text-xs opacity-60">Confirmed</span>
+                        <span class="text-xs text-gray-600">Confirmed</span>
                     </div>
                     <div class="flex items-center space-x-1">
                         <div class="h-3 w-3 rounded-full bg-warning"></div>
-                        <span class="text-xs opacity-60">Pending</span>
+                        <span class="text-xs text-gray-600">Pending</span>
                     </div>
                     <div class="flex items-center space-x-1">
                         <div class="h-3 w-3 rounded-full bg-error"></div>
-                        <span class="text-xs opacity-60">Rejected</span>
+                        <span class="text-xs text-gray-600">Rejected</span>
                     </div>
                 </div>
             </div>

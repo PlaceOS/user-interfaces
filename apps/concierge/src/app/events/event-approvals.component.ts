@@ -58,7 +58,7 @@ import {
                 </button>
                 @if (_sync.connected$ | async) {
                     <span
-                        class="ml-2 flex items-center space-x-1 text-xs opacity-50"
+                        class="ml-2 flex items-center space-x-1 text-xs text-gray-600"
                     >
                         <icon class="text-success text-xs"
                             >cloud_done</icon
@@ -93,7 +93,7 @@ import {
             @if (!collapsed) {
                 @if (visible_events().length === 0) {
                     <div
-                        class="flex flex-col items-center justify-center py-8 opacity-50"
+                        class="flex flex-col items-center justify-center py-8 text-gray-600"
                     >
                         <icon class="mb-2 text-4xl">{{
                             show_declined() ? 'cancel' : 'check_circle'
@@ -111,7 +111,7 @@ import {
                     ) {
                         <div class="mb-4">
                             <div
-                                class="mb-2 flex items-center space-x-2 text-sm font-medium opacity-70"
+                                class="mb-2 flex items-center space-x-2 text-sm font-medium text-gray-600"
                             >
                                 <icon class="text-base">{{
                                     group.icon
@@ -153,13 +153,13 @@ import {
                                                 "
                                             >
                                                 <icon
-                                                    class="text-base opacity-60"
+                                                    class="text-base text-gray-600"
                                                     >info</icon
                                                 >
                                             </button>
                                         </div>
                                         <div
-                                            class="mb-1 text-xs opacity-60"
+                                            class="mb-1 text-xs text-gray-600"
                                         >
                                             {{
                                                 formatDate(event.date)
@@ -170,7 +170,7 @@ import {
                                             }}
                                         </div>
                                         <div
-                                            class="mb-1 flex items-center space-x-1 text-xs opacity-60"
+                                            class="mb-1 flex items-center space-x-1 text-xs text-gray-600"
                                         >
                                             <icon class="text-xs"
                                                 >location_on</icon
@@ -180,7 +180,7 @@ import {
                                             }}</span>
                                         </div>
                                         <div
-                                            class="mb-2 flex items-center space-x-1 text-xs opacity-60"
+                                            class="mb-2 flex items-center space-x-1 text-xs text-gray-600"
                                         >
                                             <icon class="text-xs"
                                                 >person</icon
@@ -342,7 +342,7 @@ import {
                                                 </button>
                                             } @else {
                                                 <span
-                                                    class="text-xs italic opacity-40"
+                                                    class="text-xs italic text-gray-600"
                                                     >View only</span
                                                 >
                                             }

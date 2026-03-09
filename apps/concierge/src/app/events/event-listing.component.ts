@@ -142,7 +142,7 @@ import {
                 >
                     <div
                         month
-                        class="relative top-0.5 text-sm font-medium opacity-60"
+                        class="relative top-0.5 text-sm font-medium text-gray-600"
                     >
                         {{ item.date | date: 'MMM' }}
                     </div>
@@ -181,7 +181,7 @@ import {
                             }
                         </div>
                     }
-                    <div class="text-xs opacity-40">
+                    <div class="text-xs text-gray-600">
                         {{ item.date | date: 'EEEE, ' + time_format }}
                         &ndash;
                         {{
@@ -189,7 +189,7 @@ import {
                                 | date: time_format
                         }}
                     </div>
-                    <div class="text-xs opacity-60">
+                    <div class="text-xs text-gray-600">
                         {{ item.host }}
                     </div>
                 </div>
@@ -223,7 +223,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -249,7 +249,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -275,7 +275,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -301,7 +301,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -327,7 +327,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -353,7 +353,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -379,7 +379,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -405,7 +405,7 @@ import {
                         </span>
                     }
                     @default {
-                        <span class="opacity-30">&mdash;</span>
+                        <span class="text-gray-600">&mdash;</span>
                     }
                 }
             </div>
@@ -418,8 +418,10 @@ import {
                 matRipple
                 class="mx-2 h-12 w-12 rounded-sm"
                 [matMenuTriggerFor]="menu"
+                aria-label="Event actions"
             >
-                <icon>more_vert</icon>
+                <icon aria-hidden="true">more_vert</icon>
+                <span class="sr-only">Event actions</span>
             </button>
             <mat-menu #menu="matMenu">
                 <a

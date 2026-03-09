@@ -28,7 +28,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                         [routerLink]="link.route"
                         routerLinkActive="active"
                     >
-                        <icon class="text-2xl opacity-60">{{ link.icon }}</icon>
+                        <icon class="text-2xl text-gray-600">{{ link.icon }}</icon>
                         <span class="font-medium">{{ link.name }}</span>
                     </a>
                 } @else {
@@ -41,7 +41,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                                     !show_block[link.id || link._id]
                             "
                         >
-                            <icon class="text-2xl opacity-60">
+                            <icon class="text-2xl text-gray-600">
                                 {{ link.icon }}
                             </icon>
                             <div class="flex-1 text-left font-medium">

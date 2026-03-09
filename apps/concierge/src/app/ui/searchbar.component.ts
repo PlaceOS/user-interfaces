@@ -8,6 +8,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     selector: 'searchbar',
     template: `
         <mat-form-field appearance="outline" class="no-subscript">
+            <mat-label>{{ 'COMMON.SEARCH' | translate }}</mat-label>
             <input
                 matInput
                 [placeholder]="'COMMON.SEARCH' | translate"

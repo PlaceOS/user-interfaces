@@ -33,7 +33,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
                         [style.transform]="'translateY(-' + scroll.y + 'px)'"
                     >
                         <div
-                            class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs opacity-40"
+                            class="absolute top-0 w-full -translate-y-1/2 transform text-center text-xs text-gray-600"
                         >
                             {{ time }}
                         </div>
@@ -47,7 +47,7 @@ const HOUR_BLOCKS = new Array(24).fill(0).map((_, idx) => {
             <div class="flex h-full w-1/2 flex-1 flex-col">
                 <div
                     header
-                    class="border-base-300 border-opacity-50 bg-base-100 relative flex h-16 w-full overflow-hidden border-b"
+                    class="border-base-300/50 bg-base-100 relative flex h-16 w-full overflow-hidden border-b"
                 >
                     @for (space of space_list | async; track space) {
                         <div
