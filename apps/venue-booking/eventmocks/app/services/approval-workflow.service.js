@@ -155,6 +155,7 @@
             var totalTasks = tasks.length;
             var approvedCount = 0;
             var rejectedCount = 0;
+            var cancelledCount = 0;
             var pendingCount = 0;
 
             tasks.forEach(function(task) {
@@ -162,18 +163,25 @@
                     approvedCount++;
                 } else if (task.status === 'rejected') {
                     rejectedCount++;
+                } else if (task.status === 'cancelled') {
+                    cancelledCount++;
                 } else {
                     pendingCount++;
                 }
             });
 
-            // Update progress percentage
-            workflow.progress_percent = Math.round((approvedCount / totalTasks) * 100);
+            // Cancelled tasks don't block progress (like waived)
+            var activeTasks = totalTasks - cancelledCount;
+            workflow.progress_percent = activeTasks > 0
+                ? Math.round((approvedCount / activeTasks) * 100)
+                : 0;
 
             // Update overall status
-            if (rejectedCount > 0) {
+            if (cancelledCount === totalTasks) {
+                workflow.overall_status = 'cancelled';
+            } else if (rejectedCount > 0) {
                 workflow.overall_status = 'rejected';
-            } else if (pendingCount === 0 && approvedCount === totalTasks) {
+            } else if (pendingCount === 0 && approvedCount + cancelledCount === totalTasks) {
                 workflow.overall_status = 'approved';
             } else {
                 workflow.overall_status = 'pending';
@@ -218,7 +226,8 @@
                 'approved': { label: 'Approved', color: 'green', icon: 'check' },
                 'rejected': { label: 'Rejected', color: 'red', icon: 'times' },
                 'waived': { label: 'Waived', color: 'gray', icon: 'forward' },
-                'expired': { label: 'Expired', color: 'red', icon: 'exclamation' }
+                'expired': { label: 'Expired', color: 'red', icon: 'exclamation' },
+                'cancelled': { label: 'Cancelled', color: 'gray', icon: 'ban' }
             };
 
             return badges[task.status] || badges.pending;
@@ -230,10 +239,69 @@
          * @returns {Boolean}
          */
         self.isTaskOverdue = function(task) {
-            if (!task.due_at || task.status === 'approved' || task.status === 'rejected') {
+            if (!task.due_at || task.status === 'approved' || task.status === 'rejected' || task.status === 'cancelled') {
                 return false;
             }
             return Date.now() > task.due_at;
+        };
+
+        /**
+         * Cancel an approval task
+         * @param {Object} workflow - Workflow object
+         * @param {String} taskId - Task ID to cancel
+         * @returns {Object} Result with success, refund, is_refundable
+         */
+        self.cancelTask = function(workflow, taskId) {
+            var task = workflow.approval_tasks.find(function(t) {
+                return t.id === taskId;
+            });
+            if (!task || task.status === 'cancelled') {
+                return { success: false };
+            }
+
+            var now = Date.now();
+            var is_refundable = task.refund_deadline && now < task.refund_deadline;
+            var refund = is_refundable ? (task.refund_amount || 0) : 0;
+
+            task.status = 'cancelled';
+            task.cancelled_at = now;
+            task.refund_issued = refund;
+            task.audit_trail.push({
+                timestamp: new Date().toISOString(),
+                action: 'cancelled',
+                by_user: 'Event Organizer',
+                details: refund > 0
+                    ? 'Service cancelled — $' + refund + ' refund issued'
+                    : 'Service cancelled — non-refundable'
+            });
+
+            self.recalculateWorkflowStatus(workflow);
+            return { success: true, refund: refund, is_refundable: is_refundable };
+        };
+
+        /**
+         * Cancel an ad-hoc service
+         * @param {Array} adhoc_services - Ad-hoc services array
+         * @param {String} serviceId - Service ID to cancel
+         * @returns {Object} Result with success, refund, is_refundable
+         */
+        self.cancelAdhocService = function(adhoc_services, serviceId) {
+            var svc = adhoc_services.find(function(s) {
+                return s.id === serviceId;
+            });
+            if (!svc || svc.status === 'cancelled') {
+                return { success: false };
+            }
+
+            var now = Date.now();
+            var is_refundable = svc.refund_deadline && now < svc.refund_deadline;
+            var refund = is_refundable ? (svc.refund_amount || 0) : 0;
+
+            svc.status = 'cancelled';
+            svc.cancelled_at = now;
+            svc.refund_issued = refund;
+
+            return { success: true, refund: refund, is_refundable: is_refundable };
         };
 
         /**

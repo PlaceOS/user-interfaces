@@ -58,6 +58,11 @@
                                 Rejected
                             </button>
                             <button class="filter-btn"
+                                    ng-class="{active: $ctrl.activeFilter === 'cancelled'}"
+                                    ng-click="$ctrl.setFilter('cancelled')">
+                                Cancelled
+                            </button>
+                            <button class="filter-btn"
                                     ng-class="{active: $ctrl.activeFilter === 'sla_warning'}"
                                     ng-click="$ctrl.setFilter('sla_warning')">
                                 <span class="material-icons" style="font-size: 1rem; vertical-align: middle;">warning</span> SLA Warning
@@ -102,7 +107,7 @@
                             <div class="approval-checklist" ng-if="$ctrl.hasApprovalTasks(event)">
                                 <div class="approval-header">
                                     <strong>Approval Status</strong>
-                                    <span class="approval-summary">{{ $ctrl.getApprovedCount(event) }} of {{ $ctrl.getApprovalTasks(event).length }} approvals completed</span>
+                                    <span class="approval-summary">{{ $ctrl.getApprovedCount(event) }} of {{ $ctrl.getApprovalTasks(event).length }} approvals completed<span ng-if="$ctrl.getCancelledCount(event) > 0">, {{ $ctrl.getCancelledCount(event) }} cancelled</span></span>
                                 </div>
                                 <div class="approval-progress-bar" ng-if="$ctrl.getWorkflowStatus(event) === 'pending'">
                                     <div class="approval-progress-fill"
@@ -117,6 +122,7 @@
                                         <span class="task-status-label status-approved" ng-if="task.status === 'approved'">Completed</span>
                                         <span class="task-status-label status-rejected" ng-if="task.status === 'rejected'">Rejected</span>
                                         <span class="task-status-label status-pending" ng-if="task.status === 'pending'">Pending</span>
+                                        <span class="task-status-label status-cancelled" ng-if="task.status === 'cancelled'">Cancelled</span>
                                     </div>
                                 </div>
                             </div>
@@ -255,6 +261,11 @@
                 case 'rejected':
                     ctrl.filteredEvents = ctrl.events.filter(function(e) {
                         return ctrl.getWorkflowStatus(e) === 'rejected';
+                    });
+                    break;
+                case 'cancelled':
+                    ctrl.filteredEvents = ctrl.events.filter(function(e) {
+                        return ctrl.getWorkflowStatus(e) === 'cancelled' || ctrl.getCancelledCount(e) > 0;
                     });
                     break;
                 case 'sla_warning':
@@ -427,6 +438,16 @@
             var tasks = ctrl.getApprovalTasks(event);
             return tasks.filter(function(task) {
                 return task.status === 'approved';
+            }).length;
+        };
+
+        /**
+         * Get count of cancelled tasks
+         */
+        ctrl.getCancelledCount = function(event) {
+            var tasks = ctrl.getApprovalTasks(event);
+            return tasks.filter(function(task) {
+                return task.status === 'cancelled';
             }).length;
         };
     }

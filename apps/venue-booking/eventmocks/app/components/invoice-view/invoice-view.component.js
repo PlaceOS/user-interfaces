@@ -31,9 +31,11 @@
                     <div class="invoice-items">
                         <div class="invoice-section" ng-if="$ctrl.getVenueItems().length > 0">
                             <h5 ng-if="!$ctrl.compact">Venue</h5>
-                            <div class="line-item" ng-repeat="item in $ctrl.getVenueItems()">
+                            <div class="line-item" ng-repeat="item in $ctrl.getVenueItems()"
+                                 ng-class="{'cancelled-item': item.cancelled}">
                                 <div class="item-details">
                                     <span class="item-name">{{ item.name }}</span>
+                                    <span class="cancelled-label" ng-if="item.cancelled">Cancelled</span>
                                     <span class="item-description" ng-if="item.description && !$ctrl.compact">{{ item.description }}</span>
                                 </div>
                                 <span class="item-amount">{{ $ctrl.formatCurrency(item.total) }}</span>
@@ -42,12 +44,25 @@
 
                         <div class="invoice-section" ng-if="$ctrl.getServiceItems().length > 0">
                             <h5 ng-if="!$ctrl.compact">Services</h5>
-                            <div class="line-item" ng-repeat="item in $ctrl.getServiceItems()">
+                            <div class="line-item" ng-repeat="item in $ctrl.getServiceItems()"
+                                 ng-class="{'cancelled-item': item.cancelled}">
                                 <div class="item-details">
                                     <span class="item-name">{{ item.name }}</span>
+                                    <span class="cancelled-label" ng-if="item.cancelled">Cancelled</span>
                                     <span class="item-description" ng-if="item.description && !$ctrl.compact">{{ item.description }}</span>
                                 </div>
                                 <span class="item-amount">{{ $ctrl.formatCurrency(item.total) }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Refund deductions -->
+                        <div class="invoice-section" ng-if="$ctrl.getTotalRefunds() > 0">
+                            <h5 ng-if="!$ctrl.compact">Refunds</h5>
+                            <div class="line-item refund-line" ng-repeat="refund in $ctrl.getRefundItems()">
+                                <div class="item-details">
+                                    <span class="item-name">{{ refund.name }} (refund)</span>
+                                </div>
+                                <span class="item-amount">-{{ $ctrl.formatCurrency(refund.amount) }}</span>
                             </div>
                         </div>
                     </div>
@@ -65,9 +80,15 @@
                     </div>
 
                     <!-- Total -->
-                    <div class="invoice-total">
-                        <span>Total</span>
+                    <div class="invoice-total" ng-class="{'cancelled-item': $ctrl.getTotalRefunds() > 0}">
+                        <span>Original Total</span>
                         <span>{{ $ctrl.formatCurrency($ctrl.invoice.quote.total) }}</span>
+                    </div>
+
+                    <!-- Adjusted Total (after refunds) -->
+                    <div class="invoice-adjusted-total" ng-if="$ctrl.getTotalRefunds() > 0">
+                        <span>Adjusted Total</span>
+                        <span>{{ $ctrl.formatCurrency($ctrl.getAdjustedTotal()) }}</span>
                     </div>
 
                     <!-- Payment Info -->
@@ -198,6 +219,58 @@
             if (ctrl.onPay) {
                 ctrl.onPay({ invoice: ctrl.invoice });
             }
+        };
+
+        /**
+         * Get refund items from cancelled tasks/services
+         */
+        ctrl.getRefundItems = function() {
+            if (!ctrl.event || !ctrl.event.extension_data) return [];
+
+            var refunds = [];
+            var workflow = ctrl.event.extension_data.workflow;
+            var adhoc = ctrl.event.extension_data.adhoc_services || [];
+
+            // Check cancelled approval tasks
+            if (workflow && workflow.approval_tasks) {
+                workflow.approval_tasks.forEach(function(task) {
+                    if (task.status === 'cancelled' && task.refund_issued > 0) {
+                        refunds.push({
+                            name: task.stage,
+                            amount: task.refund_issued
+                        });
+                    }
+                });
+            }
+
+            // Check cancelled ad-hoc services
+            adhoc.forEach(function(svc) {
+                if (svc.status === 'cancelled' && svc.refund_issued > 0) {
+                    refunds.push({
+                        name: svc.name,
+                        amount: svc.refund_issued
+                    });
+                }
+            });
+
+            return refunds;
+        };
+
+        /**
+         * Get total refund amount
+         */
+        ctrl.getTotalRefunds = function() {
+            return ctrl.getRefundItems().reduce(function(sum, r) {
+                return sum + r.amount;
+            }, 0);
+        };
+
+        /**
+         * Get adjusted total after refunds
+         */
+        ctrl.getAdjustedTotal = function() {
+            if (!ctrl.invoice || !ctrl.invoice.quote) return 0;
+            return ctrl.invoice.quote.total - ctrl.getTotalRefunds();
         };
 
         ctrl.downloadInvoice = function() {

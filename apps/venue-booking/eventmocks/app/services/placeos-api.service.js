@@ -274,6 +274,57 @@
         };
 
         /**
+         * Sync a service cancellation to the sync server
+         * @param {String} eventId - Event ID
+         * @param {String} taskStage - Stage name (e.g. 'VENUE', 'DINING')
+         * @param {Number} refundIssued - Refund amount issued
+         */
+        self.syncCancellation = function(eventId, taskStage, refundIssued) {
+            try {
+                fetch('http://localhost:3001/api/events/' + eventId + '/cancel-service', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        stage: taskStage,
+                        refund_issued: refundIssued,
+                        cancelled_at: Date.now()
+                    })
+                }).catch(function() { /* sync server offline */ });
+            } catch (e) { /* ignore */ }
+        };
+
+        /**
+         * Re-push the full event to the sync server after local modifications
+         * @param {Object} event - The full event object
+         */
+        self.syncEventUpdate = function(event) {
+            try {
+                var ext = event.extension_data || {};
+                var sync_payload = {
+                    id: event.id,
+                    title: event.title,
+                    category: 'venue',
+                    date: event.event_start,
+                    duration_minutes: Math.round(((event.event_end || event.event_start) - event.event_start) / 60000),
+                    location: ext.venue || '',
+                    organiser: (ext.organizer && ext.organizer.name) || '',
+                    venue_id: ext.venue_id || '',
+                    event_start: event.event_start,
+                    event_end: event.event_end,
+                    request_items: ext.request_items || [],
+                    workflow: ext.workflow || {},
+                    adhoc_services: ext.adhoc_services || [],
+                    source: 'eventmocks'
+                };
+                fetch('http://localhost:3001/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(sync_payload)
+                }).catch(function() { /* sync server offline */ });
+            } catch (e) { /* ignore */ }
+        };
+
+        /**
          * Check venue conflicts against sync server
          */
         self.checkVenueConflicts = function(venueId, venueName, start, end) {

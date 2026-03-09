@@ -409,6 +409,85 @@
         self.formatCurrency = function(amount) {
             return '$' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         };
+
+        /**
+         * Create an invoice from a quote
+         */
+        self.createInvoice = function(eventId, quote, existingInvoice) {
+            if (existingInvoice) return existingInvoice;
+            return {
+                id: 'INV-' + eventId.replace('event_', '').toUpperCase() + '-' + Date.now(),
+                eventId: eventId,
+                quote: quote,
+                status: 'pending',
+                payments: [],
+                createdAt: new Date().toISOString()
+            };
+        };
+
+        /**
+         * Get human-readable payment status label
+         */
+        self.getPaymentStatusLabel = function(status) {
+            var labels = {
+                'pending': 'Unpaid',
+                'paid': 'Paid',
+                'partial': 'Partially Paid',
+                'refunded': 'Refunded',
+                'succeeded': 'Succeeded',
+                'completed': 'Completed',
+                'failed': 'Failed'
+            };
+            return labels[status] || status;
+        };
+
+        /**
+         * Get the cost of a specific service stage
+         */
+        self.getServiceCost = function(stage, eventData) {
+            var ext = eventData.extension_data || {};
+            var duration = eventData.event_end && eventData.event_start
+                ? Math.round((eventData.event_end - eventData.event_start) / (60 * 60 * 1000))
+                : 2;
+
+            switch (stage) {
+                case 'VENUE':
+                    if (ext.venue_id && venuePricing[ext.venue_id]) {
+                        var venue = venuePricing[ext.venue_id];
+                        return venue.basePrice + (venue.perHour * duration);
+                    }
+                    return 0;
+                case 'AV_TECH':
+                    return 500; // Default AV package estimate
+                case 'PARKING':
+                    return 250; // Default parking estimate
+                case 'SAFETY':
+                    return 500; // Default safety services estimate
+                case 'SETUP':
+                    return 300; // Default setup estimate
+                case 'SERVICES':
+                    return 719; // Default event services package
+                case 'DINING':
+                    return 1500; // Default catering estimate
+                default:
+                    return 0;
+            }
+        };
+
+        /**
+         * Calculate refund info for a task
+         */
+        self.calculateRefund = function(task) {
+            if (!task.refund_deadline) {
+                return { refundable: false, amount: 0 };
+            }
+            var now = Date.now();
+            return {
+                refundable: now < task.refund_deadline,
+                amount: task.refund_amount || 0,
+                deadline: task.refund_deadline
+            };
+        };
     }
 
 })();

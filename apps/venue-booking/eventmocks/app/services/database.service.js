@@ -38,10 +38,10 @@
                     workflow: {
                         overall_status: 'pending',
                         approval_tasks: [
-                            { id: 'task_v1', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-03T12:00:00').getTime(), completed_at: new Date('2025-05-02T15:00:00').getTime(), comments: 'Approved', audit_trail: [] },
-                            { id: 'task_u1', stage: 'SAFETY', status: 'approved', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['SECURITY_PLAN'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: new Date('2025-05-04T10:00:00').getTime(), comments: 'Security plan approved', audit_trail: [] },
-                            { id: 'task_f1', stage: 'SETUP', status: 'pending', owner_role: 'SETUP_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['SITE_PLAN'], due_at: new Date('2025-05-07T12:00:00').getTime(), completed_at: null, comments: null, audit_trail: [] },
-                            { id: 'task_p1', stage: 'PARKING', status: 'pending', owner_role: 'PARKING_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['TRAFFIC_PLAN'], due_at: new Date('2025-05-07T12:00:00').getTime(), completed_at: null, comments: null, audit_trail: [] }
+                            { id: 'task_v1', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-03T12:00:00').getTime(), completed_at: new Date('2025-05-02T15:00:00').getTime(), comments: 'Approved', refund_deadline: new Date('2025-06-01T10:00:00').getTime(), refund_amount: 14000, audit_trail: [] },
+                            { id: 'task_u1', stage: 'SAFETY', status: 'approved', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['SECURITY_PLAN'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: new Date('2025-05-04T10:00:00').getTime(), comments: 'Security plan approved', refund_deadline: new Date('2025-06-08T10:00:00').getTime(), refund_amount: 500, audit_trail: [] },
+                            { id: 'task_f1', stage: 'SETUP', status: 'pending', owner_role: 'SETUP_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['SITE_PLAN'], due_at: new Date('2025-05-07T12:00:00').getTime(), completed_at: null, comments: null, refund_deadline: new Date('2025-06-08T10:00:00').getTime(), refund_amount: 300, audit_trail: [] },
+                            { id: 'task_p1', stage: 'PARKING', status: 'pending', owner_role: 'PARKING_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['TRAFFIC_PLAN'], due_at: new Date('2025-05-07T12:00:00').getTime(), completed_at: null, comments: null, refund_deadline: new Date('2025-06-08T10:00:00').getTime(), refund_amount: 250, audit_trail: [] }
                         ],
                         submitted_at: new Date('2025-05-01T09:00:00').getTime(),
                         last_updated: new Date('2025-05-04T10:00:00').getTime(),
@@ -53,6 +53,10 @@
                         { id: 'doc_1', type: 'SECURITY_PLAN', name: 'Security Plan', required: true, uploaded: true, validated: true, upload_id: 'up_1', uploaded_at: new Date('2025-05-01T10:00:00').getTime() },
                         { id: 'doc_2', type: 'SITE_PLAN', name: 'Site Plan', required: true, uploaded: false, validated: false, upload_id: null, uploaded_at: null },
                         { id: 'doc_3', type: 'TRAFFIC_PLAN', name: 'Traffic Management Plan', required: true, uploaded: false, validated: false, upload_id: null, uploaded_at: null }
+                    ],
+                    adhoc_services: [
+                        { id: 'adhoc_1_1', name: 'Additional AV Technician', description: 'Extra technician for livestream support during ceremony', amount: 375, added_at: new Date('2025-05-10T09:00:00').getTime(), added_by: 'Admin - J. Martinez', status: 'active', refund_deadline: new Date('2025-06-08T10:00:00').getTime(), refund_amount: 375 },
+                        { id: 'adhoc_1_2', name: 'Extra Security Personnel', description: 'Additional security guard for VIP entrance', amount: 450, added_at: new Date('2025-05-12T14:00:00').getTime(), added_by: 'Admin - R. Thompson', status: 'active', refund_deadline: new Date('2025-06-08T10:00:00').getTime(), refund_amount: 450 }
                     ]
                 }
             },
@@ -76,9 +80,9 @@
                     workflow: {
                         overall_status: 'approved',
                         approval_tasks: [
-                            { id: 'task_v2', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-12T12:00:00').getTime(), completed_at: new Date('2025-05-11T09:00:00').getTime(), comments: 'Approved', audit_trail: [] },
-                            { id: 'task_e2', stage: 'SAFETY', status: 'approved', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['ALCOHOL_PERMIT'], due_at: new Date('2025-05-14T12:00:00').getTime(), completed_at: new Date('2025-05-12T11:00:00').getTime(), comments: 'All permits in order', audit_trail: [] },
-                            { id: 'task_i2', stage: 'SERVICES', status: 'approved', owner_role: 'SERVICES_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['COI'], due_at: new Date('2025-05-14T12:00:00').getTime(), completed_at: new Date('2025-05-12T10:30:00').getTime(), comments: 'COI verified', audit_trail: [] }
+                            { id: 'task_v2', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-12T12:00:00').getTime(), completed_at: new Date('2025-05-11T09:00:00').getTime(), comments: 'Approved', refund_deadline: new Date('2025-09-06T17:00:00').getTime(), refund_amount: 4500, audit_trail: [] },
+                            { id: 'task_e2', stage: 'SAFETY', status: 'approved', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['ALCOHOL_PERMIT'], due_at: new Date('2025-05-14T12:00:00').getTime(), completed_at: new Date('2025-05-12T11:00:00').getTime(), comments: 'All permits in order', refund_deadline: new Date('2025-09-13T17:00:00').getTime(), refund_amount: 500, audit_trail: [] },
+                            { id: 'task_i2', stage: 'SERVICES', status: 'approved', owner_role: 'SERVICES_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['COI'], due_at: new Date('2025-05-14T12:00:00').getTime(), completed_at: new Date('2025-05-12T10:30:00').getTime(), comments: 'COI verified', refund_deadline: new Date('2025-09-13T17:00:00').getTime(), refund_amount: 719, audit_trail: [] }
                         ],
                         submitted_at: new Date('2025-05-10T14:00:00').getTime(),
                         last_updated: new Date('2025-05-12T11:00:00').getTime(),
@@ -89,6 +93,9 @@
                     documents: [
                         { id: 'doc_4', type: 'ALCOHOL_PERMIT', name: 'Alcohol Service Permit', required: true, uploaded: true, validated: true, upload_id: 'up_2', uploaded_at: new Date('2025-05-10T15:00:00').getTime() },
                         { id: 'doc_5', type: 'COI', name: 'Certificate of Insurance', required: true, uploaded: true, validated: true, upload_id: 'up_3', uploaded_at: new Date('2025-05-10T15:30:00').getTime() }
+                    ],
+                    adhoc_services: [
+                        { id: 'adhoc_2_1', name: 'Event Photographer', description: 'Professional photographer for welcome week coverage', amount: 600, added_at: new Date('2025-05-15T10:00:00').getTime(), added_by: 'Admin - J. Martinez', status: 'active', refund_deadline: new Date('2025-09-13T17:00:00').getTime(), refund_amount: 600 }
                     ]
                 }
             },
@@ -112,8 +119,8 @@
                     workflow: {
                         overall_status: 'pending',
                         approval_tasks: [
-                            { id: 'task_v3', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-15T12:00:00').getTime(), completed_at: new Date('2025-05-14T16:00:00').getTime(), comments: 'Venue confirmed', audit_trail: [] },
-                            { id: 'task_a3', stage: 'AV_TECH', status: 'pending', owner_role: 'AV_TECH_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-15T12:00:00').getTime(), completed_at: null, comments: null, audit_trail: [] }
+                            { id: 'task_v3', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-15T12:00:00').getTime(), completed_at: new Date('2025-05-14T16:00:00').getTime(), comments: 'Venue confirmed', refund_deadline: new Date('2025-06-26T09:00:00').getTime(), refund_amount: 6600, audit_trail: [] },
+                            { id: 'task_a3', stage: 'AV_TECH', status: 'pending', owner_role: 'AV_TECH_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-15T12:00:00').getTime(), completed_at: null, comments: null, refund_deadline: new Date('2025-07-03T09:00:00').getTime(), refund_amount: 500, audit_trail: [] }
                         ],
                         submitted_at: new Date('2025-05-14T10:00:00').getTime(),
                         last_updated: new Date('2025-05-14T16:00:00').getTime(),
@@ -121,7 +128,11 @@
                         sla_warning: true,
                         progress_percent: 50
                     },
-                    documents: []
+                    documents: [],
+                    adhoc_services: [
+                        { id: 'adhoc_3_1', name: 'Additional Microphone Setup', description: 'Extra wireless microphones for Q&A sessions', amount: 200, added_at: new Date('2025-05-16T11:00:00').getTime(), added_by: 'Admin - L. Chen', status: 'active', refund_deadline: new Date('2025-07-03T09:00:00').getTime(), refund_amount: 200 },
+                        { id: 'adhoc_3_2', name: 'Poster Printing Service', description: 'On-site large format poster printing for presenters', amount: 350, added_at: new Date('2025-05-18T09:30:00').getTime(), added_by: 'Admin - J. Martinez', status: 'active', refund_deadline: new Date('2025-07-03T09:00:00').getTime(), refund_amount: 350 }
+                    ]
                 }
             },
             {
@@ -144,9 +155,9 @@
                     workflow: {
                         overall_status: 'rejected',
                         approval_tasks: [
-                            { id: 'task_v4', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-04T12:00:00').getTime(), completed_at: new Date('2025-05-02T14:00:00').getTime(), comments: 'Venue available', audit_trail: [] },
-                            { id: 'task_s4', stage: 'SAFETY', status: 'rejected', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['VENDOR_LICENSE', 'SITE_PLAN', 'SECURITY_PLAN', 'NOISE_PERMIT'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: new Date('2025-05-05T14:00:00').getTime(), comments: 'Vendor license expired. Please resubmit with current documentation.', audit_trail: [] },
-                            { id: 'task_i4', stage: 'SERVICES', status: 'pending', owner_role: 'SERVICES_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['COI', 'RISK_ASSESSMENT'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: null, comments: null, audit_trail: [] }
+                            { id: 'task_v4', stage: 'VENUE', status: 'approved', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-04T12:00:00').getTime(), completed_at: new Date('2025-05-02T14:00:00').getTime(), comments: 'Venue available', refund_deadline: new Date('2025-06-20T20:00:00').getTime(), refund_amount: 14000, audit_trail: [] },
+                            { id: 'task_s4', stage: 'SAFETY', status: 'rejected', owner_role: 'SAFETY_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['VENDOR_LICENSE', 'SITE_PLAN', 'SECURITY_PLAN', 'NOISE_PERMIT'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: new Date('2025-05-05T14:00:00').getTime(), comments: 'Vendor license expired. Please resubmit with current documentation.', refund_deadline: new Date('2025-06-27T20:00:00').getTime(), refund_amount: 2500, audit_trail: [] },
+                            { id: 'task_i4', stage: 'SERVICES', status: 'pending', owner_role: 'SERVICES_Approver', assignee_user_id: null, assignee_name: null, required_documents: ['COI', 'RISK_ASSESSMENT'], due_at: new Date('2025-05-05T12:00:00').getTime(), completed_at: null, comments: null, refund_deadline: new Date('2025-06-27T20:00:00').getTime(), refund_amount: 1750, audit_trail: [] }
                         ],
                         submitted_at: new Date('2025-05-01T08:00:00').getTime(),
                         last_updated: new Date('2025-05-05T14:00:00').getTime(),
@@ -159,7 +170,8 @@
                         { id: 'doc_7', type: 'SITE_PLAN', name: 'Site Plan', required: true, uploaded: true, validated: true, upload_id: 'up_5', uploaded_at: new Date('2025-05-01T09:15:00').getTime() },
                         { id: 'doc_8', type: 'COI', name: 'Certificate of Insurance', required: true, uploaded: false, validated: false, upload_id: null, uploaded_at: null },
                         { id: 'doc_9', type: 'RISK_ASSESSMENT', name: 'Risk Assessment', required: true, uploaded: false, validated: false, upload_id: null, uploaded_at: null }
-                    ]
+                    ],
+                    adhoc_services: []
                 }
             },
             {
@@ -182,7 +194,7 @@
                     workflow: {
                         overall_status: 'draft',
                         approval_tasks: [
-                            { id: 'task_v5', stage: 'VENUE', status: 'pending', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-16T12:00:00').getTime(), completed_at: null, comments: null, audit_trail: [] }
+                            { id: 'task_v5', stage: 'VENUE', status: 'pending', owner_role: 'VENUE_Approver', assignee_user_id: null, assignee_name: null, required_documents: [], due_at: new Date('2025-05-16T12:00:00').getTime(), completed_at: null, comments: null, refund_deadline: new Date('2025-12-01T18:00:00').getTime(), refund_amount: 755, audit_trail: [] }
                         ],
                         submitted_at: null,
                         last_updated: new Date('2025-05-15T13:00:00').getTime(),
@@ -190,7 +202,8 @@
                         sla_warning: false,
                         progress_percent: 0
                     },
-                    documents: []
+                    documents: [],
+                    adhoc_services: []
                 }
             }
         ];
@@ -358,6 +371,16 @@
                     }).upgrade(function(tx) {
                         // Clear old data so it re-seeds with new venues/events
                         tx.table('venues').clear();
+                        tx.table('events').clear();
+                        tx.table('settings').clear();
+                    });
+
+                    // v3: added refund fields and ad-hoc services to events
+                    db.version(3).stores({
+                        events: 'id, title, event_start, created_at, updated_at',
+                        venues: 'id, name, type, capacity',
+                        settings: 'key'
+                    }).upgrade(function(tx) {
                         tx.table('events').clear();
                         tx.table('settings').clear();
                     });

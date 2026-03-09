@@ -56,6 +56,7 @@
                                 <div class="stat">
                                     <strong>{{ $ctrl.getApprovedCount() }}</strong> of
                                     <strong>{{ $ctrl.workflow.approval_tasks.length }}</strong> approvals complete
+                                    <span ng-if="$ctrl.getCancelledCount() > 0" class="cancelled-count">, {{ $ctrl.getCancelledCount() }} cancelled</span>
                                 </div>
                                 <div class="stat" ng-if="$ctrl.workflow.submitted_at">
                                     Submitted {{ $ctrl.formatDate($ctrl.workflow.submitted_at) }}
@@ -100,11 +101,14 @@
                                         <div class="marker-icon" ng-bind-html="$ctrl.getTaskIcon(task)"></div>
                                     </div>
 
-                                    <div class="timeline-content">
+                                    <div class="timeline-content" ng-class="{'cancelled-task': task.status === 'cancelled'}">
                                         <div class="task-header">
-                                            <h3>{{ $ctrl.getStageName(task.stage) }}</h3>
-                                            <div class="task-badge" ng-class="'badge-' + task.status">
+                                            <h3 ng-class="{'stage-cancelled': task.status === 'cancelled'}">{{ $ctrl.getStageName(task.stage) }}</h3>
+                                            <div class="task-badge" ng-class="'badge-' + task.status" ng-if="task.status !== 'cancelled'">
                                                 {{ $ctrl.getTaskStatusLabel(task.status) }}
+                                            </div>
+                                            <div class="task-badge badge-cancelled" ng-if="task.status === 'cancelled'">
+                                                Cancelled
                                             </div>
                                         </div>
 
@@ -145,9 +149,82 @@
                                                 <strong>Comments:</strong>
                                                 <p>{{ task.comments }}</p>
                                             </div>
+
+                                            <!-- Refund deadline info -->
+                                            <div class="refund-info" ng-if="task.refund_deadline && task.status !== 'cancelled'">
+                                                <div ng-if="$ctrl.isBeforeDeadline(task)" class="refund-active">
+                                                    <span class="material-icons">schedule</span>
+                                                    Refundable until {{ $ctrl.formatDate(task.refund_deadline) }}
+                                                    &mdash; {{ $ctrl.formatCurrency(task.refund_amount) }}
+                                                </div>
+                                                <div ng-if="!$ctrl.isBeforeDeadline(task)" class="refund-expired">
+                                                    <span class="material-icons">block</span>
+                                                    Non-refundable (deadline was {{ $ctrl.formatDate(task.refund_deadline) }})
+                                                </div>
+                                            </div>
+
+                                            <!-- Refund issued for cancelled tasks -->
+                                            <div class="refund-issued" ng-if="task.status === 'cancelled' && task.refund_issued > 0">
+                                                <span class="material-icons">payments</span>
+                                                {{ $ctrl.formatCurrency(task.refund_issued) }} refund issued
+                                            </div>
+
+                                            <!-- Cancel button -->
+                                            <button class="btn-cancel-service"
+                                                    ng-if="$ctrl.canCancelTask(task)"
+                                                    ng-click="$ctrl.confirmCancelTask(task)">
+                                                <span class="material-icons">cancel</span>
+                                                Cancel Service
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Ad-Hoc Services -->
+                        <div class="adhoc-section" ng-if="$ctrl.event.extension_data.adhoc_services && $ctrl.event.extension_data.adhoc_services.length > 0">
+                            <h2>Additional Services</h2>
+                            <p class="section-subtitle">Services added after initial request</p>
+
+                            <div class="adhoc-card"
+                                 ng-repeat="svc in $ctrl.event.extension_data.adhoc_services"
+                                 ng-class="{'adhoc-cancelled': svc.status === 'cancelled'}">
+                                <div class="adhoc-header">
+                                    <span class="adhoc-name" ng-class="{'stage-cancelled': svc.status === 'cancelled'}">{{ svc.name }}</span>
+                                    <span class="adhoc-amount">{{ $ctrl.formatCurrency(svc.amount) }}</span>
+                                </div>
+                                <div class="adhoc-meta">
+                                    Added by {{ svc.added_by }} on {{ $ctrl.formatDate(svc.added_at) }}
+                                </div>
+                                <div class="adhoc-description" ng-if="svc.description">{{ svc.description }}</div>
+
+                                <!-- Refund info -->
+                                <div class="refund-info" ng-if="svc.refund_deadline && svc.status !== 'cancelled'">
+                                    <div ng-if="$ctrl.isBeforeDeadline(svc)" class="refund-active">
+                                        <span class="material-icons">schedule</span>
+                                        Refundable until {{ $ctrl.formatDate(svc.refund_deadline) }}
+                                        &mdash; {{ $ctrl.formatCurrency(svc.refund_amount) }}
+                                    </div>
+                                    <div ng-if="!$ctrl.isBeforeDeadline(svc)" class="refund-expired">
+                                        <span class="material-icons">block</span>
+                                        Non-refundable (deadline was {{ $ctrl.formatDate(svc.refund_deadline) }})
+                                    </div>
+                                </div>
+
+                                <!-- Cancelled badge -->
+                                <div class="cancelled-badge" ng-if="svc.status === 'cancelled'">
+                                    Cancelled
+                                    <span ng-if="svc.refund_issued"> &mdash; {{ $ctrl.formatCurrency(svc.refund_issued) }} refunded</span>
+                                </div>
+
+                                <!-- Cancel button -->
+                                <button class="btn-cancel-service"
+                                        ng-if="svc.status === 'active'"
+                                        ng-click="$ctrl.confirmCancelAdhoc(svc)">
+                                    <span class="material-icons">cancel</span>
+                                    Cancel Service
+                                </button>
                             </div>
                         </div>
 
@@ -241,6 +318,28 @@
                         </div>
                     </div>
 
+                    <!-- Cancel Service Confirmation Modal -->
+                    <div class="modal-overlay" ng-if="$ctrl.showCancelModal">
+                        <div class="modal-card">
+                            <h3>Cancel Service</h3>
+                            <p>Are you sure you want to cancel <strong>{{ $ctrl.cancelTargetName }}</strong>?</p>
+
+                            <div class="refund-notice" ng-if="$ctrl.cancelRefundAmount > 0">
+                                <span class="material-icons">payments</span>
+                                A refund of <strong>{{ $ctrl.formatCurrency($ctrl.cancelRefundAmount) }}</strong> will be issued.
+                            </div>
+                            <div class="no-refund-notice" ng-if="$ctrl.cancelRefundAmount === 0">
+                                <span class="material-icons">warning</span>
+                                This service is past its refund deadline. No refund will be issued.
+                            </div>
+
+                            <div class="modal-actions">
+                                <button class="btn btn-secondary" ng-click="$ctrl.closeCancelModal()">Keep Service</button>
+                                <button class="btn btn-danger" ng-click="$ctrl.executeCancelTask()">Cancel Service</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Payment Modal -->
                     <payment-modal
                         ng-if="$ctrl.showPaymentModal"
@@ -284,6 +383,13 @@
         ctrl.error = null;
         ctrl.invoice = null;
         ctrl.showPaymentModal = false;
+
+        // Cancel modal state
+        ctrl.showCancelModal = false;
+        ctrl.cancelTargetName = '';
+        ctrl.cancelRefundAmount = 0;
+        ctrl.cancelTargetId = null;
+        ctrl.cancelTargetType = null; // 'task' or 'adhoc'
 
         /**
          * Initialize component
@@ -391,7 +497,8 @@
                 'approved': 'Approved',
                 'rejected': 'Rejected',
                 'waived': 'Waived',
-                'expired': 'Expired'
+                'expired': 'Expired',
+                'cancelled': 'Cancelled'
             };
             return labels[status] || status;
         };
@@ -406,7 +513,8 @@
                 'approved': '<span class="material-icons">check_circle</span>',
                 'rejected': '<span class="material-icons">cancel</span>',
                 'waived': '<span class="material-icons">arrow_forward</span>',
-                'expired': '<span class="material-icons">warning</span>'
+                'expired': '<span class="material-icons">warning</span>',
+                'cancelled': '<span class="material-icons">do_not_disturb</span>'
             };
             return $sce.trustAsHtml(icons[task.status] || '<span class="material-icons">radio_button_unchecked</span>');
         };
@@ -455,6 +563,15 @@
         ctrl.getApprovedCount = function() {
             return ctrl.workflow.approval_tasks.filter(function(task) {
                 return task.status === 'approved' || task.status === 'waived';
+            }).length;
+        };
+
+        /**
+         * Get cancelled task count
+         */
+        ctrl.getCancelledCount = function() {
+            return ctrl.workflow.approval_tasks.filter(function(task) {
+                return task.status === 'cancelled';
             }).length;
         };
 
@@ -531,6 +648,106 @@
                 hour: 'numeric',
                 minute: '2-digit'
             });
+        };
+
+        /**
+         * Check if current time is before task/service refund deadline
+         */
+        ctrl.isBeforeDeadline = function(item) {
+            return item.refund_deadline && Date.now() < item.refund_deadline;
+        };
+
+        /**
+         * Check if a task can be cancelled
+         */
+        ctrl.canCancelTask = function(task) {
+            return task.status === 'pending' || task.status === 'delegated' || task.status === 'approved';
+        };
+
+        /**
+         * Format currency using PaymentService
+         */
+        ctrl.formatCurrency = function(amount) {
+            return PaymentService.formatCurrency(amount || 0);
+        };
+
+        /**
+         * Open cancel confirmation modal for an approval task
+         */
+        ctrl.confirmCancelTask = function(task) {
+            var refundInfo = PaymentService.calculateRefund(task);
+            ctrl.cancelTargetId = task.id;
+            ctrl.cancelTargetType = 'task';
+            ctrl.cancelTargetName = PolicyEngineService.getStageName(task.stage);
+            ctrl.cancelRefundAmount = refundInfo.refundable ? refundInfo.amount : 0;
+            ctrl.showCancelModal = true;
+        };
+
+        /**
+         * Open cancel confirmation modal for an ad-hoc service
+         */
+        ctrl.confirmCancelAdhoc = function(svc) {
+            var refundInfo = PaymentService.calculateRefund(svc);
+            ctrl.cancelTargetId = svc.id;
+            ctrl.cancelTargetType = 'adhoc';
+            ctrl.cancelTargetName = svc.name;
+            ctrl.cancelRefundAmount = refundInfo.refundable ? refundInfo.amount : 0;
+            ctrl.showCancelModal = true;
+        };
+
+        /**
+         * Execute the cancellation
+         */
+        ctrl.executeCancelTask = function() {
+            var result;
+            var cancelled_stage = null;
+
+            if (ctrl.cancelTargetType === 'task') {
+                result = ApprovalWorkflowService.cancelTask(ctrl.workflow, ctrl.cancelTargetId);
+                // Find the stage name for sync
+                var tasks = ctrl.workflow.approval_tasks || [];
+                for (var i = 0; i < tasks.length; i++) {
+                    if (tasks[i].id === ctrl.cancelTargetId) {
+                        cancelled_stage = tasks[i].stage;
+                        break;
+                    }
+                }
+            } else if (ctrl.cancelTargetType === 'adhoc') {
+                var adhoc_services = ctrl.event.extension_data.adhoc_services || [];
+                result = ApprovalWorkflowService.cancelAdhocService(adhoc_services, ctrl.cancelTargetId);
+            }
+
+            if (result && result.success) {
+                // Regenerate invoice to reflect cancellation
+                ctrl.event.extension_data.invoice = null;
+                ctrl.generateInvoice();
+
+                // Save updated event
+                PlaceOSApiService.updateEvent(ctrl.event.id, {
+                    extension_data: ctrl.event.extension_data
+                }).then(function() {
+                    $scope.$apply();
+                });
+
+                // Sync cancellation to sync server
+                if (ctrl.cancelTargetType === 'task' && cancelled_stage) {
+                    PlaceOSApiService.syncCancellation(ctrl.event.id, cancelled_stage, result.refund || 0);
+                }
+                PlaceOSApiService.syncEventUpdate(ctrl.event);
+            }
+
+            ctrl.closeCancelModal();
+        };
+
+        /**
+         * Close cancel modal
+         */
+        ctrl.closeCancelModal = function() {
+            ctrl.showCancelModal = false;
+            ctrl.cancelTargetName = '';
+            ctrl.cancelRefundAmount = 0;
+            ctrl.cancelTargetId = null;
+            ctrl.cancelTargetType = null;
         };
 
         /**

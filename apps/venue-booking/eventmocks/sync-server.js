@@ -31,7 +31,7 @@ let eventSseClients = [];
 
 function corsHeaders(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
@@ -198,11 +198,21 @@ var server = http.createServer(function (req, res) {
         return;
     }
 
-    // Push new event (from eventmocks)
+    // Push new event or update existing (from eventmocks)
     if (parsed.pathname === '/api/events' && req.method === 'POST') {
         readBody(req).then(function (event) {
-            var exists = events.some(function (e) { return e.id === event.id; });
-            if (!exists) {
+            var existing_index = -1;
+            for (var i = 0; i < events.length; i++) {
+                if (events[i].id === event.id) {
+                    existing_index = i;
+                    break;
+                }
+            }
+            if (existing_index >= 0) {
+                events[existing_index] = event;
+                notifyEventClients({ type: 'event_updated', event: event, total: events.length });
+                console.log('[~] Event updated: ' + event.title + ' (total: ' + events.length + ')');
+            } else {
                 events.push(event);
                 notifyEventClients({ type: 'event_added', event: event, total: events.length });
                 console.log('[+] Event added: ' + event.title + ' (total: ' + events.length + ')');
@@ -220,6 +230,73 @@ var server = http.createServer(function (req, res) {
     if (parsed.pathname === '/api/events' && req.method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ events: events, total: events.length }));
+        return;
+    }
+
+    // PUT update an existing event (full replacement)
+    var putMatch = parsed.pathname.match(/^\/api\/events\/([^/]+)$/);
+    if (putMatch && req.method === 'PUT') {
+        var putEventId = putMatch[1];
+        readBody(req).then(function (event) {
+            var found = false;
+            for (var i = 0; i < events.length; i++) {
+                if (events[i].id === putEventId) {
+                    event.id = putEventId;
+                    events[i] = event;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                notifyEventClients({ type: 'event_updated', event: event, total: events.length });
+                console.log('[~] Event replaced: ' + (event.title || putEventId));
+            }
+            res.writeHead(found ? 200 : 404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: found, event_id: putEventId }));
+        }).catch(function (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        });
+        return;
+    }
+
+    // Cancel a service within an event (from eventmocks or concierge)
+    var cancelMatch = parsed.pathname.match(/^\/api\/events\/(.+)\/cancel-service$/);
+    if (cancelMatch && req.method === 'POST') {
+        var cancelEventId = cancelMatch[1];
+        readBody(req).then(function (body) {
+            var found = false;
+            var stage = (body.stage || '').toUpperCase();
+            for (var i = 0; i < events.length; i++) {
+                if (events[i].id === cancelEventId) {
+                    if (!events[i].workflow) events[i].workflow = {};
+                    if (!events[i].workflow.approval_tasks) events[i].workflow.approval_tasks = [];
+                    for (var j = 0; j < events[i].workflow.approval_tasks.length; j++) {
+                        if (events[i].workflow.approval_tasks[j].stage === stage) {
+                            events[i].workflow.approval_tasks[j].status = 'cancelled';
+                            events[i].workflow.approval_tasks[j].cancelled_at = body.cancelled_at || Date.now();
+                            events[i].workflow.approval_tasks[j].refund_issued = body.refund_issued || 0;
+                            break;
+                        }
+                    }
+                    found = true;
+                    notifyEventClients({
+                        type: 'service_cancelled',
+                        event_id: cancelEventId,
+                        stage: body.stage,
+                        refund_issued: body.refund_issued || 0,
+                        cancelled_at: body.cancelled_at || Date.now()
+                    });
+                    console.log('[x] Service cancelled: event=' + cancelEventId + ' stage=' + body.stage);
+                    break;
+                }
+            }
+            res.writeHead(found ? 200 : 404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: found, event_id: cancelEventId }));
+        }).catch(function (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        });
         return;
     }
 
@@ -302,11 +379,13 @@ server.listen(PORT, function () {
     console.log('  GET  /api/venues/stream     - SSE stream (for eventmocks)');
     console.log('');
     console.log('Event Endpoints:');
-    console.log('  POST /api/events            - Push event (from eventmocks)');
-    console.log('  GET  /api/events            - Get all events');
-    console.log('  GET  /api/events/stream     - SSE stream (both apps)');
-    console.log('  GET  /api/events/conflicts  - Check venue time conflicts');
-    console.log('  POST /api/events/:id/status - Update approval status');
+    console.log('  POST /api/events                    - Push/update event (from eventmocks)');
+    console.log('  PUT  /api/events/:id                - Replace event (full update)');
+    console.log('  GET  /api/events                    - Get all events');
+    console.log('  GET  /api/events/stream             - SSE stream (both apps)');
+    console.log('  GET  /api/events/conflicts          - Check venue time conflicts');
+    console.log('  POST /api/events/:id/status         - Update approval status');
+    console.log('  POST /api/events/:id/cancel-service - Cancel a service');
     console.log('');
     console.log('  GET  /api/health            - Health check');
     console.log('');
