@@ -246,14 +246,26 @@ export class EventFinanceStateService {
         );
     }
 
+    private readonly _billable_to_approval: Record<string, ApprovalCategory[]> = {
+        venue_hire: ['venue'],
+        catering: ['dining'],
+        av_equipment: ['av_tech'],
+        security: ['safety'],
+        setup: ['setup'],
+        staffing: ['av_tech', 'services'],
+        miscellaneous: ['services', 'parking', 'events'],
+        cleaning: ['services'],
+    };
+
     public removeLineItem(doc_id: string, item_id: string): void {
         let removed_description = '';
-        let removed_event_id = '';
+        let removed_category: BillableCategory | '' = '';
         const doc = this._documents.getValue().find((d) => d.id === doc_id);
         const docs = this._documents.getValue().map((d) => {
             if (d.id !== doc_id) return d;
             const removed = d.line_items.find((li) => li.id === item_id);
             removed_description = removed?.description || item_id;
+            removed_category = removed?.category || '';
             const line_items = d.line_items.filter((li) => li.id !== item_id);
             return { ...d, line_items, ...this._recalcTotals(line_items), last_updated: Date.now() };
         });
@@ -264,18 +276,42 @@ export class EventFinanceStateService {
             `Line item removed: ${removed_description}`,
         );
 
+        if (!doc) return;
+
         // Auto-decline matching ad-hoc service when its invoice line is removed
-        if (removed_description.endsWith('(Ad-hoc)') && doc) {
+        if (removed_description.endsWith('(Ad-hoc)')) {
             const adhoc_title = removed_description.replace(/\s*\(Ad-hoc\)$/, '');
-            const parent_id = doc.event_id;
             const adhoc_event = MOCK_APPROVAL_EVENTS.find(
                 (e) =>
                     e.is_adhoc &&
                     e.title === adhoc_title &&
-                    (e.parent_event === parent_id || e.id === parent_id),
+                    (e.parent_event === doc.event_id || e.id === doc.event_id),
             );
             if (adhoc_event) {
                 this._approval_state.setStatus(adhoc_event.id, 'declined');
+            }
+            return;
+        }
+
+        // Auto-decline child service when all line items of that category are removed
+        if (removed_category) {
+            const updated_doc = docs.find((d) => d.id === doc_id);
+            const still_has_category = updated_doc?.line_items.some(
+                (li) => li.category === removed_category,
+            );
+            if (!still_has_category) {
+                const approval_categories = this._billable_to_approval[removed_category] || [];
+                const parent_id = doc.event_id;
+                for (const approval_cat of approval_categories) {
+                    const child_event = MOCK_APPROVAL_EVENTS.find(
+                        (e) =>
+                            e.category === approval_cat &&
+                            (e.parent_event === parent_id || e.id === parent_id),
+                    );
+                    if (child_event) {
+                        this._approval_state.setStatus(child_event.id, 'declined');
+                    }
+                }
             }
         }
     }
