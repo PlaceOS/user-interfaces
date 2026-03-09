@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
@@ -29,7 +32,10 @@ import {
 import { EventApprovalStateService } from './event-approval-state.service';
 import { EventFinanceStateService } from './event-finance-state.service';
 import {
+    BillableCategory,
+    BILLABLE_CATEGORY_DISPLAY,
     FinancialDocument,
+    FinancialLineItem,
     MOCK_FINANCIAL_DOCUMENTS,
 } from './event-finance-mock.data';
 import { generateFinancePdf } from './event-finance-pdf.util';
@@ -44,6 +50,7 @@ interface ApprovalItem {
     category: ApprovalCategory;
     title: string;
     status: string;
+    is_adhoc: boolean;
 }
 
 interface ResolvedOrderItem {
@@ -248,16 +255,134 @@ interface OrderGroup {
                                 <!-- Line items -->
                                 <div class="space-y-1.5 text-sm">
                                     @for (item of quote.line_items; track item.id) {
-                                        <div class="flex justify-between">
-                                            <div>
-                                                <div class="font-medium">{{ item.description }}</div>
+                                        @if (dialog_editing_item_id() === item.id) {
+                                            <div class="rounded border border-info/40 bg-info/5 p-2 space-y-2">
+                                                <input
+                                                    class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                    placeholder="Description"
+                                                    [ngModel]="dialog_edit_form().description"
+                                                    (ngModelChange)="updateDialogField('description', $event)"
+                                                />
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <div>
+                                                        <label class="text-xs opacity-50">Qty</label>
+                                                        <input
+                                                            type="number"
+                                                            class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                            [ngModel]="dialog_edit_form().quantity"
+                                                            (ngModelChange)="updateDialogField('quantity', +$event)"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label class="text-xs opacity-50">Unit Price</label>
+                                                        <input
+                                                            type="number"
+                                                            class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                            [ngModel]="dialog_edit_form().unit_price"
+                                                            (ngModelChange)="updateDialogField('unit_price', +$event)"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label class="text-xs opacity-50">Tax %</label>
+                                                        <input
+                                                            type="number"
+                                                            class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                            [ngModel]="dialog_edit_form().tax_rate"
+                                                            (ngModelChange)="updateDialogField('tax_rate', +$event)"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-end space-x-2">
+                                                    <button icon matRipple class="h-6 w-6 text-error" (click)="dialogCancelEdit()">
+                                                        <icon class="text-sm">close</icon>
+                                                    </button>
+                                                    <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveEdit(item.id)">
+                                                        <icon class="text-sm">check</icon>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div class="font-medium whitespace-nowrap">
-                                                {{ formatCurrency(item.line_total) }}
+                                        } @else {
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <div class="font-medium">{{ item.description }}</div>
+                                                </div>
+                                                <div class="flex items-center space-x-2">
+                                                    <div class="font-medium whitespace-nowrap">
+                                                        {{ formatCurrency(item.line_total) }}
+                                                    </div>
+                                                    @if (dialogCanEdit()) {
+                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100" (click)="dialogStartEdit(item)">
+                                                            <icon class="text-xs">edit</icon>
+                                                        </button>
+                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialogRemoveItem(item.id)">
+                                                            <icon class="text-xs">delete</icon>
+                                                        </button>
+                                                    }
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
                                     }
                                 </div>
+
+                                <!-- Add new item in dialog -->
+                                @if (dialog_adding_new_item()) {
+                                    <div class="rounded border border-success/40 bg-success/5 p-2 space-y-2">
+                                        <div class="text-xs font-medium">New Line Item</div>
+                                        <input
+                                            class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                            placeholder="Description"
+                                            [ngModel]="dialog_edit_form().description"
+                                            (ngModelChange)="updateDialogField('description', $event)"
+                                        />
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <div>
+                                                <label class="text-xs opacity-50">Qty</label>
+                                                <input
+                                                    type="number"
+                                                    class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                    [ngModel]="dialog_edit_form().quantity"
+                                                    (ngModelChange)="updateDialogField('quantity', +$event)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label class="text-xs opacity-50">Unit Price</label>
+                                                <input
+                                                    type="number"
+                                                    class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                    [ngModel]="dialog_edit_form().unit_price"
+                                                    (ngModelChange)="updateDialogField('unit_price', +$event)"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label class="text-xs opacity-50">Tax %</label>
+                                                <input
+                                                    type="number"
+                                                    class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                    [ngModel]="dialog_edit_form().tax_rate"
+                                                    (ngModelChange)="updateDialogField('tax_rate', +$event)"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end space-x-2">
+                                            <button icon matRipple class="h-6 w-6 text-error" (click)="dialog_adding_new_item.set(false)">
+                                                <icon class="text-sm">close</icon>
+                                            </button>
+                                            <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveAdd()">
+                                                <icon class="text-sm">check</icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                @if (dialogCanEdit() && !dialog_adding_new_item() && !dialog_editing_item_id()) {
+                                    <button
+                                        matRipple
+                                        class="flex w-full items-center justify-center space-x-1 rounded border border-dashed border-base-300 px-2 py-1 text-xs opacity-60 hover:opacity-100"
+                                        (click)="dialogStartAdd()"
+                                    >
+                                        <icon class="text-sm">add</icon>
+                                        <span>Add Item</span>
+                                    </button>
+                                }
 
                                 <div class="border-t border-base-300 pt-2 space-y-1 text-sm">
                                     <div class="flex justify-between">
@@ -418,26 +543,158 @@ interface OrderGroup {
                     }
 
                     <!-- Related Services -->
-                    @if (child_events.length) {
+                    @if (child_events.length || !event.parent_event) {
                         <div>
-                            <h4 class="mb-2 text-sm font-semibold opacity-70">
-                                Related Services
-                            </h4>
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-sm font-semibold opacity-70">
+                                    Related Services
+                                </h4>
+                                <button
+                                    matRipple
+                                    class="flex items-center space-x-1 rounded px-2 py-1 text-xs opacity-60 hover:opacity-100 hover:bg-base-200"
+                                    (click)="show_cancelled.set(!show_cancelled())"
+                                >
+                                    <icon class="text-sm">{{ show_cancelled() ? 'visibility' : 'visibility_off' }}</icon>
+                                    <span>{{ show_cancelled() ? 'Hide' : 'Show' }} Cancelled</span>
+                                </button>
+                            </div>
                             <div class="space-y-1.5">
-                                @for (child of child_events; track child.id) {
-                                    <div class="flex items-center space-x-2 text-sm">
+                                @for (child of regular_child_events; track child.id) {
+                                    <div
+                                        class="flex items-center justify-between text-sm"
+                                        [class.opacity-40]="getStatus(child.id) === 'declined'"
+                                    >
+                                        <div class="flex items-center space-x-2 min-w-0">
+                                            <span
+                                                class="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+                                                [class]="serviceBadgeColor(child.category)"
+                                            >
+                                                <icon class="text-xs text-white">{{
+                                                    categoryIcon(child.category)
+                                                }}</icon>
+                                            </span>
+                                            <span [class.line-through]="getStatus(child.id) === 'declined'">
+                                                {{ child.title }}
+                                            </span>
+                                        </div>
                                         <span
-                                            class="flex h-6 w-6 shrink-0 items-center justify-center rounded"
-                                            [class]="serviceBadgeColor(child.category)"
+                                            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                                            [class]="serviceStatusClass(getStatus(child.id))"
                                         >
-                                            <icon class="text-xs text-white">{{
-                                                categoryIcon(child.category)
-                                            }}</icon>
+                                            {{ serviceStatusLabel(getStatus(child.id)) }}
                                         </span>
-                                        <span>{{ child.title }}</span>
                                     </div>
                                 }
                             </div>
+
+                            <!-- Last-Minute Additions -->
+                            @if (adhoc_child_events.length) {
+                                <div class="border-t border-base-300 mt-3 pt-3">
+                                    <button
+                                        matRipple
+                                        class="flex w-full items-center justify-between text-sm font-semibold opacity-70 hover:opacity-100 py-1"
+                                        (click)="show_adhoc.set(!show_adhoc())"
+                                    >
+                                        <span>Last-Minute Additions</span>
+                                        <icon class="text-base">{{ show_adhoc() ? 'expand_less' : 'expand_more' }}</icon>
+                                    </button>
+                                    @if (show_adhoc()) {
+                                        <div class="space-y-2 mt-2">
+                                            @for (child of adhoc_child_events; track child.id) {
+                                                <div
+                                                    class="rounded border border-warning/30 bg-warning/5 p-2.5 text-sm"
+                                                    [class.opacity-40]="getStatus(child.id) === 'declined'"
+                                                >
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center space-x-2 min-w-0">
+                                                            <span
+                                                                class="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+                                                                [class]="serviceBadgeColor(child.category)"
+                                                            >
+                                                                <icon class="text-xs text-white">{{
+                                                                    categoryIcon(child.category)
+                                                                }}</icon>
+                                                            </span>
+                                                            <span [class.line-through]="getStatus(child.id) === 'declined'">
+                                                                {{ child.title }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center justify-between mt-1.5 ml-8">
+                                                        <span class="text-xs opacity-50">
+                                                            Added {{ child.added_date ? formatDateTime(child.added_date) : 'recently' }}
+                                                        </span>
+                                                        <div class="flex items-center space-x-1.5">
+                                                            <span class="rounded-full bg-warning/20 text-warning px-2 py-0.5 text-xs font-medium">
+                                                                Ad-hoc
+                                                            </span>
+                                                            <span
+                                                                class="rounded-full px-2 py-0.5 text-xs font-medium"
+                                                                [class]="serviceStatusClass(getStatus(child.id))"
+                                                            >
+                                                                {{ serviceStatusLabel(getStatus(child.id)) }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+
+                            <!-- Add Ad-Hoc Service -->
+                            @if (!event.parent_event) {
+                                @if (adding_adhoc_service()) {
+                                    <div class="rounded border border-warning/40 bg-warning/5 p-3 space-y-3 mt-3">
+                                        <div class="text-xs font-semibold opacity-70">New Ad-Hoc Service</div>
+                                        <mat-select
+                                            placeholder="Select category"
+                                            [value]="adhoc_form().category"
+                                            (selectionChange)="updateAdhocField('category', $event.value)"
+                                            class="w-full rounded border border-base-300 bg-base-100 text-sm"
+                                        >
+                                            @for (opt of ADHOC_CATEGORY_OPTIONS; track opt.key) {
+                                                <mat-option [value]="opt.key">
+                                                    {{ opt.label }}
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                        <input
+                                            class="w-full rounded border border-base-300 bg-base-100 px-2 py-1.5 text-sm"
+                                            placeholder="Service title"
+                                            [ngModel]="adhoc_form().title"
+                                            (ngModelChange)="updateAdhocField('title', $event)"
+                                        />
+                                        <div>
+                                            <label class="text-xs opacity-50">Unit price (optional, for invoice)</label>
+                                            <input
+                                                type="number"
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1.5 text-sm"
+                                                [ngModel]="adhoc_form().unit_price"
+                                                (ngModelChange)="updateAdhocField('unit_price', +$event)"
+                                            />
+                                        </div>
+                                        <div class="flex justify-end space-x-2">
+                                            <button icon matRipple class="h-7 w-7 text-error" (click)="cancelAddAdhoc()">
+                                                <icon class="text-base">close</icon>
+                                            </button>
+                                            <button icon matRipple class="h-7 w-7 text-success" (click)="saveAddAdhoc()">
+                                                <icon class="text-base">check</icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                } @else {
+                                    <button
+                                        matRipple
+                                        class="flex w-full items-center justify-center space-x-1.5 rounded border border-dashed border-warning/50 px-3 py-2 text-xs font-medium text-warning hover:bg-warning/5 mt-3"
+                                        (click)="startAddAdhoc()"
+                                    >
+                                        <icon class="text-sm">add_circle</icon>
+                                        <span>Add Ad-Hoc Service</span>
+                                    </button>
+                                }
+                            }
                         </div>
                     }
                 </div>
@@ -446,10 +703,12 @@ interface OrderGroup {
     `,
     imports: [
         CommonModule,
+        FormsModule,
         IconComponent,
         MatRippleModule,
         MatDialogModule,
         MatProgressBarModule,
+        MatSelectModule,
     ],
 })
 export class EventSummaryDialogComponent {
@@ -458,10 +717,93 @@ export class EventSummaryDialogComponent {
     private _approval_state = inject(EventApprovalStateService);
     private _finance_state = inject(EventFinanceStateService);
 
+    private readonly _documents_signal = toSignal(
+        this._finance_state.documents$,
+        { initialValue: [] as FinancialDocument[] },
+    );
+
     private readonly _currency_formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
     });
+
+    private readonly _approval_status_signal = toSignal(
+        this._approval_state.status$,
+        { initialValue: this._approval_state.status },
+    );
+
+    readonly show_cancelled = signal(false);
+    readonly show_adhoc = signal(true);
+
+    readonly ADHOC_CATEGORY_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] = [
+        { key: 'dining', label: 'Catering & Dining', icon: 'restaurant' },
+        { key: 'av_tech', label: 'AV & Production', icon: 'videocam' },
+        { key: 'setup', label: 'Setup & Furniture', icon: 'table_restaurant' },
+        { key: 'safety', label: 'Safety & Security', icon: 'shield' },
+        { key: 'parking', label: 'Parking & Transport', icon: 'local_parking' },
+        { key: 'services', label: 'Event Services', icon: 'home_repair_service' },
+    ];
+
+    readonly adding_adhoc_service = signal(false);
+    readonly adhoc_form = signal<{ category: ApprovalCategory | ''; title: string; unit_price: number }>({
+        category: '', title: '', unit_price: 0,
+    });
+
+    private readonly _category_to_billable: Record<string, BillableCategory> = {
+        venue: 'venue_hire', dining: 'catering', av_tech: 'av_equipment',
+        safety: 'security', setup: 'setup',
+        services: 'miscellaneous', parking: 'miscellaneous', events: 'miscellaneous',
+    };
+
+    startAddAdhoc(): void {
+        this.adding_adhoc_service.set(true);
+        this.adhoc_form.set({ category: '', title: '', unit_price: 0 });
+    }
+
+    cancelAddAdhoc(): void {
+        this.adding_adhoc_service.set(false);
+    }
+
+    saveAddAdhoc(): void {
+        const form = this.adhoc_form();
+        if (!form.category || !form.title.trim()) return;
+
+        const new_event: MockApprovalEvent = {
+            id: 'appr-adhoc-' + Date.now(),
+            title: form.title.trim(),
+            category: form.category as ApprovalCategory,
+            date: this.event.date,
+            duration_minutes: this.event.duration_minutes,
+            location: this.event.location,
+            organiser: this.event.organiser,
+            parent_event: this.event.id,
+            is_adhoc: true,
+            added_date: Date.now(),
+        };
+
+        MOCK_APPROVAL_EVENTS.push(new_event);
+
+        if (form.unit_price > 0) {
+            const q = this.quote;
+            if (q) {
+                const billable_category = this._category_to_billable[form.category] || 'miscellaneous';
+                this._finance_state.addLineItem(q.id, {
+                    description: `${form.title.trim()} (Ad-hoc)`,
+                    category: billable_category,
+                    quantity: 1,
+                    unit_price: form.unit_price,
+                    tax_rate: 0.1,
+                });
+            }
+        }
+
+        this._approval_state.refresh();
+        this.adding_adhoc_service.set(false);
+    }
+
+    updateAdhocField(field: string, value: any): void {
+        this.adhoc_form.set({ ...this.adhoc_form(), [field]: value });
+    }
 
     /** Returns a MockApprovalEvent (real or synthesised from CalendarEvent). */
     get event(): MockApprovalEvent {
@@ -494,6 +836,16 @@ export class EventSummaryDialogComponent {
         );
     }
 
+    get regular_child_events(): MockApprovalEvent[] {
+        const children = this.child_events.filter((e) => !e.is_adhoc);
+        if (this.show_cancelled()) return children;
+        return children.filter((e) => this.getStatus(e.id) !== 'declined');
+    }
+
+    get adhoc_child_events(): MockApprovalEvent[] {
+        return this.child_events.filter((e) => e.is_adhoc);
+    }
+
     /** Build the approval checklist from the event and its children. */
     get approval_items(): ApprovalItem[] {
         if (this.data.event) {
@@ -506,6 +858,7 @@ export class EventSummaryDialogComponent {
                 category: evt.category,
                 title: evt.title,
                 status: this.getStatus(evt.id),
+                is_adhoc: evt.is_adhoc ?? false,
             }));
         }
         const ce = this.data.calendar_event;
@@ -519,15 +872,17 @@ export class EventSummaryDialogComponent {
                 category: category as ApprovalCategory,
                 title: CATEGORY_DISPLAY_NAMES[category as ApprovalCategory] || category,
                 status: (status as string) || 'pending',
+                is_adhoc: false,
             }));
     }
 
-    /** The quote linked to this event (or its parent). */
+    /** The quote linked to this event (or its parent). Reactive — reflects edits. */
     get quote(): FinancialDocument | null {
         if (!this.data.event) return null;
         const root_id = this.parent_event?.id || this.event.id;
+        const docs = this._documents_signal();
         return (
-            MOCK_FINANCIAL_DOCUMENTS.find(
+            docs.find(
                 (d) => d.event_id === root_id && d.doc_type === 'quote',
             ) || null
         );
@@ -542,8 +897,9 @@ export class EventSummaryDialogComponent {
             (i) => i.status === 'approved' || i.status === 'declined',
         );
         if (!all_actioned) return null;
+        const docs = this._documents_signal();
         return (
-            MOCK_FINANCIAL_DOCUMENTS.find(
+            docs.find(
                 (d) =>
                     d.converted_from === q.id &&
                     d.invoice_type === 'deposit',
@@ -611,7 +967,7 @@ export class EventSummaryDialogComponent {
     }
 
     getStatus(event_id: string): string {
-        return this._approval_state.status[event_id] || 'pending';
+        return this._approval_status_signal()[event_id] || 'pending';
     }
 
     categoryIcon(category: string): string {
@@ -684,6 +1040,105 @@ export class EventSummaryDialogComponent {
 
     serviceBadgeColor(category: string): string {
         return this._service_badge_colors[category] || 'bg-gray-500';
+    }
+
+    serviceStatusClass(status: string): string {
+        if (status === 'approved') return 'bg-success/20 text-success';
+        if (status === 'declined') return 'bg-error/20 text-error';
+        return 'bg-warning/20 text-warning';
+    }
+
+    serviceStatusLabel(status: string): string {
+        if (status === 'approved') return 'Approved';
+        if (status === 'declined') return 'Cancelled';
+        return 'Pending';
+    }
+
+    // ── Line item editing in dialog ─────────────────────────────────
+
+    readonly dialog_editing_item_id = signal<string | null>(null);
+    readonly dialog_adding_new_item = signal(false);
+    readonly dialog_edit_form = signal<{
+        description: string;
+        quantity: number;
+        unit_price: number;
+        tax_rate: number;
+    }>({
+        description: '',
+        quantity: 1,
+        unit_price: 0,
+        tax_rate: 10,
+    });
+
+    dialogCanEdit(): boolean {
+        const q = this.quote;
+        if (!q) return false;
+        const editable_statuses = ['draft', 'sent', 'accepted', 'invoiced'];
+        return (
+            editable_statuses.includes(q.status) &&
+            this._finance_state.canPerformAction('edit_line_items')
+        );
+    }
+
+    dialogStartEdit(item: FinancialLineItem): void {
+        this.dialog_editing_item_id.set(item.id);
+        this.dialog_edit_form.set({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            tax_rate: item.tax_rate * 100,
+        });
+    }
+
+    dialogCancelEdit(): void {
+        this.dialog_editing_item_id.set(null);
+    }
+
+    dialogSaveEdit(item_id: string): void {
+        const q = this.quote;
+        if (!q) return;
+        const form = this.dialog_edit_form();
+        this._finance_state.updateLineItem(q.id, item_id, {
+            description: form.description,
+            quantity: form.quantity,
+            unit_price: form.unit_price,
+            tax_rate: form.tax_rate / 100,
+        });
+        this.dialogCancelEdit();
+    }
+
+    dialogRemoveItem(item_id: string): void {
+        const q = this.quote;
+        if (!q) return;
+        this._finance_state.removeLineItem(q.id, item_id);
+    }
+
+    dialogStartAdd(): void {
+        this.dialog_adding_new_item.set(true);
+        this.dialog_edit_form.set({
+            description: '',
+            quantity: 1,
+            unit_price: 0,
+            tax_rate: 10,
+        });
+    }
+
+    dialogSaveAdd(): void {
+        const q = this.quote;
+        if (!q) return;
+        const form = this.dialog_edit_form();
+        this._finance_state.addLineItem(q.id, {
+            description: form.description,
+            category: 'miscellaneous' as BillableCategory,
+            quantity: form.quantity,
+            unit_price: form.unit_price,
+            tax_rate: form.tax_rate / 100,
+        });
+        this.dialog_adding_new_item.set(false);
+    }
+
+    updateDialogField(field: string, value: any): void {
+        this.dialog_edit_form.set({ ...this.dialog_edit_form(), [field]: value });
     }
 
     formatCurrency(value: number): string {

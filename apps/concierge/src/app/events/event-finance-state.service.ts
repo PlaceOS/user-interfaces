@@ -18,6 +18,7 @@ import {
     FinanceAuditEntry,
     FinancialDocStatus,
     FinancialDocument,
+    FinancialLineItem,
     FINANCE_ROLE_PERMISSIONS,
     MOCK_FINANCE_AUDIT_LOG,
     MOCK_FINANCIAL_DOCUMENTS,
@@ -214,6 +215,87 @@ export class EventFinanceStateService {
             'paid',
             `Payment of ${formatted} recorded`,
         );
+    }
+
+    // ── Line item mutations ────────────────────────────────────────
+
+    public updateLineItem(
+        doc_id: string,
+        item_id: string,
+        changes: Partial<FinancialLineItem>,
+    ): void {
+        const docs = this._documents.getValue().map((d) => {
+            if (d.id !== doc_id) return d;
+            const line_items = d.line_items.map((li) => {
+                if (li.id !== item_id) return li;
+                const updated = { ...li, ...changes };
+                updated.line_total =
+                    updated.quantity * updated.unit_price * (1 + updated.tax_rate);
+                return updated;
+            });
+            return { ...d, line_items, ...this._recalcTotals(line_items), last_updated: Date.now() };
+        });
+        this._documents.next(docs);
+        const item = docs
+            .find((d) => d.id === doc_id)
+            ?.line_items.find((li) => li.id === item_id);
+        this._appendAudit(
+            doc_id,
+            'updated',
+            `Line item updated: ${item?.description || item_id}`,
+        );
+    }
+
+    public removeLineItem(doc_id: string, item_id: string): void {
+        let removed_description = '';
+        const docs = this._documents.getValue().map((d) => {
+            if (d.id !== doc_id) return d;
+            const removed = d.line_items.find((li) => li.id === item_id);
+            removed_description = removed?.description || item_id;
+            const line_items = d.line_items.filter((li) => li.id !== item_id);
+            return { ...d, line_items, ...this._recalcTotals(line_items), last_updated: Date.now() };
+        });
+        this._documents.next(docs);
+        this._appendAudit(
+            doc_id,
+            'updated',
+            `Line item removed: ${removed_description}`,
+        );
+    }
+
+    public addLineItem(
+        doc_id: string,
+        item: Omit<FinancialLineItem, 'id' | 'line_total'>,
+    ): void {
+        const new_item: FinancialLineItem = {
+            ...item,
+            id: 'li-' + Date.now(),
+            line_total: item.quantity * item.unit_price * (1 + item.tax_rate),
+        };
+        const docs = this._documents.getValue().map((d) => {
+            if (d.id !== doc_id) return d;
+            const line_items = [...d.line_items, new_item];
+            return { ...d, line_items, ...this._recalcTotals(line_items), last_updated: Date.now() };
+        });
+        this._documents.next(docs);
+        this._appendAudit(
+            doc_id,
+            'updated',
+            `Line item added: ${item.description}`,
+        );
+    }
+
+    private _recalcTotals(items: FinancialLineItem[]): {
+        subtotal: number;
+        tax_total: number;
+        total: number;
+    } {
+        const subtotal = items.reduce((s, i) => s + i.quantity * i.unit_price, 0);
+        const tax_total = items.reduce(
+            (s, i) => s + i.quantity * i.unit_price * i.tax_rate,
+            0,
+        );
+        return { subtotal, tax_total, total: subtotal + tax_total };
     }
 
     /** Send a final invoice via email dialog. */

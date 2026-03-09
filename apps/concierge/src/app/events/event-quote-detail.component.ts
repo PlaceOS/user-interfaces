@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { IconComponent } from '@placeos/components';
 import { format } from 'date-fns';
 import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
 import {
+    BillableCategory,
     BILLABLE_CATEGORY_DISPLAY,
     BILLABLE_CATEGORY_ICONS,
     DOC_STATUS_COLOR,
@@ -99,45 +104,218 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                 item of document()!.line_items;
                                 track item.id
                             ) {
-                                <div
-                                    class="flex items-start justify-between rounded border border-base-200 p-2.5"
-                                >
-                                    <div class="flex-1">
-                                        <div
-                                            class="flex items-center space-x-2 text-sm font-medium"
-                                        >
-                                            <span
-                                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded"
-                                                [class]="categoryBadgeColor(item.category)"
+                                @if (editing_item_id() === item.id) {
+                                    <!-- Inline edit form -->
+                                    <div class="rounded border border-info/40 bg-info/5 p-3 space-y-2">
+                                        <div class="space-y-2">
+                                            <input
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                placeholder="Description"
+                                                [ngModel]="edit_form().description"
+                                                (ngModelChange)="updateEditField('description', $event)"
+                                            />
+                                            <select
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                [ngModel]="edit_form().category"
+                                                (ngModelChange)="updateEditField('category', $event)"
                                             >
-                                                <icon class="text-base text-white">{{
-                                                    categoryIcon(item.category)
-                                                }}</icon>
-                                            </span>
-                                            <span>{{
-                                                item.description
-                                            }}</span>
+                                                @for (cat of category_entries; track cat.key) {
+                                                    <option [value]="cat.key">{{ cat.label }}</option>
+                                                }
+                                            </select>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <div>
+                                                    <label class="text-xs opacity-50">Qty</label>
+                                                    <input
+                                                        type="number"
+                                                        class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                        [ngModel]="edit_form().quantity"
+                                                        (ngModelChange)="updateEditField('quantity', +$event)"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label class="text-xs opacity-50">Unit Price</label>
+                                                    <input
+                                                        type="number"
+                                                        class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                        [ngModel]="edit_form().unit_price"
+                                                        (ngModelChange)="updateEditField('unit_price', +$event)"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label class="text-xs opacity-50">Tax %</label>
+                                                    <input
+                                                        type="number"
+                                                        class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                        [ngModel]="edit_form().tax_rate"
+                                                        (ngModelChange)="updateEditField('tax_rate', +$event)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div
-                                            class="mt-0.5 text-xs opacity-50"
-                                        >
-                                            {{ categoryLabel(item.category) }}
-                                            &middot; {{ item.quantity }} x
-                                            {{ formatCurrency(item.unit_price) }}
-                                            &middot; Tax
-                                            {{ item.tax_rate * 100 }}%
+                                        <div class="flex justify-end space-x-2">
+                                            <button
+                                                icon
+                                                matRipple
+                                                class="h-7 w-7 text-error"
+                                                (click)="cancelEdit()"
+                                            >
+                                                <icon class="text-base">close</icon>
+                                            </button>
+                                            <button
+                                                icon
+                                                matRipple
+                                                class="h-7 w-7 text-success"
+                                                (click)="saveEdit(item.id)"
+                                            >
+                                                <icon class="text-base">check</icon>
+                                            </button>
                                         </div>
                                     </div>
+                                } @else {
                                     <div
-                                        class="text-sm font-medium whitespace-nowrap"
+                                        class="flex items-start justify-between rounded border border-base-200 p-2.5"
                                     >
-                                        {{
-                                            formatCurrency(item.line_total)
-                                        }}
+                                        <div class="flex-1">
+                                            <div
+                                                class="flex items-center space-x-2 text-sm font-medium"
+                                            >
+                                                <span
+                                                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded"
+                                                    [class]="categoryBadgeColor(item.category)"
+                                                >
+                                                    <icon class="text-base text-white">{{
+                                                        categoryIcon(item.category)
+                                                    }}</icon>
+                                                </span>
+                                                <span>{{
+                                                    item.description
+                                                }}</span>
+                                            </div>
+                                            <div
+                                                class="mt-0.5 text-xs opacity-50"
+                                            >
+                                                {{ categoryLabel(item.category) }}
+                                                &middot; {{ item.quantity }} x
+                                                {{ formatCurrency(item.unit_price) }}
+                                                &middot; Tax
+                                                {{ item.tax_rate * 100 }}%
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div
+                                                class="text-sm font-medium whitespace-nowrap"
+                                            >
+                                                {{
+                                                    formatCurrency(item.line_total)
+                                                }}
+                                            </div>
+                                            @if (canEdit()) {
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="h-6 w-6 opacity-50 hover:opacity-100"
+                                                    (click)="startEdit(item)"
+                                                >
+                                                    <icon class="text-sm">edit</icon>
+                                                </button>
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="h-6 w-6 opacity-50 hover:opacity-100 hover:text-error"
+                                                    (click)="removeItem(item.id)"
+                                                >
+                                                    <icon class="text-sm">delete</icon>
+                                                </button>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             }
                         </div>
+
+                        <!-- Add new line item form -->
+                        @if (adding_new_item()) {
+                            <div class="mt-2 rounded border border-success/40 bg-success/5 p-3 space-y-2">
+                                <div class="text-sm font-medium">New Line Item</div>
+                                <div class="space-y-2">
+                                    <input
+                                        class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                        placeholder="Description"
+                                        [ngModel]="edit_form().description"
+                                        (ngModelChange)="updateEditField('description', $event)"
+                                    />
+                                    <select
+                                        class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                        [ngModel]="edit_form().category"
+                                        (ngModelChange)="updateEditField('category', $event)"
+                                    >
+                                        @for (cat of category_entries; track cat.key) {
+                                            <option [value]="cat.key">{{ cat.label }}</option>
+                                        }
+                                    </select>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <div>
+                                            <label class="text-xs opacity-50">Qty</label>
+                                            <input
+                                                type="number"
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                [ngModel]="edit_form().quantity"
+                                                (ngModelChange)="updateEditField('quantity', +$event)"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label class="text-xs opacity-50">Unit Price</label>
+                                            <input
+                                                type="number"
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                [ngModel]="edit_form().unit_price"
+                                                (ngModelChange)="updateEditField('unit_price', +$event)"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label class="text-xs opacity-50">Tax %</label>
+                                            <input
+                                                type="number"
+                                                class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
+                                                [ngModel]="edit_form().tax_rate"
+                                                (ngModelChange)="updateEditField('tax_rate', +$event)"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="h-7 w-7 text-error"
+                                        (click)="adding_new_item.set(false)"
+                                    >
+                                        <icon class="text-base">close</icon>
+                                    </button>
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="h-7 w-7 text-success"
+                                        (click)="saveAdd()"
+                                    >
+                                        <icon class="text-base">check</icon>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Add line item button -->
+                        @if (canEdit() && !adding_new_item() && !editing_item_id()) {
+                            <button
+                                matRipple
+                                class="mt-2 flex w-full items-center justify-center space-x-1 rounded border border-dashed border-base-300 px-3 py-1.5 text-sm opacity-60 hover:opacity-100"
+                                (click)="startAdd()"
+                            >
+                                <icon class="text-base">add</icon>
+                                <span>Add Line Item</span>
+                            </button>
+                        }
 
                         <!-- Totals -->
                         <div
@@ -378,7 +556,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, IconComponent],
+    imports: [CommonModule, FormsModule, MatRippleModule, MatFormFieldModule, MatInputModule, MatSelectModule, IconComponent],
 })
 export class EventQuoteDetailComponent {
     readonly _state = inject(EventFinanceStateService);
@@ -400,6 +578,37 @@ export class EventQuoteDetailComponent {
     /** All documents — used to find linked deposit invoices. */
     private readonly _documents_signal = toSignal(this._state.documents$, {
         initialValue: [],
+    });
+
+    // ── Line item editing state ──────────────────────────────────────
+    readonly editing_item_id = signal<string | null>(null);
+    readonly adding_new_item = signal(false);
+    readonly edit_form = signal<{
+        description: string;
+        category: BillableCategory;
+        quantity: number;
+        unit_price: number;
+        tax_rate: number;
+    }>({
+        description: '',
+        category: 'miscellaneous',
+        quantity: 1,
+        unit_price: 0,
+        tax_rate: 10,
+    });
+
+    readonly category_entries = Object.entries(BILLABLE_CATEGORY_DISPLAY).map(
+        ([key, label]) => ({ key, label }),
+    );
+
+    readonly canEdit = computed(() => {
+        const doc = this.document();
+        if (!doc) return false;
+        const editable_statuses = ['draft', 'sent', 'accepted', 'invoiced'];
+        return (
+            editable_statuses.includes(doc.status) &&
+            this._state.canPerformAction('edit_line_items')
+        );
     });
 
     readonly show_audit = computed(() => {
@@ -525,6 +734,68 @@ export class EventQuoteDetailComponent {
         ) || null;
     });
 
+    // ── Line item editing methods ────────────────────────────────────
+
+    startEdit(item: FinancialLineItem): void {
+        this.editing_item_id.set(item.id);
+        this.edit_form.set({
+            description: item.description,
+            category: item.category,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            tax_rate: item.tax_rate * 100,
+        });
+    }
+
+    cancelEdit(): void {
+        this.editing_item_id.set(null);
+    }
+
+    saveEdit(item_id: string): void {
+        const doc = this.document();
+        if (!doc) return;
+        const form = this.edit_form();
+        this._state.updateLineItem(doc.id, item_id, {
+            description: form.description,
+            category: form.category,
+            quantity: form.quantity,
+            unit_price: form.unit_price,
+            tax_rate: form.tax_rate / 100,
+        });
+        this.cancelEdit();
+    }
+
+    removeItem(item_id: string): void {
+        const doc = this.document();
+        if (!doc) return;
+        this._state.removeLineItem(doc.id, item_id);
+    }
+
+    startAdd(): void {
+        this.adding_new_item.set(true);
+        this.edit_form.set({
+            description: '',
+            category: 'miscellaneous',
+            quantity: 1,
+            unit_price: 0,
+            tax_rate: 10,
+        });
+    }
+
+    saveAdd(): void {
+        const doc = this.document();
+        if (!doc) return;
+        const form = this.edit_form();
+        this._state.addLineItem(doc.id, {
+            description: form.description,
+            category: form.category,
+            quantity: form.quantity,
+            unit_price: form.unit_price,
+            tax_rate: form.tax_rate / 100,
+        });
+        this.adding_new_item.set(false);
+    }
+
     // ── PDF Download ──────────────────────────────────────────────
 
     downloadPdf(): void {
@@ -577,5 +848,9 @@ export class EventQuoteDetailComponent {
 
     categoryBadgeColor(category: string): string {
         return this._category_badge_colors[category] || 'bg-gray-500';
+    }
+
+    updateEditField(field: string, value: any): void {
+        this.edit_form.set({ ...this.edit_form(), [field]: value });
     }
 }

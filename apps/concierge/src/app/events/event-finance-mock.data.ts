@@ -143,7 +143,8 @@ export type FinanceAction =
     | 'convert_to_invoice'
     | 'record_payment'
     | 'view_audit_log'
-    | 'export';
+    | 'export'
+    | 'edit_line_items';
 
 export interface FinanceRolePermission {
     allowed_actions: FinanceAction[];
@@ -155,6 +156,7 @@ export const FINANCE_ROLE_PERMISSIONS: Record<EventRole, FinanceRolePermission> 
         allowed_actions: [
             'view_all', 'create_quote', 'send_quote', 'accept_quote',
             'convert_to_invoice', 'record_payment', 'view_audit_log', 'export',
+            'edit_line_items',
         ],
         category_filter: 'all',
     },
@@ -162,6 +164,7 @@ export const FINANCE_ROLE_PERMISSIONS: Record<EventRole, FinanceRolePermission> 
         allowed_actions: [
             'view_all', 'create_quote', 'send_quote', 'accept_quote',
             'convert_to_invoice', 'record_payment', 'view_audit_log', 'export',
+            'edit_line_items',
         ],
         category_filter: 'all',
     },

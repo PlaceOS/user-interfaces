@@ -40,6 +40,10 @@ export interface MockApprovalEvent {
     organiser: string;
     /** Links a service approval to its parent venue approval */
     parent_event?: string;
+    /** True when added after initial approval (ad-hoc / last-minute) */
+    is_adhoc?: boolean;
+    /** Unix ms timestamp of when the ad-hoc service was added */
+    added_date?: number;
 }
 
 export const ROLE_DISPLAY_NAMES: Record<EventRole, string> = {
@@ -397,6 +401,44 @@ export const MOCK_APPROVAL_EVENTS: MockApprovalEvent[] = [
         location: 'Royce Hall Main Auditorium',
         organiser: 'People & Culture',
         parent_event: 'appr-010',
+    },
+
+    // ── Ad-hoc / last-minute additions ──────────────────────────────
+    {
+        id: 'appr-026',
+        title: 'Q1 Town Hall — Extra Wireless Microphone',
+        category: 'av_tech',
+        date: _makeDate(-1, 9, 0),
+        duration_minutes: 120,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'Tech Services',
+        parent_event: 'appr-001',
+        is_adhoc: true,
+        added_date: _makeDate(-1, 7, 30),
+    },
+    {
+        id: 'appr-027',
+        title: 'Annual Awards Night — Last-Minute Security Detail',
+        category: 'safety',
+        date: _makeDate(10, 16, 0),
+        duration_minutes: 300,
+        location: 'Royce Hall Main Auditorium',
+        organiser: 'UCPD',
+        parent_event: 'appr-010',
+        is_adhoc: true,
+        added_date: _makeDate(10, 10, 0),
+    },
+    {
+        id: 'appr-028',
+        title: 'Leadership Offsite — Emergency Catering Top-Up',
+        category: 'dining',
+        date: _makeDate(3, 12, 0),
+        duration_minutes: 90,
+        location: 'Centennial Ballroom — Luskin Conference Center',
+        organiser: 'Facilities',
+        parent_event: 'appr-002',
+        is_adhoc: true,
+        added_date: _makeDate(3, 8, 0),
     },
 ];
 
