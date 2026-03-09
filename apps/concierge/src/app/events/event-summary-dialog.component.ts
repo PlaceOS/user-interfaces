@@ -7,10 +7,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import {
     MAT_DIALOG_DATA,
+    MatDialog,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, openConfirmModal } from '@placeos/components';
 import { CalendarEvent } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 
@@ -314,15 +315,9 @@ interface OrderGroup {
                                                         <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100" (click)="dialogStartEdit(item)">
                                                             <icon class="text-xs">edit</icon>
                                                         </button>
-                                                        @if (dialog_confirming_delete_id() === item.id) {
-                                                            <span class="text-xs text-error font-medium">Delete?</span>
-                                                            <button matRipple class="rounded bg-error px-1.5 py-0.5 text-xs font-medium text-white" (click)="dialogConfirmRemove(item.id)">Yes</button>
-                                                            <button matRipple class="rounded border border-base-300 px-1.5 py-0.5 text-xs font-medium" (click)="dialog_confirming_delete_id.set(null)">No</button>
-                                                        } @else {
-                                                            <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialog_confirming_delete_id.set(item.id)">
-                                                                <icon class="text-xs">delete</icon>
-                                                            </button>
-                                                        }
+                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialogConfirmRemoveItem(item)">
+                                                            <icon class="text-xs">delete</icon>
+                                                        </button>
                                                     }
                                                 </div>
                                             </div>
@@ -1096,9 +1091,10 @@ export class EventSummaryDialogComponent {
 
     // ── Line item editing in dialog ─────────────────────────────────
 
+    private _mat_dialog = inject(MatDialog);
+
     readonly dialog_editing_item_id = signal<string | null>(null);
     readonly dialog_adding_new_item = signal(false);
-    readonly dialog_confirming_delete_id = signal<string | null>(null);
     readonly dialog_edit_form = signal<{
         description: string;
         quantity: number;
@@ -1154,9 +1150,19 @@ export class EventSummaryDialogComponent {
         this._finance_state.removeLineItem(q.id, item_id);
     }
 
-    dialogConfirmRemove(item_id: string): void {
-        this.dialogRemoveItem(item_id);
-        this.dialog_confirming_delete_id.set(null);
+    async dialogConfirmRemoveItem(item: FinancialLineItem): Promise<void> {
+        const result = await openConfirmModal(
+            {
+                title: 'Remove Line Item',
+                content: `Are you sure you want to remove "${item.description}"?`,
+                icon: { content: 'delete' },
+                confirm_text: 'Remove',
+            },
+            this._mat_dialog,
+        );
+        if (result.reason !== 'done') return;
+        this.dialogRemoveItem(item.id);
+        result.close();
     }
 
     dialogStartAdd(): void {

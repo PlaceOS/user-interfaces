@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { IconComponent } from '@placeos/components';
+import { MatDialog } from '@angular/material/dialog';
+import { IconComponent, openConfirmModal } from '@placeos/components';
 import { format } from 'date-fns';
 import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
 import {
@@ -232,32 +233,14 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                 >
                                                     <icon class="text-sm">edit</icon>
                                                 </button>
-                                                @if (confirming_delete_id() === item.id) {
-                                                    <span class="text-xs text-error font-medium mr-1">Delete?</span>
-                                                    <button
-                                                        matRipple
-                                                        class="rounded bg-error px-2 py-0.5 text-xs font-medium text-white"
-                                                        (click)="confirmRemove(item.id)"
-                                                    >
-                                                        Yes
-                                                    </button>
-                                                    <button
-                                                        matRipple
-                                                        class="rounded border border-base-300 px-2 py-0.5 text-xs font-medium"
-                                                        (click)="confirming_delete_id.set(null)"
-                                                    >
-                                                        No
-                                                    </button>
-                                                } @else {
-                                                    <button
-                                                        icon
-                                                        matRipple
-                                                        class="h-6 w-6 opacity-50 hover:opacity-100 hover:text-error"
-                                                        (click)="confirming_delete_id.set(item.id)"
-                                                    >
-                                                        <icon class="text-sm">delete</icon>
-                                                    </button>
-                                                }
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="h-6 w-6 opacity-50 hover:opacity-100 hover:text-error"
+                                                    (click)="confirmRemoveItem(item)"
+                                                >
+                                                    <icon class="text-sm">delete</icon>
+                                                </button>
                                             }
                                         </div>
                                     </div>
@@ -612,9 +595,10 @@ export class EventQuoteDetailComponent {
     });
 
     // ── Line item editing state ──────────────────────────────────────
+    private _dialog = inject(MatDialog);
+
     readonly editing_item_id = signal<string | null>(null);
     readonly adding_new_item = signal(false);
-    readonly confirming_delete_id = signal<string | null>(null);
     readonly edit_form = signal<{
         description: string;
         category: BillableCategory;
@@ -803,9 +787,19 @@ export class EventQuoteDetailComponent {
         this._state.removeLineItem(doc.id, item_id);
     }
 
-    confirmRemove(item_id: string): void {
-        this.removeItem(item_id);
-        this.confirming_delete_id.set(null);
+    async confirmRemoveItem(item: FinancialLineItem): Promise<void> {
+        const result = await openConfirmModal(
+            {
+                title: 'Remove Line Item',
+                content: `Are you sure you want to remove "${item.description}"?`,
+                icon: { content: 'delete' },
+                confirm_text: 'Remove',
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        this.removeItem(item.id);
+        result.close();
     }
 
     startAdd(): void {
