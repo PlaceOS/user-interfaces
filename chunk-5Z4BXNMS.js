@@ -57526,15 +57526,15 @@ function userSignal() {
 // libs/common/src/lib/version.ts
 var VERSION6 = {
   "dirty": false,
-  "raw": "c85c9ba",
-  "hash": "c85c9ba",
+  "raw": "b05d8ac",
+  "hash": "b05d8ac",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c85c9ba",
+  "suffix": "b05d8ac",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1771461578466
+  "time": 1773018129332
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -147381,7 +147381,8 @@ function generateEventForm(event = new CalendarEvent(), settings) {
     view_access: new FormControl(event.extension_data?.view_access || "OPEN"),
     images: new FormControl(event.extension_data?.images || []),
     featured: new FormControl(event.extension_data?.featured || false),
-    event_services: new FormControl(event.extension_data?.event_services || [])
+    event_services: new FormControl(event.extension_data?.event_services || []),
+    refund_deadline: new FormControl(event.extension_data?.refund_deadline || null)
   });
   form.get("organiser").valueChanges.subscribe((o) => form.controls.host.setValue(o?.email));
   form.get("resources").valueChanges.subscribe((l2) => {
@@ -157272,6 +157273,7 @@ export {
   NumberValueAccessor,
   FormGroupDirective,
   FormControlName,
+  MinValidator,
   MaxLengthValidator,
   FormsModule,
   ReactiveFormsModule,
@@ -157573,4 +157575,4 @@ qr/esm/decode.js:
   limitations under the License.
   *)
 */
-//# sourceMappingURL=chunk-OQ4KCA3E.js.map
+//# sourceMappingURL=chunk-5Z4BXNMS.js.map

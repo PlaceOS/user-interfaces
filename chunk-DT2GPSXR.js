@@ -323,7 +323,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OQ4KCA3E.js";
+} from "./chunk-5Z4BXNMS.js";
 
 // apps/workplace/src/app/components/footer-menu.component.ts
 var _c0 = () => ["/book", "meeting"];
@@ -29551,4 +29551,4 @@ export {
   ScheduleStateService,
   TopbarComponent
 };
-//# sourceMappingURL=chunk-WDA7GWYE.js.map
+//# sourceMappingURL=chunk-DT2GPSXR.js.map

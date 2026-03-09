@@ -1,11 +1,11 @@
 import {
   subMinutes
-} from "./chunk-AQCSL25L.js";
+} from "./chunk-IXP3FQ65.js";
 import {
   HostSelectFieldComponent,
   RecurrenceFieldComponent,
   SpaceListFieldComponent
-} from "./chunk-JNAUHNDA.js";
+} from "./chunk-IO7BDKWI.js";
 import {
   AssetListFieldComponent,
   BookingFormService,
@@ -17,7 +17,7 @@ import {
   ParkingSpaceListFieldComponent,
   TopbarComponent,
   UserListFieldComponent
-} from "./chunk-WDA7GWYE.js";
+} from "./chunk-DT2GPSXR.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -125,6 +125,7 @@ import {
   MatSelectModule,
   MatTooltip,
   MatTooltipModule,
+  MinValidator,
   NG_VALUE_ACCESSOR,
   NgControlStatus,
   NgControlStatusGroup,
@@ -323,7 +324,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-OQ4KCA3E.js";
+} from "./chunk-5Z4BXNMS.js";
 
 // apps/workplace/src/app/book/book.component.ts
 function BookComponent_Conditional_0_Template(rf, ctx) {
@@ -7842,7 +7843,7 @@ function CateringItemModalComponent_Conditional_4_Template(rf, ctx) {
 }
 function CateringItemModalComponent_Conditional_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "label", 23);
+    \u0275\u0275elementStart(0, "div", 11)(1, "label", 27);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "span");
@@ -7850,8 +7851,8 @@ function CateringItemModalComponent_Conditional_5_Conditional_2_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 24);
-    \u0275\u0275element(8, "input", 25);
+    \u0275\u0275elementStart(7, "mat-form-field", 25);
+    \u0275\u0275element(8, "input", 28);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementStart(10, "mat-error");
     \u0275\u0275text(11);
@@ -7872,7 +7873,7 @@ function CateringItemModalComponent_Conditional_5_Conditional_2_Template(rf, ctx
 }
 function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "label", 26);
+    \u0275\u0275elementStart(0, "div", 11)(1, "label", 29);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "span");
@@ -7880,8 +7881,8 @@ function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 24);
-    \u0275\u0275element(8, "input", 27);
+    \u0275\u0275elementStart(7, "mat-form-field", 25);
+    \u0275\u0275element(8, "input", 30);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementStart(10, "mat-error");
     \u0275\u0275text(11);
@@ -7903,7 +7904,7 @@ function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx
 }
 function CateringItemModalComponent_Conditional_5_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "label", 28);
+    \u0275\u0275elementStart(0, "div", 11)(1, "label", 31);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "span");
@@ -7911,8 +7912,8 @@ function CateringItemModalComponent_Conditional_5_Conditional_5_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 24);
-    \u0275\u0275element(8, "input", 29);
+    \u0275\u0275elementStart(7, "mat-form-field", 25);
+    \u0275\u0275element(8, "input", 32);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
   }
@@ -7927,13 +7928,13 @@ function CateringItemModalComponent_Conditional_5_Conditional_5_Template(rf, ctx
 }
 function CateringItemModalComponent_Conditional_5_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "label", 23);
+    \u0275\u0275elementStart(0, "div", 11)(1, "label", 27);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275element(6, "a-counter", 30);
+    \u0275\u0275element(6, "a-counter", 33);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -7948,12 +7949,12 @@ function CateringItemModalComponent_Conditional_5_Conditional_7_Template(rf, ctx
 }
 function CateringItemModalComponent_Conditional_5_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "label", 31);
+    \u0275\u0275elementStart(0, "div", 19)(1, "label", 34);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 24);
-    \u0275\u0275element(5, "textarea", 32);
+    \u0275\u0275elementStart(4, "mat-form-field", 25);
+    \u0275\u0275element(5, "textarea", 35);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()();
   }
@@ -7967,14 +7968,14 @@ function CateringItemModalComponent_Conditional_5_Conditional_17_Template(rf, ct
 function CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-chip-row", 36);
+    \u0275\u0275elementStart(0, "mat-chip-row", 39);
     \u0275\u0275listener("removed", function CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template_mat_chip_row_removed_0_listener() {
       const item_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removeTag(item_r7));
     });
     \u0275\u0275text(1);
-    \u0275\u0275elementStart(2, "button", 37);
+    \u0275\u0275elementStart(2, "button", 40);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "icon");
     \u0275\u0275text(5, "cancel");
@@ -7991,14 +7992,14 @@ function CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template(
 function CateringItemModalComponent_Conditional_5_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19)(1, "label", 33);
+    \u0275\u0275elementStart(0, "div", 19)(1, "label", 36);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 24)(5, "mat-chip-grid", 34, 2);
+    \u0275\u0275elementStart(4, "mat-form-field", 25)(5, "mat-chip-grid", 37, 2);
     \u0275\u0275repeaterCreate(7, CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template, 6, 7, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "input", 35);
+    \u0275\u0275elementStart(9, "input", 38);
     \u0275\u0275listener("matChipInputTokenEnd", function CateringItemModalComponent_Conditional_5_Conditional_18_Template_input_matChipInputTokenEnd_9_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -8019,13 +8020,13 @@ function CateringItemModalComponent_Conditional_5_Conditional_18_Template(rf, ct
     \u0275\u0275property("matChipInputFor", chipList_r8)("matChipInputSeparatorKeyCodes", ctx_r1.separators)("matChipInputAddOnBlur", true);
   }
 }
-function CateringItemModalComponent_Conditional_5_Conditional_33_Template(rf, ctx) {
+function CateringItemModalComponent_Conditional_5_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "label", 38);
+    \u0275\u0275elementStart(0, "div", 19)(1, "label", 41);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "image-list-field", 39);
+    \u0275\u0275element(4, "image-list-field", 42);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -8102,7 +8103,13 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
       return \u0275\u0275resetView($event ? ctx_r1.addTag({ value: "Contains Nuts" }) : ctx_r1.removeTag("Contains Nuts"));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(33, CateringItemModalComponent_Conditional_5_Conditional_33_Template, 5, 3, "div", 19);
+    \u0275\u0275elementStart(33, "div", 23)(34, "label", 24);
+    \u0275\u0275text(35, "Refund Lead Time (days)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(36, "mat-form-field", 25);
+    \u0275\u0275element(37, "input", 26);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(38, CateringItemModalComponent_Conditional_5_Conditional_38_Template, 5, 3, "div", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -8117,9 +8124,9 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.form.controls.unit_price ? 7 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(10, 30, "CATERING.ITEM_POINTS"));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(10, 31, "CATERING.ITEM_POINTS"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 32, "CATERING.ITEM_DISCOUNT"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 33, "CATERING.ITEM_DISCOUNT"));
     \u0275\u0275advance(3);
     \u0275\u0275property("min", 0)("max", 100)("step", 5)("render_fn", ctx_r1.renderPercent);
     \u0275\u0275advance();
@@ -8127,25 +8134,27 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.form.controls.tags ? 18 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 34, "CATERING.TAGS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 35, "CATERING.TAGS"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(24, 36, "CATERING.TAG_GLUTEN_FREE"))("ngModel", ctx_r1.hasTag("Gluten Free"))("ngModelOptions", \u0275\u0275pureFunction0(46, _c013));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(24, 37, "CATERING.TAG_GLUTEN_FREE"))("ngModel", ctx_r1.hasTag("Gluten Free"))("ngModelOptions", \u0275\u0275pureFunction0(47, _c013));
     \u0275\u0275advance(2);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(26, 38, "CATERING.TAG_VEGAN"))("ngModel", ctx_r1.hasTag("Vegan"))("ngModelOptions", \u0275\u0275pureFunction0(47, _c013));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(26, 39, "CATERING.TAG_VEGAN"))("ngModel", ctx_r1.hasTag("Vegan"))("ngModelOptions", \u0275\u0275pureFunction0(48, _c013));
     \u0275\u0275advance(2);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(28, 40, "CATERING.TAG_VEGETARIAN"))("ngModel", ctx_r1.hasTag("Vegetarian"))("ngModelOptions", \u0275\u0275pureFunction0(48, _c013));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(28, 41, "CATERING.TAG_VEGETARIAN"))("ngModel", ctx_r1.hasTag("Vegetarian"))("ngModelOptions", \u0275\u0275pureFunction0(49, _c013));
     \u0275\u0275advance(2);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(30, 42, "CATERING.TAG_DAIRY"))("ngModel", ctx_r1.hasTag("Contains Dairy"))("ngModelOptions", \u0275\u0275pureFunction0(49, _c013));
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(30, 43, "CATERING.TAG_DAIRY"))("ngModel", ctx_r1.hasTag("Contains Dairy"))("ngModelOptions", \u0275\u0275pureFunction0(50, _c013));
     \u0275\u0275advance(2);
-    \u0275\u0275property("name", \u0275\u0275pipeBind1(32, 44, "CATERING.TAG_NUTS"))("ngModel", ctx_r1.hasTag("Contains Nuts"))("ngModelOptions", \u0275\u0275pureFunction0(50, _c013));
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.form.controls.images ? 33 : -1);
+    \u0275\u0275property("name", \u0275\u0275pipeBind1(32, 45, "CATERING.TAG_NUTS"))("ngModel", ctx_r1.hasTag("Contains Nuts"))("ngModelOptions", \u0275\u0275pureFunction0(51, _c013));
+    \u0275\u0275advance(6);
+    \u0275\u0275property("min", 0);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.form.controls.images ? 38 : -1);
   }
 }
 function CateringItemModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275element(1, "mat-spinner", 40);
+    \u0275\u0275element(1, "mat-spinner", 43);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -8159,7 +8168,7 @@ function CateringItemModalComponent_Conditional_6_Template(rf, ctx) {
 function CateringItemModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "footer", 8)(1, "button", 41);
+    \u0275\u0275elementStart(0, "footer", 8)(1, "button", 44);
     \u0275\u0275listener("click", function CateringItemModalComponent_Conditional_7_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -8236,7 +8245,8 @@ var _CateringItemModalComponent = class _CateringItemModalComponent {
       tags: new FormControl(this.item.tags || []),
       accept_points: new FormControl(this.item.accept_points || false),
       discount_cap: new FormControl(this.item.discount_cap || 0),
-      images: new FormControl(this.item.images || [])
+      images: new FormControl(this.item.images || []),
+      refund_lead_days: new FormControl(this.item.refund_lead_days ?? null)
     });
     this.loading = false;
     this.separators = [ENTER, COMMA, SPACE];
@@ -8315,7 +8325,7 @@ var _CateringItemModalComponent = class _CateringItemModalComponent {
 _CateringItemModalComponent.\u0275fac = function CateringItemModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringItemModalComponent)();
 };
-_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
+_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-col", "space-y-2", "mb-4"], ["for", "refund-lead-days"], ["appearance", "outline"], ["matInput", "", "type", "number", "name", "refund-lead-days", "placeholder", "Days before event for refund cutoff", "formControlName", "refund_lead_days", 3, "min"], ["for", "title"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 3)(1, "h2", 4);
     \u0275\u0275text(2);
@@ -8323,7 +8333,7 @@ _CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(4, CateringItemModalComponent_Conditional_4_Template, 3, 0, "button", 5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Template, 34, 51, "form", 6)(6, CateringItemModalComponent_Conditional_6_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Template, 39, 52, "form", 6)(6, CateringItemModalComponent_Conditional_6_Template, 5, 3, "div", 7);
     \u0275\u0275conditionalCreate(7, CateringItemModalComponent_Conditional_7_Template, 4, 4, "footer", 8);
     \u0275\u0275elementStart(8, "mat-autocomplete", null, 0);
     \u0275\u0275repeaterCreate(10, CateringItemModalComponent_For_11_Template, 2, 2, "mat-option", 9, \u0275\u0275repeaterTrackByIdentity);
@@ -8375,8 +8385,10 @@ _CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   ReactiveFormsModule,
   \u0275NgNoValidate,
   DefaultValueAccessor,
+  NumberValueAccessor,
   NgControlStatus,
   NgControlStatusGroup,
+  MinValidator,
   FormGroupDirective,
   FormControlName,
   FormsModule,
@@ -8644,6 +8656,19 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                     >
                     </settings-toggle>
                 </div>
+                <div class="flex flex-col space-y-2 mb-4">
+                    <label for="refund-lead-days">Refund Lead Time (days)</label>
+                    <mat-form-field appearance="outline">
+                        <input
+                            matInput
+                            type="number"
+                            name="refund-lead-days"
+                            placeholder="Days before event for refund cutoff"
+                            formControlName="refund_lead_days"
+                            [min]="0"
+                        />
+                    </mat-form-field>
+                </div>
                 @if (form.controls.images) {
                     <div class="flex flex-col">
                         <label for="images">{{
@@ -8715,7 +8740,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemModalComponent, { className: "CateringItemModalComponent", filePath: "libs/catering/src/lib/catering-item-modal.component.ts", lineNumber: 368 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemModalComponent, { className: "CateringItemModalComponent", filePath: "libs/catering/src/lib/catering-item-modal.component.ts", lineNumber: 381 });
 })();
 
 // libs/catering/src/lib/catering-option-modal.component.ts
@@ -19545,4 +19570,4 @@ var BookModule = _BookModule;
 export {
   BookModule
 };
-//# sourceMappingURL=book.module-EBCKZCHN.js.map
+//# sourceMappingURL=book.module-S2QJTA4R.js.map
