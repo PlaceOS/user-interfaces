@@ -86336,15 +86336,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "c85c9ba",
-  "hash": "c85c9ba",
+  "raw": "b05d8ac",
+  "hash": "b05d8ac",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c85c9ba",
+  "suffix": "b05d8ac",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1771461610289
+  "time": 1773018133661
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -146473,7 +146473,8 @@ function generateEventForm(event = new CalendarEvent(), settings) {
     view_access: new FormControl(event.extension_data?.view_access || "OPEN"),
     images: new FormControl(event.extension_data?.images || []),
     featured: new FormControl(event.extension_data?.featured || false),
-    event_services: new FormControl(event.extension_data?.event_services || [])
+    event_services: new FormControl(event.extension_data?.event_services || []),
+    refund_deadline: new FormControl(event.extension_data?.refund_deadline || null)
   });
   form.get("organiser").valueChanges.subscribe((o) => form.controls.host.setValue(o?.email));
   form.get("resources").valueChanges.subscribe((l) => {
