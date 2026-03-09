@@ -99,7 +99,7 @@ export class EventFormService extends AsyncHandler {
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _dialog = inject(MatDialog);
-    private _user_pipe = inject(UserPipe);
+    private _user_pipe = new UserPipe();
 
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFormOptions>({
