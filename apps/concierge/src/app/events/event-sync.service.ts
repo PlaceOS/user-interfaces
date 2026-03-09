@@ -103,13 +103,18 @@ export class EventSyncService {
         const results: MockApprovalEvent[] = [];
         const tasks: any[] =
             sync_event.workflow?.approval_tasks || [];
+        const event_date =
+            sync_event.event_start ||
+            sync_event.date ||
+            sync_event.workflow?.submitted_at ||
+            Date.now();
 
         // Create parent venue event
         results.push({
             id: `sync-${sync_event.id}`,
             title: sync_event.title,
             category: 'venue',
-            date: sync_event.event_start || sync_event.date,
+            date: event_date,
             duration_minutes: sync_event.duration_minutes || 60,
             location: sync_event.location || '',
             organiser: sync_event.organiser || '',
@@ -123,7 +128,7 @@ export class EventSyncService {
                 id: `sync-${sync_event.id}-${category}`,
                 title: `${sync_event.title} — ${CATEGORY_DISPLAY_NAMES[category] || category}`,
                 category,
-                date: sync_event.event_start || sync_event.date,
+                date: event_date,
                 duration_minutes: sync_event.duration_minutes || 60,
                 location: sync_event.location || '',
                 organiser: sync_event.organiser || '',
@@ -138,7 +143,7 @@ export class EventSyncService {
                 id: `sync-${sync_event.id}-adhoc-${svc.id}`,
                 title: `${sync_event.title} — ${svc.name}`,
                 category: 'services',
-                date: sync_event.event_start || sync_event.date,
+                date: event_date,
                 duration_minutes: sync_event.duration_minutes || 60,
                 location: sync_event.location || '',
                 organiser: sync_event.organiser || '',
