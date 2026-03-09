@@ -21,7 +21,7 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { showMetadata, showUser } from '@placeos/ts-client';
+import { showMetadata } from '@placeos/ts-client';
 import { startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
@@ -44,6 +44,7 @@ import {
 } from 'rxjs/operators';
 
 import { AssetRequest, OrganisationService } from '@placeos/common';
+import { UserPipe } from '@placeos/users';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { newBookingFromCalendarEvent } from 'libs/bookings/src/lib/booking.utilities';
@@ -99,6 +100,7 @@ export class EventFormService extends AsyncHandler {
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _dialog = inject(MatDialog);
+    private _user_pipe = new UserPipe();
 
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFormOptions>({
@@ -593,7 +595,8 @@ export class EventFormService extends AsyncHandler {
             const user_email = currentUser()?.email.toLowerCase() || '';
             const is_owner =
                 this.form.value.host.toLowerCase() === user_email ||
-                this.form.value.creator.toLowerCase() === user_email;
+                this.form.value.creator.toLowerCase() === user_email ||
+                this.form.value.calendar.toLowerCase() === user_email;
             if ((is_owner && !ignore_owner) || force_calendar)
                 query.calendar =
                     this.form.value.host || this.form.value.creator;
@@ -758,9 +761,11 @@ export class EventFormService extends AsyncHandler {
         duration: number,
         host: string,
     ) {
-        const user = await lastValueFrom(showUser(host)).catch(() => ({
-            email: host,
-        }));
+        const current_user = currentUser();
+        const user =
+            host === current_user.email
+                ? current_user
+                : await this._user_pipe.transform(host);
         const rules = await nextValueFrom(this.booking_rules$);
         const space_rules = spaces.map((space) => {
             const bld = this._org.buildings.find((b) =>
