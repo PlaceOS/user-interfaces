@@ -248,6 +248,8 @@ export class EventFinanceStateService {
 
     public removeLineItem(doc_id: string, item_id: string): void {
         let removed_description = '';
+        let removed_event_id = '';
+        const doc = this._documents.getValue().find((d) => d.id === doc_id);
         const docs = this._documents.getValue().map((d) => {
             if (d.id !== doc_id) return d;
             const removed = d.line_items.find((li) => li.id === item_id);
@@ -261,6 +263,21 @@ export class EventFinanceStateService {
             'updated',
             `Line item removed: ${removed_description}`,
         );
+
+        // Auto-decline matching ad-hoc service when its invoice line is removed
+        if (removed_description.endsWith('(Ad-hoc)') && doc) {
+            const adhoc_title = removed_description.replace(/\s*\(Ad-hoc\)$/, '');
+            const parent_id = doc.event_id;
+            const adhoc_event = MOCK_APPROVAL_EVENTS.find(
+                (e) =>
+                    e.is_adhoc &&
+                    e.title === adhoc_title &&
+                    (e.parent_event === parent_id || e.id === parent_id),
+            );
+            if (adhoc_event) {
+                this._approval_state.setStatus(adhoc_event.id, 'declined');
+            }
+        }
     }
 
     public addLineItem(
