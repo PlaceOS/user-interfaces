@@ -436,7 +436,8 @@
                 'refunded': 'Refunded',
                 'succeeded': 'Succeeded',
                 'completed': 'Completed',
-                'failed': 'Failed'
+                'failed': 'Failed',
+                'cancelled': 'Cancelled'
             };
             return labels[status] || status;
         };

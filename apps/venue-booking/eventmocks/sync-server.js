@@ -260,6 +260,40 @@ var server = http.createServer(function (req, res) {
         return;
     }
 
+    // Add ad-hoc service to an event (from concierge)
+    var adhocMatch = parsed.pathname.match(/^\/api\/events\/(.+)\/adhoc-service$/);
+    if (adhocMatch && req.method === 'POST') {
+        var adhocEventId = adhocMatch[1];
+        readBody(req).then(function (body) {
+            var found = false;
+            for (var i = 0; i < events.length; i++) {
+                if (events[i].id === adhocEventId) {
+                    if (!events[i].adhoc_services) events[i].adhoc_services = [];
+                    events[i].adhoc_services.push({
+                        id: body.id || ('adhoc-' + Date.now()),
+                        name: body.name,
+                        category: body.category,
+                        added_at: body.added_at || Date.now(),
+                        unit_price: body.unit_price || 0
+                    });
+                    found = true;
+                    notifyEventClients({
+                        type: 'event_updated',
+                        event: events[i]
+                    });
+                    console.log('[+] Ad-hoc service added: event=' + adhocEventId + ' service=' + body.name);
+                    break;
+                }
+            }
+            res.writeHead(found ? 200 : 404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: found, event_id: adhocEventId }));
+        }).catch(function (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        });
+        return;
+    }
+
     // Cancel a service within an event (from eventmocks or concierge)
     var cancelMatch = parsed.pathname.match(/^\/api\/events\/(.+)\/cancel-service$/);
     if (cancelMatch && req.method === 'POST') {

@@ -33,7 +33,7 @@
                     // Fire-and-forget push to sync server
                     try {
                         var ext = newEvent.extension_data || {};
-                        var ev_start = newEvent.event_start || (ext.workflow && ext.workflow.submitted_at) || Date.now();
+                        var ev_start = newEvent.event_start || ext.event_date || (ext.workflow && ext.workflow.submitted_at) || Date.now();
                         var ev_end = newEvent.event_end || ev_start;
                         var dur = ev_end > ev_start ? Math.round((ev_end - ev_start) / 60000) : 120;
                         var sync_payload = {
@@ -49,6 +49,8 @@
                             event_end: ev_end,
                             request_items: ext.request_items || [],
                             workflow: ext.workflow || {},
+                            quote: ext.quote || null,
+                            service_options: ext.service_options || {},
                             source: 'eventmocks'
                         };
                         fetch('http://localhost:3001/api/events', {
@@ -303,7 +305,7 @@
         self.syncEventUpdate = function(event) {
             try {
                 var ext = event.extension_data || {};
-                var ev_start = event.event_start || (ext.workflow && ext.workflow.submitted_at) || Date.now();
+                var ev_start = event.event_start || ext.event_date || (ext.workflow && ext.workflow.submitted_at) || Date.now();
                 var ev_end = event.event_end || ev_start;
                 var dur = ev_end > ev_start ? Math.round((ev_end - ev_start) / 60000) : 120;
                 var sync_payload = {
@@ -320,6 +322,8 @@
                     request_items: ext.request_items || [],
                     workflow: ext.workflow || {},
                     adhoc_services: ext.adhoc_services || [],
+                    quote: ext.quote || null,
+                    service_options: ext.service_options || {},
                     source: 'eventmocks'
                 };
                 fetch('http://localhost:3001/api/events', {

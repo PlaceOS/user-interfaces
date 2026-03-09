@@ -118,7 +118,7 @@
                     </div>
 
                     <!-- Amount Due -->
-                    <div class="invoice-due" ng-if="$ctrl.getAmountDue() > 0">
+                    <div class="invoice-due" ng-if="$ctrl.invoice.status !== 'cancelled' && $ctrl.getAmountDue() > 0">
                         <div class="due-row">
                             <span>Amount Due</span>
                             <span class="due-amount">{{ $ctrl.formatCurrency($ctrl.getAmountDue()) }}</span>
@@ -128,8 +128,15 @@
                         </button>
                     </div>
 
+                    <!-- Cancelled Badge -->
+                    <div class="invoice-cancelled-badge" ng-if="$ctrl.invoice.status === 'cancelled'"
+                         style="background: #fef2f2; color: #dc2626; padding: 12px 16px; border-radius: 8px; text-align: center; font-weight: 600; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span class="material-icons">cancel</span>
+                        <span>Event Cancelled</span>
+                    </div>
+
                     <!-- Paid Badge -->
-                    <div class="invoice-paid-badge" ng-if="$ctrl.getAmountDue() <= 0 && $ctrl.invoice.payments.length > 0">
+                    <div class="invoice-paid-badge" ng-if="$ctrl.invoice.status !== 'cancelled' && $ctrl.getAmountDue() <= 0 && $ctrl.invoice.payments.length > 0">
                         <span class="material-icons">check_circle</span>
                         <span>Paid in Full</span>
                     </div>
@@ -185,9 +192,10 @@
 
         ctrl.getPaymentStatus = function() {
             if (!ctrl.invoice) return 'pending';
+            if (ctrl.invoice.status === 'cancelled') return 'cancelled';
 
             var amountDue = ctrl.getAmountDue();
-            if (amountDue <= 0) return 'paid';
+            if (amountDue <= 0 && ctrl.invoice.payments && ctrl.invoice.payments.length > 0) return 'paid';
             if (ctrl.invoice.payments && ctrl.invoice.payments.length > 0) return 'partial';
             return 'pending';
         };

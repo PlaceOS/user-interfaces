@@ -7,9 +7,9 @@
     'use strict';
 
     angular.module('uclaEventsApp')
-        .service('ApprovalWorkflowService', ['PolicyEngineService', ApprovalWorkflowService]);
+        .service('ApprovalWorkflowService', ['PolicyEngineService', 'PaymentService', ApprovalWorkflowService]);
 
-    function ApprovalWorkflowService(PolicyEngineService) {
+    function ApprovalWorkflowService(PolicyEngineService, PaymentService) {
         var self = this;
 
         /**
@@ -22,8 +22,24 @@
             var now = Date.now();
             var dueAt = now + (evaluation.sla_hours * 60 * 60 * 1000);
 
+            // Derive event start for refund deadline calculation
+            var event_start = eventContext.event_start || eventContext.event_date || now;
+            // Build a minimal event-like object for PaymentService.getServiceCost
+            var event_like = {
+                event_start: event_start,
+                event_end: eventContext.event_end || event_start,
+                extension_data: {
+                    venue_id: eventContext.venue_id || null
+                }
+            };
+
             // Create approval tasks
             var approvalTasks = evaluation.required_stages.map(function(stage) {
+                // Venue: 14 days before event, services: 7 days before
+                var lead_days = stage === 'VENUE' ? 14 : 7;
+                var refund_deadline = event_start - (lead_days * 24 * 60 * 60 * 1000);
+                var refund_amount = PaymentService.getServiceCost(stage, event_like);
+
                 return {
                     id: 'task_' + stage + '_' + Date.now(),
                     stage: stage,
@@ -35,6 +51,8 @@
                     due_at: dueAt,
                     completed_at: null,
                     comments: null,
+                    refund_deadline: refund_deadline,
+                    refund_amount: refund_amount,
                     audit_trail: []
                 };
             });

@@ -32,6 +32,8 @@
                             self._handleStatusChange(data);
                         } else if (data.type === 'service_cancelled') {
                             self._handleServiceCancelled(data);
+                        } else if (data.type === 'event_updated') {
+                            self._handleEventUpdated(data.event);
                         }
                     } catch (e) {
                         console.warn('[EventSync] Failed to parse SSE message:', e);
@@ -89,9 +91,12 @@
 
                 // Recalculate overall status
                 var all_statuses = tasks.map(function(t) { return t.status; });
-                if (all_statuses.every(function(s) { return s === 'approved'; })) {
+                var all_cancelled = all_statuses.every(function(s) { return s === 'cancelled' || s === 'declined'; });
+                if (all_cancelled && all_statuses.length > 0) {
+                    workflow.overall_status = 'cancelled';
+                } else if (all_statuses.every(function(s) { return s === 'approved'; })) {
                     workflow.overall_status = 'approved';
-                } else if (all_statuses.some(function(s) { return s === 'declined'; })) {
+                } else if (all_statuses.some(function(s) { return s === 'declined' || s === 'cancelled'; })) {
                     workflow.overall_status = 'declined';
                 } else {
                     workflow.overall_status = 'pending';
@@ -102,10 +107,12 @@
                     extension_data: angular.merge({}, ext, { workflow: workflow })
                 });
             }).then(function() {
-                $rootScope.$broadcast('event:approval-updated', {
-                    eventId: event_id,
-                    category: category,
-                    status: status
+                $rootScope.$apply(function() {
+                    $rootScope.$broadcast('event:approval-updated', {
+                        eventId: event_id,
+                        category: category,
+                        status: status
+                    });
                 });
                 console.log('[EventSync] Updated approval: event=' + event_id + ' ' + category + '=' + status);
             }).catch(function(err) {
@@ -116,6 +123,65 @@
         /**
          * Handle service cancellation from concierge
          */
+        /**
+         * Handle event update from sync server (e.g. ad-hoc service added from concierge)
+         */
+        self._handleEventUpdated = function(sync_event) {
+            if (!sync_event || !sync_event.id) return;
+
+            DatabaseService.getEvent(sync_event.id).then(function(event) {
+                if (!event) return;
+
+                var ext = event.extension_data || {};
+                var updates = {};
+
+                // Merge ad-hoc services from sync server into local event
+                if (sync_event.adhoc_services && sync_event.adhoc_services.length) {
+                    var existing_ids = {};
+                    var current_adhoc = ext.adhoc_services || [];
+                    for (var i = 0; i < current_adhoc.length; i++) {
+                        existing_ids[current_adhoc[i].id] = true;
+                    }
+
+                    var new_services = [];
+                    for (var j = 0; j < sync_event.adhoc_services.length; j++) {
+                        var svc = sync_event.adhoc_services[j];
+                        if (!existing_ids[svc.id]) {
+                            new_services.push({
+                                id: svc.id,
+                                name: svc.name,
+                                description: svc.name,
+                                amount: svc.unit_price || 0,
+                                added_at: svc.added_at || Date.now(),
+                                added_by: 'Concierge Admin',
+                                status: 'active',
+                                refund_deadline: null,
+                                refund_amount: svc.unit_price || 0
+                            });
+                        }
+                    }
+
+                    if (new_services.length) {
+                        ext.adhoc_services = current_adhoc.concat(new_services);
+                        updates.extension_data = angular.merge({}, ext);
+                    }
+                }
+
+                if (!Object.keys(updates).length) return;
+
+                return DatabaseService.updateEvent(sync_event.id, updates);
+            }).then(function() {
+                $rootScope.$apply(function() {
+                    $rootScope.$broadcast('event:adhoc-added', {
+                        eventId: sync_event.id
+                    });
+                });
+                console.log('[EventSync] Ad-hoc services synced for event: ' + sync_event.id);
+            }).catch(function(err) {
+                console.warn('[EventSync] Failed to sync event update:', err);
+            });
+        };
+
         self._handleServiceCancelled = function(data) {
             var event_id = data.event_id;
             var stage = (data.stage || '').toUpperCase();
@@ -138,15 +204,28 @@
                     }
                 }
 
+                // Recalculate overall status
+                var all_statuses = tasks.map(function(t) { return t.status; });
+                var all_cancelled = all_statuses.every(function(s) { return s === 'cancelled'; });
+                if (all_cancelled) {
+                    workflow.overall_status = 'cancelled';
+                } else if (all_statuses.every(function(s) { return s === 'approved' || s === 'cancelled'; })) {
+                    // Mix of approved + cancelled = still partially active
+                    workflow.overall_status = 'approved';
+                } else if (all_statuses.some(function(s) { return s === 'cancelled' || s === 'declined'; })) {
+                    workflow.overall_status = 'declined';
+                }
                 workflow.last_updated = Date.now();
 
                 return DatabaseService.updateEvent(event_id, {
                     extension_data: angular.merge({}, ext, { workflow: workflow })
                 });
             }).then(function() {
-                $rootScope.$broadcast('event:service-cancelled', {
-                    eventId: event_id,
-                    stage: stage
+                $rootScope.$apply(function() {
+                    $rootScope.$broadcast('event:service-cancelled', {
+                        eventId: event_id,
+                        stage: stage
+                    });
                 });
                 console.log('[EventSync] Service cancelled: event=' + event_id + ' stage=' + stage);
             }).catch(function(err) {

@@ -403,6 +403,23 @@
             }
 
             ctrl.loadEvent(eventId);
+
+            // Listen for real-time sync updates and refresh the event
+            $scope.$on('event:adhoc-added', function(evt, data) {
+                if (data.eventId === eventId) {
+                    ctrl.loadEvent(eventId);
+                }
+            });
+            $scope.$on('event:approval-updated', function(evt, data) {
+                if (data.eventId === eventId) {
+                    ctrl.loadEvent(eventId);
+                }
+            });
+            $scope.$on('event:service-cancelled', function(evt, data) {
+                if (data.eventId === eventId) {
+                    ctrl.loadEvent(eventId);
+                }
+            });
         };
 
         /**
@@ -416,6 +433,17 @@
                 .then(function(response) {
                     ctrl.event = response.data;
                     ctrl.workflow = ctrl.event.extension_data.workflow;
+
+                    // Recalculate overall status from current task statuses
+                    if (ctrl.workflow && ctrl.workflow.approval_tasks) {
+                        var statuses = ctrl.workflow.approval_tasks.map(function(t) { return t.status; });
+                        var all_cancelled = statuses.length > 0 && statuses.every(function(s) {
+                            return s === 'cancelled' || s === 'declined';
+                        });
+                        if (all_cancelled) {
+                            ctrl.workflow.overall_status = 'cancelled';
+                        }
+                    }
 
                     // Generate invoice from event data
                     ctrl.generateInvoice();
@@ -456,8 +484,11 @@
             // Create invoice
             ctrl.invoice = PaymentService.createInvoice(ctrl.event.id, quote, null);
 
-            // Check if already paid (mock: randomly mark some as paid)
-            if (ctrl.workflow && ctrl.workflow.overall_status === 'approved') {
+            // Check if event is fully cancelled
+            if (ctrl.workflow && ctrl.workflow.overall_status === 'cancelled') {
+                ctrl.invoice.status = 'cancelled';
+                ctrl.invoice.cancelled_at = ctrl.workflow.last_updated || Date.now();
+            } else if (ctrl.workflow && ctrl.workflow.overall_status === 'approved') {
                 // Approved events are paid
                 ctrl.invoice.payments = [{
                     id: 'pi_mock_' + ctrl.event.id,

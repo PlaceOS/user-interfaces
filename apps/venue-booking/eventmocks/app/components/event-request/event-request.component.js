@@ -953,7 +953,7 @@
             // Parse dates into separate date/time fields
             if (event.event_start) {
                 var startDate = new Date(event.event_start);
-                ctrl.eventData.event_date = startDate.toISOString().split('T')[0];
+                ctrl.eventData.event_date = startDate.getFullYear() + '-' + ('0' + (startDate.getMonth() + 1)).slice(-2) + '-' + ('0' + startDate.getDate()).slice(-2);
                 var hours = ('0' + startDate.getHours()).slice(-2);
                 var mins = ('0' + startDate.getMinutes()).slice(-2);
                 ctrl.eventData.start_time = hours + ':' + mins;
@@ -1444,9 +1444,20 @@
             if (ctrl.eventData.event_date) {
                 var dateStr = ctrl.eventData.event_date;
                 if (dateStr instanceof Date) {
-                    dateStr = dateStr.toISOString().split('T')[0];
+                    var yyyy = dateStr.getFullYear();
+                    var mm = ('0' + (dateStr.getMonth() + 1)).slice(-2);
+                    var dd = ('0' + dateStr.getDate()).slice(-2);
+                    dateStr = yyyy + '-' + mm + '-' + dd;
                 }
-                var timeStr = ctrl.eventData.all_day ? '09:00' : (ctrl.eventData.start_time || '09:00');
+                var timeVal = ctrl.eventData.all_day ? '09:00' : (ctrl.eventData.start_time || '09:00');
+                var timeStr;
+                if (timeVal instanceof Date) {
+                    var hh = ('0' + timeVal.getHours()).slice(-2);
+                    var mn = ('0' + timeVal.getMinutes()).slice(-2);
+                    timeStr = hh + ':' + mn;
+                } else {
+                    timeStr = timeVal;
+                }
                 eventStart = new Date(dateStr + 'T' + timeStr).getTime();
             }
 
@@ -1599,9 +1610,22 @@
             // Build event_start from event_date + start_time
             var dateStr = ctrl.eventData.event_date;
             if (dateStr instanceof Date) {
-                dateStr = dateStr.toISOString().split('T')[0];
+                // Use local date parts to avoid UTC timezone shift
+                var yyyy = dateStr.getFullYear();
+                var mm = ('0' + (dateStr.getMonth() + 1)).slice(-2);
+                var dd = ('0' + dateStr.getDate()).slice(-2);
+                dateStr = yyyy + '-' + mm + '-' + dd;
             }
-            var timeStr = ctrl.eventData.start_time || '00:00';
+            var timeVal = ctrl.eventData.start_time || '00:00';
+            var timeStr;
+            if (timeVal instanceof Date) {
+                // AngularJS <input type="time"> sets model to Date object
+                var hh = ('0' + timeVal.getHours()).slice(-2);
+                var mn = ('0' + timeVal.getMinutes()).slice(-2);
+                timeStr = hh + ':' + mn;
+            } else {
+                timeStr = timeVal;
+            }
             var startTime = new Date(dateStr + 'T' + timeStr).getTime();
             var durationHours = parseFloat(ctrl.eventData.duration) || 2;
             var endTime = startTime + (durationHours * 60 * 60 * 1000);
@@ -1686,6 +1710,7 @@
                     venue_id: ctrl.eventData.venue_id,
                     need_venue_assistance: ctrl.eventData.needVenueAssistance,
                     venue_preferences: ctrl.eventData.venue_preferences,
+                    event_date: startTime,
                     organizer: {
                         name: ctrl.eventData.organizer_name,
                         email: ctrl.eventData.organizer_email,
@@ -1701,7 +1726,9 @@
                     attendance_count: ctrl.eventData.attendance_count,
                     is_outdoor: ctrl.eventData.is_outdoor,
                     is_major_event: ctrl.eventData.is_major_event,
-                    special_requirements: ctrl.eventData.special_requirements
+                    special_requirements: ctrl.eventData.special_requirements,
+                    service_options: ctrl.serviceOptions || {},
+                    quote: ctrl.quote || null
                 }
             };
 

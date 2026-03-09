@@ -5909,6 +5909,11 @@ button.burger-menu-item {
     color: var(--color-warning);
 }
 
+.invoice-status.status-cancelled {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
 /* Invoice Items */
 .invoice-items {
     padding: 1.5rem;

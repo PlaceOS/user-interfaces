@@ -282,9 +282,16 @@
          * Get workflow status from event
          */
         ctrl.getWorkflowStatus = function(event) {
-            return event.extension_data && event.extension_data.workflow
-                ? event.extension_data.workflow.overall_status
-                : 'draft';
+            if (!event.extension_data || !event.extension_data.workflow) return 'draft';
+            var workflow = event.extension_data.workflow;
+            var tasks = workflow.approval_tasks || [];
+            if (tasks.length > 0) {
+                var all_cancelled = tasks.every(function(t) {
+                    return t.status === 'cancelled' || t.status === 'declined';
+                });
+                if (all_cancelled) return 'cancelled';
+            }
+            return workflow.overall_status;
         };
 
         /**
