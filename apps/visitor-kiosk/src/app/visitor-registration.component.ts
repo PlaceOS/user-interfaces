@@ -21,7 +21,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     DurationFieldComponent,
     UserSearchFieldComponent,
@@ -33,7 +37,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
     template: `
         <div class="absolute inset-0 flex items-center p-8">
             <img
-                [src]="background()"
+                auth
+                [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
             @if (!hide_building_image()) {
@@ -214,6 +219,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         UserSearchFieldComponent,
         DurationFieldComponent,
         RouterModule,
+        AuthenticatedImageDirective,
     ],
 })
 export class VisitorRegistrationComponent
@@ -250,7 +256,10 @@ export class VisitorRegistrationComponent
     public readonly loading = signal(false);
     public readonly now = signal(startOfMinute(Date.now()).valueOf());
     public readonly background = settingSignal('welcome_background');
-    public readonly allow_pass_number = settingSignal('allow_pass_number', false);
+    public readonly allow_pass_number = settingSignal(
+        'allow_pass_number',
+        false,
+    );
     public readonly hide_building_image = settingSignal(
         'hide_building_image',
         false,
