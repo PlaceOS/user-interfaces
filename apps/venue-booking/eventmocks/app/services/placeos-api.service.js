@@ -33,17 +33,20 @@
                     // Fire-and-forget push to sync server
                     try {
                         var ext = newEvent.extension_data || {};
+                        var ev_start = newEvent.event_start || (ext.workflow && ext.workflow.submitted_at) || Date.now();
+                        var ev_end = newEvent.event_end || ev_start;
+                        var dur = ev_end > ev_start ? Math.round((ev_end - ev_start) / 60000) : 120;
                         var sync_payload = {
                             id: newEvent.id,
                             title: newEvent.title,
                             category: 'venue',
-                            date: newEvent.event_start,
-                            duration_minutes: Math.round(((newEvent.event_end || newEvent.event_start) - newEvent.event_start) / 60000),
+                            date: ev_start,
+                            duration_minutes: dur,
                             location: ext.venue || '',
                             organiser: (ext.organizer && ext.organizer.name) || '',
                             venue_id: ext.venue_id || '',
-                            event_start: newEvent.event_start,
-                            event_end: newEvent.event_end,
+                            event_start: ev_start,
+                            event_end: ev_end,
                             request_items: ext.request_items || [],
                             workflow: ext.workflow || {},
                             source: 'eventmocks'
@@ -300,17 +303,20 @@
         self.syncEventUpdate = function(event) {
             try {
                 var ext = event.extension_data || {};
+                var ev_start = event.event_start || (ext.workflow && ext.workflow.submitted_at) || Date.now();
+                var ev_end = event.event_end || ev_start;
+                var dur = ev_end > ev_start ? Math.round((ev_end - ev_start) / 60000) : 120;
                 var sync_payload = {
                     id: event.id,
                     title: event.title,
                     category: 'venue',
-                    date: event.event_start,
-                    duration_minutes: Math.round(((event.event_end || event.event_start) - event.event_start) / 60000),
+                    date: ev_start,
+                    duration_minutes: dur,
                     location: ext.venue || '',
                     organiser: (ext.organizer && ext.organizer.name) || '',
                     venue_id: ext.venue_id || '',
-                    event_start: event.event_start,
-                    event_end: event.event_end,
+                    event_start: ev_start,
+                    event_end: ev_end,
                     request_items: ext.request_items || [],
                     workflow: ext.workflow || {},
                     adhoc_services: ext.adhoc_services || [],
