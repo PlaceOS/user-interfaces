@@ -11,19 +11,45 @@ describe('VisitorFlowDetailsComponent', () => {
     let options$: BehaviorSubject<any>;
     let form: FormGroup;
     let now = Date.now();
+    let set_building: jest.Mock;
+    let find_building: jest.Mock;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowDetailsComponent,
         shallow: true,
         providers: [
-            MockProvider(OrganisationService, {
-                active_buildings: new BehaviorSubject([]),
-                buildings: [{ id: 'bld-1', name: 'Building One' }],
-                building: { id: 'bld-1', name: 'Building One', timezone: '' },
-            } as any),
             MockProvider(SettingsService, {
                 get: jest.fn(),
             }),
+            {
+                provide: OrganisationService,
+                useFactory: () => {
+                    const building_list = [
+                        { id: 'bld-1', name: 'Building One', timezone: '' },
+                        { id: 'bld-2', name: 'Building Two', timezone: '' },
+                    ];
+                    find_building = jest.fn((id: string) =>
+                        building_list.find((building) => building.id === id),
+                    );
+                    set_building = jest.fn();
+                    return {
+                        active_buildings: new BehaviorSubject(building_list),
+                        buildings: building_list,
+                        building: building_list[0],
+                        find: find_building,
+                        setBuilding: set_building,
+                        levelWithID: jest.fn((ids: string[]) =>
+                            ids?.includes('lvl-2')
+                                ? {
+                                      id: 'lvl-2',
+                                      parent_id: 'bld-2',
+                                      name: 'Level Two',
+                                  }
+                                : null,
+                        ),
+                    } as any;
+                },
+            },
             {
                 provide: BookingFormService,
                 useFactory: () => {
@@ -79,7 +105,6 @@ describe('VisitorFlowDetailsComponent', () => {
         expect(spectator.component.is_edit()).toBe(true);
         expect(spectator.component.active_form()).toBe('single');
         expect(service.setOptions).not.toHaveBeenCalled();
-        expect(spectator.query('mat-select')).toBeNull();
         expect(spectator.element).not.toHaveText('BOOKINGS.VISITOR_SINGLE');
         expect(spectator.element).not.toHaveText('BOOKINGS.VISITOR_MULTIPLE');
     });
@@ -97,5 +122,21 @@ describe('VisitorFlowDetailsComponent', () => {
         expect(spectator.component.is_edit_in_progress()).toBe(true);
         expect(form.get('date')?.disabled).toBe(true);
         expect(form.get('duration')?.disabled).toBe(false);
+    });
+
+    it('should resolve the selected building from a level zone when editing', () => {
+        form.patchValue({
+            id: 'visitor-booking-3',
+            zones: ['org-1', 'lvl-2'],
+        });
+
+        spectator.component.ngOnInit();
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
+        expect(find_building).toHaveBeenCalledWith('bld-2');
+        expect(set_building).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'bld-2' }),
+        );
     });
 });

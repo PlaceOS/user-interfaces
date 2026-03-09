@@ -103,11 +103,7 @@ type VisitorFormType = 'single' | 'group';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 [ngModel]="selected_building_id()"
-                                (ngModelChange)="
-                                    form.patchValue({
-                                        zones: [$event],
-                                    })
-                                "
+                                (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{
                                     standalone: true,
                                 }"
@@ -267,14 +263,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
         return Date.now() >= booking_date && Date.now() < end_date;
     });
     public readonly selected_building_id = computed(() => {
-        const zones = this.form_value()?.zones || [];
-        const building_ids = new Set(this._org.buildings.map((bld) => bld.id));
-        return (
-            zones.find((zone_id) => building_ids.has(zone_id)) ||
-            this._org.building?.id ||
-            zones[0] ||
-            ''
-        );
+        return this._resolveSelectedBuildingId(this.form_value()?.zones || []);
     });
 
     public readonly max_duration = computed(() =>
@@ -323,6 +312,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this.form.patchValue({ zones: [this._org.building.id] });
             return;
         }
+        this._syncBuildingContext();
     }
 
     public setActiveForm(form: VisitorFormType) {
@@ -377,5 +367,30 @@ export class VisitorFlowDetailsComponent implements OnInit {
                 assets: unique_assets,
             });
         }
+    }
+
+    public setBuilding(building_id: string) {
+        this._setActiveBuilding(building_id);
+        this.form.patchValue({ zones: building_id ? [building_id] : [] });
+    }
+
+    private _resolveSelectedBuildingId(zone_list: string[]) {
+        const level = this._org.levelWithID(zone_list);
+        const building =
+            this._org.buildings.find((bld) => zone_list.includes(bld.id)) ||
+            this._org.buildings.find((bld) => level?.parent_id === bld.id);
+        return building?.id || this._org.building?.id || zone_list[0] || '';
+    }
+
+    private _syncBuildingContext() {
+        const building_id = this.selected_building_id();
+        if (!building_id || this._org.building?.id === building_id) return;
+        this._setActiveBuilding(building_id);
+    }
+
+    private _setActiveBuilding(building_id: string) {
+        const building = this._org.find(building_id);
+        if (!building) return;
+        this._org.setBuilding(building);
     }
 }
