@@ -80808,15 +80808,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION6 = {
   "dirty": false,
-  "raw": "c85c9ba",
-  "hash": "c85c9ba",
+  "raw": "b05d8ac",
+  "hash": "b05d8ac",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c85c9ba",
+  "suffix": "b05d8ac",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1771461611473
+  "time": 1773018188170
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -147636,7 +147636,7 @@ var validateCateringField = (catering_control) => (control) => {
   return null;
 };
 function generateEventForm(event = new CalendarEvent(), settings) {
-  var _a11, _b3, _c10, _d2, _e4, _f, _g, _h, _i2, _j, _k, _l, _m, _n3, _o2, _p, _q, _r2, _s2, _t4;
+  var _a11, _b3, _c10, _d2, _e4, _f, _g, _h, _i2, _j, _k, _l, _m, _n3, _o2, _p, _q, _r2, _s2, _t4, _u;
   if (!event)
     event = new CalendarEvent();
   const form = new FormGroup({
@@ -147683,7 +147683,8 @@ function generateEventForm(event = new CalendarEvent(), settings) {
     view_access: new FormControl(((_q = event.extension_data) == null ? void 0 : _q.view_access) || "OPEN"),
     images: new FormControl(((_r2 = event.extension_data) == null ? void 0 : _r2.images) || []),
     featured: new FormControl(((_s2 = event.extension_data) == null ? void 0 : _s2.featured) || false),
-    event_services: new FormControl(((_t4 = event.extension_data) == null ? void 0 : _t4.event_services) || [])
+    event_services: new FormControl(((_t4 = event.extension_data) == null ? void 0 : _t4.event_services) || []),
+    refund_deadline: new FormControl(((_u = event.extension_data) == null ? void 0 : _u.refund_deadline) || null)
   });
   form.get("organiser").valueChanges.subscribe((o) => form.controls.host.setValue(o == null ? void 0 : o.email));
   form.get("resources").valueChanges.subscribe((l) => {
