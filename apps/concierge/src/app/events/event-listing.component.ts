@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -15,7 +16,10 @@ import {
     EventSummaryDialogComponent,
     EventSummaryData,
 } from './event-summary-dialog.component';
-import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
+import {
+    EventApprovalStateService,
+    RecentChange,
+} from './event-approval-state.service';
 
 @Component({
     selector: 'event-listing',
@@ -25,9 +29,29 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
             [class.opacity-0]="!(loading | async)"
             mode="indeterminate"
         />
+        <div class="mb-2 flex items-center justify-end space-x-2">
+            @if (cancelled_count() > 0) {
+                <button
+                    matRipple
+                    class="flex items-center space-x-1.5 rounded border px-3 py-1.5 text-xs font-medium transition-colors"
+                    [ngClass]="
+                        show_cancelled()
+                            ? 'border-error/40 bg-error/10 text-error'
+                            : 'border-base-300 bg-base-100 text-base-content/70'
+                    "
+                    (click)="show_cancelled.set(!show_cancelled())"
+                >
+                    <icon class="text-sm">filter_list</icon>
+                    <span>Cancelled Events ({{ cancelled_count() }})</span>
+                    @if (show_cancelled()) {
+                        <icon class="text-sm">close</icon>
+                    }
+                </button>
+            }
+        </div>
         <simple-table
             class="block w-full min-w-4xl text-sm"
-            [data]="event_list"
+            [data]="filtered_event_list()"
             empty_message="No events for selected period"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
@@ -127,7 +151,36 @@ import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
                     </div>
                 </div>
                 <div details class="flex flex-col">
-                    <div class="text-sm font-medium hover:underline">{{ item.title }}</div>
+                    <div class="flex items-center space-x-1 text-sm font-medium hover:underline">
+                        <span>{{ item.title }}</span>
+                        @if (isCancelled(item)) {
+                            <span class="rounded bg-error/20 px-1.5 py-0.5 text-[10px] font-semibold text-error">
+                                CANCELLED
+                            </span>
+                        }
+                        @if (adhocCount(item) > 0) {
+                            <span class="rounded bg-warning/20 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                                +{{ adhocCount(item) }} ad-hoc
+                            </span>
+                        }
+                    </div>
+                    @if (recentChanges(item).length > 0) {
+                        <div class="mt-0.5 flex flex-wrap gap-1">
+                            @for (change of recentChanges(item); track change.event_id) {
+                                <span
+                                    class="flex items-center space-x-0.5 rounded px-1 py-0.5 text-[10px] font-medium"
+                                    [ngClass]="change.type === 'cancelled'
+                                        ? 'bg-error/10 text-error'
+                                        : 'bg-info/10 text-info'"
+                                >
+                                    <icon class="text-[10px]">{{
+                                        change.type === 'cancelled' ? 'cancel' : 'add_circle'
+                                    }}</icon>
+                                    <span>{{ change.label }}</span>
+                                </span>
+                            }
+                        </div>
+                    }
                     <div class="text-xs opacity-40">
                         {{ item.date | date: 'EEEE, ' + time_format }}
                         &ndash;
@@ -408,9 +461,36 @@ export class EventListingComponent {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
     private _dialog = inject(MatDialog);
+    private _approval_state = inject(EventApprovalStateService);
+    private _all_events = toSignal(this._approval_state.all_events$, {
+        initialValue: [],
+    });
 
     public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list;
+
+    /** Toggle to show/hide cancelled events */
+    public readonly show_cancelled = signal(false);
+
+    private readonly _event_list_signal = toSignal(this._state.event_list, {
+        initialValue: [] as CalendarEvent[],
+    });
+
+    /** Count of fully cancelled events in the current list */
+    public readonly cancelled_count = computed(() =>
+        this._event_list_signal().filter(
+            (e) => (e as any).extension_data?.fully_cancelled,
+        ).length,
+    );
+
+    /** Event list filtered by cancelled toggle */
+    public readonly filtered_event_list = computed(() => {
+        const events = this._event_list_signal();
+        if (this.show_cancelled()) return events;
+        return events.filter(
+            (e) => !(e as any).extension_data?.fully_cancelled,
+        );
+    });
 
     public readonly viewEvent = (event: CalendarEvent) =>
         this._state.viewEvent(event);
@@ -419,6 +499,18 @@ export class EventListingComponent {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    isCancelled(item: CalendarEvent): boolean {
+        return !!(item as any).extension_data?.fully_cancelled;
+    }
+
+    adhocCount(item: CalendarEvent): number {
+        return (item as any).extension_data?.adhoc_count || 0;
+    }
+
+    recentChanges(item: CalendarEvent): RecentChange[] {
+        return (item as any).extension_data?.recent_changes || [];
     }
 
     reqStatus(
@@ -432,12 +524,17 @@ export class EventListingComponent {
     }
 
     showSummary(event: CalendarEvent): void {
-        const mock = MOCK_APPROVAL_EVENTS.find(
-            (e) => e.id === event.id,
-        );
-        if (!mock) return;
-        this._dialog.open(EventSummaryDialogComponent, {
-            data: { event: mock } as EventSummaryData,
-        });
+        const all = this._all_events();
+        const mock = all.find((e) => e.id === event.id);
+        if (mock) {
+            this._dialog.open(EventSummaryDialogComponent, {
+                data: { event: mock } as EventSummaryData,
+            });
+        } else {
+            // Fall back to CalendarEvent-based display
+            this._dialog.open(EventSummaryDialogComponent, {
+                data: { calendar_event: event } as EventSummaryData,
+            });
+        }
     }
 }

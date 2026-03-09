@@ -17,6 +17,7 @@ import {
     MOCK_APPROVAL_EVENTS,
     ROLE_DISPLAY_NAMES,
 } from './event-approvals-mock.data';
+import { EventApprovalStateService } from './event-approval-state.service';
 import {
     DOC_STATUS_COLOR,
     DOC_STATUS_DISPLAY,
@@ -130,7 +131,15 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
                 class="cursor-pointer px-3 py-2 text-sm font-medium hover:underline"
                 (click)="_state.selectDocument(row.id)"
             >
-                {{ eventName(row.event_id) }}
+                <span>{{ eventName(row.event_id) }}</span>
+                @if (isEventCancelled(row.event_id)) {
+                    <div class="mt-0.5 flex items-center space-x-1">
+                        <icon class="text-error text-xs">cancel</icon>
+                        <span class="text-[10px] font-semibold text-error">
+                            Event Cancelled
+                        </span>
+                    </div>
+                }
             </div>
         </ng-template>
 
@@ -301,6 +310,10 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
 })
 export class EventQuotesComponent {
     readonly _state = inject(EventFinanceStateService);
+    private _approval_state = inject(EventApprovalStateService);
+    private _all_events = toSignal(this._approval_state.all_events$, {
+        initialValue: MOCK_APPROVAL_EVENTS,
+    });
     readonly is_mock = isMock();
 
     /** Split filtered documents into quotes and invoices */
@@ -404,8 +417,14 @@ export class EventQuotesComponent {
     }
 
     eventName(event_id: string): string {
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === event_id);
         return event?.title || 'Unknown Event';
+    }
+
+    /** Check if all approvals for an event are declined (fully cancelled). */
+    isEventCancelled(event_id: string): boolean {
+        return this._state.allApprovalsDeclined(event_id);
     }
 
     formatCurrency(value: number): string {

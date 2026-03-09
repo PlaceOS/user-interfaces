@@ -9,7 +9,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { IconComponent, openConfirmModal } from '@placeos/components';
 import { format } from 'date-fns';
-import { MOCK_APPROVAL_EVENTS } from './event-approvals-mock.data';
+import {
+    MOCK_APPROVAL_EVENTS,
+    MockApprovalEvent,
+} from './event-approvals-mock.data';
+import { EventApprovalStateService } from './event-approval-state.service';
 import {
     BillableCategory,
     BILLABLE_CATEGORY_DISPLAY,
@@ -574,6 +578,10 @@ import { EventFinanceStateService } from './event-finance-state.service';
 })
 export class EventQuoteDetailComponent {
     readonly _state = inject(EventFinanceStateService);
+    private _approval_state = inject(EventApprovalStateService);
+    private _all_events = toSignal(this._approval_state.all_events$, {
+        initialValue: MOCK_APPROVAL_EVENTS,
+    });
 
     readonly document = toSignal(this._state.selected_document$, {
         initialValue: null,
@@ -652,14 +660,16 @@ export class EventQuoteDetailComponent {
     eventName(): string {
         const doc = this.document();
         if (!doc) return '';
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === doc.event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === doc.event_id);
         return event?.title || 'Unknown Event';
     }
 
     eventDateTime(): string {
         const doc = this.document();
         if (!doc) return '';
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === doc.event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === doc.event_id);
         if (!event) return '';
         return `${format(event.date, 'EEE, d MMM yyyy')} at ${format(event.date, 'h:mm a')}`;
     }
@@ -667,14 +677,16 @@ export class EventQuoteDetailComponent {
     eventLocation(): string {
         const doc = this.document();
         if (!doc) return '';
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === doc.event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === doc.event_id);
         return event?.location || '';
     }
 
     eventOrganiser(): string {
         const doc = this.document();
         if (!doc) return '';
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === doc.event_id);
+        const all = this._all_events();
+        const event = all.find((e) => e.id === doc.event_id);
         return event?.organiser || '';
     }
 

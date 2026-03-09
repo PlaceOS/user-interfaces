@@ -31,6 +31,7 @@ import {
     SendQuoteDialogData,
 } from './send-quote-dialog.component';
 import { EventApprovalStateService } from './event-approval-state.service';
+import { EventSyncService } from './event-sync.service';
 
 export interface FinanceFilters {
     status: 'all' | FinancialDocStatus;
@@ -38,17 +39,45 @@ export interface FinanceFilters {
     search: string;
 }
 
+/** Venue pricing table mirrored from eventmocks PaymentService for fallback calculation */
+const VENUE_PRICING: Record<string, { name: string; base_price: number; per_hour: number }> = {
+    venue_1:   { name: 'Grand Horizon & Terrace',        base_price: 3000, per_hour: 450 },
+    venue_9:   { name: 'Palisades Ballroom',             base_price: 3000, per_hour: 450 },
+    venue_15:  { name: 'Plaza Room',                      base_price: 2100, per_hour: 300 },
+    venue_23:  { name: 'Sierra',                          base_price: 500,  per_hour: 85 },
+    venue_27:  { name: 'Morrison Room',                   base_price: 2000, per_hour: 340 },
+    venue_28:  { name: 'Main Dining Room',                base_price: 4400, per_hour: 750 },
+    venue_33:  { name: 'Centennial Ballroom',             base_price: 5000, per_hour: 750 },
+    venue_39:  { name: 'Ackerman Grand Ballroom',         base_price: 5000, per_hour: 800 },
+    venue_41:  { name: 'Charles E. Young Grand Salon',    base_price: 2500, per_hour: 400 },
+    venue_44:  { name: 'Bruin Plaza',                     base_price: 3000, per_hour: 500 },
+    venue_45:  { name: 'Korn Convocation Hall',           base_price: 3000, per_hour: 500 },
+    venue_55:  { name: 'Royce Hall Main Auditorium',      base_price: 8000, per_hour: 1500 },
+    venue_64:  { name: 'Billy Wilder Theater',            base_price: 3500, per_hour: 600 },
+    venue_71:  { name: 'Schoenberg Hall',                 base_price: 4500, per_hour: 800 },
+    venue_74:  { name: 'Freud Playhouse',                 base_price: 6000, per_hour: 1000 },
+    venue_122: { name: 'Drake Stadium',                   base_price: 10000, per_hour: 2000 },
+    venue_123: { name: 'Los Angeles Tennis Center',       base_price: 12000, per_hour: 2500 },
+    venue_125: { name: 'Sunset Canyon Recreation Center', base_price: 2500, per_hour: 400 },
+    venue_127: { name: 'Wilson Plaza',                    base_price: 3000, per_hour: 500 },
+};
+
+const PROCESSING_FEE_RATE = 0.03;
+
 @Injectable({
     providedIn: 'root',
 })
 export class EventFinanceStateService {
     private _dialog = inject(MatDialog);
     private _approval_state = inject(EventApprovalStateService);
+    private _sync = inject(EventSyncService);
 
     private _documents = new BehaviorSubject<FinancialDocument[]>(
         [...MOCK_FINANCIAL_DOCUMENTS],
     );
     private _overdue_timer: ReturnType<typeof setInterval>;
+    private _cached_all_events: import('./event-approvals-mock.data').MockApprovalEvent[] =
+        MOCK_APPROVAL_EVENTS;
 
     private _approval_sub: Subscription;
 
@@ -62,6 +91,78 @@ export class EventFinanceStateService {
             .subscribe(([_prev, curr]) => {
                 this._syncWithApprovals(curr);
             });
+
+        // React to service cancellations from eventmocks — check refund eligibility
+        this._sync.cancellation$.subscribe((cancellation) => {
+            if (!cancellation) return;
+            this._handleCancellationRefund(cancellation);
+        });
+
+        // Auto-generate quotes for synced parent events that don't have one yet,
+        // and update existing $0 quotes when pricing data becomes available.
+        this._approval_state.all_events$.subscribe((all) => {
+            this._cached_all_events = all;
+            let docs = this._documents.getValue();
+            const existing_event_ids = new Set(docs.map((d) => d.event_id));
+            const new_quotes: FinancialDocument[] = [];
+            let updated_existing = false;
+
+            for (const evt of all) {
+                if (!evt.id.startsWith('sync-')) continue;
+                if (evt.parent_event) continue; // only generate for root events
+
+                const original_id = evt.id.replace('sync-', '');
+                const raw_event = this._sync.getRawSyncEvent(original_id);
+                const line_items = this._buildSyncLineItems(evt, raw_event);
+                const totals = this._recalcTotals(line_items);
+
+                // Check if there's an existing $0 quote that needs updating
+                if (existing_event_ids.has(evt.id)) {
+                    if (totals.total > 0) {
+                        const existing_quote = docs.find(
+                            (d) => d.event_id === evt.id && d.doc_type === 'quote' && d.total === 0,
+                        );
+                        if (existing_quote) {
+                            docs = docs.map((d) =>
+                                d.id === existing_quote.id
+                                    ? { ...d, line_items, ...totals, last_updated: Date.now() }
+                                    : d,
+                            );
+                            updated_existing = true;
+                        }
+                    }
+                    continue;
+                }
+
+                const doc_number = generateDocNumber('quote');
+                const quote: FinancialDocument = {
+                    id: `fin-sync-${evt.id}-${Date.now()}`,
+                    doc_type: 'quote',
+                    doc_number,
+                    event_id: evt.id,
+                    status: 'draft',
+                    vendor_department: 'Events Team',
+                    bill_to: evt.organiser || 'TBD',
+                    cost_centre: 'CC-SYNC',
+                    line_items,
+                    subtotal: totals.subtotal,
+                    tax_total: totals.tax_total,
+                    total: totals.total,
+                    issued_date: Date.now(),
+                    due_date: Date.now() + 14 * 24 * 60 * 60 * 1000,
+                    last_updated: Date.now(),
+                    notes: `Auto-generated quote for synced event "${evt.title}". Awaiting all event approvals before sending.`,
+                    attachment_names: [],
+                    refund_deadline: evt.refund_deadline,
+                };
+                new_quotes.push(quote);
+                existing_event_ids.add(evt.id);
+            }
+
+            if (new_quotes.length || updated_existing) {
+                this._documents.next([...docs, ...new_quotes]);
+            }
+        });
     }
     private _audit_log = new BehaviorSubject<FinanceAuditEntry[]>(
         [...MOCK_FINANCE_AUDIT_LOG],
@@ -88,8 +189,9 @@ export class EventFinanceStateService {
         this._role,
         this._filters,
         this._approval_state.status$,
+        this._approval_state.all_events$,
     ]).pipe(
-        map(([docs, role, filters, _approval_statuses]) => {
+        map(([docs, role, filters, _approval_statuses, _all_events]) => {
             let result = this._applyRoleVisibility(docs, role);
 
             if (filters.status !== 'all') {
@@ -142,8 +244,9 @@ export class EventFinanceStateService {
     public readonly vendor_departments$ = combineLatest([
         this._documents,
         this._role,
+        this._approval_state.all_events$,
     ]).pipe(
-        map(([docs, role]) => {
+        map(([docs, role, _all_events]) => {
             const visible = this._applyRoleVisibility(docs, role);
             return [...new Set(visible.map((d) => d.vendor_department))].sort();
         }),
@@ -281,7 +384,8 @@ export class EventFinanceStateService {
         // Auto-decline matching ad-hoc service when its invoice line is removed
         if (removed_description.endsWith('(Ad-hoc)')) {
             const adhoc_title = removed_description.replace(/\s*\(Ad-hoc\)$/, '');
-            const adhoc_event = MOCK_APPROVAL_EVENTS.find(
+            const all = this._cached_all_events;
+            const adhoc_event = all.find(
                 (e) =>
                     e.is_adhoc &&
                     e.title === adhoc_title &&
@@ -302,8 +406,9 @@ export class EventFinanceStateService {
             if (!still_has_category) {
                 const approval_categories = this._billable_to_approval[removed_category] || [];
                 const parent_id = doc.event_id;
+                const all = this._cached_all_events;
                 for (const approval_cat of approval_categories) {
-                    const child_event = MOCK_APPROVAL_EVENTS.find(
+                    const child_event = all.find(
                         (e) =>
                             e.category === approval_cat &&
                             (e.parent_event === parent_id || e.id === parent_id),
@@ -338,6 +443,174 @@ export class EventFinanceStateService {
         );
     }
 
+    /** Build line items for a synced event, using quote data or venue pricing fallback. */
+    private _buildSyncLineItems(
+        evt: import('./event-approvals-mock.data').MockApprovalEvent,
+        raw_event: any,
+    ): FinancialLineItem[] {
+        const eventmocks_quote = raw_event?.quote;
+        const line_items: FinancialLineItem[] = [];
+
+        if (eventmocks_quote?.lineItems?.length) {
+            // Use actual quote data from eventmocks
+            const category_map: Record<string, BillableCategory> = {
+                venue: 'venue_hire',
+                service: 'miscellaneous',
+            };
+            for (const item of eventmocks_quote.lineItems) {
+                const cat = category_map[item.category] || 'miscellaneous';
+                line_items.push({
+                    id: `li-sync-${evt.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                    description: `${item.name}${item.description ? ' — ' + item.description : ''}`,
+                    category: cat,
+                    quantity: 1,
+                    unit_price: item.total || 0,
+                    tax_rate: 0.1,
+                    line_total: (item.total || 0) * 1.1,
+                });
+            }
+            if (eventmocks_quote.fees?.length) {
+                for (const fee of eventmocks_quote.fees) {
+                    line_items.push({
+                        id: `li-sync-${evt.id}-fee-${Date.now()}`,
+                        description: fee.name || 'Processing Fee',
+                        category: 'miscellaneous' as BillableCategory,
+                        quantity: 1,
+                        unit_price: fee.amount || 0,
+                        tax_rate: 0.1,
+                        line_total: (fee.amount || 0) * 1.1,
+                    });
+                }
+            }
+        } else {
+            // Fallback: calculate from venue_id + duration
+            const venue_id = raw_event?.venue_id;
+            const duration_hours = (raw_event?.duration_minutes || 120) / 60;
+            const venue = venue_id ? VENUE_PRICING[venue_id] : null;
+
+            if (venue) {
+                const venue_total = venue.base_price + venue.per_hour * duration_hours;
+                line_items.push({
+                    id: `li-sync-${evt.id}-venue`,
+                    description: `${venue.name} Rental — Base fee + ${duration_hours} hours`,
+                    category: 'venue_hire' as BillableCategory,
+                    quantity: 1,
+                    unit_price: venue_total,
+                    tax_rate: 0.1,
+                    line_total: venue_total * 1.1,
+                });
+                // Add processing fee
+                const processing_fee = Math.round(venue_total * PROCESSING_FEE_RATE * 100) / 100;
+                line_items.push({
+                    id: `li-sync-${evt.id}-proc`,
+                    description: `Processing Fee (${PROCESSING_FEE_RATE * 100}%)`,
+                    category: 'miscellaneous' as BillableCategory,
+                    quantity: 1,
+                    unit_price: processing_fee,
+                    tax_rate: 0.1,
+                    line_total: processing_fee * 1.1,
+                });
+            } else {
+                // No pricing data at all — placeholder
+                line_items.push({
+                    id: `li-sync-${evt.id}-venue`,
+                    description: `Venue hire — ${evt.location}`,
+                    category: 'venue_hire' as BillableCategory,
+                    quantity: 1,
+                    unit_price: 0,
+                    tax_rate: 0.1,
+                    line_total: 0,
+                });
+            }
+        }
+        return line_items;
+    }
+
+    /**
+     * Handle a cancellation event from eventmocks.
+     * Checks refund eligibility and adjusts invoicing accordingly.
+     */
+    private _handleCancellationRefund(cancellation: {
+        event_id: string;
+        stage: string;
+        cancel_id: string;
+        refund_issued: number;
+        cancelled_at: number;
+    }): void {
+        const parent_event_id = `sync-${cancellation.event_id}`;
+        const docs = this._documents.getValue();
+
+        // Find the quote for this event
+        const quote = docs.find(
+            (d) => d.event_id === parent_event_id && d.doc_type === 'quote',
+        );
+        if (!quote) return;
+
+        const now = Date.now();
+        const is_refundable = cancellation.refund_issued > 0;
+        const refund_amount = cancellation.refund_issued;
+        const stage_display = cancellation.stage.charAt(0).toUpperCase()
+            + cancellation.stage.slice(1).replace(/_/g, ' ');
+
+        if (is_refundable) {
+            // Refundable — generate a credit note and adjust the quote
+            const credit_id = `fin-credit-${Date.now()}-${cancellation.cancel_id}`;
+            const credit_number = generateDocNumber('invoice');
+            const credit_line: FinancialLineItem = {
+                id: `li-credit-${cancellation.cancel_id}`,
+                description: `Refund — ${stage_display} cancellation`,
+                category: 'miscellaneous' as BillableCategory,
+                quantity: 1,
+                unit_price: -refund_amount,
+                tax_rate: 0.1,
+                line_total: -refund_amount * 1.1,
+            };
+
+            const credit_note: FinancialDocument = {
+                id: credit_id,
+                doc_type: 'invoice',
+                doc_number: credit_number,
+                event_id: parent_event_id,
+                status: 'invoiced',
+                vendor_department: quote.vendor_department,
+                bill_to: quote.bill_to,
+                cost_centre: quote.cost_centre,
+                line_items: [credit_line],
+                subtotal: -refund_amount,
+                tax_total: -refund_amount * 0.1,
+                total: -refund_amount * 1.1,
+                issued_date: now,
+                due_date: now + 14 * 24 * 60 * 60 * 1000,
+                last_updated: now,
+                notes: `Credit note for ${stage_display} cancellation — $${refund_amount.toFixed(2)} refund issued (cancelled before refund deadline).`,
+                attachment_names: [],
+                converted_from: quote.id,
+            };
+
+            this._documents.next([...docs, credit_note]);
+            this._appendAudit(
+                credit_id,
+                'created',
+                `Credit note ${credit_number} — $${refund_amount.toFixed(2)} refund for ${stage_display} cancellation`,
+            );
+            this._appendAudit(
+                quote.id,
+                'updated',
+                `${stage_display} cancelled — $${refund_amount.toFixed(2)} refund issued (credit note ${credit_number})`,
+            );
+            notifySuccess(
+                `${stage_display} cancelled — $${refund_amount.toFixed(2)} refund credit note generated`,
+            );
+        } else {
+            // Non-refundable — keep the charge, add an audit note
+            this._appendAudit(
+                quote.id,
+                'updated',
+                `${stage_display} cancelled — non-refundable (past refund deadline). Charges retained.`,
+            );
+        }
+    }
+
     private _recalcTotals(items: FinancialLineItem[]): {
         subtotal: number;
         tax_total: number;
@@ -357,7 +630,7 @@ export class EventFinanceStateService {
         const doc = docs.find((d) => d.id === doc_id);
         if (!doc || doc.doc_type !== 'invoice' || doc.status !== 'draft') return;
 
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === doc.event_id);
+        const event = this._cached_all_events.find((e) => e.id === doc.event_id);
         const event_name = event?.title || 'Unknown Event';
 
         const ref = this._dialog.open(SendQuoteDialogComponent, {
@@ -472,9 +745,10 @@ export class EventFinanceStateService {
 
     /** Whether the event date + duration has passed. */
     public eventDatePassed(event_id: string): boolean {
-        const event = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id && !e.parent_event);
+        const all = this._cached_all_events;
+        const event = all.find((e) => e.id === event_id && !e.parent_event);
         if (!event) {
-            const child = MOCK_APPROVAL_EVENTS.find((e) => e.id === event_id);
+            const child = all.find((e) => e.id === event_id);
             if (child?.parent_event) return this.eventDatePassed(child.parent_event);
             return false;
         }
@@ -511,19 +785,20 @@ export class EventFinanceStateService {
 
     /** Get parent + children events for a given event ID. */
     private _getEventFamily(event_id: string): typeof MOCK_APPROVAL_EVENTS {
-        const parent_event = MOCK_APPROVAL_EVENTS.find(
+        const all = this._cached_all_events;
+        const parent_event = all.find(
             (e) => e.id === event_id && !e.parent_event,
         );
         if (!parent_event) {
-            const child = MOCK_APPROVAL_EVENTS.find(
+            const child = all.find(
                 (e) => e.id === event_id,
             );
             if (child?.parent_event) {
                 return this._getEventFamily(child.parent_event);
             }
-            return MOCK_APPROVAL_EVENTS.filter((e) => e.id === event_id);
+            return all.filter((e) => e.id === event_id);
         }
-        const children = MOCK_APPROVAL_EVENTS.filter(
+        const children = all.filter(
             (e) => e.parent_event === parent_event.id,
         );
         return [parent_event, ...children];
@@ -745,8 +1020,9 @@ export class EventFinanceStateService {
             visible_categories.add('safety');
         }
 
+        const all_events = this._cached_all_events;
         const visible_event_ids = new Set(
-            MOCK_APPROVAL_EVENTS
+            all_events
                 .filter((e) => visible_categories.has(e.category))
                 .map((e) => e.id),
         );
@@ -758,7 +1034,7 @@ export class EventFinanceStateService {
             const owner_names = ROLE_MOCK_ORGANISERS[role];
             if (owner_names?.length) {
                 const owned_event_ids = new Set(
-                    MOCK_APPROVAL_EVENTS
+                    all_events
                         .filter((e) => owner_names.includes(e.organiser))
                         .map((e) => e.id),
                 );

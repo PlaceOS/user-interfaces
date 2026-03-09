@@ -32,6 +32,7 @@ import {
 } from '../room-manager/ucla-catering-menu';
 import { EventApprovalStateService } from './event-approval-state.service';
 import { EventFinanceStateService } from './event-finance-state.service';
+import { EventSyncService } from './event-sync.service';
 import {
     BillableCategory,
     BILLABLE_CATEGORY_DISPLAY,
@@ -661,12 +662,15 @@ interface OrderGroup {
                                                             <span class="rounded-full bg-warning/20 text-warning px-2 py-0.5 text-xs font-medium">
                                                                 Ad-hoc
                                                             </span>
-                                                            <span
-                                                                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                                                                [class]="serviceStatusClass(getStatus(child.id))"
-                                                            >
-                                                                {{ serviceStatusLabel(getStatus(child.id)) }}
-                                                            </span>
+                                                            @if (getStatus(child.id) === 'declined') {
+                                                                <span class="rounded-full bg-error/20 text-error px-2 py-0.5 text-xs font-medium">
+                                                                    Cancelled
+                                                                </span>
+                                                            } @else {
+                                                                <span class="rounded-full bg-success/20 text-success px-2 py-0.5 text-xs font-medium">
+                                                                    Confirmed
+                                                                </span>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
@@ -749,6 +753,12 @@ export class EventSummaryDialogComponent {
     readonly dialogRef = inject(MatDialogRef);
     private _approval_state = inject(EventApprovalStateService);
     private _finance_state = inject(EventFinanceStateService);
+    private _sync = inject(EventSyncService);
+
+    private readonly _all_events_signal = toSignal(
+        this._approval_state.all_events$,
+        { initialValue: MOCK_APPROVAL_EVENTS },
+    );
 
     private readonly _documents_signal = toSignal(
         this._finance_state.documents$,
@@ -803,8 +813,11 @@ export class EventSummaryDialogComponent {
         const form = this.adhoc_form();
         if (!form.category || !form.title.trim()) return;
 
+        const is_synced = this.event.id.startsWith('sync-');
+        const adhoc_id = (is_synced ? 'sync-adhoc-' : 'appr-adhoc-') + Date.now();
+
         const new_event: MockApprovalEvent = {
-            id: 'appr-adhoc-' + Date.now(),
+            id: adhoc_id,
             title: form.title.trim(),
             category: form.category as ApprovalCategory,
             date: this.event.date,
@@ -816,7 +829,21 @@ export class EventSummaryDialogComponent {
             added_date: Date.now(),
         };
 
-        MOCK_APPROVAL_EVENTS.push(new_event);
+        if (is_synced) {
+            // Add reactively to synced events list
+            this._sync.addLocalEvent(new_event);
+            // POST to sync server for eventmocks
+            const original_id = this.event.id.replace('sync-', '');
+            this._sync.postAdhocService(original_id, {
+                id: adhoc_id,
+                name: form.title.trim(),
+                category: form.category,
+                added_at: Date.now(),
+                unit_price: form.unit_price || 0,
+            });
+        } else {
+            MOCK_APPROVAL_EVENTS.push(new_event);
+        }
 
         if (form.unit_price > 0) {
             const q = this.quote;
@@ -831,6 +858,18 @@ export class EventSummaryDialogComponent {
                 });
             }
         }
+
+        // Auto-approve: admin-added ad-hoc services don't need separate approval
+        this._approval_state.setStatus(adhoc_id, 'approved');
+
+        // Track as a recent change for list view indicators
+        this._approval_state.addRecentChange({
+            event_id: adhoc_id,
+            parent_id: this.event.id,
+            type: 'adhoc_added',
+            label: form.title.trim(),
+            timestamp: Date.now(),
+        });
 
         this._approval_state.refresh();
         this.adding_adhoc_service.set(false);
@@ -855,10 +894,15 @@ export class EventSummaryDialogComponent {
         };
     }
 
+    /** Merged mock + synced events list */
+    private get _all_events(): MockApprovalEvent[] {
+        return this._all_events_signal();
+    }
+
     get parent_event(): MockApprovalEvent | null {
         if (!this.data.event?.parent_event) return null;
         return (
-            MOCK_APPROVAL_EVENTS.find(
+            this._all_events.find(
                 (e) => e.id === this.data.event!.parent_event,
             ) || null
         );
@@ -866,7 +910,7 @@ export class EventSummaryDialogComponent {
 
     get child_events(): MockApprovalEvent[] {
         if (!this.data.event) return [];
-        return MOCK_APPROVAL_EVENTS.filter(
+        return this._all_events.filter(
             (e) => e.parent_event === this.data.event!.id,
         );
     }
@@ -885,7 +929,7 @@ export class EventSummaryDialogComponent {
     get approval_items(): ApprovalItem[] {
         if (this.data.event) {
             const root = this.parent_event || this.event;
-            const children = MOCK_APPROVAL_EVENTS.filter(
+            const children = this._all_events.filter(
                 (e) => e.parent_event === root.id,
             );
             return [root, ...children].map((evt) => ({
@@ -961,7 +1005,7 @@ export class EventSummaryDialogComponent {
         if (!this.data.event) return [];
         const evt = this.data.event;
         const is_parent = !evt.parent_event &&
-            MOCK_APPROVAL_EVENTS.some((e) => e.parent_event === evt.id);
+            this._all_events.some((e) => e.parent_event === evt.id);
         if (is_parent) {
             return this._resolveAggregatedOrders(evt.id);
         }
@@ -979,7 +1023,7 @@ export class EventSummaryDialogComponent {
     get order_section_title(): string {
         if (!this.data.event) return 'Order Details';
         const is_parent = !this.data.event.parent_event &&
-            MOCK_APPROVAL_EVENTS.some((e) => e.parent_event === this.data.event!.id);
+            this._all_events.some((e) => e.parent_event === this.data.event!.id);
         if (is_parent) return 'Order Details';
         const titles: Record<string, string> = {
             dining: 'Catering Order',
@@ -1215,7 +1259,7 @@ export class EventSummaryDialogComponent {
 
     saveEditRefund(child_id: string): void {
         const date_str = this.editing_refund_date();
-        const evt = MOCK_APPROVAL_EVENTS.find((e) => e.id === child_id);
+        const evt = this._all_events.find((e) => e.id === child_id);
         if (evt && date_str) {
             evt.refund_deadline = new Date(date_str).valueOf();
         }

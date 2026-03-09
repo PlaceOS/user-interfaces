@@ -6,6 +6,7 @@ import { updateSpaceList } from '@placeos/events';
 import { addMinutes, getUnixTime, isPast } from 'date-fns';
 
 import {
+    ApprovalCategory,
     CATEGORY_DISPLAY_NAMES,
     EventRole,
     MockApprovalEvent,
@@ -14,6 +15,14 @@ import {
 import { EventSyncService } from './event-sync.service';
 
 type ActionStatus = 'approved' | 'declined';
+
+export interface RecentChange {
+    event_id: string;
+    parent_id: string;
+    type: 'cancelled' | 'adhoc_added';
+    label: string;
+    timestamp: number;
+}
 
 function _autoApprovePastEvents(): Record<string, ActionStatus> {
     const statuses: Record<string, ActionStatus> = {};
@@ -36,19 +45,102 @@ export class EventApprovalStateService {
         _autoApprovePastEvents(),
     );
     private _role = new BehaviorSubject<EventRole>('global_admin');
+    private _recent_changes = new BehaviorSubject<RecentChange[]>([]);
 
     public readonly status$ = this._status.asObservable();
     public readonly role$ = this._role.asObservable();
+    public readonly recent_changes$ = this._recent_changes.asObservable();
+
+    private _all_events_cache: MockApprovalEvent[] = [...MOCK_APPROVAL_EVENTS];
 
     /** Merged list of mock + synced events from eventmocks */
     public readonly all_events$ = combineLatest([
         this._sync.synced_events$,
         of(MOCK_APPROVAL_EVENTS),
-    ]).pipe(map(([synced, mock]) => [...mock, ...synced]));
+    ]).pipe(
+        map(([synced, mock]) => {
+            const merged = [...mock, ...synced];
+            this._all_events_cache = merged;
+            return merged;
+        }),
+    );
+
+    private latestAllEvents(): MockApprovalEvent[] {
+        return this._all_events_cache;
+    }
 
     constructor() {
         this._sync.connect();
         this._sync.fetchEvents();
+
+        // Track cancellations from sync server as recent changes
+        this._sync.cancellation$.subscribe((cancellation) => {
+            if (!cancellation) return;
+            this.addRecentChange({
+                event_id: cancellation.cancel_id,
+                parent_id: `sync-${cancellation.event_id}`,
+                type: 'cancelled',
+                label:
+                    CATEGORY_DISPLAY_NAMES[
+                        cancellation.stage as ApprovalCategory
+                    ] || cancellation.stage,
+                timestamp: cancellation.cancelled_at,
+            });
+        });
+
+        // Auto-approve ad-hoc services and track as recent changes
+        this._sync.synced_events$.subscribe((synced_events) => {
+            const adhoc_events = synced_events.filter((e) => e.is_adhoc);
+            const current_statuses = this._status.getValue();
+            const existing_changes = this._recent_changes.getValue();
+            let statuses_changed = false;
+            const updated_statuses = { ...current_statuses };
+
+            for (const adhoc of adhoc_events) {
+                // Auto-approve: ad-hoc services don't need approval
+                if (!updated_statuses[adhoc.id]) {
+                    updated_statuses[adhoc.id] = 'approved';
+                    statuses_changed = true;
+                }
+
+                // Track as recent change
+                const already_tracked = existing_changes.some(
+                    (c) =>
+                        c.event_id === adhoc.id &&
+                        c.type === 'adhoc_added',
+                );
+                if (!already_tracked && adhoc.added_date) {
+                    this.addRecentChange({
+                        event_id: adhoc.id,
+                        parent_id: adhoc.parent_event || adhoc.id,
+                        type: 'adhoc_added',
+                        label: adhoc.title.split(' — ').pop() || adhoc.title,
+                        timestamp: adhoc.added_date,
+                    });
+                }
+            }
+
+            if (statuses_changed) {
+                this._status.next(updated_statuses);
+            }
+        });
+
+        // Merge synced statuses from the server into local state
+        this._sync.synced_statuses$.subscribe((synced) => {
+            if (!Object.keys(synced).length) return;
+            const current = this._status.getValue();
+            const merged = { ...current };
+            let changed = false;
+            for (const [id, status] of Object.entries(synced)) {
+                if (!merged[id]) {
+                    merged[id] = status;
+                    changed = true;
+                }
+            }
+            if (changed) {
+                this._status.next(merged);
+            }
+        });
     }
 
     public get status(): Record<string, ActionStatus> {
@@ -64,10 +156,28 @@ export class EventApprovalStateService {
     }
 
     public setStatus(event_id: string, status: ActionStatus): void {
+        const prev = this._status.getValue()[event_id];
         this._status.next({
             ...this._status.getValue(),
             [event_id]: status,
         });
+
+        // Track cancellation as a recent change
+        if (status === 'declined' && prev !== 'declined') {
+            const all_events = this.latestAllEvents();
+            const evt = all_events.find((e) => e.id === event_id);
+            const label = evt
+                ? CATEGORY_DISPLAY_NAMES[evt.category] || evt.category
+                : event_id;
+            const parent_id = evt?.parent_event || event_id;
+            this.addRecentChange({
+                event_id,
+                parent_id,
+                type: 'cancelled',
+                label,
+                timestamp: Date.now(),
+            });
+        }
 
         // If this is a synced event, POST to sync server
         if (event_id.startsWith('sync-')) {
@@ -85,6 +195,11 @@ export class EventApprovalStateService {
                     console.warn('[Sync] Failed to post status:', err),
                 );
         }
+    }
+
+    public addRecentChange(change: RecentChange): void {
+        const current = this._recent_changes.getValue();
+        this._recent_changes.next([...current, change]);
     }
 
     /** Force all observables to re-evaluate (e.g. after adding mock events) */
@@ -166,8 +281,9 @@ export class EventApprovalStateService {
     public readonly grouped_calendar_events$ = combineLatest([
         this._status,
         this.all_events$,
+        this._recent_changes,
     ]).pipe(
-        map(([statuses, all]) => {
+        map(([statuses, all, recent_changes]) => {
             const root_events = all.filter(
                 (e) => !e.parent_event,
             );
@@ -200,20 +316,40 @@ export class EventApprovalStateService {
                     Boolean,
                 );
                 let response_status = 'tentative';
+                const fully_cancelled =
+                    active.length > 0 &&
+                    active.every((s) => s === 'declined');
                 if (
                     active.length &&
                     active.every((s) => s === 'approved')
                 ) {
                     response_status = 'accepted';
+                } else if (fully_cancelled) {
+                    response_status = 'cancelled';
                 } else if (active.some((s) => s === 'declined')) {
                     response_status = 'declined';
                 }
+
+                // Count ad-hoc services
+                const adhoc_count = children.filter(
+                    (c) => c.is_adhoc,
+                ).length;
+
+                // Gather recent changes for this event family
+                const event_changes = recent_changes.filter(
+                    (c) =>
+                        c.parent_id === parent.id ||
+                        c.event_id === parent.id,
+                );
 
                 return this._toCalendarEvent(
                     parent,
                     [],
                     response_status,
                     requirements,
+                    fully_cancelled,
+                    adhoc_count,
+                    event_changes,
                 );
             });
         }),
@@ -244,6 +380,9 @@ export class EventApprovalStateService {
         approved_services: string[],
         response_status: string = 'accepted',
         requirements?: Record<string, string | null>,
+        fully_cancelled: boolean = false,
+        adhoc_count: number = 0,
+        recent_changes: RecentChange[] = [],
     ): CalendarEvent {
         const start_seconds = getUnixTime(mock.date);
         const organiser_email =
@@ -315,6 +454,11 @@ export class EventApprovalStateService {
                 category: mock.category,
                 attendance_type: 'ONSITE',
                 ...(requirements ? { requirements } : {}),
+                ...(fully_cancelled ? { fully_cancelled: true } : {}),
+                ...(adhoc_count > 0 ? { adhoc_count } : {}),
+                ...(recent_changes.length > 0
+                    ? { recent_changes }
+                    : {}),
             },
         });
     }
