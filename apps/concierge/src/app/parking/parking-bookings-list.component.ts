@@ -259,10 +259,18 @@ export class ParkingBookingsListComponent
         this.options,
     ]).pipe(
         map(([booking_list, { search }]) => {
+            const show_requests = !!this._settings.get(
+                'app.parking.show_requests',
+            );
+            const list = show_requests
+                ? booking_list.filter(
+                      (b) => !b.asset_id?.startsWith('unallocated'),
+                  )
+                : booking_list;
             const s = search.toLowerCase();
             return !s
-                ? booking_list
-                : booking_list.filter(
+                ? list
+                : list.filter(
                       (b) =>
                           b.user_name.toLowerCase().includes(s) ||
                           b.user_email.toLowerCase().includes(s) ||

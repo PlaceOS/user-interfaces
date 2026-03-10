@@ -12,9 +12,22 @@ describe('CheckinErrorComponent', () => {
         providers: [],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        window.PLACEOS_PUBLIC_MODE = false;
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should show done button when public mode is disabled', () => {
+        expect(spectator.query('[btn]')).toBeTruthy();
+    });
+
+    it('should hide done button when public mode is enabled', () => {
+        window.PLACEOS_PUBLIC_MODE = true;
+        spectator.detectChanges();
+        expect(spectator.query('[btn]')).toBeFalsy();
     });
 });

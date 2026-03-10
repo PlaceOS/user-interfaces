@@ -11,6 +11,7 @@ import {
     isMock,
     refreshToken,
     setAPI_Key,
+    setToken,
     token,
 } from '@placeos/ts-client';
 import * as Sentry from '@sentry/angular';
@@ -106,6 +107,7 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private _zone = '';
     private _region = '';
+    private _initial_token = '';
 
     public get debug() {
         return (
@@ -123,6 +125,10 @@ export class PlaceOS_Service extends AsyncHandler {
 
     public set mocks(value: () => void) {
         _mocks = value;
+    }
+
+    public setInitialToken(token: string) {
+        this._initial_token = token || '';
     }
 
     public async init() {
@@ -203,6 +209,7 @@ export class PlaceOS_Service extends AsyncHandler {
         setLoadingMessage('Authenticating...');
         /** Wait for authentication details to load */
         await setupPlace(settings).catch((_) => console.error(_));
+        if (this._initial_token) setToken(this._initial_token);
         await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;

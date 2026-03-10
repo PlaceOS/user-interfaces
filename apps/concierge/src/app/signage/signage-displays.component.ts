@@ -436,7 +436,7 @@ export class SignageDisplaysComponent {
         });
     }
 
-    public async addPlaylist(playlist: SignagePlaylist) {
+    public async addPlaylist(playlist: Partial<SignagePlaylist>) {
         const display = this.active_display();
         const trigger = this.active_trigger();
         const item = trigger || display;

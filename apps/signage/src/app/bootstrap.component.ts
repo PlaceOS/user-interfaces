@@ -8,10 +8,11 @@ import {
     Identity,
     log,
     OrganisationService,
+    VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
-import { catchError, map, shareReplay } from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +29,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="bg-base-300 absolute inset-0">
+        <div class="bg-base-200 absolute inset-0">
             <div
                 form
                 class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
@@ -101,6 +102,16 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                     </div>
                 }
             </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
+            </div>
         </div>
     `,
     styles: [
@@ -129,6 +140,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
+    public get version() {
+        return VERSION;
+    }
+
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
     /** Actively selected display */
@@ -138,13 +153,16 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
 
-    public readonly displays = querySystems({
-        zone_id: this._org.organisation?.id,
-        limit: 500,
-        fields: ['id', 'name', 'display_name', 'email'].join(','),
-        signage: true,
-    }).pipe(
-        catchError(() => of({ data: [] })),
+    public readonly displays = this._org.initialised.pipe(
+        first((_) => !!_),
+        switchMap(() =>
+            querySystems({
+                zone_id: this._org.organisation?.id,
+                limit: 500,
+                fields: ['id', 'name', 'display_name', 'email'].join(','),
+                signage: true,
+            }).pipe(catchError(() => of({ data: [] }))),
+        ),
         map((r) =>
             r.data.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
@@ -164,7 +182,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        this._org.limit_init = true;
+        log('BOOTSTRAP', 'Initialising...');
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -180,6 +199,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+        await firstTruthyValueFrom(this._org.initialised);
         this.timeout('check', () => this.checkBootstrap(), 1000);
     }
 
@@ -189,6 +209,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
         if (!this.active_display || !localStorage) {
+            log(
+                'BOOTSTRAP',
+                `Unable to bootstrap panel. Reason: ${!this.active_display ? 'No display ID set' : 'Local Storage unavailable'}`,
+            );
             this.loading.set('');
             return;
         }
@@ -216,6 +240,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
+        log('BOOTSTRAP', `No bootstrap details found for system`);
         this.loading.set('');
     }
 }

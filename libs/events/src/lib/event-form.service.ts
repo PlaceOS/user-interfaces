@@ -448,6 +448,10 @@ export class OldEventFormService extends AsyncHandler {
             all_day: this._settings.get('app.events.all_day_default'),
         }),
     ) {
+        const lock_start_time =
+            !!event.id &&
+            (event.state === 'started' || event.state === 'in_progress');
+        (this._form as any)._lock_start_time = lock_start_time;
         this._event.next(event);
         if (event.recurring_event_id) {
             const master = await showEvent(event.recurring_event_id)
@@ -519,6 +523,9 @@ export class OldEventFormService extends AsyncHandler {
             date: event.date || this._form.value.date,
             date_end: event.date_end || this._form.value.date_end,
         });
+        this._form.controls.date[
+            (this._form as any)._lock_start_time ? 'disable' : 'enable'
+        ]({ emitEvent: false });
         this._options.next({ features: [] });
         this.storeForm();
     }

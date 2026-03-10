@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { reloadOnChunkLoadError } from '@placeos/common';
 import {
     AuthorisedUserGuard,
     MisconfiguredComponent,
@@ -97,6 +98,7 @@ const routes: Routes = [
 @NgModule({
     imports: [
         RouterModule.forRoot(routes, {
+            errorHandler: (error) => reloadOnChunkLoadError(error),
             useHash: true,
             paramsInheritanceStrategy: 'always',
         }),

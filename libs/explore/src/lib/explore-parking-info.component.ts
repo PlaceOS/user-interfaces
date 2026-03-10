@@ -1,5 +1,7 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, ElementRef, inject } from '@angular/core';
-import { SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
+import { UserPipe } from '@placeos/users';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -29,6 +31,11 @@ interface ParkingSpaceExtended extends ParkingSpace {
                     <div class="text-sm font-medium capitalize">
                         {{ status }}
                     </div>
+                    @if (show_parking_users() && user) {
+                        <div class="text-sm">
+                            {{ (user | user | async)?.name || user }}
+                        </div>
+                    }
                 </div>
                 @if (is_concierge && plate_number) {
                     <div
@@ -61,7 +68,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
             }
         `,
     ],
-    imports: [TranslatePipe],
+    imports: [AsyncPipe, TranslatePipe, UserPipe],
 })
 export class ExploreParkingInfoComponent {
     private _data = inject<ParkingSpaceExtended>(MAP_FEATURE_DATA);
@@ -76,6 +83,10 @@ export class ExploreParkingInfoComponent {
     public readonly name = this._data.name;
     public readonly map_id = this._data.map_id;
     public readonly plate_number = this._data.plate_number;
+    public readonly show_parking_users = settingSignal(
+        'parking.show_users',
+        false,
+    );
 
     public get is_concierge() {
         return this._settings.app_name.toLowerCase().includes('concierge');

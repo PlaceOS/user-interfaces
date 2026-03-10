@@ -1,6 +1,7 @@
 import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
+import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     AsyncHandler,
     Booking,
@@ -69,6 +70,7 @@ import {
     BookingClash,
     findBookingClashes,
     queryBookings,
+    removeBooking,
     saveBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
@@ -177,7 +179,7 @@ export class BookingFormService extends AsyncHandler {
                     return this.loadResourceList('desks' as any);
                 case 'parking':
                     this._loading.next(i18n('BOOKINGS.PARKING_LOADING'));
-                    return this.loadResourceList('parking-spaces' as any);
+                    return this.loadParkingResources();
                 case 'locker':
                     this._loading.next(i18n('BOOKINGS.LOCKERS_LOADING'));
                     return loadLockers(
@@ -382,6 +384,7 @@ export class BookingFormService extends AsyncHandler {
                 },
                 [null, undefined, ''],
             ),
+            { emitEvent: false },
         );
         this.subscription(
             'form_change',
@@ -389,6 +392,12 @@ export class BookingFormService extends AsyncHandler {
                 const { date, duration } = this.form.getRawValue();
                 this._assets.setOptions({ date, duration });
                 this.storeForm();
+            }),
+        );
+        this.subscription(
+            'all_day_change',
+            this.form.get('all_day').valueChanges.subscribe((all_day) => {
+                if (!all_day) this.form.patchValue({ duration: 60 });
             }),
         );
         this.timeout('date', async () =>
@@ -399,6 +408,9 @@ export class BookingFormService extends AsyncHandler {
         );
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
+        // Persist immediately to avoid edit-flow races where the consumer
+        // reloads from session before async form change events occur.
+        this.storeForm();
         this.timeout('set-resource', async () => {
             const resources = this.form.getRawValue().resources;
             if (!resources?.length) return;
@@ -508,7 +520,13 @@ export class BookingFormService extends AsyncHandler {
             },
             [null, undefined, ''],
         );
-        this.form.patchValue(booking_data);
+        this.form.patchValue(booking_data, { emitEvent: false });
+        this.timeout('load-date', async () =>
+            this.form.patchValue({
+                date: booking.date,
+                duration: booking.duration,
+            }),
+        );
         this.setOptions({
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
@@ -573,13 +591,13 @@ export class BookingFormService extends AsyncHandler {
         details.loading(i18n('BOOKINGS.CONFIRM_LOADING'));
         if (options.group) {
             await this.postFormForGroup().catch((_) => {
-                notifyError(JSON.stringify(_));
+                notifyError(this._error_message(_));
                 details.close();
                 throw _;
             });
         } else
             await this.postForm().catch((_) => {
-                notifyError(JSON.stringify(_));
+                notifyError(this._error_message(_));
                 details.close();
                 throw _;
             });
@@ -588,10 +606,15 @@ export class BookingFormService extends AsyncHandler {
 
     public async postForm(ignore_check = false) {
         if (!this.form) throw 'No form for booking';
-        if (!this.form.valid)
-            throw `Some form fields are invalid. [${getInvalidFields(
+        if (!this.form.valid) {
+            const invalid_fields = getInvalidFields(
                 this.form,
-            ).join(', ')}]`;
+                this._invalid_field_mappings(),
+            );
+            throw i18n('FORM.INVALID_FIELDS', {
+                field_list: invalid_fields.join(', '),
+            });
+        }
         this.form.patchValue({
             booking_type:
                 this.form.getRawValue().booking_type ||
@@ -640,12 +663,14 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
+        const selected_zones = [
+            ...(value?.zones || []),
+            ...(value.booking_asset?.zones || []),
+        ].filter((_) => _);
         value.zones = unique(
-            [
-                ...(value?.zones || []),
-                ...(this._booking.getValue()?.zones || []),
-                ...(value.booking_asset?.zones || []),
-            ].filter((_) => _),
+            selected_zones.length
+                ? selected_zones
+                : [...(this._booking.getValue()?.zones || [])],
         );
         this._loading.next('Saving booking');
         delete value.booking_asset;
@@ -694,12 +719,25 @@ export class BookingFormService extends AsyncHandler {
                 value.recurrence_end = available_period;
             }
         }
+        const group_members =
+            this._options.getValue().group &&
+            this._options.getValue().members?.length
+                ? this.mapGroupMembers(
+                      value.booking_type,
+                      this._options.getValue().members,
+                  )
+                : [];
         const result = await lastValueFrom(
             saveBooking(
                 new Booking({
                     ...this._options.getValue(),
                     ...value,
-                    description: value.asset_name || value.description,
+                    description:
+                        value.booking_type === 'visitor'
+                            ? value.description ||
+                              value.title ||
+                              value.asset_name
+                            : value.asset_name || value.description,
                     user_name: value.user?.name || value.user_name,
                     user_email: value.user?.email || value.user_email,
                     extension_data: {
@@ -707,6 +745,15 @@ export class BookingFormService extends AsyncHandler {
                         assets: value.assets.map((_) => _.toJSON()),
                         group: value.group,
                         phone: value.phone,
+                        company: value.company,
+                        ...(value.booking_type === 'visitor'
+                            ? { international: !!value.international }
+                            : {}),
+                        ...(group_members.length
+                            ? {
+                                  group_members,
+                              }
+                            : {}),
                         department:
                             value.user?.department || currentUser()?.department,
                     },
@@ -758,10 +805,22 @@ export class BookingFormService extends AsyncHandler {
         return result;
     }
 
+    public setting(key: string) {
+        const { type } = this._options.getValue();
+        return (
+            this._settings.get(`app.${type}.${key}`) ||
+            this._settings.get(`app.${type}s.${key}`) ||
+            this._settings.get(`app.bookings.${key}`)
+        );
+    }
+
     public async postFormForGroup() {
         const { members, group, type } = this._options.getValue();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
-        const extra_members = members.filter(
+        const rollback_on_group_error =
+            this.setting('rollback_group_bookings') === true;
+        const member_list = members || [];
+        const extra_members = member_list.filter(
             (_) => _.email !== currentUser().email,
         );
         if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
@@ -770,7 +829,13 @@ export class BookingFormService extends AsyncHandler {
         const active_resource = asset_list.find(
             (_) => _.id === form.asset_id || _.map_id === form.asset_id,
         );
+        if (!active_resource) {
+            throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
+        }
         const level = this._org.levelWithID([active_resource.zone?.id]);
+        if (!level?.map_id) {
+            throw i18n('BOOKINGS.GROUP_MAP_UNAVAILABLE');
+        }
         const resources = [
             active_resource,
             ...(await this._getNearbyResources(
@@ -784,72 +849,439 @@ export class BookingFormService extends AsyncHandler {
             [currentUser(), ...extra_members],
             'email',
         );
+        if (resources.length < group_members.length) {
+            throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
+                available: resources.length,
+                members: group_members.length,
+            });
+        }
+        const unavailable_errors: string[] = [];
         const available = await Promise.all(
-            group_members.map((_, idx) =>
-                this._checkResourceAvailable(
-                    {
-                        ...form,
-                        asset_id: resources[idx].map_id || resources[idx].id,
-                        user_email: _.email,
-                    },
-                    type,
-                ),
-            ),
+            group_members.map(async (member, idx) => {
+                const resource = resources[idx];
+                if (!resource) {
+                    unavailable_errors.push(
+                        `${member.name || member.email}: ${i18n('BOOKINGS.GROUP_MEMBER_NO_RESOURCE')}`,
+                    );
+                    return false;
+                }
+                try {
+                    return await this._checkResourceAvailable(
+                        {
+                            ...form,
+                            asset_id: resource.map_id || resource.id,
+                            user_email: member.email,
+                        },
+                        type,
+                    );
+                } catch (error) {
+                    unavailable_errors.push(
+                        `${member.name || member.email}: ${this._error_message(error)}`,
+                    );
+                    return false;
+                }
+            }),
         );
         const unavailable = group_members.filter((_, idx) => !available[idx]);
         const group_name = `${currentUser().email}[${format(
             Date.now(),
             'yyyy-MM-dd',
         )}]`;
+        const group_error = i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
+            members: unavailable.map((_) => _.name || _.email)?.join(', '),
+        });
         let user_booking: Booking = null;
-        let booking_id_list: string[] = [];
+        const booking_ids: string[] = [];
         let id = '';
-        for (let i = 0; i < group_members.length; i++) {
-            if (!available[i]) continue;
-            const user = group_members[i];
-            const asset = resources[i];
-            const assets = user.email == currentUser().email ? form.assets : [];
-            this.form.patchValue({
-                ...form,
-                assets,
-                parent_id: id,
-                user: user as any,
-                user_email: user.email,
-                user_id: user.id,
-                asset_id: asset?.id,
-                asset_name: asset.name,
-                description: asset.name,
-                map_id: asset?.map_id || asset?.id,
-                group: group_name,
-                zones: (asset.zone
-                    ? unique([
-                          this._org.organisation.id,
-                          this._org.region?.id,
-                          asset?.zone?.parent_id,
-                          asset?.zone?.id,
-                      ])
-                    : [this._org.organisation.id, this._org.region?.id]
-                ).filter((_) => _),
-            });
-            const bkn = await this.postForm(true);
-            booking_id_list.push(bkn.id);
-            if (bkn.id && !id) id = bkn.id;
-            if (bkn.user_email === currentUser().email) user_booking = bkn;
-        }
-        localStorage.setItem(
-            'PLACEOS.last_group_booking_ids',
-            JSON.stringify(booking_id_list),
-        );
-        if (unavailable.length) {
-            notifyWarn(
-                i18n('BOOKINGS.GROUP_SOME_HAVE_BOOKINGS', {
-                    members: unavailable
-                        .map((_) => _.name || _.email)
-                        ?.join(', '),
-                }),
+        try {
+            for (let i = 0; i < group_members.length; i++) {
+                if (!available[i]) continue;
+                const user = group_members[i];
+                const asset = resources[i];
+                const assets =
+                    user.email == currentUser().email ? form.assets : [];
+                this.form.patchValue({
+                    ...form,
+                    assets,
+                    parent_id: id,
+                    user: user as any,
+                    user_email: user.email,
+                    user_id: user.id,
+                    asset_id: asset?.id,
+                    asset_name: asset.name,
+                    description: asset.name,
+                    map_id: asset?.map_id || asset?.id,
+                    group: group_name,
+                    zones: (asset.zone
+                        ? unique([
+                              this._org.organisation.id,
+                              this._org.region?.id,
+                              asset?.zone?.parent_id,
+                              asset?.zone?.id,
+                          ])
+                        : [this._org.organisation.id, this._org.region?.id]
+                    ).filter((_) => _),
+                });
+                const bkn = await this.postForm(true).catch((error) => {
+                    throw `${user.name || user.email}: ${this._error_message(error)}`;
+                });
+                if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn.id && !id) id = bkn.id;
+                if (bkn.user_email === currentUser().email) user_booking = bkn;
+            }
+            if (unavailable.length) {
+                const unavailable_error = unavailable_errors.length
+                    ? unavailable_errors.join('\n')
+                    : group_error;
+                if (rollback_on_group_error) {
+                    await this.rollbackGroupBookings(booking_ids);
+                    throw unavailable_error;
+                }
+                notifyWarn(unavailable_error);
+            }
+            localStorage.setItem(
+                'PLACEOS.last_group_booking_ids',
+                JSON.stringify(booking_ids),
             );
+        } catch (error) {
+            if (rollback_on_group_error && booking_ids.length) {
+                await this.rollbackGroupBookings(booking_ids);
+            }
+            throw this._error_message(error);
         }
         return user_booking;
+    }
+
+    public async postFormForVisitorGroup() {
+        const { members, group } = this._options.getValue();
+        if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');
+        if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
+        const rollback_on_group_error =
+            this.setting('rollback_group_bookings') === true;
+        const form = this.form.getRawValue();
+        const group_name = `${currentUser().email}[${format(
+            Date.now(),
+            'yyyy-MM-dd',
+        )}]`;
+        const booking_ids: string[] = [];
+        let parent_id = '';
+        let first_booking: Booking = null;
+        try {
+            for (const visitor of members) {
+                if (!visitor.email) continue;
+                const visitor_name = visitor.name || visitor.email;
+                this.form.patchValue({
+                    ...form,
+                    id: '',
+                    asset_id: visitor.email,
+                    asset_name: visitor_name,
+                    international:
+                        (visitor as any).international ||
+                        !!visitor.extension_data?.international,
+                    company: (visitor as any).company || visitor.organisation,
+                    phone: visitor.phone,
+                    parent_id,
+                    group: group_name,
+                    zones: form.zones?.length
+                        ? [...form.zones]
+                        : [...(this._booking.getValue()?.zones || [])],
+                    assets: [],
+                    attendees: [
+                        new User({
+                            name: visitor_name,
+                            email: visitor.email,
+                            organisation:
+                                (visitor as any).company ||
+                                visitor.organisation,
+                            phone: visitor.phone,
+                        }),
+                    ],
+                });
+                const bkn = await this.postForm(true).catch((error) => {
+                    throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
+                });
+                if (bkn?.id) booking_ids.push(bkn.id);
+                if (bkn?.id && !parent_id) {
+                    parent_id = bkn.id;
+                    first_booking = bkn;
+                }
+            }
+        } catch (error) {
+            if (rollback_on_group_error && booking_ids.length) {
+                await this.rollbackGroupBookings(booking_ids);
+            }
+            throw this._error_message(error);
+        }
+        return first_booking;
+    }
+
+    public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
+        if (!booking?.id) return [];
+        const parent_id = booking.parent_id || booking.id;
+        const { type } = this._options.getValue();
+        return lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(booking.date),
+                period_end: getUnixTime(
+                    addMinutes(booking.date, booking.duration),
+                ),
+                type,
+            }).pipe(
+                map((list) =>
+                    list.filter(
+                        (b) => b.id === parent_id || b.parent_id === parent_id,
+                    ),
+                ),
+            ),
+        );
+    }
+
+    public async loadGroupMembersForBooking(booking: Booking): Promise<User[]> {
+        if (!booking?.id) return [];
+        const type =
+            this._options.getValue().type || booking.booking_type || 'desk';
+        const is_visitor = type === 'visitor';
+        const sibling_list = await this.loadGroupSiblings(booking);
+        if (sibling_list.length) {
+            return this.mapGroupMembersFromBookings(sibling_list, is_visitor);
+        }
+        return this.mapGroupMembersFromExtension(
+            booking.extension_data?.group_members || [],
+            is_visitor,
+        );
+    }
+
+    public async editFormForGroup(
+        existing_siblings: Booking[],
+    ): Promise<Booking> {
+        const { members, type } = this._options.getValue();
+        if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
+        const form = this.form.getRawValue();
+        const base_form = { ...form, id: '' };
+        const parent_id = form.parent_id || form.id;
+        const group_name =
+            form.group ||
+            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`;
+        const is_visitor = type === 'visitor';
+        const sibling_map: Record<string, Booking> = {};
+        for (const s of existing_siblings) {
+            const key = is_visitor ? s.asset_id : s.user_email;
+            if (key) sibling_map[key] = s;
+        }
+        const member_keys = new Set(members.map((m) => m.email));
+        const to_delete = existing_siblings.filter((s) => {
+            const key = is_visitor ? s.asset_id : s.user_email;
+            return key && !member_keys.has(key);
+        });
+        await Promise.all(
+            to_delete.map((s) => lastValueFrom(removeBooking(s.id))),
+        );
+        let first_result: Booking = null;
+        try {
+            for (const member of members) {
+                if (!member.email) continue;
+                const existing = sibling_map[member.email];
+                const booking_id = existing?.id || '';
+                if (is_visitor) {
+                    const member_name = member.name || member.email;
+                    this.form.patchValue({
+                        ...base_form,
+                        id: booking_id,
+                        parent_id: booking_id === parent_id ? '' : parent_id,
+                        group: group_name,
+                        asset_id: member.email,
+                        asset_name: member_name,
+                        international:
+                            (member as any).international ||
+                            !!member.extension_data?.international,
+                        company: (member as any).company || member.organisation,
+                        phone: member.phone,
+                        zones: base_form.zones?.length
+                            ? [...base_form.zones]
+                            : existing?.zones?.length
+                              ? [...existing.zones]
+                              : [...(this._booking.getValue()?.zones || [])],
+                        assets: [],
+                        attendees: [
+                            new User({
+                                name: member_name,
+                                email: member.email,
+                                organisation:
+                                    (member as any).company ||
+                                    member.organisation,
+                                phone: member.phone,
+                            }),
+                        ],
+                    });
+                } else {
+                    this.form.patchValue({
+                        ...base_form,
+                        id: booking_id,
+                        parent_id: booking_id === parent_id ? '' : parent_id,
+                        group: group_name,
+                        user: member as any,
+                        user_email: member.email,
+                        user_id: member.id,
+                        ...(existing
+                            ? {
+                                  asset_id: existing.asset_id,
+                                  asset_name: existing.asset_name,
+                              }
+                            : {}),
+                    });
+                }
+                const bkn = await this.postForm(true);
+                if (!first_result) first_result = bkn;
+            }
+        } catch (error) {
+            throw this._error_message(error);
+        }
+        return first_result;
+    }
+
+    private _error_message(error: any) {
+        if (typeof error === 'string') return error;
+        if (error instanceof Error && error.message) return error.message;
+        if (typeof error?.error === 'string') return error.error;
+        if (typeof error?.message === 'string') return error.message;
+        if (typeof error?.error?.message === 'string') {
+            return error.error.message;
+        }
+        return i18n('BOOKINGS.ERROR_GENERIC');
+    }
+
+    private _invalid_field_mappings(): Record<string, string> {
+        const resource_label = this._resource_type_label();
+        return {
+            date: 'Start Time',
+            duration: 'Duration',
+            asset_id: resource_label,
+        };
+    }
+
+    private _resource_type_label(): string {
+        const form_booking_type = this.form.getRawValue().booking_type;
+        const booking_type =
+            form_booking_type && form_booking_type !== ' '
+                ? form_booking_type
+                : this._options.getValue().type;
+        switch (booking_type) {
+            case 'desk':
+                return 'Desk';
+            case 'parking':
+                return 'Parking Space';
+            case 'locker':
+                return 'Locker';
+            case 'room':
+            case 'group-event':
+                return 'Room';
+            case 'visitor':
+                return 'Visitor';
+            default:
+                return 'Resource';
+        }
+    }
+
+    private mapGroupMembers(type: BookingType, members: User[] = []) {
+        const user_list =
+            type === 'visitor'
+                ? members
+                : unique([currentUser(), ...(members || [])], 'email');
+        return user_list
+            .filter((member) => !!member?.email)
+            .map((member) => ({
+                id: member.id || '',
+                name: member.name || member.email,
+                email: member.email,
+                company: (member as any).company || member.organisation || '',
+                phone: member.phone || '',
+                international:
+                    !!(member as any).international ||
+                    !!member.extension_data?.international,
+            }));
+    }
+
+    private mapGroupMembersFromBookings(
+        bookings: Booking[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            bookings
+                .map((booking) => {
+                    const group_member = (
+                        booking.extension_data?.group_members || []
+                    ).find((member) => member?.email === booking.asset_id);
+                    return is_visitor
+                        ? new User({
+                              name:
+                                  group_member?.name ||
+                                  booking.asset_name ||
+                                  booking.asset_id,
+                              email: booking.asset_id,
+                              organisation:
+                                  group_member?.company ||
+                                  booking.extension_data?.company,
+                              phone:
+                                  group_member?.phone ||
+                                  booking.extension_data?.phone,
+                              extension_data: {
+                                  international: !!(
+                                      group_member?.international ||
+                                      booking.extension_data?.international
+                                  ),
+                              },
+                          })
+                        : new User({
+                              id: booking.user_id,
+                              name: booking.user_name || booking.user_email,
+                              email: booking.user_email,
+                              organisation: booking.extension_data?.company,
+                              phone: booking.extension_data?.phone,
+                          });
+                })
+                .filter((member) => !!member?.email),
+            'email',
+        );
+    }
+
+    private mapGroupMembersFromExtension(
+        members: any[] = [],
+        is_visitor = false,
+    ) {
+        return unique(
+            (members || [])
+                .filter((member) => !!member?.email)
+                .map(
+                    (member) =>
+                        new User({
+                            id: member.id || '',
+                            name: member.name || member.email,
+                            email: member.email,
+                            organisation:
+                                member.company || member.organisation || '',
+                            phone: member.phone || '',
+                            extension_data: {
+                                ...(member.extension_data || {}),
+                                international: !!member.international,
+                            },
+                            international: is_visitor
+                                ? !!member.international
+                                : false,
+                        } as any),
+                ),
+            'email',
+        );
+    }
+
+    private async rollbackGroupBookings(booking_ids: string[]) {
+        const rollback_errors = (
+            await Promise.allSettled(
+                booking_ids.map((id) => lastValueFrom(removeBooking(id))),
+            )
+        ).filter((_) => _.status === 'rejected');
+        if (rollback_errors.length) {
+            console.error('Failed to rollback group bookings', rollback_errors);
+        }
     }
 
     private async checkQuestions() {
@@ -943,20 +1375,22 @@ export class BookingFormService extends AsyncHandler {
                   }));
         if (!assets?.length) return true;
         const rules = await nextValueFrom(this.booking_rules);
-        const resource_rules = assets?.map((space) => {
-            const bld = this._org.buildings.find(
-                (b) => space.zone.parent_id === b.id,
-            );
-            return rulesForResource(
-                {
-                    date,
-                    duration,
-                    host: new User(user),
-                    resource: space,
-                },
-                rules[bld?.id] || [],
-            );
-        });
+        const resource_rules = assets
+            ?.filter((s) => s?.zone)
+            ?.map((space) => {
+                const bld = this._org.buildings.find(
+                    (b) => space.zone?.parent_id === b.id,
+                );
+                return rulesForResource(
+                    {
+                        date,
+                        duration,
+                        host: new User(user),
+                        resource: space,
+                    },
+                    rules[bld?.id] || [],
+                );
+            });
         if (!resource_rules.every((_) => !_.hidden)) {
             throw i18n(
                 'BOOKINGS.RULES_HIDDEN',
@@ -1041,6 +1475,26 @@ export class BookingFormService extends AsyncHandler {
         }
 
         return true;
+    }
+
+    public loadParkingResources(): Observable<BookingAsset[]> {
+        const use_region = this._settings.get('app.use_region');
+        const levels = (
+            use_region
+                ? this._org.levelsForRegion()
+                : this._org.levelsForBuilding()
+        ).filter((_) => _.tags.includes('parking'));
+        return queryParkingSpacesForZones(levels.map((l) => l.id)).pipe(
+            map(
+                (spaces) =>
+                    spaces.map((s) => ({
+                        ...s,
+                        id: s.id || s.map_id,
+                        groups: s.place_groups,
+                        zone: this._org.levelWithID([s.zone_id]) as any,
+                    })) as BookingAsset[],
+            ),
+        );
     }
 
     public loadResourceList(type: string) {

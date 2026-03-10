@@ -11,7 +11,11 @@ import { isMobileSafari, SETTING_KEYS, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from '../booking-form.service';
+import {
+    BookingAsset,
+    BookingFlowOptions,
+    BookingFormService,
+} from '../booking-form.service';
 import { NewDeskDetailsComponent } from './new-desk-details.component';
 import { NewDeskFiltersDisplayComponent } from './new-desk-filters-display.component';
 import { NewDeskFiltersComponent } from './new-desk-filters.component';
@@ -161,42 +165,52 @@ import { NewDeskMapComponent } from './new-desk-map.component';
                 }
             </main>
             <footer
-                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
+                [class.justify-between]="allow_multiple"
+                [class.justify-end]="!allow_multiple"
             >
-                <button
-                    btn
-                    matRipple
-                    name="desk-return"
-                    [mat-dialog-close]="selected"
-                    class="inverse bg-base-100 text-secondary"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple) {
+                    <button
+                        btn
+                        matRipple
+                        name="desk-return"
+                        [mat-dialog-close]="selected"
+                        class="inverse bg-base-100 text-secondary"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-xl">done</icon>
+                            <div class="pr-2">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <button
                     btn
                     matRipple
                     name="toggle-desk"
                     [disabled]="!displayed()"
-                    [class.inverse]="isSelected(displayed()?.id)"
-                    (click)="
-                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    [class.inverse]="
+                        allow_multiple && isSelected(displayed()?.id)
                     "
+                    (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed()?.id) ? 'remove' : 'add'
+                            allow_multiple
+                                ? isSelected(displayed()?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed()?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple
+                                    ? ((isSelected(displayed()?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Desk'
                             }}
                         </div>
                     </div>
@@ -227,8 +241,12 @@ import { NewDeskMapComponent } from './new-desk-map.component';
     ],
 })
 export class NewDeskSelectModalComponent {
-    private _data = inject(MAT_DIALOG_DATA);
+    private _data = inject<{
+        items: BookingAsset[] | (() => BookingAsset[]);
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
     private _dialog_ref =
         inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
 
@@ -253,8 +271,26 @@ export class NewDeskSelectModalComponent {
         return this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) || [];
     }
 
+    public get allow_multiple() {
+        return !!this._data.options?.group;
+    }
+
+    constructor() {
+        const selected_desks =
+            typeof this._data?.items === 'function'
+                ? this._data.items()
+                : this._data?.items || [];
+        this.selected = [...selected_desks];
+        this._event_form.setOptions(this._data?.options || {});
+        this.view.set(
+            this._settings.get('app.desks.default_select_as_map')
+                ? 'map'
+                : 'list',
+        );
+    }
+
     public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+        return !!id && this.selected.some((item) => item.id === id);
     }
 
     public setSelected(item: BookingAsset, state: boolean) {
@@ -265,6 +301,14 @@ export class NewDeskSelectModalComponent {
             this.displayed.set(null);
             setTimeout(() => this._dialog_ref.close([item]), 50);
         }
+    }
+
+    public toggleDisplayedDesk() {
+        if (!this.displayed()) return;
+        this.setSelected(
+            this.displayed(),
+            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+        );
     }
 
     public toggleFavourite(item: BookingAsset) {

@@ -1768,3 +1768,25 @@ a[link] {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+#placeos .squire-editor {
+    border-bottom: 1px solid var(--base-300);
+    border-left: 1px solid var(--base-300);
+    border-right: 1px solid var(--base-300);
+    border-top: none;
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    background: var(--base-100);
+
+    a {
+        color: var(--primary);
+        text-decoration: underline;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+}

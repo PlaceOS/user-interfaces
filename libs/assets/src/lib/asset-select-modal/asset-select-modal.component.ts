@@ -104,8 +104,8 @@ const EMPTY_FAVS: string[] = [];
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <icon class="text-xl">done</icon>
+                        <div class="mr-1 underline">Confirm Selection</div>
                     </div>
                 </button>
                 <p class="text-sm opacity-60">{{ count }} asset(s) added</p>

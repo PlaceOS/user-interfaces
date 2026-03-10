@@ -80,6 +80,7 @@ const DENIED_FILE_TYPES = [
                                 user
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
+                                [matTooltip]="item.email"
                             >
                                 <div class="flex items-center space-x-2">
                                     <div>{{ item.name || item.email }}</div>
@@ -239,6 +240,7 @@ const DENIED_FILE_TYPES = [
         IconComponent,
         MatTooltipModule,
         UserAvatarComponent,
+        MatTooltipModule,
     ],
 })
 export class UserListFieldComponent
@@ -304,12 +306,14 @@ export class UserListFieldComponent
                                       this._settings.get('visitor-invitees') ||
                                       [];
                                   for (const item of visitors) {
-                                      const [email, name, company] =
+                                      if (typeof item !== 'string') continue;
+                                      const [email, name, company, international] =
                                           item.split('|');
                                       visitors_list.push({
                                           email,
                                           name,
                                           company,
+                                          international: international === '1',
                                       });
                                   }
                                   return unique(
@@ -355,7 +359,7 @@ export class UserListFieldComponent
         const user = new User({ id: email, email, name: email.split('@')[0] });
         this.addUser(user);
         const { name, organisation } = user;
-        const visitor_details = `${email}|${name}|${organisation}`;
+        const visitor_details = `${email}|${name}|${organisation}|0`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
         this._settings.saveUserSetting('visitor-invitees', [
             ...old_visitors.filter((_) => !_.includes(email)),

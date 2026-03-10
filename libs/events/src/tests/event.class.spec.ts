@@ -188,4 +188,29 @@ describe('CalendarEvent', () => {
         event = new CalendarEvent({ creator: 'a@p.tech' });
         expect(event.creator).toBe('a@p.tech');
     });
+
+    it('should treat attendees matching system email as resources', () => {
+        event = new CalendarEvent({
+            attendees: [
+                {
+                    name: 'Meeting Room',
+                    email: 'ROOM-1@WORK.COM',
+                    response_status: 'accepted',
+                },
+                { name: 'Alex', email: 'alex@work.com' },
+            ] as any,
+            system: { email: 'room-1@work.com' } as any,
+        });
+        expect(event.attendees).toEqual([
+            new User({ name: 'Alex', email: 'alex@work.com' }),
+        ]);
+        expect(event.resources).toContainEqual(
+            new Space({
+                name: 'Meeting Room',
+                email: 'ROOM-1@WORK.COM',
+                response_status: 'accepted',
+            }),
+        );
+        expect(event.status).toBe('approved');
+    });
 });

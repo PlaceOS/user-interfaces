@@ -30,7 +30,7 @@ import { ParkingStateService } from './parking-state.service';
                     content: name_template,
                 },
                 {
-                    key: 'car_color',
+                    key: 'car_colour',
                     name: 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate,
                 },
                 {

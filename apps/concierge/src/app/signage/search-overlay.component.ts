@@ -12,6 +12,11 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
+interface SearchItem {
+    id: string;
+    name: string;
+}
+
 @Component({
     selector: 'search-overlay',
     template: `
@@ -58,7 +63,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <div
                                 class="border-base-300 bg-base-100 hover:bg-base-200 w-full border p-4"
                             >
-                                {{ $any(item).name || item }}
+                                {{ item.name || item }}
                             </div>
                         }
                     </button>
@@ -95,15 +100,15 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         CommonModule,
     ],
 })
-export class SearchOverlayComponent<T extends {} = any> implements OnChanges {
-    public readonly item_list = input<T[]>([]);
+export class SearchOverlayComponent implements OnChanges {
+    public readonly item_list = input<SearchItem[]>([]);
     public readonly result_template = input<TemplateRef<any>>(undefined);
 
-    public readonly selected = output<T>();
+    public readonly selected = output<SearchItem>();
     public readonly close = output<void>();
 
     public readonly search = signal('');
-    private _items = signal<T[]>([]);
+    private _items = signal<SearchItem[]>([]);
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.item_list) {

@@ -244,7 +244,7 @@ export class SignageZonesComponent {
         });
     }
 
-    public async addPlaylist(playlist: SignagePlaylist) {
+    public async addPlaylist(playlist: Partial<SignagePlaylist>) {
         const zone = this.active_zone();
         const trigger = this.active_trigger();
         const item = trigger || zone;

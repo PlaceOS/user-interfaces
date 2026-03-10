@@ -215,6 +215,7 @@ export class TopMenuComponent {
         if (url.includes('book/spaces')) return 'spaces';
         if (url.includes('book/desk')) return 'desks';
         if (url.includes('book/locker')) return 'lockers';
+        if (url.includes('book/parking-request')) return 'parking-requests';
         if (url.includes('book/parking')) return 'parking';
         if (url.includes('explore')) return 'explore';
         if (url.includes('schedule')) return 'schedule';
@@ -251,6 +252,12 @@ export class TopMenuComponent {
             route: '/book/parking',
             icon: 'directions_car',
             name: i18n('APP.WORKPLACE.MENU_PARKING'),
+        },
+        {
+            id: 'parking-requests',
+            route: '/book/parking-request',
+            icon: 'local_parking',
+            name: i18n('APP.WORKPLACE.MENU_PARKING_REQUESTS'),
         },
         {
             id: 'visitor-invite',

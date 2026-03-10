@@ -8,6 +8,7 @@ const app = {
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     default_route: '/book/rooms',
+    currency: 'USD',
     use_24_hour_time: false,
     admin_group: 'concierge_admins',
     features: [
@@ -38,6 +39,7 @@ const app = {
     events: {
         allow_setup_breakdown: false,
         use_building_timezone: false,
+        day_timeline_view: 'inverted',
         block_start: 7,
         block_end: 19,
         block_height: 5,

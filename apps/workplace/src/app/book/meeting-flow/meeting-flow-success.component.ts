@@ -134,8 +134,10 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly desk_loading = signal(false);
     public readonly last_event = this._event_form.last_success;
-    public readonly allow_desk_booking = computed(() =>
-        settingSignal('features', [])()?.includes('desks'),
+    public readonly allow_desk_booking = computed(
+        () =>
+            settingSignal('features', [])()?.includes('desks') &&
+            settingSignal('events.hide_nearby_desks', false)() !== true,
     );
     public readonly space = signal(new Space());
     public readonly level = computed(() => {

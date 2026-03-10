@@ -35,7 +35,6 @@ const MOCK_METADATA = {
     },
 };
 
-export const PARKING_SPACES = {};
 export const LOCKERS = {};
 
 export function registerMockZones() {
@@ -123,11 +122,6 @@ export function registerMockZones() {
                         details: [],
                     },
                 };
-            }
-            if (request.query_params.name === 'parking-spaces') {
-                const parts = request.route_params.id.split('-');
-                const id = parts[parts.length - 1];
-                return generateParkingSpaces(id);
             }
             if (request.query_params.name === 'lockers') {
                 const parts = request.route_params.id.split('-');
@@ -252,36 +246,6 @@ export function registerMockZones() {
         };
     }
 
-    function generateParkingSpaces(id: string) {
-        if (!PARKING_SPACES[id]) {
-            PARKING_SPACES[id] = {
-                'parking-spaces': {
-                    details: new Array(18 * 6).fill(0).map((_, idx) => {
-                        const position = padString(
-                            (idx % 18) + Math.floor(idx / 18) * 100,
-                            3,
-                        );
-                        const assignee =
-                            predictableRandomInt(9999) % 4 === 0
-                                ? MOCK_STAFF[
-                                      predictableRandomInt(MOCK_STAFF.length)
-                                  ]
-                                : ({} as any);
-                        return {
-                            id: `park-${position}`,
-                            map_id: `park-${position}`,
-                            name: `${position}`,
-                            bookable: predictableRandomInt(9999) % 4 !== 0,
-                            assigned_to: assignee.email || '',
-                            assigned_name: assignee.name || '',
-                        };
-                    }),
-                },
-            };
-        }
-        return PARKING_SPACES[id];
-    }
-
     function generateLockers(id: string) {
         if (!LOCKERS[id]) {
             LOCKERS[id] = {
@@ -340,11 +304,9 @@ export function registerMockZones() {
                     return {
                         zone: lvl,
                         metadata:
-                            request.query_params.name === 'parking-spaces'
-                                ? generateParkingSpaces(id)
-                                : request.query_params.name === 'lockers'
-                                  ? generateLockers(id)
-                                  : generateMockDeskMetadata(id),
+                            request.query_params.name === 'lockers'
+                                ? generateLockers(id)
+                                : generateMockDeskMetadata(id),
                     };
                 },
             );

@@ -23,6 +23,7 @@ import {
 import { log, mapLastValueFrom, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
+import { isPublicMode } from '../public-mode';
 import { SettingsService } from '../settings.service';
 import {
     Building,
@@ -363,11 +364,24 @@ export class OrganisationService {
             return;
         }
         this._initialised.next(false);
-        await this.load().catch((err) => {
-            notifyError('Error loading organisation data. Retrying...');
-            setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
-            throw err;
-        });
+        if (isPublicMode()) {
+            await this.load().catch((err) => {
+                console.warn(
+                    'Organisation loading failed in public mode, using local public organisation data.',
+                    err,
+                );
+                this._setPublicData();
+            });
+        } else {
+            await this.load().catch((err) => {
+                notifyError('Error loading organisation data. Retrying...');
+                setTimeout(
+                    () => this.init(tries),
+                    Math.min(10_000, 300 * ++tries),
+                );
+                throw err;
+            });
+        }
         setTimeout(() => {
             if (this._skip_auto_selection) return;
             if (localStorage.getItem('PLACEOS.region')) {
@@ -388,6 +402,48 @@ export class OrganisationService {
             window.app.org = this;
         }
         this._initialised.next(true);
+    }
+
+    private _setPublicData() {
+        const region_id = localStorage.getItem('PLACEOS.region') || 'public';
+        const building_id =
+            localStorage.getItem('KIOSK.building') ||
+            localStorage.getItem('PLACEOS.building') ||
+            'public-building';
+        const level_id = localStorage.getItem('KIOSK.level') || 'public-level';
+        const organisation = new Organisation({
+            id: 'public-org',
+            name: 'Public Organisation',
+            tags: ['org'],
+        });
+        const region = new Region({
+            id: region_id,
+            name: 'Public Region',
+            display_name: 'Public Region',
+        });
+        const building = new Building({
+            id: building_id,
+            parent_id: region.id,
+            name: 'Public Building',
+            display_name: 'Public Building',
+        });
+        const level = new BuildingLevel({
+            id: level_id,
+            parent_id: building.id,
+            name: 'Public Level',
+            display_name: 'Public Level',
+        });
+        this._organisation = organisation;
+        this._regions.next([region]);
+        this.regions_signal.set([region]);
+        this._buildings.next([building]);
+        this.buildings_signal.set([building]);
+        this._levels.next([level]);
+        this.levels_signal.set([level]);
+        this._active_region.next(region);
+        this._active_building.next(building);
+        this.building_signal.set(building);
+        this._updateSettingOverrides();
     }
 
     /**

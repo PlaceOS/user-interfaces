@@ -77,7 +77,7 @@ import { SignageStateService } from './signage-state.service';
                                                       .length || 0
                                     }}
                                 </div>
-                                @for (item of current_media; track item.id) {
+                                @for (item of current_media; track item?.id) {
                                     <div
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
@@ -150,7 +150,7 @@ import { SignageStateService } from './signage-state.service';
                                                       .length || 0
                                     }}
                                 </div>
-                                @for (item of previous_media; track item.id) {
+                                @for (item of previous_media; track item?.id) {
                                     <div
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
@@ -248,7 +248,7 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
     ]).pipe(
         map(([playlists, media]) =>
             playlists.map((playlist) =>
-                playlist.items.map((id) => media.find((m) => m.id === id)),
+                playlist.items.map((id) => media.find((m) => m?.id === id)),
             ),
         ),
         tap(() => this.loading.set('')),
@@ -257,7 +257,7 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
 
     public ngOnInit() {
         console.log('Playlist', this._playlist);
-        this._playlist_id.next(this._playlist.id);
+        this._playlist_id.next(this._playlist?.id);
     }
 
     public async undoChanges() {
@@ -265,7 +265,7 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
         this._dialog_ref.disableClose = true;
         const [, previous] = await nextValueFrom(this.playlist_versions);
         await lastValueFrom(
-            updateSignagePlaylistMedia(this._playlist.id, previous.items),
+            updateSignagePlaylistMedia(this._playlist?.id, previous.items),
         );
         this.loading.set('');
         this._dialog_ref.disableClose = false;
@@ -277,7 +277,7 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
     public async approve() {
         this.loading.set('Approving playlist...');
         this._dialog_ref.disableClose = true;
-        await lastValueFrom(approveSignagePlaylist(this._playlist.id));
+        await lastValueFrom(approveSignagePlaylist(this._playlist?.id));
         this.loading.set('');
         this._dialog_ref.disableClose = false;
         notifySuccess(i18n('APP.CONCIERGE.SIGNAGE_PLAYLISTS_APPROVED'));

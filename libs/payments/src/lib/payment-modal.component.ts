@@ -51,7 +51,7 @@ export interface PaymentData {
                                 }}
                             }
                         </p>
-                        <p class="text-sm">You booking will cost:</p>
+                        <p class="text-sm">Your booking will cost:</p>
                         <p class="text-center text-lg font-medium">
                             <strong>{{
                                 details.amount / 100 | currency: code

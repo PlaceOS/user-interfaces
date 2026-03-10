@@ -44,7 +44,7 @@ import { TranslatePipe } from './translate.pipe';
             >
                 @if (!loading()) {
                     <ng-content></ng-content>
-                    <div class="h-10 w-full"></div>
+                    <div class="h-24 w-full"></div>
                 } @else {
                     <div
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"

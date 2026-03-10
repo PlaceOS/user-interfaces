@@ -359,14 +359,18 @@ export class CalendarEvent {
             ''
         ).toLowerCase();
         const attendees = data.attendees || [];
+        const system_email = (data.system?.email || '').toLowerCase();
+        const is_system_resource = (user: Partial<User>) =>
+            !!(user as any).resource ||
+            (!!system_email && user.email?.toLowerCase() === system_email);
         this.attendees = attendees
-            .filter((user: any) => !user.resource)
+            .filter((user: any) => !is_system_resource(user))
             .map((u) => new User(u));
         this.resources =
             unique(
                 data.resources ||
                     attendees
-                        .filter((user) => (user as any).resource)
+                        .filter((user) => is_system_resource(user as any))
                         .map((s) => new Space(s as any)),
                 'email',
             ) || [];
@@ -433,7 +437,9 @@ export class CalendarEvent {
         const system = data.system;
         if (
             system?.email &&
-            !this.resources.find((_) => _.email === system.email)
+            !this.resources.find(
+                (_) => _.email.toLowerCase() === system.email.toLowerCase(),
+            )
         ) {
             this.resources.push(
                 new Space({ ...(system as any), response_status: data.status }),

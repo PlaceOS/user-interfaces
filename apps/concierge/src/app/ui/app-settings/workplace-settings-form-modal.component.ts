@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -15,6 +15,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
 import { map } from 'rxjs/operators';
 
 import {
+    buildCurrencyOptions,
     currentUser,
     notifySuccess,
     OrganisationService,
@@ -322,6 +323,49 @@ import { UploadButtonComponent } from './upload-button.component';
                             <mat-hint>
                                 Day of the week to show initially on various
                                 calendars
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                    <div>
+                        <label for="currency">Currency</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                name="currency"
+                                formControlName="currency"
+                                placeholder="Select currency code"
+                                (openedChange)="
+                                    onCurrencySelectStateChange($event)
+                                "
+                            >
+                                <mat-option disabled class="!h-auto !py-2">
+                                    <input
+                                        matInput
+                                        placeholder="Search currency code or name"
+                                        [ngModel]="currency_filter()"
+                                        (ngModelChange)="
+                                            updateCurrencyFilter($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (click)="$event.stopPropagation()"
+                                        (keydown)="$event.stopPropagation()"
+                                    />
+                                </mat-option>
+                                @for (
+                                    option of filtered_currency_options();
+                                    track option.code
+                                ) {
+                                    <mat-option [value]="option.code">
+                                        {{ option.display_name }}
+                                    </mat-option>
+                                }
+                                @if (!filtered_currency_options().length) {
+                                    <mat-option disabled>
+                                        No currencies match your search
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-hint>
+                                ISO 4217 currency code for pricing
                             </mat-hint>
                         </mat-form-field>
                     </div>
@@ -841,6 +885,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="can_book_for_others"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Allow booking for any users"
+                                        formControlName="can_book_for_anyone"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
@@ -861,6 +909,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_externals"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Enforce room capacity limits"
+                                        formControlName="strict_capacity_check"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Allow Visibility options"
                                         formControlName="allow_visibility"
                                     ></settings-toggle>
@@ -871,6 +923,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide attendees field"
                                         formControlName="hide_attendees"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Hide nearby desk action"
+                                        info="Hide the book nearby desks button on the meeting success view"
+                                        formControlName="hide_nearby_desks"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Allow recurring meetings"
@@ -934,6 +991,60 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'desks'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                                 <div>
                                     <label for="available-period">
                                         Available Period
@@ -1085,6 +1196,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         name="Hide End Time option"
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
+                                    ></settings-toggle>
                                 </div>
                             </div>
                         </div>
@@ -1164,6 +1279,26 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 form.controls.visitors.patchValue(
                                                     {
                                                         show_calendar_links:
+                                                            $event,
+                                                    }
+                                                )
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></settings-toggle>
+                                    </ng-container>
+                                    <ng-container>
+                                        <settings-toggle
+                                            name="Allow international flag for visitors"
+                                            [ngModel]="
+                                                form.value.visitors
+                                                    .allow_international
+                                            "
+                                            (ngModelChange)="
+                                                form.controls.visitors.patchValue(
+                                                    {
+                                                        allow_international:
                                                             $event,
                                                     }
                                                 )
@@ -1542,6 +1677,60 @@ import { UploadButtonComponent } from './upload-button.component';
                         >
                             <div class="content px-4 pt-4 pb-2">
                                 <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
+                                <div>
                                     <label for="available-period">
                                         Available Period
                                     </label>
@@ -1625,8 +1814,16 @@ import { UploadButtonComponent } from './upload-button.component';
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Default bookings to all day"
                                         formControlName="all_day_default"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show assigned users on parking map"
+                                        formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Allow user selecting booking time"
@@ -1647,6 +1844,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide End time option"
                                         formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1682,7 +1883,65 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'lockers'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="max-duration">
+                                        Max Duration
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="max-duration"
+                                            formControlName="max_duration"
+                                        >
+                                            <mat-option [value]="60"
+                                                >1 Hour</mat-option
+                                            >
+                                            <mat-option [value]="90"
+                                                >1 Hour 30 Minutes</mat-option
+                                            >
+                                            <mat-option [value]="120"
+                                                >2 Hours</mat-option
+                                            >
+                                            <mat-option [value]="180"
+                                                >3 Hours</mat-option
+                                            >
+                                            <mat-option [value]="240"
+                                                >4 Hours</mat-option
+                                            >
+                                            <mat-option [value]="300"
+                                                >5 Hours</mat-option
+                                            >
+                                            <mat-option [value]="360"
+                                                >6 Hours</mat-option
+                                            >
+                                            <mat-option [value]="420"
+                                                >7 Hours</mat-option
+                                            >
+                                            <mat-option [value]="480"
+                                                >8 Hours</mat-option
+                                            >
+                                            <mat-option [value]="540"
+                                                >9 Hours</mat-option
+                                            >
+                                            <mat-option [value]="600"
+                                                >10 Hours</mat-option
+                                            >
+                                            <mat-option [value]="660"
+                                                >11 Hours</mat-option
+                                            >
+                                            <mat-option [value]="720"
+                                                >12 Hours</mat-option
+                                            >
+                                        </mat-select>
+                                    </mat-form-field>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
+                                    <settings-toggle
+                                        name="Allow all day bookings"
+                                        formControlName="allow_all_day"
+                                    ></settings-toggle>
                                     <settings-toggle
                                         name="Default bookings to all day"
                                         formControlName="all_day_default"
@@ -1694,6 +1953,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Hide End time option"
                                         formControlName="hide_end_time"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Allow user selecting booking time"
+                                        formControlName="allow_time_changes"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Display times with building timezone"
+                                        formControlName="use_building_timezone"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Disable Date selection"
@@ -1746,6 +2013,15 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public old_settings: Record<string, any> = {};
     public readonly loading = signal('');
     public readonly shown_group = signal<string>('');
+    public readonly currency_filter = signal('');
+    public readonly currency_options = buildCurrencyOptions();
+    public readonly filtered_currency_options = computed(() => {
+        const filter_text = this.currency_filter().trim().toLowerCase();
+        if (!filter_text) return this.currency_options;
+        return this.currency_options.filter((option) =>
+            option.search_text.includes(filter_text),
+        );
+    });
     public readonly zone = this._data.zone;
     public readonly settings_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
@@ -1776,6 +2052,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         external_support_url: new FormControl('', [validateURL]),
         support_email: new FormControl('', [Validators.email]),
         catering_provider: new FormControl(''),
+        currency: new FormControl('USD'),
         departments: new FormGroup<Record<string, any>>({}),
         week_start: new FormControl(0),
         locales: new FormControl([]),
@@ -1784,13 +2061,16 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             allow_all_day: new FormControl(false),
             booking_unavailable: new FormControl(false),
             can_book_for_others: new FormControl(false),
+            can_book_for_anyone: new FormControl(false),
             has_assets: new FormControl(false),
             hide_user_actions: new FormControl(false),
             multiple_spaces: new FormControl(false),
             room_as_host: new FormControl(false),
             allow_externals: new FormControl(false),
+            strict_capacity_check: new FormControl(false),
             hide_notes: new FormControl(false),
             hide_attendees: new FormControl(false),
+            hide_nearby_desks: new FormControl(false),
             allow_recurrence: new FormControl(false),
             all_day_default: new FormControl(false),
             allow_multiday: new FormControl(false),
@@ -1834,6 +2114,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             show_calendar_links: new FormControl(false),
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
+            max_duration: new FormControl(480),
+            use_building_timezone: new FormControl(false),
             hide_map: new FormControl(false),
             height_enabled: new FormControl(false),
             hide_checkin: new FormControl(false),
@@ -1842,6 +2124,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         parking: new FormGroup({
             allow_all_day: new FormControl(false),
             all_day_default: new FormControl(false),
+            show_users: new FormControl(false),
             allow_time_changes: new FormControl(false),
             auto_allocation: new FormControl(false),
             can_book_for_others: new FormControl(false),
@@ -1850,11 +2133,17 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             show_calendar_links: new FormControl(false),
             auto_checkin: new FormControl(false),
             available_period: new FormControl(14),
+            max_duration: new FormControl(480),
+            use_building_timezone: new FormControl(false),
             hide_end_time: new FormControl(false),
         }),
         lockers: new FormGroup({
+            allow_all_day: new FormControl(false),
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            allow_time_changes: new FormControl(false),
+            use_building_timezone: new FormControl(false),
+            max_duration: new FormControl(480),
             hide_end_time: new FormControl(false),
             disabled_start_time: new FormControl(false),
             disabled_date_select: new FormControl(false),
@@ -1862,6 +2151,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         visitors: new FormGroup({
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
+            allow_international: new FormControl(false),
         }),
         explore: new FormGroup({
             hide_device_fields: new FormControl(false),
@@ -1911,6 +2201,16 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public toggleGroup(group: string) {
         this.shown_group.update((shown) => (group === shown ? '' : group));
+    }
+
+    public updateCurrencyFilter(value: string) {
+        this.currency_filter.set((value || '').trim());
+    }
+
+    public onCurrencySelectStateChange(is_open: boolean) {
+        if (!is_open) {
+            this.currency_filter.set('');
+        }
     }
 
     public async save() {

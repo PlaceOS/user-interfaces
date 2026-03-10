@@ -1,11 +1,14 @@
 import { predictableRandomInt } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 import {
+    generateMockParkingAssets,
+    getAllMockParkingAssets,
     MOCK_ASSETS,
     MOCK_CATEGORIES,
     MOCK_PRODUCTS,
     MOCK_PURCHASE_ORDERS,
 } from './assets.data';
+import { MOCK_LEVELS } from './zone.data';
 
 const BASE_PATH = '/api/engine/v2';
 
@@ -26,9 +29,15 @@ export function registerMockAssets() {
         path: `${BASE_PATH}/asset_categories`,
         metadata: {},
         method: 'GET',
-        callback: (_) => {
-            const events = MOCK_CATEGORIES;
-            return events;
+        callback: (req) => {
+            let results = MOCK_CATEGORIES;
+            if (req.query_params?.hidden !== undefined) {
+                const hidden = String(req.query_params.hidden) === 'true';
+                results = results.filter(
+                    (c) => !!(c as any).hidden === hidden,
+                );
+            }
+            return results;
         },
     });
 
@@ -93,9 +102,14 @@ export function registerMockAssets() {
         path: `${BASE_PATH}/asset_types`,
         metadata: {},
         method: 'GET',
-        callback: (_) => {
-            const events = MOCK_PRODUCTS;
-            return events;
+        callback: (req) => {
+            let results = MOCK_PRODUCTS;
+            if (req.query_params?.category_id) {
+                results = results.filter(
+                    (p) => p.category_id === req.query_params.category_id,
+                );
+            }
+            return results;
         },
     });
 
@@ -225,9 +239,24 @@ export function registerMockAssets() {
         path: `${BASE_PATH}/assets`,
         metadata: {},
         method: 'GET',
-        callback: (_) => {
-            const events = MOCK_ASSETS;
-            return events;
+        callback: (req) => {
+            const type_id = req.query_params?.type_id;
+            const zone_id = req.query_params?.zone_id;
+            if (type_id === '_parking_type_' && zone_id) {
+                return generateMockParkingAssets(zone_id);
+            }
+            let results = [...MOCK_ASSETS, ...getAllMockParkingAssets()];
+            if (type_id) {
+                results = results.filter(
+                    (a) => (a as any).asset_type_id === type_id,
+                );
+            }
+            if (zone_id) {
+                results = results.filter(
+                    (a) => (a as any).zone_id === zone_id,
+                );
+            }
+            return results;
         },
     });
 

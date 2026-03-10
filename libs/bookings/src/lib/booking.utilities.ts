@@ -36,6 +36,7 @@ function setBookingAsset(form: FormGroup, resource: any) {
         {
             asset_id: resource.id,
             asset_name: resource.name,
+            name: resource.display_name || resource.name || resource.id,
             map_id: resource.map_id || resource.id,
             description: resource.name,
             zones: resource.zone
@@ -66,9 +67,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         description: new FormControl(booking.description),
         booking_asset: new FormControl(null),
         resources: new FormControl([]),
-        company: new FormControl(''),
+        company: new FormControl(booking.extension_data?.company || ''),
         asset_id: new FormControl(booking.asset_id, [Validators.required]),
-        asset_name: new FormControl(booking.description),
+        asset_name: new FormControl(booking.asset_name || booking.description),
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),
@@ -97,7 +98,22 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         plate_number: new FormControl(
             booking.extension_data.plate_number || '',
         ),
+        vehicle_type: new FormControl(
+            booking.extension_data.vehicle_type || 'car',
+        ),
+        request_type: new FormControl(
+            booking.extension_data.request_type || 'standard',
+        ),
+        space_restrictions: new FormControl(
+            booking.extension_data.space_restrictions || false,
+        ),
+        prefer_booked_location_first: new FormControl(
+            booking.extension_data.prefer_booked_location_first ?? false,
+        ),
         pass_number: new FormControl(booking.extension_data.pass_number || ''),
+        international: new FormControl(
+            booking.extension_data.international ?? false,
+        ),
         recurrence_custom: new FormControl(
             booking.extension_data.recurrence_custom ?? false,
         ),
@@ -133,7 +149,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 booked_by: user,
                 booked_by_id: user?.id,
                 booked_by_email: user?.email,
-                name: user?.name,
             },
             { emitEvent: false },
         );

@@ -1,26 +1,35 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
 
 import {
+    AsyncHandler,
     getInvalidFields,
     i18n,
     notifyError,
     OrganisationService,
-    SettingsService,
+    settingSignal,
     unique,
     User,
 } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingFormService } from '@placeos/bookings';
-import { IconComponent, TranslatePipe } from '@placeos/components';
-import { UserSearchFieldComponent } from '@placeos/form-fields';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
+    DurationFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { CheckinStateService } from './checkin/checkin-state.service';
 
 @Component({
@@ -28,14 +37,17 @@ import { CheckinStateService } from './checkin/checkin-state.service';
     template: `
         <div class="absolute inset-0 flex items-center p-8">
             <img
-                [src]="background"
+                auth
+                [source]="background()"
                 class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2"
             />
-            <img
-                src="assets/img/building.png"
-                class="absolute right-0 bottom-0 w-[60%]"
-            />
-            @if (!loading) {
+            @if (!hide_building_image()) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
+            @if (!loading()) {
                 <div
                     class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
                     [formGroup]="form"
@@ -130,7 +142,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 "
                             />
                         </mat-form-field>
-                        @if (allow_pass_number) {
+                        @if (allow_pass_number()) {
                             <div class="h-4"></div>
                             <label form="pass">
                                 {{ 'BOOKINGS.VISITOR_PASS' | translate }}
@@ -150,6 +162,28 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 />
                             </mat-form-field>
                         }
+                        @if (allow_registration_time_options()) {
+                            @if (allow_all_day()) {
+                                <div class="relative mt-4 flex justify-end">
+                                    <mat-checkbox
+                                        class="absolute -top-2 right-0"
+                                        formControlName="all_day"
+                                    >
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    </mat-checkbox>
+                                </div>
+                            }
+                            <label form="duration">
+                                {{ 'FORM.DURATION' | translate }}
+                            </label>
+                            <a-duration-field
+                                name="duration"
+                                formControlName="duration"
+                                [time]="form.value.date"
+                                [max]="max_duration()"
+                                [disabled]="form.value.all_day"
+                            ></a-duration-field>
+                        }
                     </div>
                     <div
                         class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
@@ -168,7 +202,8 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                 </div>
             }
             <div class="absolute top-4 right-4 text-2xl text-white">
-                {{ now | date: 'mediumDate' }} {{ now | date: 'shortTime' }}
+                {{ now() | date: 'mediumDate' }}
+                {{ now() | date: 'shortTime' }}
             </div>
         </div>
     `,
@@ -178,48 +213,83 @@ import { CheckinStateService } from './checkin/checkin-state.service';
         TranslatePipe,
         IconComponent,
         MatRippleModule,
+        MatCheckboxModule,
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
         UserSearchFieldComponent,
+        DurationFieldComponent,
         RouterModule,
+        AuthenticatedImageDirective,
     ],
 })
-export class VisitorRegistrationComponent implements OnInit {
-    private _settings = inject(SettingsService);
+export class VisitorRegistrationComponent
+    extends AsyncHandler
+    implements OnInit
+{
     private _booking_form = inject(BookingFormService);
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
+    private readonly _visitor_allow_all_day = settingSignal(
+        'visitors.allow_all_day',
+    );
+    private readonly _booking_allow_all_day = settingSignal(
+        'bookings.allow_all_day',
+    );
+    private readonly _visitor_max_duration = settingSignal(
+        'visitors.max_duration',
+    );
+    private readonly _booking_max_duration = settingSignal(
+        'bookings.max_duration',
+    );
+    private readonly _induction_enabled = settingSignal(
+        'induction_enabled',
+        false,
+    );
+    private readonly _induction_details = settingSignal('induction_details');
 
-    public loading = false;
     public readonly form = this._booking_form.form;
-
-    public get now() {
-        return startOfMinute(Date.now());
-    }
-
-    public get background() {
-        return this._settings.get('app.welcome_background');
-    }
-
-    public get is_induction_enabled() {
-        return (
-            this._settings.get('app.induction_enabled') &&
-            this._settings.get('app.induction_details')
-        );
-    }
-
-    public get allow_pass_number() {
-        return this._settings.get('app.allow_pass_number');
-    }
-
-    public get induction_after_details() {
-        return this._settings.get('app.induction_after_details');
-    }
+    public readonly loading = signal(false);
+    public readonly now = signal(startOfMinute(Date.now()).valueOf());
+    public readonly background = settingSignal('welcome_background');
+    public readonly allow_registration_time_options = settingSignal<
+        boolean | undefined
+    >('allow_registration_time_options');
+    public readonly allow_pass_number = settingSignal(
+        'allow_pass_number',
+        false,
+    );
+    public readonly hide_building_image = settingSignal(
+        'hide_building_image',
+        false,
+    );
+    public readonly induction_after_details = settingSignal(
+        'induction_after_details',
+        false,
+    );
+    public readonly allow_self_registration = settingSignal(
+        'allow_self_registration',
+        false,
+    );
+    public readonly is_induction_enabled = computed(
+        () => !!(this._induction_enabled() && this._induction_details()),
+    );
+    public readonly allow_all_day = computed(
+        () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+    );
+    public readonly max_duration = computed(
+        () =>
+            this._visitor_max_duration() || this._booking_max_duration() || 180,
+    );
 
     public ngOnInit() {
+        this.interval(
+            'time',
+            () => this.now.set(startOfMinute(Date.now()).valueOf()),
+            30 * 1000,
+        );
         this._booking_form.clearOldState();
         this._booking_form.newForm('visitor');
         this._booking_form.setOptions({ type: 'visitor' });
@@ -231,7 +301,7 @@ export class VisitorRegistrationComponent implements OnInit {
             title: 'Visit',
         });
         setTimeout(() => {
-            if (this._settings.get('app.allow_self_registration')) return;
+            if (this.allow_self_registration()) return;
             this._router.navigate(['/welcome']);
         }, 1000);
     }
@@ -245,46 +315,47 @@ export class VisitorRegistrationComponent implements OnInit {
                 }),
             );
         }
-        this.loading = true;
-        const value = this.form.value;
-        this._booking_form.form.patchValue({
-            booking_type: 'visitor',
-            self_registered: true,
-            name: value.asset_name,
-            description: value.description || value.title || '',
-            attendees: [
-                new User({
-                    name: value.asset_name,
-                    email: value.asset_id,
-                    organisation: value.company,
-                    phone: value.phone,
-                }),
-            ],
-            zones: unique([
-                this._org.organisation.id,
-                this._org.region?.id,
-                this._org.building?.id,
-            ]),
-        });
-        const result = await this._booking_form.postForm(true).catch((e) => {
+        this.loading.set(true);
+        try {
+            const value = this.form.value;
+            this._booking_form.form.patchValue({
+                booking_type: 'visitor',
+                self_registered: true,
+                name: value.asset_name,
+                description: value.description || value.title || '',
+                attendees: [
+                    new User({
+                        name: value.asset_name,
+                        email: value.asset_id,
+                        organisation: value.company,
+                        phone: value.phone,
+                    }),
+                ],
+                zones: unique([
+                    this._org.organisation.id,
+                    this._org.region?.id,
+                    this._org.building?.id,
+                ]),
+            });
+            const result = await this._booking_form.postForm(true);
+            this._checkin.setBooking(result, 'registered');
+            if (
+                result.induction !== 'accepted' &&
+                this.is_induction_enabled() &&
+                !this.induction_after_details()
+            ) {
+                this._router.navigate(['/checkin', 'induction']);
+            } else {
+                this._router.navigate(['/checkin', 'details']);
+            }
+        } catch (e) {
             notifyError(
                 i18n('APP.VISITOR_KIOSK.REGISTRATION_ERROR', {
                     error: e?.statusText || e,
                 }),
             );
-            this.loading = false;
-            throw e;
-        });
-        this._checkin.setBooking(result, 'registered');
-        if (
-            result.induction !== 'accepted' &&
-            this.is_induction_enabled &&
-            !this.induction_after_details
-        ) {
-            this._router.navigate(['/checkin', 'induction']);
-        } else {
-            this._router.navigate(['/checkin', 'details']);
+        } finally {
+            this.loading.set(false);
         }
-        this.loading = false;
     }
 }
