@@ -86,6 +86,19 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>add</icon>
                 </button>
             }
+            @if (view() === 'fleet') {
+                <button
+                    btn
+                    matRipple
+                    class="w-52 space-x-2"
+                    (click)="newFleetVehicle()"
+                >
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_FLEET_ADD' | translate }}
+                    </div>
+                    <icon>add</icon>
+                </button>
+            }
             @if (section() === 'events' && !disable_reservations) {
                 <button
                     btn
@@ -248,7 +261,6 @@ import { ParkingStateService } from './parking-state.service';
         BuildingPipe,
         MatFormFieldModule,
         MatSelectModule,
-        FormsModule,
         SearchbarComponent,
         TranslatePipe,
         RouterModule,
@@ -264,7 +276,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
-        'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'
+        'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
     >('requests');
     /** List of selected levels */
     public zones: string[] = [];
@@ -381,6 +393,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public newParkingUser() {
         this._state.editUser();
+    }
+
+    public newFleetVehicle() {
+        this._state.editFleetVehicle();
     }
 
     public async newReservation() {

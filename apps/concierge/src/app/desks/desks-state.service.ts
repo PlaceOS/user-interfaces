@@ -17,6 +17,7 @@ import {
 import {
     AsyncHandler,
     Booking,
+    BuildingLevel,
     Desk,
     generateQRCode,
     i18n,
@@ -96,6 +97,8 @@ export class DesksStateService extends AsyncHandler {
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
         toObservable(this._change),
+        this._org.active_building,
+        this._org.active_region,
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
@@ -104,7 +107,7 @@ export class DesksStateService extends AsyncHandler {
                 return of({ list: [] as any[], is_manage: false });
             }
             this._loading.set(true);
-            const zones = filters.zones || [];
+            const zones = this._getActiveZones(filters.zones);
             const fetch$ =
                 zones && !zones.includes('All')
                     ? showMetadata(zones[0], 'desks').pipe(
@@ -147,15 +150,15 @@ export class DesksStateService extends AsyncHandler {
     public readonly setup_paging = combineLatest([
         toObservable(this._filters),
         this._org.initialised,
+        this._org.active_building,
+        this._org.active_region,
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
             // Only load bookings when on events view
             if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
-            const active_zones = (filters.zones || []).filter(
-                (_) => !this._all_zones_keys.includes(_),
-            );
+            const active_zones = this._getActiveZones(filters.zones);
             const zones = !active_zones.length
                 ? this._settings.get('app.use_region')
                     ? this._org.buildingsForRegion().map((_) => _.id)
@@ -532,5 +535,20 @@ export class DesksStateService extends AsyncHandler {
         await Promise.all(
             filtered.map((_) => lastValueFrom(removeBooking(_.id))),
         );
+    }
+
+    private _getActiveZones(zones: string[] = []): string[] {
+        const level_list = this._currentLevelList();
+        const level_ids = new Set(level_list.map((level) => level.id));
+        return (zones || []).filter(
+            (zone) =>
+                !this._all_zones_keys.includes(zone) && level_ids.has(zone),
+        );
+    }
+
+    private _currentLevelList(): BuildingLevel[] {
+        return this._settings.get('app.use_region')
+            ? this._org.levelsForRegion(this._org.region)
+            : this._org.levelsForBuilding(this._org.building);
     }
 }

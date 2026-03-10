@@ -8,9 +8,17 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    settingSignal,
     notifyError,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+
+const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
+    {
+        id: 'oversized',
+        name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
+    },
+];
 
 @Component({
     selector: 'parking-request-confirm',
@@ -103,10 +111,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     <div class="flex items-center space-x-2">
                         <icon>warning</icon>
                         <span>
-                            {{
-                                'BOOKINGS.PARKING_SPACE_RESTRICTIONS'
-                                    | translate
-                            }}
+                            {{ space_restriction_label | translate }}
                         </span>
                     </div>
                 }
@@ -171,6 +176,12 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
     public readonly show_close = model<boolean>(false);
 
     public readonly loading = this._state.loading;
+    public readonly space_restriction_options = settingSignal<
+        { id: string; name: string }[]
+    >(
+        'parking.request_space_restrictions',
+        DEFAULT_SPACE_RESTRICTION_OPTIONS,
+    );
 
     public readonly postForm = async () => {
         const r = await this._state.postForm().catch((_) => {
@@ -194,5 +205,17 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
             this.booking.zones?.includes(b.id),
         );
         return building?.display_name || building?.name || '';
+    }
+
+    public get space_restriction_label(): string {
+        const value = this.booking.space_restrictions;
+        if (!value) return '';
+        if (typeof value !== 'string') {
+            return 'BOOKINGS.PARKING_SPACE_RESTRICTIONS';
+        }
+        return (
+            this.space_restriction_options().find((_) => _.id === value)?.name ||
+            value
+        );
     }
 }

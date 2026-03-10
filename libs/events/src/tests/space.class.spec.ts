@@ -19,6 +19,8 @@ describe('Space', () => {
         expect(space.bookable).toBe(false);
         expect(space.zones).toEqual([]);
         expect(space.support_url).toBe('');
+        expect(space.camera_snapshot_url).toBe('');
+        expect(space.camera_snapshot_urls).toEqual([]);
         expect(space.map_id).toBe('');
         expect(space.images).toEqual([]);
         space = new Space({
@@ -31,6 +33,7 @@ describe('Space', () => {
             bookable: true,
             zones: ['zone-bld-1'],
             support_url: 'assets/support.html',
+            camera_snapshot_urls: ['https://example.com/snapshot.jpg'] as any,
             map_id: 'area-space',
             images: ['assets/img/space.png'],
         });
@@ -43,6 +46,12 @@ describe('Space', () => {
         expect(space.bookable).toBe(true);
         expect(space.zones).toEqual(['zone-bld-1']);
         expect(space.support_url).toBe('assets/support.html');
+        expect(space.camera_snapshot_url).toBe(
+            'https://example.com/snapshot.jpg',
+        );
+        expect(space.camera_snapshot_urls).toEqual([
+            'https://example.com/snapshot.jpg',
+        ]);
         expect(space.map_id).toBe('area-space');
         expect(space.images).toContain('assets/img/space.png');
     });

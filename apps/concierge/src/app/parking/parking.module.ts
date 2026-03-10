@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
+import { ParkingFleetListComponent } from './parking-fleet-list.component';
 import { ParkingMapComponent } from './parking-map.component';
 import { ParkingRequestsListComponent } from './parking-requests-list.component';
 import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
@@ -33,6 +34,7 @@ const ROUTES: Route[] = [
             {
                 path: 'manage',
                 children: [
+                    { path: 'fleet', component: ParkingFleetListComponent },
                     { path: 'users', component: ParkingUsersListComponent },
                     { path: 'map', component: ParkingMapComponent },
                     { path: 'spaces', component: ParkingSpaceListComponent },
@@ -50,6 +52,7 @@ const ROUTES: Route[] = [
     imports: [
         ParkingComponent,
         ParkingBookingsListComponent,
+        ParkingFleetListComponent,
         ParkingRequestsListComponent,
         ParkingSpecialRequestModalComponent,
         ParkingSpaceListComponent,

@@ -105,7 +105,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data.request_type || 'standard',
         ),
         space_restrictions: new FormControl(
-            booking.extension_data.space_restrictions || false,
+            booking.extension_data.space_restrictions ?? false,
         ),
         prefer_booked_location_first: new FormControl(
             booking.extension_data.prefer_booked_location_first ?? false,

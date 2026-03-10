@@ -16,7 +16,11 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
 import { ParkingRequestFormDetailsComponent } from './parking-request-form-details.component';
 
@@ -183,6 +187,16 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                         </div>
                     </button>
                 </div>
+                @if (submission_notes_html()) {
+                    <div
+                        class="border-base-300 bg-base-100 rounded-xl border p-4"
+                    >
+                        <div
+                            class="prose prose-sm max-w-none"
+                            [innerHTML]="submission_notes_html() | sanitize"
+                        ></div>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -208,6 +222,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         MatRippleModule,
         ReactiveFormsModule,
         TranslatePipe,
+        SanitizePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
     ],
@@ -223,10 +238,14 @@ export class ParkingRequestFormComponent
     private _org = inject(OrganisationService);
 
     public readonly loading = signal(false);
-    public readonly show_special_needs = signal(false);
+    public readonly show_special_needs = signal(true);
     public readonly available_days = settingSignal(
         'parking.available_period',
         14,
+    );
+    public readonly submission_notes_html = settingSignal(
+        'parking.request_submission_notes_html',
+        '',
     );
 
     public readonly clearForm = () => this._state.resetForm();
@@ -274,7 +293,7 @@ export class ParkingRequestFormComponent
                         '',
                 });
             }
-            this.show_special_needs.set(!!parking_user.special_needs);
+            this.show_special_needs.set(!!parking_user.special_needs || true);
         }
     }
 

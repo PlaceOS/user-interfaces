@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -18,9 +18,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
                 @if (
-                    show_requests &&
-                    section() === 'events' &&
-                    view() !== 'map'
+                    show_requests && section() === 'events' && view() !== 'map'
                 ) {
                     <div class="px-8 pb-2">
                         <nav
@@ -28,21 +26,23 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                             class="bg-base-200 overflow-hidden rounded-sm"
                             [tabPanel]="eventsTabPanel"
                         >
-                            <a
-                                mat-tab-link
-                                [routerLink]="[
-                                    '/book',
-                                    'parking',
-                                    'events',
-                                    'requests',
-                                ]"
-                                [active]="view() === 'requests'"
-                            >
-                                {{
-                                    'APP.CONCIERGE.PARKING_TAB_REQUESTS'
-                                        | translate
-                                }}
-                            </a>
+                            @if (can_view_requests) {
+                                <a
+                                    mat-tab-link
+                                    [routerLink]="[
+                                        '/book',
+                                        'parking',
+                                        'events',
+                                        'requests',
+                                    ]"
+                                    [active]="view() === 'requests'"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.PARKING_TAB_REQUESTS'
+                                            | translate
+                                    }}
+                                </a>
+                            }
                             <a
                                 mat-tab-link
                                 [routerLink]="[
@@ -59,9 +59,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                 }}
                             </a>
                         </nav>
-                        <mat-tab-nav-panel
-                            #eventsTabPanel
-                        ></mat-tab-nav-panel>
+                        <mat-tab-nav-panel #eventsTabPanel></mat-tab-nav-panel>
                     </div>
                 }
                 @if (section() === 'manage') {
@@ -98,6 +96,21 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                             >
                                 {{
                                     'APP.CONCIERGE.PARKING_TAB_USERS'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'manage',
+                                    'fleet',
+                                ]"
+                                [active]="view() === 'fleet'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_FLEET'
                                         | translate
                                 }}
                             </a>
@@ -183,10 +196,34 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.levels;
 
     public readonly section = signal<'events' | 'manage'>('events');
-    public readonly view = signal<'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'>('bookings');
+    public readonly view = signal<
+        'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
+    >('bookings');
 
     public get show_requests() {
         return !!this._settings.get('app.parking.show_requests');
+    }
+
+    public get is_admin() {
+        const groups = currentUser().groups || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
+    }
+
+    public get can_view_requests() {
+        if (!this.show_requests) return false;
+        const feature_groups = this._settings.get('app.feature_groups') || {};
+        const request_groups = feature_groups['parking-requests'] || [];
+        const groups = currentUser().groups || [];
+        return (
+            this.is_admin ||
+            !request_groups.length ||
+            groups.some((grp) => request_groups.includes(grp))
+        );
     }
 
     public ngOnInit() {
@@ -202,8 +239,19 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
 
     private _updatePath() {
         const parts = this._router.url?.split('/') || [''];
-        const [section, view] = parts.slice(-2);
+        const [section = 'events', view = 'bookings'] = parts.slice(-2);
+        const current_view = view.split('?')[0] as any;
         this.section.set(section as any);
-        this.view.set(view.split('?')[0] as any);
+        if (section === 'events' && current_view === 'requests') {
+            if (!this.can_view_requests) {
+                this.view.set('bookings');
+                void this._router.navigate(
+                    ['/book', 'parking', 'events', 'bookings'],
+                    { replaceUrl: true },
+                );
+                return;
+            }
+        }
+        this.view.set(current_view);
     }
 }

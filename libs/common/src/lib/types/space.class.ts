@@ -32,6 +32,8 @@ export class Space {
     public readonly camera_url: string;
     /** URL to a supporting site for space */
     public readonly camera_snapshot_url: string;
+    /** URLs to camera snapshots for space */
+    public readonly camera_snapshot_urls: string[];
     /** URL to an external booking service */
     public readonly room_booking_url: string;
     /** ID of the space on the associated map */
@@ -66,7 +68,15 @@ export class Space {
         this.zones = data.zones || [];
         this.support_url = data.support_url || '';
         this.camera_url = data.camera_url || '';
-        this.camera_snapshot_url = data.camera_snapshot_url || '';
+        this.camera_snapshot_urls = Array.isArray(
+            (data as any).camera_snapshot_urls,
+        )
+            ? ((data as any).camera_snapshot_urls as string[]).filter(Boolean)
+            : data.camera_snapshot_url
+              ? [data.camera_snapshot_url]
+              : [];
+        this.camera_snapshot_url =
+            data.camera_snapshot_url || this.camera_snapshot_urls[0] || '';
         this.room_booking_url = data.room_booking_url || '';
         this.map_id = data.map_id || '';
         this.images = data.images || [];

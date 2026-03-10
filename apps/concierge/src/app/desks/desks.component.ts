@@ -9,6 +9,7 @@ import {
 } from '@angular/router';
 import {
     AsyncHandler,
+    BuildingLevel,
     csvToJson,
     Desk,
     downloadFile,
@@ -37,7 +38,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
@@ -339,20 +340,19 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public manage = false;
     /** Signal for filters */
     public readonly filters = this._state.filters;
-    /** Signal for levels for the active building */
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-        ]).pipe(
-            map(([bld, region]) =>
-                this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
+    private readonly _levels$ = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this._settings.get('app.use_region')
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld),
         ),
-        { initialValue: [] },
+        shareReplay(1),
     );
+    /** Signal for levels for the active building */
+    public readonly levels = toSignal(this._levels$, { initialValue: [] });
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -397,6 +397,10 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                     );
                 }
             }),
+        );
+        this.subscription(
+            'level-changes',
+            this._levels$.subscribe((levels) => this._syncZones(levels)),
         );
         const parts = this._router.url?.split('/') || [''];
         this.path = parts[parts.length - 1].split('?')[0];
@@ -497,21 +501,26 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const view = this._getViewFromPath();
         this.manage = view === 'manage';
         this._state.setFilters({ view });
+        this._syncZones(this.levels());
+    }
 
-        if (this.manage) {
-            this.subscription(
-                'zone-changes',
-                this._org.active_levels.subscribe(async (lvls) => {
-                    if (!lvls.length) return;
-                    const { zones } = this._state.filters();
-                    const levels_in_zones =
-                        zones?.length &&
-                        zones.some((z) => lvls.find((lvl) => lvl.id === z));
-                    if (!levels_in_zones) this.updateZones([lvls[0].id]);
-                }),
-            );
-        } else {
-            this.unsub('zone-changes');
+    private _syncZones(levels: BuildingLevel[]) {
+        const current_zones = this._state.filters().zones || [];
+        const valid_zones = current_zones.filter((zone) =>
+            levels.find((level) => level.id === zone),
+        );
+        const next_zones = this.manage ? valid_zones.slice(0, 1) : valid_zones;
+        if (!next_zones.length && levels.length) {
+            next_zones.push(levels[0].id);
         }
+        if (this._sameZones(current_zones, next_zones)) return;
+        this.updateZones(next_zones);
+    }
+
+    private _sameZones(current_zones: string[] = [], next_zones: string[] = []) {
+        return (
+            current_zones.length === next_zones.length &&
+            current_zones.every((zone, index) => zone === next_zones[index])
+        );
     }
 }
