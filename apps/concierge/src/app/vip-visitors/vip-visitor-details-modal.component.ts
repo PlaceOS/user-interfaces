@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import {
     Booking,
     getTimezoneOffsetString,
@@ -735,7 +739,13 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             </div>
         </div>
     `,
-    imports: [CommonModule, MatRippleModule, IconComponent, TranslatePipe],
+    imports: [
+        CommonModule,
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        MatDialogModule,
+    ],
 })
 export class VipVisitorDetailsModalComponent {
     private _dialog_ref = inject(MatDialogRef<VipVisitorDetailsModalComponent>);
