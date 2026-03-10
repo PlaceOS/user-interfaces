@@ -32,12 +32,20 @@ describe('EventsStateService', () => {
         service: EventsStateService,
         providers: [
             MockProvider(OrganisationService, {
-                building: new Building(),
-                region: new Region({}),
-                active_region: new BehaviorSubject({}),
-                active_building: new BehaviorSubject({}),
+                building: new Building({ id: 'bld-123', parent_id: 'reg-123' }),
+                region: new Region({ id: 'reg-123' }),
+                active_region: new BehaviorSubject({ id: 'reg-123' }),
+                active_building: new BehaviorSubject({
+                    id: 'bld-123',
+                    parent_id: 'reg-123',
+                }),
+                buildingsForRegion: jest.fn(() => [
+                    new Building({ id: 'bld-123', parent_id: 'reg-123' }),
+                ]),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: (() => false) as any,
+            } as any),
             MockProvider(SpacesService, { find: jest.fn() }),
             MockProvider(MatDialog, { open: jest.fn() }),
         ],
@@ -106,6 +114,22 @@ describe('EventsStateService', () => {
         await timer(305).toPromise();
         events = await nextValueFrom(spectator.service.filtered);
         // expect(events).toHaveLength(1);
+    });
+
+    it('should load building events when no levels are selected', async () => {
+        (events_mod as any).queryEvents = jest.fn(() => of([]));
+        spectator.service.event_list.subscribe();
+        spectator.service.filtered.subscribe();
+        spectator.service.startPolling('day', 2);
+        await timer(5).toPromise();
+        spectator.service.stopPolling();
+        await timer(650).toPromise();
+        expect(events_mod.queryEvents).toBeCalledWith({
+            zone_ids: 'bld-123',
+            strict: 'limit',
+            period_start: getUnixTime(startOfDay(Date.now())),
+            period_end: getUnixTime(endOfDay(Date.now())),
+        });
     });
 
     it('should allow polling of events for day', async () => {
