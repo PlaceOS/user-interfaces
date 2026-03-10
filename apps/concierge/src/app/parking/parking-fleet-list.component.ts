@@ -1,10 +1,8 @@
-import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -13,20 +11,24 @@ import {
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
-    selector: 'parking-users-list',
+    selector: 'parking-fleet-list',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('users')"
+            [class.opacity-0]="!(loading | async)?.includes('fleet')"
             class="w-full"
         />
         <simple-table
             class="block min-w-272 text-sm"
-            [data]="user_list"
+            [data]="fleet_list"
             [columns]="[
                 {
                     key: 'name',
-                    name: 'APP.CONCIERGE.PARKING_USER' | translate,
+                    name: 'APP.CONCIERGE.PARKING_FLEET' | translate,
                     content: name_template,
+                },
+                {
+                    key: 'car_model',
+                    name: 'APP.CONCIERGE.PARKING_FLEET_MODEL' | translate,
                 },
                 {
                     key: 'car_colour',
@@ -39,12 +41,6 @@ import { ParkingStateService } from './parking-state.service';
                 },
                 { key: 'notes', name: 'FORM.NOTES' | translate },
                 {
-                    key: 'deny',
-                    name: 'APP.CONCIERGE.PARKING_USER_DENY' | translate,
-                    size: '4.5rem',
-                    content: denied_template,
-                },
-                {
                     key: 'actions',
                     name: ' ',
                     content: action_template,
@@ -56,24 +52,12 @@ import { ParkingStateService } from './parking-state.service';
             [sortable]="true"
         />
         <ng-template #name_template let-row="row" let-data="data">
-            <button
-                class="px-4 py-2 text-left leading-tight"
-                (click)="copyToClipboard(row.id)"
-            >
-                <div class="">{{ data }}</div>
+            <div class="px-4 py-2 leading-tight">
+                <div>{{ data }}</div>
                 <div class="font-mono text-[0.625rem] opacity-30">
-                    {{ row.email }}
+                    {{ row.id }}
                 </div>
-            </button>
-        </ng-template>
-        <ng-template #denied_template let-data="data">
-            @if (data) {
-                <div
-                    class="bg-error text-error-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                >
-                    <icon>close</icon>
-                </div>
-            }
+            </div>
         </ng-template>
         <ng-template #plate_template let-data="data">
             <div class="p-4 font-mono text-sm uppercase">
@@ -90,17 +74,19 @@ import { ParkingStateService } from './parking-state.service';
                 <button
                     icon
                     matRipple
-                    (click)="editUser(row)"
-                    [matTooltip]="'APP.CONCIERGE.PARKING_USER_EDIT' | translate"
+                    (click)="editFleetVehicle(row)"
+                    [matTooltip]="
+                        'APP.CONCIERGE.PARKING_FLEET_EDIT' | translate
+                    "
                 >
                     <icon>edit</icon>
                 </button>
                 <button
                     icon
-                    (click)="removeUser(row)"
                     class="text-error"
+                    (click)="removeFleetVehicle(row)"
                     [matTooltip]="
-                        'APP.CONCIERGE.PARKING_USER_REMOVE' | translate
+                        'APP.CONCIERGE.PARKING_FLEET_REMOVE' | translate
                     "
                 >
                     <icon>delete</icon>
@@ -114,25 +100,21 @@ import { ParkingStateService } from './parking-state.service';
         CommonModule,
         MatRippleModule,
         MatProgressBarModule,
-        IconComponent,
-        TranslatePipe,
-        SimpleTableComponent,
         MatTooltipModule,
+        IconComponent,
+        SimpleTableComponent,
+        TranslatePipe,
     ],
 })
-export class ParkingUsersListComponent {
+export class ParkingFleetListComponent {
     private _state = inject(ParkingStateService);
-    private _clipboard = inject(Clipboard);
 
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
-    public readonly user_list = this._state.users;
+    public readonly fleet_list = this._state.fleet_vehicles;
 
-    public readonly editUser = (u?) => this._state.editUser(u);
-    public readonly removeUser = (u) => this._state.removeUser(u);
-
-    public copyToClipboard(id: string) {
-        const success = this._clipboard.copy(id);
-        if (success) notifySuccess(i18n('APP.CONCIERGE.PARKING_COPIED_USER'));
-    }
+    public readonly editFleetVehicle = (vehicle?) =>
+        this._state.editFleetVehicle(vehicle);
+    public readonly removeFleetVehicle = (vehicle) =>
+        this._state.removeFleetVehicle(vehicle);
 }

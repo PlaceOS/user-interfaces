@@ -183,7 +183,7 @@ export class ParkingSpaceModalComponent implements OnInit {
         if (_data) {
             this.form.patchValue({
                 ..._data,
-                map_id: _data.map_id || _data.other_data.map_id,
+                map_id: _data.map_id || _data.other_data?.map_id,
             });
         }
     }

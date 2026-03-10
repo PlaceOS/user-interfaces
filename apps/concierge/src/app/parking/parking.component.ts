@@ -18,9 +18,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
                 @if (
-                    show_requests &&
-                    section() === 'events' &&
-                    view() !== 'map'
+                    show_requests && section() === 'events' && view() !== 'map'
                 ) {
                     <div class="px-8 pb-2">
                         <nav
@@ -61,9 +59,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                                 }}
                             </a>
                         </nav>
-                        <mat-tab-nav-panel
-                            #eventsTabPanel
-                        ></mat-tab-nav-panel>
+                        <mat-tab-nav-panel #eventsTabPanel></mat-tab-nav-panel>
                     </div>
                 }
                 @if (section() === 'manage') {
@@ -100,6 +96,21 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                             >
                                 {{
                                     'APP.CONCIERGE.PARKING_TAB_USERS'
+                                        | translate
+                                }}
+                            </a>
+                            <a
+                                mat-tab-link
+                                [routerLink]="[
+                                    '/book',
+                                    'parking',
+                                    'manage',
+                                    'fleet',
+                                ]"
+                                [active]="view() === 'fleet'"
+                            >
+                                {{
+                                    'APP.CONCIERGE.PARKING_TAB_FLEET'
                                         | translate
                                 }}
                             </a>
@@ -185,7 +196,9 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     public readonly levels = this._state.levels;
 
     public readonly section = signal<'events' | 'manage'>('events');
-    public readonly view = signal<'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'>('bookings');
+    public readonly view = signal<
+        'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
+    >('bookings');
 
     public get show_requests() {
         return !!this._settings.get('app.parking.show_requests');
