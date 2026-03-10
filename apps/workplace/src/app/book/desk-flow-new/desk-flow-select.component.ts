@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -707,6 +714,16 @@ export class DeskFlowSelectComponent extends AsyncHandler implements OnInit {
     public readonly loading = this._booking_form.loading;
 
     public readonly active = signal('');
+
+    constructor() {
+        super();
+        effect(() => {
+            const selected_ids = (this.form_value()?.resources || []).map(
+                ({ id }) => id,
+            );
+            this.selected.set(selected_ids);
+        });
+    }
 
     public readonly levels = combineLatest([
         this._org.active_region,

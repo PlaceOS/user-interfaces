@@ -345,24 +345,10 @@ export class LandingFavouritesNewComponent {
                 break;
 
             case 'desk':
-                const desk = this.all_desks().find((d) => d.id === item.id);
-                if (!desk) return;
-
-                // Initialize form with desk before navigating
-                this._booking_form.newForm('desk');
-                this._booking_form.setOptions({ type: 'desk' });
-                this._booking_form.form.patchValue({
-                    resources: [desk],
-                    asset_id: desk.id,
-                    booking_type: 'desk',
-                });
-
-                // Navigate after setting the resource
-                if (use_new_features) {
-                    this._router.navigate(['/book', 'desk']);
-                } else {
-                    this._router.navigate(['/book', 'desks']);
-                }
+                this._router.navigate(
+                    ['/book', use_new_features ? 'desk' : 'desks'],
+                    { queryParams: { asset_id: item.id } },
+                );
                 break;
 
             case 'parking':
