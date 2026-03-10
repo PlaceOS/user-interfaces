@@ -192,6 +192,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         }
     });
     form.controls.date.valueChanges.subscribe((date) => {
+        const form_state = form.getRawValue();
         form.patchValue(
             {
                 date_end: roundToNearestMinutes(
@@ -201,7 +202,12 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             },
             { emitEvent: false },
         );
-        if (date < Date.now() && !form.value._in_progress) {
+        if (
+            date < Date.now() &&
+            !form_state._in_progress &&
+            !form_state.id &&
+            !form.get('date')?.disabled
+        ) {
             form.patchValue(
                 {
                     date: roundToNearestMinutes(Date.now(), {
