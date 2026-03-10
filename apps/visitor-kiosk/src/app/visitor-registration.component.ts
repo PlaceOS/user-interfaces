@@ -163,14 +163,16 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             </mat-form-field>
                         }
                         @if (allow_registration_time_options()) {
-                            <div class="relative mt-4 flex justify-end">
-                                <mat-checkbox
-                                    class="absolute -top-2 right-0"
-                                    formControlName="all_day"
-                                >
-                                    {{ 'COMMON.ALL_DAY' | translate }}
-                                </mat-checkbox>
-                            </div>
+                            @if (allow_all_day()) {
+                                <div class="relative mt-4 flex justify-end">
+                                    <mat-checkbox
+                                        class="absolute -top-2 right-0"
+                                        formControlName="all_day"
+                                    >
+                                        {{ 'COMMON.ALL_DAY' | translate }}
+                                    </mat-checkbox>
+                                </div>
+                            }
                             <label form="duration">
                                 {{ 'FORM.DURATION' | translate }}
                             </label>
@@ -230,10 +232,6 @@ export class VisitorRegistrationComponent
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
     private _org = inject(OrganisationService);
-
-    private readonly _allow_registration_time_options = settingSignal<
-        boolean | undefined
-    >('allow_registration_time_options');
     private readonly _visitor_allow_all_day = settingSignal(
         'visitors.allow_all_day',
     );
@@ -256,6 +254,9 @@ export class VisitorRegistrationComponent
     public readonly loading = signal(false);
     public readonly now = signal(startOfMinute(Date.now()).valueOf());
     public readonly background = settingSignal('welcome_background');
+    public readonly allow_registration_time_options = settingSignal<
+        boolean | undefined
+    >('allow_registration_time_options');
     public readonly allow_pass_number = settingSignal(
         'allow_pass_number',
         false,
@@ -275,13 +276,9 @@ export class VisitorRegistrationComponent
     public readonly is_induction_enabled = computed(
         () => !!(this._induction_enabled() && this._induction_details()),
     );
-    public readonly allow_registration_time_options = computed(() => {
-        const setting = this._allow_registration_time_options();
-        if (setting !== undefined) return !!setting;
-        return !!(
-            this._visitor_allow_all_day() ?? this._booking_allow_all_day()
-        );
-    });
+    public readonly allow_all_day = computed(
+        () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+    );
     public readonly max_duration = computed(
         () =>
             this._visitor_max_duration() || this._booking_max_duration() || 180,
