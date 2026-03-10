@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { reloadOnChunkLoadError } from '@placeos/common';
 
 import { BootstrapComponent } from './bootstrap.component';
 import { VisitorRegistrationComponent } from './visitor-registration.component';
@@ -25,7 +26,12 @@ const routes: Routes = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes, { useHash: true })],
+    imports: [
+        RouterModule.forRoot(routes, {
+            errorHandler: (error) => reloadOnChunkLoadError(error),
+            useHash: true,
+        }),
+    ],
     exports: [RouterModule],
 })
 export class AppRoutingModule {}
