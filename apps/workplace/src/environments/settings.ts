@@ -228,6 +228,14 @@ const app = {
     },
     parking: {
         allow_all_day: true,
+        allow_recurrence: true,
+        request_submission_notes_html: '',
+        request_space_restrictions: [
+            {
+                id: 'oversized',
+                name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
+            },
+        ],
     },
     analytics: {
         enabled: true,

@@ -22,11 +22,45 @@ import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
-const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
-    business: { start: 540, end: 1020 },
-    morning: { start: 360, end: 720 },
-    afternoon: { start: 720, end: 1080 },
-};
+interface ParkingRequestShiftOption {
+    id: string;
+    name: string;
+    start_time: number;
+    end_time: number;
+}
+
+interface ParkingRequestOption {
+    id: string;
+    name: string;
+}
+
+const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
+    // {
+    //     id: 'business',
+    //     name: 'BOOKINGS.PARKING_SHIFT_BUSINESS',
+    //     start_time: 540,
+    //     end_time: 1020,
+    // },
+    // {
+    //     id: 'morning',
+    //     name: 'BOOKINGS.PARKING_SHIFT_MORNING',
+    //     start_time: 360,
+    //     end_time: 720,
+    // },
+    // {
+    //     id: 'afternoon',
+    //     name: 'BOOKINGS.PARKING_SHIFT_AFTERNOON',
+    //     start_time: 720,
+    //     end_time: 1080,
+    // },
+];
+
+const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
+    {
+        id: 'oversized',
+        name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
+    },
+];
 
 @Component({
     selector: 'parking-request-form-details',
@@ -47,202 +81,219 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                         [to]="end_date()"
                         [timezone]="timezone"
                     ></a-date-field>
-                    <div class="space-y-2">
-                        <div
-                            class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
-                            [class.border-info]="
-                                booking_frequency() === 'single'
-                            "
-                            [class.border-base-300]="
-                                booking_frequency() !== 'single'
-                            "
-                            (click)="setBookingFrequency('single')"
-                        >
+                    @if (allow_recurrence()) {
+                        <div class="space-y-2">
                             <div
-                                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
                                     booking_frequency() === 'single'
                                 "
                                 [class.border-base-300]="
                                     booking_frequency() !== 'single'
                                 "
+                                (click)="setBookingFrequency('single')"
                             >
-                                @if (booking_frequency() === 'single') {
-                                    <div
-                                        class="bg-info h-2.5 w-2.5 rounded-full"
-                                    ></div>
-                                }
-                            </div>
-                            <div>
-                                <div class="font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_FREQUENCY_SINGLE'
-                                            | translate
-                                    }}
+                                <div
+                                    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                                    [class.border-info]="
+                                        booking_frequency() === 'single'
+                                    "
+                                    [class.border-base-300]="
+                                        booking_frequency() !== 'single'
+                                    "
+                                >
+                                    @if (booking_frequency() === 'single') {
+                                        <div
+                                            class="bg-info h-2.5 w-2.5 rounded-full"
+                                        ></div>
+                                    }
                                 </div>
-                                <div class="text-sm opacity-60">
-                                    {{
-                                        'BOOKINGS.PARKING_FREQUENCY_SINGLE_DESC'
-                                            | translate
-                                    }}
+                                <div>
+                                    <div class="font-medium">
+                                        {{
+                                            'BOOKINGS.PARKING_FREQUENCY_SINGLE'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-sm opacity-60">
+                                        {{
+                                            'BOOKINGS.PARKING_FREQUENCY_SINGLE_DESC'
+                                                | translate
+                                        }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div
-                            class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
-                            [class.border-info]="
-                                booking_frequency() === 'daily'
-                            "
-                            [class.border-base-300]="
-                                booking_frequency() !== 'daily'
-                            "
-                            (click)="setBookingFrequency('daily')"
-                        >
                             <div
-                                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                                class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
                                     booking_frequency() === 'daily'
                                 "
                                 [class.border-base-300]="
                                     booking_frequency() !== 'daily'
                                 "
+                                (click)="setBookingFrequency('daily')"
                             >
-                                @if (booking_frequency() === 'daily') {
-                                    <div
-                                        class="bg-info h-2.5 w-2.5 rounded-full"
-                                    ></div>
-                                }
-                            </div>
-                            <div class="flex-1">
-                                <div class="font-medium">
-                                    {{
-                                        'BOOKINGS.PARKING_FREQUENCY_DAILY'
-                                            | translate
-                                    }}
+                                <div
+                                    class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                                    [class.border-info]="
+                                        booking_frequency() === 'daily'
+                                    "
+                                    [class.border-base-300]="
+                                        booking_frequency() !== 'daily'
+                                    "
+                                >
+                                    @if (booking_frequency() === 'daily') {
+                                        <div
+                                            class="bg-info h-2.5 w-2.5 rounded-full"
+                                        ></div>
+                                    }
                                 </div>
-                                <div class="text-sm opacity-60">
-                                    {{
-                                        'BOOKINGS.PARKING_FREQUENCY_DAILY_DESC'
-                                            | translate
-                                    }}
-                                </div>
-                                @if (booking_frequency() === 'daily') {
-                                    <div
-                                        class="border-base-300 mt-3 space-y-3 rounded-lg border p-3"
-                                    >
-                                        <div class="text-sm font-medium">
-                                            {{
-                                                'BOOKINGS.PARKING_FREQUENCY_SELECT_DAYS'
-                                                    | translate
-                                            }}
-                                        </div>
-                                        <div class="flex gap-2">
-                                            @for (
-                                                day of WEEKDAY_OPTIONS;
-                                                track day.index
-                                            ) {
-                                                <button
-                                                    type="button"
-                                                    class="flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors"
-                                                    [class.border-info]="
-                                                        isDaySelected(day.index)
-                                                    "
-                                                    [class.bg-info]="
-                                                        isDaySelected(day.index)
-                                                    "
-                                                    [class.text-info-content]="
-                                                        isDaySelected(day.index)
-                                                    "
-                                                    [class.border-base-300]="
-                                                        !isDaySelected(
-                                                            day.index
-                                                        )
-                                                    "
-                                                    (click)="
-                                                        $event.stopPropagation();
-                                                        toggleDay(day.index)
-                                                    "
-                                                >
-                                                    {{ day.date | date: 'EEE' }}
-                                                </button>
-                                            }
-                                        </div>
-                                        @if (max_weeks() > 1) {
+                                <div class="flex-1">
+                                    <div class="font-medium">
+                                        {{
+                                            'BOOKINGS.PARKING_FREQUENCY_DAILY'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-sm opacity-60">
+                                        {{
+                                            'BOOKINGS.PARKING_FREQUENCY_DAILY_DESC'
+                                                | translate
+                                        }}
+                                    </div>
+                                    @if (booking_frequency() === 'daily') {
+                                        <div
+                                            class="border-base-300 mt-3 space-y-3 rounded-lg border p-3"
+                                        >
                                             <div class="text-sm font-medium">
                                                 {{
-                                                    'BOOKINGS.PARKING_FREQUENCY_NUM_WEEKS'
+                                                    'BOOKINGS.PARKING_FREQUENCY_SELECT_DAYS'
                                                         | translate
                                                 }}
                                             </div>
                                             <div class="flex gap-2">
                                                 @for (
-                                                    w of week_options();
-                                                    track w
+                                                    day of WEEKDAY_OPTIONS;
+                                                    track day.index
                                                 ) {
                                                     <button
                                                         type="button"
-                                                        class="flex h-10 min-w-10 items-center justify-center rounded-full border-2 px-3 text-sm font-medium transition-colors"
+                                                        class="flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors"
                                                         [class.border-info]="
-                                                            num_weeks() === w
+                                                            isDaySelected(
+                                                                day.index
+                                                            )
                                                         "
                                                         [class.bg-info]="
-                                                            num_weeks() === w
+                                                            isDaySelected(
+                                                                day.index
+                                                            )
                                                         "
                                                         [class.text-info-content]="
-                                                            num_weeks() === w
+                                                            isDaySelected(
+                                                                day.index
+                                                            )
                                                         "
                                                         [class.border-base-300]="
-                                                            num_weeks() !== w
+                                                            !isDaySelected(
+                                                                day.index
+                                                            )
                                                         "
                                                         (click)="
                                                             $event.stopPropagation();
-                                                            setNumWeeks(w)
+                                                            toggleDay(day.index)
                                                         "
                                                     >
                                                         {{
-                                                            (w === 1
-                                                                ? 'BOOKINGS.PARKING_FREQUENCY_WEEK'
-                                                                : 'BOOKINGS.PARKING_FREQUENCY_WEEKS'
-                                                            )
-                                                                | translate
-                                                                    : {
-                                                                          weeks: w,
-                                                                      }
+                                                            day.date
+                                                                | date: 'EEE'
                                                         }}
                                                     </button>
                                                 }
                                             </div>
-                                        }
-                                        <div class="text-sm font-medium">
-                                            {{
-                                                'BOOKINGS.PARKING_FREQUENCY_DATES_HEADER'
-                                                    | translate
-                                            }}
-                                        </div>
-                                        <div class="space-y-1">
-                                            @for (
-                                                day of weekdays;
-                                                track $index
-                                            ) {
+                                            @if (max_weeks() > 1) {
                                                 <div
-                                                    class="flex items-center gap-2 text-sm"
+                                                    class="text-sm font-medium"
                                                 >
-                                                    <div
-                                                        class="bg-success h-2 w-2 rounded-full"
-                                                    ></div>
                                                     {{
-                                                        day
-                                                            | date
-                                                                : 'EEEE, d MMMM yyyy'
+                                                        'BOOKINGS.PARKING_FREQUENCY_NUM_WEEKS'
+                                                            | translate
                                                     }}
                                                 </div>
+                                                <div class="flex gap-2">
+                                                    @for (
+                                                        w of week_options();
+                                                        track w
+                                                    ) {
+                                                        <button
+                                                            type="button"
+                                                            class="flex h-10 min-w-10 items-center justify-center rounded-full border-2 px-3 text-sm font-medium transition-colors"
+                                                            [class.border-info]="
+                                                                num_weeks() ===
+                                                                w
+                                                            "
+                                                            [class.bg-info]="
+                                                                num_weeks() ===
+                                                                w
+                                                            "
+                                                            [class.text-info-content]="
+                                                                num_weeks() ===
+                                                                w
+                                                            "
+                                                            [class.border-base-300]="
+                                                                num_weeks() !==
+                                                                w
+                                                            "
+                                                            (click)="
+                                                                $event.stopPropagation();
+                                                                setNumWeeks(w)
+                                                            "
+                                                        >
+                                                            {{
+                                                                (w === 1
+                                                                    ? 'BOOKINGS.PARKING_FREQUENCY_WEEK'
+                                                                    : 'BOOKINGS.PARKING_FREQUENCY_WEEKS'
+                                                                )
+                                                                    | translate
+                                                                        : {
+                                                                              weeks: w,
+                                                                          }
+                                                            }}
+                                                        </button>
+                                                    }
+                                                </div>
                                             }
+                                            <div class="text-sm font-medium">
+                                                {{
+                                                    'BOOKINGS.PARKING_FREQUENCY_DATES_HEADER'
+                                                        | translate
+                                                }}
+                                            </div>
+                                            <div class="space-y-1">
+                                                @for (
+                                                    day of weekdays;
+                                                    track $index
+                                                ) {
+                                                    <div
+                                                        class="flex items-center gap-2 text-sm"
+                                                    >
+                                                        <div
+                                                            class="bg-success h-2 w-2 rounded-full"
+                                                        ></div>
+                                                        {{
+                                                            day
+                                                                | date
+                                                                    : 'EEEE, d MMMM yyyy'
+                                                        }}
+                                                    </div>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
-                                }
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
 
                 <!-- REQUEST TYPE -->
@@ -319,34 +370,91 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                     </h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="mb-1 block text-sm font-medium">
-                                {{ 'BOOKINGS.PARKING_SHIFT_TYPE' | translate }}
-                            </label>
-                            <mat-form-field appearance="outline" class="w-full">
-                                <mat-select
-                                    [value]="shift_type()"
-                                    (selectionChange)="
-                                        setShiftType($event.value)
-                                    "
+                            @if (show_shift_select()) {
+                                <label class="mb-1 block text-sm font-medium">
+                                    {{
+                                        'BOOKINGS.PARKING_SHIFT_TYPE'
+                                            | translate
+                                    }}
+                                </label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
                                 >
-                                    <mat-option value="business">{{
-                                        'BOOKINGS.PARKING_SHIFT_BUSINESS'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="morning">{{
-                                        'BOOKINGS.PARKING_SHIFT_MORNING'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="afternoon">{{
-                                        'BOOKINGS.PARKING_SHIFT_AFTERNOON'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="custom">{{
-                                        'BOOKINGS.PARKING_SHIFT_CUSTOM'
-                                            | translate
-                                    }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
+                                    <mat-select
+                                        [value]="shift_type()"
+                                        (selectionChange)="
+                                            setShiftType($event.value)
+                                        "
+                                    >
+                                        <mat-select-trigger>
+                                            @if (
+                                                selected_shift_option();
+                                                as option
+                                            ) {
+                                                {{ option.name | translate }}
+                                                ({{
+                                                    shiftTime(option.start_time)
+                                                        | date: time_format
+                                                }}
+                                                -
+                                                {{
+                                                    shiftTime(option.end_time)
+                                                        | date: time_format
+                                                }})
+                                            } @else {
+                                                {{
+                                                    'BOOKINGS.PARKING_SHIFT_CUSTOM'
+                                                        | translate
+                                                }}
+                                                ({{
+                                                    shiftTime(start_time_mins())
+                                                        | date: time_format
+                                                }}
+                                                -
+                                                {{
+                                                    shiftTime(end_time_mins())
+                                                        | date: time_format
+                                                }})
+                                            }
+                                        </mat-select-trigger>
+                                        @for (
+                                            option of shift_options();
+                                            track option.id
+                                        ) {
+                                            <mat-option [value]="option.id">
+                                                {{ option.name | translate }}
+                                                ({{
+                                                    shiftTime(option.start_time)
+                                                        | date: time_format
+                                                }}
+                                                -
+                                                {{
+                                                    shiftTime(option.end_time)
+                                                        | date: time_format
+                                                }})
+                                            </mat-option>
+                                        }
+                                        <mat-option value="custom">
+                                            {{
+                                                'BOOKINGS.PARKING_SHIFT_CUSTOM'
+                                                    | translate
+                                            }}
+                                            ({{
+                                                shiftTime(
+                                                    custom_start_time_mins()
+                                                ) | date: time_format
+                                            }}
+                                            -
+                                            {{
+                                                shiftTime(
+                                                    custom_end_time_mins()
+                                                ) | date: time_format
+                                            }})
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            }
                         </div>
                         @if (shift_type() === 'custom') {
                             <div class="flex gap-4">
@@ -370,12 +478,15 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                             "
                                         >
                                             @for (
-                                                opt of time_options;
+                                                opt of time_options();
                                                 track opt.value
                                             ) {
                                                 <mat-option
                                                     [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
+                                                    >{{
+                                                        shiftTime(opt.value)
+                                                            | date: time_format
+                                                    }}</mat-option
                                                 >
                                             }
                                         </mat-select>
@@ -401,12 +512,15 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                                             "
                                         >
                                             @for (
-                                                opt of time_options;
+                                                opt of time_options();
                                                 track opt.value
                                             ) {
                                                 <mat-option
                                                     [value]="opt.value"
-                                                    >{{ opt.label }}</mat-option
+                                                    >{{
+                                                        shiftTime(opt.value)
+                                                            | date: time_format
+                                                    }}</mat-option
                                                 >
                                             }
                                         </mat-select>
@@ -418,7 +532,7 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 </div>
 
                 <!-- LOCATION PREFERENCE -->
-                @if ((building_list | async)?.length > 1) {
+                @if (hasMultipleBuildings(building_list | async)) {
                     <div
                         class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
@@ -549,45 +663,48 @@ const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {
                 </div>
 
                 <!-- SPACE RESTRICTIONS -->
-                <div class="border-base-300 space-y-3 rounded-lg border p-4">
-                    <h3
-                        class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                @if (space_restriction_options().length) {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
-                        <icon class="text-lg">tune</icon>
-                        {{
-                            'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
-                                | translate
-                        }}
-                    </h3>
-                    <p class="text-sm opacity-60">
-                        {{
-                            'BOOKINGS.PARKING_SPACE_RESTRICTIONS_DESC'
-                                | translate
-                        }}
-                    </p>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-select
-                            [value]="
-                                form().value.space_restrictions
-                                    ? 'oversized'
-                                    : 'none'
-                            "
-                            (selectionChange)="
-                                form().patchValue({
-                                    space_restrictions: $event.value !== 'none',
-                                })
-                            "
+                        <h3
+                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
                         >
-                            <mat-option value="none">{{
-                                'BOOKINGS.PARKING_RESTRICTION_NONE' | translate
-                            }}</mat-option>
-                            <mat-option value="oversized">{{
-                                'BOOKINGS.PARKING_RESTRICTION_OVERSIZED'
+                            <icon class="text-lg">tune</icon>
+                            {{
+                                'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+                            }}
+                        </h3>
+                        <p class="text-sm opacity-60">
+                            {{
+                                'BOOKINGS.PARKING_SPACE_RESTRICTIONS_DESC'
+                                    | translate
+                            }}
+                        </p>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                [value]="selected_space_restriction()"
+                                (selectionChange)="
+                                    setSpaceRestriction($event.value)
+                                "
+                            >
+                                <mat-option value="none">{{
+                                    'BOOKINGS.PARKING_RESTRICTION_NONE'
+                                        | translate
+                                }}</mat-option>
+                                @for (
+                                    option of space_restriction_options();
+                                    track option.id
+                                ) {
+                                    <mat-option [value]="option.id">{{
+                                        option.name | translate
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
             </div>
         }
     `,
@@ -621,6 +738,16 @@ export class ParkingRequestFormDetailsComponent
         'parking.available_period',
         14,
     );
+    public readonly allow_recurrence = settingSignal(
+        'parking.allow_recurrence',
+        true,
+    );
+    public readonly shift_options_setting = settingSignal<
+        ParkingRequestShiftOption[]
+    >('parking.request_shift_options', DEFAULT_SHIFT_OPTIONS);
+    public readonly space_restriction_options_setting = settingSignal<
+        ParkingRequestOption[]
+    >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
 
     public readonly end_date = computed(() =>
         endOfDay(addDays(Date.now(), this.available_days())).valueOf(),
@@ -640,6 +767,28 @@ export class ParkingRequestFormDetailsComponent
     public readonly shift_type = signal<string>('custom');
     public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
+    public readonly custom_start_time_mins = signal<number>(480);
+    public readonly custom_end_time_mins = signal<number>(600);
+    public readonly shift_options = computed(() =>
+        this._normaliseShiftOptions(this.shift_options_setting()),
+    );
+    public readonly selected_shift_option = computed(() =>
+        this.shift_options().find((_) => _.id === this.shift_type()),
+    );
+    public readonly show_shift_select = computed(
+        () => this.shift_options().length + 1 > 1,
+    );
+    public readonly space_restriction_options = computed(() =>
+        this._normaliseOptions(this.space_restriction_options_setting()),
+    );
+    public readonly selected_space_restriction = computed(() => {
+        const value = this.form()?.getRawValue()?.space_restrictions;
+        if (typeof value === 'string' && value) return value;
+        if (value === true) {
+            return this.space_restriction_options()[0]?.id || 'none';
+        }
+        return 'none';
+    });
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
         index,
@@ -672,14 +821,14 @@ export class ParkingRequestFormDetailsComponent
             : this._all_request_types.filter((t) => t.value !== 'special'),
     );
 
-    public readonly time_options = Array.from({ length: 48 }, (_, i) => {
-        const total_mins = i * 30;
-        const hours = Math.floor(total_mins / 60);
-        const mins = total_mins % 60;
-        return {
-            value: total_mins,
-            label: `${hours.toString().padStart(2, '0')} : ${mins.toString().padStart(2, '0')}`,
-        };
+    public readonly time_options = computed(() => {
+        const values = new Set(Array.from({ length: 48 }, (_, i) => i * 30));
+        values.add(this.start_time_mins());
+        values.add(this.end_time_mins());
+        return [...values]
+            .filter((value) => value >= 0 && value < 1440)
+            .sort((left, right) => left - right)
+            .map((value) => ({ value }));
     });
 
     public get weekdays(): number[] {
@@ -711,9 +860,16 @@ export class ParkingRequestFormDetailsComponent
             : '';
     }
 
+    public get time_format(): string {
+        return this._settings.time_format;
+    }
+
     public ngOnInit() {
         const form = this.form();
         if (!form) return;
+        const default_custom_shift = this._defaultCustomShift();
+        this.custom_start_time_mins.set(default_custom_shift.start_time);
+        this.custom_end_time_mins.set(default_custom_shift.end_time);
         const date = form.getRawValue().date;
         if (date) {
             const d = new Date(date);
@@ -722,13 +878,32 @@ export class ParkingRequestFormDetailsComponent
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
             this._detectShiftType(start, start + duration);
+            if (this.shift_type() === 'custom') {
+                this.custom_start_time_mins.set(start);
+                this.custom_end_time_mins.set(start + duration);
+            }
         } else {
-            this.start_time_mins.set(480);
-            this.end_time_mins.set(1020);
+            this.start_time_mins.set(default_custom_shift.start_time);
+            this.end_time_mins.set(default_custom_shift.end_time);
             this.shift_type.set('custom');
         }
-        const is_daily = form.value.recurrence_type === 'daily';
+        if (
+            form.value.space_restrictions === true &&
+            this.space_restriction_options().length
+        ) {
+            this.setSpaceRestriction(this.space_restriction_options()[0].id);
+        }
+        const is_daily =
+            this.allow_recurrence() && form.value.recurrence_type === 'daily';
         this.booking_frequency.set(is_daily ? 'daily' : 'single');
+        if (!this.allow_recurrence() && form.value.recurrence_type !== 'none') {
+            form.patchValue({
+                recurrence_type: 'none',
+                recurrence_days: null,
+                recurrence_interval: null,
+                recurrence_end: null,
+            });
+        }
         if (is_daily) {
             if (form.value.recurrence_days) {
                 const days = new Set<number>();
@@ -770,6 +945,7 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public setBookingFrequency(freq: 'single' | 'daily') {
+        if (freq === 'daily' && !this.allow_recurrence()) return;
         this.booking_frequency.set(freq);
         const form = this.form();
         if (!form) return;
@@ -777,6 +953,8 @@ export class ParkingRequestFormDetailsComponent
             form.patchValue({
                 recurrence_type: 'none',
                 recurrence_days: null,
+                recurrence_interval: null,
+                recurrence_end: null,
             });
         } else {
             this.selected_days.set(new Set([1, 2, 3, 4, 5]));
@@ -794,29 +972,66 @@ export class ParkingRequestFormDetailsComponent
 
     public setShiftType(type: string) {
         this.shift_type.set(type);
-        if (type !== 'custom') {
-            const preset = SHIFT_PRESETS[type];
-            if (preset) {
-                this.start_time_mins.set(preset.start);
-                this.end_time_mins.set(preset.end);
-                this._updateFormTimes(preset.start, preset.end);
-            }
+        if (type === 'custom') {
+            const { start_time, end_time } = this._normaliseCustomShift(
+                this.custom_start_time_mins(),
+                this.custom_end_time_mins(),
+            );
+            this.custom_start_time_mins.set(start_time);
+            this.custom_end_time_mins.set(end_time);
+            this.start_time_mins.set(start_time);
+            this.end_time_mins.set(end_time);
+            this._updateFormTimes(start_time, end_time);
+            return;
+        }
+        const preset = this.shift_options().find((_) => _.id === type);
+        if (preset) {
+            this.start_time_mins.set(preset.start_time);
+            this.end_time_mins.set(preset.end_time);
+            this._updateFormTimes(preset.start_time, preset.end_time);
         }
     }
 
     public setStartTime(mins: number) {
-        this.start_time_mins.set(mins);
+        const { start_time, end_time } = this._normaliseCustomShift(
+            mins,
+            this.end_time_mins(),
+        );
+        this.start_time_mins.set(start_time);
+        this.end_time_mins.set(end_time);
+        this.custom_start_time_mins.set(start_time);
+        this.custom_end_time_mins.set(end_time);
         this.shift_type.set('custom');
-        this._updateFormTimes(mins, this.end_time_mins());
+        this._updateFormTimes(start_time, end_time);
     }
 
     public setEndTime(mins: number) {
-        this.end_time_mins.set(mins);
+        const { start_time, end_time } = this._normaliseCustomShift(
+            this.start_time_mins(),
+            mins,
+        );
+        this.start_time_mins.set(start_time);
+        this.end_time_mins.set(end_time);
+        this.custom_start_time_mins.set(start_time);
+        this.custom_end_time_mins.set(end_time);
         this.shift_type.set('custom');
-        this._updateFormTimes(this.start_time_mins(), mins);
+        this._updateFormTimes(start_time, end_time);
+    }
+
+    public setSpaceRestriction(value: string) {
+        const form = this.form();
+        if (!form) return;
+        form.patchValue({
+            space_restrictions: value === 'none' ? false : value,
+        });
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);
+
+    public shiftTime(mins: number): number {
+        const raw_date = this.form()?.getRawValue()?.date || Date.now();
+        return startOfDay(raw_date).valueOf() + mins * 60 * 1000;
+    }
 
     public getBayInfo(bld: any): string {
         const metadata = bld.metadata || {};
@@ -827,6 +1042,11 @@ export class ParkingRequestFormDetailsComponent
         if (car_bays) parts.push(`${car_bays} Car bays`);
         if (motorcycle_bays) parts.push(`${motorcycle_bays} Motorcycle bays`);
         return parts.join(' + ') || '';
+    }
+
+    public hasMultipleBuildings(buildings: any[] | null | undefined): boolean {
+        const ids = new Set((buildings || []).filter(Boolean).map((_) => _.id));
+        return ids.size > 1;
     }
 
     private _updateFormTimes(start_mins: number, end_mins: number) {
@@ -869,12 +1089,61 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _detectShiftType(start: number, end: number) {
-        for (const [key, preset] of Object.entries(SHIFT_PRESETS)) {
-            if (preset.start === start && preset.end === end) {
-                this.shift_type.set(key);
+        for (const option of this.shift_options()) {
+            if (option.start_time === start && option.end_time === end) {
+                this.shift_type.set(option.id);
                 return;
             }
         }
         this.shift_type.set('custom');
+    }
+
+    private _defaultCustomShift() {
+        const now = new Date();
+        const current_mins = now.getHours() * 60 + now.getMinutes();
+        const start_time = Math.min(
+            (Math.floor(current_mins / 30) + 1) * 30,
+            1410,
+        );
+        return {
+            start_time,
+            end_time: Math.min(start_time + 120, 1439),
+        };
+    }
+
+    private _normaliseCustomShift(start_mins: number, end_mins: number) {
+        const start_time = Math.max(0, Math.min(start_mins, 1410));
+        const end_time = Math.min(Math.max(end_mins, start_time + 30), 1439);
+        return { start_time, end_time };
+    }
+
+    private _normaliseShiftOptions(
+        options: ParkingRequestShiftOption[] | undefined,
+    ): ParkingRequestShiftOption[] {
+        return (options || [])
+            .filter(
+                (option) =>
+                    !!option?.id &&
+                    option.id !== 'custom' &&
+                    typeof option.start_time === 'number' &&
+                    typeof option.end_time === 'number',
+            )
+            .map((option) => ({
+                id: option.id,
+                name: option.name || option.id,
+                start_time: option.start_time,
+                end_time: option.end_time,
+            }));
+    }
+
+    private _normaliseOptions(
+        options: ParkingRequestOption[] | undefined,
+    ): ParkingRequestOption[] {
+        return (options || [])
+            .filter((option) => !!option?.id)
+            .map((option) => ({
+                id: option.id,
+                name: option.name || option.id,
+            }));
     }
 }

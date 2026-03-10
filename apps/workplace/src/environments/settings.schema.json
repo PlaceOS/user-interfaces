@@ -137,6 +137,30 @@
                 }
             }
         },
+        "parking": {
+            "type": "object",
+            "description": "Data associated with the parking booking and request flows",
+            "properties": {
+                "allow_recurrence": {
+                    "type": "boolean",
+                    "description": "Whether multi-day recurrence options should be available in parking flows"
+                },
+                "request_submission_notes_html": {
+                    "type": "string",
+                    "description": "Optional sanitized HTML content shown in the parking request summary and submission section."
+                },
+                "request_shift_options": {
+                    "type": "array",
+                    "description": "Shift presets shown in the parking request flow. The custom shift option is always shown separately.",
+                    "items": { "$ref": "#/$defs/parking_request_shift_option" }
+                },
+                "request_space_restrictions": {
+                    "type": "array",
+                    "description": "Space restriction options shown in the parking request flow. If this list is empty, the field is hidden.",
+                    "items": { "$ref": "#/$defs/identity" }
+                }
+            }
+        },
         "spaces": {
             "type": "object",
             "description": "Data associated with spaces rendering",
@@ -242,6 +266,28 @@
                 "name": {
                     "type": "string",
                     "description": "Display string for the object"
+                }
+            }
+        },
+        "parking_request_shift_option": {
+            "type": "object",
+            "required": ["id", "name", "start_time", "end_time"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier for the shift preset. `custom` is reserved and added automatically."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display string for the shift preset"
+                },
+                "start_time": {
+                    "type": "number",
+                    "description": "Shift start time in minutes from midnight"
+                },
+                "end_time": {
+                    "type": "number",
+                    "description": "Shift end time in minutes from midnight"
                 }
             }
         }
