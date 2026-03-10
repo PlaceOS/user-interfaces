@@ -12,7 +12,6 @@ import {
     i18n,
     notifyError,
     OrganisationService,
-    settingSignal,
     SettingsService,
     Space,
 } from '@placeos/common';
@@ -134,11 +133,6 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly desk_loading = signal(false);
     public readonly last_event = this._event_form.last_success;
-    public readonly allow_desk_booking = computed(
-        () =>
-            settingSignal('features', [])()?.includes('desks') &&
-            settingSignal('events.hide_nearby_desks', false)() !== true,
-    );
     public readonly space = signal(new Space());
     public readonly level = computed(() => {
         return this._org.levelWithID(this.space().zones) || new BuildingLevel();
@@ -146,6 +140,14 @@ export class MeetingFlowSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public allow_desk_booking() {
+        return (
+            !!this._settings.get<string[]>('app.features')?.includes('desks') &&
+            this._settings.get<boolean>('app.events.hide_nearby_desks') !==
+                true
+        );
     }
 
     public get formatted_recurrence() {
