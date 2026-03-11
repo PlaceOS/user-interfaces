@@ -45547,7 +45547,7 @@ var _IconComponent = class _IconComponent {
 _IconComponent.\u0275fac = function IconComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _IconComponent)();
 };
-_IconComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _IconComponent, selectors: [["icon"], ["i", "icon", ""]], inputs: { className: [1, "className"], icon: [1, "icon"] }, ngContentSelectors: _c04, decls: 3, vars: 2, consts: [[1, "flex", "h-[1.25em]", "max-h-[1.25em]", "w-[1.25em]", "max-w-[1.25em]", "items-center", "justify-center", "overflow-hidden"], [3, "class"], [1, "h-[1em]", "w-[1em]", 3, "src"]], template: function IconComponent_Template(rf, ctx) {
+_IconComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _IconComponent, selectors: [["icon"], ["i", "icon", ""]], hostAttrs: ["aria-hidden", "true"], inputs: { className: [1, "className"], icon: [1, "icon"] }, ngContentSelectors: _c04, decls: 3, vars: 2, consts: [[1, "flex", "h-[1.25em]", "max-h-[1.25em]", "w-[1.25em]", "max-w-[1.25em]", "items-center", "justify-center", "overflow-hidden"], [3, "class"], [1, "h-[1em]", "w-[1em]", 3, "src"]], template: function IconComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -45566,7 +45566,7 @@ var IconComponent = _IconComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(IconComponent, [{
     type: Component,
-    args: [{ selector: "icon,i[icon]", template: `
+    args: [{ selector: "icon,i[icon]", host: { "aria-hidden": "true" }, template: `
         <div
             class="flex h-[1.25em] max-h-[1.25em] w-[1.25em] max-w-[1.25em] items-center justify-center overflow-hidden"
         >
@@ -45587,7 +45587,7 @@ var IconComponent = _IconComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(IconComponent, { className: "IconComponent", filePath: "libs/components/src/lib/icon.component.ts", lineNumber: 40 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(IconComponent, { className: "IconComponent", filePath: "libs/components/src/lib/icon.component.ts", lineNumber: 41 });
 })();
 
 // libs/components/src/lib/action-icon.component.ts
@@ -70283,15 +70283,15 @@ function currentUser() {
 // libs/common/src/lib/version.ts
 var VERSION7 = {
   "dirty": false,
-  "raw": "b05d8ac",
-  "hash": "b05d8ac",
+  "raw": "97d8677",
+  "hash": "97d8677",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "b05d8ac",
+  "suffix": "97d8677",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1773018193280
+  "time": 1773199491201
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -104560,7 +104560,7 @@ _SettingsToggleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _SettingsToggleComponent),
     multi: true
   }
-])], ngContentSelectors: _c015, decls: 9, vars: 8, consts: [["matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+])], ngContentSelectors: _c015, decls: 9, vars: 10, consts: [["matRipple", "", "role", "switch", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "button", 0);
@@ -104579,6 +104579,7 @@ _SettingsToggleComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   }
   if (rf & 2) {
     \u0275\u0275classProp("border-base-300", !ctx.value)("border-info", ctx.value);
+    \u0275\u0275attribute("aria-checked", !!ctx.value)("aria-label", ctx.name());
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx.name(), " ");
     \u0275\u0275advance(2);
@@ -104600,6 +104601,9 @@ var SettingsToggleComponent = _SettingsToggleComponent;
             [class.border-base-300]="!value"
             [class.border-info]="value"
             (click)="setValue(!value)"
+            role="switch"
+            [attr.aria-checked]="!!value"
+            [attr.aria-label]="name()"
         >
             <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
                 <div>
@@ -104651,7 +104655,7 @@ var SettingsToggleComponent = _SettingsToggleComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 87 });
 })();
 
 // libs/components/src/lib/translate.pipe.ts
@@ -104703,7 +104707,7 @@ function AttachedResourceConfigModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275property("ngModel", ctx_r1.require_notes)("name", \u0275\u0275pipeBind1(1, 2, "RESOURCE.REQUIRE_NOTES"));
   }
 }
-function AttachedResourceConfigModalComponent_For_11_For_35_For_5_Template(rf, ctx) {
+function AttachedResourceConfigModalComponent_For_11_For_37_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 24);
     \u0275\u0275text(1);
@@ -104716,132 +104720,141 @@ function AttachedResourceConfigModalComponent_For_11_For_35_For_5_Template(rf, c
     \u0275\u0275textInterpolate1(" ", type_r8.name, " ");
   }
 }
-function AttachedResourceConfigModalComponent_For_11_For_35_Template(rf, ctx) {
+function AttachedResourceConfigModalComponent_For_11_For_37_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275element(1, "div", 22);
-    \u0275\u0275elementStart(2, "mat-form-field", 12)(3, "mat-select", 23);
-    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_For_35_Template_mat_select_ngModelChange_3_listener($event) {
+    \u0275\u0275elementStart(2, "mat-form-field", 12)(3, "mat-label");
+    \u0275\u0275text(4, "Select Rule");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-select", 23);
+    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_For_37_Template_mat_select_ngModelChange_5_listener($event) {
       const rule_r7 = \u0275\u0275restoreView(_r6).$implicit;
       \u0275\u0275twoWayBindingSet(rule_r7[0], $event) || (rule_r7[0] = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275repeaterCreate(4, AttachedResourceConfigModalComponent_For_11_For_35_For_5_Template, 2, 2, "mat-option", 24, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(6, AttachedResourceConfigModalComponent_For_11_For_37_For_7_Template, 2, 2, "mat-option", 24, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-form-field", 12)(7, "input", 25);
-    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_For_35_Template_input_ngModelChange_7_listener($event) {
+    \u0275\u0275elementStart(8, "mat-form-field", 12)(9, "mat-label");
+    \u0275\u0275text(10, "Rule value");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "input", 25);
+    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_For_37_Template_input_ngModelChange_11_listener($event) {
       const rule_r7 = \u0275\u0275restoreView(_r6).$implicit;
       \u0275\u0275twoWayBindingSet(rule_r7[1], $event) || (rule_r7[1] = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "mat-error");
-    \u0275\u0275text(9);
-    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementStart(12, "mat-error");
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "button", 26);
-    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_For_35_Template_button_click_11_listener() {
-      const \u0275$index_78_r9 = \u0275\u0275restoreView(_r6).$index;
+    \u0275\u0275elementStart(15, "button", 26);
+    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_For_37_Template_button_click_15_listener() {
+      const \u0275$index_81_r9 = \u0275\u0275restoreView(_r6).$index;
       const set_r4 = \u0275\u0275nextContext().$implicit;
-      return \u0275\u0275resetView(set_r4.rules.splice(\u0275$index_78_r9, 1));
+      return \u0275\u0275resetView(set_r4.rules.splice(\u0275$index_81_r9, 1));
     });
-    \u0275\u0275elementStart(12, "icon");
-    \u0275\u0275text(13, "delete");
+    \u0275\u0275elementStart(16, "icon");
+    \u0275\u0275text(17, "delete");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const rule_r7 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(5);
     \u0275\u0275twoWayProperty("ngModel", rule_r7[0]);
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.rule_types);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(5);
     \u0275\u0275twoWayProperty("ngModel", rule_r7[1]);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 3, "RESOURCE.RULESET_VALUE_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 3, "RESOURCE.RULESET_VALUE_REQUIRED"));
   }
 }
 function AttachedResourceConfigModalComponent_For_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 7)(1, "div", 11)(2, "mat-form-field", 12)(3, "input", 13);
-    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_Template_input_ngModelChange_3_listener($event) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "div", 11)(2, "mat-form-field", 12)(3, "mat-label");
+    \u0275\u0275text(4, "Zone ID, Category or Tag");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "input", 13);
+    \u0275\u0275twoWayListener("ngModelChange", function AttachedResourceConfigModalComponent_For_11_Template_input_ngModelChange_5_listener($event) {
       const set_r4 = \u0275\u0275restoreView(_r3).$implicit;
       \u0275\u0275twoWayBindingSet(set_r4.name, $event) || (set_r4.name = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-error");
-    \u0275\u0275text(5);
-    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementStart(6, "mat-error");
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "button", 14)(8, "icon");
-    \u0275\u0275text(9, "more_vert");
+    \u0275\u0275elementStart(9, "button", 14)(10, "icon");
+    \u0275\u0275text(11, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "mat-menu", null, 0)(12, "button", 15);
-    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_12_listener() {
+    \u0275\u0275elementStart(12, "mat-menu", null, 0)(14, "button", 15);
+    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_14_listener() {
       const set_r4 = \u0275\u0275restoreView(_r3).$implicit;
       const ctx_r1 = \u0275\u0275nextContext();
       set_r4.rules.push(["", ""]);
       return \u0275\u0275resetView(ctx_r1.show_rules = set_r4.id);
     });
-    \u0275\u0275elementStart(13, "div", 16)(14, "icon", 17);
-    \u0275\u0275text(15, "add");
+    \u0275\u0275elementStart(15, "div", 16)(16, "icon", 17);
+    \u0275\u0275text(17, "add");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div");
-    \u0275\u0275text(17);
-    \u0275\u0275pipe(18, "translate");
+    \u0275\u0275elementStart(18, "div");
+    \u0275\u0275text(19);
+    \u0275\u0275pipe(20, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(19, "button", 18);
-    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_19_listener() {
+    \u0275\u0275elementStart(21, "button", 18);
+    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_21_listener() {
       const set_r4 = \u0275\u0275restoreView(_r3).$implicit;
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.show_rules = ctx_r1.show_rules !== set_r4.id ? set_r4.id : "");
     });
-    \u0275\u0275elementStart(20, "div", 16)(21, "icon", 17);
-    \u0275\u0275text(22);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(23, "div");
+    \u0275\u0275elementStart(22, "div", 16)(23, "icon", 17);
     \u0275\u0275text(24);
-    \u0275\u0275pipe(25, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(25, "div");
+    \u0275\u0275text(26);
+    \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(26, "button", 18);
-    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_26_listener() {
+    \u0275\u0275elementStart(28, "button", 18);
+    \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_For_11_Template_button_click_28_listener() {
       const \u0275$index_23_r5 = \u0275\u0275restoreView(_r3).$index;
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.rulesets.splice(\u0275$index_23_r5, 1));
     });
-    \u0275\u0275elementStart(27, "div", 19)(28, "icon", 17);
-    \u0275\u0275text(29, "delete");
+    \u0275\u0275elementStart(29, "div", 19)(30, "icon", 17);
+    \u0275\u0275text(31, "delete");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(30, "div");
-    \u0275\u0275text(31);
-    \u0275\u0275pipe(32, "translate");
+    \u0275\u0275elementStart(32, "div");
+    \u0275\u0275text(33);
+    \u0275\u0275pipe(34, "translate");
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(33, "div", 20);
-    \u0275\u0275repeaterCreate(34, AttachedResourceConfigModalComponent_For_11_For_35_Template, 14, 5, "div", 21, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(35, "div", 20);
+    \u0275\u0275repeaterCreate(36, AttachedResourceConfigModalComponent_For_11_For_37_Template, 18, 5, "div", 21, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const set_r4 = ctx.$implicit;
-    const menu_r10 = \u0275\u0275reference(11);
+    const menu_r10 = \u0275\u0275reference(13);
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(5);
     \u0275\u0275twoWayProperty("ngModel", set_r4.name);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 9, "RESOURCE.RULESET_NAME_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 9, "RESOURCE.RULESET_NAME_REQUIRED"));
     \u0275\u0275advance(2);
     \u0275\u0275property("matMenuTriggerFor", menu_r10);
     \u0275\u0275advance(10);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 11, "RESOURCE.RULESET_ADD_RULE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 11, "RESOURCE.RULESET_ADD_RULE"), " ");
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate(ctx_r1.show_rules === set_r4.id ? "expand_less" : "expand_more");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(25, 13, ctx_r1.show_rules === set_r4.id ? "RESOURCE.RULESET_HIDE_RULES" : "RESOURCE.RULESET_SHOW_RULES"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(27, 13, ctx_r1.show_rules === set_r4.id ? "RESOURCE.RULESET_HIDE_RULES" : "RESOURCE.RULESET_SHOW_RULES"), " ");
     \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(32, 15, "RESOURCE.RULESET_REMOVE_RULES"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(34, 15, "RESOURCE.RULESET_REMOVE_RULES"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("height", (ctx_r1.show_rules === set_r4.id ? 4 * set_r4.rules.length : 0) + "em");
     \u0275\u0275advance();
@@ -104922,7 +104935,7 @@ _AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(10, AttachedResourceConfigModalComponent_For_11_Template, 36, 17, "div", 7, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(10, AttachedResourceConfigModalComponent_For_11_Template, 38, 17, "div", 7, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "footer", 8)(13, "button", 9);
     \u0275\u0275listener("click", function AttachedResourceConfigModalComponent_Template_button_click_13_listener() {
@@ -104953,6 +104966,7 @@ _AttachedResourceConfigModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275de
   MatRipple,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -105017,6 +105031,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                             class="no-subscript flex-1"
                             appearance="outline"
                         >
+                            <mat-label>Zone ID, Category or Tag</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -105115,6 +105130,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                     class="no-subscript flex-1"
                                     appearance="outline"
                                 >
+                                    <mat-label>Select Rule</mat-label>
                                     <mat-select
                                         name="booking-type"
                                         [(ngModel)]="rule[0]"
@@ -105131,6 +105147,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
                                     class="no-subscript flex-1"
                                     appearance="outline"
                                 >
+                                    <mat-label>Rule value</mat-label>
                                     <input
                                         matInput
                                         name="value"
@@ -105181,7 +105198,7 @@ var AttachedResourceConfigModalComponent = _AttachedResourceConfigModalComponent
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttachedResourceConfigModalComponent, { className: "AttachedResourceConfigModalComponent", filePath: "libs/components/src/lib/attached-resource-config-modal.component.ts", lineNumber: 262 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttachedResourceConfigModalComponent, { className: "AttachedResourceConfigModalComponent", filePath: "libs/components/src/lib/attached-resource-config-modal.component.ts", lineNumber: 265 });
 })();
 
 // libs/components/src/lib/authenticated-image.pipe.ts
@@ -105508,13 +105525,13 @@ function AvailableRoomsStateModalComponent_Conditional_6_For_16_Template(rf, ctx
     const space_r4 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275property("checked", ctx_r1.selected.includes(space_r4.id));
+    \u0275\u0275property("checked", ctx_r1.selected.includes(space_r4.id))("aria-label", "Select " + (space_r4.display_name || space_r4.name));
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", space_r4.display_name || space_r4.name, " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("bg-success", !(ctx_r1.disabled_rooms == null ? null : ctx_r1.disabled_rooms.includes(space_r4.id)))("bg-error", ctx_r1.disabled_rooms == null ? null : ctx_r1.disabled_rooms.includes(space_r4.id));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 7, !(ctx_r1.disabled_rooms == null ? null : ctx_r1.disabled_rooms.includes(space_r4.id)) ? "COMMON.ENABLED" : "COMMON.DISABLED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 8, !(ctx_r1.disabled_rooms == null ? null : ctx_r1.disabled_rooms.includes(space_r4.id)) ? "COMMON.ENABLED" : "COMMON.DISABLED"), " ");
   }
 }
 function AvailableRoomsStateModalComponent_Conditional_6_Template(rf, ctx) {
@@ -105538,7 +105555,7 @@ function AvailableRoomsStateModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(14, "tbody");
-    \u0275\u0275repeaterCreate(15, AvailableRoomsStateModalComponent_Conditional_6_For_16_Template, 9, 9, "tr", 10, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(15, AvailableRoomsStateModalComponent_Conditional_6_For_16_Template, 9, 10, "tr", 10, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275pipe(17, "async");
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(18, "footer", 11)(19, "button", 12);
@@ -105635,7 +105652,7 @@ var _AvailableRoomsStateModalComponent = class _AvailableRoomsStateModalComponen
 _AvailableRoomsStateModalComponent.\u0275fac = function AvailableRoomsStateModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _AvailableRoomsStateModalComponent)();
 };
-_AvailableRoomsStateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AvailableRoomsStateModalComponent, selectors: [["available-rooms-state-modal"]], outputs: { change: "change" }, decls: 8, vars: 8, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-48", "w-full", "min-w-64", "flex-col", "items-center", "justify-center", "space-y-2", "p-16", "text-center"], [1, "max-h-[65vh]", "w-lg", "overflow-auto"], [1, "min-w-lg"], [1, "border-base-200", "border-b"], [1, "w-12", "py-1", 3, "click"], [1, "pointer-events-none", 3, "checked", "indeterminate"], [1, "px-8", "text-right", "text-xs"], [1, "hover:bg-base-200"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "p-2"], ["btn", "", "matRipple", "", 3, "click"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], [1, "hover:bg-base-200", 3, "click"], [1, "pointer-events-none", 3, "checked"], [1, "text-center"], [1, "ml-auto", "w-24", "rounded-full", "px-3", "py-2", "text-sm", "text-white"], ["diameter", "32"]], template: function AvailableRoomsStateModalComponent_Template(rf, ctx) {
+_AvailableRoomsStateModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AvailableRoomsStateModalComponent, selectors: [["available-rooms-state-modal"]], outputs: { change: "change" }, decls: 8, vars: 8, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-48", "w-full", "min-w-64", "flex-col", "items-center", "justify-center", "space-y-2", "p-16", "text-center"], [1, "max-h-[65vh]", "w-lg", "overflow-auto"], [1, "min-w-lg"], [1, "border-base-200", "border-b"], [1, "w-12", "py-1", 3, "click"], ["aria-label", "Select all rooms", 1, "pointer-events-none", 3, "checked", "indeterminate"], [1, "px-8", "text-right", "text-xs"], [1, "hover:bg-base-200"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "p-2"], ["btn", "", "matRipple", "", 3, "click"], ["btn", "", "matRipple", "", 1, "inverse", 3, "click"], [1, "hover:bg-base-200", 3, "click"], [1, "pointer-events-none", 3, "checked", "aria-label"], [1, "text-center"], [1, "ml-auto", "w-24", "rounded-full", "px-3", "py-2", "text-sm", "text-white"], ["diameter", "32"]], template: function AvailableRoomsStateModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "header", 0)(2, "h2", 1);
     \u0275\u0275text(3);
@@ -105706,6 +105723,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
                                             (rooms | async)?.length !==
                                                 selected.length
                                         "
+                                        aria-label="Select all rooms"
                                     ></mat-checkbox>
                                 </td>
                                 <td></td>
@@ -105734,6 +105752,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
                                             [checked]="
                                                 selected.includes(space.id)
                                             "
+                                            [aria-label]="'Select ' + (space.display_name || space.name)"
                                         ></mat-checkbox>
                                     </td>
                                     <td>
@@ -105811,7 +105830,7 @@ var AvailableRoomsStateModalComponent = _AvailableRoomsStateModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AvailableRoomsStateModalComponent, { className: "AvailableRoomsStateModalComponent", filePath: "libs/components/src/lib/available-rooms-state-modal.component.ts", lineNumber: 159 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AvailableRoomsStateModalComponent, { className: "AvailableRoomsStateModalComponent", filePath: "libs/components/src/lib/available-rooms-state-modal.component.ts", lineNumber: 161 });
 })();
 
 // node_modules/marked/lib/marked.esm.js
@@ -108147,7 +108166,7 @@ var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
 _FullscreenModalShellComponent.\u0275fac = function FullscreenModalShellComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _FullscreenModalShellComponent)();
 };
-_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c018, decls: 11, vars: 12, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-10", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c018, decls: 11, vars: 13, consts: [["role", "dialog", 1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium", "capitalize"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], ["icon", "", "matRipple", "", "aria-label", "Close dialog", 3, "routerLink"], [1, "h-10", "w-full"], [3, "diameter"], [1, "text-center", "opacity-60"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -108164,7 +108183,8 @@ _FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCom
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_5_0;
+    \u0275\u0275attribute("aria-label", ctx.heading());
     \u0275\u0275advance();
     \u0275\u0275classProp("w-160", !ctx.full_width())("w-full", ctx.full_width());
     \u0275\u0275advance();
@@ -108172,7 +108192,7 @@ _FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCom
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", ctx.heading(), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(!((tmp_4_0 = ctx.close()) == null ? null : tmp_4_0.length) ? 5 : 6);
+    \u0275\u0275conditional(!((tmp_5_0 = ctx.close()) == null ? null : tmp_5_0.length) ? 5 : 6);
     \u0275\u0275advance(2);
     \u0275\u0275classProp("max-w-156", !ctx.full_width());
     \u0275\u0275advance();
@@ -108199,6 +108219,8 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
     args: [{ selector: "fullscreen-modal-shell,[fs-modal-shell]", template: `
         <div
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
+            role="dialog"
+            [attr.aria-label]="heading()"
         >
             <div
                 class="border-base-300 bg-base-100 fixed top-0 mx-auto h-screen max-w-full border-x"
@@ -108214,13 +108236,13 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
                 </h2>
                 @if (!close()?.length) {
                     @if (!loading()) {
-                        <button icon matRipple mat-dialog-close>
+                        <button icon matRipple mat-dialog-close aria-label="Close dialog">
                             <icon>close</icon>
                         </button>
                     }
                 } @else {
                     @if (!loading()) {
-                        <a icon matRipple [routerLink]="close()">
+                        <a icon matRipple [routerLink]="close()" aria-label="Close dialog">
                             <icon>close</icon>
                         </a>
                     }
@@ -108238,7 +108260,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center opacity-50">{{ loading() }}</p>
+                        <p class="text-center opacity-60">{{ loading() }}</p>
                     </div>
                 }
             </main>
@@ -108269,7 +108291,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 90 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 92 });
 })();
 
 // libs/components/src/lib/changelog-modal.component.ts
@@ -110225,22 +110247,25 @@ function ImageCarouselComponent_For_2_Conditional_1_Template(rf, ctx) {
     \u0275\u0275element(0, "img", 7);
   }
   if (rf & 2) {
-    const image_r1 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("source", (image_r1 == null ? null : image_r1.url) || image_r1);
+    const ctx_r0 = \u0275\u0275nextContext();
+    const image_r2 = ctx_r0.$implicit;
+    const $index_r3 = ctx_r0.$index;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275property("source", (image_r2 == null ? null : image_r2.url) || image_r2)("alt", "Image " + ($index_r3 + 1) + " of " + ctx_r3.images().length);
   }
 }
 function ImageCarouselComponent_For_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6);
-    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 1, "img", 7);
+    \u0275\u0275conditionalCreate(1, ImageCarouselComponent_For_2_Conditional_1_Template, 1, 2, "img", 7);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const image_r1 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("transform", "translateX(-" + ctx_r1.offset * 100 + "%)");
+    const image_r2 = ctx.$implicit;
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("transform", "translateX(-" + ctx_r3.offset * 100 + "%)");
     \u0275\u0275advance();
-    \u0275\u0275conditional(image_r1 ? 1 : -1);
+    \u0275\u0275conditional(image_r2 ? 1 : -1);
   }
 }
 function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
@@ -110260,30 +110285,30 @@ function ImageCarouselComponent_Conditional_3_Template(rf, ctx) {
 }
 function ImageCarouselComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
+    const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 9);
     \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_4_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset = ctx_r1.offset - 1);
+      \u0275\u0275restoreView(_r5);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.offset = ctx_r3.offset - 1);
     });
     \u0275\u0275elementStart(1, "div", 10)(2, "icon", 11);
     \u0275\u0275text(3, "chevron_left");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset === 0);
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r3.offset === 0);
   }
 }
 function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
+    const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_5_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.offset = ctx_r1.offset + 1);
+      \u0275\u0275restoreView(_r6);
+      const ctx_r3 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r3.offset = ctx_r3.offset + 1);
     });
     \u0275\u0275elementStart(1, "div", 13)(2, "icon", 11);
     \u0275\u0275text(3, "chevron_right");
@@ -110291,39 +110316,40 @@ function ImageCarouselComponent_Conditional_5_Template(rf, ctx) {
   }
   if (rf & 2) {
     let tmp_1_0;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("disabled", ctx_r1.offset >= ((tmp_1_0 = ctx_r1.images()) == null ? null : tmp_1_0.length) - 1);
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r3.offset >= ((tmp_1_0 = ctx_r3.images()) == null ? null : tmp_1_0.length) - 1);
   }
 }
 function ImageCarouselComponent_Conditional_6_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
+    const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 15);
     \u0275\u0275listener("click", function ImageCarouselComponent_Conditional_6_For_2_Template_button_click_0_listener() {
-      const \u0275$index_38_r6 = \u0275\u0275restoreView(_r5).$index;
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.offset = \u0275$index_38_r6);
+      const \u0275$index_38_r8 = \u0275\u0275restoreView(_r7).$index;
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r3.offset = \u0275$index_38_r8);
     });
     \u0275\u0275element(1, "div", 16);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const \u0275$index_38_r6 = ctx.$index;
-    const ctx_r1 = \u0275\u0275nextContext(2);
+    const \u0275$index_38_r8 = ctx.$index;
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275attribute("aria-label", "Go to image " + (\u0275$index_38_r8 + 1));
     \u0275\u0275advance();
-    \u0275\u0275classProp("opacity-30", ctx_r1.offset !== \u0275$index_38_r6)("h-2", ctx_r1.offset !== \u0275$index_38_r6)("w-2", ctx_r1.offset !== \u0275$index_38_r6)("h-4", ctx_r1.offset === \u0275$index_38_r6)("w-4", ctx_r1.offset === \u0275$index_38_r6)("opacity-80", ctx_r1.offset === \u0275$index_38_r6);
+    \u0275\u0275classProp("opacity-30", ctx_r3.offset !== \u0275$index_38_r8)("h-2", ctx_r3.offset !== \u0275$index_38_r8)("w-2", ctx_r3.offset !== \u0275$index_38_r8)("h-4", ctx_r3.offset === \u0275$index_38_r8)("w-4", ctx_r3.offset === \u0275$index_38_r8)("opacity-80", ctx_r3.offset === \u0275$index_38_r8);
   }
 }
 function ImageCarouselComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 12, "button", 14, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(1, ImageCarouselComponent_Conditional_6_For_2_Template, 2, 13, "button", 14, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r3 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r1.images());
+    \u0275\u0275repeater(ctx_r3.images());
   }
 }
 var _ImageCarouselComponent = class _ImageCarouselComponent {
@@ -110335,7 +110361,7 @@ var _ImageCarouselComponent = class _ImageCarouselComponent {
 _ImageCarouselComponent.\u0275fac = function ImageCarouselComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ImageCarouselComponent)();
 };
-_ImageCarouselComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source"], [1, "text-6xl"], [1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], [1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
+_ImageCarouselComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ImageCarouselComponent, selectors: [["image-carousel"]], inputs: { images: [1, "images"] }, decls: 7, vars: 4, consts: [[1, "relative", "flex", "h-full", "w-full", "overflow-hidden"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden", 3, "transform"], [1, "relative", "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "space-y-2", "opacity-30"], ["aria-label", "Previous image", 1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "disabled"], ["aria-label", "Next image", 1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "disabled"], [1, "absolute", "bottom-2", "left-1/2", "flex", "-translate-x-1/2", "items-center", "space-x-2", "text-sm"], ["image", "", 1, "relative", "flex", "h-full", "min-w-full", "items-center", "justify-center", "overflow-hidden"], ["auth", "", 1, "h-full", "object-contain", 3, "source", "alt"], [1, "text-6xl"], ["aria-label", "Previous image", 1, "absolute", "inset-y-0", "left-0", "flex", "w-1/3", "items-center", "justify-center", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "left-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], [1, "text-3xl"], ["aria-label", "Next image", 1, "absolute", "inset-y-0", "right-0", "flex", "w-1/3", "items-center", "justify-center", "text-white", "opacity-0", "hover:opacity-100", 3, "click", "disabled"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-1/2", "right-4", "h-10", "w-10", "-translate-y-1/2", "rounded-full", "border", "shadow-sm"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center"], ["matRipple", "", 1, "flex", "h-4", "w-4", "items-center", "justify-center", 3, "click"], [1, "bg-base-100", "rounded-full", "shadow-sm", "transition-all"]], template: function ImageCarouselComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, ImageCarouselComponent_For_2_Template, 2, 3, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -110385,6 +110411,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                             auth
                             class="h-full object-contain"
                             [source]="$any(image)?.url || image"
+                            [alt]="'Image ' + ($index + 1) + ' of ' + images().length"
                         />
                     }
                 </div>
@@ -110399,6 +110426,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
             }
             @if (images()?.length) {
                 <button
+                    aria-label="Previous image"
                     class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
                     [disabled]="offset === 0"
                     (click)="offset = offset - 1"
@@ -110413,6 +110441,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
             }
             @if (images()?.length) {
                 <button
+                    aria-label="Next image"
                     class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
                     [disabled]="offset >= images()?.length - 1"
                     (click)="offset = offset + 1"
@@ -110433,6 +110462,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
                         <button
                             matRipple
                             (click)="offset = i"
+                            [attr.aria-label]="'Go to image ' + (i + 1)"
                             class="flex h-4 w-4 items-center justify-center"
                         >
                             <div
@@ -110458,7 +110488,7 @@ var ImageCarouselComponent = _ImageCarouselComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 111 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageCarouselComponent, { className: "ImageCarouselComponent", filePath: "libs/components/src/lib/image-carousel.component.ts", lineNumber: 115 });
 })();
 
 // node_modules/@placeos/svg-viewer/dist/index.es.js
@@ -114166,29 +114196,35 @@ function LoginComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div", 9)(1, "label", 10);
     \u0275\u0275text(2, " Username ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 11)(4, "input", 12, 0);
-    \u0275\u0275listener("keyup.enter", function LoginComponent_Conditional_7_Template_input_keyup_enter_4_listener() {
+    \u0275\u0275elementStart(3, "mat-form-field", 11)(4, "mat-label");
+    \u0275\u0275text(5, "Username");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 12, 0);
+    \u0275\u0275listener("keyup.enter", function LoginComponent_Conditional_7_Template_input_keyup_enter_6_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.toPassword());
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(6, "div", 9)(7, "label", 13);
-    \u0275\u0275text(8, "Password");
+    \u0275\u0275elementStart(8, "div", 9)(9, "label", 13);
+    \u0275\u0275text(10, "Password");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "mat-form-field", 11)(10, "input", 14, 1);
-    \u0275\u0275listener("keyup.enter", function LoginComponent_Conditional_7_Template_input_keyup_enter_10_listener() {
+    \u0275\u0275elementStart(11, "mat-form-field", 11)(12, "mat-label");
+    \u0275\u0275text(13, "Password");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "input", 14, 1);
+    \u0275\u0275listener("keyup.enter", function LoginComponent_Conditional_7_Template_input_keyup_enter_14_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.login());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "mat-error");
-    \u0275\u0275text(13, "Invalid username or password");
+    \u0275\u0275elementStart(16, "mat-error");
+    \u0275\u0275text(17, "Invalid username or password");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const username_r3 = \u0275\u0275reference(5);
+    const username_r3 = \u0275\u0275reference(7);
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
     \u0275\u0275classProp("focused", username_r3 || ctx_r1.focus === "username")("in-focus", ctx_r1.focus === "username");
@@ -114264,7 +114300,7 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
     \u0275\u0275pipe(5, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "div", 6);
-    \u0275\u0275conditionalCreate(7, LoginComponent_Conditional_7_Template, 14, 4)(8, LoginComponent_Conditional_8_Template, 4, 0, "div", 7);
+    \u0275\u0275conditionalCreate(7, LoginComponent_Conditional_7_Template, 18, 4)(8, LoginComponent_Conditional_8_Template, 4, 0, "div", 7);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(9, LoginComponent_Conditional_9_Template, 3, 0, "div", 8);
     \u0275\u0275elementEnd()();
@@ -114287,6 +114323,7 @@ _LoginComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: 
   MatProgressSpinner,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   AuthenticatedImageDirective
@@ -114335,6 +114372,7 @@ var LoginComponent = _LoginComponent;
                                 Username
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Username</mat-label>
                                 <input
                                     #username
                                     formControlName="username"
@@ -114345,6 +114383,7 @@ var LoginComponent = _LoginComponent;
                         <div class="flex flex-col">
                             <label for="password">Password</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Password</mat-label>
                                 <input
                                     #pass_field
                                     formControlName="password"
@@ -114398,7 +114437,7 @@ img {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "libs/components/src/lib/login.component.ts", lineNumber: 112 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LoginComponent, { className: "LoginComponent", filePath: "libs/components/src/lib/login.component.ts", lineNumber: 114 });
 })();
 
 // libs/components/src/lib/map-pin.component.ts
@@ -115183,18 +115222,20 @@ function SimpleTableComponent_Conditional_1_Conditional_0_Template(rf, ctx) {
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.selectAll($event.checked));
     });
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(2, "span", 7);
+    \u0275\u0275text(3, "Select all rows");
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275styleProp("grid-column", "1 / 2");
     \u0275\u0275advance();
-    \u0275\u0275property("checked", ctx_r1.selected().length === ctx_r1.data_view().length)("indeterminate", ctx_r1.selected().length > 0 && ctx_r1.selected().length < ctx_r1.data_view().length);
+    \u0275\u0275property("aria-label", "Select all rows")("checked", ctx_r1.selected().length === ctx_r1.data_view().length)("indeterminate", ctx_r1.selected().length > 0 && ctx_r1.selected().length < ctx_r1.data_view().length);
   }
 }
 function SimpleTableComponent_Conditional_1_For_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 9);
+    \u0275\u0275elementStart(0, "icon", 10);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -115209,25 +115250,25 @@ function SimpleTableComponent_Conditional_1_For_2_Conditional_3_Template(rf, ctx
 function SimpleTableComponent_Conditional_1_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275elementStart(0, "button", 8);
     \u0275\u0275listener("click", function SimpleTableComponent_Conditional_1_For_2_Template_button_click_0_listener() {
       const column_r4 = \u0275\u0275restoreView(_r3).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.setSort(column_r4.key));
     });
-    \u0275\u0275elementStart(1, "div", 8);
+    \u0275\u0275elementStart(1, "div", 9);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, SimpleTableComponent_Conditional_1_For_2_Conditional_3_Template, 2, 1, "icon", 9);
+    \u0275\u0275conditionalCreate(3, SimpleTableComponent_Conditional_1_For_2_Conditional_3_Template, 2, 1, "icon", 10);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_14_0;
     const column_r4 = ctx.$implicit;
-    const \u0275$index_9_r5 = ctx.$index;
+    const \u0275$index_12_r5 = ctx.$index;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275styleProp("grid-column", 1 + \u0275$index_9_r5 + (ctx_r1.selectable() ? 1 : 0) + " / " + (2 + \u0275$index_9_r5 + (ctx_r1.selectable() ? 1 : 0)));
-    \u0275\u0275classProp("pointer-events-none", !ctx_r1.sortable() || column_r4.sortable === false)("active", ((tmp_14_0 = ctx_r1.sort()) == null ? null : tmp_14_0.key) === column_r4.key)("border-r", \u0275$index_9_r5 !== ctx_r1.active_columns().length - 1)("width", column_r4.size);
+    \u0275\u0275styleProp("grid-column", 1 + \u0275$index_12_r5 + (ctx_r1.selectable() ? 1 : 0) + " / " + (2 + \u0275$index_12_r5 + (ctx_r1.selectable() ? 1 : 0)));
+    \u0275\u0275classProp("pointer-events-none", !ctx_r1.sortable() || column_r4.sortable === false)("active", ((tmp_14_0 = ctx_r1.sort()) == null ? null : tmp_14_0.key) === column_r4.key)("border-r", \u0275$index_12_r5 !== ctx_r1.active_columns().length - 1)("width", column_r4.size);
     \u0275\u0275property("id", "column-" + column_r4.key);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", column_r4.name || column_r4.key, " ");
@@ -115237,7 +115278,7 @@ function SimpleTableComponent_Conditional_1_For_2_Template(rf, ctx) {
 }
 function SimpleTableComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SimpleTableComponent_Conditional_1_Conditional_0_Template, 2, 4, "div", 3);
+    \u0275\u0275conditionalCreate(0, SimpleTableComponent_Conditional_1_Conditional_0_Template, 4, 5, "div", 3);
     \u0275\u0275repeaterCreate(1, SimpleTableComponent_Conditional_1_For_2_Template, 4, 13, "button", 4, _forTrack1);
   }
   if (rf & 2) {
@@ -115250,34 +115291,38 @@ function SimpleTableComponent_Conditional_1_Template(rf, ctx) {
 function SimpleTableComponent_For_3_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275elementStart(0, "div", 14);
     \u0275\u0275listener("mouseenter", function SimpleTableComponent_For_3_Conditional_0_Template_div_mouseenter_0_listener() {
       \u0275\u0275restoreView(_r6);
-      const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+      const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_19_r7));
+      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_22_r7));
     })("touchstart", function SimpleTableComponent_For_3_Conditional_0_Template_div_touchstart_0_listener() {
       \u0275\u0275restoreView(_r6);
-      const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+      const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_19_r7));
+      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_22_r7));
     });
-    \u0275\u0275elementStart(1, "mat-checkbox", 14);
+    \u0275\u0275elementStart(1, "mat-checkbox", 15);
     \u0275\u0275listener("change", function SimpleTableComponent_For_3_Conditional_0_Template_mat_checkbox_change_1_listener($event) {
       \u0275\u0275restoreView(_r6);
-      const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+      const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.select(\u0275$index_19_r7, $event.checked));
+      return \u0275\u0275resetView(ctx_r1.select(\u0275$index_22_r7, $event.checked));
     });
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(2, "span", 7);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+    const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("grid-column", "1 / 2");
-    \u0275\u0275classProp("border-b", \u0275$index_19_r7 !== ctx_r1.paginated_data().length - 1);
+    \u0275\u0275classProp("border-b", \u0275$index_22_r7 !== ctx_r1.paginated_data().length - 1);
     \u0275\u0275advance();
-    \u0275\u0275property("checked", ctx_r1.selected().includes(\u0275$index_19_r7));
+    \u0275\u0275property("aria-label", "Select row " + (\u0275$index_22_r7 + 1))("checked", ctx_r1.selected().includes(\u0275$index_22_r7));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("Select row ", \u0275$index_22_r7 + 1);
   }
 }
 function SimpleTableComponent_For_3_For_2_Case_1_ng_container_0_Template(rf, ctx) {
@@ -115287,20 +115332,20 @@ function SimpleTableComponent_For_3_For_2_Case_1_ng_container_0_Template(rf, ctx
 }
 function SimpleTableComponent_For_3_For_2_Case_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, SimpleTableComponent_For_3_For_2_Case_1_ng_container_0_Template, 1, 0, "ng-container", 17);
+    \u0275\u0275template(0, SimpleTableComponent_For_3_For_2_Case_1_ng_container_0_Template, 1, 0, "ng-container", 18);
   }
   if (rf & 2) {
     const column_r9 = \u0275\u0275nextContext().$implicit;
     const ctx_r9 = \u0275\u0275nextContext();
     const row_r11 = ctx_r9.$implicit;
-    const \u0275$index_19_r7 = ctx_r9.$index;
+    const \u0275$index_22_r7 = ctx_r9.$index;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("ngTemplateOutlet", ctx_r1.template(column_r9))("ngTemplateOutletContext", \u0275\u0275pureFunction7(2, _c030, \u0275$index_19_r7 === 0, \u0275$index_19_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_19_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11[column_r9.key], row_r11, column_r9.key, column_r9.name || column_r9.key));
+    \u0275\u0275property("ngTemplateOutlet", ctx_r1.template(column_r9))("ngTemplateOutletContext", \u0275\u0275pureFunction7(2, _c030, \u0275$index_22_r7 === 0, \u0275$index_22_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_22_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11[column_r9.key], row_r11, column_r9.key, column_r9.name || column_r9.key));
   }
 }
 function SimpleTableComponent_For_3_For_2_Case_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 18);
+    \u0275\u0275elementStart(0, "span", 19);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -115313,19 +115358,19 @@ function SimpleTableComponent_For_3_For_2_Case_2_Conditional_2_Template(rf, ctx)
 }
 function SimpleTableComponent_For_3_For_2_Case_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 16);
+    \u0275\u0275elementStart(0, "div", 17);
     \u0275\u0275text(1);
-    \u0275\u0275conditionalCreate(2, SimpleTableComponent_For_3_For_2_Case_2_Conditional_2_Template, 3, 3, "span", 18);
+    \u0275\u0275conditionalCreate(2, SimpleTableComponent_For_3_For_2_Case_2_Conditional_2_Template, 3, 3, "span", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const column_r9 = \u0275\u0275nextContext().$implicit;
     const ctx_r9 = \u0275\u0275nextContext();
     const row_r11 = ctx_r9.$implicit;
-    const \u0275$index_19_r7 = ctx_r9.$index;
+    const \u0275$index_22_r7 = ctx_r9.$index;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", row_r11[column_r9.key] ?? (column_r9.key === "_index" ? \u0275$index_19_r7 + 1 + ctx_r1.page() * (ctx_r1.page_size() || 0) : row_r11[column_r9.key]), " ");
+    \u0275\u0275textInterpolate1(" ", row_r11[column_r9.key] ?? (column_r9.key === "_index" ? \u0275$index_22_r7 + 1 + ctx_r1.page() * (ctx_r1.page_size() || 0) : row_r11[column_r9.key]), " ");
     \u0275\u0275advance();
     \u0275\u0275conditional((row_r11[column_r9.key] === null || row_r11[column_r9.key] === void 0 || row_r11[column_r9.key] === "") && column_r9.key !== "_index" ? 2 : -1);
   }
@@ -115333,29 +115378,29 @@ function SimpleTableComponent_For_3_For_2_Case_2_Template(rf, ctx) {
 function SimpleTableComponent_For_3_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 15);
+    \u0275\u0275elementStart(0, "div", 16);
     \u0275\u0275listener("mouseenter", function SimpleTableComponent_For_3_For_2_Template_div_mouseenter_0_listener() {
       \u0275\u0275restoreView(_r8);
-      const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+      const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_19_r7));
+      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_22_r7));
     })("touchstart", function SimpleTableComponent_For_3_For_2_Template_div_touchstart_0_listener() {
       \u0275\u0275restoreView(_r8);
-      const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+      const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_19_r7));
+      return \u0275\u0275resetView(ctx_r1.active_row.set(\u0275$index_22_r7));
     });
-    \u0275\u0275conditionalCreate(1, SimpleTableComponent_For_3_For_2_Case_1_Template, 1, 10, "ng-container")(2, SimpleTableComponent_For_3_For_2_Case_2_Template, 3, 2, "div", 16);
+    \u0275\u0275conditionalCreate(1, SimpleTableComponent_For_3_For_2_Case_1_Template, 1, 10, "ng-container")(2, SimpleTableComponent_For_3_For_2_Case_2_Template, 3, 2, "div", 17);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_26_0;
     const column_r9 = ctx.$implicit;
-    const \u0275$index_25_r12 = ctx.$index;
-    const \u0275$index_19_r7 = \u0275\u0275nextContext().$index;
+    const \u0275$index_31_r12 = ctx.$index;
+    const \u0275$index_22_r7 = \u0275\u0275nextContext().$index;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("grid-column", 1 + \u0275$index_25_r12 + (ctx_r1.selectable() ? 1 : 0) + " / " + (2 + \u0275$index_25_r12 + (ctx_r1.selectable() ? 1 : 0)));
-    \u0275\u0275classProp("border-b", \u0275$index_19_r7 !== ctx_r1.paginated_data().length - 1)("border-r", \u0275$index_25_r12 !== ctx_r1.active_columns().length - 1)("width", column_r9.size);
+    \u0275\u0275styleProp("grid-column", 1 + \u0275$index_31_r12 + (ctx_r1.selectable() ? 1 : 0) + " / " + (2 + \u0275$index_31_r12 + (ctx_r1.selectable() ? 1 : 0)));
+    \u0275\u0275classProp("border-b", \u0275$index_22_r7 !== ctx_r1.paginated_data().length - 1)("border-r", \u0275$index_31_r12 !== ctx_r1.active_columns().length - 1)("width", column_r9.size);
     \u0275\u0275advance();
     \u0275\u0275conditional((tmp_26_0 = ctx_r1.columnType(column_r9)) === "template" ? 1 : 2);
   }
@@ -115367,25 +115412,25 @@ function SimpleTableComponent_For_3_Conditional_3_ng_container_1_Template(rf, ct
 }
 function SimpleTableComponent_For_3_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19);
-    \u0275\u0275template(1, SimpleTableComponent_For_3_Conditional_3_ng_container_1_Template, 1, 0, "ng-container", 17);
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275template(1, SimpleTableComponent_For_3_Conditional_3_ng_container_1_Template, 1, 0, "ng-container", 18);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r9 = \u0275\u0275nextContext();
     const row_r11 = ctx_r9.$implicit;
-    const \u0275$index_19_r7 = ctx_r9.$index;
+    const \u0275$index_22_r7 = ctx_r9.$index;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("grid-column", "span " + ctx_r1.active_columns().length);
     \u0275\u0275advance();
-    \u0275\u0275property("ngTemplateOutlet", ctx_r1.child_template())("ngTemplateOutletContext", \u0275\u0275pureFunction4(4, _c114, \u0275$index_19_r7 === 0, \u0275$index_19_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_19_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11));
+    \u0275\u0275property("ngTemplateOutlet", ctx_r1.child_template())("ngTemplateOutletContext", \u0275\u0275pureFunction4(4, _c114, \u0275$index_22_r7 === 0, \u0275$index_22_r7 === ctx_r1.paginated_data().length - 1, \u0275$index_22_r7 + ctx_r1.page() * (ctx_r1.page_size() || 0), row_r11));
   }
 }
 function SimpleTableComponent_For_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, SimpleTableComponent_For_3_Conditional_0_Template, 2, 5, "div", 10);
-    \u0275\u0275repeaterCreate(1, SimpleTableComponent_For_3_For_2_Template, 3, 9, "div", 11, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275conditionalCreate(3, SimpleTableComponent_For_3_Conditional_3_Template, 2, 9, "div", 12);
+    \u0275\u0275conditionalCreate(0, SimpleTableComponent_For_3_Conditional_0_Template, 4, 7, "div", 11);
+    \u0275\u0275repeaterCreate(1, SimpleTableComponent_For_3_For_2_Template, 3, 9, "div", 12, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275conditionalCreate(3, SimpleTableComponent_For_3_Conditional_3_Template, 2, 9, "div", 13);
   }
   if (rf & 2) {
     const row_r11 = ctx.$implicit;
@@ -115399,7 +115444,7 @@ function SimpleTableComponent_For_3_Template(rf, ctx) {
 }
 function SimpleTableComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -115413,10 +115458,10 @@ function SimpleTableComponent_Conditional_4_Template(rf, ctx) {
 function SimpleTableComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 2)(1, "div", 21);
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 22);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 22);
+    \u0275\u0275elementStart(3, "button", 23);
     \u0275\u0275listener("click", function SimpleTableComponent_Conditional_5_Template_button_click_3_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -115425,7 +115470,7 @@ function SimpleTableComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "icon");
     \u0275\u0275text(5, "chevron_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "button", 22);
+    \u0275\u0275elementStart(6, "button", 24);
     \u0275\u0275listener("click", function SimpleTableComponent_Conditional_5_Template_button_click_6_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -115434,7 +115479,7 @@ function SimpleTableComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementStart(7, "icon");
     \u0275\u0275text(8, "chevron_right");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "button", 22);
+    \u0275\u0275elementStart(9, "button", 25);
     \u0275\u0275listener("click", function SimpleTableComponent_Conditional_5_Template_button_click_9_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -115443,7 +115488,7 @@ function SimpleTableComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementStart(10, "icon");
     \u0275\u0275text(11, "first_page");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(12, "button", 22);
+    \u0275\u0275elementStart(12, "button", 26);
     \u0275\u0275listener("click", function SimpleTableComponent_Conditional_5_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -115613,7 +115658,7 @@ var _SimpleTableComponent = class _SimpleTableComponent {
 _SimpleTableComponent.\u0275fac = function SimpleTableComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SimpleTableComponent)();
 };
-_SimpleTableComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SimpleTableComponent, selectors: [["simple-table"]], inputs: { data: [1, "data"], columns: [1, "columns"], selectable: [1, "selectable"], filter: [1, "filter"], sortable: [1, "sortable"], show_header: [1, "show_header"], selected: [1, "selected"], page_size: [1, "page_size"], empty_message: [1, "empty_message"], child_template: [1, "child_template"], show_children: [1, "show_children"], filter_on: [1, "filter_on"] }, outputs: { selected: "selectedChange", selectedChange: "selectedChange", rowClicked: "rowClicked" }, decls: 6, vars: 5, consts: [["role", "table", 1, "border-base-300", "grid", "border", 3, "click", "touchend", "mouseleave"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30", 3, "gridColumnStart"], [1, "bg-base-200", "sticky", "bottom-0", "z-30", "flex", "w-full", "items-center", "justify-end", "space-x-2", "p-2"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2", 3, "gridColumn"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "id", "gridColumn", "pointer-events-none", "active", "border-r", "width"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2"], [3, "change", "checked", "indeterminate"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "click", "id"], [1, "font-medium"], [1, "text-[1.25em]"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "gridColumn", "border-b"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "gridColumn", "border-b", "border-r", "width"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0", 3, "gridColumn"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "mouseenter", "touchstart"], [3, "change", "checked"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "mouseenter", "touchstart"], [1, "p-4"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "opacity-30"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-30"], [1, "px-4", "py-2"], ["icon", "", "matRipple", "", 3, "click", "disabled"]], template: function SimpleTableComponent_Template(rf, ctx) {
+_SimpleTableComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SimpleTableComponent, selectors: [["simple-table"]], inputs: { data: [1, "data"], columns: [1, "columns"], selectable: [1, "selectable"], filter: [1, "filter"], sortable: [1, "sortable"], show_header: [1, "show_header"], selected: [1, "selected"], page_size: [1, "page_size"], empty_message: [1, "empty_message"], child_template: [1, "child_template"], show_children: [1, "show_children"], filter_on: [1, "filter_on"] }, outputs: { selected: "selectedChange", selectedChange: "selectedChange", rowClicked: "rowClicked" }, decls: 6, vars: 5, consts: [["role", "table", 1, "border-base-300", "grid", "border", 3, "click", "touchend", "mouseleave"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-60", 3, "gridColumnStart"], [1, "bg-base-200", "sticky", "bottom-0", "z-30", "flex", "w-full", "items-center", "justify-end", "space-x-2", "p-2"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2", 3, "gridColumn"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "id", "gridColumn", "pointer-events-none", "active", "border-r", "width"], ["id", "column-selector", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-r", "border-b", "px-2"], [3, "change", "aria-label", "checked", "indeterminate"], [1, "sr-only"], ["header", "", "matRipple", "", 1, "border-base-200", "bg-base-300", "sticky", "top-0", "z-20", "flex", "min-h-full", "items-center", "justify-between", "border-b", "p-4", 3, "click", "id"], [1, "font-medium"], [1, "text-[1.25em]"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "gridColumn", "border-b"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "gridColumn", "border-b", "border-r", "width"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0", 3, "gridColumn"], ["id", "column-selector", 1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", "border-r", "px-2", 3, "mouseenter", "touchstart"], [3, "change", "aria-label", "checked"], [1, "border-base-200", "z-10", "flex", "min-h-full", "items-center", "justify-between", 3, "mouseenter", "touchstart"], [1, "p-4"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "opacity-60"], ["child-node", "", 1, "border-base-200", "relative", "border-b", "last:border-t", "last:border-b-0"], [1, "flex", "items-center", "justify-center", "p-8", "opacity-60"], [1, "px-4", "py-2"], ["icon", "", "matRipple", "", "aria-label", "Previous page", 3, "click", "disabled"], ["icon", "", "matRipple", "", "aria-label", "Next page", 3, "click", "disabled"], ["icon", "", "matRipple", "", "aria-label", "First page", 3, "click", "disabled"], ["icon", "", "matRipple", "", "aria-label", "Last page", 3, "click", "disabled"]], template: function SimpleTableComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("click", function SimpleTableComponent_Template_div_click_0_listener() {
@@ -115671,13 +115716,16 @@ var SimpleTableComponent = _SimpleTableComponent;
                         [style.gridColumn]="'1 / 2'"
                     >
                         <mat-checkbox
+                            [aria-label]="'Select all rows'"
                             [checked]="selected().length === data_view().length"
                             [indeterminate]="
                                 selected().length > 0 &&
                                 selected().length < data_view().length
                             "
                             (change)="selectAll($event.checked)"
-                        ></mat-checkbox>
+                        >
+                            <span class="sr-only">Select all rows</span>
+                        </mat-checkbox>
                     </div>
                 }
                 @for (
@@ -115736,9 +115784,12 @@ var SimpleTableComponent = _SimpleTableComponent;
                         (touchstart)="active_row.set(i)"
                     >
                         <mat-checkbox
+                            [aria-label]="'Select row ' + (i + 1)"
                             [checked]="selected().includes(i)"
                             (change)="select(i, $event.checked)"
-                        ></mat-checkbox>
+                        >
+                            <span class="sr-only">Select row {{ i + 1 }}</span>
+                        </mat-checkbox>
                     </div>
                 }
                 @for (
@@ -115778,7 +115829,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                                             row[column.key] === '') &&
                                         column.key !== '_index'
                                     ) {
-                                        <span class="opacity-30">
+                                        <span class="opacity-60">
                                             {{
                                                 column.empty ||
                                                     ('COMMON.EMPTY' | translate)
@@ -115832,7 +115883,7 @@ var SimpleTableComponent = _SimpleTableComponent;
             @if (!data_view().length) {
                 <div
                     [style.gridColumnStart]="'span ' + active_columns().length"
-                    class="flex items-center justify-center p-8 opacity-30"
+                    class="flex items-center justify-center p-8 opacity-60"
                 >
                     {{ empty_message() }}
                 </div>
@@ -115854,6 +115905,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Previous page"
                     [disabled]="page() === 0"
                     (click)="setPage(page() - 1)"
                 >
@@ -115862,6 +115914,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Next page"
                     [disabled]="page() === total_pages() - 1"
                     (click)="setPage(page() + 1)"
                 >
@@ -115870,6 +115923,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="First page"
                     [disabled]="page() === 0"
                     (click)="setPage(0)"
                 >
@@ -115878,6 +115932,7 @@ var SimpleTableComponent = _SimpleTableComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Last page"
                     [disabled]="page() === total_pages() - 1"
                     (click)="setPage(total_pages() - 1)"
                 >
@@ -115895,7 +115950,7 @@ var SimpleTableComponent = _SimpleTableComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SimpleTableComponent, { className: "SimpleTableComponent", filePath: "libs/components/src/lib/simple-table.component.ts", lineNumber: 293 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SimpleTableComponent, { className: "SimpleTableComponent", filePath: "libs/components/src/lib/simple-table.component.ts", lineNumber: 303 });
 })();
 
 // libs/components/src/lib/status-overlay.component.ts
@@ -116942,31 +116997,39 @@ function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditi
 }
 function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 16);
-    \u0275\u0275element(1, "input", 21);
+    \u0275\u0275elementStart(0, "mat-form-field", 16)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(3, "input", 21);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
     const question_r3 = \u0275\u0275readContextLet(0);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(question_r3.title);
     \u0275\u0275advance();
     \u0275\u0275property("formControlName", question_r3.id)("placeholder", question_r3.description || question_r3.title);
   }
 }
 function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 16);
-    \u0275\u0275element(1, "textarea", 21);
+    \u0275\u0275elementStart(0, "mat-form-field", 16)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(3, "textarea", 21);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
     const question_r3 = \u0275\u0275readContextLet(0);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(question_r3.title);
     \u0275\u0275advance();
     \u0275\u0275property("formControlName", question_r3.id)("placeholder", question_r3.description || question_r3.title);
   }
 }
-function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_For_3_Template(rf, ctx) {
+function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_For_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 23);
     \u0275\u0275text(1);
@@ -116981,13 +117044,18 @@ function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditi
 }
 function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 16)(1, "mat-select", 22);
-    \u0275\u0275repeaterCreate(2, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_For_3_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(0, "mat-form-field", 16)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-select", 22);
+    \u0275\u0275repeaterCreate(4, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_For_5_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
     const question_r3 = \u0275\u0275readContextLet(0);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(question_r3.title);
     \u0275\u0275advance();
     \u0275\u0275property("formControlName", question_r3.id)("placeholder", question_r3.description || question_r3.title);
     \u0275\u0275advance();
@@ -117067,7 +117135,7 @@ function SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditi
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(4, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Conditional_4_Template, 3, 3, "span", 14);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_5_Template, 3, 0, "div", 15)(6, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_6_Template, 2, 2, "mat-form-field", 16)(7, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_7_Template, 2, 2, "mat-form-field", 16)(8, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_Template, 4, 2, "mat-form-field", 16)(9, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_9_Template, 4, 1, "mat-radio-group", 17)(10, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_10_Template, 3, 0, "div", 18)(11, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_11_Template, 0, 0);
+    \u0275\u0275conditionalCreate(5, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_5_Template, 3, 0, "div", 15)(6, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_6_Template, 4, 3, "mat-form-field", 16)(7, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_7_Template, 4, 3, "mat-form-field", 16)(8, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_8_Template, 6, 3, "mat-form-field", 16)(9, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_9_Template, 4, 1, "mat-radio-group", 17)(10, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_10_Template, 3, 0, "div", 18)(11, SurveyOutletComponent_Conditional_0_Conditional_5_Conditional_1_Conditional_0_For_4_Conditional_1_Case_11_Template, 0, 0);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -117379,6 +117447,7 @@ _SurveyOutletComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   MatRipple,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatInputModule,
   MatInput,
   MatSelectModule,
@@ -117507,6 +117576,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <input
                                                             matInput
                                                             [formControlName]="
@@ -117524,6 +117594,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <textarea
                                                             matInput
                                                             [formControlName]="
@@ -117541,6 +117612,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <mat-select
                                                             [formControlName]="
                                                                 question.id
@@ -117698,7 +117770,7 @@ var SurveyOutletComponent = _SurveyOutletComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SurveyOutletComponent, { className: "SurveyOutletComponent", filePath: "libs/components/src/lib/survey-outlet.component.ts", lineNumber: 343 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SurveyOutletComponent, { className: "SurveyOutletComponent", filePath: "libs/components/src/lib/survey-outlet.component.ts", lineNumber: 346 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -120673,32 +120745,35 @@ var ImageViewerComponent = _ImageViewerComponent;
 
 // libs/components/src/lib/upload-permissions-modal.component.ts
 var _c035 = (a0, a1, a2) => ({ file: a0, is_public: a1, permissions: a2 });
-function UploadPermissionsModalComponent_Conditional_12_Template(rf, ctx) {
+function UploadPermissionsModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 7)(1, "label");
     \u0275\u0275text(2, "Permissions");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 11)(4, "mat-select", 12);
-    \u0275\u0275twoWayListener("ngModelChange", function UploadPermissionsModalComponent_Conditional_12_Template_mat_select_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(3, "mat-form-field", 11)(4, "mat-label");
+    \u0275\u0275text(5, "Permissions");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "mat-select", 12);
+    \u0275\u0275twoWayListener("ngModelChange", function UploadPermissionsModalComponent_Conditional_14_Template_mat_select_ngModelChange_6_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.permissions, $event) || (ctx_r1.permissions = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementStart(5, "mat-option", 13);
-    \u0275\u0275text(6, "None");
+    \u0275\u0275elementStart(7, "mat-option", 13);
+    \u0275\u0275text(8, "None");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-option", 14);
-    \u0275\u0275text(8, "Support");
+    \u0275\u0275elementStart(9, "mat-option", 14);
+    \u0275\u0275text(10, "Support");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "mat-option", 15);
-    \u0275\u0275text(10, "Admin");
+    \u0275\u0275elementStart(11, "mat-option", 15);
+    \u0275\u0275text(12, "Admin");
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(6);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.permissions);
   }
 }
@@ -120718,7 +120793,7 @@ var _UploadPermissionsModalComponent = class _UploadPermissionsModalComponent {
 _UploadPermissionsModalComponent.\u0275fac = function UploadPermissionsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UploadPermissionsModalComponent)();
 };
-_UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UploadPermissionsModalComponent, selectors: [["upload-permissions-modal"]], decls: 18, vars: 7, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "min-w-[20rem]", "space-y-2", "px-4", "py-2"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "disabled", "true", "placeholder", "File Name", 3, "ngModel"], [1, "flex", "flex-col", "space-y-2"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], ["appearance", "outline"], [3, "ngModelChange", "ngModel"], ["value", "none"], ["value", "support"], ["value", "admin"]], template: function UploadPermissionsModalComponent_Template(rf, ctx) {
+_UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UploadPermissionsModalComponent, selectors: [["upload-permissions-modal"]], decls: 20, vars: 7, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "min-w-[20rem]", "space-y-2", "px-4", "py-2"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "disabled", "true", "placeholder", "File Name", 3, "ngModel"], [1, "flex", "flex-col", "space-y-2"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], ["appearance", "outline"], [3, "ngModelChange", "ngModel"], ["value", "none"], ["value", "support"], ["value", "admin"]], template: function UploadPermissionsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2, "Upload File");
@@ -120729,23 +120804,25 @@ _UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
     \u0275\u0275elementStart(6, "main", 3)(7, "div", 4)(8, "label");
     \u0275\u0275text(9, "File Name");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 5);
-    \u0275\u0275element(11, "input", 6);
+    \u0275\u0275elementStart(10, "mat-form-field", 5)(11, "mat-label");
+    \u0275\u0275text(12, "File Name");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(13, "input", 6);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(12, UploadPermissionsModalComponent_Conditional_12_Template, 11, 1, "div", 7);
+    \u0275\u0275conditionalCreate(14, UploadPermissionsModalComponent_Conditional_14_Template, 13, 1, "div", 7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "footer", 8)(14, "button", 9);
-    \u0275\u0275text(15, " Cancel ");
+    \u0275\u0275elementStart(15, "footer", 8)(16, "button", 9);
+    \u0275\u0275text(17, " Cancel ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "button", 10);
-    \u0275\u0275text(17, " Upload ");
+    \u0275\u0275elementStart(18, "button", 10);
+    \u0275\u0275text(19, " Upload ");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275advance(11);
+    \u0275\u0275advance(13);
     \u0275\u0275property("ngModel", ctx.file.name);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx.is_public ? 12 : -1);
+    \u0275\u0275conditional(!ctx.is_public ? 14 : -1);
     \u0275\u0275advance(4);
     \u0275\u0275property("mat-dialog-close", \u0275\u0275pureFunction3(3, _c035, ctx.file, ctx.is_public, ctx.permissions));
   }
@@ -120754,6 +120831,7 @@ _UploadPermissionsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
   MatDialogClose,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   FormsModule,
   DefaultValueAccessor,
   NgControlStatus,
@@ -120784,6 +120862,7 @@ var UploadPermissionsModalComponent = _UploadPermissionsModalComponent;
             <div class="flex flex-col">
                 <label>File Name</label>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>File Name</mat-label>
                     <input
                         matInput
                         [ngModel]="file.name"
@@ -120796,6 +120875,7 @@ var UploadPermissionsModalComponent = _UploadPermissionsModalComponent;
                 <div class="flex flex-col space-y-2">
                     <label>Permissions</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Permissions</mat-label>
                         <mat-select [(ngModel)]="permissions">
                             <mat-option value="none">None</mat-option>
                             <mat-option value="support">Support</mat-option>
@@ -120837,7 +120917,7 @@ var UploadPermissionsModalComponent = _UploadPermissionsModalComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadPermissionsModalComponent, { className: "UploadPermissionsModalComponent", filePath: "libs/components/src/lib/upload-permissions-modal.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UploadPermissionsModalComponent, { className: "UploadPermissionsModalComponent", filePath: "libs/components/src/lib/upload-permissions-modal.component.ts", lineNumber: 86 });
 })();
 
 // libs/form-fields/src/lib/image-list-field.component.ts
@@ -120972,11 +121052,11 @@ function ImageListFieldComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275property("disabled", ctx_r3.offset >= ctx_r3.length - ctx_r3.view_space());
   }
 }
-function ImageListFieldComponent_For_21_Template(rf, ctx) {
+function ImageListFieldComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 28);
-    \u0275\u0275listener("removed", function ImageListFieldComponent_For_21_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function ImageListFieldComponent_For_24_Template_mat_chip_row_removed_0_listener() {
       const item_r10 = \u0275\u0275restoreView(_r9).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.removeImage(item_r10));
@@ -121130,7 +121210,7 @@ _ImageListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     provide: UPLOAD_PERMISSIONS_MODAL,
     useValue: UploadPermissionsModalComponent
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 24, vars: 15, consts: [["image_list", ""], ["file_input", ""], ["chipList", ""], ["images", "", 1, "relative", "mb-2", "flex", "w-full", "items-center", "space-x-2", "overflow-hidden", "py-2", 3, "resize"], ["image", "", 1, "border-base-200", "hover:border-base-300", "hover:bg-base-200", "relative", "flex", "h-32", "w-36", "shrink-0", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded-xl", "border-2", "border-dashed"], [1, "text-4xl", "opacity-60"], [1, "px-4", "text-center", "opacity-60"], ["type", "file", 1, "absolute", "inset-0", "h-32", "w-32", "cursor-pointer", "opacity-0", 3, "change"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center", 3, "transform"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "transform", "matTooltip"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "disabled"], ["appearance", "outline", 1, "w-full"], ["aria-label", "Image List"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center"], ["auth", "", 1, "pointer-events-none", "absolute", "top-1/2", "left-1/2", "z-10", "-translate-x-1/2", "-translate-y-1/2", "object-contain", 3, "source"], ["overlay", "", 1, "text-base-100", "absolute", "inset-0", "z-20"], ["bg", "", 1, "absolute", "inset-0", "bg-black", "opacity-0"], ["actions", "", 1, "absolute", "top-0", "right-0", "left-0", "flex", "items-center", "justify-center", "space-x-2", "opacity-0"], ["icon", "", 3, "click"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "click", "matTooltip"], ["mode", "determinate", 3, "value", "diameter"], [1, "text-error", "text-6xl"], ["overlay", "", 1, "text-base-100", "hover:bg-base-content", "hover:bg-opacity-50", "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "text-3xl", "opacity-0"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ImageListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 27, vars: 18, consts: [["image_list", ""], ["file_input", ""], ["chipList", ""], ["images", "", 1, "relative", "mb-2", "flex", "w-full", "items-center", "space-x-2", "overflow-hidden", "py-2", 3, "resize"], ["image", "", 1, "border-base-200", "hover:border-base-300", "hover:bg-base-200", "relative", "flex", "h-32", "w-36", "shrink-0", "cursor-pointer", "flex-col", "items-center", "justify-center", "rounded-xl", "border-2", "border-dashed"], [1, "text-4xl", "opacity-60"], [1, "px-4", "text-center", "opacity-60"], ["type", "file", 1, "absolute", "inset-0", "h-32", "w-32", "cursor-pointer", "opacity-0", 3, "change"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center", 3, "transform"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "transform", "matTooltip"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "disabled"], ["appearance", "outline", 1, "w-full"], ["aria-label", "Image List"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], ["image", "", 1, "bg-base-200", "relative", "h-32", "w-36", "shrink-0", "overflow-hidden", "rounded-sm", "bg-cover", "bg-center"], ["auth", "", 1, "pointer-events-none", "absolute", "top-1/2", "left-1/2", "z-10", "-translate-x-1/2", "-translate-y-1/2", "object-contain", 3, "source"], ["overlay", "", 1, "text-base-100", "absolute", "inset-0", "z-20"], ["bg", "", 1, "absolute", "inset-0", "bg-black", "opacity-0"], ["actions", "", 1, "absolute", "top-0", "right-0", "left-0", "flex", "items-center", "justify-center", "space-x-2", "opacity-0"], ["icon", "", 3, "click"], ["upload", "", 1, "border-base-content/10", "/5", "bg-base-200", "flex", "h-32", "w-36", "shrink-0", "items-center", "justify-center", "rounded-sm", "border", "bg-cover", "bg-center", 3, "click", "matTooltip"], ["mode", "determinate", 3, "value", "diameter"], [1, "text-error", "text-6xl"], ["overlay", "", 1, "text-base-100", "hover:bg-base-content", "hover:bg-opacity-50", "absolute", "inset-0", "flex", "items-center", "justify-center"], [1, "text-3xl", "opacity-0"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "left-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "bg-base-100", "absolute", "top-1/2", "right-0", "-translate-y-1/2", "transform", 3, "click", "disabled"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ImageListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 3, 0);
@@ -121157,39 +121237,46 @@ _ImageListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275conditionalCreate(15, ImageListFieldComponent_Conditional_15_Template, 3, 1, "button", 10);
     \u0275\u0275conditionalCreate(16, ImageListFieldComponent_Conditional_16_Template, 3, 1, "button", 11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "mat-form-field", 12)(18, "mat-chip-grid", 13, 2);
-    \u0275\u0275repeaterCreate(20, ImageListFieldComponent_For_21_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(17, "mat-form-field", 12)(18, "mat-label");
+    \u0275\u0275text(19);
+    \u0275\u0275pipe(20, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "input", 14);
-    \u0275\u0275pipe(23, "translate");
-    \u0275\u0275listener("matChipInputTokenEnd", function ImageListFieldComponent_Template_input_matChipInputTokenEnd_22_listener($event) {
+    \u0275\u0275elementStart(21, "mat-chip-grid", 13, 2);
+    \u0275\u0275repeaterCreate(23, ImageListFieldComponent_For_24_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(25, "input", 14);
+    \u0275\u0275pipe(26, "translate");
+    \u0275\u0275listener("matChipInputTokenEnd", function ImageListFieldComponent_Template_input_matChipInputTokenEnd_25_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addImage($event));
     });
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const chipList_r11 = \u0275\u0275reference(19);
+    const chipList_r11 = \u0275\u0275reference(22);
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("transform", "translate(-" + ctx.offset + "00%)");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 9, "COMMON.IMAGE_UPLOADS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 10, "COMMON.IMAGE_UPLOADS"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx.list);
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(14, 11, ctx.uploads));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(14, 12, ctx.uploads));
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx.length > ctx.view_space() ? 15 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx.length > ctx.view_space() ? 16 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(20, 14, "COMMON.IMAGE_ADD_URL"));
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx.list);
     \u0275\u0275advance(2);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(23, 13, "COMMON.IMAGE_ADD_URL"))("matChipInputFor", chipList_r11)("matChipInputSeparatorKeyCodes", ctx.separators)("matChipInputAddOnBlur", true);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(26, 16, "COMMON.IMAGE_ADD_URL"))("matChipInputFor", chipList_r11)("matChipInputSeparatorKeyCodes", ctx.separators)("matChipInputAddOnBlur", true);
   }
 }, dependencies: [
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatChipsModule,
   MatChipGrid,
   MatChipInput,
@@ -121317,6 +121404,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
             }
         </div>
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMMON.IMAGE_ADD_URL' | translate }}</mat-label>
             <mat-chip-grid #chipList aria-label="Image List">
                 @for (item of list; track item) {
                     <mat-chip-row (removed)="removeImage(item)">
@@ -121361,7 +121449,7 @@ var ImageListFieldComponent = _ImageListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageListFieldComponent, { className: "ImageListFieldComponent", filePath: "libs/form-fields/src/lib/image-list-field.component.ts", lineNumber: 240 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ImageListFieldComponent, { className: "ImageListFieldComponent", filePath: "libs/form-fields/src/lib/image-list-field.component.ts", lineNumber: 241 });
 })();
 
 // node_modules/suneditor/src/assets/defaultIcons.js
@@ -134001,7 +134089,7 @@ var RichTextInputComponent = _RichTextInputComponent;
 })();
 
 // libs/form-fields/src/lib/support-ticket-modal.component.ts
-function SupportTicketModalComponent_For_36_Template(rf, ctx) {
+function SupportTicketModalComponent_For_45_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 10);
     \u0275\u0275text(1);
@@ -134014,7 +134102,7 @@ function SupportTicketModalComponent_For_36_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", bld_r1.display_name || bld_r1.name, " ");
   }
 }
-function SupportTicketModalComponent_Conditional_38_For_8_Template(rf, ctx) {
+function SupportTicketModalComponent_Conditional_47_For_11_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 10);
     \u0275\u0275text(1);
@@ -134027,28 +134115,34 @@ function SupportTicketModalComponent_Conditional_38_For_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", type_r2.name || type_r2, " ");
   }
 }
-function SupportTicketModalComponent_Conditional_38_Template(rf, ctx) {
+function SupportTicketModalComponent_Conditional_47_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7)(1, "label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 8)(5, "mat-select", 17);
-    \u0275\u0275pipe(6, "translate");
-    \u0275\u0275repeaterCreate(7, SupportTicketModalComponent_Conditional_38_For_8_Template, 2, 2, "mat-option", 10, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(4, "mat-form-field", 8)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "mat-select", 17);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275repeaterCreate(10, SupportTicketModalComponent_Conditional_47_For_11_Template, 2, 2, "mat-option", 10, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "COMMON.SUPPORT_TYPE"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "COMMON.SUPPORT_TYPE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "COMMON.SUPPORT_TYPE"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "COMMON.SUPPORT_TYPE"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "COMMON.SUPPORT_TYPE"));
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.support_request_types);
   }
 }
-function SupportTicketModalComponent_Conditional_47_Template(rf, ctx) {
+function SupportTicketModalComponent_Conditional_56_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-error", 14);
     \u0275\u0275text(1);
@@ -134060,7 +134154,7 @@ function SupportTicketModalComponent_Conditional_47_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SUPPORT_DESCRIPTION_REQUIRED"), " ");
   }
 }
-function SupportTicketModalComponent_Conditional_48_Template(rf, ctx) {
+function SupportTicketModalComponent_Conditional_57_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "label", 12);
     \u0275\u0275text(2);
@@ -134158,7 +134252,7 @@ ${images.join("\n")}`,
 _SupportTicketModalComponent.\u0275fac = function SupportTicketModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SupportTicketModalComponent)();
 };
-_SupportTicketModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SupportTicketModalComponent, selectors: [["support-ticket-modal"]], decls: 52, vars: 44, consts: [[3, "confirm", "heading", "loading", "confirm_text"], [3, "formGroup"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "flex", "flex-1", "flex-col"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", 3, "placeholder"], ["matInput", "", "formControlName", "email", 3, "placeholder"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "w-full"], ["formControlName", "location", 3, "placeholder"], [3, "value"], [1, ""], [1, "mb-4"], ["formControlName", "description", 3, "placeholder"], [1, "my-2", "text-xs"], [1, "pt-4"], [1, "mb-2", "text-center", "text-xs", "italic"], ["formControlName", "issue_type", 3, "placeholder"], ["formControlName", "images"]], template: function SupportTicketModalComponent_Template(rf, ctx) {
+_SupportTicketModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SupportTicketModalComponent, selectors: [["support-ticket-modal"]], decls: 61, vars: 53, consts: [[3, "confirm", "heading", "loading", "confirm_text"], [3, "formGroup"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "flex", "flex-1", "flex-col"], ["appearance", "outline"], ["matInput", "", "formControlName", "name", 3, "placeholder"], ["matInput", "", "formControlName", "email", 3, "placeholder"], [1, "flex", "flex-col"], ["appearance", "outline", 1, "w-full"], ["formControlName", "location", 3, "placeholder"], [3, "value"], [1, ""], [1, "mb-4"], ["formControlName", "description", 3, "placeholder"], [1, "my-2", "text-xs"], [1, "pt-4"], [1, "mb-2", "text-center", "text-xs", "italic"], ["formControlName", "issue_type", 3, "placeholder"], ["formControlName", "images"]], template: function SupportTicketModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
     \u0275\u0275pipe(1, "translate");
@@ -134171,93 +134265,110 @@ _SupportTicketModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompo
     \u0275\u0275elementStart(8, "span");
     \u0275\u0275text(9, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "mat-form-field", 4);
-    \u0275\u0275element(11, "input", 5);
-    \u0275\u0275pipe(12, "translate");
-    \u0275\u0275elementStart(13, "mat-error");
-    \u0275\u0275text(14);
+    \u0275\u0275elementStart(10, "mat-form-field", 4)(11, "mat-label");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(14, "input", 5);
     \u0275\u0275pipe(15, "translate");
+    \u0275\u0275elementStart(16, "mat-error");
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(16, "div", 3)(17, "label");
-    \u0275\u0275text(18);
-    \u0275\u0275pipe(19, "translate");
-    \u0275\u0275elementStart(20, "span");
-    \u0275\u0275text(21, "*");
+    \u0275\u0275elementStart(19, "div", 3)(20, "label");
+    \u0275\u0275text(21);
+    \u0275\u0275pipe(22, "translate");
+    \u0275\u0275elementStart(23, "span");
+    \u0275\u0275text(24, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(22, "mat-form-field", 4);
-    \u0275\u0275element(23, "input", 6);
-    \u0275\u0275pipe(24, "translate");
-    \u0275\u0275elementStart(25, "mat-error");
-    \u0275\u0275text(26);
-    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275elementStart(25, "mat-form-field", 4)(26, "mat-label");
+    \u0275\u0275text(27);
+    \u0275\u0275pipe(28, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(29, "input", 6);
+    \u0275\u0275pipe(30, "translate");
+    \u0275\u0275elementStart(31, "mat-error");
+    \u0275\u0275text(32);
+    \u0275\u0275pipe(33, "translate");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(28, "div", 7)(29, "label");
-    \u0275\u0275text(30);
-    \u0275\u0275pipe(31, "translate");
+    \u0275\u0275elementStart(34, "div", 7)(35, "label");
+    \u0275\u0275text(36);
+    \u0275\u0275pipe(37, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(32, "mat-form-field", 8)(33, "mat-select", 9);
-    \u0275\u0275pipe(34, "translate");
-    \u0275\u0275repeaterCreate(35, SupportTicketModalComponent_For_36_Template, 2, 2, "mat-option", 10, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(37, "async");
+    \u0275\u0275elementStart(38, "mat-form-field", 8)(39, "mat-label");
+    \u0275\u0275text(40);
+    \u0275\u0275pipe(41, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(42, "mat-select", 9);
+    \u0275\u0275pipe(43, "translate");
+    \u0275\u0275repeaterCreate(44, SupportTicketModalComponent_For_45_Template, 2, 2, "mat-option", 10, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(46, "async");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(38, SupportTicketModalComponent_Conditional_38_Template, 9, 6, "div", 7);
-    \u0275\u0275elementStart(39, "div", 11)(40, "label", 12);
-    \u0275\u0275text(41);
-    \u0275\u0275pipe(42, "translate");
-    \u0275\u0275elementStart(43, "span");
-    \u0275\u0275text(44, "*");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275element(45, "rich-text-input", 13);
-    \u0275\u0275pipe(46, "translate");
-    \u0275\u0275conditionalCreate(47, SupportTicketModalComponent_Conditional_47_Template, 3, 3, "mat-error", 14);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(48, SupportTicketModalComponent_Conditional_48_Template, 5, 3, "div", 15);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(49, "div", 16);
+    \u0275\u0275conditionalCreate(47, SupportTicketModalComponent_Conditional_47_Template, 12, 9, "div", 7);
+    \u0275\u0275elementStart(48, "div", 11)(49, "label", 12);
     \u0275\u0275text(50);
     \u0275\u0275pipe(51, "translate");
+    \u0275\u0275elementStart(52, "span");
+    \u0275\u0275text(53, "*");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275element(54, "rich-text-input", 13);
+    \u0275\u0275pipe(55, "translate");
+    \u0275\u0275conditionalCreate(56, SupportTicketModalComponent_Conditional_56_Template, 3, 3, "mat-error", 14);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(57, SupportTicketModalComponent_Conditional_57_Template, 5, 3, "div", 15);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(58, "div", 16);
+    \u0275\u0275text(59);
+    \u0275\u0275pipe(60, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275property("heading", "Raise a support ticket")("loading", ctx.loading ? "true" : "")("confirm_text", \u0275\u0275pipeBind1(1, 18, "COMMON.SUBMIT"));
+    \u0275\u0275property("heading", "Raise a support ticket")("loading", ctx.loading ? "true" : "")("confirm_text", \u0275\u0275pipeBind1(1, 21, "COMMON.SUBMIT"));
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 20, "FORM.NAME"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 22, "FORM.NAME"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 24, "FORM.NAME_REQUIRED"));
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(19, 26, "FORM.EMAIL"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(24, 28, "FORM.EMAIL"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(27, 30, "FORM.EMAIL_REQUIRED"));
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 32, "COMMON.SUPPORT_LOCATION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(34, 34, "COMMON.SUPPORT_LOCATION"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 23, "FORM.NAME"));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 25, "FORM.NAME"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(37, 36, ctx.buildings));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(15, 27, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional((ctx.support_request_types == null ? null : ctx.support_request_types.length) ? 38 : -1);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(42, 38, "COMMON.SUPPORT_DESCRIPTION"), " ");
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(18, 29, "FORM.NAME_REQUIRED"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(46, 40, "COMMON.SUPPORT_DESCRIPTION"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(22, 31, "FORM.EMAIL"));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(28, 33, "FORM.EMAIL"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.desc_error ? 47 : -1);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(30, 35, "FORM.EMAIL"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(33, 37, "FORM.EMAIL_REQUIRED"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(37, 39, "COMMON.SUPPORT_LOCATION"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(41, 41, "COMMON.SUPPORT_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(43, 43, "COMMON.SUPPORT_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(46, 45, ctx.buildings));
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional((ctx.support_request_types == null ? null : ctx.support_request_types.length) ? 47 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(51, 47, "COMMON.SUPPORT_DESCRIPTION"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(55, 49, "COMMON.SUPPORT_DESCRIPTION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.desc_error ? 56 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.allow_images ? 48 : -1);
+    \u0275\u0275conditional(ctx.allow_images ? 57 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(51, 42, "COMMON.SUPPORT_MSG"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(60, 51, "COMMON.SUPPORT_MSG"), " ");
   }
 }, dependencies: [
   CommonModule,
   AsyncPipe,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -134298,6 +134409,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
                             >{{ 'FORM.NAME' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 [placeholder]="'FORM.NAME' | translate"
@@ -134313,6 +134425,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
                             >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                             <input
                                 matInput
                                 [placeholder]="'FORM.EMAIL' | translate"
@@ -134327,6 +134440,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
                 <div class="flex flex-col">
                     <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</mat-label>
                         <mat-select
                             [placeholder]="
                                 'COMMON.SUPPORT_LOCATION' | translate
@@ -134347,6 +134461,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
                     <div class="flex flex-col">
                         <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</mat-label>
                             <mat-select
                                 [placeholder]="
                                     'COMMON.SUPPORT_TYPE' | translate
@@ -134417,7 +134532,7 @@ var SupportTicketModalComponent = _SupportTicketModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SupportTicketModalComponent, { className: "SupportTicketModalComponent", filePath: "libs/form-fields/src/lib/support-ticket-modal.component.ts", lineNumber: 175 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SupportTicketModalComponent, { className: "SupportTicketModalComponent", filePath: "libs/form-fields/src/lib/support-ticket-modal.component.ts", lineNumber: 179 });
 })();
 
 // libs/form-fields/src/lib/time-field.component.ts
@@ -134855,6 +134970,7 @@ function WFHSettingsModalComponent_Conditional_5_For_3_Template(rf, ctx) {
     \u0275\u0275pipe(3, "date");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "mat-checkbox", 12);
+    \u0275\u0275pipe(5, "date");
     \u0275\u0275twoWayListener("ngModelChange", function WFHSettingsModalComponent_Conditional_5_For_3_Template_mat_checkbox_ngModelChange_4_listener($event) {
       const day_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
@@ -134872,14 +134988,15 @@ function WFHSettingsModalComponent_Conditional_5_For_3_Template(rf, ctx) {
     const day_r2 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, day_r2, "EEE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 3, day_r2, "EEE"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r2.weekdays_enabled[day_r2.getDay()]);
+    \u0275\u0275property("aria-label", "Enable " + \u0275\u0275pipeBind2(5, 6, day_r2, "EEEE"));
   }
 }
-function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_For_6_Template(rf, ctx) {
+function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_For_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 20);
+    \u0275\u0275elementStart(0, "mat-option", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -134890,32 +135007,32 @@ function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional
     \u0275\u0275textInterpolate1(" ", type_r7.name, " ");
   }
 }
-function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_7_Template(rf, ctx) {
+function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_7_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275listener("click", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
-      const \u0275$index_40_r9 = \u0275\u0275nextContext().$index;
+      const \u0275$index_41_r9 = \u0275\u0275nextContext().$index;
       const day_r6 = \u0275\u0275nextContext(2).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.addBlock(ctx_r2.settings[day_r6.getDay()], \u0275$index_40_r9));
+      return \u0275\u0275resetView(ctx_r2.addBlock(ctx_r2.settings[day_r6.getDay()], \u0275$index_41_r9));
     });
     \u0275\u0275elementStart(1, "icon");
     \u0275\u0275text(2, "add");
     \u0275\u0275elementEnd()();
   }
 }
-function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_8_Template(rf, ctx) {
+function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
-    \u0275\u0275listener("click", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_8_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275listener("click", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_10_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r10);
-      const \u0275$index_40_r9 = \u0275\u0275nextContext().$index;
+      const \u0275$index_41_r9 = \u0275\u0275nextContext().$index;
       const day_r6 = \u0275\u0275nextContext(2).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.removeBlock(ctx_r2.settings[day_r6.getDay()], \u0275$index_40_r9));
+      return \u0275\u0275resetView(ctx_r2.removeBlock(ctx_r2.settings[day_r6.getDay()], \u0275$index_41_r9));
     });
     \u0275\u0275elementStart(1, "icon");
     \u0275\u0275text(2, "delete");
@@ -134941,42 +135058,45 @@ function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional
       return \u0275\u0275resetView(ctx_r2.setEndTime(block_r5, day_r6.getDay(), $event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 19)(4, "mat-select", 12);
-    \u0275\u0275twoWayListener("ngModelChange", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Template_mat_select_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(3, "mat-form-field", 19)(4, "mat-label");
+    \u0275\u0275text(5, "Location");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "mat-select", 20);
+    \u0275\u0275twoWayListener("ngModelChange", function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Template_mat_select_ngModelChange_6_listener($event) {
       const block_r5 = \u0275\u0275restoreView(_r4).$implicit;
       \u0275\u0275twoWayBindingSet(block_r5.location, $event) || (block_r5.location = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275repeaterCreate(5, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_For_6_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(7, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_For_8_Template, 2, 2, "mat-option", 21, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(7, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_7_Template, 3, 0, "button", 21);
-    \u0275\u0275conditionalCreate(8, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_8_Template, 3, 0, "button", 22);
+    \u0275\u0275conditionalCreate(9, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_9_Template, 3, 0, "button", 22);
+    \u0275\u0275conditionalCreate(10, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Conditional_10_Template, 3, 0, "button", 23);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_25_0;
     const block_r5 = ctx.$implicit;
-    const \u0275$index_40_r9 = ctx.$index;
+    const \u0275$index_41_r9 = ctx.$index;
     const day_r6 = \u0275\u0275nextContext(2).$implicit;
     const ctx_r2 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.timeFrom(block_r5.start_time))("from", ctx_r2.timeFrom((\u0275$index_40_r9 > 0 ? (tmp_25_0 = ctx_r2.settings[day_r6.getDay()].blocks[\u0275$index_40_r9 - 1]) == null ? null : tmp_25_0.end_time : 0) || 0))("no_error", true);
+    \u0275\u0275property("ngModel", ctx_r2.timeFrom(block_r5.start_time))("from", ctx_r2.timeFrom((\u0275$index_41_r9 > 0 ? (tmp_25_0 = ctx_r2.settings[day_r6.getDay()].blocks[\u0275$index_41_r9 - 1]) == null ? null : tmp_25_0.end_time : 0) || 0))("no_error", true);
     \u0275\u0275advance();
     \u0275\u0275property("ngModel", ctx_r2.timeFrom(block_r5.end_time))("from", ctx_r2.timeFrom(block_r5.start_time + 0.25))("no_error", true);
-    \u0275\u0275advance(2);
+    \u0275\u0275advance(4);
     \u0275\u0275twoWayProperty("ngModel", block_r5.location);
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r2.options);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(\u0275$index_40_r9 === 0 ? 7 : -1);
+    \u0275\u0275conditional(\u0275$index_41_r9 === 0 ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(\u0275$index_40_r9 !== 0 ? 8 : -1);
+    \u0275\u0275conditional(\u0275$index_41_r9 !== 0 ? 10 : -1);
   }
 }
 function WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 14)(1, "div", 15);
-    \u0275\u0275repeaterCreate(2, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Template, 9, 9, "div", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(2, WFHSettingsModalComponent_Conditional_5_Conditional_7_For_2_Conditional_0_For_3_Template, 11, 9, "div", 16, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "h3", 17);
     \u0275\u0275text(5);
@@ -135022,8 +135142,8 @@ function WFHSettingsModalComponent_Conditional_5_Conditional_7_Template(rf, ctx)
 function WFHSettingsModalComponent_Conditional_5_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
-    \u0275\u0275element(1, "img", 25);
-    \u0275\u0275elementStart(2, "p", 26);
+    \u0275\u0275element(1, "img", 26);
+    \u0275\u0275elementStart(2, "p", 27);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
@@ -135036,7 +135156,7 @@ function WFHSettingsModalComponent_Conditional_5_Conditional_8_Template(rf, ctx)
 function WFHSettingsModalComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "main", 3)(1, "div", 6);
-    \u0275\u0275repeaterCreate(2, WFHSettingsModalComponent_Conditional_5_For_3_Template, 5, 5, "div", 7, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(2, WFHSettingsModalComponent_Conditional_5_For_3_Template, 6, 9, "div", 7, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementStart(4, "h3", 8);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
@@ -135057,8 +135177,8 @@ function WFHSettingsModalComponent_Conditional_5_Template(rf, ctx) {
 function WFHSettingsModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275element(1, "mat-spinner", 27);
-    \u0275\u0275elementStart(2, "p", 26);
+    \u0275\u0275element(1, "mat-spinner", 28);
+    \u0275\u0275elementStart(2, "p", 27);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
@@ -135073,7 +135193,7 @@ function WFHSettingsModalComponent_Conditional_6_Template(rf, ctx) {
 function WFHSettingsModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "footer", 5)(1, "button", 28);
+    \u0275\u0275elementStart(0, "footer", 5)(1, "button", 29);
     \u0275\u0275listener("click", function WFHSettingsModalComponent_Conditional_7_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r11);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -135225,7 +135345,7 @@ var _WFHSettingsModalComponent = class _WFHSettingsModalComponent {
 _WFHSettingsModalComponent.\u0275fac = function WFHSettingsModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _WFHSettingsModalComponent)();
 };
-_WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WFHSettingsModalComponent, selectors: [["wfh-settings-modal"]], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "relative", "flex", "max-h-[calc(100vh-9rem)]", "w-160", "max-w-full", "flex-col", "space-y-2", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "px-2", "py-4", "sm:max-h-[65vh]", "sm:p-4"], ["loading", "", 1, "bg-base-100", "relative", "flex", "h-72", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "text-center"], [1, "border-base-200", "flex", "justify-end", "border-t", "px-4", "py-2"], [1, "border-base-300", "relative", "mb-4", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "flex", "flex-1", "flex-col", "items-center", "pt-2"], [1, "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "px-2"], [1, "border-base-300", "relative", "flex", "w-full", "flex-col", "items-center", "justify-between", "space-y-4", "rounded-sm", "border", "px-2", "pt-6", "pb-4", "sm:px-4"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-4", "px-8", "py-16"], [1, "text-xs", "font-bold", "uppercase"], [3, "ngModelChange", "ngModel"], [1, "bg-base-100", "absolute", "top-0", "left-2", "m-0!", "-translate-y-1/2", "px-2"], [1, "border-base-200", "relative", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "w-1/2", "flex-1", "space-y-2", "pt-2"], [1, "flex", "items-center", "space-x-2"], [1, "border-base-200", "bg-base-100", "bg-opacity-50", "absolute", "top-0", "left-2", "-translate-y-1/2", "rounded-sm", "border", "px-2", "text-sm", "font-medium"], [1, "w-1/4", "flex-1", 3, "ngModelChange", "ngModel", "from", "no_error"], ["appearance", "outline", 1, "no-subscript", "w-1/4", "flex-1"], [3, "value"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["src", "assets/icons/no-results.svg", 1, "m-auto"], [1, "opacity-30"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function WFHSettingsModalComponent_Template(rf, ctx) {
+_WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _WFHSettingsModalComponent, selectors: [["wfh-settings-modal"]], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "bg-base-200"], [1, "relative", "flex", "max-h-[calc(100vh-9rem)]", "w-160", "max-w-full", "flex-col", "space-y-2", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "px-2", "py-4", "sm:max-h-[65vh]", "sm:p-4"], ["loading", "", 1, "bg-base-100", "relative", "flex", "h-72", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "overflow-hidden", "rounded-sm", "text-center"], [1, "border-base-200", "flex", "justify-end", "border-t", "px-4", "py-2"], [1, "border-base-300", "relative", "mb-4", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "flex", "flex-1", "flex-col", "items-center", "pt-2"], [1, "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "px-2"], [1, "border-base-300", "relative", "flex", "w-full", "flex-col", "items-center", "justify-between", "space-y-4", "rounded-sm", "border", "px-2", "pt-6", "pb-4", "sm:px-4"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-4", "px-8", "py-16"], [1, "text-xs", "font-bold", "uppercase"], [3, "ngModelChange", "ngModel", "aria-label"], [1, "bg-base-100", "absolute", "top-0", "left-2", "m-0!", "-translate-y-1/2", "px-2"], [1, "border-base-200", "relative", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border", "p-2"], [1, "w-1/2", "flex-1", "space-y-2", "pt-2"], [1, "flex", "items-center", "space-x-2"], [1, "border-base-200", "bg-base-100", "bg-opacity-50", "absolute", "top-0", "left-2", "-translate-y-1/2", "rounded-sm", "border", "px-2", "text-sm", "font-medium"], [1, "w-1/4", "flex-1", 3, "ngModelChange", "ngModel", "from", "no_error"], ["appearance", "outline", 1, "no-subscript", "w-1/4", "flex-1"], [3, "ngModelChange", "ngModel"], [3, "value"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border"], ["icon", "", "matRipple", "", 1, "border-base-400", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["src", "assets/icons/no-results.svg", 1, "m-auto"], [1, "opacity-30"], [3, "diameter"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function WFHSettingsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -135256,6 +135376,7 @@ _WFHSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   MatRipple,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -135303,6 +135424,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                                 (ngModelChange)="
                                     $event && initialiseDay(day.getDay())
                                 "
+                                [aria-label]="'Enable ' + (day | date: 'EEEE')"
                             >
                             </mat-checkbox>
                         </div>
@@ -135383,6 +135505,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
                                                     appearance="outline"
                                                     class="no-subscript w-1/4 flex-1"
                                                 >
+                                                    <mat-label>Location</mat-label>
                                                     <mat-select
                                                         [(ngModel)]="
                                                             block.location
@@ -135498,7 +135621,7 @@ var WFHSettingsModalComponent = _WFHSettingsModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WFHSettingsModalComponent, { className: "WFHSettingsModalComponent", filePath: "libs/users/src/lib/wfh-settings-modal.component.ts", lineNumber: 258 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(WFHSettingsModalComponent, { className: "WFHSettingsModalComponent", filePath: "libs/users/src/lib/wfh-settings-modal.component.ts", lineNumber: 260 });
 })();
 
 // node_modules/@angular/material/fesm2022/slider.mjs
@@ -138525,7 +138648,7 @@ var _UserParkingTooltipComponent = class _UserParkingTooltipComponent {
 _UserParkingTooltipComponent.\u0275fac = function UserParkingTooltipComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _UserParkingTooltipComponent)();
 };
-_UserParkingTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserParkingTooltipComponent, selectors: [["user-parking-tooltip"]], decls: 14, vars: 13, consts: [[1, "border-base-300", "bg-base-100", "min-w-[20rem]", "space-y-2", "rounded-md", "border", "p-2"], [1, "border-base-300", "border-b", "text-lg", "font-medium"], [1, "flex", "flex-col"], ["for", "plate-number"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function UserParkingTooltipComponent_Template(rf, ctx) {
+_UserParkingTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserParkingTooltipComponent, selectors: [["user-parking-tooltip"]], decls: 17, vars: 16, consts: [[1, "border-base-300", "bg-base-100", "min-w-[20rem]", "space-y-2", "rounded-md", "border", "p-2"], [1, "border-base-300", "border-b", "text-lg", "font-medium"], [1, "flex", "flex-col"], ["for", "plate-number"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"]], template: function UserParkingTooltipComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -138535,33 +138658,39 @@ _UserParkingTooltipComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompo
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "mat-form-field", 4)(9, "input", 5);
-    \u0275\u0275pipe(10, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function UserParkingTooltipComponent_Template_input_ngModelChange_9_listener($event) {
+    \u0275\u0275elementStart(8, "mat-form-field", 4)(9, "mat-label");
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "input", 5);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function UserParkingTooltipComponent_Template_input_ngModelChange_12_listener($event) {
       \u0275\u0275twoWayBindingSet(ctx.plate_number, $event) || (ctx.plate_number = $event);
       return $event;
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(11, "button", 6);
-    \u0275\u0275listener("click", function UserParkingTooltipComponent_Template_button_click_11_listener() {
+    \u0275\u0275elementStart(14, "button", 6);
+    \u0275\u0275listener("click", function UserParkingTooltipComponent_Template_button_click_14_listener() {
       return ctx.save();
     });
-    \u0275\u0275text(12);
-    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275text(15);
+    \u0275\u0275pipe(16, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.CONTROLS_PARKING"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "COMMON.CONTROLS_PARKING"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 7, "EXPLORE.PARKING_PLATE_NUMBER"));
-    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 8, "EXPLORE.PARKING_PLATE_NUMBER"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 10, "EXPLORE.PARKING_PLATE_NUMBER"));
+    \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx.plate_number);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(10, 9, "EXPLORE.PARKING_PLATE_NUMBER"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(13, 12, "EXPLORE.PARKING_PLATE_NUMBER"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 14, "COMMON.SAVE"), " ");
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatInputModule, MatInput, TranslatePipe, FormsModule, DefaultValueAccessor, NgControlStatus, NgModel], encapsulation: 2 });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatInputModule, MatInput, TranslatePipe, FormsModule, DefaultValueAccessor, NgControlStatus, NgModel], encapsulation: 2 });
 var UserParkingTooltipComponent = _UserParkingTooltipComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserParkingTooltipComponent, [{
@@ -138578,6 +138707,7 @@ var UserParkingTooltipComponent = _UserParkingTooltipComponent;
                     'EXPLORE.PARKING_PLATE_NUMBER' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>{{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}</mat-label>
                     <input
                         matInput
                         [(ngModel)]="plate_number"
@@ -138595,7 +138725,7 @@ var UserParkingTooltipComponent = _UserParkingTooltipComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserParkingTooltipComponent, { className: "UserParkingTooltipComponent", filePath: "libs/components/src/lib/user-parking-tooltip.component.ts", lineNumber: 45 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserParkingTooltipComponent, { className: "UserParkingTooltipComponent", filePath: "libs/components/src/lib/user-parking-tooltip.component.ts", lineNumber: 46 });
 })();
 
 // libs/components/src/lib/work-location-tooltip.component.ts
@@ -141626,7 +141756,7 @@ _CounterComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
     useExisting: forwardRef(() => _CounterComponent),
     multi: true
   }
-])], decls: 10, vars: 6, consts: [["counter", "", 1, "flex", "items-center", "text-base", 3, "keydown.shift", "keydown.control", "keydown.meta", "keyup.shift", "keyup.control", "keyup.meta"], ["decrease", "", "icon", "", "matRipple", "", "type", "button", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l", "rounded-r-none", "border", 3, "click", "disabled"], ["value", "", 1, "border-secondary", "relative", "z-0", "-mx-px", "flex", "h-12", "min-w-16", "flex-1", "items-center", "justify-center", "rounded-none", "border", "p-2", "focus-within:z-20"], ["type", "text", "limitInput", "", 1, "absolute", "inset-0", "rounded-none", "p-2", "opacity-0", "focus:opacity-100", 3, "ngModelChange", "focus", "blur", "ngModel"], ["increase", "", "icon", "", "matRipple", "", "type", "button", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l-none", "rounded-r", "border", 3, "click", "disabled"]], template: function CounterComponent_Template(rf, ctx) {
+])], decls: 10, vars: 6, consts: [["counter", "", 1, "flex", "items-center", "text-base", 3, "keydown.shift", "keydown.control", "keydown.meta", "keyup.shift", "keyup.control", "keyup.meta"], ["decrease", "", "icon", "", "matRipple", "", "type", "button", "aria-label", "Decrease value", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l", "rounded-r-none", "border", 3, "click", "disabled"], ["value", "", 1, "border-secondary", "relative", "z-0", "-mx-px", "flex", "h-12", "min-w-16", "flex-1", "items-center", "justify-center", "rounded-none", "border", "p-2", "focus-within:z-20"], ["type", "text", "limitInput", "", "aria-label", "Counter value", 1, "absolute", "inset-0", "rounded-none", "p-2", "opacity-0", "focus:opacity-100", 3, "ngModelChange", "focus", "blur", "ngModel"], ["increase", "", "icon", "", "matRipple", "", "type", "button", "aria-label", "Increase value", 1, "border-secondary", "text-secondary", "z-10", "h-12", "w-12", "rounded-l-none", "rounded-r", "border", 3, "click", "disabled"]], template: function CounterComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275listener("keydown.shift", function CounterComponent_Template_div_keydown_shift_0_listener() {
@@ -141707,6 +141837,7 @@ var CounterComponent = _CounterComponent;
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
                 [disabled]="!value || value === min()"
                 (click)="remove()"
+                aria-label="Decrease value"
             >
                 <icon>remove</icon>
             </button>
@@ -141726,6 +141857,7 @@ var CounterComponent = _CounterComponent;
                     (focus)="focused = true"
                     (blur)="setValue(+value); focused = false"
                     limitInput
+                    aria-label="Counter value"
                 />
             </div>
             <button
@@ -141736,6 +141868,7 @@ var CounterComponent = _CounterComponent;
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
                 [disabled]="value === max()"
                 (click)="add()"
+                aria-label="Increase value"
             >
                 <icon>add</icon>
             </button>
@@ -141751,7 +141884,7 @@ var CounterComponent = _CounterComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CounterComponent, { className: "CounterComponent", filePath: "libs/form-fields/src/lib/counter.component.ts", lineNumber: 82 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CounterComponent, { className: "CounterComponent", filePath: "libs/form-fields/src/lib/counter.component.ts", lineNumber: 85 });
 })();
 
 // libs/form-fields/src/lib/date-calendar.component.ts
@@ -143177,7 +143310,7 @@ function querySpaceFreeBusy(q4, org) {
 }
 
 // libs/form-fields/src/lib/host-select-field.component.ts
-function HostSelectFieldComponent_For_3_Template(rf, ctx) {
+function HostSelectFieldComponent_For_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 2)(1, "div", 3)(2, "div");
     \u0275\u0275text(3);
@@ -143198,7 +143331,7 @@ function HostSelectFieldComponent_For_3_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", user_r1 == null ? null : user_r1.email, " ");
   }
 }
-function HostSelectFieldComponent_Conditional_7_Template(rf, ctx) {
+function HostSelectFieldComponent_Conditional_9_Template(rf, ctx) {
 }
 var _HostSelectFieldComponent = class _HostSelectFieldComponent {
   constructor() {
@@ -143245,36 +143378,40 @@ _HostSelectFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _HostSelectFieldComponent),
     multi: true
   }
-])], decls: 9, vars: 8, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "disabled", "placeholder"], [1, "leading-tight", 3, "value"], [1, "flex", "flex-col"], [1, "hidden"], [1, "text-xs", "opacity-60"]], template: function HostSelectFieldComponent_Template(rf, ctx) {
+])], decls: 11, vars: 8, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "disabled", "placeholder"], [1, "leading-tight", 3, "value"], [1, "flex", "flex-col"], [1, "hidden"], [1, "text-xs", "opacity-60"]], template: function HostSelectFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-select", 1);
-    \u0275\u0275listener("ngModelChange", function HostSelectFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-label");
+    \u0275\u0275text(2, "Select host");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-select", 1);
+    \u0275\u0275listener("ngModelChange", function HostSelectFieldComponent_Template_mat_select_ngModelChange_3_listener($event) {
       return ctx.setValue($event);
     });
-    \u0275\u0275repeaterCreate(2, HostSelectFieldComponent_For_3_Template, 8, 3, "mat-option", 2, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(4, HostSelectFieldComponent_For_5_Template, 8, 3, "mat-option", 2, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(6, "async");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "mat-error");
-    \u0275\u0275text(6, "Host is required");
+    \u0275\u0275elementStart(7, "mat-error");
+    \u0275\u0275text(8, "Host is required");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(7, HostSelectFieldComponent_Conditional_7_Template, 0, 0);
-    \u0275\u0275pipe(8, "async");
+    \u0275\u0275conditionalCreate(9, HostSelectFieldComponent_Conditional_9_Template, 0, 0);
+    \u0275\u0275pipe(10, "async");
   }
   if (rf & 2) {
-    \u0275\u0275advance();
+    \u0275\u0275advance(3);
     \u0275\u0275property("ngModel", ctx.item == null ? null : ctx.item.email)("disabled", ctx.disabled)("placeholder", (ctx.item == null ? null : ctx.item.email) ? ctx.item.name || ctx.item.email : "Select host");
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 4, ctx.users));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 4, ctx.users));
     \u0275\u0275advance(5);
-    \u0275\u0275conditional(\u0275\u0275pipeBind1(8, 6, ctx.users) ? 7 : -1);
+    \u0275\u0275conditional(\u0275\u0275pipeBind1(10, 6, ctx.users) ? 9 : -1);
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatError, MatSelectModule, MatSelect, MatOption, CommonModule, AsyncPipe, FormsModule, NgControlStatus, NgModel], encapsulation: 2 });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatError, MatSelectModule, MatSelect, MatOption, CommonModule, AsyncPipe, FormsModule, NgControlStatus, NgModel], encapsulation: 2 });
 var HostSelectFieldComponent = _HostSelectFieldComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HostSelectFieldComponent, [{
     type: Component,
     args: [{ selector: "host-select-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Select host</mat-label>
             <mat-select
                 [ngModel]="this.item?.email"
                 (ngModelChange)="setValue($event)"
@@ -143308,15 +143445,15 @@ var HostSelectFieldComponent = _HostSelectFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HostSelectFieldComponent, { className: "HostSelectFieldComponent", filePath: "libs/form-fields/src/lib/host-select-field.component.ts", lineNumber: 60 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HostSelectFieldComponent, { className: "HostSelectFieldComponent", filePath: "libs/form-fields/src/lib/host-select-field.component.ts", lineNumber: 61 });
 })();
 
 // libs/form-fields/src/lib/item-list-field.component.ts
-function ItemListFieldComponent_For_4_Template(rf, ctx) {
+function ItemListFieldComponent_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 4);
-    \u0275\u0275listener("removed", function ItemListFieldComponent_For_4_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function ItemListFieldComponent_For_6_Template_mat_chip_row_removed_0_listener() {
       const item_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.remove(item_r3));
@@ -143423,33 +143560,39 @@ _ItemListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _ItemListFieldComponent),
     multi: true
   }
-])], decls: 6, vars: 4, consts: [["chipList", ""], ["appearance", "outline", 1, "w-full"], ["aria-label", "Zone Tags"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ItemListFieldComponent_Template(rf, ctx) {
+])], decls: 8, vars: 5, consts: [["chipList", ""], ["appearance", "outline", 1, "w-full"], ["aria-label", "Zone Tags"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ItemListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-chip-grid", 2, 0);
-    \u0275\u0275repeaterCreate(3, ItemListFieldComponent_For_4_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "input", 3);
-    \u0275\u0275listener("matChipInputTokenEnd", function ItemListFieldComponent_Template_input_matChipInputTokenEnd_5_listener($event) {
+    \u0275\u0275elementStart(3, "mat-chip-grid", 2, 0);
+    \u0275\u0275repeaterCreate(5, ItemListFieldComponent_For_6_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "input", 3);
+    \u0275\u0275listener("matChipInputTokenEnd", function ItemListFieldComponent_Template_input_matChipInputTokenEnd_7_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.add($event));
     });
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const chipList_r5 = \u0275\u0275reference(2);
+    const chipList_r5 = \u0275\u0275reference(4);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx.placeholder() || "User groups...");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx.value);
     \u0275\u0275advance(2);
     \u0275\u0275property("placeholder", ctx.placeholder() || "User groups...")("matChipInputFor", chipList_r5)("matChipInputSeparatorKeyCodes", ctx.separators())("matChipInputAddOnBlur", true);
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatChipsModule, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow, IconComponent], encapsulation: 2 });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatChipsModule, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow, IconComponent], encapsulation: 2 });
 var ItemListFieldComponent = _ItemListFieldComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ItemListFieldComponent, [{
     type: Component,
     args: [{ selector: "item-list-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ placeholder() || 'User groups...' }}</mat-label>
             <mat-chip-grid #chipList aria-label="Zone Tags">
                 @for (item of value; track item) {
                     <mat-chip-row (removed)="remove(item)">
@@ -143482,7 +143625,7 @@ var ItemListFieldComponent = _ItemListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ItemListFieldComponent, { className: "ItemListFieldComponent", filePath: "libs/form-fields/src/lib/item-list-field.component.ts", lineNumber: 103 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ItemListFieldComponent, { className: "ItemListFieldComponent", filePath: "libs/form-fields/src/lib/item-list-field.component.ts", lineNumber: 104 });
 })();
 
 // libs/form-fields/src/lib/compact-counter.component.ts
@@ -143703,7 +143846,7 @@ var CompactCounterComponent = _CompactCounterComponent;
 
 // libs/form-fields/src/lib/recurrence-modal.component.ts
 var _forTrack09 = ($index, $item) => $item[1];
-function RecurrenceModalComponent_Conditional_15_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 9);
     \u0275\u0275text(1);
@@ -143716,7 +143859,7 @@ function RecurrenceModalComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, ctx_r0.form.value.interval === 1 ? "FORM.RECURRENCE_WEEK" : "FORM.RECURRENCE_WEEKS"));
   }
 }
-function RecurrenceModalComponent_Conditional_16_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 10);
     \u0275\u0275text(1);
@@ -143729,11 +143872,11 @@ function RecurrenceModalComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, ctx_r0.form.value.interval === 1 ? "FORM.RECURRENCE_MONTH" : "FORM.RECURRENCE_MONTHS"));
   }
 }
-function RecurrenceModalComponent_Conditional_17_For_5_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_20_For_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 26);
-    \u0275\u0275listener("click", function RecurrenceModalComponent_Conditional_17_For_5_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function RecurrenceModalComponent_Conditional_20_For_5_Template_button_click_0_listener() {
       const day_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.toggleDate(day_r3[1]));
@@ -143750,14 +143893,14 @@ function RecurrenceModalComponent_Conditional_17_For_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 7, day_r3[0], "EEEEE"), " ");
   }
 }
-function RecurrenceModalComponent_Conditional_17_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "label", 3);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 24);
-    \u0275\u0275repeaterCreate(4, RecurrenceModalComponent_Conditional_17_For_5_Template, 3, 10, "button", 25, _forTrack09);
+    \u0275\u0275repeaterCreate(4, RecurrenceModalComponent_Conditional_20_For_5_Template, 3, 10, "button", 25, _forTrack09);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -143768,23 +143911,26 @@ function RecurrenceModalComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.weekdays);
   }
 }
-function RecurrenceModalComponent_Conditional_18_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 11)(1, "mat-select", 27)(2, "mat-option", 28);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "date");
+    \u0275\u0275elementStart(0, "mat-form-field", 11)(1, "mat-label");
+    \u0275\u0275text(2, "Monthly Type");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "mat-option", 29);
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "date");
+    \u0275\u0275elementStart(3, "mat-select", 27)(4, "mat-option", 28);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-option", 29);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "date");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1("Monthly on day ", \u0275\u0275pipeBind2(6, 3, ctx_r0.date, "d"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1("Monthly on day ", \u0275\u0275pipeBind2(4, 3, ctx_r0.date, "d"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate2("Monthly on ", ctx_r0.month_instance, " ", \u0275\u0275pipeBind2(7, 6, ctx_r0.date, "EEEE"));
+    \u0275\u0275textInterpolate2("Monthly on ", ctx_r0.month_instance, " ", \u0275\u0275pipeBind2(9, 6, ctx_r0.date, "EEEE"));
   }
 }
 var _RecurrenceModalComponent = class _RecurrenceModalComponent extends AsyncHandler {
@@ -143860,7 +144006,7 @@ var _RecurrenceModalComponent = class _RecurrenceModalComponent extends AsyncHan
 _RecurrenceModalComponent.\u0275fac = function RecurrenceModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _RecurrenceModalComponent)();
 };
-_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 45, vars: 40, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
+_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 48, vars: 43, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -143872,81 +144018,87 @@ _RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(8, "div", 4);
     \u0275\u0275element(9, "compact-counter", 5);
-    \u0275\u0275elementStart(10, "mat-form-field", 6)(11, "mat-select", 7)(12, "mat-option", 8);
-    \u0275\u0275text(13);
-    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275elementStart(10, "mat-form-field", 6)(11, "mat-label");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, RecurrenceModalComponent_Conditional_15_Template, 3, 3, "mat-option", 9);
-    \u0275\u0275conditionalCreate(16, RecurrenceModalComponent_Conditional_16_Template, 3, 3, "mat-option", 10);
+    \u0275\u0275elementStart(14, "mat-select", 7)(15, "mat-option", 8);
+    \u0275\u0275text(16);
+    \u0275\u0275pipe(17, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(18, RecurrenceModalComponent_Conditional_18_Template, 3, 3, "mat-option", 9);
+    \u0275\u0275conditionalCreate(19, RecurrenceModalComponent_Conditional_19_Template, 3, 3, "mat-option", 10);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(17, RecurrenceModalComponent_Conditional_17_Template, 6, 3);
-    \u0275\u0275conditionalCreate(18, RecurrenceModalComponent_Conditional_18_Template, 8, 9, "mat-form-field", 11);
-    \u0275\u0275elementStart(19, "label", 3);
-    \u0275\u0275text(20);
-    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275conditionalCreate(20, RecurrenceModalComponent_Conditional_20_Template, 6, 3);
+    \u0275\u0275conditionalCreate(21, RecurrenceModalComponent_Conditional_21_Template, 10, 9, "mat-form-field", 11);
+    \u0275\u0275elementStart(22, "label", 3);
+    \u0275\u0275text(23);
+    \u0275\u0275pipe(24, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "div", 12)(23, "mat-radio-group", 13)(24, "div", 14)(25, "mat-radio-button", 15);
-    \u0275\u0275text(26);
-    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275elementStart(25, "div", 12)(26, "mat-radio-group", 13)(27, "div", 14)(28, "mat-radio-button", 15);
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(28, "div", 16)(29, "mat-radio-button", 17);
-    \u0275\u0275text(30);
-    \u0275\u0275pipe(31, "translate");
+    \u0275\u0275elementStart(31, "div", 16)(32, "mat-radio-button", 17);
+    \u0275\u0275text(33);
+    \u0275\u0275pipe(34, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(32, "a-date-field", 18);
+    \u0275\u0275element(35, "a-date-field", 18);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(33, "div", 16)(34, "mat-radio-button", 19);
-    \u0275\u0275text(35);
-    \u0275\u0275pipe(36, "translate");
+    \u0275\u0275elementStart(36, "div", 16)(37, "mat-radio-button", 19);
+    \u0275\u0275text(38);
+    \u0275\u0275pipe(39, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(37, "compact-counter", 20);
+    \u0275\u0275element(40, "compact-counter", 20);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(38, "footer", 21)(39, "button", 22);
-    \u0275\u0275text(40);
-    \u0275\u0275pipe(41, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(42, "button", 23);
+    \u0275\u0275elementStart(41, "footer", 21)(42, "button", 22);
     \u0275\u0275text(43);
     \u0275\u0275pipe(44, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(45, "button", 23);
+    \u0275\u0275text(46);
+    \u0275\u0275pipe(47, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 22, "FORM.RECURRENCE_CUSTOM_HEADER"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 23, "FORM.RECURRENCE_CUSTOM_HEADER"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 24, "FORM.RECURRENCE_REPEAT_EVERY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 25, "FORM.RECURRENCE_REPEAT_EVERY"));
     \u0275\u0275advance(3);
     \u0275\u0275property("min", 1)("max", ctx.form.value.type === "daily" ? 7 : 12)("step", 1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 27, "FORM.RECURRENCE_REPEAT_EVERY"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 26, ctx.form.value.interval === 1 ? "FORM.RECURRENCE_DAY" : "FORM.RECURRENCE_DAYS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 29, ctx.form.value.interval === 1 ? "FORM.RECURRENCE_DAY" : "FORM.RECURRENCE_DAYS"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.available_days >= 14 ? 15 : -1);
+    \u0275\u0275conditional(ctx.available_days >= 14 ? 18 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.available_days >= 28 ? 16 : -1);
+    \u0275\u0275conditional(ctx.available_days >= 28 ? 19 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.form.value.type === "weekly" ? 17 : -1);
+    \u0275\u0275conditional(ctx.form.value.type === "weekly" ? 20 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.form.value.type === "monthly" ? 18 : -1);
+    \u0275\u0275conditional(ctx.form.value.type === "monthly" ? 21 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 28, "FORM.RECURRENCE_ENDS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(24, 31, "FORM.RECURRENCE_ENDS"));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(27, 30, "FORM.RECURRENCE_ENDS_NEVER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(30, 33, "FORM.RECURRENCE_ENDS_NEVER"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 32, "FORM.RECURRENCE_ENDS_ON"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(34, 35, "FORM.RECURRENCE_ENDS_ON"));
     \u0275\u0275advance(2);
     \u0275\u0275property("to", ctx.end_date);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(36, 34, "FORM.RECURRENCE_ENDS_AFTER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(39, 37, "FORM.RECURRENCE_ENDS_AFTER"));
     \u0275\u0275advance(2);
     \u0275\u0275property("render_fn", ctx.instance_fn)("min", 1)("max", 53);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(41, 36, "COMMON.CANCEL"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 39, "COMMON.CANCEL"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("mat-dialog-close", ctx.form.value);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 38, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(47, 41, "COMMON.SAVE"), " ");
   }
 }, dependencies: [
   CommonModule,
@@ -143958,6 +144110,7 @@ _RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   FormControlName,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatRadioModule,
   MatRadioGroup,
   MatRadioButton,
@@ -144000,6 +144153,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</mat-label>
                     <mat-select formControlName="type">
                         <mat-option value="daily">{{
                             (form.value.interval === 1
@@ -144049,6 +144203,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
             }
             @if (form.value.type === 'monthly') {
                 <mat-form-field appearance="outline">
+                    <mat-label>Monthly Type</mat-label>
                     <mat-select formControlName="monthly_type">
                         <mat-option value="day_of_month"
                             >Monthly on day {{ date | date: 'd' }}</mat-option
@@ -144118,13 +144273,13 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceModalComponent, { className: "RecurrenceModalComponent", filePath: "libs/form-fields/src/lib/recurrence-modal.component.ts", lineNumber: 178 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceModalComponent, { className: "RecurrenceModalComponent", filePath: "libs/form-fields/src/lib/recurrence-modal.component.ts", lineNumber: 180 });
 })();
 
 // libs/form-fields/src/lib/recurrence-field.component.ts
 var _c050 = (a0) => ({ day: a0 });
 var _c125 = (a0, a1) => ({ index: a0, day: a1 });
-function RecurrenceFieldComponent_Conditional_9_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 4);
     \u0275\u0275text(1);
@@ -144138,7 +144293,7 @@ function RecurrenceFieldComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 4, "FORM.RECURRENCE_WEEKLY_ON", \u0275\u0275pureFunction1(7, _c050, \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "EEEE"))), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_10_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5);
     \u0275\u0275text(1);
@@ -144152,7 +144307,7 @@ function RecurrenceFieldComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 4, "FORM.RECURRENCE_MONTH_INSTANCE", \u0275\u0275pureFunction2(7, _c125, ctx_r0.instance_of_month, \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "EEEE"))), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_11_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 6);
     \u0275\u0275text(1);
@@ -144165,7 +144320,7 @@ function RecurrenceFieldComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" Anually on ", \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "LLLL dd"), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_12_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 7);
     \u0275\u0275text(1);
@@ -144310,59 +144465,66 @@ _RecurrenceFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _RecurrenceFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], decls: 16, vars: 17, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], ["value", "none"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["value", "yearly"], ["value", "custom_display"], ["value", "custom", 3, "click"]], template: function RecurrenceFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], decls: 19, vars: 20, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], ["value", "none"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["value", "yearly"], ["value", "custom_display"], ["value", "custom", 3, "click"]], template: function RecurrenceFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-select", 1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 1);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275twoWayBindingSet(ctx.recurr_type, $event) || (ctx.recurr_type = $event);
       return $event;
     });
-    \u0275\u0275listener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_4_listener($event) {
       return ctx.setSimple($event);
     });
-    \u0275\u0275elementStart(3, "mat-option", 2);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-option", 3);
+    \u0275\u0275elementStart(6, "mat-option", 2);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(9, RecurrenceFieldComponent_Conditional_9_Template, 4, 9, "mat-option", 4);
-    \u0275\u0275conditionalCreate(10, RecurrenceFieldComponent_Conditional_10_Template, 4, 10, "mat-option", 5);
-    \u0275\u0275conditionalCreate(11, RecurrenceFieldComponent_Conditional_11_Template, 3, 4, "mat-option", 6);
-    \u0275\u0275conditionalCreate(12, RecurrenceFieldComponent_Conditional_12_Template, 2, 1, "mat-option", 7);
-    \u0275\u0275elementStart(13, "mat-option", 8);
-    \u0275\u0275listener("click", function RecurrenceFieldComponent_Template_mat_option_click_13_listener() {
+    \u0275\u0275elementStart(9, "mat-option", 3);
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(12, RecurrenceFieldComponent_Conditional_12_Template, 4, 9, "mat-option", 4);
+    \u0275\u0275conditionalCreate(13, RecurrenceFieldComponent_Conditional_13_Template, 4, 10, "mat-option", 5);
+    \u0275\u0275conditionalCreate(14, RecurrenceFieldComponent_Conditional_14_Template, 3, 4, "mat-option", 6);
+    \u0275\u0275conditionalCreate(15, RecurrenceFieldComponent_Conditional_15_Template, 2, 1, "mat-option", 7);
+    \u0275\u0275elementStart(16, "mat-option", 8);
+    \u0275\u0275listener("click", function RecurrenceFieldComponent_Template_mat_option_click_16_listener() {
       return ctx.openCustomRecurrenceModal();
     });
-    \u0275\u0275text(14);
-    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 10, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx.recurr_type);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(2, 9, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(5, 12, "FORM.RECURRENCE_NONE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 11, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 14, "FORM.RECURRENCE_NONE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 13, "FORM.RECURRENCE_DAILY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 16, "FORM.RECURRENCE_DAILY"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.available_days() >= 14 ? 9 : -1);
+    \u0275\u0275conditional(ctx.available_days() >= 14 ? 12 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.available_days() >= 28 ? 10 : -1);
+    \u0275\u0275conditional(ctx.available_days() >= 28 ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(false ? 11 : -1);
+    \u0275\u0275conditional(false ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((ctx.value == null ? null : ctx.value._custom) ? 12 : -1);
+    \u0275\u0275conditional((ctx.value == null ? null : ctx.value._custom) ? 15 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 15, "FORM.RECURRENCE_CUSTOM"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 18, "FORM.RECURRENCE_CUSTOM"), " ");
   }
 }, dependencies: [
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -144379,6 +144541,7 @@ var RecurrenceFieldComponent = _RecurrenceFieldComponent;
     type: Component,
     args: [{ selector: "recurrence-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'FORM.RECURRENCE_NONE' | translate }}</mat-label>
             <mat-select
                 [(ngModel)]="recurr_type"
                 (ngModelChange)="setSimple($event)"
@@ -144445,7 +144608,7 @@ var RecurrenceFieldComponent = _RecurrenceFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceFieldComponent, { className: "RecurrenceFieldComponent", filePath: "libs/form-fields/src/lib/recurrence-field.component.ts", lineNumber: 113 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceFieldComponent, { className: "RecurrenceFieldComponent", filePath: "libs/form-fields/src/lib/recurrence-field.component.ts", lineNumber: 114 });
 })();
 
 // libs/events/src/lib/events.fn.ts
@@ -146651,7 +146814,7 @@ function SpaceFiltersComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function SpaceFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
+function SpaceFiltersComponent_Conditional_16_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 23);
     \u0275\u0275text(1);
@@ -146667,26 +146830,32 @@ function SpaceFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
 function SpaceFiltersComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 22);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 22);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, SpaceFiltersComponent_Conditional_16_For_4_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, SpaceFiltersComponent_Conditional_16_For_7_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c052))("placeholder", \u0275\u0275pipeBind1(2, 3, "CALENDAR_EVENT.SPACE_REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r2.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c052))("placeholder", \u0275\u0275pipeBind1(5, 6, "CALENDAR_EVENT.SPACE_REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r2.regions));
   }
 }
-function SpaceFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
+function SpaceFiltersComponent_Conditional_18_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 23);
     \u0275\u0275text(1);
@@ -146702,25 +146871,31 @@ function SpaceFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
 function SpaceFiltersComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 24);
-    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 24);
+    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setBuilding($event));
     });
-    \u0275\u0275repeaterCreate(2, SpaceFiltersComponent_Conditional_18_For_3_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, SpaceFiltersComponent_Conditional_18_For_6_Template, 2, 2, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r2.bld)("ngModelOptions", \u0275\u0275pureFunction0(8, _c052))("placeholder", (ctx_r2.bld == null ? null : ctx_r2.bld.display_name) || (ctx_r2.bld == null ? null : ctx_r2.bld.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.bld)("ngModelOptions", \u0275\u0275pureFunction0(5, _c052))("placeholder", (ctx_r2.bld == null ? null : ctx_r2.bld.display_name) || (ctx_r2.bld == null ? null : ctx_r2.bld.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r2.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r2.buildings));
   }
 }
-function SpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, ctx) {
+function SpaceFiltersComponent_Conditional_20_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 27);
     \u0275\u0275text(1);
@@ -146736,10 +146911,10 @@ function SpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, c
     \u0275\u0275textInterpolate1(" ", (tmp_13_0 = \u0275\u0275pipeBind1(2, 1, lvl_r9.parent_id)) == null ? null : tmp_13_0.display_name, " ");
   }
 }
-function SpaceFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
+function SpaceFiltersComponent_Conditional_20_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 23)(1, "div", 26);
-    \u0275\u0275conditionalCreate(2, SpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template, 5, 3, "div", 27);
+    \u0275\u0275conditionalCreate(2, SpaceFiltersComponent_Conditional_20_For_8_Conditional_2_Template, 5, 3, "div", 27);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -146757,25 +146932,31 @@ function SpaceFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
 function SpaceFiltersComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 25);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 25);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function SpaceFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setOptions({ zones: $event }));
     });
-    \u0275\u0275repeaterCreate(4, SpaceFiltersComponent_Conditional_20_For_5_Template, 5, 3, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, SpaceFiltersComponent_Conditional_20_For_8_Template, 5, 3, "mat-option", 23, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 4, ctx_r2.options)) == null ? null : tmp_2_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(10, _c052))("placeholder", \u0275\u0275pipeBind1(3, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 5, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_3_0 = \u0275\u0275pipeBind1(5, 7, ctx_r2.options)) == null ? null : tmp_3_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(13, _c052))("placeholder", \u0275\u0275pipeBind1(6, 9, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 8, ctx_r2.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 11, ctx_r2.levels));
   }
 }
 function SpaceFiltersComponent_Conditional_31_Template(rf, ctx) {
@@ -146810,13 +146991,16 @@ function SpaceFiltersComponent_Conditional_31_Template(rf, ctx) {
 function SpaceFiltersComponent_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 16)(1, "mat-checkbox", 30);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function SpaceFiltersComponent_Conditional_33_Conditional_8_Template(rf, ctx) {
@@ -147074,7 +147258,7 @@ var _SpaceFiltersComponent = class _SpaceFiltersComponent {
 _SpaceFiltersComponent.\u0275fac = function SpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SpaceFiltersComponent)();
 };
-_SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 40, vars: 41, consts: [[1, "border-base-200", "flex", "items-center", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters"], [1, "flex-2", "text-center", "text-xl", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
+_SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceFiltersComponent, selectors: [["space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 40, vars: 41, consts: [[1, "border-base-200", "flex", "items-center", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-space-filters"], [1, "flex-2", "text-center", "text-xl", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["icon", "", "matRipple", "", "name", "close-space-filters", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function SpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
@@ -147094,11 +147278,11 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275text(14);
     \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(16, SpaceFiltersComponent_Conditional_16_Template, 6, 8, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(16, SpaceFiltersComponent_Conditional_16_Template, 9, 11, "mat-form-field", 10);
     \u0275\u0275pipe(17, "async");
-    \u0275\u0275conditionalCreate(18, SpaceFiltersComponent_Conditional_18_Template, 5, 6, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(18, SpaceFiltersComponent_Conditional_18_Template, 8, 9, "mat-form-field", 10);
     \u0275\u0275pipe(19, "async");
-    \u0275\u0275conditionalCreate(20, SpaceFiltersComponent_Conditional_20_Template, 7, 11, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(20, SpaceFiltersComponent_Conditional_20_Template, 10, 14, "mat-form-field", 10);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(21, "div", 11)(22, "div", 12)(23, "label", 13);
     \u0275\u0275text(24);
@@ -147116,7 +147300,7 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(31, SpaceFiltersComponent_Conditional_31_Template, 9, 14, "div", 15);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(32, SpaceFiltersComponent_Conditional_32_Template, 4, 3, "div", 16);
+    \u0275\u0275conditionalCreate(32, SpaceFiltersComponent_Conditional_32_Template, 5, 6, "div", 16);
     \u0275\u0275conditionalCreate(33, SpaceFiltersComponent_Conditional_33_Template, 10, 10, "div", 17);
     \u0275\u0275elementEnd();
     \u0275\u0275declareLet(34);
@@ -147181,6 +147365,7 @@ _SpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -147232,6 +147417,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                     </label>
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -147252,6 +147438,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="bld"
@@ -147269,6 +147456,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zones"
@@ -147351,7 +147539,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -147490,7 +147678,7 @@ var SpaceFiltersComponent = _SpaceFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 334 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceFiltersComponent, { className: "SpaceFiltersComponent", filePath: "libs/events/src/lib/space-select-modal/space-filters.component.ts", lineNumber: 337 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-filters-display.component.ts
@@ -150239,10 +150427,12 @@ function UserFormComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(5, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-form-field", 3);
-    \u0275\u0275element(7, "input", 4);
-    \u0275\u0275elementStart(8, "mat-error");
-    \u0275\u0275text(9, "Name is required");
+    \u0275\u0275elementStart(6, "mat-form-field", 3)(7, "mat-label");
+    \u0275\u0275text(8, "Name");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(9, "input", 4);
+    \u0275\u0275elementStart(10, "mat-error");
+    \u0275\u0275text(11, "Name is required");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -150260,10 +150450,12 @@ function UserFormComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(5, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-form-field", 3);
-    \u0275\u0275element(7, "input", 6);
-    \u0275\u0275elementStart(8, "mat-error");
-    \u0275\u0275text(9, "A valid email is required");
+    \u0275\u0275elementStart(6, "mat-form-field", 3)(7, "mat-label");
+    \u0275\u0275text(8, "Email");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(9, "input", 6);
+    \u0275\u0275elementStart(10, "mat-error");
+    \u0275\u0275text(11, "A valid email is required");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -150282,11 +150474,14 @@ function UserFormComponent_Conditional_0_Conditional_3_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 3);
-    \u0275\u0275element(8, "input", 8);
-    \u0275\u0275elementStart(9, "mat-error");
-    \u0275\u0275text(10);
-    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementStart(7, "mat-form-field", 3)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 8);
+    \u0275\u0275elementStart(12, "mat-error");
+    \u0275\u0275text(13);
+    \u0275\u0275pipe(14, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -150294,9 +150489,11 @@ function UserFormComponent_Conditional_0_Conditional_3_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r0.hasError("organisation"));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "COMMON.ORGANISATION"));
-    \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 6, "COMMON.ORGANISATION"), " is required ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ORGANISATION"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 7, "COMMON.ORGANISATION"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 9, "COMMON.ORGANISATION"), " is required ");
   }
 }
 function UserFormComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
@@ -150304,10 +150501,12 @@ function UserFormComponent_Conditional_0_Conditional_4_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div", 1)(1, "label", 9);
     \u0275\u0275text(2, " Phone: ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 3);
-    \u0275\u0275element(4, "input", 10);
-    \u0275\u0275elementStart(5, "mat-error");
-    \u0275\u0275text(6, "Phone format is invalid");
+    \u0275\u0275elementStart(3, "mat-form-field", 3)(4, "mat-label");
+    \u0275\u0275text(5, "Phone");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(6, "input", 10);
+    \u0275\u0275elementStart(7, "mat-error");
+    \u0275\u0275text(8, "Phone format is invalid");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -150333,10 +150532,10 @@ function UserFormComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
 function UserFormComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "form", 0);
-    \u0275\u0275conditionalCreate(1, UserFormComponent_Conditional_0_Conditional_1_Template, 10, 2, "div", 1);
-    \u0275\u0275conditionalCreate(2, UserFormComponent_Conditional_0_Conditional_2_Template, 10, 2, "div", 1);
-    \u0275\u0275conditionalCreate(3, UserFormComponent_Conditional_0_Conditional_3_Template, 12, 8, "div", 1);
-    \u0275\u0275conditionalCreate(4, UserFormComponent_Conditional_0_Conditional_4_Template, 7, 2, "div", 1);
+    \u0275\u0275conditionalCreate(1, UserFormComponent_Conditional_0_Conditional_1_Template, 12, 2, "div", 1);
+    \u0275\u0275conditionalCreate(2, UserFormComponent_Conditional_0_Conditional_2_Template, 12, 2, "div", 1);
+    \u0275\u0275conditionalCreate(3, UserFormComponent_Conditional_0_Conditional_3_Template, 15, 11, "div", 1);
+    \u0275\u0275conditionalCreate(4, UserFormComponent_Conditional_0_Conditional_4_Template, 9, 2, "div", 1);
     \u0275\u0275conditionalCreate(5, UserFormComponent_Conditional_0_Conditional_5_Template, 3, 0, "div", 1);
     \u0275\u0275conditionalCreate(6, UserFormComponent_Conditional_0_Conditional_6_Template, 3, 0, "div", 1);
     \u0275\u0275elementEnd();
@@ -150377,7 +150576,7 @@ _UserFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ typ
   if (rf & 2) {
     \u0275\u0275conditional(ctx.form() ? 0 : -1);
   }
-}, dependencies: [MatCheckboxModule, MatCheckbox, MatFormFieldModule, MatFormField, MatError, MatInputModule, MatInput, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, TranslatePipe], styles: ["\n\n[_nghost-%COMP%], \nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=user-form.component.css.map */"] });
+}, dependencies: [MatCheckboxModule, MatCheckbox, MatFormFieldModule, MatFormField, MatLabel, MatError, MatInputModule, MatInput, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, FormGroupDirective, FormControlName, TranslatePipe], styles: ["\n\n[_nghost-%COMP%], \nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=user-form.component.css.map */"] });
 var UserFormComponent = _UserFormComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UserFormComponent, [{
@@ -150391,6 +150590,7 @@ var UserFormComponent = _UserFormComponent;
                             Name<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Name</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -150407,6 +150607,7 @@ var UserFormComponent = _UserFormComponent;
                             Email<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Email</mat-label>
                             <input
                                 matInput
                                 name="email"
@@ -150427,6 +150628,7 @@ var UserFormComponent = _UserFormComponent;
                             }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.ORGANISATION' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="org"
@@ -150446,6 +150648,7 @@ var UserFormComponent = _UserFormComponent;
                             Phone:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Phone</mat-label>
                             <input
                                 matInput
                                 name="phone"
@@ -150491,7 +150694,7 @@ var UserFormComponent = _UserFormComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserFormComponent, { className: "UserFormComponent", filePath: "libs/users/src/lib/user-form.component.ts", lineNumber: 127 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserFormComponent, { className: "UserFormComponent", filePath: "libs/users/src/lib/user-form.component.ts", lineNumber: 131 });
 })();
 
 // libs/users/src/lib/new-user-modal.component.ts
@@ -150670,11 +150873,11 @@ var NewUserModalComponent = _NewUserModalComponent;
 })();
 
 // libs/users/src/lib/select-user-modal.component.ts
-function SelectUserModalComponent_For_16_Template(rf, ctx) {
+function SelectUserModalComponent_For_19_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 11);
-    \u0275\u0275listener("click", function SelectUserModalComponent_For_16_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function SelectUserModalComponent_For_19_Template_button_click_0_listener() {
       const user_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.select(user_r2));
@@ -150694,7 +150897,7 @@ function SelectUserModalComponent_For_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate(user_r2.email);
   }
 }
-function SelectUserModalComponent_Conditional_18_Template(rf, ctx) {
+function SelectUserModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
     \u0275\u0275text(1);
@@ -150720,7 +150923,7 @@ var _SelectUserModalComponent = class _SelectUserModalComponent {
 _SelectUserModalComponent.\u0275fac = function SelectUserModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SelectUserModalComponent)();
 };
-_SelectUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SelectUserModalComponent, selectors: [["select-user-modal"]], decls: 20, vars: 12, consts: [[1, "w-md"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "h-[60vh]", "overflow-auto", "px-2", "pb-2"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "mb-2", "w-full"], ["matPrefix", "", 1, "relative", "-left-2", "text-2xl"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "relative", "z-0", "w-full", "space-y-2"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left"], [1, "flex", "h-32", "w-full", "items-center", "justify-center", "p-8", "opacity-30"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left", 3, "click"], [1, "text-xs", "opacity-30"]], template: function SelectUserModalComponent_Template(rf, ctx) {
+_SelectUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SelectUserModalComponent, selectors: [["select-user-modal"]], decls: 23, vars: 15, consts: [[1, "w-md"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "h-[60vh]", "overflow-auto", "px-2", "pb-2"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "mb-2", "w-full"], ["matPrefix", "", 1, "relative", "-left-2", "text-2xl"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "relative", "z-0", "w-full", "space-y-2"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left"], [1, "flex", "h-32", "w-full", "items-center", "justify-center", "p-8", "opacity-30"], ["matRipple", "", 1, "border-base-300", "hover:bg-base-200", "w-full", "rounded-sm", "border", "p-2", "text-left", 3, "click"], [1, "text-xs", "opacity-30"]], template: function SelectUserModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -150729,31 +150932,37 @@ _SelectUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementStart(5, "button", 3)(6, "icon");
     \u0275\u0275text(7, "close");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(8, "main", 4)(9, "mat-form-field", 5)(10, "icon", 6);
-    \u0275\u0275text(11, "search");
+    \u0275\u0275elementStart(8, "main", 4)(9, "mat-form-field", 5)(10, "mat-label");
+    \u0275\u0275text(11);
+    \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "input", 7);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275listener("ngModelChange", function SelectUserModalComponent_Template_input_ngModelChange_12_listener($event) {
+    \u0275\u0275elementStart(13, "icon", 6);
+    \u0275\u0275text(14, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(15, "input", 7);
+    \u0275\u0275pipe(16, "translate");
+    \u0275\u0275listener("ngModelChange", function SelectUserModalComponent_Template_input_ngModelChange_15_listener($event) {
       return ctx.search.next($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "div", 8);
-    \u0275\u0275repeaterCreate(15, SelectUserModalComponent_For_16_Template, 5, 2, "button", 9, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(17, "async");
-    \u0275\u0275conditionalCreate(18, SelectUserModalComponent_Conditional_18_Template, 3, 3, "div", 10);
-    \u0275\u0275pipe(19, "async");
+    \u0275\u0275elementStart(17, "div", 8);
+    \u0275\u0275repeaterCreate(18, SelectUserModalComponent_For_19_Template, 5, 2, "button", 9, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(20, "async");
+    \u0275\u0275conditionalCreate(21, SelectUserModalComponent_Conditional_21_Template, 3, 3, "div", 10);
+    \u0275\u0275pipe(22, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.SELECT_USER_TITLE"), " ");
-    \u0275\u0275advance(9);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(13, 6, "COMMON.SELECT_USER_SEARCH"))("ngModel", ctx.search.value);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 5, "COMMON.SELECT_USER_TITLE"), " ");
+    \u0275\u0275advance(8);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 7, "COMMON.SELECT_USER_SEARCH"));
+    \u0275\u0275advance(4);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(16, 9, "COMMON.SELECT_USER_SEARCH"))("ngModel", ctx.search.value);
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(17, 8, ctx.users));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(20, 11, ctx.users));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(!\u0275\u0275pipeBind1(19, 10, ctx.users).length ? 18 : -1);
+    \u0275\u0275conditional(!\u0275\u0275pipeBind1(22, 13, ctx.users).length ? 21 : -1);
   }
 }, dependencies: [
   CommonModule,
@@ -150763,6 +150972,7 @@ _SelectUserModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   MatRipple,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatPrefix,
   MatInputModule,
   MatInput,
@@ -150794,6 +151004,7 @@ var SelectUserModalComponent = _SelectUserModalComponent;
                 class="no-subscript bg-base-100 sticky top-0 z-10 mb-2 w-full"
                 appearance="outline"
             >
+                <mat-label>{{ 'COMMON.SELECT_USER_SEARCH' | translate }}</mat-label>
                 <icon class="relative -left-2 text-2xl" matPrefix>search</icon>
                 <input
                     matInput
@@ -150840,7 +151051,7 @@ var SelectUserModalComponent = _SelectUserModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SelectUserModalComponent, { className: "SelectUserModalComponent", filePath: "libs/users/src/lib/select-user-modal.component.ts", lineNumber: 85 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SelectUserModalComponent, { className: "SelectUserModalComponent", filePath: "libs/users/src/lib/select-user-modal.component.ts", lineNumber: 86 });
 })();
 
 // libs/users/src/lib/staff.fn.ts
@@ -151416,12 +151627,12 @@ var UserPipe = _UserPipe;
 // libs/form-fields/src/lib/user-search-field.component.ts
 var _c059 = ["input"];
 var _c130 = (a0) => ({ name: a0 });
-function UserSearchFieldComponent_Conditional_6_Template(rf, ctx) {
+function UserSearchFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 5);
   }
 }
-function UserSearchFieldComponent_For_13_Template(rf, ctx) {
+function UserSearchFieldComponent_For_16_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 7)(1, "div", 11);
     \u0275\u0275element(2, "a-user-avatar", 12);
@@ -151443,22 +151654,22 @@ function UserSearchFieldComponent_For_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", user_r2.email, " ");
   }
 }
-function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
+function UserSearchFieldComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 8)(1, "div", 15);
-    \u0275\u0275listener("mousedown", function UserSearchFieldComponent_Conditional_14_Template_div_mousedown_1_listener($event) {
+    \u0275\u0275listener("mousedown", function UserSearchFieldComponent_Conditional_17_Template_div_mousedown_1_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.stopEvent($event));
-    })("touchstart", function UserSearchFieldComponent_Conditional_14_Template_div_touchstart_1_listener($event) {
+    })("touchstart", function UserSearchFieldComponent_Conditional_17_Template_div_touchstart_1_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.stopEvent($event));
-    })("click", function UserSearchFieldComponent_Conditional_14_Template_div_click_1_listener($event) {
+    })("click", function UserSearchFieldComponent_Conditional_17_Template_div_click_1_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r3 = \u0275\u0275nextContext();
-      const term_r5 = \u0275\u0275readContextLet(11);
+      const term_r5 = \u0275\u0275readContextLet(14);
       ctx_r3.setValue(term_r5);
       return \u0275\u0275resetView(ctx_r3.stopEvent($event));
     });
@@ -151469,16 +151680,16 @@ function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
-    const term_r5 = \u0275\u0275readContextLet(11);
+    const term_r5 = \u0275\u0275readContextLet(14);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c130, term_r5)), " ");
   }
 }
-function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
+function UserSearchFieldComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 17);
-    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_15_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_18_Template_mat_option_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.empty_fn()());
@@ -151489,17 +151700,17 @@ function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r3 = \u0275\u0275nextContext();
-    const term_r5 = \u0275\u0275readContextLet(11);
+    const term_r5 = \u0275\u0275readContextLet(14);
     \u0275\u0275property("disabled", !ctx_r3.empty_fn());
     \u0275\u0275advance();
     \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(2, 3, term_r5 ? "FORM.USER_EMPTY" : ""), " ", ctx_r3.error(), " ");
   }
 }
-function UserSearchFieldComponent_Conditional_18_Template(rf, ctx) {
+function UserSearchFieldComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 18);
-    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_18_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function UserSearchFieldComponent_Conditional_21_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.clearUser());
@@ -151601,64 +151812,70 @@ _UserSearchFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _UserSearchFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 19, vars: 17, consts: [["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["matInput", "", 3, "ngModelChange", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], [1, "pointer-events-none", "relative"], [3, "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "pointer-events-auto", "absolute", "inset-0", "px-4", 3, "mousedown", "touchstart", "click"], [1, "pointer-events-none"], [3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 22, vars: 20, consts: [["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["matInput", "", 3, "ngModelChange", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], [1, "pointer-events-none", "relative"], [3, "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [1, "pointer-events-auto", "absolute", "inset-0", "px-4", 3, "mousedown", "touchstart", "click"], [1, "pointer-events-none"], [3, "click", "disabled"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1)(1, "mat-form-field", 2)(2, "icon", 3);
-    \u0275\u0275text(3, "search");
+    \u0275\u0275elementStart(0, "div", 1)(1, "mat-form-field", 2)(2, "mat-label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "input", 4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275listener("ngModelChange", function UserSearchFieldComponent_Template_input_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(5, "icon", 3);
+    \u0275\u0275text(6, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "input", 4);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275listener("ngModelChange", function UserSearchFieldComponent_Template_input_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.search_term.next($event));
-    })("blur", function UserSearchFieldComponent_Template_input_blur_4_listener() {
+    })("blur", function UserSearchFieldComponent_Template_input_blur_7_listener() {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.resetTerm());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, UserSearchFieldComponent_Conditional_6_Template, 1, 0, "mat-spinner", 5);
-    \u0275\u0275elementStart(7, "mat-autocomplete", 6, 0);
-    \u0275\u0275listener("optionSelected", function UserSearchFieldComponent_Template_mat_autocomplete_optionSelected_7_listener($event) {
+    \u0275\u0275conditionalCreate(9, UserSearchFieldComponent_Conditional_9_Template, 1, 0, "mat-spinner", 5);
+    \u0275\u0275elementStart(10, "mat-autocomplete", 6, 0);
+    \u0275\u0275listener("optionSelected", function UserSearchFieldComponent_Template_mat_autocomplete_optionSelected_10_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.setValue($event.option.value));
     });
-    \u0275\u0275declareLet(9);
-    \u0275\u0275pipe(10, "async");
-    \u0275\u0275declareLet(11);
-    \u0275\u0275repeaterCreate(12, UserSearchFieldComponent_For_13_Template, 8, 4, "mat-option", 7, \u0275\u0275repeaterTrackByIndex);
-    \u0275\u0275conditionalCreate(14, UserSearchFieldComponent_Conditional_14_Template, 5, 6, "mat-option", 8);
-    \u0275\u0275conditionalCreate(15, UserSearchFieldComponent_Conditional_15_Template, 3, 5, "mat-option", 9);
+    \u0275\u0275declareLet(12);
+    \u0275\u0275pipe(13, "async");
+    \u0275\u0275declareLet(14);
+    \u0275\u0275repeaterCreate(15, UserSearchFieldComponent_For_16_Template, 8, 4, "mat-option", 7, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275conditionalCreate(17, UserSearchFieldComponent_Conditional_17_Template, 5, 6, "mat-option", 8);
+    \u0275\u0275conditionalCreate(18, UserSearchFieldComponent_Conditional_18_Template, 3, 5, "mat-option", 9);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "mat-error");
-    \u0275\u0275text(17);
+    \u0275\u0275elementStart(19, "mat-error");
+    \u0275\u0275text(20);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(18, UserSearchFieldComponent_Conditional_18_Template, 3, 0, "button", 10);
+    \u0275\u0275conditionalCreate(21, UserSearchFieldComponent_Conditional_21_Template, 3, 0, "button", 10);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const auto_r8 = \u0275\u0275reference(8);
+    const auto_r8 = \u0275\u0275reference(11);
     \u0275\u0275advance();
     \u0275\u0275classProp("no-subscript", !ctx.error());
-    \u0275\u0275advance(3);
-    \u0275\u0275property("ngModel", ctx.search_term.getValue())("disabled", ctx.disabled())("matAutocomplete", auto_r8)("placeholder", \u0275\u0275pipeBind1(5, 12, ctx.placeholder()));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.loading() ? 6 : -1);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 13, ctx.placeholder()));
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", ctx.search_term.getValue())("disabled", ctx.disabled())("matAutocomplete", auto_r8)("placeholder", \u0275\u0275pipeBind1(8, 15, ctx.placeholder()));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.loading() ? 9 : -1);
     \u0275\u0275advance();
     \u0275\u0275property("displayWith", ctx.displayFn);
-    const user_list_r9 = \u0275\u0275pipeBind1(10, 14, ctx.search_results);
+    const user_list_r9 = \u0275\u0275pipeBind1(13, 17, ctx.search_results);
     \u0275\u0275advance(4);
     const term_r10 = \u0275\u0275storeLet(ctx.search_term.getValue());
     \u0275\u0275advance();
     \u0275\u0275repeater(user_list_r9);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(term_r10 && ctx.validate() && ctx.validate()(term_r10) ? 14 : -1);
+    \u0275\u0275conditional(term_r10 && ctx.validate() && ctx.validate()(term_r10) ? 17 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!(user_list_r9 == null ? null : user_list_r9.length) && (ctx.search_term.getValue() || ctx.error()) ? 15 : -1);
+    \u0275\u0275conditional(!(user_list_r9 == null ? null : user_list_r9.length) && (ctx.search_term.getValue() || ctx.error()) ? 18 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx.error());
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.clear() ? 18 : -1);
+    \u0275\u0275conditional(ctx.clear() ? 21 : -1);
   }
 }, dependencies: [
   CommonModule,
@@ -151669,6 +151886,7 @@ _UserSearchFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   NgModel,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatPrefix,
   MatSuffix,
@@ -151697,6 +151915,7 @@ var UserSearchFieldComponent = _UserSearchFieldComponent;
                 class="w-1/2 flex-1"
                 [class.no-subscript]="!error()"
             >
+                <mat-label>{{ placeholder() | translate }}</mat-label>
                 <icon
                     matPrefix
                     class="block flex w-6 items-center justify-center text-2xl"
@@ -151798,7 +152017,7 @@ var UserSearchFieldComponent = _UserSearchFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 162 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 163 });
 })();
 
 // libs/explore/src/lib/explore-booking-modal.component.ts
@@ -151809,7 +152028,7 @@ function ExploreBookingModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "label", 18);
     \u0275\u0275text(2);
@@ -151827,7 +152046,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 1, "FORM.HOST"));
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275text(1);
@@ -151840,7 +152059,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19
     \u0275\u0275textInterpolate1(" ", ctx_r1.alert()[1], " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "date");
@@ -151850,7 +152069,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21
     \u0275\u0275textInterpolate1(" at ", \u0275\u0275pipeBind2(1, 1, ctx_r1.form.value.date, ctx_r1.time_format), " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "label");
     \u0275\u0275text(2);
@@ -151859,7 +152078,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21
     \u0275\u0275elementStart(4, "div", 21);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "date");
-    \u0275\u0275conditionalCreate(7, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template, 2, 4);
+    \u0275\u0275conditionalCreate(7, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Conditional_7_Template, 2, 4);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -151872,7 +152091,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21
     \u0275\u0275conditional(!ctx_r1.form.value.all_day ? 7 : -1);
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 16)(1, "label");
     \u0275\u0275text(2);
@@ -151889,16 +152108,19 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22
     \u0275\u0275property("time", ctx_r1.form.value.date)("max", ctx_r1.max_duration)("use_24hr", ctx_r1.use_24hr_time);
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_25_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 17)(1, "mat-checkbox", 23);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function ExploreBookingModalComponent_Conditional_6_Conditional_0_Template(rf, ctx) {
@@ -151910,55 +152132,57 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Template(rf, c
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ":");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 10);
-    \u0275\u0275element(8, "input", 11);
-    \u0275\u0275elementStart(9, "mat-error");
-    \u0275\u0275text(10);
-    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementStart(7, "mat-form-field", 10)(8, "mat-label");
+    \u0275\u0275text(9, "Title");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(10, "input", 11);
+    \u0275\u0275elementStart(11, "mat-error");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(12, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template, 8, 3, "div", 8);
-    \u0275\u0275elementStart(13, "div", 8)(14, "label");
-    \u0275\u0275text(15);
-    \u0275\u0275pipe(16, "translate");
+    \u0275\u0275conditionalCreate(14, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_14_Template, 8, 3, "div", 8);
+    \u0275\u0275elementStart(15, "div", 8)(16, "label");
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "div", 12);
-    \u0275\u0275text(18);
+    \u0275\u0275elementStart(19, "div", 12);
+    \u0275\u0275text(20);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(19, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template, 2, 13, "div", 13);
+    \u0275\u0275conditionalCreate(21, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template, 2, 13, "div", 13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "div", 14);
-    \u0275\u0275conditionalCreate(21, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template, 8, 8, "div", 15);
-    \u0275\u0275conditionalCreate(22, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template, 5, 6, "div", 16);
+    \u0275\u0275elementStart(22, "div", 14);
+    \u0275\u0275conditionalCreate(23, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template, 8, 8, "div", 15);
+    \u0275\u0275conditionalCreate(24, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_24_Template, 5, 6, "div", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(23, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template, 4, 3, "div", 17);
+    \u0275\u0275conditionalCreate(25, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_25_Template, 5, 6, "div", 17);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_7_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275property("formGroup", ctx_r1.form);
-    \u0275\u0275advance(10);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 9, "EXPLORE.BOOKING_TITLE_REQUIRED"));
+    \u0275\u0275advance(12);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 9, "EXPLORE.BOOKING_TITLE_REQUIRED"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_book_for_others ? 12 : -1);
+    \u0275\u0275conditional(ctx_r1.can_book_for_others ? 14 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(16, 11, "EXPLORE.BOOKING_SPACE"), ":");
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(18, 11, "EXPLORE.BOOKING_SPACE"), ":");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", (ctx_r1.form.controls.resources == null ? null : ctx_r1.form.controls.resources.value[0] == null ? null : ctx_r1.form.controls.resources.value[0].display_name) || (ctx_r1.form.controls.resources == null ? null : ctx_r1.form.controls.resources.value[0] == null ? null : ctx_r1.form.controls.resources.value[0].name), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(((tmp_7_0 = ctx_r1.alert()) == null ? null : tmp_7_0[0]) ? 19 : -1);
+    \u0275\u0275conditional(((tmp_7_0 = ctx_r1.alert()) == null ? null : tmp_7_0[0]) ? 21 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.form.controls.date ? 21 : -1);
+    \u0275\u0275conditional(ctx_r1.form.controls.date ? 23 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.form.controls.duration ? 22 : -1);
+    \u0275\u0275conditional(ctx_r1.form.controls.duration ? 24 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.allow_all_day ? 23 : -1);
+    \u0275\u0275conditional(ctx_r1.allow_all_day ? 25 : -1);
   }
 }
 function ExploreBookingModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275conditionalCreate(0, ExploreBookingModalComponent_Conditional_6_Conditional_0_Template, 24, 13, "main", 5);
+    \u0275\u0275conditionalCreate(0, ExploreBookingModalComponent_Conditional_6_Conditional_0_Template, 26, 13, "main", 5);
     \u0275\u0275elementStart(1, "footer", 6)(2, "button", 7);
     \u0275\u0275listener("click", function ExploreBookingModalComponent_Conditional_6_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r1);
@@ -152055,7 +152279,7 @@ var _ExploreBookingModalComponent = class _ExploreBookingModalComponent {
 _ExploreBookingModalComponent.\u0275fac = function ExploreBookingModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ExploreBookingModalComponent)();
 };
-_ExploreBookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookingModalComponent, selectors: [["explore-booking-modal"]], decls: 8, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["load", "", 1, "flex", "h-64", "flex-col", "items-center", "justify-center"], [1, "max-w-[85vw]", "px-4", 3, "formGroup"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "click"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "Booking Title"], ["name", "space", 1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], [1, "flex", "flex-wrap", "sm:space-x-4"], [1, "flex", "w-full", "min-w-48", "flex-1", "flex-col", "sm:w-auto"], [1, "flex", "w-full", "flex-col", "sm:w-auto"], [1, "-mt-2", "mb-2", "flex", "justify-end"], ["for", "host"], ["name", "host", "formControlName", "organiser", 1, "mb-4"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "duration", 1, "w-full", 3, "time", "max", "use_24hr"], ["formControlName", "all_day"], [1, "m-4", 3, "diameter"]], template: function ExploreBookingModalComponent_Template(rf, ctx) {
+_ExploreBookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookingModalComponent, selectors: [["explore-booking-modal"]], decls: 8, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["load", "", 1, "flex", "h-64", "flex-col", "items-center", "justify-center"], [1, "max-w-[85vw]", "px-4", 3, "formGroup"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "click"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "title", "formControlName", "title", "placeholder", "Booking Title"], ["name", "space", 1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], [1, "flex", "flex-wrap", "sm:space-x-4"], [1, "flex", "w-full", "min-w-48", "flex-1", "flex-col", "sm:w-auto"], [1, "flex", "w-full", "flex-col", "sm:w-auto"], [1, "-mt-2", "mb-2", "flex", "justify-end"], ["for", "host"], ["name", "host", "formControlName", "organiser", 1, "mb-4"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "duration", 1, "w-full", 3, "time", "max", "use_24hr"], ["formControlName", "all_day", 3, "aria-label"], [1, "m-4", 3, "diameter"]], template: function ExploreBookingModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -152087,6 +152311,7 @@ _ExploreBookingModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
   UserSearchFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -152124,6 +152349,7 @@ var ExploreBookingModalComponent = _ExploreBookingModalComponent;
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Title</mat-label>
                             <input
                                 matInput
                                 name="title"
@@ -152218,7 +152444,7 @@ var ExploreBookingModalComponent = _ExploreBookingModalComponent;
                     </div>
                     @if (allow_all_day) {
                         <div class="-mt-2 mb-2 flex justify-end">
-                            <mat-checkbox formControlName="all_day">
+                            <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>
                         </div>
@@ -152253,7 +152479,7 @@ var ExploreBookingModalComponent = _ExploreBookingModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookingModalComponent, { className: "ExploreBookingModalComponent", filePath: "libs/explore/src/lib/explore-booking-modal.component.ts", lineNumber: 199 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookingModalComponent, { className: "ExploreBookingModalComponent", filePath: "libs/explore/src/lib/explore-booking-modal.component.ts", lineNumber: 200 });
 })();
 
 // libs/explore/src/lib/explore-icon.component.ts
@@ -153020,7 +153246,7 @@ var SpaceLocationPinComponent = _SpaceLocationPinComponent;
 // libs/events/src/lib/space-select-modal/space-map.component.ts
 var _c061 = () => ({ controls: true });
 var _c131 = () => ({ standalone: true });
-function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_div_2_Template(rf, ctx) {
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_6_div_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
     \u0275\u0275text(1);
@@ -153036,10 +153262,10 @@ function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_div_2_Template(rf
     \u0275\u0275textInterpolate1(" ", (tmp_4_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_4_0.display_name, " ");
   }
 }
-function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_Template(rf, ctx) {
+function SpaceSelectMapComponent_mat_form_field_1_mat_option_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 7)(1, "div", 8);
-    \u0275\u0275template(2, SpaceSelectMapComponent_mat_form_field_1_mat_option_3_div_2_Template, 5, 3, "div", 9);
+    \u0275\u0275template(2, SpaceSelectMapComponent_mat_form_field_1_mat_option_6_div_2_Template, 5, 3, "div", 9);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -153057,30 +153283,36 @@ function SpaceSelectMapComponent_mat_form_field_1_mat_option_3_Template(rf, ctx)
 function SpaceSelectMapComponent_mat_form_field_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 4)(1, "mat-select", 5);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 4)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 5);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function SpaceSelectMapComponent_mat_form_field_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275template(3, SpaceSelectMapComponent_mat_form_field_1_mat_option_3_Template, 5, 3, "mat-option", 6);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275template(6, SpaceSelectMapComponent_mat_form_field_1_mat_option_6_Template, 5, 3, "mat-option", 6);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(8, _c131))("placeholder", \u0275\u0275pipeBind1(2, 4, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngForOf", \u0275\u0275pipeBind1(4, 6, ctx_r1.levels));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 5, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(11, _c131))("placeholder", \u0275\u0275pipeBind1(5, 7, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", \u0275\u0275pipeBind1(7, 9, ctx_r1.levels));
   }
 }
 var _SpaceSelectMapComponent = class _SpaceSelectMapComponent extends AsyncHandler {
@@ -153174,7 +153406,7 @@ _SpaceSelectMapComponent.\u0275fac = function SpaceSelectMapComponent_Factory(__
 _SpaceSelectMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SpaceSelectMapComponent, selectors: [["space-map"]], inputs: { selected: "selected", active: "active", is_displayed: "is_displayed" }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["appearance", "outline", "class", "w-full", 4, "ngIf"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["appearance", "outline", 1, "w-full"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value", 4, "ngFor", "ngForOf"], [3, "value"], [1, "flex", "flex-col-reverse"], ["class", "text-xs opacity-30", 4, "ngIf"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function SpaceSelectMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275template(1, SpaceSelectMapComponent_mat_form_field_1_Template, 5, 9, "mat-form-field", 1);
+    \u0275\u0275template(1, SpaceSelectMapComponent_mat_form_field_1_Template, 8, 12, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
@@ -153207,6 +153439,7 @@ _SpaceSelectMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -153227,6 +153460,7 @@ var SpaceSelectMapComponent = _SpaceSelectMapComponent;
                 class="w-full"
                 *ngIf="(levels | async)?.length"
             >
+                <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                 <mat-select
                     name="location"
                     [(ngModel)]="level"
@@ -153282,7 +153516,7 @@ var SpaceSelectMapComponent = _SpaceSelectMapComponent;
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceSelectMapComponent, { className: "SpaceSelectMapComponent", filePath: "libs/events/src/lib/space-select-modal/space-map.component.ts", lineNumber: 95 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SpaceSelectMapComponent, { className: "SpaceSelectMapComponent", filePath: "libs/events/src/lib/space-select-modal/space-map.component.ts", lineNumber: 96 });
 })();
 
 // libs/events/src/lib/space-select-modal/space-select-modal.component.ts
@@ -158688,7 +158922,7 @@ function NewSpaceFiltersComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "CALENDAR_EVENT.SPACE_LOCATION"), " ");
   }
 }
-function NewSpaceFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_13_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19);
     \u0275\u0275text(1);
@@ -158704,26 +158938,32 @@ function NewSpaceFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 18);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 18);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, NewSpaceFiltersComponent_Conditional_13_For_4_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewSpaceFiltersComponent_Conditional_13_For_7_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c072))("placeholder", \u0275\u0275pipeBind1(2, 3, "CALENDAR_EVENT.SPACE_REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r2.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c072))("placeholder", \u0275\u0275pipeBind1(5, 6, "CALENDAR_EVENT.SPACE_REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r2.regions));
   }
 }
-function NewSpaceFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_15_For_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19);
     \u0275\u0275text(1);
@@ -158739,29 +158979,35 @@ function NewSpaceFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 20);
-    \u0275\u0275pipe(2, "async");
-    \u0275\u0275pipe(3, "async");
-    \u0275\u0275pipe(4, "async");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 20);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "async");
+    \u0275\u0275pipe(7, "async");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setBuilding($event));
     });
-    \u0275\u0275repeaterCreate(5, NewSpaceFiltersComponent_Conditional_15_For_6_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(7, "async");
+    \u0275\u0275repeaterCreate(8, NewSpaceFiltersComponent_Conditional_15_For_9_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(10, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_5_0;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(2, 3, ctx_r2.building))("ngModelOptions", \u0275\u0275pureFunction0(11, _c072))("placeholder", ((tmp_4_0 = \u0275\u0275pipeBind1(3, 5, ctx_r2.building)) == null ? null : tmp_4_0.display_name) || ((tmp_4_0 = \u0275\u0275pipeBind1(4, 7, ctx_r2.building)) == null ? null : tmp_4_0.name));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(5, 6, ctx_r2.building))("ngModelOptions", \u0275\u0275pureFunction0(14, _c072))("placeholder", ((tmp_5_0 = \u0275\u0275pipeBind1(6, 8, ctx_r2.building)) == null ? null : tmp_5_0.display_name) || ((tmp_5_0 = \u0275\u0275pipeBind1(7, 10, ctx_r2.building)) == null ? null : tmp_5_0.name));
     \u0275\u0275advance(4);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 9, ctx_r2.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(10, 12, ctx_r2.buildings));
   }
 }
-function NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_17_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 23);
     \u0275\u0275text(1);
@@ -158777,10 +159023,10 @@ function NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf
     \u0275\u0275textInterpolate1(" ", (tmp_13_0 = \u0275\u0275pipeBind1(2, 1, lvl_r8 == null ? null : lvl_r8.parent_id)) == null ? null : tmp_13_0.display_name, " ");
   }
 }
-function NewSpaceFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_17_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19)(1, "div", 22);
-    \u0275\u0275conditionalCreate(2, NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template, 5, 3, "div", 23);
+    \u0275\u0275conditionalCreate(2, NewSpaceFiltersComponent_Conditional_17_For_8_Conditional_2_Template, 5, 3, "div", 23);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -158798,25 +159044,31 @@ function NewSpaceFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 21);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 21);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setOptions({ zones: $event }));
     });
-    \u0275\u0275repeaterCreate(4, NewSpaceFiltersComponent_Conditional_17_For_5_Template, 5, 3, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewSpaceFiltersComponent_Conditional_17_For_8_Template, 5, 3, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 4, ctx_r2.options)) == null ? null : tmp_2_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(10, _c072))("placeholder", \u0275\u0275pipeBind1(3, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 5, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_3_0 = \u0275\u0275pipeBind1(5, 7, ctx_r2.options)) == null ? null : tmp_3_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(13, _c072))("placeholder", \u0275\u0275pipeBind1(6, 9, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 8, ctx_r2.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 11, ctx_r2.levels));
   }
 }
 function NewSpaceFiltersComponent_Conditional_28_Template(rf, ctx) {
@@ -158851,13 +159103,16 @@ function NewSpaceFiltersComponent_Conditional_28_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 26);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function NewSpaceFiltersComponent_Conditional_30_Conditional_8_Template(rf, ctx) {
@@ -159115,7 +159370,7 @@ var _NewSpaceFiltersComponent = class _NewSpaceFiltersComponent {
 _NewSpaceFiltersComponent.\u0275fac = function NewSpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceFiltersComponent)();
 };
-_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
+_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
@@ -159130,11 +159385,11 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275conditionalCreate(10, NewSpaceFiltersComponent_Conditional_10_Template, 3, 3, "label", 6);
     \u0275\u0275pipe(11, "async");
     \u0275\u0275pipe(12, "async");
-    \u0275\u0275conditionalCreate(13, NewSpaceFiltersComponent_Conditional_13_Template, 6, 8, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(13, NewSpaceFiltersComponent_Conditional_13_Template, 9, 11, "mat-form-field", 7);
     \u0275\u0275pipe(14, "async");
-    \u0275\u0275conditionalCreate(15, NewSpaceFiltersComponent_Conditional_15_Template, 8, 12, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(15, NewSpaceFiltersComponent_Conditional_15_Template, 11, 15, "mat-form-field", 7);
     \u0275\u0275pipe(16, "async");
-    \u0275\u0275conditionalCreate(17, NewSpaceFiltersComponent_Conditional_17_Template, 7, 11, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(17, NewSpaceFiltersComponent_Conditional_17_Template, 10, 14, "mat-form-field", 7);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(18, "div", 8)(19, "div", 9)(20, "label", 10);
     \u0275\u0275text(21);
@@ -159152,7 +159407,7 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(28, NewSpaceFiltersComponent_Conditional_28_Template, 9, 14, "div", 12);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(29, NewSpaceFiltersComponent_Conditional_29_Template, 4, 3, "div", 13);
+    \u0275\u0275conditionalCreate(29, NewSpaceFiltersComponent_Conditional_29_Template, 5, 6, "div", 13);
     \u0275\u0275conditionalCreate(30, NewSpaceFiltersComponent_Conditional_30_Template, 10, 10, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275declareLet(31);
@@ -159216,6 +159471,7 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -159261,6 +159517,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -159281,6 +159538,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building | async"
@@ -159301,6 +159559,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zones"
@@ -159383,7 +159642,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -159521,7 +159780,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceFiltersComponent, { className: "NewSpaceFiltersComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-filters.component.ts", lineNumber: 329 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceFiltersComponent, { className: "NewSpaceFiltersComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-filters.component.ts", lineNumber: 332 });
 })();
 
 // libs/events/src/lib/new-space-select-modal/new-space-list.component.ts
@@ -160147,7 +160406,7 @@ var NewSpaceLocationPinComponent = _NewSpaceLocationPinComponent;
 // libs/events/src/lib/new-space-select-modal/new-space-map.component.ts
 var _c074 = () => ({ controls: true });
 var _c136 = () => ({ standalone: true });
-function NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx) {
+function NewSpaceMapComponent_Conditional_0_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -160163,10 +160422,10 @@ function NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewSpaceMapComponent_Conditional_0_For_5_Template(rf, ctx) {
+function NewSpaceMapComponent_Conditional_0_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, NewSpaceMapComponent_Conditional_0_For_8_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -160184,30 +160443,36 @@ function NewSpaceMapComponent_Conditional_0_For_5_Template(rf, ctx) {
 function NewSpaceMapComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-select", 4);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-select", 4);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(4, NewSpaceMapComponent_Conditional_0_For_5_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewSpaceMapComponent_Conditional_0_For_8_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c136))("placeholder", \u0275\u0275pipeBind1(3, 3, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c136))("placeholder", \u0275\u0275pipeBind1(6, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 5, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 8, ctx_r1.levels));
   }
 }
 var _NewSpaceMapComponent = class _NewSpaceMapComponent extends AsyncHandler {
@@ -160304,7 +160569,7 @@ _NewSpaceMapComponent.\u0275fac = function NewSpaceMapComponent_Factory(__ngFact
 };
 _NewSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceMapComponent, selectors: [["new-space-map"]], inputs: { selected: [1, "selected"], active: [1, "active"], is_displayed: [1, "is_displayed"] }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 7, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function NewSpaceMapComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, NewSpaceMapComponent_Conditional_0_Template, 7, 8, "div", 0);
+    \u0275\u0275conditionalCreate(0, NewSpaceMapComponent_Conditional_0_Template, 10, 11, "div", 0);
     \u0275\u0275pipe(1, "async");
     \u0275\u0275elementStart(2, "div", 1)(3, "interactive-map", 2);
     \u0275\u0275pipe(4, "async");
@@ -160333,6 +160598,7 @@ _NewSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -160353,6 +160619,7 @@ var NewSpaceMapComponent = _NewSpaceMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -160407,7 +160674,7 @@ var NewSpaceMapComponent = _NewSpaceMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceMapComponent, { className: "NewSpaceMapComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-map.component.ts", lineNumber: 95 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceMapComponent, { className: "NewSpaceMapComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-map.component.ts", lineNumber: 96 });
 })();
 
 // libs/events/src/lib/new-space-select-modal/new-space-select-modal.component.ts
@@ -161869,11 +162136,11 @@ var _c076 = ["search_field"];
 var _c138 = (a0) => ({ name: a0 });
 var _c215 = (a0) => ({ email: a0 });
 var _forTrack011 = ($index, $item) => $item.id;
-function UserListFieldComponent_For_7_Template(rf, ctx) {
+function UserListFieldComponent_For_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 13);
-    \u0275\u0275listener("removed", function UserListFieldComponent_For_7_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function UserListFieldComponent_For_10_Template_mat_chip_row_removed_0_listener() {
       const item_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.removeUser(item_r3));
@@ -161897,16 +162164,16 @@ function UserListFieldComponent_For_7_Template(rf, ctx) {
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 5, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(8, _c138, item_r3.name || item_r3.email)));
   }
 }
-function UserListFieldComponent_Conditional_12_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 10);
   }
 }
-function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 16);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_15_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_18_Template_mat_option_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUserFromEmail());
@@ -161921,7 +162188,7 @@ function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "FORM.USER_LIST_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c215, ctx_r3.search$.getValue())), " ");
   }
 }
-function UserListFieldComponent_For_17_Conditional_8_Template(rf, ctx) {
+function UserListFieldComponent_For_20_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " (");
     \u0275\u0275elementStart(1, "span", 20);
@@ -161935,11 +162202,11 @@ function UserListFieldComponent_For_17_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(user_r7.username);
   }
 }
-function UserListFieldComponent_For_17_Template(rf, ctx) {
+function UserListFieldComponent_For_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 17);
-    \u0275\u0275listener("click", function UserListFieldComponent_For_17_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_For_20_Template_mat_option_click_0_listener() {
       const user_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUser(user_r7));
@@ -161951,7 +162218,7 @@ function UserListFieldComponent_For_17_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "div", 19);
     \u0275\u0275text(7);
-    \u0275\u0275conditionalCreate(8, UserListFieldComponent_For_17_Conditional_8_Template, 4, 1);
+    \u0275\u0275conditionalCreate(8, UserListFieldComponent_For_20_Conditional_8_Template, 4, 1);
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
@@ -161966,11 +162233,11 @@ function UserListFieldComponent_For_17_Template(rf, ctx) {
     \u0275\u0275conditional(user_r7.username && user_r7.username !== user_r7.email ? 8 : -1);
   }
 }
-function UserListFieldComponent_Conditional_19_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 12)(1, "button", 21);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_19_Template_button_click_1_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_22_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.openNewUserModal());
@@ -161992,14 +162259,14 @@ function UserListFieldComponent_Conditional_19_Template(rf, ctx) {
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(17, "input", 26);
-    \u0275\u0275listener("change", function UserListFieldComponent_Conditional_19_Template_input_change_17_listener($event) {
+    \u0275\u0275listener("change", function UserListFieldComponent_Conditional_22_Template_input_change_17_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUsersFromFile($event));
     });
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(18, "button", 27);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_19_Template_button_click_18_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_22_Template_button_click_18_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       ctx_r3.downloadCSVTemplate();
@@ -162257,55 +162524,62 @@ _UserListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _UserListFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 20, vars: 15, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 23, vars: 18, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-chip-grid", 7, 1);
-    \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 10, "mat-chip-row", 8, _forTrack011);
+    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-label");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 9, 2);
-    \u0275\u0275pipe(10, "translate");
-    \u0275\u0275pipe(11, "async");
-    \u0275\u0275listener("ngModelChange", function UserListFieldComponent_Template_input_ngModelChange_8_listener($event) {
+    \u0275\u0275elementStart(7, "mat-chip-grid", 7, 1);
+    \u0275\u0275repeaterCreate(9, UserListFieldComponent_For_10_Template, 8, 10, "mat-chip-row", 8, _forTrack011);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "input", 9, 2);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275pipe(14, "async");
+    \u0275\u0275listener("ngModelChange", function UserListFieldComponent_Template_input_ngModelChange_11_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.updateSearch($event));
-    })("matChipInputTokenEnd", function UserListFieldComponent_Template_input_matChipInputTokenEnd_8_listener($event) {
+    })("matChipInputTokenEnd", function UserListFieldComponent_Template_input_matChipInputTokenEnd_11_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addUserFromEmail($event.value));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, UserListFieldComponent_Conditional_12_Template, 1, 0, "mat-spinner", 10);
+    \u0275\u0275conditionalCreate(15, UserListFieldComponent_Conditional_15_Template, 1, 0, "mat-spinner", 10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "mat-autocomplete", null, 3);
-    \u0275\u0275conditionalCreate(15, UserListFieldComponent_Conditional_15_Template, 3, 6, "mat-option");
-    \u0275\u0275repeaterCreate(16, UserListFieldComponent_For_17_Template, 9, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(18, "async");
+    \u0275\u0275elementStart(16, "mat-autocomplete", null, 3);
+    \u0275\u0275conditionalCreate(18, UserListFieldComponent_Conditional_18_Template, 3, 6, "mat-option");
+    \u0275\u0275repeaterCreate(19, UserListFieldComponent_For_20_Template, 9, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(21, "async");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(19, UserListFieldComponent_Conditional_19_Template, 26, 18, "div", 12);
+    \u0275\u0275conditionalCreate(22, UserListFieldComponent_Conditional_22_Template, 26, 18, "div", 12);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const chipList_r9 = \u0275\u0275reference(5);
-    const auto_r10 = \u0275\u0275reference(14);
+    const chipList_r9 = \u0275\u0275reference(8);
+    const auto_r10 = \u0275\u0275reference(17);
     \u0275\u0275attribute("disabled", ctx.disabled());
-    \u0275\u0275advance(6);
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 10, "FORM.USER_LIST_PLACEHOLDER"));
+    \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx.active_list);
     \u0275\u0275advance(2);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(10, 9, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", \u0275\u0275pipeBind1(11, 11, ctx.search$))("matAutocomplete", auto_r10)("matChipInputFor", chipList_r9)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(13, 12, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", \u0275\u0275pipeBind1(14, 14, ctx.search$))("matAutocomplete", auto_r10)("matChipInputFor", chipList_r9)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional(ctx.loading ? 12 : -1);
+    \u0275\u0275conditional(ctx.loading ? 15 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx.search_valid_email ? 15 : -1);
+    \u0275\u0275conditional(ctx.search_valid_email ? 18 : -1);
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(18, 13, ctx.user_list$));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(21, 16, ctx.user_list$));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(!ctx.hide_actions() ? 19 : -1);
+    \u0275\u0275conditional(!ctx.hide_actions() ? 22 : -1);
   }
 }, dependencies: [
   CommonModule,
   AsyncPipe,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSuffix,
   MatChipsModule,
   MatChipGrid,
@@ -162342,6 +162616,7 @@ var UserListFieldComponent = _UserListFieldComponent;
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
+                    <mat-label>{{ 'FORM.USER_LIST_PLACEHOLDER' | translate }}</mat-label>
                     <mat-chip-grid #chipList aria-label="User Seleciom">
                         @for (item of active_list; track item.id) {
                             <mat-chip-row
@@ -162509,7 +162784,7 @@ var UserListFieldComponent = _UserListFieldComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 245 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 246 });
 })();
 
 // apps/signage/src/app/time-controls.component.ts
