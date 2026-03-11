@@ -789,6 +789,14 @@ export class BookingFormService extends AsyncHandler {
                     user_email: value.user?.email || value.user_email,
                     extension_data: {
                         ...((value as any).extension_data || {}),
+                        assigned_asset_id:
+                            value.booking_type === 'desk'
+                                ? value.asset_id
+                                : undefined,
+                        assigned_asset_name:
+                            value.booking_type === 'desk'
+                                ? value.asset_name || value.asset_id
+                                : undefined,
                         assets: value.assets.map((_) => _.toJSON()),
                         group: value.group,
                         phone: value.phone,
@@ -869,36 +877,14 @@ export class BookingFormService extends AsyncHandler {
         );
         if (extra_members.length <= 0) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.form.getRawValue();
-        const asset_list = await nextValueFrom(this.available_resources);
-        const active_resource = asset_list.find(
-            (_) => _.id === form.asset_id || _.map_id === form.asset_id,
-        );
-        if (!active_resource) {
-            throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
-        }
-        const level = this._org.levelWithID([active_resource.zone?.id]);
-        if (!level?.map_id) {
-            throw i18n('BOOKINGS.GROUP_MAP_UNAVAILABLE');
-        }
-        const resources = [
-            active_resource,
-            ...(await this._getNearbyResources(
-                level.map_id,
-                form.asset_id,
-                asset_list,
-                extra_members.length,
-            )),
-        ];
         const group_members = unique(
             [currentUser(), ...extra_members],
             'email',
         );
-        if (resources.length < group_members.length) {
-            throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
-                available: resources.length,
-                members: group_members.length,
-            });
-        }
+        const resources = await this._resolveDeskGroupResources(
+            group_members,
+            form,
+        );
         const unavailable_errors: string[] = [];
         const available = await Promise.all(
             group_members.map(async (member, idx) => {
@@ -913,7 +899,7 @@ export class BookingFormService extends AsyncHandler {
                     return await this._checkResourceAvailable(
                         {
                             ...form,
-                            asset_id: resource.map_id || resource.id,
+                            asset_id: resource.id,
                             user_email: member.email,
                         },
                         type,
@@ -952,8 +938,8 @@ export class BookingFormService extends AsyncHandler {
                     user_email: user.email,
                     user_id: user.id,
                     asset_id: asset?.id,
-                    asset_name: asset.name,
-                    description: asset.name,
+                    asset_name: asset.name || asset.id,
+                    description: asset.name || asset.id,
                     map_id: asset?.map_id || asset?.id,
                     group: group_name,
                     zones: (asset.zone
@@ -1122,9 +1108,18 @@ export class BookingFormService extends AsyncHandler {
         await Promise.all(
             to_delete.map((s) => lastValueFrom(removeBooking(s.id))),
         );
+        const desk_resources =
+            !is_visitor && type === 'desk'
+                ? await this._resolveDeskGroupResources(members, form, [
+                      ...existing_siblings.filter(
+                          (s) => !to_delete.find((item) => item.id === s.id),
+                      ),
+                  ])
+                : [];
         let first_result: Booking = null;
         try {
-            for (const member of members) {
+            for (let index = 0; index < members.length; index++) {
+                const member = members[index];
                 if (!member.email) continue;
                 const existing = sibling_map[member.email];
                 const booking_id = existing?.id || '';
@@ -1160,6 +1155,7 @@ export class BookingFormService extends AsyncHandler {
                         ],
                     });
                 } else {
+                    const asset = desk_resources[index];
                     this.form.patchValue({
                         ...base_form,
                         id: booking_id,
@@ -1168,10 +1164,24 @@ export class BookingFormService extends AsyncHandler {
                         user: member as any,
                         user_email: member.email,
                         user_id: member.id,
-                        ...(existing
+                        ...(asset
                             ? {
-                                  asset_id: existing.asset_id,
-                                  asset_name: existing.asset_name,
+                                  asset_id: asset.id,
+                                  asset_name: asset.name || asset.id,
+                                  description: asset.name || asset.id,
+                                  map_id: asset.map_id || asset.id,
+                                  zones: (asset.zone
+                                      ? unique([
+                                            this._org.organisation.id,
+                                            this._org.region?.id,
+                                            asset.zone?.parent_id,
+                                            asset.zone?.id,
+                                        ])
+                                      : [
+                                            this._org.organisation.id,
+                                            this._org.region?.id,
+                                        ]
+                                  ).filter((_) => _),
                               }
                             : {}),
                     });
@@ -1585,10 +1595,13 @@ export class BookingFormService extends AsyncHandler {
         id: string,
         resources: BookingAsset[],
         count: number,
+        reserved_ids = new Set<string>(),
     ): Promise<BookingAsset[]> {
         const nearby_resources = [];
         let asset_list = resources.filter(
-            (_) => _.id !== id && _.map_id !== id,
+            (_) =>
+                !this._resourceReserved(_, reserved_ids) &&
+                !this._resourceMatches(_, id),
         );
         for (let i = 0; i < count; i++) {
             const item = await findNearbyFeature(
@@ -1597,14 +1610,128 @@ export class BookingFormService extends AsyncHandler {
                 asset_list.map((_) => _.map_id || _.id),
             );
             if (item) {
-                nearby_resources.push(
-                    resources.find((_) => _.id === item || _.map_id === item),
+                const resource = resources.find((_) =>
+                    this._resourceMatches(_, item),
                 );
+                if (!resource || this._resourceReserved(resource, reserved_ids)) {
+                    asset_list = asset_list.filter(
+                        (_) => !this._resourceMatches(_, item),
+                    );
+                    continue;
+                }
+                nearby_resources.push(resource);
+                this._reserveResource(resource, reserved_ids);
                 asset_list = asset_list.filter(
-                    (_) => _.id !== item && _.map_id !== item,
+                    (_) => !this._resourceMatches(_, item),
                 );
             }
         }
         return nearby_resources;
+    }
+
+    private async _resolveDeskGroupResources(
+        group_members: User[],
+        form: Partial<Booking> & { map_id?: string },
+        existing_siblings: Booking[] = [],
+    ): Promise<BookingAsset[]> {
+        const available_resources = await nextValueFrom(this.available_resources);
+        const all_resources = await nextValueFrom(this.resources);
+        const preferred_id = `${form.map_id || form.asset_id || ''}`;
+        const existing_map: Record<string, Booking> = {};
+        for (const booking of existing_siblings) {
+            if (booking.user_email) existing_map[booking.user_email] = booking;
+        }
+        const selected_resource = this._findResourceById(
+            available_resources,
+            preferred_id,
+        );
+        const preferred_resource =
+            selected_resource ||
+            (existing_siblings.length
+                ? this._findResourceById(all_resources, preferred_id)
+                : null);
+        if (!selected_resource && !existing_siblings.length) {
+            throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
+        }
+        const anchor_resource =
+            preferred_resource ||
+            this._findResourceById(
+                all_resources,
+                existing_siblings[0]?.asset_id || '',
+            );
+        const level = this._org.levelWithID([anchor_resource?.zone?.id]);
+        if (!level?.map_id) {
+            throw i18n('BOOKINGS.GROUP_MAP_UNAVAILABLE');
+        }
+        const reserved_ids = new Set<string>();
+        const resolved = group_members.map((member) => {
+            const booking = existing_map[member.email];
+            const resource_id =
+                member.email === currentUser().email
+                    ? preferred_id
+                    : booking?.asset_id || '';
+            const resource =
+                this._findResourceById(all_resources, resource_id) ||
+                this._findResourceById(available_resources, resource_id);
+            if (!resource || this._resourceReserved(resource, reserved_ids)) {
+                return null;
+            }
+            this._reserveResource(resource, reserved_ids);
+            return resource;
+        });
+        const missing_count = resolved.filter((_) => !_).length;
+        const nearby_resources = missing_count
+            ? await this._getNearbyResources(
+                  level.map_id,
+                  anchor_resource?.map_id || anchor_resource?.id || preferred_id,
+                  available_resources,
+                  missing_count,
+                  reserved_ids,
+              )
+            : [];
+        let available = resolved.filter((_) => !!_).length;
+        let nearby_index = 0;
+        const final_resources = resolved.map((resource) => {
+            if (resource) return resource;
+            const next_resource = nearby_resources[nearby_index++];
+            if (next_resource) available++;
+            return next_resource || null;
+        });
+        if (final_resources.some((_) => !_)) {
+            throw i18n('BOOKINGS.GROUP_INSUFFICIENT_RESOURCES', {
+                available,
+                members: group_members.length,
+            });
+        }
+        return final_resources;
+    }
+
+    private _findResourceById(resources: BookingAsset[], id: string) {
+        return (resources || []).find((_) => this._resourceMatches(_, id));
+    }
+
+    private _resourceMatches(resource: Partial<BookingAsset>, id: string) {
+        if (!resource || !id) return false;
+        return resource.id === id || resource.map_id === id;
+    }
+
+    private _resourceReserved(
+        resource: Partial<BookingAsset>,
+        reserved_ids: Set<string>,
+    ) {
+        return !!(
+            resource &&
+            ((resource.id && reserved_ids.has(resource.id)) ||
+                (resource.map_id && reserved_ids.has(resource.map_id)))
+        );
+    }
+
+    private _reserveResource(
+        resource: Partial<BookingAsset>,
+        reserved_ids: Set<string>,
+    ) {
+        if (!resource) return;
+        if (resource.id) reserved_ids.add(resource.id);
+        if (resource.map_id) reserved_ids.add(resource.map_id);
     }
 }

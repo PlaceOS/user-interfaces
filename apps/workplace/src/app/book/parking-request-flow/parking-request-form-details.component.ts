@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    currentUser,
     notifyError,
     OrganisationService,
     settingSignal,
@@ -808,6 +809,44 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                     </div>
                 </div>
 
+                <!-- APPROVER GROUP -->
+                @if (approver_group_options().length && !is_auto_approved()) {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                    >
+                        <h3
+                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                        >
+                            <icon class="text-lg">group</icon>
+                            {{
+                                'BOOKINGS.PARKING_APPROVER_GROUP_TITLE'
+                                    | translate
+                            }}
+                        </h3>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                formControlName="approver_group"
+                                [placeholder]="
+                                    'BOOKINGS.PARKING_APPROVER_GROUP_PLACEHOLDER'
+                                        | translate
+                                "
+                            >
+                                <mat-option value="">{{
+                                    'COMMON.ANY' | translate
+                                }}</mat-option>
+                                @for (
+                                    option of approver_group_options();
+                                    track option.id
+                                ) {
+                                    <mat-option [value]="option.id">{{
+                                        option.name | translate
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
+
                 <!-- SPACE RESTRICTIONS -->
                 <div
                     class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
@@ -908,6 +947,20 @@ export class ParkingRequestFormDetailsComponent
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    public readonly approver_groups_setting = settingSignal<
+        ParkingRequestOption[]
+    >('parking.approver_groups', []);
+    public readonly auto_approved_groups_setting = settingSignal<string[]>(
+        'parking.auto_approved_groups',
+        [],
+    );
+
+    public readonly is_auto_approved = computed(() => {
+        const auto_groups = this.auto_approved_groups_setting();
+        if (!auto_groups?.length) return false;
+        const user_groups = currentUser()?.groups || [];
+        return auto_groups.some((g) => user_groups.includes(g));
+    });
 
     public readonly end_date = computed(() =>
         endOfDay(addDays(Date.now(), this.available_days())).valueOf(),
@@ -942,6 +995,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
     );
+    public readonly approver_group_options = computed(() =>
+        this._normaliseOptions(this.approver_groups_setting()),
+    );
     public readonly selected_space_restriction = computed(() => {
         const value = this.form()?.getRawValue()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
@@ -956,7 +1012,13 @@ export class ParkingRequestFormDetailsComponent
         date: addDays(startOfWeek(Date.now(), { weekStartsOn: 1 }), index - 1),
     }));
 
-    private readonly _all_request_types = [
+    private readonly _default_request_types: {
+        value: string;
+        label: string;
+        description?: string;
+        badge?: string;
+        groups?: string[];
+    }[] = [
         {
             value: 'standard',
             label: 'BOOKINGS.PARKING_REQUEST_STANDARD_TITLE',
@@ -976,13 +1038,31 @@ export class ParkingRequestFormDetailsComponent
         },
     ];
 
-    public readonly request_types = computed(() =>
-        this.show_special_needs()
-            ? this._all_request_types
-            : this._all_request_types.filter(
-                  (type) => type.value !== 'special',
-              ),
-    );
+    public readonly request_types_setting = settingSignal<
+        {
+            value: string;
+            label: string;
+            description?: string;
+            badge?: string;
+            groups?: string[];
+        }[]
+    >('parking.request_types', null);
+
+    public readonly request_types = computed(() => {
+        const custom_types = this.request_types_setting();
+        const all_types =
+            custom_types?.length > 0
+                ? custom_types
+                : this._default_request_types;
+        const user_groups = currentUser()?.groups || [];
+        return all_types.filter((t) => {
+            if (t.value === 'special' && !this.show_special_needs())
+                return false;
+            if (t.groups?.length)
+                return t.groups.some((g) => user_groups.includes(g));
+            return true;
+        });
+    });
 
     public readonly time_options = computed(() => {
         const values = new Set(Array.from({ length: 48 }, (_, i) => i * 30));

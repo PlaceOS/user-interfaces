@@ -111,6 +111,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         space_restrictions: new FormControl(
             booking.extension_data.space_restrictions ?? false,
         ),
+        approver_group: new FormControl(
+            booking.extension_data.approver_group || '',
+        ),
         prefer_booked_location_first: new FormControl(
             booking.extension_data.prefer_booked_location_first ?? false,
         ),

@@ -154,6 +154,16 @@
                     "description": "Shift presets shown in the parking request flow. The custom shift option is always shown separately.",
                     "items": { "$ref": "#/$defs/parking_request_shift_option" }
                 },
+                "auto_approved_groups": {
+                    "type": "array",
+                    "description": "List of user group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector.",
+                    "items": { "type": "string" }
+                },
+                "request_types": {
+                    "type": "array",
+                    "description": "Request type options shown in the parking request flow. Each item requires a `value` and `label`. Optional `description` and `badge` fields. Defaults to standard, special, and after_hours types.",
+                    "items": { "$ref": "#/$defs/parking_request_type" }
+                },
                 "request_space_restrictions": {
                     "type": "array",
                     "description": "Space restriction options shown in the parking request flow. If this list is empty, the field is hidden.",
@@ -266,6 +276,33 @@
                 "name": {
                     "type": "string",
                     "description": "Display string for the object"
+                }
+            }
+        },
+        "parking_request_type": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "Unique value identifying this request type"
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Display label for the request type. Supports translation keys."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description text shown below the label. Supports translation keys."
+                },
+                "badge": {
+                    "type": "string",
+                    "description": "Optional badge text shown alongside the request type. Supports translation keys."
+                },
+                "groups": {
+                    "type": "array",
+                    "description": "Optional list of user groups that can see this request type. If empty or omitted, the type is visible to all users.",
+                    "items": { "type": "string" }
                 }
             }
         },
