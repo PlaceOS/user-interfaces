@@ -49,6 +49,10 @@ function setBookingAsset(form: FormGroup, resource: any) {
 }
 
 export function generateBookingForm(booking: Booking = new Booking()) {
+    const visitor_name =
+        booking.booking_type === 'visitor'
+            ? booking.extension_data?.visitor_name || booking.asset_name || ''
+            : booking.asset_name || booking.description;
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         parent_id: new FormControl(booking.parent_id || ''),
@@ -69,7 +73,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         resources: new FormControl([]),
         company: new FormControl(booking.extension_data?.company || ''),
         asset_id: new FormControl(booking.asset_id, [Validators.required]),
-        asset_name: new FormControl(booking.asset_name || booking.description),
+        asset_name: new FormControl(visitor_name),
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),

@@ -211,13 +211,21 @@ export class Booking {
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
         this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
+        const booking_type = data.booking_type || data.type || ' ';
         this.asset_name =
-            data.asset_name ||
-            data.extension_data?.asset_name ||
-            data.extension_data?.name ||
-            data.description ||
-            data.asset_id ||
-            '';
+            booking_type === 'visitor'
+                ? data.extension_data?.visitor_name ||
+                  data.asset_name ||
+                  data.extension_data?.asset_name ||
+                  data.extension_data?.name ||
+                  data.asset_id ||
+                  ''
+                : data.asset_name ||
+                  data.extension_data?.asset_name ||
+                  data.extension_data?.name ||
+                  data.description ||
+                  data.asset_id ||
+                  '';
         this.zones = data.zones || [];
         this.booking_start =
             Math.floor(data.date / 1000) ||
