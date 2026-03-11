@@ -78,7 +78,7 @@ describe('BookingDetailsModalComponent', () => {
         );
     });
 
-    it('should prefer attendee name over reason text for visitor title', () => {
+    it('should show booking title as display title and visitor name separately', () => {
         (spectator.component as any).booking.set(
             new Booking({
                 booking_type: 'visitor',
@@ -90,7 +90,7 @@ describe('BookingDetailsModalComponent', () => {
             } as any),
         );
 
-        expect(spectator.component.display_title()).toBe('Visitor One');
-        expect(spectator.component.visitor_reason()).toBe('Vendor Interview');
+        expect(spectator.component.display_title()).toBe('Vendor Interview');
+        expect(spectator.component.visitor_display_name()).toBe('Visitor One');
     });
 });

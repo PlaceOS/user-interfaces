@@ -65,9 +65,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 >
                     {{ display_title() }}
                 </h3>
-                @if (is_visitor() && visitor_reason()) {
+                @if (is_visitor()) {
                     <p class="w-full px-3 text-sm opacity-70">
-                        {{ visitor_reason() }}
+                        {{ visitor_display_name() }}
                     </p>
                 }
                 <div class="w-full items-center justify-between sm:flex">
@@ -532,7 +532,6 @@ export class BookingDetailsModalComponent {
     public readonly display_title = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
-        if (this.is_visitor()) return this._visitorDisplayNameFor(booking);
         return booking.title || booking.asset_name || booking.asset_id;
     });
     public readonly visitor_display_name = computed(() =>
