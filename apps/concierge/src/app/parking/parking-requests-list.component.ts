@@ -4,7 +4,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -269,9 +269,14 @@ export class ParkingRequestsListComponent
         this.options,
     ]).pipe(
         map(([booking_list, { search }]) => {
-            const unallocated = booking_list.filter((b) =>
-                b.asset_id?.startsWith('unallocated'),
-            );
+            const user_groups = currentUser()?.groups || [];
+            const unallocated = booking_list.filter((b) => {
+                if (!b.asset_id?.startsWith('unallocated')) return false;
+                const approver_group = b.extension_data?.approver_group;
+                if (approver_group && !user_groups.includes(approver_group))
+                    return false;
+                return true;
+            });
             const s = search.toLowerCase();
             return !s
                 ? unallocated

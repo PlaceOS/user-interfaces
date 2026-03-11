@@ -662,6 +662,44 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                     </div>
                 </div>
 
+                <!-- APPROVER GROUP -->
+                @if (approver_group_options().length) {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                    >
+                        <h3
+                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                        >
+                            <icon class="text-lg">group</icon>
+                            {{
+                                'BOOKINGS.PARKING_APPROVER_GROUP_TITLE'
+                                    | translate
+                            }}
+                        </h3>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                formControlName="approver_group"
+                                [placeholder]="
+                                    'BOOKINGS.PARKING_APPROVER_GROUP_PLACEHOLDER'
+                                        | translate
+                                "
+                            >
+                                <mat-option value="">{{
+                                    'COMMON.ANY' | translate
+                                }}</mat-option>
+                                @for (
+                                    option of approver_group_options();
+                                    track option.id
+                                ) {
+                                    <mat-option [value]="option.id">{{
+                                        option.name | translate
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                }
+
                 <!-- SPACE RESTRICTIONS -->
                 @if (space_restriction_options().length) {
                     <div
@@ -748,6 +786,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    public readonly approver_groups_setting = settingSignal<
+        ParkingRequestOption[]
+    >('parking.approver_groups', []);
 
     public readonly end_date = computed(() =>
         endOfDay(addDays(Date.now(), this.available_days())).valueOf(),
@@ -780,6 +821,9 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
+    );
+    public readonly approver_group_options = computed(() =>
+        this._normaliseOptions(this.approver_groups_setting()),
     );
     public readonly selected_space_restriction = computed(() => {
         const value = this.form()?.getRawValue()?.space_restrictions;
