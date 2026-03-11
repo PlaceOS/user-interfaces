@@ -37,4 +37,25 @@ describe('Booking class', () => {
         });
         expect(booking.is_done).toBeTruthy();
     });
+
+    it('should prefer visitor name from extension data', () => {
+        booking = new Booking({
+            booking_type: 'visitor',
+            asset_id: 'visitor@example.com',
+            description: 'Vendor Interview',
+            extension_data: { visitor_name: 'Visitor One' },
+        });
+
+        expect(booking.asset_name).toBe('Visitor One');
+    });
+
+    it('should not use visitor reason as fallback visitor name', () => {
+        booking = new Booking({
+            booking_type: 'visitor',
+            asset_id: 'visitor@example.com',
+            description: 'Vendor Interview',
+        });
+
+        expect(booking.asset_name).toBe('visitor@example.com');
+    });
 });

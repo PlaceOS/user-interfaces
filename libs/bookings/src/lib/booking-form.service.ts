@@ -557,7 +557,7 @@ export class BookingFormService extends AsyncHandler {
         details.close();
     }
 
-    public async postForm(ignore_check = false) {
+    public async postForm(ignore_check = false, reset_form = true) {
         if (!this.form) throw 'No form for booking';
         if (!this.form.valid) {
             const invalid_fields = getInvalidFields(
@@ -699,7 +699,11 @@ export class BookingFormService extends AsyncHandler {
                         phone: value.phone,
                         company: value.company,
                         ...(value.booking_type === 'visitor'
-                            ? { international: !!value.international }
+                            ? {
+                                  international: !!value.international,
+                                  visitor_name:
+                                      value.asset_name || value.asset_id || '',
+                              }
                             : {}),
                         ...(group_members.length
                             ? {
@@ -747,14 +751,16 @@ export class BookingFormService extends AsyncHandler {
         }
         this._loading.next('');
         const { booking_type } = value;
-        this.clearForm();
-        this.form?.patchValue({ booking_type });
+        if (reset_form) {
+            this.clearForm();
+            this.form?.patchValue({ booking_type });
+        }
         this.last_success = result;
         sessionStorage.setItem(
             'PLACEOS.last_booked_booking',
             JSON.stringify(result),
         );
-        this.setView('success');
+        if (reset_form) this.setView('success');
         return result;
     }
 
@@ -875,7 +881,7 @@ export class BookingFormService extends AsyncHandler {
                         : [this._org.organisation.id, this._org.region?.id]
                     ).filter((_) => _),
                 });
-                const bkn = await this.postForm(true).catch((error) => {
+                const bkn = await this.postForm(true, false).catch((error) => {
                     throw `${user.name || user.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
@@ -898,6 +904,9 @@ export class BookingFormService extends AsyncHandler {
             }
             throw this._error_message(error);
         }
+        this.clearForm();
+        this.form?.patchValue({ booking_type: type });
+        this.setView('success');
         return user_booking;
     }
 
@@ -946,7 +955,7 @@ export class BookingFormService extends AsyncHandler {
                         }),
                     ],
                 });
-                const bkn = await this.postForm(true).catch((error) => {
+                const bkn = await this.postForm(true, false).catch((error) => {
                     throw `${visitor.name || visitor.email}: ${this._error_message(error)}`;
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
@@ -961,6 +970,9 @@ export class BookingFormService extends AsyncHandler {
             }
             throw this._error_message(error);
         }
+        this.clearForm();
+        this.form?.patchValue({ booking_type: 'visitor' });
+        this.setView('success');
         return first_booking;
     }
 
@@ -1079,12 +1091,15 @@ export class BookingFormService extends AsyncHandler {
                             : {}),
                     });
                 }
-                const bkn = await this.postForm(true);
+                const bkn = await this.postForm(true, false);
                 if (!first_result) first_result = bkn;
             }
         } catch (error) {
             throw this._error_message(error);
         }
+        this.clearForm();
+        this.form?.patchValue({ booking_type: type });
+        this.setView('success');
         return first_result;
     }
 
@@ -1164,6 +1179,7 @@ export class BookingFormService extends AsyncHandler {
                         ? new User({
                               name:
                                   group_member?.name ||
+                                  booking.extension_data?.visitor_name ||
                                   booking.asset_name ||
                                   booking.asset_id,
                               email: booking.asset_id,

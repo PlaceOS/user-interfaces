@@ -680,7 +680,7 @@ export class BookingDetailsModalComponent {
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking.asset_name || ''}`.trim();
+        const asset_name = `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
         const reason_values = [
             `${booking.title || ''}`.trim().toLowerCase(),
             `${booking.description || ''}`.trim().toLowerCase(),
