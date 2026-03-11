@@ -1280,6 +1280,7 @@
             "DESKS_BOOKING_DELETE_SERIES_CONTENT": "Are you sure you want to delete the entire recurring desk booking series?",
             "DESKS_BOOKING_DELETE_SERIES_LOADING": "Deleting desk booking series...",
             "DESKS_SECURITY": "Security Group",
+            "DESKS_HOMEBASE": "Homebase",
             "BOOKING_DELETED": "Cancelled",
             "BOOKING_ENDED": "Manually Ended",
             "BOOKING_EXPIRED": "Expired",

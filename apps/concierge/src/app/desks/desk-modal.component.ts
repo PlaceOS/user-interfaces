@@ -202,6 +202,19 @@ const CHARS = '0123456789ABCDEF';
                             formControlName="notes"
                         ></textarea>
                     </mat-form-field>
+                    <label for="homebase">
+                        {{ 'APP.CONCIERGE.DESKS_HOMEBASE' | translate }}
+                    </label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="homebase"
+                            [placeholder]="
+                                'APP.CONCIERGE.DESKS_HOMEBASE' | translate
+                            "
+                            formControlName="homebase"
+                        />
+                    </mat-form-field>
                     <label for="security">
                         {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
                     </label>
@@ -280,6 +293,7 @@ export class DeskModalComponent implements OnInit {
         assigned_user: new FormControl<User>(null),
         assigned_to: new FormControl(''),
         assigned_name: new FormControl(''),
+        homebase: new FormControl(''),
         security: new FormControl(''),
     });
 
