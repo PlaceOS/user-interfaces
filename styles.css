@@ -2135,6 +2135,11 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-inline-start: calc(calc(var(--spacing) * 0) * var(--tw-space-x-reverse));
   margin-inline-end: calc(calc(var(--spacing) * 0) * calc(1 - var(--tw-space-x-reverse)));
 }
+:where(#placeos .space-x-0\.5 > :not(:last-child)) {
+  --tw-space-x-reverse: 0;
+  margin-inline-start: calc(calc(var(--spacing) * 0.5) * var(--tw-space-x-reverse));
+  margin-inline-end: calc(calc(var(--spacing) * 0.5) * calc(1 - var(--tw-space-x-reverse)));
+}
 :where(#placeos .space-x-1 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(calc(var(--spacing) * 1) * var(--tw-space-x-reverse));
@@ -2451,6 +2456,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-base-300 {
   border-color: var(--base-300);
 }
+#placeos .border-base-300\/50 {
+  border-color: var(--base-300);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-base-300\/50 {
+    border-color: color-mix(in oklab, var(--base-300) 50%, transparent);
+  }
+}
 #placeos .border-base-400 {
   border-color: var(--base-400);
 }
@@ -2477,6 +2490,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .border-error\/30 {
     border-color: color-mix(in oklab, var(--error) 30%, transparent);
+  }
+}
+#placeos .border-error\/40 {
+  border-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-error\/40 {
+    border-color: color-mix(in oklab, var(--error) 40%, transparent);
   }
 }
 #placeos .border-info {
@@ -2634,6 +2655,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-error\/5 {
     background-color: color-mix(in oklab, var(--error) 5%, transparent);
+  }
+}
+#placeos .bg-error\/10 {
+  background-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-error\/10 {
+    background-color: color-mix(in oklab, var(--error) 10%, transparent);
   }
 }
 #placeos .bg-error\/20 {
