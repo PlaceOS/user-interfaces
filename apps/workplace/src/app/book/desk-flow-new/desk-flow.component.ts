@@ -5,13 +5,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -163,6 +164,9 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 ) {
                     return;
                 }
+                await firstTruthyValueFrom(
+                    this._booking_form.loading.pipe(map((_) => !_)),
+                );
                 const resources = await firstValueFrom(
                     this._booking_form.resources,
                 );
