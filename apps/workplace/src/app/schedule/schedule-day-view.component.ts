@@ -463,7 +463,10 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
         let level_name = '';
 
         if (booking instanceof Booking) {
-            location = booking.location || booking.asset_name || '';
+            location =
+                booking.booking_type === 'visitor'
+                    ? booking.extension_data?.location || ''
+                    : booking.location || booking.asset_name || '';
             const level = this._org.levelWithID(booking.zones);
             level_name = level?.display_name || level?.name || '';
         } else {
