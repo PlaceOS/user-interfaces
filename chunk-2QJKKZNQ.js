@@ -41,6 +41,7 @@ import {
   MatError,
   MatFormField,
   MatFormFieldModule,
+  MatLabel,
   MatOption,
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -166,7 +167,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-5Z4BXNMS.js";
+} from "./chunk-SIYC7UWR.js";
 
 // libs/events/src/lib/new-space-select-modal/new-space-details.component.ts
 var _c0 = (a0) => ({ count: a0 });
@@ -796,7 +797,7 @@ function NewSpaceFiltersComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "CALENDAR_EVENT.SPACE_LOCATION"), " ");
   }
 }
-function NewSpaceFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_13_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19);
     \u0275\u0275text(1);
@@ -812,26 +813,32 @@ function NewSpaceFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 18);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 18);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, NewSpaceFiltersComponent_Conditional_13_For_4_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewSpaceFiltersComponent_Conditional_13_For_7_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c03))("placeholder", \u0275\u0275pipeBind1(2, 3, "CALENDAR_EVENT.SPACE_REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r2.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r2.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c03))("placeholder", \u0275\u0275pipeBind1(5, 6, "CALENDAR_EVENT.SPACE_REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r2.regions));
   }
 }
-function NewSpaceFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_15_For_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19);
     \u0275\u0275text(1);
@@ -847,29 +854,35 @@ function NewSpaceFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 20);
-    \u0275\u0275pipe(2, "async");
-    \u0275\u0275pipe(3, "async");
-    \u0275\u0275pipe(4, "async");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 20);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "async");
+    \u0275\u0275pipe(7, "async");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setBuilding($event));
     });
-    \u0275\u0275repeaterCreate(5, NewSpaceFiltersComponent_Conditional_15_For_6_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(7, "async");
+    \u0275\u0275repeaterCreate(8, NewSpaceFiltersComponent_Conditional_15_For_9_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(10, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_4_0;
+    let tmp_5_0;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(2, 3, ctx_r2.building))("ngModelOptions", \u0275\u0275pureFunction0(11, _c03))("placeholder", ((tmp_4_0 = \u0275\u0275pipeBind1(3, 5, ctx_r2.building)) == null ? null : tmp_4_0.display_name) || ((tmp_4_0 = \u0275\u0275pipeBind1(4, 7, ctx_r2.building)) == null ? null : tmp_4_0.name));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "CALENDAR_EVENT.SPACE_LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(5, 6, ctx_r2.building))("ngModelOptions", \u0275\u0275pureFunction0(14, _c03))("placeholder", ((tmp_5_0 = \u0275\u0275pipeBind1(6, 8, ctx_r2.building)) == null ? null : tmp_5_0.display_name) || ((tmp_5_0 = \u0275\u0275pipeBind1(7, 10, ctx_r2.building)) == null ? null : tmp_5_0.name));
     \u0275\u0275advance(4);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 9, ctx_r2.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(10, 12, ctx_r2.buildings));
   }
 }
-function NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_17_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 23);
     \u0275\u0275text(1);
@@ -885,10 +898,10 @@ function NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf
     \u0275\u0275textInterpolate1(" ", (tmp_13_0 = \u0275\u0275pipeBind1(2, 1, lvl_r8 == null ? null : lvl_r8.parent_id)) == null ? null : tmp_13_0.display_name, " ");
   }
 }
-function NewSpaceFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
+function NewSpaceFiltersComponent_Conditional_17_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19)(1, "div", 22);
-    \u0275\u0275conditionalCreate(2, NewSpaceFiltersComponent_Conditional_17_For_5_Conditional_2_Template, 5, 3, "div", 23);
+    \u0275\u0275conditionalCreate(2, NewSpaceFiltersComponent_Conditional_17_For_8_Conditional_2_Template, 5, 3, "div", 23);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -906,25 +919,31 @@ function NewSpaceFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 21);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 21);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function NewSpaceFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setOptions({ zones: $event }));
     });
-    \u0275\u0275repeaterCreate(4, NewSpaceFiltersComponent_Conditional_17_For_5_Template, 5, 3, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewSpaceFiltersComponent_Conditional_17_For_8_Template, 5, 3, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 4, ctx_r2.options)) == null ? null : tmp_2_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(10, _c03))("placeholder", \u0275\u0275pipeBind1(3, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 5, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_3_0 = \u0275\u0275pipeBind1(5, 7, ctx_r2.options)) == null ? null : tmp_3_0.zones)("ngModelOptions", \u0275\u0275pureFunction0(13, _c03))("placeholder", \u0275\u0275pipeBind1(6, 9, "CALENDAR_EVENT.SPACE_LEVEL_ANY"))("multiple", true);
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 8, ctx_r2.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 11, ctx_r2.levels));
   }
 }
 function NewSpaceFiltersComponent_Conditional_28_Template(rf, ctx) {
@@ -959,13 +978,16 @@ function NewSpaceFiltersComponent_Conditional_28_Template(rf, ctx) {
 function NewSpaceFiltersComponent_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 26);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function NewSpaceFiltersComponent_Conditional_30_Conditional_8_Template(rf, ctx) {
@@ -1223,7 +1245,7 @@ var _NewSpaceFiltersComponent = class _NewSpaceFiltersComponent {
 _NewSpaceFiltersComponent.\u0275fac = function NewSpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewSpaceFiltersComponent)();
 };
-_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
+_NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceFiltersComponent, selectors: [["new-space-filters"]], inputs: { multiday: [1, "multiday"], hide_levels: [1, "hide_levels"], viewing_map: [1, "viewing_map"] }, decls: 37, vars: 42, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-32", "flex-1"], ["for", "date"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "short", "timezone", "range"], [1, "relative", "min-w-32", "flex-1"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "pt-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "to", "short", "timezone", "range"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["for", "end-time"], ["name", "end-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "from", "use_24hr", "timezone"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "items-center"], ["btn", "", "matRipple", "", "name", "apply-space-filters", 1, "w-full", 3, "click"]], template: function NewSpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
@@ -1238,11 +1260,11 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275conditionalCreate(10, NewSpaceFiltersComponent_Conditional_10_Template, 3, 3, "label", 6);
     \u0275\u0275pipe(11, "async");
     \u0275\u0275pipe(12, "async");
-    \u0275\u0275conditionalCreate(13, NewSpaceFiltersComponent_Conditional_13_Template, 6, 8, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(13, NewSpaceFiltersComponent_Conditional_13_Template, 9, 11, "mat-form-field", 7);
     \u0275\u0275pipe(14, "async");
-    \u0275\u0275conditionalCreate(15, NewSpaceFiltersComponent_Conditional_15_Template, 8, 12, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(15, NewSpaceFiltersComponent_Conditional_15_Template, 11, 15, "mat-form-field", 7);
     \u0275\u0275pipe(16, "async");
-    \u0275\u0275conditionalCreate(17, NewSpaceFiltersComponent_Conditional_17_Template, 7, 11, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(17, NewSpaceFiltersComponent_Conditional_17_Template, 10, 14, "mat-form-field", 7);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(18, "div", 8)(19, "div", 9)(20, "label", 10);
     \u0275\u0275text(21);
@@ -1260,7 +1282,7 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(28, NewSpaceFiltersComponent_Conditional_28_Template, 9, 14, "div", 12);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(29, NewSpaceFiltersComponent_Conditional_29_Template, 4, 3, "div", 13);
+    \u0275\u0275conditionalCreate(29, NewSpaceFiltersComponent_Conditional_29_Template, 5, 6, "div", 13);
     \u0275\u0275conditionalCreate(30, NewSpaceFiltersComponent_Conditional_30_Template, 10, 10, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275declareLet(31);
@@ -1324,6 +1346,7 @@ _NewSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -1369,6 +1392,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -1389,6 +1413,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building | async"
@@ -1409,6 +1434,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zones"
@@ -1491,7 +1517,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -1629,7 +1655,7 @@ var NewSpaceFiltersComponent = _NewSpaceFiltersComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceFiltersComponent, { className: "NewSpaceFiltersComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-filters.component.ts", lineNumber: 329 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceFiltersComponent, { className: "NewSpaceFiltersComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-filters.component.ts", lineNumber: 332 });
 })();
 
 // libs/events/src/lib/new-space-select-modal/new-space-list.component.ts
@@ -2255,7 +2281,7 @@ var NewSpaceLocationPinComponent = _NewSpaceLocationPinComponent;
 // libs/events/src/lib/new-space-select-modal/new-space-map.component.ts
 var _c05 = () => ({ controls: true });
 var _c12 = () => ({ standalone: true });
-function NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx) {
+function NewSpaceMapComponent_Conditional_0_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -2271,10 +2297,10 @@ function NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewSpaceMapComponent_Conditional_0_For_5_Template(rf, ctx) {
+function NewSpaceMapComponent_Conditional_0_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, NewSpaceMapComponent_Conditional_0_For_5_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, NewSpaceMapComponent_Conditional_0_For_8_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -2292,30 +2318,36 @@ function NewSpaceMapComponent_Conditional_0_For_5_Template(rf, ctx) {
 function NewSpaceMapComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-select", 4);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-select", 4);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewSpaceMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(4, NewSpaceMapComponent_Conditional_0_For_5_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewSpaceMapComponent_Conditional_0_For_8_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c12))("placeholder", \u0275\u0275pipeBind1(3, 3, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c12))("placeholder", \u0275\u0275pipeBind1(6, 6, "CALENDAR_EVENT.SPACE_LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 5, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 8, ctx_r1.levels));
   }
 }
 var _NewSpaceMapComponent = class _NewSpaceMapComponent extends AsyncHandler {
@@ -2412,7 +2444,7 @@ _NewSpaceMapComponent.\u0275fac = function NewSpaceMapComponent_Factory(__ngFact
 };
 _NewSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewSpaceMapComponent, selectors: [["new-space-map"]], inputs: { selected: [1, "selected"], active: [1, "active"], is_displayed: [1, "is_displayed"] }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 7, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function NewSpaceMapComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, NewSpaceMapComponent_Conditional_0_Template, 7, 8, "div", 0);
+    \u0275\u0275conditionalCreate(0, NewSpaceMapComponent_Conditional_0_Template, 10, 11, "div", 0);
     \u0275\u0275pipe(1, "async");
     \u0275\u0275elementStart(2, "div", 1)(3, "interactive-map", 2);
     \u0275\u0275pipe(4, "async");
@@ -2441,6 +2473,7 @@ _NewSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -2461,6 +2494,7 @@ var NewSpaceMapComponent = _NewSpaceMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -2515,7 +2549,7 @@ var NewSpaceMapComponent = _NewSpaceMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceMapComponent, { className: "NewSpaceMapComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-map.component.ts", lineNumber: 95 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewSpaceMapComponent, { className: "NewSpaceMapComponent", filePath: "libs/events/src/lib/new-space-select-modal/new-space-map.component.ts", lineNumber: 96 });
 })();
 
 // libs/events/src/lib/new-space-select-modal/new-space-select-modal.component.ts
@@ -3990,7 +4024,7 @@ var DateRangeFieldComponent = _DateRangeFieldComponent;
 })();
 
 // libs/form-fields/src/lib/host-select-field.component.ts
-function HostSelectFieldComponent_For_3_Template(rf, ctx) {
+function HostSelectFieldComponent_For_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 2)(1, "div", 3)(2, "div");
     \u0275\u0275text(3);
@@ -4011,7 +4045,7 @@ function HostSelectFieldComponent_For_3_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", user_r1 == null ? null : user_r1.email, " ");
   }
 }
-function HostSelectFieldComponent_Conditional_7_Template(rf, ctx) {
+function HostSelectFieldComponent_Conditional_9_Template(rf, ctx) {
 }
 var _HostSelectFieldComponent = class _HostSelectFieldComponent {
   constructor() {
@@ -4058,36 +4092,40 @@ _HostSelectFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _HostSelectFieldComponent),
     multi: true
   }
-])], decls: 9, vars: 8, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "disabled", "placeholder"], [1, "leading-tight", 3, "value"], [1, "flex", "flex-col"], [1, "hidden"], [1, "text-xs", "opacity-60"]], template: function HostSelectFieldComponent_Template(rf, ctx) {
+])], decls: 11, vars: 8, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "disabled", "placeholder"], [1, "leading-tight", 3, "value"], [1, "flex", "flex-col"], [1, "hidden"], [1, "text-xs", "opacity-60"]], template: function HostSelectFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-select", 1);
-    \u0275\u0275listener("ngModelChange", function HostSelectFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-label");
+    \u0275\u0275text(2, "Select host");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-select", 1);
+    \u0275\u0275listener("ngModelChange", function HostSelectFieldComponent_Template_mat_select_ngModelChange_3_listener($event) {
       return ctx.setValue($event);
     });
-    \u0275\u0275repeaterCreate(2, HostSelectFieldComponent_For_3_Template, 8, 3, "mat-option", 2, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(4, HostSelectFieldComponent_For_5_Template, 8, 3, "mat-option", 2, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(6, "async");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "mat-error");
-    \u0275\u0275text(6, "Host is required");
+    \u0275\u0275elementStart(7, "mat-error");
+    \u0275\u0275text(8, "Host is required");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(7, HostSelectFieldComponent_Conditional_7_Template, 0, 0);
-    \u0275\u0275pipe(8, "async");
+    \u0275\u0275conditionalCreate(9, HostSelectFieldComponent_Conditional_9_Template, 0, 0);
+    \u0275\u0275pipe(10, "async");
   }
   if (rf & 2) {
-    \u0275\u0275advance();
+    \u0275\u0275advance(3);
     \u0275\u0275property("ngModel", ctx.item == null ? null : ctx.item.email)("disabled", ctx.disabled)("placeholder", (ctx.item == null ? null : ctx.item.email) ? ctx.item.name || ctx.item.email : "Select host");
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 4, ctx.users));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 4, ctx.users));
     \u0275\u0275advance(5);
-    \u0275\u0275conditional(\u0275\u0275pipeBind1(8, 6, ctx.users) ? 7 : -1);
+    \u0275\u0275conditional(\u0275\u0275pipeBind1(10, 6, ctx.users) ? 9 : -1);
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatError, MatSelectModule, MatSelect, MatOption, CommonModule, AsyncPipe, FormsModule, NgControlStatus, NgModel], encapsulation: 2 });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatError, MatSelectModule, MatSelect, MatOption, CommonModule, AsyncPipe, FormsModule, NgControlStatus, NgModel], encapsulation: 2 });
 var HostSelectFieldComponent = _HostSelectFieldComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HostSelectFieldComponent, [{
     type: Component,
     args: [{ selector: "host-select-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Select host</mat-label>
             <mat-select
                 [ngModel]="this.item?.email"
                 (ngModelChange)="setValue($event)"
@@ -4121,15 +4159,15 @@ var HostSelectFieldComponent = _HostSelectFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HostSelectFieldComponent, { className: "HostSelectFieldComponent", filePath: "libs/form-fields/src/lib/host-select-field.component.ts", lineNumber: 60 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(HostSelectFieldComponent, { className: "HostSelectFieldComponent", filePath: "libs/form-fields/src/lib/host-select-field.component.ts", lineNumber: 61 });
 })();
 
 // libs/form-fields/src/lib/item-list-field.component.ts
-function ItemListFieldComponent_For_4_Template(rf, ctx) {
+function ItemListFieldComponent_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 4);
-    \u0275\u0275listener("removed", function ItemListFieldComponent_For_4_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function ItemListFieldComponent_For_6_Template_mat_chip_row_removed_0_listener() {
       const item_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.remove(item_r3));
@@ -4236,33 +4274,39 @@ _ItemListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _ItemListFieldComponent),
     multi: true
   }
-])], decls: 6, vars: 4, consts: [["chipList", ""], ["appearance", "outline", 1, "w-full"], ["aria-label", "Zone Tags"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ItemListFieldComponent_Template(rf, ctx) {
+])], decls: 8, vars: 5, consts: [["chipList", ""], ["appearance", "outline", 1, "w-full"], ["aria-label", "Zone Tags"], [3, "matChipInputTokenEnd", "placeholder", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], [1, "max-w-md", "truncate"], ["matChipRemove", ""]], template: function ItemListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-chip-grid", 2, 0);
-    \u0275\u0275repeaterCreate(3, ItemListFieldComponent_For_4_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "input", 3);
-    \u0275\u0275listener("matChipInputTokenEnd", function ItemListFieldComponent_Template_input_matChipInputTokenEnd_5_listener($event) {
+    \u0275\u0275elementStart(3, "mat-chip-grid", 2, 0);
+    \u0275\u0275repeaterCreate(5, ItemListFieldComponent_For_6_Template, 6, 2, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "input", 3);
+    \u0275\u0275listener("matChipInputTokenEnd", function ItemListFieldComponent_Template_input_matChipInputTokenEnd_7_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.add($event));
     });
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const chipList_r5 = \u0275\u0275reference(2);
+    const chipList_r5 = \u0275\u0275reference(4);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx.placeholder() || "User groups...");
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx.value);
     \u0275\u0275advance(2);
     \u0275\u0275property("placeholder", ctx.placeholder() || "User groups...")("matChipInputFor", chipList_r5)("matChipInputSeparatorKeyCodes", ctx.separators())("matChipInputAddOnBlur", true);
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatChipsModule, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow, IconComponent], encapsulation: 2 });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatChipsModule, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow, IconComponent], encapsulation: 2 });
 var ItemListFieldComponent = _ItemListFieldComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ItemListFieldComponent, [{
     type: Component,
     args: [{ selector: "item-list-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ placeholder() || 'User groups...' }}</mat-label>
             <mat-chip-grid #chipList aria-label="Zone Tags">
                 @for (item of value; track item) {
                     <mat-chip-row (removed)="remove(item)">
@@ -4295,7 +4339,7 @@ var ItemListFieldComponent = _ItemListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ItemListFieldComponent, { className: "ItemListFieldComponent", filePath: "libs/form-fields/src/lib/item-list-field.component.ts", lineNumber: 103 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ItemListFieldComponent, { className: "ItemListFieldComponent", filePath: "libs/form-fields/src/lib/item-list-field.component.ts", lineNumber: 104 });
 })();
 
 // libs/form-fields/src/lib/compact-counter.component.ts
@@ -4516,7 +4560,7 @@ var CompactCounterComponent = _CompactCounterComponent;
 
 // libs/form-fields/src/lib/recurrence-modal.component.ts
 var _forTrack0 = ($index, $item) => $item[1];
-function RecurrenceModalComponent_Conditional_15_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 9);
     \u0275\u0275text(1);
@@ -4529,7 +4573,7 @@ function RecurrenceModalComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, ctx_r0.form.value.interval === 1 ? "FORM.RECURRENCE_WEEK" : "FORM.RECURRENCE_WEEKS"));
   }
 }
-function RecurrenceModalComponent_Conditional_16_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 10);
     \u0275\u0275text(1);
@@ -4542,11 +4586,11 @@ function RecurrenceModalComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, ctx_r0.form.value.interval === 1 ? "FORM.RECURRENCE_MONTH" : "FORM.RECURRENCE_MONTHS"));
   }
 }
-function RecurrenceModalComponent_Conditional_17_For_5_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_20_For_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 26);
-    \u0275\u0275listener("click", function RecurrenceModalComponent_Conditional_17_For_5_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function RecurrenceModalComponent_Conditional_20_For_5_Template_button_click_0_listener() {
       const day_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.toggleDate(day_r3[1]));
@@ -4563,14 +4607,14 @@ function RecurrenceModalComponent_Conditional_17_For_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 7, day_r3[0], "EEEEE"), " ");
   }
 }
-function RecurrenceModalComponent_Conditional_17_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "label", 3);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 24);
-    \u0275\u0275repeaterCreate(4, RecurrenceModalComponent_Conditional_17_For_5_Template, 3, 10, "button", 25, _forTrack0);
+    \u0275\u0275repeaterCreate(4, RecurrenceModalComponent_Conditional_20_For_5_Template, 3, 10, "button", 25, _forTrack0);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -4581,23 +4625,26 @@ function RecurrenceModalComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.weekdays);
   }
 }
-function RecurrenceModalComponent_Conditional_18_Template(rf, ctx) {
+function RecurrenceModalComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 11)(1, "mat-select", 27)(2, "mat-option", 28);
-    \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "date");
+    \u0275\u0275elementStart(0, "mat-form-field", 11)(1, "mat-label");
+    \u0275\u0275text(2, "Monthly Type");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "mat-option", 29);
-    \u0275\u0275text(6);
-    \u0275\u0275pipe(7, "date");
+    \u0275\u0275elementStart(3, "mat-select", 27)(4, "mat-option", 28);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-option", 29);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "date");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1("Monthly on day ", \u0275\u0275pipeBind2(6, 3, ctx_r0.date, "d"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1("Monthly on day ", \u0275\u0275pipeBind2(4, 3, ctx_r0.date, "d"));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate2("Monthly on ", ctx_r0.month_instance, " ", \u0275\u0275pipeBind2(7, 6, ctx_r0.date, "EEEE"));
+    \u0275\u0275textInterpolate2("Monthly on ", ctx_r0.month_instance, " ", \u0275\u0275pipeBind2(9, 6, ctx_r0.date, "EEEE"));
   }
 }
 var _RecurrenceModalComponent = class _RecurrenceModalComponent extends AsyncHandler {
@@ -4673,7 +4720,7 @@ var _RecurrenceModalComponent = class _RecurrenceModalComponent extends AsyncHan
 _RecurrenceModalComponent.\u0275fac = function RecurrenceModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _RecurrenceModalComponent)();
 };
-_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 45, vars: 40, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
+_RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RecurrenceModalComponent, selectors: [["recurrence-modal"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 48, vars: 43, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "text-xl", "font-medium"], [1, "flex", "min-w-[24rem]", "flex-col", "space-y-2", "px-4", 3, "formGroup"], [1, "w-auto"], [1, "mt-2", "flex", "items-center", "space-x-4", "pb-4"], ["formControlName", "interval", 3, "min", "max", "step"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["formControlName", "type"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["appearance", "outline"], [1, "pb-4"], ["formControlName", "end_type"], [1, "flex", "items-center"], ["value", "never"], [1, "mt-2", "flex", "items-center"], ["value", "date"], ["formControlName", "end_date", 3, "to"], ["value", "instances"], ["formControlName", "end_instances", 1, "flex-1", 3, "render_fn", "min", "max"], [1, "border-base-200", "flex", "items-center", "justify-end", "space-x-2", "border-t", "px-4", "py-2"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "inverse", "w-32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "bg-secondary", "text-secondary", "text-base-200"], ["icon", "", "matRipple", "", 1, "border-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"], ["formControlName", "monthly_type"], ["value", "day_of_month"], ["value", "day_of_week"]], template: function RecurrenceModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -4685,81 +4732,87 @@ _RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(8, "div", 4);
     \u0275\u0275element(9, "compact-counter", 5);
-    \u0275\u0275elementStart(10, "mat-form-field", 6)(11, "mat-select", 7)(12, "mat-option", 8);
-    \u0275\u0275text(13);
-    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275elementStart(10, "mat-form-field", 6)(11, "mat-label");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, RecurrenceModalComponent_Conditional_15_Template, 3, 3, "mat-option", 9);
-    \u0275\u0275conditionalCreate(16, RecurrenceModalComponent_Conditional_16_Template, 3, 3, "mat-option", 10);
+    \u0275\u0275elementStart(14, "mat-select", 7)(15, "mat-option", 8);
+    \u0275\u0275text(16);
+    \u0275\u0275pipe(17, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(18, RecurrenceModalComponent_Conditional_18_Template, 3, 3, "mat-option", 9);
+    \u0275\u0275conditionalCreate(19, RecurrenceModalComponent_Conditional_19_Template, 3, 3, "mat-option", 10);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(17, RecurrenceModalComponent_Conditional_17_Template, 6, 3);
-    \u0275\u0275conditionalCreate(18, RecurrenceModalComponent_Conditional_18_Template, 8, 9, "mat-form-field", 11);
-    \u0275\u0275elementStart(19, "label", 3);
-    \u0275\u0275text(20);
-    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275conditionalCreate(20, RecurrenceModalComponent_Conditional_20_Template, 6, 3);
+    \u0275\u0275conditionalCreate(21, RecurrenceModalComponent_Conditional_21_Template, 10, 9, "mat-form-field", 11);
+    \u0275\u0275elementStart(22, "label", 3);
+    \u0275\u0275text(23);
+    \u0275\u0275pipe(24, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "div", 12)(23, "mat-radio-group", 13)(24, "div", 14)(25, "mat-radio-button", 15);
-    \u0275\u0275text(26);
-    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275elementStart(25, "div", 12)(26, "mat-radio-group", 13)(27, "div", 14)(28, "mat-radio-button", 15);
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(28, "div", 16)(29, "mat-radio-button", 17);
-    \u0275\u0275text(30);
-    \u0275\u0275pipe(31, "translate");
+    \u0275\u0275elementStart(31, "div", 16)(32, "mat-radio-button", 17);
+    \u0275\u0275text(33);
+    \u0275\u0275pipe(34, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(32, "a-date-field", 18);
+    \u0275\u0275element(35, "a-date-field", 18);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(33, "div", 16)(34, "mat-radio-button", 19);
-    \u0275\u0275text(35);
-    \u0275\u0275pipe(36, "translate");
+    \u0275\u0275elementStart(36, "div", 16)(37, "mat-radio-button", 19);
+    \u0275\u0275text(38);
+    \u0275\u0275pipe(39, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(37, "compact-counter", 20);
+    \u0275\u0275element(40, "compact-counter", 20);
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(38, "footer", 21)(39, "button", 22);
-    \u0275\u0275text(40);
-    \u0275\u0275pipe(41, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(42, "button", 23);
+    \u0275\u0275elementStart(41, "footer", 21)(42, "button", 22);
     \u0275\u0275text(43);
     \u0275\u0275pipe(44, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(45, "button", 23);
+    \u0275\u0275text(46);
+    \u0275\u0275pipe(47, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 22, "FORM.RECURRENCE_CUSTOM_HEADER"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 23, "FORM.RECURRENCE_CUSTOM_HEADER"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("formGroup", ctx.form);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 24, "FORM.RECURRENCE_REPEAT_EVERY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 25, "FORM.RECURRENCE_REPEAT_EVERY"));
     \u0275\u0275advance(3);
     \u0275\u0275property("min", 1)("max", ctx.form.value.type === "daily" ? 7 : 12)("step", 1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 27, "FORM.RECURRENCE_REPEAT_EVERY"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 26, ctx.form.value.interval === 1 ? "FORM.RECURRENCE_DAY" : "FORM.RECURRENCE_DAYS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 29, ctx.form.value.interval === 1 ? "FORM.RECURRENCE_DAY" : "FORM.RECURRENCE_DAYS"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.available_days >= 14 ? 15 : -1);
+    \u0275\u0275conditional(ctx.available_days >= 14 ? 18 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.available_days >= 28 ? 16 : -1);
+    \u0275\u0275conditional(ctx.available_days >= 28 ? 19 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.form.value.type === "weekly" ? 17 : -1);
+    \u0275\u0275conditional(ctx.form.value.type === "weekly" ? 20 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.form.value.type === "monthly" ? 18 : -1);
+    \u0275\u0275conditional(ctx.form.value.type === "monthly" ? 21 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 28, "FORM.RECURRENCE_ENDS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(24, 31, "FORM.RECURRENCE_ENDS"));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(27, 30, "FORM.RECURRENCE_ENDS_NEVER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(30, 33, "FORM.RECURRENCE_ENDS_NEVER"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 32, "FORM.RECURRENCE_ENDS_ON"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(34, 35, "FORM.RECURRENCE_ENDS_ON"));
     \u0275\u0275advance(2);
     \u0275\u0275property("to", ctx.end_date);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(36, 34, "FORM.RECURRENCE_ENDS_AFTER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(39, 37, "FORM.RECURRENCE_ENDS_AFTER"));
     \u0275\u0275advance(2);
     \u0275\u0275property("render_fn", ctx.instance_fn)("min", 1)("max", 53);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(41, 36, "COMMON.CANCEL"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 39, "COMMON.CANCEL"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("mat-dialog-close", ctx.form.value);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 38, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(47, 41, "COMMON.SAVE"), " ");
   }
 }, dependencies: [
   CommonModule,
@@ -4771,6 +4824,7 @@ _RecurrenceModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   FormControlName,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatRadioModule,
   MatRadioGroup,
   MatRadioButton,
@@ -4813,6 +4867,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</mat-label>
                     <mat-select formControlName="type">
                         <mat-option value="daily">{{
                             (form.value.interval === 1
@@ -4862,6 +4917,7 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
             }
             @if (form.value.type === 'monthly') {
                 <mat-form-field appearance="outline">
+                    <mat-label>Monthly Type</mat-label>
                     <mat-select formControlName="monthly_type">
                         <mat-option value="day_of_month"
                             >Monthly on day {{ date | date: 'd' }}</mat-option
@@ -4931,13 +4987,13 @@ var RecurrenceModalComponent = _RecurrenceModalComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceModalComponent, { className: "RecurrenceModalComponent", filePath: "libs/form-fields/src/lib/recurrence-modal.component.ts", lineNumber: 178 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceModalComponent, { className: "RecurrenceModalComponent", filePath: "libs/form-fields/src/lib/recurrence-modal.component.ts", lineNumber: 180 });
 })();
 
 // libs/form-fields/src/lib/recurrence-field.component.ts
 var _c09 = (a0) => ({ day: a0 });
 var _c15 = (a0, a1) => ({ index: a0, day: a1 });
-function RecurrenceFieldComponent_Conditional_9_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 4);
     \u0275\u0275text(1);
@@ -4951,7 +5007,7 @@ function RecurrenceFieldComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 4, "FORM.RECURRENCE_WEEKLY_ON", \u0275\u0275pureFunction1(7, _c09, \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "EEEE"))), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_10_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5);
     \u0275\u0275text(1);
@@ -4965,7 +5021,7 @@ function RecurrenceFieldComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 4, "FORM.RECURRENCE_MONTH_INSTANCE", \u0275\u0275pureFunction2(7, _c15, ctx_r0.instance_of_month, \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "EEEE"))), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_11_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 6);
     \u0275\u0275text(1);
@@ -4978,7 +5034,7 @@ function RecurrenceFieldComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" Anually on ", \u0275\u0275pipeBind2(2, 1, ctx_r0.date(), "LLLL dd"), " ");
   }
 }
-function RecurrenceFieldComponent_Conditional_12_Template(rf, ctx) {
+function RecurrenceFieldComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 7);
     \u0275\u0275text(1);
@@ -5123,59 +5179,66 @@ _RecurrenceFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _RecurrenceFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], decls: 16, vars: 17, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], ["value", "none"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["value", "yearly"], ["value", "custom_display"], ["value", "custom", 3, "click"]], template: function RecurrenceFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], decls: 19, vars: 20, consts: [["appearance", "outline", 1, "w-full"], [3, "ngModelChange", "ngModel", "placeholder"], ["value", "none"], ["value", "daily"], ["value", "weekly"], ["value", "monthly"], ["value", "yearly"], ["value", "custom_display"], ["value", "custom", 3, "click"]], template: function RecurrenceFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-select", 1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 0)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 1);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275twoWayBindingSet(ctx.recurr_type, $event) || (ctx.recurr_type = $event);
       return $event;
     });
-    \u0275\u0275listener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function RecurrenceFieldComponent_Template_mat_select_ngModelChange_4_listener($event) {
       return ctx.setSimple($event);
     });
-    \u0275\u0275elementStart(3, "mat-option", 2);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "mat-option", 3);
+    \u0275\u0275elementStart(6, "mat-option", 2);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(9, RecurrenceFieldComponent_Conditional_9_Template, 4, 9, "mat-option", 4);
-    \u0275\u0275conditionalCreate(10, RecurrenceFieldComponent_Conditional_10_Template, 4, 10, "mat-option", 5);
-    \u0275\u0275conditionalCreate(11, RecurrenceFieldComponent_Conditional_11_Template, 3, 4, "mat-option", 6);
-    \u0275\u0275conditionalCreate(12, RecurrenceFieldComponent_Conditional_12_Template, 2, 1, "mat-option", 7);
-    \u0275\u0275elementStart(13, "mat-option", 8);
-    \u0275\u0275listener("click", function RecurrenceFieldComponent_Template_mat_option_click_13_listener() {
+    \u0275\u0275elementStart(9, "mat-option", 3);
+    \u0275\u0275text(10);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(12, RecurrenceFieldComponent_Conditional_12_Template, 4, 9, "mat-option", 4);
+    \u0275\u0275conditionalCreate(13, RecurrenceFieldComponent_Conditional_13_Template, 4, 10, "mat-option", 5);
+    \u0275\u0275conditionalCreate(14, RecurrenceFieldComponent_Conditional_14_Template, 3, 4, "mat-option", 6);
+    \u0275\u0275conditionalCreate(15, RecurrenceFieldComponent_Conditional_15_Template, 2, 1, "mat-option", 7);
+    \u0275\u0275elementStart(16, "mat-option", 8);
+    \u0275\u0275listener("click", function RecurrenceFieldComponent_Template_mat_option_click_16_listener() {
       return ctx.openCustomRecurrenceModal();
     });
-    \u0275\u0275text(14);
-    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 10, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx.recurr_type);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(2, 9, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(5, 12, "FORM.RECURRENCE_NONE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 11, "FORM.RECURRENCE_NONE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 14, "FORM.RECURRENCE_NONE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 13, "FORM.RECURRENCE_DAILY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 16, "FORM.RECURRENCE_DAILY"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx.available_days() >= 14 ? 9 : -1);
+    \u0275\u0275conditional(ctx.available_days() >= 14 ? 12 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx.available_days() >= 28 ? 10 : -1);
+    \u0275\u0275conditional(ctx.available_days() >= 28 ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(false ? 11 : -1);
+    \u0275\u0275conditional(false ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((ctx.value == null ? null : ctx.value._custom) ? 12 : -1);
+    \u0275\u0275conditional((ctx.value == null ? null : ctx.value._custom) ? 15 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 15, "FORM.RECURRENCE_CUSTOM"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 18, "FORM.RECURRENCE_CUSTOM"), " ");
   }
 }, dependencies: [
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -5192,6 +5255,7 @@ var RecurrenceFieldComponent = _RecurrenceFieldComponent;
     type: Component,
     args: [{ selector: "recurrence-field", template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'FORM.RECURRENCE_NONE' | translate }}</mat-label>
             <mat-select
                 [(ngModel)]="recurr_type"
                 (ngModelChange)="setSimple($event)"
@@ -5258,7 +5322,7 @@ var RecurrenceFieldComponent = _RecurrenceFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceFieldComponent, { className: "RecurrenceFieldComponent", filePath: "libs/form-fields/src/lib/recurrence-field.component.ts", lineNumber: 113 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RecurrenceFieldComponent, { className: "RecurrenceFieldComponent", filePath: "libs/form-fields/src/lib/recurrence-field.component.ts", lineNumber: 114 });
 })();
 
 // node_modules/blob-util/dist/blob-util.es.js
@@ -5801,4 +5865,4 @@ export {
   RecurrenceFieldComponent,
   SpaceListFieldComponent
 };
-//# sourceMappingURL=chunk-IO7BDKWI.js.map
+//# sourceMappingURL=chunk-2QJKKZNQ.js.map

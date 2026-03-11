@@ -80,6 +80,7 @@ import {
   MatFormFieldModule,
   MatInput,
   MatInputModule,
+  MatLabel,
   MatMenu,
   MatMenuItem,
   MatMenuModule,
@@ -323,7 +324,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-5Z4BXNMS.js";
+} from "./chunk-SIYC7UWR.js";
 
 // apps/workplace/src/app/components/footer-menu.component.ts
 var _c0 = () => ["/book", "meeting"];
@@ -1075,7 +1076,7 @@ var NewAssetFiltersDisplayComponent = _NewAssetFiltersDisplayComponent;
 
 // libs/assets/src/lib/new-asset-select-modal/new-asset-filters.component.ts
 var _forTrack0 = ($index, $item) => $item.id;
-function NewAssetFiltersComponent_Conditional_11_Template(rf, ctx) {
+function NewAssetFiltersComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 6);
     \u0275\u0275text(1);
@@ -1087,7 +1088,7 @@ function NewAssetFiltersComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.OPTIONS"), " ");
   }
 }
-function NewAssetFiltersComponent_Conditional_12_Conditional_3_For_6_Template(rf, ctx) {
+function NewAssetFiltersComponent_Conditional_15_Conditional_3_For_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 14);
     \u0275\u0275text(1);
@@ -1101,51 +1102,57 @@ function NewAssetFiltersComponent_Conditional_12_Conditional_3_For_6_Template(rf
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 2, day_r4.value, "mediumDate"), " ");
   }
 }
-function NewAssetFiltersComponent_Conditional_12_Conditional_3_Template(rf, ctx) {
+function NewAssetFiltersComponent_Conditional_15_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "label");
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 12)(4, "mat-select", 13);
-    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_12_Conditional_3_Template_mat_select_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(3, "mat-form-field", 12)(4, "mat-label");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-select", 13);
+    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_15_Conditional_3_Template_mat_select_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.offset_dayChange.emit($event));
     });
-    \u0275\u0275repeaterCreate(5, NewAssetFiltersComponent_Conditional_12_Conditional_3_For_6_Template, 3, 5, "mat-option", 14, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(8, NewAssetFiltersComponent_Conditional_15_Conditional_3_For_9_Template, 3, 5, "mat-option", 14, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "BOOKINGS.ASSETS_DELIVER_DATE"));
-    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "BOOKINGS.ASSETS_DELIVER_DATE"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 5, "BOOKINGS.ASSETS_DELIVER_DATE"));
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngModel", ctx_r1.offset_day());
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.day_options);
   }
 }
-function NewAssetFiltersComponent_Conditional_12_Template(rf, ctx) {
+function NewAssetFiltersComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 7)(1, "settings-toggle", 10);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_12_Template_settings_toggle_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_15_Template_settings_toggle_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.at_timeChange.emit($event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, NewAssetFiltersComponent_Conditional_12_Conditional_3_Template, 7, 4);
+    \u0275\u0275conditionalCreate(3, NewAssetFiltersComponent_Conditional_15_Conditional_3_Template, 10, 7);
     \u0275\u0275elementStart(4, "label");
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(7, "a-duration-field", 11);
     \u0275\u0275pipe(8, "async");
-    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_12_Template_a_duration_field_ngModelChange_7_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Conditional_15_Template_a_duration_field_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.offsetChange.emit($event));
@@ -1165,12 +1172,12 @@ function NewAssetFiltersComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275property("ngModel", ctx_r1.offset())("time", ctx_r1.offset_day() > 0 ? ctx_r1.start_of_date : (tmp_7_0 = \u0275\u0275pipeBind1(8, 15, ctx_r1.options)) == null ? null : tmp_7_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset - 1)("use_24hr", ctx_r1.use_24hr);
   }
 }
-function NewAssetFiltersComponent_For_18_Template(rf, ctx) {
+function NewAssetFiltersComponent_For_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "settings-toggle", 15);
     \u0275\u0275pipe(1, "async");
-    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_For_18_Template_settings_toggle_ngModelChange_0_listener() {
+    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_For_21_Template_settings_toggle_ngModelChange_0_listener() {
       const item_r6 = \u0275\u0275restoreView(_r5).$implicit;
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.toggleCategory(item_r6.id));
@@ -1251,48 +1258,54 @@ var _NewAssetFiltersComponent = class _NewAssetFiltersComponent extends AsyncHan
 _NewAssetFiltersComponent.\u0275fac = function NewAssetFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewAssetFiltersComponent)();
 };
-_NewAssetFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetFiltersComponent, selectors: [["new-asset-filters"]], inputs: { search: [1, "search"], at_time: [1, "at_time"], offset: [1, "offset"], offset_day: [1, "offset_day"] }, outputs: { at_timeChange: "at_timeChange", offsetChange: "offsetChange", offset_dayChange: "offset_dayChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 20, vars: 18, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "mt-3", "mb-2", "px-2"], ["appearance", "outline", 1, "h-14", "w-full"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "hidden", "px-2", "py-2", "font-medium", "sm:block"], [1, "flex", "flex-col", "space-y-2", "px-2"], [1, "hidden", "px-2", "py-4", "font-medium", "sm:block"], [3, "name", "ngModel"], [3, "ngModelChange", "name", "ngModel", "matTooltip"], [3, "ngModelChange", "ngModel", "time", "step", "min", "max", "use_24hr"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [3, "ngModelChange", "ngModel"], [3, "value"], [3, "ngModelChange", "name", "ngModel"]], template: function NewAssetFiltersComponent_Template(rf, ctx) {
+_NewAssetFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetFiltersComponent, selectors: [["new-asset-filters"]], inputs: { search: [1, "search"], at_time: [1, "at_time"], offset: [1, "offset"], offset_day: [1, "offset_day"] }, outputs: { at_timeChange: "at_timeChange", offsetChange: "offsetChange", offset_dayChange: "offset_dayChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 21, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "mt-3", "mb-2", "px-2"], ["appearance", "outline", 1, "h-14", "w-full"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "hidden", "px-2", "py-2", "font-medium", "sm:block"], [1, "flex", "flex-col", "space-y-2", "px-2"], [1, "hidden", "px-2", "py-4", "font-medium", "sm:block"], [3, "name", "ngModel"], [3, "ngModelChange", "name", "ngModel", "matTooltip"], [3, "ngModelChange", "ngModel", "time", "step", "min", "max", "use_24hr"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [3, "ngModelChange", "ngModel"], [3, "value"], [3, "ngModelChange", "name", "ngModel"]], template: function NewAssetFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 2)(5, "mat-form-field", 3)(6, "icon", 4);
-    \u0275\u0275text(7, "search");
+    \u0275\u0275elementStart(4, "div", 2)(5, "mat-form-field", 3)(6, "mat-label");
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 5);
-    \u0275\u0275pipe(9, "async");
-    \u0275\u0275pipe(10, "translate");
-    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Template_input_ngModelChange_8_listener($event) {
+    \u0275\u0275elementStart(9, "icon", 4);
+    \u0275\u0275text(10, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "input", 5);
+    \u0275\u0275pipe(12, "async");
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275listener("ngModelChange", function NewAssetFiltersComponent_Template_input_ngModelChange_11_listener($event) {
       return ctx.setSearch($event);
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(11, NewAssetFiltersComponent_Conditional_11_Template, 3, 3, "h3", 6);
-    \u0275\u0275conditionalCreate(12, NewAssetFiltersComponent_Conditional_12_Template, 9, 17, "div", 7);
-    \u0275\u0275elementStart(13, "h3", 8);
-    \u0275\u0275text(14);
-    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275conditionalCreate(14, NewAssetFiltersComponent_Conditional_14_Template, 3, 3, "h3", 6);
+    \u0275\u0275conditionalCreate(15, NewAssetFiltersComponent_Conditional_15_Template, 9, 17, "div", 7);
+    \u0275\u0275elementStart(16, "h3", 8);
+    \u0275\u0275text(17);
+    \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "div", 7);
-    \u0275\u0275repeaterCreate(17, NewAssetFiltersComponent_For_18_Template, 2, 4, "settings-toggle", 9, _forTrack0);
-    \u0275\u0275pipe(19, "async");
+    \u0275\u0275elementStart(19, "div", 7);
+    \u0275\u0275repeaterCreate(20, NewAssetFiltersComponent_For_21_Template, 2, 4, "settings-toggle", 9, _forTrack0);
+    \u0275\u0275pipe(22, "async");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 8, "COMMON.FILTERS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 9, "COMMON.FILTERS"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("sm:hidden", !ctx.search());
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 11, "BOOKINGS.ASSETS_SEARCH"));
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(9, 10, ctx.search_value))("placeholder", \u0275\u0275pipeBind1(10, 12, "BOOKINGS.ASSETS_SEARCH"));
+    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(12, 13, ctx.search_value))("placeholder", \u0275\u0275pipeBind1(13, 15, "BOOKINGS.ASSETS_SEARCH"));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(!ctx.search() ? 11 : -1);
+    \u0275\u0275conditional(!ctx.search() ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx.search() ? 12 : -1);
+    \u0275\u0275conditional(!ctx.search() ? 15 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 14, "COMMON.CATEGORIES"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(18, 17, "COMMON.CATEGORIES"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(19, 16, ctx.categories));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(22, 19, ctx.categories));
   }
 }, dependencies: [
   CommonModule,
@@ -1300,6 +1313,7 @@ _NewAssetFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   DatePipe,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatPrefix,
   MatInputModule,
   MatInput,
@@ -1331,6 +1345,7 @@ var NewAssetFiltersComponent = _NewAssetFiltersComponent;
         </div>
         <div class="mt-3 mb-2 px-2" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
+                <mat-label>{{ 'BOOKINGS.ASSETS_SEARCH' | translate }}</mat-label>
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
@@ -1361,6 +1376,7 @@ var NewAssetFiltersComponent = _NewAssetFiltersComponent;
                         appearance="outline"
                         class="no-subscript mb-4 w-full"
                     >
+                        <mat-label>{{ 'BOOKINGS.ASSETS_DELIVER_DATE' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="offset_day()"
                             (ngModelChange)="offset_dayChange.emit($event)"
@@ -1416,7 +1432,7 @@ var NewAssetFiltersComponent = _NewAssetFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewAssetFiltersComponent, { className: "NewAssetFiltersComponent", filePath: "libs/assets/src/lib/new-asset-select-modal/new-asset-filters.component.ts", lineNumber: 127 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewAssetFiltersComponent, { className: "NewAssetFiltersComponent", filePath: "libs/assets/src/lib/new-asset-select-modal/new-asset-filters.component.ts", lineNumber: 129 });
 })();
 
 // libs/assets/src/lib/new-asset-select-modal/new-asset-list.component.ts
@@ -1439,12 +1455,16 @@ function NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_4_T
   }
   if (rf & 2) {
     const asset_r2 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("source", asset_r2.images[0]);
+    \u0275\u0275property("source", asset_r2.images[0])("alt", asset_r2.name);
   }
 }
 function NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 10);
+  }
+  if (rf & 2) {
+    const asset_r2 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("alt", asset_r2.name + " placeholder");
   }
 }
 function NewAssetListComponent_Conditional_8_Conditional_0_For_2_Template(rf, ctx) {
@@ -1458,7 +1478,7 @@ function NewAssetListComponent_Conditional_8_Conditional_0_For_2_Template(rf, ct
     });
     \u0275\u0275elementStart(2, "div", 7);
     \u0275\u0275conditionalCreate(3, NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_3_Template, 3, 1, "div", 8);
-    \u0275\u0275conditionalCreate(4, NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_4_Template, 1, 1, "img", 9)(5, NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_5_Template, 1, 0, "img", 10);
+    \u0275\u0275conditionalCreate(4, NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_4_Template, 1, 2, "img", 9)(5, NewAssetListComponent_Conditional_8_Conditional_0_For_2_Conditional_5_Template, 1, 1, "img", 10);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "div", 11)(7, "div", 12)(8, "div");
     \u0275\u0275text(9);
@@ -1604,7 +1624,7 @@ var _NewAssetListComponent = class _NewAssetListComponent {
 _NewAssetListComponent.\u0275fac = function NewAssetListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewAssetListComponent)();
 };
-_NewAssetListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetListComponent, selectors: [["new-asset-list"]], inputs: { selected: [1, "selected"], favorites: [1, "favorites"], selected_items: [1, "selected_items"], requested: [1, "requested"] }, outputs: { toggleFav: "toggleFav", onSelect: "onSelect" }, features: [\u0275\u0275NgOnChangesFeature], decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["asset", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm"], ["select", "", 1, "flex", "h-full", "w-full", "items-center", "pr-10", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border"], [1, "border-base-300", "bg-base-200", "absolute", "top-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border"], ["auth", "", 1, "h-full", "object-cover", 3, "source"], ["src", "assets/icons/asset-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "items-center", "justify-between", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-2", "text-sm"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"], [1, "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewAssetListComponent_Template(rf, ctx) {
+_NewAssetListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewAssetListComponent, selectors: [["new-asset-list"]], inputs: { selected: [1, "selected"], favorites: [1, "favorites"], selected_items: [1, "selected_items"], requested: [1, "requested"] }, outputs: { toggleFav: "toggleFav", onSelect: "onSelect" }, features: [\u0275\u0275NgOnChangesFeature], decls: 11, vars: 17, consts: [[1, "px-2", "font-bold"], ["count", "", 1, "mb-4", "px-2", "text-sm", "opacity-60"], ["loading", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], [1, "list-style-none", "space-y-2"], ["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["asset", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm"], ["select", "", 1, "flex", "h-full", "w-full", "items-center", "pr-10", 3, "click"], [1, "border-base-200", "bg-base-200", "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border"], [1, "border-base-300", "bg-base-200", "absolute", "top-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border"], ["auth", "", 1, "h-full", "object-cover", 3, "source", "alt"], ["src", "assets/icons/asset-placeholder.svg", 1, "m-auto", 3, "alt"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "items-center", "justify-between", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-2", "text-sm"], ["icon", "", "matRipple", "", "fav", "", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"], [1, "text-xs"], [1, "text-center", "opacity-30"], [3, "diameter"], [1, "opacity-30"]], template: function NewAssetListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 0);
     \u0275\u0275text(1);
@@ -1685,11 +1705,13 @@ var NewAssetListComponent = _NewAssetListComponent;
                                             auth
                                             class="h-full object-cover"
                                             [source]="asset.images[0]"
+                                            [alt]="asset.name"
                                         />
                                     } @else {
                                         <img
                                             class="m-auto"
                                             src="assets/icons/asset-placeholder.svg"
+                                            [alt]="asset.name + ' placeholder'"
                                         />
                                     }
                                 </div>
@@ -1773,7 +1795,7 @@ var NewAssetListComponent = _NewAssetListComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewAssetListComponent, { className: "NewAssetListComponent", filePath: "libs/assets/src/lib/new-asset-select-modal/new-asset-list.component.ts", lineNumber: 145 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewAssetListComponent, { className: "NewAssetListComponent", filePath: "libs/assets/src/lib/new-asset-select-modal/new-asset-list.component.ts", lineNumber: 147 });
 })();
 
 // libs/assets/src/lib/new-asset-select-modal/new-asset-select-modal.component.ts
@@ -3223,7 +3245,7 @@ function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275property("src", "assets/icons/" + ctx_r1.card_type + ".svg", \u0275\u0275sanitizeUrl);
   }
 }
-function CardInputFieldComponent_For_24_Template(rf, ctx) {
+function CardInputFieldComponent_For_28_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 15);
     \u0275\u0275text(1);
@@ -3236,7 +3258,7 @@ function CardInputFieldComponent_For_24_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" ", item_r3[1], " (", item_r3[0], ") ");
   }
 }
-function CardInputFieldComponent_For_33_Template(rf, ctx) {
+function CardInputFieldComponent_For_39_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 15);
     \u0275\u0275text(1);
@@ -3369,7 +3391,7 @@ _CardInputFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     useExisting: forwardRef(() => _CardInputFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 43, vars: 4, consts: [["input", ""], [3, "keyup", "formGroup"], [1, "flex", "flex-col"], ["for", "card-number"], ["tabindex", "0", 1, "border-base-200", "focus-within:border-base-200", "relative", "mb-4", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border", "p-2", "font-mono", "focus-within:shadow-sm", 3, "focus"], [1, "flex-1"], ["type", "tel", "maxlength", "17", 1, "absolute", "hidden", 3, "keydown", "value"], [1, "h-8", 3, "src"], [1, "flex", "flex-1", "flex-col"], ["for", "cardholder"], ["appearance", "outline"], ["name", "cardholder", "matInput", "", "placeholder", "Mr John Smith", "formControlName", "cardholder"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/4", "flex-1", "flex-col"], ["placeholder", "MM", "formControlName", "exp_month"], [3, "value"], ["placeholder", "YYYY", "formControlName", "exp_year"], ["for", "cvv"], ["appearance", "outline", 1, "w-20"], ["name", "cvv", "matInput", "", "formControlName", "cvv", "maxlength", "4"]], template: function CardInputFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 51, vars: 4, consts: [["input", ""], [3, "keyup", "formGroup"], [1, "flex", "flex-col"], ["for", "card-number"], ["tabindex", "0", 1, "border-base-200", "focus-within:border-base-200", "relative", "mb-4", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border", "p-2", "font-mono", "focus-within:shadow-sm", 3, "focus"], [1, "flex-1"], ["type", "tel", "maxlength", "17", 1, "absolute", "hidden", 3, "keydown", "value"], [1, "h-8", 3, "src"], [1, "flex", "flex-1", "flex-col"], ["for", "cardholder"], ["appearance", "outline"], ["name", "cardholder", "matInput", "", "placeholder", "Mr John Smith", "formControlName", "cardholder"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/4", "flex-1", "flex-col"], ["placeholder", "MM", "formControlName", "exp_month"], [3, "value"], ["placeholder", "YYYY", "formControlName", "exp_year"], ["for", "cvv"], ["appearance", "outline", 1, "w-20"], ["name", "cvv", "matInput", "", "formControlName", "cvv", "maxlength", "4"]], template: function CardInputFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "form", 1);
@@ -3399,36 +3421,46 @@ _CardInputFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275elementStart(10, "div", 8)(11, "label", 9);
     \u0275\u0275text(12, "Name on Card");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "mat-form-field", 10);
-    \u0275\u0275element(14, "input", 11);
-    \u0275\u0275elementStart(15, "mat-error");
-    \u0275\u0275text(16, "Cardholder name is required");
+    \u0275\u0275elementStart(13, "mat-form-field", 10)(14, "mat-label");
+    \u0275\u0275text(15, "Name on Card");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(16, "input", 11);
+    \u0275\u0275elementStart(17, "mat-error");
+    \u0275\u0275text(18, "Cardholder name is required");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(17, "div", 12)(18, "div", 13)(19, "label", 9);
-    \u0275\u0275text(20, "Expiry Month");
+    \u0275\u0275elementStart(19, "div", 12)(20, "div", 13)(21, "label", 9);
+    \u0275\u0275text(22, "Expiry Month");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "mat-form-field", 10)(22, "mat-select", 14);
-    \u0275\u0275repeaterCreate(23, CardInputFieldComponent_For_24_Template, 2, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(23, "mat-form-field", 10)(24, "mat-label");
+    \u0275\u0275text(25, "Expiry Month");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(25, "mat-error");
-    \u0275\u0275text(26, "Expiry month is required");
+    \u0275\u0275elementStart(26, "mat-select", 14);
+    \u0275\u0275repeaterCreate(27, CardInputFieldComponent_For_28_Template, 2, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(29, "mat-error");
+    \u0275\u0275text(30, "Expiry month is required");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(27, "div", 13)(28, "label", 9);
-    \u0275\u0275text(29, "Expiry Year");
+    \u0275\u0275elementStart(31, "div", 13)(32, "label", 9);
+    \u0275\u0275text(33, "Expiry Year");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(30, "mat-form-field", 10)(31, "mat-select", 16);
-    \u0275\u0275repeaterCreate(32, CardInputFieldComponent_For_33_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(34, "mat-form-field", 10)(35, "mat-label");
+    \u0275\u0275text(36, "Expiry Year");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(34, "mat-error");
-    \u0275\u0275text(35, "Expiry year is required");
+    \u0275\u0275elementStart(37, "mat-select", 16);
+    \u0275\u0275repeaterCreate(38, CardInputFieldComponent_For_39_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(40, "mat-error");
+    \u0275\u0275text(41, "Expiry year is required");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(36, "div", 2)(37, "label", 17);
-    \u0275\u0275text(38, "CVV");
+    \u0275\u0275elementStart(42, "div", 2)(43, "label", 17);
+    \u0275\u0275text(44, "CVV");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(39, "mat-form-field", 18);
-    \u0275\u0275element(40, "input", 19);
-    \u0275\u0275elementStart(41, "mat-error");
-    \u0275\u0275text(42, "Invalid security code");
+    \u0275\u0275elementStart(45, "mat-form-field", 18)(46, "mat-label");
+    \u0275\u0275text(47, "CVV");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(48, "input", 19);
+    \u0275\u0275elementStart(49, "mat-error");
+    \u0275\u0275text(50, "Invalid security code");
     \u0275\u0275elementEnd()()()()();
   }
   if (rf & 2) {
@@ -3439,12 +3471,12 @@ _CardInputFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275property("value", ctx.details.value.card_number == null ? null : ctx.details.value.card_number.trim());
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.card_type ? 9 : -1);
-    \u0275\u0275advance(14);
+    \u0275\u0275advance(18);
     \u0275\u0275repeater(ctx.months);
-    \u0275\u0275advance(9);
+    \u0275\u0275advance(11);
     \u0275\u0275repeater(ctx.years);
   }
-}, dependencies: [MatFormFieldModule, MatFormField, MatError, MatInputModule, MatInput, MatSelectModule, MatSelect, MatOption, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, MaxLengthValidator, FormGroupDirective, FormControlName], styles: ["\n\nmat-form-field[_ngcontent-%COMP%] {\n  height: 3.25rem;\n}\n/*# sourceMappingURL=card-input-field.component.css.map */"] });
+}, dependencies: [MatFormFieldModule, MatFormField, MatLabel, MatError, MatInputModule, MatInput, MatSelectModule, MatSelect, MatOption, ReactiveFormsModule, \u0275NgNoValidate, DefaultValueAccessor, NgControlStatus, NgControlStatusGroup, MaxLengthValidator, FormGroupDirective, FormControlName], styles: ["\n\nmat-form-field[_ngcontent-%COMP%] {\n  height: 3.25rem;\n}\n/*# sourceMappingURL=card-input-field.component.css.map */"] });
 var CardInputFieldComponent = _CardInputFieldComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CardInputFieldComponent, [{
@@ -3478,6 +3510,7 @@ var CardInputFieldComponent = _CardInputFieldComponent;
             <div class="flex flex-1 flex-col">
                 <label for="cardholder">Name on Card</label>
                 <mat-form-field appearance="outline">
+                    <mat-label>Name on Card</mat-label>
                     <input
                         name="cardholder"
                         matInput
@@ -3491,6 +3524,7 @@ var CardInputFieldComponent = _CardInputFieldComponent;
                 <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Month</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Expiry Month</mat-label>
                         <mat-select
                             placeholder="MM"
                             formControlName="exp_month"
@@ -3507,6 +3541,7 @@ var CardInputFieldComponent = _CardInputFieldComponent;
                 <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Year</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Expiry Year</mat-label>
                         <mat-select
                             placeholder="YYYY"
                             formControlName="exp_year"
@@ -3523,6 +3558,7 @@ var CardInputFieldComponent = _CardInputFieldComponent;
                 <div class="flex flex-col">
                     <label for="cvv">CVV</label>
                     <mat-form-field appearance="outline" class="w-20">
+                        <mat-label>CVV</mat-label>
                         <input
                             name="cvv"
                             matInput
@@ -3550,7 +3586,7 @@ var CardInputFieldComponent = _CardInputFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CardInputFieldComponent, { className: "CardInputFieldComponent", filePath: "libs/payments/src/lib/card-input-field.component.ts", lineNumber: 138 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CardInputFieldComponent, { className: "CardInputFieldComponent", filePath: "libs/payments/src/lib/card-input-field.component.ts", lineNumber: 142 });
 })();
 
 // libs/payments/src/lib/payment-modal.component.ts
@@ -5179,13 +5215,16 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_14_Template(rf, ctx
 function SetDatetimeModalComponent_Conditional_6_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 16);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
@@ -5212,7 +5251,7 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(14, SetDatetimeModalComponent_Conditional_6_Conditional_14_Template, 4, 5, "div", 9);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 4, 3, "div", 11);
+    \u0275\u0275conditionalCreate(15, SetDatetimeModalComponent_Conditional_6_Conditional_15_Template, 5, 6, "div", 11);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -5266,7 +5305,7 @@ var _SetDatetimeModalComponent = class _SetDatetimeModalComponent {
 _SetDatetimeModalComponent.\u0275fac = function SetDatetimeModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _SetDatetimeModalComponent)();
 };
-_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+_SetDatetimeModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr"], ["formControlName", "all_day", 3, "aria-label"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2, "Set date and time");
@@ -5396,7 +5435,7 @@ var SetDatetimeModalComponent = _SetDatetimeModalComponent;
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
                     >
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -6787,7 +6826,7 @@ var ExploreLockersService = _ExploreLockersService;
 
 // libs/explore/src/lib/explore-map-control.component.ts
 var _forTrack03 = ($index, $item) => $item.id;
-function ExploreMapControlComponent_Conditional_1_For_4_Template(rf, ctx) {
+function ExploreMapControlComponent_Conditional_1_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 4);
     \u0275\u0275text(1);
@@ -6803,26 +6842,29 @@ function ExploreMapControlComponent_Conditional_1_For_4_Template(rf, ctx) {
 function ExploreMapControlComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-select", 3);
-    \u0275\u0275pipe(2, "async");
-    \u0275\u0275listener("ngModelChange", function ExploreMapControlComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2, "Select Building");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-select", 3);
+    \u0275\u0275pipe(4, "async");
+    \u0275\u0275listener("ngModelChange", function ExploreMapControlComponent_Conditional_1_Template_mat_select_ngModelChange_3_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setBuilding($event));
     });
-    \u0275\u0275repeaterCreate(3, ExploreMapControlComponent_Conditional_1_For_4_Template, 2, 2, "mat-option", 4, _forTrack03);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(5, ExploreMapControlComponent_Conditional_1_For_6_Template, 2, 2, "mat-option", 4, _forTrack03);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(2, 1, ctx_r1.building));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(4, 1, ctx_r1.building));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 3, ctx_r1.buildings));
   }
 }
-function ExploreMapControlComponent_Conditional_3_For_5_Template(rf, ctx) {
+function ExploreMapControlComponent_Conditional_3_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 4);
     \u0275\u0275text(1);
@@ -6840,25 +6882,28 @@ function ExploreMapControlComponent_Conditional_3_Template(rf, ctx) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-form-field", 2);
     \u0275\u0275pipe(1, "async");
-    \u0275\u0275elementStart(2, "mat-select", 5);
-    \u0275\u0275pipe(3, "async");
-    \u0275\u0275listener("ngModelChange", function ExploreMapControlComponent_Conditional_3_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(2, "mat-label");
+    \u0275\u0275text(3, "Select Level");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 5);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275listener("ngModelChange", function ExploreMapControlComponent_Conditional_3_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setLevel($event));
     });
-    \u0275\u0275repeaterCreate(4, ExploreMapControlComponent_Conditional_3_For_5_Template, 2, 2, "mat-option", 4, _forTrack03);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(6, ExploreMapControlComponent_Conditional_3_For_7_Template, 2, 2, "mat-option", 4, _forTrack03);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_1_0;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275attribute("has-bld", ((tmp_1_0 = \u0275\u0275pipeBind1(1, 2, ctx_r1.buildings)) == null ? null : tmp_1_0.length) > 1);
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(5, 4, ctx_r1.level));
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngModel", \u0275\u0275pipeBind1(3, 4, ctx_r1.level));
-    \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 6, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 6, ctx_r1.levels));
   }
 }
 var _ExploreMapControlComponent = class _ExploreMapControlComponent extends AsyncHandler {
@@ -6892,9 +6937,9 @@ _ExploreMapControlComponent.\u0275fac = function ExploreMapControlComponent_Fact
 _ExploreMapControlComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreMapControlComponent, selectors: [["explore-map-controls"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 6, consts: [[1, "flex", "w-full", "space-x-2"], ["overlay", "", "buildings", "", "has-bld", "true", "appearance", "outline", 1, "no-subscript", "min-w-42", "flex-1"], ["overlay", "", "levels", "", "appearance", "outline", 1, "no-subscript", "min-w-41", "flex-1"], ["placeholder", "Select Building...", 3, "ngModelChange", "ngModel"], [3, "value"], ["placeholder", "Select Level...", 3, "ngModelChange", "ngModel"]], template: function ExploreMapControlComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, ExploreMapControlComponent_Conditional_1_Template, 6, 5, "mat-form-field", 1);
+    \u0275\u0275conditionalCreate(1, ExploreMapControlComponent_Conditional_1_Template, 8, 5, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
-    \u0275\u0275conditionalCreate(3, ExploreMapControlComponent_Conditional_3_Template, 7, 8, "mat-form-field", 2);
+    \u0275\u0275conditionalCreate(3, ExploreMapControlComponent_Conditional_3_Template, 9, 8, "mat-form-field", 2);
     \u0275\u0275pipe(4, "async");
     \u0275\u0275elementEnd();
   }
@@ -6906,7 +6951,7 @@ _ExploreMapControlComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275advance(2);
     \u0275\u0275conditional(((tmp_1_0 = \u0275\u0275pipeBind1(4, 4, ctx.levels)) == null ? null : tmp_1_0.length) ? 3 : -1);
   }
-}, dependencies: [CommonModule, AsyncPipe, MatFormFieldModule, MatFormField, MatSelectModule, MatSelect, MatOption, FormsModule, NgControlStatus, NgModel], styles: ["\n\nmat-form-field[has-bld=true][_ngcontent-%COMP%] {\n  max-width: calc(50vw - 2.5rem);\n}\n[full][_nghost-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n  max-width: calc(50% - 2.5rem);\n}\n/*# sourceMappingURL=explore-map-control.component.css.map */"] });
+}, dependencies: [CommonModule, AsyncPipe, MatFormFieldModule, MatFormField, MatLabel, MatSelectModule, MatSelect, MatOption, FormsModule, NgControlStatus, NgModel], styles: ["\n\nmat-form-field[has-bld=true][_ngcontent-%COMP%] {\n  max-width: calc(50vw - 2.5rem);\n}\n[full][_nghost-%COMP%]   mat-form-field[_ngcontent-%COMP%] {\n  max-width: calc(50% - 2.5rem);\n}\n/*# sourceMappingURL=explore-map-control.component.css.map */"] });
 var ExploreMapControlComponent = _ExploreMapControlComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExploreMapControlComponent, [{
@@ -6921,6 +6966,7 @@ var ExploreMapControlComponent = _ExploreMapControlComponent;
                     has-bld="true"
                     appearance="outline"
                 >
+                    <mat-label>Select Building</mat-label>
                     <mat-select
                         placeholder="Select Building..."
                         [ngModel]="building | async"
@@ -6942,6 +6988,7 @@ var ExploreMapControlComponent = _ExploreMapControlComponent;
                     [attr.has-bld]="(buildings | async)?.length > 1"
                     appearance="outline"
                 >
+                    <mat-label>Select Level</mat-label>
                     <mat-select
                         placeholder="Select Level..."
                         [ngModel]="level | async"
@@ -6960,7 +7007,7 @@ var ExploreMapControlComponent = _ExploreMapControlComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreMapControlComponent, { className: "ExploreMapControlComponent", filePath: "libs/explore/src/lib/explore-map-control.component.ts", lineNumber: 74 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreMapControlComponent, { className: "ExploreMapControlComponent", filePath: "libs/explore/src/lib/explore-map-control.component.ts", lineNumber: 76 });
 })();
 
 // libs/explore/src/lib/explore-parking-info.component.ts
@@ -8143,32 +8190,33 @@ function ExploreMapViewComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4)(1, "mat-slide-toggle", 5);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275pipe(3, "async");
     \u0275\u0275listener("ngModelChange", function ExploreMapViewComponent_Conditional_6_Conditional_2_Template_mat_slide_toggle_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.toggleZones($event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "label", 6);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementStart(4, "label", 6);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", !((tmp_2_0 = \u0275\u0275pipeBind1(2, 2, ctx_r1.options)) == null ? null : tmp_2_0.disable == null ? null : tmp_2_0.disable.includes("zones")));
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 4, "EXPLORE.AREAS"));
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 3, "EXPLORE.AREAS"))("ngModel", !((tmp_3_0 = \u0275\u0275pipeBind1(3, 5, ctx_r1.options)) == null ? null : tmp_3_0.disable == null ? null : tmp_3_0.disable.includes("zones")));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 7, "EXPLORE.AREAS"));
   }
 }
 function ExploreMapViewComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1);
     \u0275\u0275element(1, "explore-map-controls");
-    \u0275\u0275conditionalCreate(2, ExploreMapViewComponent_Conditional_6_Conditional_2_Template, 6, 6, "div", 4);
+    \u0275\u0275conditionalCreate(2, ExploreMapViewComponent_Conditional_6_Conditional_2_Template, 7, 9, "div", 4);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -8414,7 +8462,7 @@ _ExploreMapViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   ExploreLockersService,
   ExplorePointOfInterestService,
   SpacePipe
-]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "border-base-200", "bg-base-100", "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded-sm", "border", "p-2"], ["legend", "", 1, "border-base-200", "bg-base-100", "absolute", "bottom-2", "left-2", "rounded-sm", "border", "p-2"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "border-base-200", "h-3", "w-3", "rounded-full", "border"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 10, vars: 23, consts: [[3, "mapInfo", "src", "styles", "features", "actions", "labels", "focus", "options"], ["controls", "", 1, "border-base-200", "bg-base-100", "absolute", "top-2", "left-2", "max-w-[calc(100vw-1rem)]", "space-y-2", "overflow-hidden", "rounded-sm", "border", "p-2"], ["legend", "", 1, "border-base-200", "bg-base-100", "absolute", "bottom-2", "left-2", "rounded-sm", "border", "p-2"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm"], [1, "flex", "items-center", "space-x-2"], ["name", "zones", 1, "ml-2", 3, "ngModelChange", "aria-label", "ngModel"], ["for", "zones", 1, "mb-0"], [1, "mb-2", "font-medium"], [1, "border-base-200", "h-3", "w-3", "rounded-full", "border"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "absolute", "top-2", "right-2", "h-12", "min-w-32", "rounded-lg", "border", "px-4", "shadow-sm", 3, "click"]], template: function ExploreMapViewComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "interactive-map", 0);
     \u0275\u0275pipe(1, "async");
@@ -8479,6 +8527,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
                         <mat-slide-toggle
                             name="zones"
                             class="ml-2"
+                            [aria-label]="'EXPLORE.AREAS' | translate"
                             [ngModel]="
                                 !(options | async)?.disable?.includes('zones')
                             "
@@ -8539,7 +8588,7 @@ var ExploreMapViewComponent = _ExploreMapViewComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreMapViewComponent, { className: "ExploreMapViewComponent", filePath: "libs/explore/src/lib/explore-map-view.component.ts", lineNumber: 142 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreMapViewComponent, { className: "ExploreMapViewComponent", filePath: "libs/explore/src/lib/explore-map-view.component.ts", lineNumber: 143 });
 })();
 
 // libs/explore/src/lib/explore-search.service.ts
@@ -9347,70 +9396,73 @@ function DeskSettingsModalComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementStart(5, "div", 4)(6, "label");
     \u0275\u0275text(7, "Presets");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 5)(9, "mat-form-field", 6)(10, "mat-select", 7);
-    \u0275\u0275twoWayListener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_mat_select_ngModelChange_10_listener($event) {
+    \u0275\u0275elementStart(8, "div", 5)(9, "mat-form-field", 6)(10, "mat-label");
+    \u0275\u0275text(11, "Presets");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "mat-select", 7);
+    \u0275\u0275twoWayListener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_mat_select_ngModelChange_12_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.preset, $event) || (ctx_r1.preset = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_mat_select_ngModelChange_10_listener($event) {
+    \u0275\u0275listener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_mat_select_ngModelChange_12_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setPreset($event));
     });
-    \u0275\u0275elementStart(11, "mat-option", 8);
-    \u0275\u0275text(12, "None");
+    \u0275\u0275elementStart(13, "mat-option", 8);
+    \u0275\u0275text(14, "None");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "mat-option", 9);
-    \u0275\u0275text(14, "Standing");
+    \u0275\u0275elementStart(15, "mat-option", 9);
+    \u0275\u0275text(16, "Standing");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "mat-option", 10);
-    \u0275\u0275text(16, "Seated");
+    \u0275\u0275elementStart(17, "mat-option", 10);
+    \u0275\u0275text(18, "Seated");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(17, "button", 11);
-    \u0275\u0275listener("click", function DeskSettingsModalComponent_Conditional_0_Template_button_click_17_listener() {
+    \u0275\u0275elementStart(19, "button", 11);
+    \u0275\u0275listener("click", function DeskSettingsModalComponent_Conditional_0_Template_button_click_19_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.edit_presets = true);
     });
-    \u0275\u0275elementStart(18, "icon");
-    \u0275\u0275text(19, "edit");
+    \u0275\u0275elementStart(20, "icon");
+    \u0275\u0275text(21, "edit");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(20, "label");
-    \u0275\u0275text(21, "Current Height");
+    \u0275\u0275elementStart(22, "label");
+    \u0275\u0275text(23, "Current Height");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "div", 12)(23, "mat-slider", 13)(24, "input", 14);
-    \u0275\u0275twoWayListener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_input_ngModelChange_24_listener($event) {
+    \u0275\u0275elementStart(24, "div", 12)(25, "mat-slider", 13)(26, "input", 14);
+    \u0275\u0275twoWayListener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_input_ngModelChange_26_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.height, $event) || (ctx_r1.height = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_input_ngModelChange_24_listener() {
+    \u0275\u0275listener("ngModelChange", function DeskSettingsModalComponent_Conditional_0_Template_input_ngModelChange_26_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.updatePreset(ctx_r1.height));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "div", 15);
-    \u0275\u0275text(26);
+    \u0275\u0275elementStart(27, "div", 15);
+    \u0275\u0275text(28);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(27, "button", 16);
-    \u0275\u0275listener("click", function DeskSettingsModalComponent_Conditional_0_Template_button_click_27_listener() {
+    \u0275\u0275elementStart(29, "button", 16);
+    \u0275\u0275listener("click", function DeskSettingsModalComponent_Conditional_0_Template_button_click_29_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setDeskHeight());
     });
-    \u0275\u0275text(28, " Apply Settings ");
+    \u0275\u0275text(30, " Apply Settings ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(29, "button", 17)(30, "icon");
-    \u0275\u0275text(31, "close");
+    \u0275\u0275elementStart(31, "button", 17)(32, "icon");
+    \u0275\u0275text(33, "close");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(10);
+    \u0275\u0275advance(12);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.preset);
     \u0275\u0275advance(13);
     \u0275\u0275property("displayWith", ctx_r1.formatLabel);
@@ -9504,7 +9556,7 @@ _DeskSettingsModalComponent.\u0275fac = function DeskSettingsModalComponent_Fact
 };
 _DeskSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskSettingsModalComponent, selectors: [["desk-settings-modal"]], decls: 2, vars: 1, consts: [[1, "bg-base-100", "relative", "w-[20rem]", "rounded-sm", "p-4", "shadow-sm"], [3, "show_close"], [1, "text-lg"], [1, "mb-4", "text-xs", "opacity-60"], [1, "mt-2", "mb-4", "flex", "flex-col"], [1, "flex", "items-center", "space-x-2", "pb-4"], ["appearance", "outline", 1, "no-subscript", "w-1/2", "flex-1"], ["placeholder", "No selected preset", 3, "ngModelChange", "ngModel"], ["value", ""], ["value", "standing"], ["value", "sitting"], ["icon", "", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "w-12", "rounded-sm", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["min", "60", "max", "120", "step", "0.5", "discrete", "", 1, "flex-1", 3, "displayWith"], ["matSliderThumb", "", 3, "ngModelChange", "ngModel"], [1, "w-12", "text-right", "text-sm"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "right-2"], [3, "close", "show_close"]], template: function DeskSettingsModalComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, DeskSettingsModalComponent_Conditional_0_Template, 32, 4, "div", 0)(1, DeskSettingsModalComponent_Conditional_1_Template, 1, 1, "desk-height-presets", 1);
+    \u0275\u0275conditionalCreate(0, DeskSettingsModalComponent_Conditional_0_Template, 34, 4, "div", 0)(1, DeskSettingsModalComponent_Conditional_1_Template, 1, 1, "desk-height-presets", 1);
   }
   if (rf & 2) {
     \u0275\u0275conditional(!ctx.edit_presets ? 0 : 1);
@@ -9515,6 +9567,7 @@ _DeskSettingsModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   MatDialogClose,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -9549,6 +9602,7 @@ var DeskSettingsModalComponent = _DeskSettingsModalComponent;
                             appearance="outline"
                             class="no-subscript w-1/2 flex-1"
                         >
+                            <mat-label>Presets</mat-label>
                             <mat-select
                                 placeholder="No selected preset"
                                 [(ngModel)]="preset"
@@ -9622,7 +9676,7 @@ var DeskSettingsModalComponent = _DeskSettingsModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskSettingsModalComponent, { className: "DeskSettingsModalComponent", filePath: "libs/bookings/src/lib/desk-settings-modal.component.ts", lineNumber: 112 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskSettingsModalComponent, { className: "DeskSettingsModalComponent", filePath: "libs/bookings/src/lib/desk-settings-modal.component.ts", lineNumber: 113 });
 })();
 
 // libs/bookings/src/lib/booking-details-modal.component.ts
@@ -11170,8 +11224,11 @@ function DeskConfirmModalComponent_Conditional_5_Conditional_8_Template(rf, ctx)
     \u0275\u0275elementStart(0, "div", 8)(1, "label");
     \u0275\u0275text(2, "Reason");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "input", 14);
-    \u0275\u0275twoWayListener("ngModelChange", function DeskConfirmModalComponent_Conditional_5_Conditional_8_Template_input_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(3, "mat-form-field", 13)(4, "mat-label");
+    \u0275\u0275text(5, "Reason");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "input", 14);
+    \u0275\u0275twoWayListener("ngModelChange", function DeskConfirmModalComponent_Conditional_5_Conditional_8_Template_input_ngModelChange_6_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext(2);
       \u0275\u0275twoWayBindingSet(ctx_r2.reason, $event) || (ctx_r2.reason = $event);
@@ -11181,7 +11238,7 @@ function DeskConfirmModalComponent_Conditional_5_Conditional_8_Template(rf, ctx)
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(6);
     \u0275\u0275twoWayProperty("ngModel", ctx_r2.reason);
   }
 }
@@ -11196,7 +11253,7 @@ function DeskConfirmModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(6, DeskConfirmModalComponent_Conditional_5_Conditional_6_Template, 3, 4, "div", 6)(7, DeskConfirmModalComponent_Conditional_5_Conditional_7_Template, 1, 1, "a-date-field", 7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, DeskConfirmModalComponent_Conditional_5_Conditional_8_Template, 5, 1, "div", 8);
+    \u0275\u0275conditionalCreate(8, DeskConfirmModalComponent_Conditional_5_Conditional_8_Template, 7, 1, "div", 8);
     \u0275\u0275elementStart(9, "p");
     \u0275\u0275text(10);
     \u0275\u0275elementEnd()();
@@ -11295,6 +11352,7 @@ _DeskConfirmModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   MatRipple,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatInputModule,
   MatInput,
   DateFieldComponent,
@@ -11345,6 +11403,7 @@ var DeskConfirmModalComponent = _DeskConfirmModalComponent;
                     <div reason class="mb-4 flex flex-col">
                         <label>Reason</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Reason</mat-label>
                             <input
                                 matInput
                                 [(ngModel)]="reason"
@@ -11384,7 +11443,7 @@ var DeskConfirmModalComponent = _DeskConfirmModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskConfirmModalComponent, { className: "DeskConfirmModalComponent", filePath: "libs/bookings/src/lib/desk-confirm-modal.component.ts", lineNumber: 115 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskConfirmModalComponent, { className: "DeskConfirmModalComponent", filePath: "libs/bookings/src/lib/desk-confirm-modal.component.ts", lineNumber: 116 });
 })();
 
 // libs/bookings/src/lib/desk.service.ts
@@ -11498,11 +11557,11 @@ var _c016 = ["search_field"];
 var _c17 = (a0) => ({ name: a0 });
 var _c22 = (a0) => ({ email: a0 });
 var _forTrack05 = ($index, $item) => $item.id;
-function UserListFieldComponent_For_7_Template(rf, ctx) {
+function UserListFieldComponent_For_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 13);
-    \u0275\u0275listener("removed", function UserListFieldComponent_For_7_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function UserListFieldComponent_For_10_Template_mat_chip_row_removed_0_listener() {
       const item_r3 = \u0275\u0275restoreView(_r2).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.removeUser(item_r3));
@@ -11526,16 +11585,16 @@ function UserListFieldComponent_For_7_Template(rf, ctx) {
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 5, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(8, _c17, item_r3.name || item_r3.email)));
   }
 }
-function UserListFieldComponent_Conditional_12_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "mat-spinner", 10);
   }
 }
-function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 16);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_15_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_18_Template_mat_option_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUserFromEmail());
@@ -11550,7 +11609,7 @@ function UserListFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "FORM.USER_LIST_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c22, ctx_r3.search$.getValue())), " ");
   }
 }
-function UserListFieldComponent_For_17_Conditional_8_Template(rf, ctx) {
+function UserListFieldComponent_For_20_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " (");
     \u0275\u0275elementStart(1, "span", 20);
@@ -11564,11 +11623,11 @@ function UserListFieldComponent_For_17_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(user_r7.username);
   }
 }
-function UserListFieldComponent_For_17_Template(rf, ctx) {
+function UserListFieldComponent_For_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 17);
-    \u0275\u0275listener("click", function UserListFieldComponent_For_17_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_For_20_Template_mat_option_click_0_listener() {
       const user_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUser(user_r7));
@@ -11580,7 +11639,7 @@ function UserListFieldComponent_For_17_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "div", 19);
     \u0275\u0275text(7);
-    \u0275\u0275conditionalCreate(8, UserListFieldComponent_For_17_Conditional_8_Template, 4, 1);
+    \u0275\u0275conditionalCreate(8, UserListFieldComponent_For_20_Conditional_8_Template, 4, 1);
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
@@ -11595,11 +11654,11 @@ function UserListFieldComponent_For_17_Template(rf, ctx) {
     \u0275\u0275conditional(user_r7.username && user_r7.username !== user_r7.email ? 8 : -1);
   }
 }
-function UserListFieldComponent_Conditional_19_Template(rf, ctx) {
+function UserListFieldComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 12)(1, "button", 21);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_19_Template_button_click_1_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_22_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.openNewUserModal());
@@ -11621,14 +11680,14 @@ function UserListFieldComponent_Conditional_19_Template(rf, ctx) {
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(17, "input", 26);
-    \u0275\u0275listener("change", function UserListFieldComponent_Conditional_19_Template_input_change_17_listener($event) {
+    \u0275\u0275listener("change", function UserListFieldComponent_Conditional_22_Template_input_change_17_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r3.addUsersFromFile($event));
     });
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(18, "button", 27);
-    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_19_Template_button_click_18_listener() {
+    \u0275\u0275listener("click", function UserListFieldComponent_Conditional_22_Template_button_click_18_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r3 = \u0275\u0275nextContext();
       ctx_r3.downloadCSVTemplate();
@@ -11886,55 +11945,62 @@ _UserListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _UserListFieldComponent),
     multi: true
   }
-]), \u0275\u0275InheritDefinitionFeature], decls: 20, vars: 15, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275InheritDefinitionFeature], decls: 23, vars: 18, consts: [["origin", "matAutocompleteOrigin"], ["chipList", ""], ["search_field", ""], ["auto", "matAutocomplete"], ["form-field", "", 1, "mb-4"], ["search", ""], ["appearance", "outline", "matAutocompleteOrigin", "", 1, "w-full"], ["aria-label", "User Seleciom"], ["user", "", 3, "bg-warning", "matTooltip"], ["name", "user_email", 3, "ngModelChange", "matChipInputTokenEnd", "placeholder", "ngModel", "matAutocomplete", "matChipInputFor", "matChipInputSeparatorKeyCodes"], ["diameter", "24", "matSuffix", ""], [1, "leading-tight"], ["actions", "", 1, "-mt-4", "flex", "items-center", "space-x-2"], ["user", "", 3, "removed", "matTooltip"], [1, "flex", "items-center", "space-x-2"], ["matChipRemove", "", "remove", ""], [3, "click"], [1, "leading-tight", 3, "click"], [1, "-ml-2", 3, "user"], [1, "text-xs", "opacity-30"], [1, "truncate"], ["btn", "", "matRipple", "", "type", "button", "name", "new-contact", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"], [1, "flex", "items-center", "justify-center"], [1, "hidden", "sm:inline"], [1, "inline", "sm:hidden"], ["btn", "", "matRipple", "", "type", "button", "name", "upload-csv", 1, "inverse", "relative", "flex-1", "sm:flex-none"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["btn", "", "matRipple", "", "type", "button", "name", "download-template", 1, "inverse", "flex-1", "sm:flex-none", 3, "click"]], template: function UserListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-chip-grid", 7, 1);
-    \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 10, "mat-chip-row", 8, _forTrack05);
+    \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-label");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 9, 2);
-    \u0275\u0275pipe(10, "translate");
-    \u0275\u0275pipe(11, "async");
-    \u0275\u0275listener("ngModelChange", function UserListFieldComponent_Template_input_ngModelChange_8_listener($event) {
+    \u0275\u0275elementStart(7, "mat-chip-grid", 7, 1);
+    \u0275\u0275repeaterCreate(9, UserListFieldComponent_For_10_Template, 8, 10, "mat-chip-row", 8, _forTrack05);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "input", 9, 2);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275pipe(14, "async");
+    \u0275\u0275listener("ngModelChange", function UserListFieldComponent_Template_input_ngModelChange_11_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.updateSearch($event));
-    })("matChipInputTokenEnd", function UserListFieldComponent_Template_input_matChipInputTokenEnd_8_listener($event) {
+    })("matChipInputTokenEnd", function UserListFieldComponent_Template_input_matChipInputTokenEnd_11_listener($event) {
       \u0275\u0275restoreView(_r1);
       return \u0275\u0275resetView(ctx.addUserFromEmail($event.value));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, UserListFieldComponent_Conditional_12_Template, 1, 0, "mat-spinner", 10);
+    \u0275\u0275conditionalCreate(15, UserListFieldComponent_Conditional_15_Template, 1, 0, "mat-spinner", 10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "mat-autocomplete", null, 3);
-    \u0275\u0275conditionalCreate(15, UserListFieldComponent_Conditional_15_Template, 3, 6, "mat-option");
-    \u0275\u0275repeaterCreate(16, UserListFieldComponent_For_17_Template, 9, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(18, "async");
+    \u0275\u0275elementStart(16, "mat-autocomplete", null, 3);
+    \u0275\u0275conditionalCreate(18, UserListFieldComponent_Conditional_18_Template, 3, 6, "mat-option");
+    \u0275\u0275repeaterCreate(19, UserListFieldComponent_For_20_Template, 9, 4, "mat-option", 11, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(21, "async");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(19, UserListFieldComponent_Conditional_19_Template, 26, 18, "div", 12);
+    \u0275\u0275conditionalCreate(22, UserListFieldComponent_Conditional_22_Template, 26, 18, "div", 12);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const chipList_r9 = \u0275\u0275reference(5);
-    const auto_r10 = \u0275\u0275reference(14);
+    const chipList_r9 = \u0275\u0275reference(8);
+    const auto_r10 = \u0275\u0275reference(17);
     \u0275\u0275attribute("disabled", ctx.disabled());
-    \u0275\u0275advance(6);
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 10, "FORM.USER_LIST_PLACEHOLDER"));
+    \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx.active_list);
     \u0275\u0275advance(2);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(10, 9, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", \u0275\u0275pipeBind1(11, 11, ctx.search$))("matAutocomplete", auto_r10)("matChipInputFor", chipList_r9)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(13, 12, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", \u0275\u0275pipeBind1(14, 14, ctx.search$))("matAutocomplete", auto_r10)("matChipInputFor", chipList_r9)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional(ctx.loading ? 12 : -1);
+    \u0275\u0275conditional(ctx.loading ? 15 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx.search_valid_email ? 15 : -1);
+    \u0275\u0275conditional(ctx.search_valid_email ? 18 : -1);
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(18, 13, ctx.user_list$));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(21, 16, ctx.user_list$));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(!ctx.hide_actions() ? 19 : -1);
+    \u0275\u0275conditional(!ctx.hide_actions() ? 22 : -1);
   }
 }, dependencies: [
   CommonModule,
   AsyncPipe,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSuffix,
   MatChipsModule,
   MatChipGrid,
@@ -11971,6 +12037,7 @@ var UserListFieldComponent = _UserListFieldComponent;
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
+                    <mat-label>{{ 'FORM.USER_LIST_PLACEHOLDER' | translate }}</mat-label>
                     <mat-chip-grid #chipList aria-label="User Seleciom">
                         @for (item of active_list; track item.id) {
                             <mat-chip-row
@@ -12138,14 +12205,14 @@ var UserListFieldComponent = _UserListFieldComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 245 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 246 });
 })();
 
 // libs/bookings/src/lib/invite-visitor-form.component.ts
 var _c017 = () => ({ standalone: true });
 var _c18 = (a0, a1) => ({ name: a0, count: a1 });
 var _c23 = (a0, a1, a2) => ({ location: a0, date: a1, time: a2 });
-function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_For_9_Template(rf, ctx) {
+function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_For_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 26);
     \u0275\u0275text(1);
@@ -12167,24 +12234,30 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Co
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-form-field", 22)(7, "mat-select", 25);
-    \u0275\u0275listener("ngModelChange", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_Template_mat_select_ngModelChange_7_listener($event) {
+    \u0275\u0275elementStart(6, "mat-form-field", 22)(7, "mat-label");
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-select", 25);
+    \u0275\u0275listener("ngModelChange", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_Template_mat_select_ngModelChange_10_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r3 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r3.form.patchValue({ zones: [$event] }));
     });
-    \u0275\u0275repeaterCreate(8, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_For_9_Template, 2, 2, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(10, "async");
+    \u0275\u0275repeaterCreate(11, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_For_12_Template, 2, 2, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(13, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r3 = \u0275\u0275nextContext(4);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "RESOURCE.BUILDING"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngModel", ctx_r3.form.value.zones[0])("ngModelOptions", \u0275\u0275pureFunction0(7, _c017));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "RESOURCE.BUILDING"));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 6, "RESOURCE.BUILDING"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r3.form.value.zones[0])("ngModelOptions", \u0275\u0275pureFunction0(10, _c017));
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(10, 5, ctx_r3.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(13, 8, ctx_r3.buildings));
   }
 }
 function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_25_Template(rf, ctx) {
@@ -12203,11 +12276,11 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Co
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "FORM.HOST"));
   }
 }
-function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_12_Template(rf, ctx) {
+function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 34);
-    \u0275\u0275listener("click", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_12_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_15_Template_mat_option_click_0_listener() {
       const item_r8 = \u0275\u0275restoreView(_r7).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(5);
       return \u0275\u0275resetView(ctx_r3.setVisitor(item_r8));
@@ -12228,11 +12301,11 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Co
     \u0275\u0275textInterpolate2(" ", item_r8.email, " ", item_r8.company ? "| " + item_r8.company : "", " ");
   }
 }
-function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_28_Template(rf, ctx) {
+function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_34_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 34);
-    \u0275\u0275listener("click", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_28_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_34_Template_mat_option_click_0_listener() {
       const item_r10 = \u0275\u0275restoreView(_r9).$implicit;
       const ctx_r3 = \u0275\u0275nextContext(5);
       return \u0275\u0275resetView(ctx_r3.setVisitor(item_r10));
@@ -12262,69 +12335,86 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Co
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-form-field", 22)(7, "input", 30);
-    \u0275\u0275pipe(8, "translate");
-    \u0275\u0275listener("focus", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template_input_focus_7_listener() {
+    \u0275\u0275elementStart(6, "mat-form-field", 22)(7, "mat-label");
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "input", 30);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275listener("focus", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template_input_focus_10_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r3 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r3.filterVisitors(ctx_r3.form.value.asset_name));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "mat-autocomplete", null, 0);
-    \u0275\u0275repeaterCreate(11, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_12_Template, 6, 4, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(12, "mat-autocomplete", null, 0);
+    \u0275\u0275repeaterCreate(14, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_15_Template, 6, 4, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(13, "div", 10)(14, "label", 31);
-    \u0275\u0275text(15);
-    \u0275\u0275pipe(16, "translate");
-    \u0275\u0275elementStart(17, "span");
-    \u0275\u0275text(18, "*");
+    \u0275\u0275elementStart(16, "div", 10)(17, "label", 31);
+    \u0275\u0275text(18);
+    \u0275\u0275pipe(19, "translate");
+    \u0275\u0275elementStart(20, "span");
+    \u0275\u0275text(21, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(19, "mat-form-field", 22)(20, "input", 32);
-    \u0275\u0275pipe(21, "translate");
-    \u0275\u0275listener("focus", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template_input_focus_20_listener() {
+    \u0275\u0275elementStart(22, "mat-form-field", 22)(23, "mat-label");
+    \u0275\u0275text(24);
+    \u0275\u0275pipe(25, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(26, "input", 32);
+    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275listener("focus", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template_input_focus_26_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r3 = \u0275\u0275nextContext(4);
       return \u0275\u0275resetView(ctx_r3.filterVisitors(ctx_r3.form.value.asset_id));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "mat-error");
-    \u0275\u0275text(23);
-    \u0275\u0275pipe(24, "translate");
+    \u0275\u0275elementStart(28, "mat-error");
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "mat-autocomplete", null, 1);
-    \u0275\u0275repeaterCreate(27, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_28_Template, 6, 4, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(31, "mat-autocomplete", null, 1);
+    \u0275\u0275repeaterCreate(33, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_For_34_Template, 6, 4, "mat-option", 26, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(29, "div", 10)(30, "label", 29);
-    \u0275\u0275text(31);
-    \u0275\u0275pipe(32, "translate");
+    \u0275\u0275elementStart(35, "div", 10)(36, "label", 29);
+    \u0275\u0275text(37);
+    \u0275\u0275pipe(38, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(33, "mat-form-field", 22);
-    \u0275\u0275element(34, "input", 33);
-    \u0275\u0275pipe(35, "translate");
+    \u0275\u0275elementStart(39, "mat-form-field", 22)(40, "mat-label");
+    \u0275\u0275text(41);
+    \u0275\u0275pipe(42, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(43, "input", 33);
+    \u0275\u0275pipe(44, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const name_auto_r11 = \u0275\u0275reference(10);
-    const email_auto_r12 = \u0275\u0275reference(26);
+    const name_auto_r11 = \u0275\u0275reference(13);
+    const email_auto_r12 = \u0275\u0275reference(32);
     const ctx_r3 = \u0275\u0275nextContext(4);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 9, "BOOKINGS.VISITOR_NAME"), " ");
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(8, 11, "BOOKINGS.VISITOR_NAME_PLACEHOLDER"))("matAutocomplete", name_auto_r11);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 12, "BOOKINGS.VISITOR_NAME"), " ");
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 14, "BOOKINGS.VISITOR_NAME"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 16, "BOOKINGS.VISITOR_NAME_PLACEHOLDER"))("matAutocomplete", name_auto_r11);
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r3.filtered_visitors);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 13, "BOOKINGS.VISITOR_EMAIL"), " ");
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(21, 15, "BOOKINGS.VISITOR_EMAIL_PLACEHOLDER"))("matAutocomplete", email_auto_r12);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 18, "BOOKINGS.VISITOR_EMAIL"), " ");
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 20, "BOOKINGS.VISITOR_EMAIL"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(27, 22, "BOOKINGS.VISITOR_EMAIL_PLACEHOLDER"))("matAutocomplete", email_auto_r12);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 17, "FORM.EMAIL_REQUIRED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(30, 24, "FORM.EMAIL_REQUIRED"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r3.filtered_visitors);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 19, "BOOKINGS.VISITOR_COMPANY"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(35, 21, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 26, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 28, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(44, 30, "BOOKINGS.VISITOR_COMPANY"));
   }
 }
 function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_27_Template(rf, ctx) {
@@ -12347,29 +12437,34 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Co
     \u0275\u0275property("guests_only", true);
   }
 }
-function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_35_Template(rf, ctx) {
+function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10)(1, "label", 38);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 22);
-    \u0275\u0275element(5, "input", 39);
-    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementStart(4, "mat-form-field", 22)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "input", 39);
+    \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "BOOKINGS.VISITOR_PASS"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "BOOKINGS.VISITOR_PASS"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "BOOKINGS.VISITOR_PASS"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
   }
 }
 function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "form", 7);
-    \u0275\u0275conditionalCreate(1, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_Template, 11, 8, "div", 10);
+    \u0275\u0275conditionalCreate(1, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_1_Template, 14, 11, "div", 10);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementStart(3, "div", 10)(4, "label", 11);
     \u0275\u0275text(5);
@@ -12401,16 +12496,19 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Te
     \u0275\u0275element(24, "a-duration-field", 18);
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(25, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_25_Template, 7, 3, "div", 19);
-    \u0275\u0275conditionalCreate(26, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template, 36, 23)(27, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_27_Template, 7, 5, "div", 20);
+    \u0275\u0275conditionalCreate(26, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_26_Template, 45, 32)(27, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_27_Template, 7, 5, "div", 20);
     \u0275\u0275elementStart(28, "div", 10)(29, "label", 21);
     \u0275\u0275text(30);
     \u0275\u0275pipe(31, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(32, "mat-form-field", 22);
-    \u0275\u0275element(33, "input", 23);
-    \u0275\u0275pipe(34, "translate");
+    \u0275\u0275elementStart(32, "mat-form-field", 22)(33, "mat-label");
+    \u0275\u0275text(34);
+    \u0275\u0275pipe(35, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(36, "input", 23);
+    \u0275\u0275pipe(37, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(35, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_35_Template, 7, 6, "div", 10);
+    \u0275\u0275conditionalCreate(38, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Conditional_38_Template, 10, 9, "div", 10);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -12418,15 +12516,15 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Te
     const ctx_r3 = \u0275\u0275nextContext(3);
     \u0275\u0275property("formGroup", ctx_r3.form);
     \u0275\u0275advance();
-    \u0275\u0275conditional(((tmp_4_0 = \u0275\u0275pipeBind1(2, 17, ctx_r3.buildings)) == null ? null : tmp_4_0.length) > 1 ? 1 : -1);
+    \u0275\u0275conditional(((tmp_4_0 = \u0275\u0275pipeBind1(2, 18, ctx_r3.buildings)) == null ? null : tmp_4_0.length) > 1 ? 1 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 19, "FORM.DATE"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 20, "FORM.DATE"));
     \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 21, "FORM.TIME_START"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 22, "FORM.TIME_START"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r3.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(29, _c017))("disabled", ctx_r3.form.value.all_day)("use_24hr", ctx_r3.use_24hr);
+    \u0275\u0275property("ngModel", ctx_r3.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(32, _c017))("disabled", ctx_r3.form.value.all_day)("use_24hr", ctx_r3.use_24hr);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 23, "FORM.TIME_END"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 24, "FORM.TIME_END"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275property("time", ctx_r3.form.value.date)("max", ctx_r3.max_duration)("use_24hr", ctx_r3.use_24hr);
     \u0275\u0275advance();
@@ -12434,11 +12532,13 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Te
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r3.multiple ? 26 : 27);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 25, "BOOKINGS.VISITOR_REASON"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(34, 27, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 26, "BOOKINGS.VISITOR_REASON"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(35, 28, "BOOKINGS.VISITOR_REASON"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r3.allow_pass_number ? 35 : -1);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(37, 30, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r3.allow_pass_number ? 38 : -1);
   }
 }
 function InviteVisitorFormComponent_Conditional_0_Conditional_0_Template(rf, ctx) {
@@ -12448,7 +12548,7 @@ function InviteVisitorFormComponent_Conditional_0_Conditional_0_Template(rf, ctx
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(5, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Template, 36, 30, "form", 7);
+    \u0275\u0275conditionalCreate(5, InviteVisitorFormComponent_Conditional_0_Conditional_0_Conditional_5_Template, 39, 33, "form", 7);
     \u0275\u0275elementStart(6, "div", 8)(7, "button", 9);
     \u0275\u0275listener("click", function InviteVisitorFormComponent_Conditional_0_Conditional_0_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r1);
@@ -12834,6 +12934,7 @@ _InviteVisitorFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   FormControlName,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -12885,6 +12986,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                         }}<span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                                         <mat-select
                                             [ngModel]="form.value.zones[0]"
                                             (ngModelChange)="
@@ -12975,6 +13077,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                         <span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_NAME' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="visitor-name"
@@ -13030,6 +13133,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                         <span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_EMAIL' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="visitor-email"
@@ -13089,6 +13193,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                         'BOOKINGS.VISITOR_COMPANY' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_COMPANY' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="company"
@@ -13119,6 +13224,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                     'BOOKINGS.VISITOR_REASON' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'BOOKINGS.VISITOR_REASON' | translate }}</mat-label>
                                     <input
                                         name="reason"
                                         matInput
@@ -13136,6 +13242,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
                                         'BOOKINGS.VISITOR_PASS' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_PASS' | translate }}</mat-label>
                                         <input
                                             name="pass"
                                             matInput
@@ -13315,7 +13422,7 @@ var InviteVisitorFormComponent = _InviteVisitorFormComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InviteVisitorFormComponent, { className: "InviteVisitorFormComponent", filePath: "libs/bookings/src/lib/invite-visitor-form.component.ts", lineNumber: 510 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InviteVisitorFormComponent, { className: "InviteVisitorFormComponent", filePath: "libs/bookings/src/lib/invite-visitor-form.component.ts", lineNumber: 516 });
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-details.component.ts
@@ -13712,7 +13819,7 @@ function DeskFiltersComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function DeskFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
+function DeskFiltersComponent_Conditional_16_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -13728,26 +13835,32 @@ function DeskFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
 function DeskFiltersComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 19);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 19);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, DeskFiltersComponent_Conditional_16_For_4_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, DeskFiltersComponent_Conditional_16_For_7_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c019))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c019))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function DeskFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
+function DeskFiltersComponent_Conditional_18_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -13763,25 +13876,31 @@ function DeskFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
 function DeskFiltersComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 21);
-    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 21);
+    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, DeskFiltersComponent_Conditional_18_For_3_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, DeskFiltersComponent_Conditional_18_For_6_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c019))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c019))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function DeskFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, ctx) {
+function DeskFiltersComponent_Conditional_20_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275text(1);
@@ -13797,10 +13916,10 @@ function DeskFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, ct
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r8.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function DeskFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
+function DeskFiltersComponent_Conditional_20_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20)(1, "div", 23);
-    \u0275\u0275conditionalCreate(2, DeskFiltersComponent_Conditional_20_For_5_Conditional_2_Template, 5, 3, "div", 24);
+    \u0275\u0275conditionalCreate(2, DeskFiltersComponent_Conditional_20_For_8_Conditional_2_Template, 5, 3, "div", 24);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -13818,37 +13937,46 @@ function DeskFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
 function DeskFiltersComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 22);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 22);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, DeskFiltersComponent_Conditional_20_For_5_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, DeskFiltersComponent_Conditional_20_For_8_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_1_0;
+    let tmp_2_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_1_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c019))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c019))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function DeskFiltersComponent_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 26);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function DeskFiltersComponent_Conditional_29_Template(rf, ctx) {
@@ -14030,7 +14158,7 @@ var _DeskFiltersComponent = class _DeskFiltersComponent {
 _DeskFiltersComponent.\u0275fac = function DeskFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _DeskFiltersComponent)();
 };
-_DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 36, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]], template: function DeskFiltersComponent_Template(rf, ctx) {
+_DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 36, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-desk-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-desk-filters", 1, "w-full", 3, "click"]], template: function DeskFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, DeskFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -14049,11 +14177,11 @@ _DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275text(14);
     \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(16, DeskFiltersComponent_Conditional_16_Template, 6, 8, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(16, DeskFiltersComponent_Conditional_16_Template, 9, 11, "mat-form-field", 10);
     \u0275\u0275pipe(17, "async");
-    \u0275\u0275conditionalCreate(18, DeskFiltersComponent_Conditional_18_Template, 5, 6, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(18, DeskFiltersComponent_Conditional_18_Template, 8, 9, "mat-form-field", 10);
     \u0275\u0275pipe(19, "async");
-    \u0275\u0275conditionalCreate(20, DeskFiltersComponent_Conditional_20_Template, 7, 10, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(20, DeskFiltersComponent_Conditional_20_Template, 10, 13, "mat-form-field", 10);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(21, "div", 11)(22, "label");
     \u0275\u0275text(23);
@@ -14066,7 +14194,7 @@ _DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
     \u0275\u0275text(26);
     \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(28, DeskFiltersComponent_Conditional_28_Template, 4, 3, "div", 13);
+    \u0275\u0275conditionalCreate(28, DeskFiltersComponent_Conditional_28_Template, 5, 6, "div", 13);
     \u0275\u0275conditionalCreate(29, DeskFiltersComponent_Conditional_29_Template, 11, 17, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(30, DeskFiltersComponent_Conditional_30_Template, 8, 11, "section", 15);
@@ -14125,6 +14253,7 @@ _DeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ 
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -14180,6 +14309,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
                     </label>
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -14197,6 +14327,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"
@@ -14216,6 +14347,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_id"
@@ -14271,7 +14403,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -14379,7 +14511,7 @@ var DeskFiltersComponent = _DeskFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 270 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 273 });
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-filters-display.component.ts
@@ -14953,7 +15085,7 @@ var DeskListComponent = _DeskListComponent;
 // libs/bookings/src/lib/desk-select-modal/desk-map.component.ts
 var _c022 = () => ({ controls: true });
 var _c111 = () => ({ standalone: true });
-function DeskMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
+function DeskMapComponent_Conditional_1_For_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -14969,10 +15101,10 @@ function DeskMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function DeskMapComponent_Conditional_1_For_4_Template(rf, ctx) {
+function DeskMapComponent_Conditional_1_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, DeskMapComponent_Conditional_1_For_4_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, DeskMapComponent_Conditional_1_For_7_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -14990,30 +15122,36 @@ function DeskMapComponent_Conditional_1_For_4_Template(rf, ctx) {
 function DeskMapComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-select", 4);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function DeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function DeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function DeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function DeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(3, DeskMapComponent_Conditional_1_For_4_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, DeskMapComponent_Conditional_1_For_7_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c111))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.levels));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c111))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.levels));
   }
 }
 var _DeskMapComponent = class _DeskMapComponent extends AsyncHandler {
@@ -15122,7 +15260,7 @@ _DeskMapComponent.\u0275fac = function DeskMapComponent_Factory(__ngFactoryType_
 _DeskMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskMapComponent, selectors: [["desk-map"]], inputs: { is_displayed: [1, "is_displayed"], active: [1, "active"] }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["levels", "", "appearance", "outline", 1, "no-subscript", "w-full"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function DeskMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, DeskMapComponent_Conditional_1_Template, 6, 8, "mat-form-field", 1);
+    \u0275\u0275conditionalCreate(1, DeskMapComponent_Conditional_1_Template, 9, 11, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
@@ -15153,6 +15291,7 @@ _DeskMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -15174,6 +15313,7 @@ var DeskMapComponent = _DeskMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -15226,7 +15366,7 @@ var DeskMapComponent = _DeskMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskMapComponent, { className: "DeskMapComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-map.component.ts", lineNumber: 104 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskMapComponent, { className: "DeskMapComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-map.component.ts", lineNumber: 105 });
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-select-modal.component.ts
@@ -16192,7 +16332,7 @@ function NewDeskFiltersComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "BOOKINGS.LOCATION"), " ");
   }
 }
-function NewDeskFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
+function NewDeskFiltersComponent_Conditional_13_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 15);
     \u0275\u0275text(1);
@@ -16208,26 +16348,32 @@ function NewDeskFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
 function NewDeskFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 14);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 14);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, NewDeskFiltersComponent_Conditional_13_For_4_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewDeskFiltersComponent_Conditional_13_For_7_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c026))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c026))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function NewDeskFiltersComponent_Conditional_15_For_3_Template(rf, ctx) {
+function NewDeskFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 15);
     \u0275\u0275text(1);
@@ -16243,25 +16389,31 @@ function NewDeskFiltersComponent_Conditional_15_For_3_Template(rf, ctx) {
 function NewDeskFiltersComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 16);
-    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 16);
+    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, NewDeskFiltersComponent_Conditional_15_For_3_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, NewDeskFiltersComponent_Conditional_15_For_6_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c026))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c026))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function NewDeskFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf, ctx) {
+function NewDeskFiltersComponent_Conditional_17_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
@@ -16277,10 +16429,10 @@ function NewDeskFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf,
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r7.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewDeskFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
+function NewDeskFiltersComponent_Conditional_17_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 15)(1, "div", 18);
-    \u0275\u0275conditionalCreate(2, NewDeskFiltersComponent_Conditional_17_For_5_Conditional_2_Template, 5, 3, "div", 19);
+    \u0275\u0275conditionalCreate(2, NewDeskFiltersComponent_Conditional_17_For_8_Conditional_2_Template, 5, 3, "div", 19);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -16298,37 +16450,46 @@ function NewDeskFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
 function NewDeskFiltersComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 17);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 17);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function NewDeskFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, NewDeskFiltersComponent_Conditional_17_For_5_Template, 5, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewDeskFiltersComponent_Conditional_17_For_8_Template, 5, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_1_0;
+    let tmp_2_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_1_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c026))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c026))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function NewDeskFiltersComponent_Conditional_25_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10)(1, "mat-checkbox", 21);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function NewDeskFiltersComponent_Conditional_26_Template(rf, ctx) {
@@ -16489,7 +16650,7 @@ var _NewDeskFiltersComponent = class _NewDeskFiltersComponent {
 _NewDeskFiltersComponent.\u0275fac = function NewDeskFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewDeskFiltersComponent)();
 };
-_NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersComponent, selectors: [["new-desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 30, vars: 36, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"]], template: function NewDeskFiltersComponent_Template(rf, ctx) {
+_NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskFiltersComponent, selectors: [["new-desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 30, vars: 36, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], ["formControlName", "duration", 3, "time", "max", "min", "step", "use_24hr", "timezone"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"]], template: function NewDeskFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -16503,11 +16664,11 @@ _NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275conditionalCreate(10, NewDeskFiltersComponent_Conditional_10_Template, 3, 3, "label", 6);
     \u0275\u0275pipe(11, "async");
     \u0275\u0275pipe(12, "async");
-    \u0275\u0275conditionalCreate(13, NewDeskFiltersComponent_Conditional_13_Template, 6, 8, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(13, NewDeskFiltersComponent_Conditional_13_Template, 9, 11, "mat-form-field", 7);
     \u0275\u0275pipe(14, "async");
-    \u0275\u0275conditionalCreate(15, NewDeskFiltersComponent_Conditional_15_Template, 5, 6, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(15, NewDeskFiltersComponent_Conditional_15_Template, 8, 9, "mat-form-field", 7);
     \u0275\u0275pipe(16, "async");
-    \u0275\u0275conditionalCreate(17, NewDeskFiltersComponent_Conditional_17_Template, 7, 10, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(17, NewDeskFiltersComponent_Conditional_17_Template, 10, 13, "mat-form-field", 7);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(18, "div", 8)(19, "label");
     \u0275\u0275text(20);
@@ -16520,7 +16681,7 @@ _NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
     \u0275\u0275text(23);
     \u0275\u0275pipe(24, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(25, NewDeskFiltersComponent_Conditional_25_Template, 4, 3, "div", 10);
+    \u0275\u0275conditionalCreate(25, NewDeskFiltersComponent_Conditional_25_Template, 5, 6, "div", 10);
     \u0275\u0275conditionalCreate(26, NewDeskFiltersComponent_Conditional_26_Template, 11, 17, "div", 11);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(27, NewDeskFiltersComponent_Conditional_27_Template, 8, 11, "section", 12);
@@ -16573,6 +16734,7 @@ _NewDeskFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -16620,6 +16782,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
                     }
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -16637,6 +16800,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"
@@ -16656,6 +16820,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_id"
@@ -16711,7 +16876,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -16805,7 +16970,7 @@ var NewDeskFiltersComponent = _NewDeskFiltersComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewDeskFiltersComponent, { className: "NewDeskFiltersComponent", filePath: "libs/bookings/src/lib/new-desk-select-modal/new-desk-filters.component.ts", lineNumber: 237 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewDeskFiltersComponent, { className: "NewDeskFiltersComponent", filePath: "libs/bookings/src/lib/new-desk-select-modal/new-desk-filters.component.ts", lineNumber: 240 });
 })();
 
 // libs/bookings/src/lib/new-desk-select-modal/new-desk-list.component.ts
@@ -17139,7 +17304,7 @@ var NewDeskListComponent = _NewDeskListComponent;
 // libs/bookings/src/lib/new-desk-select-modal/new-desk-map.component.ts
 var _c028 = () => ({ controls: true });
 var _c114 = () => ({ standalone: true });
-function NewDeskMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
+function NewDeskMapComponent_Conditional_1_For_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -17155,10 +17320,10 @@ function NewDeskMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewDeskMapComponent_Conditional_1_For_4_Template(rf, ctx) {
+function NewDeskMapComponent_Conditional_1_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, NewDeskMapComponent_Conditional_1_For_4_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, NewDeskMapComponent_Conditional_1_For_7_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -17176,30 +17341,36 @@ function NewDeskMapComponent_Conditional_1_For_4_Template(rf, ctx) {
 function NewDeskMapComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-select", 4);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function NewDeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function NewDeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function NewDeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewDeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(3, NewDeskMapComponent_Conditional_1_For_4_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewDeskMapComponent_Conditional_1_For_7_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c114))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.levels));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c114))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.levels));
   }
 }
 var _NewDeskMapComponent = class _NewDeskMapComponent extends AsyncHandler {
@@ -17316,7 +17487,7 @@ _NewDeskMapComponent.\u0275fac = /* @__PURE__ */ (() => {
 _NewDeskMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewDeskMapComponent, selectors: [["new-desk-map"]], inputs: { is_displayed: [1, "is_displayed"], active: [1, "active"] }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["levels", "", "appearance", "outline", 1, "no-subscript", "w-full"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function NewDeskMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, NewDeskMapComponent_Conditional_1_Template, 6, 8, "mat-form-field", 1);
+    \u0275\u0275conditionalCreate(1, NewDeskMapComponent_Conditional_1_Template, 9, 11, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
@@ -17347,6 +17518,7 @@ _NewDeskMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ t
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -17368,6 +17540,7 @@ var NewDeskMapComponent = _NewDeskMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -17420,7 +17593,7 @@ var NewDeskMapComponent = _NewDeskMapComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewDeskMapComponent, { className: "NewDeskMapComponent", filePath: "libs/bookings/src/lib/new-desk-select-modal/new-desk-map.component.ts", lineNumber: 106 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewDeskMapComponent, { className: "NewDeskMapComponent", filePath: "libs/bookings/src/lib/new-desk-select-modal/new-desk-map.component.ts", lineNumber: 107 });
 })();
 
 // libs/bookings/src/lib/new-desk-select-modal/new-desk-select-modal.component.ts
@@ -17911,7 +18084,7 @@ function DeskListFieldComponent_For_2_Conditional_1_For_5_Template(rf, ctx) {
   if (rf & 2) {
     const opt_r3 = ctx.$implicit;
     const ctx_r3 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("ngModel", (ctx_r3.selected_features() || \u0275\u0275pureFunction0(3, _c029)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(4, _c115));
+    \u0275\u0275property("ngModel", (ctx_r3.selected_features() || \u0275\u0275pureFunction0(4, _c029)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(5, _c115))("aria-label", opt_r3);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", opt_r3, " ");
   }
@@ -17922,7 +18095,7 @@ function DeskListFieldComponent_For_2_Conditional_1_Template(rf, ctx) {
     \u0275\u0275text(2, "Type");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 21);
-    \u0275\u0275repeaterCreate(4, DeskListFieldComponent_For_2_Conditional_1_For_5_Template, 2, 5, "mat-checkbox", 22, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(4, DeskListFieldComponent_For_2_Conditional_1_For_5_Template, 2, 6, "mat-checkbox", 22, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -18102,7 +18275,7 @@ _DeskListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     useExisting: forwardRef(() => _DeskListFieldComponent),
     multi: true
   }
-])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["desk", "", 1, "border-base-200", "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-desk", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "bg-base-200", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "right-0", "bottom-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-desk", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-desk", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"]], template: function DeskListFieldComponent_Template(rf, ctx) {
+])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["desk", "", 1, "border-base-200", "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-desk", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "bg-base-200", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/desk-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-blue-500"], [1, "absolute", "right-0", "bottom-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-desk", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-desk", 1, "clear", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-desk-favourite", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions", "aria-label"], [3, "ngModelChange", "ngModel", "ngModelOptions", "aria-label"]], template: function DeskListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, DeskListFieldComponent_For_2_Template, 29, 13, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -18169,6 +18342,7 @@ var DeskListFieldComponent = _DeskListFieldComponent;
                                             setFeatures(opt, $event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
+                                        [aria-label]="opt"
                                     >
                                         {{ opt }}
                                     </mat-checkbox>
@@ -18283,7 +18457,7 @@ var DeskListFieldComponent = _DeskListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskListFieldComponent, { className: "DeskListFieldComponent", filePath: "libs/bookings/src/lib/desk-list-field.component.ts", lineNumber: 160 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskListFieldComponent, { className: "DeskListFieldComponent", filePath: "libs/bookings/src/lib/desk-list-field.component.ts", lineNumber: 161 });
 })();
 
 // libs/bookings/src/lib/locker-select-modal/locker-bank-list.component.ts
@@ -18694,7 +18868,7 @@ function LockerFiltersComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function LockerFiltersComponent_Conditional_12_Conditional_4_For_4_Template(rf, ctx) {
+function LockerFiltersComponent_Conditional_12_Conditional_4_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -18710,26 +18884,32 @@ function LockerFiltersComponent_Conditional_12_Conditional_4_For_4_Template(rf, 
 function LockerFiltersComponent_Conditional_12_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-select", 19);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_4_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 19);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_4_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.region = $event);
     });
-    \u0275\u0275repeaterCreate(3, LockerFiltersComponent_Conditional_12_Conditional_4_For_4_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, LockerFiltersComponent_Conditional_12_Conditional_4_For_7_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c031))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c031))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function LockerFiltersComponent_Conditional_12_Conditional_6_For_3_Template(rf, ctx) {
+function LockerFiltersComponent_Conditional_12_Conditional_6_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -18745,25 +18925,31 @@ function LockerFiltersComponent_Conditional_12_Conditional_6_For_3_Template(rf, 
 function LockerFiltersComponent_Conditional_12_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-select", 21);
-    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_6_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 21);
+    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_6_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, LockerFiltersComponent_Conditional_12_Conditional_6_For_3_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, LockerFiltersComponent_Conditional_12_Conditional_6_For_6_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c031))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c031))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Conditional_2_Template(rf, ctx) {
+function LockerFiltersComponent_Conditional_12_Conditional_8_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275text(1);
@@ -18779,10 +18965,10 @@ function LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Conditional_2
     \u0275\u0275textInterpolate1(" ", (tmp_13_0 = \u0275\u0275pipeBind1(2, 1, lvl_r8.parent_id)) == null ? null : tmp_13_0.display_name, " ");
   }
 }
-function LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Template(rf, ctx) {
+function LockerFiltersComponent_Conditional_12_Conditional_8_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20)(1, "div", 23);
-    \u0275\u0275conditionalCreate(2, LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Conditional_2_Template, 5, 3, "div", 24);
+    \u0275\u0275conditionalCreate(2, LockerFiltersComponent_Conditional_12_Conditional_8_For_8_Conditional_2_Template, 5, 3, "div", 24);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -18800,25 +18986,31 @@ function LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Template(rf, 
 function LockerFiltersComponent_Conditional_12_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-select", 22);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 18)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_8_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 22);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function LockerFiltersComponent_Conditional_12_Conditional_8_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, LockerFiltersComponent_Conditional_12_Conditional_8_For_5_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, LockerFiltersComponent_Conditional_12_Conditional_8_For_8_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c031))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_3_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_3_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c031))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function LockerFiltersComponent_Conditional_12_Template(rf, ctx) {
@@ -18827,11 +19019,11 @@ function LockerFiltersComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, LockerFiltersComponent_Conditional_12_Conditional_4_Template, 6, 8, "mat-form-field", 18);
+    \u0275\u0275conditionalCreate(4, LockerFiltersComponent_Conditional_12_Conditional_4_Template, 9, 11, "mat-form-field", 18);
     \u0275\u0275pipe(5, "async");
-    \u0275\u0275conditionalCreate(6, LockerFiltersComponent_Conditional_12_Conditional_6_Template, 5, 6, "mat-form-field", 18);
+    \u0275\u0275conditionalCreate(6, LockerFiltersComponent_Conditional_12_Conditional_6_Template, 8, 9, "mat-form-field", 18);
     \u0275\u0275pipe(7, "async");
-    \u0275\u0275conditionalCreate(8, LockerFiltersComponent_Conditional_12_Conditional_8_Template, 7, 10, "mat-form-field", 18);
+    \u0275\u0275conditionalCreate(8, LockerFiltersComponent_Conditional_12_Conditional_8_Template, 10, 13, "mat-form-field", 18);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -18851,13 +19043,16 @@ function LockerFiltersComponent_Conditional_12_Template(rf, ctx) {
 function LockerFiltersComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 11)(1, "mat-checkbox", 26);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function LockerFiltersComponent_Conditional_23_Conditional_6_Template(rf, ctx) {
@@ -19072,7 +19267,7 @@ var _LockerFiltersComponent = class _LockerFiltersComponent extends AsyncHandler
 _LockerFiltersComponent.\u0275fac = function LockerFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _LockerFiltersComponent)();
 };
-_LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersComponent, selectors: [["locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 27, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden", 3, "click"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function LockerFiltersComponent_Template(rf, ctx) {
+_LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LockerFiltersComponent, selectors: [["locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 28, vars: 27, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-locker-filters", 1, "sm:hidden", 3, "click"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function LockerFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, LockerFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -19098,7 +19293,7 @@ _LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
     \u0275\u0275text(20);
     \u0275\u0275pipe(21, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(22, LockerFiltersComponent_Conditional_22_Template, 4, 3, "div", 11);
+    \u0275\u0275conditionalCreate(22, LockerFiltersComponent_Conditional_22_Template, 5, 6, "div", 11);
     \u0275\u0275conditionalCreate(23, LockerFiltersComponent_Conditional_23_Template, 7, 9, "div", 12);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(24, LockerFiltersComponent_Conditional_24_Template, 4, 8, "section", 13);
@@ -19150,6 +19345,7 @@ _LockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -19210,6 +19406,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
                         </label>
                         @if (use_region && (regions | async)?.length) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="region"
                                     [ngModel]="region"
@@ -19229,6 +19426,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
                         }
                         @if (!use_region && (buildings | async)?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="building"
                                     [ngModel]="building"
@@ -19248,6 +19446,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
                         }
                         @if (!hide_levels()) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="location"
                                     [ngModel]="(options | async)?.zone_id"
@@ -19306,7 +19505,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -19421,7 +19620,7 @@ var LockerFiltersComponent = _LockerFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LockerFiltersComponent, { className: "LockerFiltersComponent", filePath: "libs/bookings/src/lib/locker-select-modal/locker-filters.component.ts", lineNumber: 287 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LockerFiltersComponent, { className: "LockerFiltersComponent", filePath: "libs/bookings/src/lib/locker-select-modal/locker-filters.component.ts", lineNumber: 290 });
 })();
 
 // libs/bookings/src/lib/locker-select-modal/locker-filters-display.component.ts
@@ -20701,7 +20900,7 @@ var NewLockerFiltersDisplayComponent = _NewLockerFiltersDisplayComponent;
 // libs/bookings/src/lib/new-locker-select-modal/new-locker-filters.component.ts
 var _c036 = () => ({ standalone: true });
 var _c119 = () => [];
-function NewLockerFiltersComponent_Conditional_9_Conditional_4_For_4_Template(rf, ctx) {
+function NewLockerFiltersComponent_Conditional_9_Conditional_4_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
@@ -20717,26 +20916,32 @@ function NewLockerFiltersComponent_Conditional_9_Conditional_4_For_4_Template(rf
 function NewLockerFiltersComponent_Conditional_9_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-select", 15);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_4_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 15);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_4_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.region = $event);
     });
-    \u0275\u0275repeaterCreate(3, NewLockerFiltersComponent_Conditional_9_Conditional_4_For_4_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewLockerFiltersComponent_Conditional_9_Conditional_4_For_7_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c036))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c036))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function NewLockerFiltersComponent_Conditional_9_Conditional_6_For_3_Template(rf, ctx) {
+function NewLockerFiltersComponent_Conditional_9_Conditional_6_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
@@ -20752,25 +20957,31 @@ function NewLockerFiltersComponent_Conditional_9_Conditional_6_For_3_Template(rf
 function NewLockerFiltersComponent_Conditional_9_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-select", 17);
-    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_6_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 17);
+    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_6_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, NewLockerFiltersComponent_Conditional_9_Conditional_6_For_3_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, NewLockerFiltersComponent_Conditional_9_Conditional_6_For_6_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c036))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c036))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Conditional_2_Template(rf, ctx) {
+function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275text(1);
@@ -20786,10 +20997,10 @@ function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Conditional
     \u0275\u0275textInterpolate1(" ", (tmp_13_0 = \u0275\u0275pipeBind1(2, 1, lvl_r7.parent_id)) == null ? null : tmp_13_0.display_name, " ");
   }
 }
-function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Template(rf, ctx) {
+function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16)(1, "div", 19);
-    \u0275\u0275conditionalCreate(2, NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Conditional_2_Template, 5, 3, "div", 20);
+    \u0275\u0275conditionalCreate(2, NewLockerFiltersComponent_Conditional_9_Conditional_8_For_8_Conditional_2_Template, 5, 3, "div", 20);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -20807,25 +21018,31 @@ function NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Template(rf
 function NewLockerFiltersComponent_Conditional_9_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-select", 18);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 14)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_8_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 18);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function NewLockerFiltersComponent_Conditional_9_Conditional_8_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, NewLockerFiltersComponent_Conditional_9_Conditional_8_For_5_Template, 5, 3, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewLockerFiltersComponent_Conditional_9_Conditional_8_For_8_Template, 5, 3, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c036))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_3_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_3_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c036))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function NewLockerFiltersComponent_Conditional_9_Template(rf, ctx) {
@@ -20834,11 +21051,11 @@ function NewLockerFiltersComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, NewLockerFiltersComponent_Conditional_9_Conditional_4_Template, 6, 8, "mat-form-field", 14);
+    \u0275\u0275conditionalCreate(4, NewLockerFiltersComponent_Conditional_9_Conditional_4_Template, 9, 11, "mat-form-field", 14);
     \u0275\u0275pipe(5, "async");
-    \u0275\u0275conditionalCreate(6, NewLockerFiltersComponent_Conditional_9_Conditional_6_Template, 5, 6, "mat-form-field", 14);
+    \u0275\u0275conditionalCreate(6, NewLockerFiltersComponent_Conditional_9_Conditional_6_Template, 8, 9, "mat-form-field", 14);
     \u0275\u0275pipe(7, "async");
-    \u0275\u0275conditionalCreate(8, NewLockerFiltersComponent_Conditional_9_Conditional_8_Template, 7, 10, "mat-form-field", 14);
+    \u0275\u0275conditionalCreate(8, NewLockerFiltersComponent_Conditional_9_Conditional_8_Template, 10, 13, "mat-form-field", 14);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -20858,13 +21075,16 @@ function NewLockerFiltersComponent_Conditional_9_Template(rf, ctx) {
 function NewLockerFiltersComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "mat-checkbox", 22);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(2, 2, "COMMON.ALL_DAY"));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 4, "COMMON.ALL_DAY"), " ");
   }
 }
 function NewLockerFiltersComponent_Conditional_20_Conditional_6_Template(rf, ctx) {
@@ -21078,7 +21298,7 @@ var _NewLockerFiltersComponent = class _NewLockerFiltersComponent extends AsyncH
 _NewLockerFiltersComponent.\u0275fac = function NewLockerFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewLockerFiltersComponent)();
 };
-_NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersComponent, selectors: [["new-locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 25, vars: 26, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function NewLockerFiltersComponent_Template(rf, ctx) {
+_NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerFiltersComponent, selectors: [["new-locker-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 25, vars: 26, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], [1, "min-w-[256px]", "flex-1"], ["name", "date", "formControlName", "date", 3, "to"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-4", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["for", "location"], ["appearance", "outline", 1, "w-full"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], ["formControlName", "all_day", 3, "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "disabled"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr"], [3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], ["btn", "", "matRipple", "", "name", "apply-locker-filters", 1, "w-full", 3, "click"]], template: function NewLockerFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -21099,7 +21319,7 @@ _NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
     \u0275\u0275text(17);
     \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(19, NewLockerFiltersComponent_Conditional_19_Template, 4, 3, "div", 8);
+    \u0275\u0275conditionalCreate(19, NewLockerFiltersComponent_Conditional_19_Template, 5, 6, "div", 8);
     \u0275\u0275conditionalCreate(20, NewLockerFiltersComponent_Conditional_20_Template, 7, 9, "div", 9);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(21, NewLockerFiltersComponent_Conditional_21_Template, 4, 8, "section", 10);
@@ -21148,6 +21368,7 @@ _NewLockerFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompone
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -21194,6 +21415,7 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
                         </label>
                         @if (use_region && (regions | async)?.length) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="region"
                                     [ngModel]="region"
@@ -21213,6 +21435,7 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
                         }
                         @if (!use_region && (buildings | async)?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="building"
                                     [ngModel]="building"
@@ -21232,6 +21455,7 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
                         }
                         @if (!hide_levels()) {
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="location"
                                     [ngModel]="(options | async)?.zone_id"
@@ -21290,7 +21514,7 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -21404,13 +21628,13 @@ var NewLockerFiltersComponent = _NewLockerFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewLockerFiltersComponent, { className: "NewLockerFiltersComponent", filePath: "libs/bookings/src/lib/new-locker-select-modal/new-locker-filters.component.ts", lineNumber: 270 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewLockerFiltersComponent, { className: "NewLockerFiltersComponent", filePath: "libs/bookings/src/lib/new-locker-select-modal/new-locker-filters.component.ts", lineNumber: 273 });
 })();
 
 // libs/bookings/src/lib/new-locker-select-modal/new-locker-map.component.ts
 var _c037 = () => ({ controls: true });
 var _c120 = () => ({ standalone: true });
-function NewLockerMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
+function NewLockerMapComponent_Conditional_1_For_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -21426,10 +21650,10 @@ function NewLockerMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ct
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewLockerMapComponent_Conditional_1_For_4_Template(rf, ctx) {
+function NewLockerMapComponent_Conditional_1_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, NewLockerMapComponent_Conditional_1_For_4_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, NewLockerMapComponent_Conditional_1_For_7_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -21447,30 +21671,36 @@ function NewLockerMapComponent_Conditional_1_For_4_Template(rf, ctx) {
 function NewLockerMapComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-select", 4);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function NewLockerMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function NewLockerMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function NewLockerMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewLockerMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(3, NewLockerMapComponent_Conditional_1_For_4_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewLockerMapComponent_Conditional_1_For_7_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c120))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.levels));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c120))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.levels));
   }
 }
 var _NewLockerMapComponent = class _NewLockerMapComponent extends AsyncHandler {
@@ -21591,7 +21821,7 @@ _NewLockerMapComponent.\u0275fac = function NewLockerMapComponent_Factory(__ngFa
 _NewLockerMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewLockerMapComponent, selectors: [["new-locker-map"]], inputs: { is_displayed: [1, "is_displayed"], active: [1, "active"] }, outputs: { onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["levels", "", "appearance", "outline", 1, "no-subscript", "w-full"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function NewLockerMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, NewLockerMapComponent_Conditional_1_Template, 6, 8, "mat-form-field", 1);
+    \u0275\u0275conditionalCreate(1, NewLockerMapComponent_Conditional_1_Template, 9, 11, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
@@ -21622,6 +21852,7 @@ _NewLockerMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -21643,6 +21874,7 @@ var NewLockerMapComponent = _NewLockerMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -21695,7 +21927,7 @@ var NewLockerMapComponent = _NewLockerMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewLockerMapComponent, { className: "NewLockerMapComponent", filePath: "libs/bookings/src/lib/new-locker-select-modal/new-locker-map.component.ts", lineNumber: 98 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewLockerMapComponent, { className: "NewLockerMapComponent", filePath: "libs/bookings/src/lib/new-locker-select-modal/new-locker-map.component.ts", lineNumber: 99 });
 })();
 
 // libs/bookings/src/lib/new-locker-select-modal/new-locker-select-modal.component.ts
@@ -22176,7 +22408,7 @@ function LockerListFieldComponent_For_2_Conditional_1_For_6_Template(rf, ctx) {
   if (rf & 2) {
     const opt_r3 = ctx.$implicit;
     const ctx_r3 = \u0275\u0275nextContext(3);
-    \u0275\u0275property("ngModel", (ctx_r3.selected_features || \u0275\u0275pureFunction0(3, _c038)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(4, _c121));
+    \u0275\u0275property("ngModel", (ctx_r3.selected_features || \u0275\u0275pureFunction0(4, _c038)).includes(opt_r3))("ngModelOptions", \u0275\u0275pureFunction0(5, _c121))("aria-label", opt_r3);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", opt_r3, " ");
   }
@@ -22188,7 +22420,7 @@ function LockerListFieldComponent_For_2_Conditional_1_Template(rf, ctx) {
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 19);
-    \u0275\u0275repeaterCreate(5, LockerListFieldComponent_For_2_Conditional_1_For_6_Template, 2, 5, "mat-checkbox", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(5, LockerListFieldComponent_For_2_Conditional_1_For_6_Template, 2, 6, "mat-checkbox", 20, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -22377,7 +22609,7 @@ _LockerListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     useExisting: forwardRef(() => _LockerListFieldComponent),
     multi: true
   }
-])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["locker", "", 1, "border-base-200", "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-locker", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "bg-base-200", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-base", "text-blue-500"], [1, "absolute", "right-0", "bottom-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-locker", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-locker", 1, "clear", 3, "click"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "text-info", "text-base"]], template: function LockerListFieldComponent_Template(rf, ctx) {
+])], decls: 12, vars: 3, consts: [["list", "", 1, "space-y-2"], ["locker", "", 1, "border-base-200", "relative", "flex", "w-full", "items-center", "rounded-lg", "border", "p-2", "shadow-sm"], ["btn", "", "matRipple", "", "name", "add-locker", 1, "inverse", "mt-2", "w-full", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "mb-2", "flex", "flex-wrap", "items-center", "sm:space-x-2"], [1, "min-w-[256px]", "flex-1", "space-y-2"], [1, "flex", "flex-col"], [1, "bg-base-200", "mr-4", "flex", "h-20", "w-20", "items-center", "justify-center", "overflow-hidden", "rounded-xl"], ["auth", "", 1, "min-h-full", "object-cover", 3, "source"], ["src", "assets/icons/locker-placeholder.svg", 1, "m-auto"], [1, "space-y-2", "pb-4"], [1, "font-medium"], [1, "flex", "items-center", "space-x-2", "text-sm"], [1, "text-base", "text-blue-500"], [1, "absolute", "right-0", "bottom-0", "flex", "items-center", "justify-end", "text-xs"], ["btn", "", "matRipple", "", "name", "edit-locker", 1, "clear", 3, "click"], [1, "flex", "items-center", "space-x-2"], ["btn", "", "matRipple", "", "name", "remove-locker", 1, "clear", 3, "click"], ["for", "title"], ["features", "", 1, "flex", "flex-wrap", "items-center", "space-x-2"], [3, "ngModel", "ngModelOptions", "aria-label"], [3, "ngModelChange", "ngModel", "ngModelOptions", "aria-label"], [1, "text-info", "text-base"]], template: function LockerListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, LockerListFieldComponent_For_2_Template, 29, 15, "div", 1, \u0275\u0275repeaterTrackByIdentity);
@@ -22447,6 +22679,7 @@ var LockerListFieldComponent = _LockerListFieldComponent;
                                             setFeatures(opt, $event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
+                                        [aria-label]="opt"
                                     >
                                         {{ opt }}
                                     </mat-checkbox>
@@ -22560,7 +22793,7 @@ var LockerListFieldComponent = _LockerListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LockerListFieldComponent, { className: "LockerListFieldComponent", filePath: "libs/bookings/src/lib/locker-list-field.component.ts", lineNumber: 162 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LockerListFieldComponent, { className: "LockerListFieldComponent", filePath: "libs/bookings/src/lib/locker-list-field.component.ts", lineNumber: 163 });
 })();
 
 // libs/bookings/src/lib/parking-select-modal/parking-details.component.ts
@@ -22897,7 +23130,7 @@ function ParkingSpaceFiltersComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
 }
-function ParkingSpaceFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
+function ParkingSpaceFiltersComponent_Conditional_16_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -22913,26 +23146,32 @@ function ParkingSpaceFiltersComponent_Conditional_16_For_4_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 19);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 19);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_16_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, ParkingSpaceFiltersComponent_Conditional_16_For_4_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, ParkingSpaceFiltersComponent_Conditional_16_For_7_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c040))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c040))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function ParkingSpaceFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
+function ParkingSpaceFiltersComponent_Conditional_18_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20);
     \u0275\u0275text(1);
@@ -22948,25 +23187,31 @@ function ParkingSpaceFiltersComponent_Conditional_18_For_3_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 21);
-    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 21);
+    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_18_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, ParkingSpaceFiltersComponent_Conditional_18_For_3_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, ParkingSpaceFiltersComponent_Conditional_18_For_6_Template, 2, 2, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c040))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c040))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function ParkingSpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template(rf, ctx) {
+function ParkingSpaceFiltersComponent_Conditional_20_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275text(1);
@@ -22982,10 +23227,10 @@ function ParkingSpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Templat
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r8.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function ParkingSpaceFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
+function ParkingSpaceFiltersComponent_Conditional_20_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 20)(1, "div", 23);
-    \u0275\u0275conditionalCreate(2, ParkingSpaceFiltersComponent_Conditional_20_For_5_Conditional_2_Template, 5, 3, "div", 24);
+    \u0275\u0275conditionalCreate(2, ParkingSpaceFiltersComponent_Conditional_20_For_8_Conditional_2_Template, 5, 3, "div", 24);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -23003,46 +23248,53 @@ function ParkingSpaceFiltersComponent_Conditional_20_For_5_Template(rf, ctx) {
 function ParkingSpaceFiltersComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-select", 22);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 10)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 22);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_20_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, ParkingSpaceFiltersComponent_Conditional_20_For_5_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, ParkingSpaceFiltersComponent_Conditional_20_For_8_Template, 5, 3, "mat-option", 20, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_1_0;
+    let tmp_2_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_1_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c040))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c040))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function ParkingSpaceFiltersComponent_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 26);
+    \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("ngModelChange", function ParkingSpaceFiltersComponent_Conditional_28_Template_mat_checkbox_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.form.patchValue({ all_day: $event }));
     });
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.form.value.all_day)("ngModelOptions", \u0275\u0275pureFunction0(5, _c040));
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275property("ngModel", ctx_r1.form.value.all_day)("ngModelOptions", \u0275\u0275pureFunction0(8, _c040))("aria-label", \u0275\u0275pipeBind1(2, 4, "COMMON.ALL_DAY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 6, "COMMON.ALL_DAY"), " ");
   }
 }
 function ParkingSpaceFiltersComponent_Conditional_29_Template(rf, ctx) {
@@ -23132,7 +23384,7 @@ function ParkingSpaceFiltersComponent_Conditional_31_For_5_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", feat_r13, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (((tmp_12_0 = \u0275\u0275pipeBind1(4, 3, ctx_r1.options)) == null ? null : tmp_12_0.features) || \u0275\u0275pureFunction0(5, _c122)).includes(feat_r13))("ngModelOptions", \u0275\u0275pureFunction0(6, _c040));
+    \u0275\u0275property("ngModel", (((tmp_12_0 = \u0275\u0275pipeBind1(4, 4, ctx_r1.options)) == null ? null : tmp_12_0.features) || \u0275\u0275pureFunction0(6, _c122)).includes(feat_r13))("ngModelOptions", \u0275\u0275pureFunction0(7, _c040))("aria-label", feat_r13);
   }
 }
 function ParkingSpaceFiltersComponent_Conditional_31_Template(rf, ctx) {
@@ -23141,7 +23393,7 @@ function ParkingSpaceFiltersComponent_Conditional_31_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(4, ParkingSpaceFiltersComponent_Conditional_31_For_5_Template, 5, 7, "div", 33, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(4, ParkingSpaceFiltersComponent_Conditional_31_For_5_Template, 5, 8, "div", 33, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275pipe(6, "async");
     \u0275\u0275elementEnd();
   }
@@ -23231,7 +23483,7 @@ var _ParkingSpaceFiltersComponent = class _ParkingSpaceFiltersComponent {
 _ParkingSpaceFiltersComponent.\u0275fac = function ParkingSpaceFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ParkingSpaceFiltersComponent)();
 };
-_ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersComponent, selectors: [["parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 37, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function ParkingSpaceFiltersComponent_Template(rf, ctx) {
+_ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceFiltersComponent, selectors: [["parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 34, vars: 37, consts: [[1, "border-base-200", "flex", "items-center", "rounded-t-md", "border-b", "pb-2", "sm:hidden"], [1, "flex-1", "pl-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden"], [1, "flex-2", "text-center", "font-medium"], [1, "flex-1"], [1, "divide-base-200", "max-h-[65vh]", "w-full", "max-w-[100vw]", "divide-y", "overflow-x-hidden", "overflow-y-auto", "p-2", "sm:max-w-[30vw]", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["icon", "", "matRipple", "", "name", "close-parking-filters", 1, "sm:hidden", 3, "click"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions", "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function ParkingSpaceFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
     \u0275\u0275conditionalCreate(2, ParkingSpaceFiltersComponent_Conditional_2_Template, 3, 0, "button", 2);
@@ -23250,11 +23502,11 @@ _ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275text(14);
     \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(16, ParkingSpaceFiltersComponent_Conditional_16_Template, 6, 8, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(16, ParkingSpaceFiltersComponent_Conditional_16_Template, 9, 11, "mat-form-field", 10);
     \u0275\u0275pipe(17, "async");
-    \u0275\u0275conditionalCreate(18, ParkingSpaceFiltersComponent_Conditional_18_Template, 5, 6, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(18, ParkingSpaceFiltersComponent_Conditional_18_Template, 8, 9, "mat-form-field", 10);
     \u0275\u0275pipe(19, "async");
-    \u0275\u0275conditionalCreate(20, ParkingSpaceFiltersComponent_Conditional_20_Template, 7, 10, "mat-form-field", 10);
+    \u0275\u0275conditionalCreate(20, ParkingSpaceFiltersComponent_Conditional_20_Template, 10, 13, "mat-form-field", 10);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(21, "div", 11)(22, "label");
     \u0275\u0275text(23);
@@ -23267,7 +23519,7 @@ _ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
     \u0275\u0275text(26);
     \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(28, ParkingSpaceFiltersComponent_Conditional_28_Template, 4, 6, "div", 13);
+    \u0275\u0275conditionalCreate(28, ParkingSpaceFiltersComponent_Conditional_28_Template, 5, 9, "div", 13);
     \u0275\u0275conditionalCreate(29, ParkingSpaceFiltersComponent_Conditional_29_Template, 11, 20, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(30, ParkingSpaceFiltersComponent_Conditional_30_Template, 8, 11, "section", 15);
@@ -23327,6 +23579,7 @@ _ParkingSpaceFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -23380,6 +23633,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                     </label>
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -23397,6 +23651,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"
@@ -23416,6 +23671,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_id"
@@ -23478,6 +23734,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                                 form.patchValue({ all_day: $event })
                             "
                             [ngModelOptions]="{ standalone: true }"
+                            [aria-label]="'COMMON.ALL_DAY' | translate"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
@@ -23553,6 +23810,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
+                                [aria-label]="feat"
                             ></mat-checkbox>
                         </div>
                     }
@@ -23591,7 +23849,7 @@ var ParkingSpaceFiltersComponent = _ParkingSpaceFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ParkingSpaceFiltersComponent, { className: "ParkingSpaceFiltersComponent", filePath: "libs/bookings/src/lib/parking-select-modal/parking-filters.component.ts", lineNumber: 282 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ParkingSpaceFiltersComponent, { className: "ParkingSpaceFiltersComponent", filePath: "libs/bookings/src/lib/parking-select-modal/parking-filters.component.ts", lineNumber: 287 });
 })();
 
 // libs/bookings/src/lib/parking-select-modal/parking-filters-display.component.ts
@@ -24121,7 +24379,7 @@ var ParkingSpaceListComponent = _ParkingSpaceListComponent;
 // libs/bookings/src/lib/parking-select-modal/parking-map.component.ts
 var _c042 = () => ({ controls: true });
 var _c123 = () => ({ standalone: true });
-function ParkingSpaceMapComponent_Conditional_1_For_4_Conditional_2_Template(rf, ctx) {
+function ParkingSpaceMapComponent_Conditional_1_For_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -24137,10 +24395,10 @@ function ParkingSpaceMapComponent_Conditional_1_For_4_Conditional_2_Template(rf,
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function ParkingSpaceMapComponent_Conditional_1_For_4_Template(rf, ctx) {
+function ParkingSpaceMapComponent_Conditional_1_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, ParkingSpaceMapComponent_Conditional_1_For_4_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, ParkingSpaceMapComponent_Conditional_1_For_7_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -24158,30 +24416,36 @@ function ParkingSpaceMapComponent_Conditional_1_For_4_Template(rf, ctx) {
 function ParkingSpaceMapComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-select", 4);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function ParkingSpaceMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 1)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function ParkingSpaceMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function ParkingSpaceMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function ParkingSpaceMapComponent_Conditional_1_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(3, ParkingSpaceMapComponent_Conditional_1_For_4_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, ParkingSpaceMapComponent_Conditional_1_For_7_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c123))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.levels));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c123))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.levels));
   }
 }
 var _ParkingSpaceMapComponent = class _ParkingSpaceMapComponent extends AsyncHandler {
@@ -24294,7 +24558,7 @@ _ParkingSpaceMapComponent.\u0275fac = function ParkingSpaceMapComponent_Factory(
 _ParkingSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ParkingSpaceMapComponent, selectors: [["parking-space-map"]], inputs: { is_displayed: [1, "is_displayed"], active: [1, "active"] }, outputs: { active: "activeChange", onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 8, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], ["levels", "", "appearance", "outline", 1, "w-full"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function ParkingSpaceMapComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, ParkingSpaceMapComponent_Conditional_1_Template, 6, 8, "mat-form-field", 1);
+    \u0275\u0275conditionalCreate(1, ParkingSpaceMapComponent_Conditional_1_Template, 9, 11, "mat-form-field", 1);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 2)(4, "interactive-map", 3);
@@ -24325,6 +24589,7 @@ _ParkingSpaceMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -24342,6 +24607,7 @@ var ParkingSpaceMapComponent = _ParkingSpaceMapComponent;
         <div class="border-base-200 bg-base-100 w-full border-b p-2">
             @if ((levels | async)?.length) {
                 <mat-form-field levels appearance="outline" class="w-full">
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -24394,7 +24660,7 @@ var ParkingSpaceMapComponent = _ParkingSpaceMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ParkingSpaceMapComponent, { className: "ParkingSpaceMapComponent", filePath: "libs/bookings/src/lib/parking-select-modal/parking-map.component.ts", lineNumber: 103 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ParkingSpaceMapComponent, { className: "ParkingSpaceMapComponent", filePath: "libs/bookings/src/lib/parking-select-modal/parking-map.component.ts", lineNumber: 104 });
 })();
 
 // libs/bookings/src/lib/parking-select-modal/parking-select-modal.component.ts
@@ -25215,7 +25481,7 @@ var NewParkingFiltersDisplayComponent = _NewParkingFiltersDisplayComponent;
 // libs/bookings/src/lib/new-parking-select-modal/new-parking-filters.component.ts
 var _c045 = () => ({ standalone: true });
 var _c124 = () => [];
-function NewParkingFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
+function NewParkingFiltersComponent_Conditional_13_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
@@ -25231,26 +25497,32 @@ function NewParkingFiltersComponent_Conditional_13_For_4_Template(rf, ctx) {
 function NewParkingFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 15);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 15);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setRegion($event));
     });
-    \u0275\u0275repeaterCreate(3, NewParkingFiltersComponent_Conditional_13_For_4_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(5, "async");
+    \u0275\u0275repeaterCreate(6, NewParkingFiltersComponent_Conditional_13_For_7_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(8, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(7, _c045))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.REGION_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(5, 5, ctx_r1.regions));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.region)("ngModelOptions", \u0275\u0275pureFunction0(10, _c045))("placeholder", \u0275\u0275pipeBind1(5, 6, "COMMON.REGION_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(8, 8, ctx_r1.regions));
   }
 }
-function NewParkingFiltersComponent_Conditional_15_For_3_Template(rf, ctx) {
+function NewParkingFiltersComponent_Conditional_15_For_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
@@ -25266,25 +25538,31 @@ function NewParkingFiltersComponent_Conditional_15_For_3_Template(rf, ctx) {
 function NewParkingFiltersComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 17);
-    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 17);
+    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_15_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.building = $event);
     });
-    \u0275\u0275repeaterCreate(2, NewParkingFiltersComponent_Conditional_15_For_3_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(4, "async");
+    \u0275\u0275repeaterCreate(5, NewParkingFiltersComponent_Conditional_15_For_6_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(8, _c045))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.building)("ngModelOptions", \u0275\u0275pureFunction0(5, _c045))("placeholder", (ctx_r1.building == null ? null : ctx_r1.building.display_name) || (ctx_r1.building == null ? null : ctx_r1.building.name));
-    \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(4, 3, ctx_r1.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(7, 6, ctx_r1.buildings));
   }
 }
-function NewParkingFiltersComponent_Conditional_17_For_5_Conditional_2_Template(rf, ctx) {
+function NewParkingFiltersComponent_Conditional_17_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275text(1);
@@ -25300,10 +25578,10 @@ function NewParkingFiltersComponent_Conditional_17_For_5_Conditional_2_Template(
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r7.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewParkingFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
+function NewParkingFiltersComponent_Conditional_17_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 16)(1, "div", 19);
-    \u0275\u0275conditionalCreate(2, NewParkingFiltersComponent_Conditional_17_For_5_Conditional_2_Template, 5, 3, "div", 20);
+    \u0275\u0275conditionalCreate(2, NewParkingFiltersComponent_Conditional_17_For_8_Conditional_2_Template, 5, 3, "div", 20);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -25321,46 +25599,53 @@ function NewParkingFiltersComponent_Conditional_17_For_5_Template(rf, ctx) {
 function NewParkingFiltersComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-select", 18);
-    \u0275\u0275pipe(2, "async");
+    \u0275\u0275elementStart(0, "mat-form-field", 7)(1, "mat-label");
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "mat-select", 18);
+    \u0275\u0275pipe(5, "async");
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_17_Template_mat_select_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
     });
-    \u0275\u0275repeaterCreate(4, NewParkingFiltersComponent_Conditional_17_For_5_Template, 5, 3, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewParkingFiltersComponent_Conditional_17_For_8_Template, 5, 3, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_1_0;
+    let tmp_2_0;
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (tmp_1_0 = \u0275\u0275pipeBind1(2, 3, ctx_r1.options)) == null ? null : tmp_1_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(9, _c045))("placeholder", \u0275\u0275pipeBind1(3, 5, "COMMON.LEVEL_ANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 4, "BOOKINGS.LOCATION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(5, 6, ctx_r1.options)) == null ? null : tmp_2_0.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(12, _c045))("placeholder", \u0275\u0275pipeBind1(6, 8, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 7, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 10, ctx_r1.levels));
   }
 }
 function NewParkingFiltersComponent_Conditional_25_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 10)(1, "mat-checkbox", 22);
+    \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("ngModelChange", function NewParkingFiltersComponent_Conditional_25_Template_mat_checkbox_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.form.patchValue({ all_day: $event }));
     });
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.form.value.all_day)("ngModelOptions", \u0275\u0275pureFunction0(5, _c045));
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "COMMON.ALL_DAY"), " ");
+    \u0275\u0275property("ngModel", ctx_r1.form.value.all_day)("ngModelOptions", \u0275\u0275pureFunction0(8, _c045))("aria-label", \u0275\u0275pipeBind1(2, 4, "COMMON.ALL_DAY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 6, "COMMON.ALL_DAY"), " ");
   }
 }
 function NewParkingFiltersComponent_Conditional_26_Template(rf, ctx) {
@@ -25450,7 +25735,7 @@ function NewParkingFiltersComponent_Conditional_28_For_5_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", feat_r12, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", (((tmp_12_0 = \u0275\u0275pipeBind1(4, 3, ctx_r1.options)) == null ? null : tmp_12_0.features) || \u0275\u0275pureFunction0(5, _c124)).includes(feat_r12))("ngModelOptions", \u0275\u0275pureFunction0(6, _c045));
+    \u0275\u0275property("ngModel", (((tmp_12_0 = \u0275\u0275pipeBind1(4, 4, ctx_r1.options)) == null ? null : tmp_12_0.features) || \u0275\u0275pureFunction0(6, _c124)).includes(feat_r12))("ngModelOptions", \u0275\u0275pureFunction0(7, _c045))("aria-label", feat_r12);
   }
 }
 function NewParkingFiltersComponent_Conditional_28_Template(rf, ctx) {
@@ -25459,7 +25744,7 @@ function NewParkingFiltersComponent_Conditional_28_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(4, NewParkingFiltersComponent_Conditional_28_For_5_Template, 5, 7, "div", 29, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(4, NewParkingFiltersComponent_Conditional_28_For_5_Template, 5, 8, "div", 29, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275pipe(6, "async");
     \u0275\u0275elementEnd();
   }
@@ -25548,7 +25833,7 @@ var _NewParkingFiltersComponent = class _NewParkingFiltersComponent {
 _NewParkingFiltersComponent.\u0275fac = function NewParkingFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewParkingFiltersComponent)();
 };
-_NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersComponent, selectors: [["new-parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 31, vars: 36, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function NewParkingFiltersComponent_Template(rf, ctx) {
+_NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingFiltersComponent, selectors: [["new-parking-space-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 31, vars: 36, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2", 3, "formGroup"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "min-w-[256px]", "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], [1, "border-base-200", "w-full", "border-t", "px-2", "py-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "ngModelChange", "ngModel", "ngModelOptions", "aria-label"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone"], [3, "ngModelChange", "ngModel", "ngModelOptions", "time", "max", "min", "step", "use_24hr", "timezone"], [1, "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], ["for", "feat", 1, "w-1/2", "flex-1"], ["btn", "", "matRipple", "", "name", "apply-parking-filters", 1, "w-full", 3, "click"]], template: function NewParkingFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
@@ -25562,11 +25847,11 @@ _NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275text(11);
     \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(13, NewParkingFiltersComponent_Conditional_13_Template, 6, 8, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(13, NewParkingFiltersComponent_Conditional_13_Template, 9, 11, "mat-form-field", 7);
     \u0275\u0275pipe(14, "async");
-    \u0275\u0275conditionalCreate(15, NewParkingFiltersComponent_Conditional_15_Template, 5, 6, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(15, NewParkingFiltersComponent_Conditional_15_Template, 8, 9, "mat-form-field", 7);
     \u0275\u0275pipe(16, "async");
-    \u0275\u0275conditionalCreate(17, NewParkingFiltersComponent_Conditional_17_Template, 7, 10, "mat-form-field", 7);
+    \u0275\u0275conditionalCreate(17, NewParkingFiltersComponent_Conditional_17_Template, 10, 13, "mat-form-field", 7);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(18, "div", 8)(19, "label");
     \u0275\u0275text(20);
@@ -25579,7 +25864,7 @@ _NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275text(23);
     \u0275\u0275pipe(24, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(25, NewParkingFiltersComponent_Conditional_25_Template, 4, 6, "div", 10);
+    \u0275\u0275conditionalCreate(25, NewParkingFiltersComponent_Conditional_25_Template, 5, 9, "div", 10);
     \u0275\u0275conditionalCreate(26, NewParkingFiltersComponent_Conditional_26_Template, 11, 20, "div", 11);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(27, NewParkingFiltersComponent_Conditional_27_Template, 8, 11, "section", 12);
@@ -25637,6 +25922,7 @@ _NewParkingFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   DateFieldComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -25675,6 +25961,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                     </label>
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -25692,6 +25979,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"
@@ -25711,6 +25999,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_id"
@@ -25773,6 +26062,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                                 form.patchValue({ all_day: $event })
                             "
                             [ngModelOptions]="{ standalone: true }"
+                            [aria-label]="'COMMON.ALL_DAY' | translate"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
@@ -25848,6 +26138,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
+                                [aria-label]="feat"
                             ></mat-checkbox>
                         </div>
                     }
@@ -25885,7 +26176,7 @@ var NewParkingFiltersComponent = _NewParkingFiltersComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingFiltersComponent, { className: "NewParkingFiltersComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-filters.component.ts", lineNumber: 265 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingFiltersComponent, { className: "NewParkingFiltersComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-filters.component.ts", lineNumber: 270 });
 })();
 
 // libs/bookings/src/lib/new-parking-select-modal/new-parking-list.component.ts
@@ -26208,7 +26499,7 @@ var NewParkingListComponent = _NewParkingListComponent;
 // libs/bookings/src/lib/new-parking-select-modal/new-parking-map.component.ts
 var _c047 = () => ({ controls: true });
 var _c125 = () => ({ standalone: true });
-function NewParkingMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, ctx) {
+function NewParkingMapComponent_Conditional_0_For_8_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
@@ -26224,10 +26515,10 @@ function NewParkingMapComponent_Conditional_0_For_5_Conditional_2_Template(rf, c
     \u0275\u0275textInterpolate1(" ", (tmp_12_0 = \u0275\u0275pipeBind1(2, 1, lvl_r3.parent_id)) == null ? null : tmp_12_0.display_name, " ");
   }
 }
-function NewParkingMapComponent_Conditional_0_For_5_Template(rf, ctx) {
+function NewParkingMapComponent_Conditional_0_For_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 5)(1, "div", 6);
-    \u0275\u0275conditionalCreate(2, NewParkingMapComponent_Conditional_0_For_5_Conditional_2_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(2, NewParkingMapComponent_Conditional_0_For_8_Conditional_2_Template, 5, 3, "div", 7);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -26245,30 +26536,36 @@ function NewParkingMapComponent_Conditional_0_For_5_Template(rf, ctx) {
 function NewParkingMapComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-select", 4);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function NewParkingMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(0, "div", 0)(1, "mat-form-field", 3)(2, "mat-label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "mat-select", 4);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function NewParkingMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.level, $event) || (ctx_r1.level = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275listener("ngModelChange", function NewParkingMapComponent_Conditional_0_Template_mat_select_ngModelChange_2_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewParkingMapComponent_Conditional_0_Template_mat_select_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
     });
-    \u0275\u0275repeaterCreate(4, NewParkingMapComponent_Conditional_0_For_5_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275repeaterCreate(7, NewParkingMapComponent_Conditional_0_For_8_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(9, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, "BOOKINGS.LOCATION"));
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.level);
-    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(7, _c125))("placeholder", \u0275\u0275pipeBind1(3, 3, "COMMON.LEVEL_ANY"));
+    \u0275\u0275property("ngModelOptions", \u0275\u0275pureFunction0(10, _c125))("placeholder", \u0275\u0275pipeBind1(6, 6, "COMMON.LEVEL_ANY"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(6, 5, ctx_r1.levels));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(9, 8, ctx_r1.levels));
   }
 }
 var _NewParkingMapComponent = class _NewParkingMapComponent extends AsyncHandler {
@@ -26385,7 +26682,7 @@ _NewParkingMapComponent.\u0275fac = function NewParkingMapComponent_Factory(__ng
 };
 _NewParkingMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewParkingMapComponent, selectors: [["new-parking-space-map"]], inputs: { is_displayed: [1, "is_displayed"], active: [1, "active"] }, outputs: { active: "activeChange", onSelect: "onSelect" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 7, vars: 17, consts: [[1, "border-base-200", "bg-base-100", "w-full", "border-b", "p-2"], [1, "relative", "w-full", "flex-1"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "options"], ["levels", "", "appearance", "outline", 1, "no-subscript", "w-full"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"]], template: function NewParkingMapComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, NewParkingMapComponent_Conditional_0_Template, 7, 8, "div", 0);
+    \u0275\u0275conditionalCreate(0, NewParkingMapComponent_Conditional_0_Template, 10, 11, "div", 0);
     \u0275\u0275pipe(1, "async");
     \u0275\u0275elementStart(2, "div", 1)(3, "interactive-map", 2);
     \u0275\u0275pipe(4, "async");
@@ -26414,6 +26711,7 @@ _NewParkingMapComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent(
   InteractiveMapComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatSelectModule,
   MatSelect,
   MatOption,
@@ -26435,6 +26733,7 @@ var NewParkingMapComponent = _NewParkingMapComponent;
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
@@ -26487,7 +26786,7 @@ var NewParkingMapComponent = _NewParkingMapComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingMapComponent, { className: "NewParkingMapComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-map.component.ts", lineNumber: 103 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewParkingMapComponent, { className: "NewParkingMapComponent", filePath: "libs/bookings/src/lib/new-parking-select-modal/new-parking-map.component.ts", lineNumber: 104 });
 })();
 
 // libs/bookings/src/lib/new-parking-select-modal/new-parking-select-modal.component.ts
@@ -27227,7 +27526,7 @@ var ParkingSpaceListFieldComponent = _ParkingSpaceListFieldComponent;
 
 // libs/bookings/src/lib/visitor-invite-form.component.ts
 var _c048 = () => ({ standalone: true });
-function VisitorInviteFormComponent_Conditional_0_Conditional_1_For_9_Template(rf, ctx) {
+function VisitorInviteFormComponent_Conditional_0_Conditional_1_For_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 19);
     \u0275\u0275text(1);
@@ -27249,24 +27548,30 @@ function VisitorInviteFormComponent_Conditional_0_Conditional_1_Template(rf, ctx
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-form-field", 15)(7, "mat-select", 18);
-    \u0275\u0275listener("ngModelChange", function VisitorInviteFormComponent_Conditional_0_Conditional_1_Template_mat_select_ngModelChange_7_listener($event) {
+    \u0275\u0275elementStart(6, "mat-form-field", 15)(7, "mat-label");
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "mat-select", 18);
+    \u0275\u0275listener("ngModelChange", function VisitorInviteFormComponent_Conditional_0_Conditional_1_Template_mat_select_ngModelChange_10_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.form.patchValue({ zones: [$event] }));
     });
-    \u0275\u0275repeaterCreate(8, VisitorInviteFormComponent_Conditional_0_Conditional_1_For_9_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(10, "async");
+    \u0275\u0275repeaterCreate(11, VisitorInviteFormComponent_Conditional_0_Conditional_1_For_12_Template, 2, 2, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(13, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "RESOURCE.BUILDING"));
-    \u0275\u0275advance(5);
-    \u0275\u0275property("ngModel", ctx_r2.form.value.zones[0])("ngModelOptions", \u0275\u0275pureFunction0(7, _c048));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "RESOURCE.BUILDING"));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 6, "RESOURCE.BUILDING"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r2.form.value.zones[0])("ngModelOptions", \u0275\u0275pureFunction0(10, _c048));
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(10, 5, ctx_r2.buildings));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(13, 8, ctx_r2.buildings));
   }
 }
 function VisitorInviteFormComponent_Conditional_0_Conditional_25_Template(rf, ctx) {
@@ -27285,11 +27590,11 @@ function VisitorInviteFormComponent_Conditional_0_Conditional_25_Template(rf, ct
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "FORM.HOST"));
   }
 }
-function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_12_Template(rf, ctx) {
+function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 27);
-    \u0275\u0275listener("click", function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_12_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_15_Template_mat_option_click_0_listener() {
       const item_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.setVisitor(item_r7));
@@ -27310,11 +27615,11 @@ function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_12_Template
     \u0275\u0275textInterpolate2(" ", item_r7.email, " ", item_r7.organisation ? "| " + item_r7.organisation : "", " ");
   }
 }
-function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_28_Template(rf, ctx) {
+function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_34_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 27);
-    \u0275\u0275listener("click", function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_28_Template_mat_option_click_0_listener() {
+    \u0275\u0275listener("click", function VisitorInviteFormComponent_Conditional_0_Conditional_26_For_34_Template_mat_option_click_0_listener() {
       const item_r9 = \u0275\u0275restoreView(_r8).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.setVisitor(item_r9));
@@ -27344,69 +27649,86 @@ function VisitorInviteFormComponent_Conditional_0_Conditional_26_Template(rf, ct
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-form-field", 15)(7, "input", 23);
-    \u0275\u0275pipe(8, "translate");
-    \u0275\u0275listener("focus", function VisitorInviteFormComponent_Conditional_0_Conditional_26_Template_input_focus_7_listener() {
+    \u0275\u0275elementStart(6, "mat-form-field", 15)(7, "mat-label");
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "input", 23);
+    \u0275\u0275pipe(11, "translate");
+    \u0275\u0275listener("focus", function VisitorInviteFormComponent_Conditional_0_Conditional_26_Template_input_focus_10_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.search_term.set(ctx_r2.form.value.asset_name));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "mat-autocomplete", null, 0);
-    \u0275\u0275repeaterCreate(11, VisitorInviteFormComponent_Conditional_0_Conditional_26_For_12_Template, 6, 4, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(12, "mat-autocomplete", null, 0);
+    \u0275\u0275repeaterCreate(14, VisitorInviteFormComponent_Conditional_0_Conditional_26_For_15_Template, 6, 4, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(13, "div", 3)(14, "label", 24);
-    \u0275\u0275text(15);
-    \u0275\u0275pipe(16, "translate");
-    \u0275\u0275elementStart(17, "span");
-    \u0275\u0275text(18, "*");
+    \u0275\u0275elementStart(16, "div", 3)(17, "label", 24);
+    \u0275\u0275text(18);
+    \u0275\u0275pipe(19, "translate");
+    \u0275\u0275elementStart(20, "span");
+    \u0275\u0275text(21, "*");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(19, "mat-form-field", 15)(20, "input", 25);
-    \u0275\u0275pipe(21, "translate");
-    \u0275\u0275listener("focus", function VisitorInviteFormComponent_Conditional_0_Conditional_26_Template_input_focus_20_listener() {
+    \u0275\u0275elementStart(22, "mat-form-field", 15)(23, "mat-label");
+    \u0275\u0275text(24);
+    \u0275\u0275pipe(25, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(26, "input", 25);
+    \u0275\u0275pipe(27, "translate");
+    \u0275\u0275listener("focus", function VisitorInviteFormComponent_Conditional_0_Conditional_26_Template_input_focus_26_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.search_term.set(ctx_r2.form.value.asset_id));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "mat-error");
-    \u0275\u0275text(23);
-    \u0275\u0275pipe(24, "translate");
+    \u0275\u0275elementStart(28, "mat-error");
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(25, "mat-autocomplete", null, 1);
-    \u0275\u0275repeaterCreate(27, VisitorInviteFormComponent_Conditional_0_Conditional_26_For_28_Template, 6, 4, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(31, "mat-autocomplete", null, 1);
+    \u0275\u0275repeaterCreate(33, VisitorInviteFormComponent_Conditional_0_Conditional_26_For_34_Template, 6, 4, "mat-option", 19, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(29, "div", 3)(30, "label", 22);
-    \u0275\u0275text(31);
-    \u0275\u0275pipe(32, "translate");
+    \u0275\u0275elementStart(35, "div", 3)(36, "label", 22);
+    \u0275\u0275text(37);
+    \u0275\u0275pipe(38, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(33, "mat-form-field", 15);
-    \u0275\u0275element(34, "input", 26);
-    \u0275\u0275pipe(35, "translate");
+    \u0275\u0275elementStart(39, "mat-form-field", 15)(40, "mat-label");
+    \u0275\u0275text(41);
+    \u0275\u0275pipe(42, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(43, "input", 26);
+    \u0275\u0275pipe(44, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const name_auto_r10 = \u0275\u0275reference(10);
-    const email_auto_r11 = \u0275\u0275reference(26);
+    const name_auto_r10 = \u0275\u0275reference(13);
+    const email_auto_r11 = \u0275\u0275reference(32);
     const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 9, "BOOKINGS.VISITOR_NAME"), " ");
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(8, 11, "BOOKINGS.VISITOR_NAME_PLACEHOLDER"))("matAutocomplete", name_auto_r10);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 12, "BOOKINGS.VISITOR_NAME"), " ");
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 14, "BOOKINGS.VISITOR_NAME"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 16, "BOOKINGS.VISITOR_NAME_PLACEHOLDER"))("matAutocomplete", name_auto_r10);
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r2.filtered_visitors());
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(16, 13, "BOOKINGS.VISITOR_EMAIL"), " ");
-    \u0275\u0275advance(5);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(21, 15, "BOOKINGS.VISITOR_EMAIL_PLACEHOLDER"))("matAutocomplete", email_auto_r11);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 18, "BOOKINGS.VISITOR_EMAIL"), " ");
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 20, "BOOKINGS.VISITOR_EMAIL"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(27, 22, "BOOKINGS.VISITOR_EMAIL_PLACEHOLDER"))("matAutocomplete", email_auto_r11);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 17, "FORM.EMAIL_REQUIRED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(30, 24, "FORM.EMAIL_REQUIRED"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r2.filtered_visitors());
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 19, "BOOKINGS.VISITOR_COMPANY"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(35, 21, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 26, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(42, 28, "BOOKINGS.VISITOR_COMPANY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(44, 30, "BOOKINGS.VISITOR_COMPANY"));
   }
 }
 function VisitorInviteFormComponent_Conditional_0_Conditional_27_Template(rf, ctx) {
@@ -27429,29 +27751,34 @@ function VisitorInviteFormComponent_Conditional_0_Conditional_27_Template(rf, ct
     \u0275\u0275property("guests_only", true);
   }
 }
-function VisitorInviteFormComponent_Conditional_0_Conditional_35_Template(rf, ctx) {
+function VisitorInviteFormComponent_Conditional_0_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3)(1, "label", 31);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 15);
-    \u0275\u0275element(5, "input", 32);
-    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementStart(4, "mat-form-field", 15)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "input", 32);
+    \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "BOOKINGS.VISITOR_PASS"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "BOOKINGS.VISITOR_PASS"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "BOOKINGS.VISITOR_PASS"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "BOOKINGS.VISITOR_PASS_PLACEHOLDER"));
   }
 }
 function VisitorInviteFormComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "form", 2);
-    \u0275\u0275conditionalCreate(1, VisitorInviteFormComponent_Conditional_0_Conditional_1_Template, 11, 8, "div", 3);
+    \u0275\u0275conditionalCreate(1, VisitorInviteFormComponent_Conditional_0_Conditional_1_Template, 14, 11, "div", 3);
     \u0275\u0275pipe(2, "async");
     \u0275\u0275elementStart(3, "div", 3)(4, "label", 4);
     \u0275\u0275text(5);
@@ -27483,16 +27810,19 @@ function VisitorInviteFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275element(24, "a-duration-field", 11);
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(25, VisitorInviteFormComponent_Conditional_0_Conditional_25_Template, 7, 3, "div", 12);
-    \u0275\u0275conditionalCreate(26, VisitorInviteFormComponent_Conditional_0_Conditional_26_Template, 36, 23)(27, VisitorInviteFormComponent_Conditional_0_Conditional_27_Template, 7, 5, "div", 13);
+    \u0275\u0275conditionalCreate(26, VisitorInviteFormComponent_Conditional_0_Conditional_26_Template, 45, 32)(27, VisitorInviteFormComponent_Conditional_0_Conditional_27_Template, 7, 5, "div", 13);
     \u0275\u0275elementStart(28, "div", 3)(29, "label", 14);
     \u0275\u0275text(30);
     \u0275\u0275pipe(31, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(32, "mat-form-field", 15);
-    \u0275\u0275element(33, "input", 16);
-    \u0275\u0275pipe(34, "translate");
+    \u0275\u0275elementStart(32, "mat-form-field", 15)(33, "mat-label");
+    \u0275\u0275text(34);
+    \u0275\u0275pipe(35, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(36, "input", 16);
+    \u0275\u0275pipe(37, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(35, VisitorInviteFormComponent_Conditional_0_Conditional_35_Template, 7, 6, "div", 3);
+    \u0275\u0275conditionalCreate(38, VisitorInviteFormComponent_Conditional_0_Conditional_38_Template, 10, 9, "div", 3);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -27500,15 +27830,15 @@ function VisitorInviteFormComponent_Conditional_0_Template(rf, ctx) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275property("formGroup", ctx_r2.form);
     \u0275\u0275advance();
-    \u0275\u0275conditional(((tmp_2_0 = \u0275\u0275pipeBind1(2, 17, ctx_r2.buildings)) == null ? null : tmp_2_0.length) > 1 ? 1 : -1);
+    \u0275\u0275conditional(((tmp_2_0 = \u0275\u0275pipeBind1(2, 18, ctx_r2.buildings)) == null ? null : tmp_2_0.length) > 1 ? 1 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 19, "FORM.DATE"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 20, "FORM.DATE"));
     \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 21, "FORM.TIME_START"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(14, 22, "FORM.TIME_START"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r2.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(29, _c048))("disabled", ctx_r2.form.value.all_day)("use_24hr", ctx_r2.use_24hr());
+    \u0275\u0275property("ngModel", ctx_r2.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(32, _c048))("disabled", ctx_r2.form.value.all_day)("use_24hr", ctx_r2.use_24hr());
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 23, "FORM.TIME_END"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 24, "FORM.TIME_END"), " ");
     \u0275\u0275advance(4);
     \u0275\u0275property("time", ctx_r2.form.value.date)("max", ctx_r2.max_duration())("use_24hr", ctx_r2.use_24hr());
     \u0275\u0275advance();
@@ -27516,11 +27846,13 @@ function VisitorInviteFormComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r2.multiple() ? 26 : 27);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 25, "BOOKINGS.VISITOR_REASON"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(34, 27, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 26, "BOOKINGS.VISITOR_REASON"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(35, 28, "BOOKINGS.VISITOR_REASON"));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r2.allow_pass_number() ? 35 : -1);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(37, 30, "BOOKINGS.VISITOR_REASON_PLACEHOLDER"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.allow_pass_number() ? 38 : -1);
   }
 }
 var _VisitorInviteFormComponent = class _VisitorInviteFormComponent extends AsyncHandler {
@@ -27697,7 +28029,7 @@ _VisitorInviteFormComponent.\u0275fac = /* @__PURE__ */ (() => {
 })();
 _VisitorInviteFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _VisitorInviteFormComponent, selectors: [["visitor-invite-form"]], inputs: { date: [1, "date"], confirm: [1, "confirm"] }, outputs: { done: "done" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 1, vars: 1, consts: [["name_auto", "matAutocomplete"], ["email_auto", "matAutocomplete"], [3, "formGroup"], [1, "flex", "flex-col"], ["for", "date"], ["name", "date", "formControlName", "date"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/3", "flex-1", "flex-col"], ["for", "start-time"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "disabled", "use_24hr"], ["for", "end-time"], ["name", "end-time", "formControlName", "duration", 3, "time", "max", "use_24hr"], [1, "flex", "w-full", "flex-col"], [1, "flex", "flex-col", 3, "formGroup"], ["for", "reason"], ["appearance", "outline"], ["name", "reason", "matInput", "", "formControlName", "title", 3, "placeholder"], ["for", "building"], ["name", "building", "placeholder", "Select building", 3, "ngModelChange", "ngModel", "ngModelOptions"], [3, "value"], ["for", "host"], ["name", "host", "formControlName", "user", 1, "mb-4"], ["for", "visitor-name"], ["matInput", "", "name", "visitor-name", "formControlName", "asset_name", 3, "focus", "placeholder", "matAutocomplete"], ["for", "visitor-email"], ["matInput", "", "name", "visitor-email", "type", "email", "formControlName", "asset_id", 3, "focus", "placeholder", "matAutocomplete"], ["matInput", "", "name", "company", "formControlName", "company", 3, "placeholder"], [3, "click", "value"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-60"], ["formControlName", "assets", 3, "guests_only"], ["for", "pass"], ["name", "pass", "matInput", "", "formControlName", "pass_number", 3, "placeholder"]], template: function VisitorInviteFormComponent_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, VisitorInviteFormComponent_Conditional_0_Template, 36, 30, "form", 2);
+    \u0275\u0275conditionalCreate(0, VisitorInviteFormComponent_Conditional_0_Template, 39, 33, "form", 2);
   }
   if (rf & 2) {
     \u0275\u0275conditional(ctx.form ? 0 : -1);
@@ -27707,6 +28039,7 @@ _VisitorInviteFormComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   TranslatePipe,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -27744,6 +28077,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                             <mat-select
                                 [ngModel]="form.value.zones[0]"
                                 (ngModelChange)="
@@ -27823,6 +28157,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                             <span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'BOOKINGS.VISITOR_NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="visitor-name"
@@ -27862,6 +28197,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                             <span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'BOOKINGS.VISITOR_EMAIL' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="visitor-email"
@@ -27904,6 +28240,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                             'BOOKINGS.VISITOR_COMPANY' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'BOOKINGS.VISITOR_COMPANY' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="company"
@@ -27931,6 +28268,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                         'BOOKINGS.VISITOR_REASON' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'BOOKINGS.VISITOR_REASON' | translate }}</mat-label>
                         <input
                             name="reason"
                             matInput
@@ -27948,6 +28286,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
                             'BOOKINGS.VISITOR_PASS' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'BOOKINGS.VISITOR_PASS' | translate }}</mat-label>
                             <input
                                 name="pass"
                                 matInput
@@ -27980,7 +28319,7 @@ var VisitorInviteFormComponent = _VisitorInviteFormComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorInviteFormComponent, { className: "VisitorInviteFormComponent", filePath: "libs/bookings/src/lib/visitor-invite-form.component.ts", lineNumber: 287 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(VisitorInviteFormComponent, { className: "VisitorInviteFormComponent", filePath: "libs/bookings/src/lib/visitor-invite-form.component.ts", lineNumber: 293 });
 })();
 
 // libs/bookings/src/lib/visitor-invite-success.component.ts
@@ -29551,4 +29890,4 @@ export {
   ScheduleStateService,
   TopbarComponent
 };
-//# sourceMappingURL=chunk-DT2GPSXR.js.map
+//# sourceMappingURL=chunk-2OKKEQJX.js.map

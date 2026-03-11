@@ -1,11 +1,11 @@
 import {
   subMinutes
-} from "./chunk-IXP3FQ65.js";
+} from "./chunk-XOZXZKHI.js";
 import {
   HostSelectFieldComponent,
   RecurrenceFieldComponent,
   SpaceListFieldComponent
-} from "./chunk-IO7BDKWI.js";
+} from "./chunk-2QJKKZNQ.js";
 import {
   AssetListFieldComponent,
   BookingFormService,
@@ -17,7 +17,7 @@ import {
   ParkingSpaceListFieldComponent,
   TopbarComponent,
   UserListFieldComponent
-} from "./chunk-DT2GPSXR.js";
+} from "./chunk-2OKKEQJX.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -106,6 +106,7 @@ import {
   MatFormFieldModule,
   MatInput,
   MatInputModule,
+  MatLabel,
   MatMenu,
   MatMenuItem,
   MatMenuModule,
@@ -324,7 +325,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-5Z4BXNMS.js";
+} from "./chunk-SIYC7UWR.js";
 
 // apps/workplace/src/app/book/book.component.ts
 function BookComponent_Conditional_0_Template(rf, ctx) {
@@ -5219,7 +5220,7 @@ var _NewCateringItemDetailsComponent = class _NewCateringItemDetailsComponent {
 _NewCateringItemDetailsComponent.\u0275fac = function NewCateringItemDetailsComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringItemDetailsComponent)();
 };
-_NewCateringItemDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemDetailsComponent, selectors: [["new-catering-item-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "bg-base-200", "relative", "h-64", "w-full", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "name", "close-catering-item-details", 1, "bg-base-100", "absolute", "top-2", "left-2", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite-details", 1, "bg-base-100", "absolute", "top-2", "right-2", 3, "click"], [3, "className"], [1, "flex-1", "space-y-4", "p-2"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "mt-4", "mb-2", "text-xl", "font-medium"], [3, "ngModelChange", "ngModel", "min", "max"], [1, "flex", "flex-wrap", "items-center"], [1, "bg-base-200", "m-1", "rounded-2xl", "px-2", "py-1", "text-sm", "capitalize"], ["details", "", 1, "space-y-2"], [1, "flex", "flex-col", "space-y-4"], [1, "border-base-400", "relative", "space-y-2", "rounded-sm", "border", "px-3", "pt-4", "pb-2"], [1, "text-md", "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "px-2", "font-medium"], [1, "flex", "flex-col"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModel", "disabled"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModelChange", "ngModel", "disabled"], ["value", "", 1, "m-0"], [1, "p-2", "font-medium", "opacity-60"], [1, "m-0", 3, "value"], [1, "flex", "max-w-[calc(100vw-4rem)]", "items-center", "justify-center", "sm:max-w-60"], [1, "w-1/2", "flex-1", "p-2", "font-medium", "whitespace-normal", "capitalize"], [1, "text-xs", "opacity-60"], [3, "ngModel", "disabled"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "items-center", "justify-center"], [1, "w-1/2", "flex-1", "p-2", "font-medium"], [1, "text-center", "opacity-30"]], template: function NewCateringItemDetailsComponent_Template(rf, ctx) {
+_NewCateringItemDetailsComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemDetailsComponent, selectors: [["new-catering-item-details"]], inputs: { item: [1, "item"], active: [1, "active"], fav: [1, "fav"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", activeChange: "activeChange", close: "close" }, features: [\u0275\u0275NgOnChangesFeature], decls: 2, vars: 1, consts: [["empty", "", 1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-16"], ["image", "", 1, "bg-base-200", "relative", "h-64", "w-full", "sm:h-40"], [1, "absolute", "inset-0", 3, "images"], ["icon", "", "matRipple", "", "aria-label", "Go back", "name", "close-catering-item-details", 1, "bg-base-100", "absolute", "top-2", "left-2", "lg:hidden", 3, "click"], ["icon", "", "matRipple", "", "aria-label", "Toggle favorite", "name", "toggle-catering-item-favourite-details", 1, "bg-base-100", "absolute", "top-2", "right-2", 3, "click"], [3, "className"], [1, "flex-1", "space-y-4", "p-2"], ["actions", "", 1, "z-0", "flex", "items-center", "justify-between"], [1, "mt-4", "mb-2", "text-xl", "font-medium"], [3, "ngModelChange", "ngModel", "min", "max"], [1, "flex", "flex-wrap", "items-center"], [1, "bg-base-200", "m-1", "rounded-2xl", "px-2", "py-1", "text-sm", "capitalize"], ["details", "", 1, "space-y-2"], [1, "flex", "flex-col", "space-y-4"], [1, "border-base-400", "relative", "space-y-2", "rounded-sm", "border", "px-3", "pt-4", "pb-2"], [1, "text-md", "bg-base-100", "absolute", "top-0", "left-2", "-translate-y-1/2", "px-2", "font-medium"], [1, "flex", "flex-col"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModel", "disabled"], ["aria-label", "Select an option", 1, "flex", "flex-col", 3, "ngModelChange", "ngModel", "disabled"], ["value", "", 1, "m-0"], [1, "p-2", "font-medium", "opacity-60"], [1, "m-0", 3, "value"], [1, "flex", "max-w-[calc(100vw-4rem)]", "items-center", "justify-center", "sm:max-w-60"], [1, "w-1/2", "flex-1", "p-2", "font-medium", "whitespace-normal", "capitalize"], [1, "text-xs", "opacity-60"], [3, "ngModel", "disabled"], [3, "ngModelChange", "ngModel", "disabled"], [1, "flex", "items-center", "justify-center"], [1, "w-1/2", "flex-1", "p-2", "font-medium"], [1, "text-center", "opacity-30"]], template: function NewCateringItemDetailsComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275conditionalCreate(0, NewCateringItemDetailsComponent_Conditional_0_Template, 22, 9)(1, NewCateringItemDetailsComponent_Conditional_1_Template, 4, 3, "div", 0);
   }
@@ -5258,6 +5259,7 @@ var NewCateringItemDetailsComponent = _NewCateringItemDetailsComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Go back"
                     name="close-catering-item-details"
                     (click)="close.emit()"
                     class="bg-base-100 absolute top-2 left-2 lg:hidden"
@@ -5267,6 +5269,7 @@ var NewCateringItemDetailsComponent = _NewCateringItemDetailsComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Toggle favorite"
                     name="toggle-catering-item-favourite-details"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"
@@ -5453,11 +5456,11 @@ var NewCateringItemDetailsComponent = _NewCateringItemDetailsComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemDetailsComponent, { className: "NewCateringItemDetailsComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-details.component.ts", lineNumber: 234 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemDetailsComponent, { className: "NewCateringItemDetailsComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-details.component.ts", lineNumber: 236 });
 })();
 
 // libs/catering/src/lib/new-catering-order-modal/new-catering-item-filters.component.ts
-function NewCateringItemFiltersComponent_Conditional_11_For_9_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_14_For_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 12);
     \u0275\u0275text(1);
@@ -5470,37 +5473,43 @@ function NewCateringItemFiltersComponent_Conditional_11_For_9_Template(rf, ctx) 
     \u0275\u0275textInterpolate1(" ", caterer_r3 || "[No caterer]", " ");
   }
 }
-function NewCateringItemFiltersComponent_Conditional_11_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 6)(1, "label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 3)(5, "mat-select", 11);
-    \u0275\u0275pipe(6, "async");
-    \u0275\u0275pipe(7, "async");
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_11_Template_mat_select_ngModelChange_5_listener($event) {
+    \u0275\u0275elementStart(4, "mat-form-field", 3)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "mat-select", 11);
+    \u0275\u0275pipe(9, "async");
+    \u0275\u0275pipe(10, "async");
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_14_Template_mat_select_ngModelChange_8_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setFilters({ caterer: $event }));
     });
-    \u0275\u0275repeaterCreate(8, NewCateringItemFiltersComponent_Conditional_11_For_9_Template, 2, 2, "mat-option", 12, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(10, "async");
+    \u0275\u0275repeaterCreate(11, NewCateringItemFiltersComponent_Conditional_14_For_12_Template, 2, 2, "mat-option", 12, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(13, "async");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    let tmp_2_0;
+    let tmp_3_0;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "CATERING.CATERER"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "CATERING.CATERER"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "CATERING.CATERER"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ((tmp_3_0 = \u0275\u0275pipeBind1(9, 7, ctx_r1.filters)) == null ? null : tmp_3_0.caterer) || \u0275\u0275pipeBind1(10, 9, ctx_r1.caterers)[0]);
     \u0275\u0275advance(3);
-    \u0275\u0275property("ngModel", ((tmp_2_0 = \u0275\u0275pipeBind1(6, 4, ctx_r1.filters)) == null ? null : tmp_2_0.caterer) || \u0275\u0275pipeBind1(7, 6, ctx_r1.caterers)[0]);
-    \u0275\u0275advance(3);
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(10, 8, ctx_r1.caterers));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(13, 11, ctx_r1.caterers));
   }
 }
-function NewCateringItemFiltersComponent_Conditional_13_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 7);
     \u0275\u0275text(1);
@@ -5512,7 +5521,7 @@ function NewCateringItemFiltersComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.FILTERS"), " ");
   }
 }
-function NewCateringItemFiltersComponent_Conditional_14_Conditional_3_For_6_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_17_Conditional_3_For_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 12);
     \u0275\u0275text(1);
@@ -5526,51 +5535,57 @@ function NewCateringItemFiltersComponent_Conditional_14_Conditional_3_For_6_Temp
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 2, day_r6.value, "mediumDate"), " ");
   }
 }
-function NewCateringItemFiltersComponent_Conditional_14_Conditional_3_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_17_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "label");
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "mat-form-field", 15)(4, "mat-select", 11);
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_14_Conditional_3_Template_mat_select_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(3, "mat-form-field", 15)(4, "mat-label");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "mat-select", 11);
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_17_Conditional_3_Template_mat_select_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.offset_dayChange.emit($event));
     });
-    \u0275\u0275repeaterCreate(5, NewCateringItemFiltersComponent_Conditional_14_Conditional_3_For_6_Template, 3, 5, "mat-option", 12, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(8, NewCateringItemFiltersComponent_Conditional_17_Conditional_3_For_9_Template, 3, 5, "mat-option", 12, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 2, "CATERING.ORDERS_DELIVER_DATE"));
-    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 3, "CATERING.ORDERS_DELIVER_DATE"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 5, "CATERING.ORDERS_DELIVER_DATE"));
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngModel", ctx_r1.offset_day());
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r1.day_options);
   }
 }
-function NewCateringItemFiltersComponent_Conditional_14_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 8)(1, "settings-toggle", 13);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_14_Template_settings_toggle_ngModelChange_1_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_17_Template_settings_toggle_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.at_timeChange.emit($event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(3, NewCateringItemFiltersComponent_Conditional_14_Conditional_3_Template, 7, 4);
+    \u0275\u0275conditionalCreate(3, NewCateringItemFiltersComponent_Conditional_17_Conditional_3_Template, 10, 7);
     \u0275\u0275elementStart(4, "label");
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(7, "a-duration-field", 14);
     \u0275\u0275pipe(8, "async");
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_14_Template_a_duration_field_ngModelChange_7_listener($event) {
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Conditional_17_Template_a_duration_field_ngModelChange_7_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       ctx_r1.offsetChange.emit($event);
@@ -5591,7 +5606,7 @@ function NewCateringItemFiltersComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275property("ngModel", ctx_r1.offset())("time", ctx_r1.offset_day() > 0 ? ctx_r1.start_of_date : (tmp_7_0 = \u0275\u0275pipeBind1(8, 15, ctx_r1.filters)) == null ? null : tmp_7_0.date)("step", ctx_r1.step_interval)("min", ctx_r1.min_offset)("max", ctx_r1.max_offset)("use_24hr", ctx_r1.use_24hr);
   }
 }
-function NewCateringItemFiltersComponent_Conditional_15_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "h3", 9);
     \u0275\u0275text(1);
@@ -5603,12 +5618,12 @@ function NewCateringItemFiltersComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.CATEGORIES"), " ");
   }
 }
-function NewCateringItemFiltersComponent_For_18_Template(rf, ctx) {
+function NewCateringItemFiltersComponent_For_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "settings-toggle", 16);
     \u0275\u0275pipe(1, "async");
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_For_18_Template_settings_toggle_ngModelChange_0_listener() {
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_For_21_Template_settings_toggle_ngModelChange_0_listener() {
       const item_r8 = \u0275\u0275restoreView(_r7).$implicit;
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.toggleCategory(item_r8));
@@ -5755,51 +5770,57 @@ var _NewCateringItemFiltersComponent = class _NewCateringItemFiltersComponent ex
 _NewCateringItemFiltersComponent.\u0275fac = function NewCateringItemFiltersComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringItemFiltersComponent)();
 };
-_NewCateringItemFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemFiltersComponent, selectors: [["new-catering-item-filters"]], inputs: { search: [1, "search"], at_time: [1, "at_time"], offset: [1, "offset"], offset_day: [1, "offset_day"] }, outputs: { at_timeChange: "at_timeChange", offset: "offsetChange", offsetChange: "offsetChange", offset_dayChange: "offset_dayChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 20, vars: 21, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "mt-2", "mb-2", "px-2"], ["appearance", "outline", 1, "h-14", "w-full"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "hidden", "px-2", "py-2", "sm:block"], [1, "hidden", "px-2", "py-2", "font-medium", "sm:block"], [1, "flex", "flex-col", "space-y-2", "px-2"], [1, "hidden", "px-2", "py-4", "font-medium", "sm:block"], [3, "name", "ngModel"], [3, "ngModelChange", "ngModel"], [3, "value"], [3, "ngModelChange", "name", "ngModel", "matTooltip"], [3, "ngModelChange", "ngModel", "time", "step", "min", "max", "use_24hr"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [3, "ngModelChange", "name", "ngModel"]], template: function NewCateringItemFiltersComponent_Template(rf, ctx) {
+_NewCateringItemFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemFiltersComponent, selectors: [["new-catering-item-filters"]], inputs: { search: [1, "search"], at_time: [1, "at_time"], offset: [1, "offset"], offset_day: [1, "offset_day"] }, outputs: { at_timeChange: "at_timeChange", offset: "offsetChange", offsetChange: "offsetChange", offset_dayChange: "offset_dayChange" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 23, vars: 24, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "mt-2", "mb-2", "px-2"], ["appearance", "outline", 1, "h-14", "w-full"], ["matPrefix", "", 1, "text-xl"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "hidden", "px-2", "py-2", "sm:block"], [1, "hidden", "px-2", "py-2", "font-medium", "sm:block"], [1, "flex", "flex-col", "space-y-2", "px-2"], [1, "hidden", "px-2", "py-4", "font-medium", "sm:block"], [3, "name", "ngModel"], [3, "ngModelChange", "ngModel"], [3, "value"], [3, "ngModelChange", "name", "ngModel", "matTooltip"], [3, "ngModelChange", "ngModel", "time", "step", "min", "max", "use_24hr"], ["appearance", "outline", 1, "no-subscript", "mb-4", "w-full"], [3, "ngModelChange", "name", "ngModel"]], template: function NewCateringItemFiltersComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 2)(5, "mat-form-field", 3)(6, "icon", 4);
-    \u0275\u0275text(7, "search");
+    \u0275\u0275elementStart(4, "div", 2)(5, "mat-form-field", 3)(6, "mat-label");
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "input", 5);
-    \u0275\u0275pipe(9, "async");
-    \u0275\u0275pipe(10, "translate");
-    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Template_input_ngModelChange_8_listener($event) {
+    \u0275\u0275elementStart(9, "icon", 4);
+    \u0275\u0275text(10, "search");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "input", 5);
+    \u0275\u0275pipe(12, "async");
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275listener("ngModelChange", function NewCateringItemFiltersComponent_Template_input_ngModelChange_11_listener($event) {
       return ctx.setFilters({ search: $event });
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(11, NewCateringItemFiltersComponent_Conditional_11_Template, 11, 10, "div", 6);
-    \u0275\u0275pipe(12, "async");
-    \u0275\u0275conditionalCreate(13, NewCateringItemFiltersComponent_Conditional_13_Template, 3, 3, "h3", 7);
-    \u0275\u0275conditionalCreate(14, NewCateringItemFiltersComponent_Conditional_14_Template, 9, 17, "div", 8);
-    \u0275\u0275conditionalCreate(15, NewCateringItemFiltersComponent_Conditional_15_Template, 3, 3, "h3", 9);
-    \u0275\u0275elementStart(16, "div", 8);
-    \u0275\u0275repeaterCreate(17, NewCateringItemFiltersComponent_For_18_Template, 2, 5, "settings-toggle", 10, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275pipe(19, "async");
+    \u0275\u0275conditionalCreate(14, NewCateringItemFiltersComponent_Conditional_14_Template, 14, 13, "div", 6);
+    \u0275\u0275pipe(15, "async");
+    \u0275\u0275conditionalCreate(16, NewCateringItemFiltersComponent_Conditional_16_Template, 3, 3, "h3", 7);
+    \u0275\u0275conditionalCreate(17, NewCateringItemFiltersComponent_Conditional_17_Template, 9, 17, "div", 8);
+    \u0275\u0275conditionalCreate(18, NewCateringItemFiltersComponent_Conditional_18_Template, 3, 3, "h3", 9);
+    \u0275\u0275elementStart(19, "div", 8);
+    \u0275\u0275repeaterCreate(20, NewCateringItemFiltersComponent_For_21_Template, 2, 5, "settings-toggle", 10, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275pipe(22, "async");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_1_0;
-    let tmp_3_0;
+    let tmp_2_0;
+    let tmp_4_0;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 11, "COMMON.FILTERS"), " ");
-    \u0275\u0275advance(6);
-    \u0275\u0275property("ngModel", (tmp_1_0 = \u0275\u0275pipeBind1(9, 13, ctx.filters)) == null ? null : tmp_1_0.search)("placeholder", \u0275\u0275pipeBind1(10, 15, "CATERING.MENU_SEARCH"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 12, "COMMON.FILTERS"), " ");
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(8, 14, "CATERING.MENU_SEARCH"));
+    \u0275\u0275advance(4);
+    \u0275\u0275property("ngModel", (tmp_2_0 = \u0275\u0275pipeBind1(12, 16, ctx.filters)) == null ? null : tmp_2_0.search)("placeholder", \u0275\u0275pipeBind1(13, 18, "CATERING.MENU_SEARCH"));
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(!ctx.search() && ((tmp_3_0 = \u0275\u0275pipeBind1(12, 17, ctx.caterers)) == null ? null : tmp_3_0.length) > 1 ? 11 : -1);
+    \u0275\u0275conditional(!ctx.search() && ((tmp_4_0 = \u0275\u0275pipeBind1(15, 20, ctx.caterers)) == null ? null : tmp_4_0.length) > 1 ? 14 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!ctx.search() ? 13 : -1);
+    \u0275\u0275conditional(!ctx.search() ? 16 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx.search() ? 14 : -1);
+    \u0275\u0275conditional(!ctx.search() ? 17 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx.search() ? 15 : -1);
+    \u0275\u0275conditional(!ctx.search() ? 18 : -1);
     \u0275\u0275advance();
     \u0275\u0275classProp("sm:hidden", ctx.search())("sm:pt-1", !ctx.search());
     \u0275\u0275advance();
-    \u0275\u0275repeater(\u0275\u0275pipeBind1(19, 19, ctx.categories));
+    \u0275\u0275repeater(\u0275\u0275pipeBind1(22, 22, ctx.categories));
   }
 }, dependencies: [
   CommonModule,
@@ -5810,6 +5831,7 @@ _NewCateringItemFiltersComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineC
   IconComponent,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatPrefix,
   DurationFieldComponent,
   MatSelectModule,
@@ -5839,6 +5861,7 @@ var NewCateringItemFiltersComponent = _NewCateringItemFiltersComponent;
         </div>
         <div class="mt-2 mb-2 px-2">
             <mat-form-field appearance="outline" class="h-14 w-full">
+                <mat-label>{{ 'CATERING.MENU_SEARCH' | translate }}</mat-label>
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
@@ -5852,6 +5875,7 @@ var NewCateringItemFiltersComponent = _NewCateringItemFiltersComponent;
             <div class="hidden px-2 py-2 sm:block">
                 <label>{{ 'CATERING.CATERER' | translate }}</label>
                 <mat-form-field appearance="outline" class="h-14 w-full">
+                    <mat-label>{{ 'CATERING.CATERER' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="
                             (filters | async)?.caterer || (caterers | async)[0]
@@ -5888,6 +5912,7 @@ var NewCateringItemFiltersComponent = _NewCateringItemFiltersComponent;
                         appearance="outline"
                         class="no-subscript mb-4 w-full"
                     >
+                        <mat-label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="offset_day()"
                             (ngModelChange)="offset_dayChange.emit($event)"
@@ -5953,7 +5978,7 @@ var NewCateringItemFiltersComponent = _NewCateringItemFiltersComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemFiltersComponent, { className: "NewCateringItemFiltersComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-filters.component.ts", lineNumber: 204 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemFiltersComponent, { className: "NewCateringItemFiltersComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-filters.component.ts", lineNumber: 207 });
 })();
 
 // libs/catering/src/lib/new-catering-order-modal/new-catering-item-list-item.component.ts
@@ -6060,7 +6085,7 @@ var _NewCateringItemListItemComponent = class _NewCateringItemListItemComponent 
 _NewCateringItemListItemComponent.\u0275fac = function NewCateringItemListItemComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringItemListItemComponent)();
 };
-_NewCateringItemListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemListItemComponent, selectors: [["new-catering-item-list-item"]], inputs: { item: [1, "item"], active: [1, "active"], selected: [1, "selected"], favourite: [1, "favourite"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", select: "select" }, decls: 23, vars: 16, consts: [["item", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm"], ["name", "select-catering-item", 1, "z-0", "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "border-base-200", "bg-neutral", "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border"], [1, "bg-neutral", "absolute", "top-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-white", "text-xs", "text-white"], ["auth", "", 1, "min-h-full", "min-w-full", "object-cover", 3, "source"], ["src", "assets/icons/catering-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "flex-col", "pr-10", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-1", "text-sm"], [1, "bg-base-100", "w-px", "flex-1", "rounded-sm"], [1, "border-base-200", "rounded-2xl", "border", "px-2", "py-1", "text-xs", "shadow-sm"], [1, "bg-success", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "bg-info", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "bg-warning", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-orange-600", "text-xs", "shadow-sm"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"]], template: function NewCateringItemListItemComponent_Template(rf, ctx) {
+_NewCateringItemListItemComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringItemListItemComponent, selectors: [["new-catering-item-list-item"]], inputs: { item: [1, "item"], active: [1, "active"], selected: [1, "selected"], favourite: [1, "favourite"], code: [1, "code"] }, outputs: { toggleFav: "toggleFav", select: "select" }, decls: 23, vars: 16, consts: [["item", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "relative", "w-full", "rounded-lg", "border", "p-2", "shadow-sm"], ["name", "select-catering-item", 1, "z-0", "flex", "h-full", "w-full", "items-center", 3, "click"], [1, "border-base-200", "bg-neutral", "relative", "mr-4", "flex", "h-16", "w-16", "items-center", "justify-center", "overflow-hidden", "rounded-xl", "border"], [1, "bg-neutral", "absolute", "top-1", "left-1", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", "border", "border-white", "text-xs", "text-white"], ["auth", "", 1, "min-h-full", "min-w-full", "object-cover", 3, "source"], ["src", "assets/icons/catering-placeholder.svg", 1, "m-auto"], [1, "flex-1", "space-y-2", "text-left"], [1, "flex", "flex-col", "pr-10", "font-medium"], [1, "text-xs", "opacity-60"], [1, "flex", "items-center", "space-x-1", "text-sm"], [1, "bg-base-100", "w-px", "flex-1", "rounded-sm"], [1, "border-base-200", "rounded-2xl", "border", "px-2", "py-1", "text-xs", "shadow-sm"], [1, "bg-success", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "bg-info", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "bg-warning", "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "text-xs", "shadow-sm"], [1, "flex", "h-5", "w-7", "items-center", "justify-center", "rounded-xl", "bg-orange-600", "text-xs", "shadow-sm"], ["icon", "", "matRipple", "", "aria-label", "Toggle favorite", "name", "toggle-catering-item-favourite", 1, "absolute", "top-1", "right-1", 3, "click"], [3, "className"]], template: function NewCateringItemListItemComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "li", 0)(1, "button", 1);
     \u0275\u0275listener("click", function NewCateringItemListItemComponent_Template_button_click_1_listener() {
@@ -6237,6 +6262,7 @@ var NewCateringItemListItemComponent = _NewCateringItemListItemComponent;
             <button
                 icon
                 matRipple
+                aria-label="Toggle favorite"
                 name="toggle-catering-item-favourite"
                 class="absolute top-1 right-1"
                 [class.text-info]="favourite()"
@@ -6261,7 +6287,7 @@ var NewCateringItemListItemComponent = _NewCateringItemListItemComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemListItemComponent, { className: "NewCateringItemListItemComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-list-item.component.ts", lineNumber: 131 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringItemListItemComponent, { className: "NewCateringItemListItemComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-item-list-item.component.ts", lineNumber: 132 });
 })();
 
 // libs/catering/src/lib/new-catering-order-modal/new-catering-item-list.component.ts
@@ -6627,7 +6653,7 @@ var _NewCateringSelectModalComponent = class _NewCateringSelectModalComponent {
 _NewCateringSelectModalComponent.\u0275fac = function NewCateringSelectModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _NewCateringSelectModalComponent)();
 };
-_NewCateringSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringSelectModalComponent, selectors: [["new-catering-select-modal"]], decls: 31, vars: 37, consts: [[1, "bg-base-100", "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "p-2", "sm:h-auto", "sm:w-auto"], [1, "bg-base-200", "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "border-base-300", "h-full", "w-full", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "border", "shadow-sm", "sm:block", "sm:w-[20rem]"], [1, "border-base-300", "bg-base-200", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "active", "selected", "selected_items", "favorites"], [1, "border-base-300", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "shadow-sm", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "code", "fav"], ["icon", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "absolute", "top-3", "right-2", "z-20", "border", "sm:hidden"], [1, "bg-base-200", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "name", "catering-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-catering", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", 1, "border-base-200", "bg-base-100", "absolute", "top-3", "right-2", "z-20", "border", "sm:hidden", 3, "click"]], template: function NewCateringSelectModalComponent_Template(rf, ctx) {
+_NewCateringSelectModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NewCateringSelectModalComponent, selectors: [["new-catering-select-modal"]], decls: 31, vars: 37, consts: [[1, "bg-base-100", "flex", "h-screen", "w-screen", "flex-col", "space-y-2", "overflow-hidden", "p-2", "sm:h-auto", "sm:w-auto"], [1, "bg-base-200", "flex", "h-14", "w-full", "items-center", "space-x-2", "rounded-sm", "border-none", "p-2"], [1, "flex-1", "px-2", "text-xl", "font-medium", "capitalize"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], [1, "relative", "flex", "h-1/2", "flex-1", "sm:h-[65vh]", "sm:flex-none", "sm:space-x-2"], [1, "border-base-300", "h-full", "w-full", "overflow-x-hidden", "overflow-y-auto", "rounded-sm", "border", "shadow-sm", "sm:block", "sm:w-[20rem]"], [1, "border-base-300", "bg-base-200", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "sm:w-[20rem]", "lg:block"], [3, "toggleFav", "onSelect", "active", "selected", "selected_items", "favorites"], [1, "border-base-300", "h-full", "w-full", "overflow-auto", "rounded-sm", "border", "shadow-sm", "sm:w-[20rem]", "lg:block"], [3, "activeChange", "toggleFav", "close", "item", "active", "code", "fav"], ["icon", "", "matRipple", "", "aria-label", "Toggle filters", 1, "border-base-200", "bg-base-100", "absolute", "top-3", "right-2", "z-20", "border", "sm:hidden"], [1, "bg-base-200", "flex", "w-full", "items-center", "justify-between", "space-x-2", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", "name", "catering-return", 1, "inverse", "bg-base-100", "text-secondary", 3, "mat-dialog-close"], [1, "flex", "items-center", "space-x-2"], [1, "text-xl"], [1, "pr-2"], ["btn", "", "matRipple", "", "name", "toggle-catering", 3, "click", "disabled"], [1, "flex", "items-center"], [1, "mr-1"], ["icon", "", "matRipple", "", "aria-label", "Toggle filters", 1, "border-base-200", "bg-base-100", "absolute", "top-3", "right-2", "z-20", "border", "sm:hidden", 3, "click"]], template: function NewCateringSelectModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
     \u0275\u0275text(3);
@@ -6729,7 +6755,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CATERING.ORDER' | translate }}
                 </h2>
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             </header>
@@ -6782,6 +6808,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
                     <button
                         icon
                         matRipple
+                        aria-label="Toggle filters"
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
                         (click)="show_filters = !show_filters"
                     >
@@ -6845,7 +6872,7 @@ var NewCateringSelectModalComponent = _NewCateringSelectModalComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringSelectModalComponent, { className: "NewCateringSelectModalComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-select-modal.component.ts", lineNumber: 149 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NewCateringSelectModalComponent, { className: "NewCateringSelectModalComponent", filePath: "libs/catering/src/lib/new-catering-order-modal/new-catering-select-modal.component.ts", lineNumber: 150 });
 })();
 
 // libs/catering/src/lib/catering-list-field.component.ts
@@ -6868,7 +6895,7 @@ function CateringListFieldComponent_For_2_Conditional_9_Template(rf, ctx) {
 function CateringListFieldComponent_For_2_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275elementStart(0, "button", 16);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_Conditional_14_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r3);
@@ -6887,7 +6914,7 @@ function CateringListFieldComponent_For_2_Conditional_14_Template(rf, ctx) {
 function CateringListFieldComponent_For_2_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275elementStart(0, "button", 17);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_Conditional_15_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
@@ -6906,7 +6933,7 @@ function CateringListFieldComponent_For_2_Conditional_15_Template(rf, ctx) {
 function CateringListFieldComponent_For_2_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275elementStart(0, "button", 18);
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_Conditional_16_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const order_r4 = \u0275\u0275nextContext().$implicit;
@@ -6920,7 +6947,7 @@ function CateringListFieldComponent_For_2_Conditional_16_Template(rf, ctx) {
 }
 function CateringListFieldComponent_For_2_For_23_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 17);
+    \u0275\u0275elementStart(0, "span", 20);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -6936,7 +6963,7 @@ function CateringListFieldComponent_For_2_For_23_Conditional_3_Template(rf, ctx)
 function CateringListFieldComponent_For_2_For_23_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275elementStart(0, "button", 26);
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_For_23_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const item_r8 = \u0275\u0275nextContext().$implicit;
@@ -6952,26 +6979,26 @@ function CateringListFieldComponent_For_2_For_23_Conditional_9_Template(rf, ctx)
 function CateringListFieldComponent_For_2_For_23_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 14)(1, "div", 16);
+    \u0275\u0275elementStart(0, "div", 15)(1, "div", 19);
     \u0275\u0275text(2);
-    \u0275\u0275conditionalCreate(3, CateringListFieldComponent_For_2_For_23_Conditional_3_Template, 3, 7, "span", 17);
+    \u0275\u0275conditionalCreate(3, CateringListFieldComponent_For_2_For_23_Conditional_3_Template, 3, 7, "span", 20);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 18);
+    \u0275\u0275elementStart(4, "div", 21);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 19);
+    \u0275\u0275elementStart(6, "div", 22);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "currency");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(9, CateringListFieldComponent_For_2_For_23_Conditional_9_Template, 3, 0, "button", 20);
-    \u0275\u0275elementStart(10, "button", 21);
+    \u0275\u0275conditionalCreate(9, CateringListFieldComponent_For_2_For_23_Conditional_9_Template, 3, 0, "button", 23);
+    \u0275\u0275elementStart(10, "button", 24);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_For_23_Template_button_click_10_listener() {
       const item_r8 = \u0275\u0275restoreView(_r7).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.toggleFavourite(item_r8));
     });
-    \u0275\u0275elementStart(12, "icon", 22);
+    \u0275\u0275elementStart(12, "icon", 25);
     \u0275\u0275text(13, "favorite");
     \u0275\u0275elementEnd()()();
   }
@@ -7012,9 +7039,9 @@ function CateringListFieldComponent_For_2_Template(rf, ctx) {
     \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(14, CateringListFieldComponent_For_2_Conditional_14_Template, 4, 3, "button", 10);
-    \u0275\u0275conditionalCreate(15, CateringListFieldComponent_For_2_Conditional_15_Template, 4, 3, "button", 10);
-    \u0275\u0275conditionalCreate(16, CateringListFieldComponent_For_2_Conditional_16_Template, 3, 0, "button", 11);
-    \u0275\u0275elementStart(17, "button", 12);
+    \u0275\u0275conditionalCreate(15, CateringListFieldComponent_For_2_Conditional_15_Template, 4, 3, "button", 11);
+    \u0275\u0275conditionalCreate(16, CateringListFieldComponent_For_2_Conditional_16_Template, 3, 0, "button", 12);
+    \u0275\u0275elementStart(17, "button", 13);
     \u0275\u0275pipe(18, "translate");
     \u0275\u0275listener("click", function CateringListFieldComponent_For_2_Template_button_click_17_listener() {
       const order_r4 = \u0275\u0275restoreView(_r1).$implicit;
@@ -7024,8 +7051,8 @@ function CateringListFieldComponent_For_2_Template(rf, ctx) {
     \u0275\u0275elementStart(19, "icon");
     \u0275\u0275text(20);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(21, "div", 13);
-    \u0275\u0275repeaterCreate(22, CateringListFieldComponent_For_2_For_23_Template, 14, 14, "div", 14, _forTrack1);
+    \u0275\u0275elementStart(21, "div", 14);
+    \u0275\u0275repeaterCreate(22, CateringListFieldComponent_For_2_For_23_Template, 14, 14, "div", 15, _forTrack1);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -7196,7 +7223,7 @@ _CateringListFieldComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     useExisting: forwardRef(() => _CateringListFieldComponent),
     multi: true
   }
-]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["order", "", 1, "bg-base-100", "overflow-hidden", "rounded-xl", "border", "shadow-sm", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "name", "add-catering-item", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["order", "", 1, "bg-base-100", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "bg-error", "text-error-content", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order", 1, "text-error", 3, "click"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "bg-info", "text-info-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error"], ["icon", "", "matRipple", "", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"], ["icon", "", "matRipple", "", "matTooltip", "Remove Order Item", 1, "text-error", 3, "click"]], template: function CateringListFieldComponent_Template(rf, ctx) {
+]), \u0275\u0275NgOnChangesFeature], decls: 10, vars: 4, consts: [["list", "", 1, "space-y-2"], ["order", "", 1, "bg-base-100", "overflow-hidden", "rounded-xl", "border", "shadow-sm", 3, "border-error", "border-base-300"], ["btn", "", "matRipple", "", "name", "add-catering-item", 1, "inverse", "mt-2", "w-full", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "space-x-2"], ["order", "", 1, "bg-base-100", "overflow-hidden", "rounded-xl", "border", "shadow-sm"], [1, "flex", "items-center", "space-x-2", "p-4"], [1, "flex-1"], [1, "flex", "items-center", "space-x-4"], [1, "bg-error", "text-error-content", "flex", "h-6", "w-6", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", "aria-label", "Duplicate order", 3, "matTooltip"], ["icon", "", "matRipple", "", "aria-label", "Edit order", 3, "matTooltip"], ["icon", "", "matRipple", "", "aria-label", "Remove order", "matTooltip", "Remove Order", 1, "text-error"], ["icon", "", "matRipple", "", "aria-label", "Toggle order details", 3, "click", "matTooltip"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-4", "py-1", "hover:opacity-90"], ["icon", "", "matRipple", "", "aria-label", "Duplicate order", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "aria-label", "Edit order", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "aria-label", "Remove order", "matTooltip", "Remove Order", 1, "text-error", 3, "click"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "bg-info", "text-info-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", "aria-label", "Remove item", "matTooltip", "Remove Order Item", 1, "text-error"], ["icon", "", "matRipple", "", "aria-label", "Toggle favorite", "name", "toggle-catering-item-favourite", 3, "click", "matTooltip"], [3, "className"], ["icon", "", "matRipple", "", "aria-label", "Remove item", "matTooltip", "Remove Order Item", 1, "text-error", 3, "click"]], template: function CateringListFieldComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
     \u0275\u0275repeaterCreate(1, CateringListFieldComponent_For_2_Template, 24, 36, "div", 1, _forTrack0);
@@ -7289,6 +7316,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                             <button
                                 icon
                                 matRipple
+                                aria-label="Duplicate order"
                                 [matTooltip]="
                                     'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
                                         | translate
@@ -7302,6 +7330,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                             <button
                                 icon
                                 matRipple
+                                aria-label="Edit order"
                                 [matTooltip]="
                                     'CALENDAR_EVENT.CATERING_ORDER_EDIT'
                                         | translate
@@ -7315,6 +7344,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                             <button
                                 icon
                                 matRipple
+                                aria-label="Remove order"
                                 matTooltip="Remove Order"
                                 class="text-error"
                                 (click)="removeOrder(order)"
@@ -7325,6 +7355,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                         <button
                             icon
                             matRipple
+                            aria-label="Toggle order details"
                             [matTooltip]="
                                 (show_order[order.id]
                                     ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
@@ -7391,6 +7422,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                                     <button
                                         icon
                                         matRipple
+                                        aria-label="Remove item"
                                         matTooltip="Remove Order Item"
                                         class="text-error"
                                         (click)="removeOrderItem(order, item)"
@@ -7401,6 +7433,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
                                 <button
                                     icon
                                     matRipple
+                                    aria-label="Toggle favorite"
                                     name="toggle-catering-item-favourite"
                                     [matTooltip]="
                                         (favorites.includes(item.id)
@@ -7461,7 +7494,7 @@ var CateringListFieldComponent = _CateringListFieldComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringListFieldComponent, { className: "CateringListFieldComponent", filePath: "libs/catering/src/lib/catering-list-field.component.ts", lineNumber: 260 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringListFieldComponent, { className: "CateringListFieldComponent", filePath: "libs/catering/src/lib/catering-list-field.component.ts", lineNumber: 266 });
 })();
 
 // libs/catering/src/lib/catering-orders.service.ts
@@ -7737,7 +7770,7 @@ option-1,option,1 Sugar,20,Sugars,,,item-1,false`;
 _CateringImportMenuModalComponent.\u0275fac = function CateringImportMenuModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringImportMenuModalComponent)();
 };
-_CateringImportMenuModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringImportMenuModalComponent, selectors: [["catering-import-menu-modal"]], outputs: { event: "event" }, decls: 7, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "h-96", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "border-base-300", "hover:bg-base-200", "relative", "mx-2", "flex", "h-96", "w-[24rem]", "cursor-pointer", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-xl", "border-4", "border-dashed", "p-4"], [1, "text-8xl", "opacity-30"], [1, "px-4", "text-center", "opacity-30"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], [1, "flex", "items-center", "justify-center", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["diameter", "32"]], template: function CateringImportMenuModalComponent_Template(rf, ctx) {
+_CateringImportMenuModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringImportMenuModalComponent, selectors: [["catering-import-menu-modal"]], outputs: { event: "event" }, decls: 7, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], [1, "flex", "h-96", "w-[24rem]", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "border-base-300", "hover:bg-base-200", "relative", "mx-2", "flex", "h-96", "w-[24rem]", "cursor-pointer", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-xl", "border-4", "border-dashed", "p-4"], [1, "text-8xl", "opacity-30"], [1, "px-4", "text-center", "opacity-30"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], [1, "flex", "items-center", "justify-center", "p-2"], ["btn", "", "matRipple", "", 1, "w-full", 3, "click"], ["diameter", "32"]], template: function CateringImportMenuModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -7777,7 +7810,7 @@ var CateringImportMenuModalComponent = _CateringImportMenuModalComponent;
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -7851,12 +7884,15 @@ function CateringItemModalComponent_Conditional_5_Conditional_2_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 25);
-    \u0275\u0275element(8, "input", 28);
-    \u0275\u0275pipe(9, "translate");
-    \u0275\u0275elementStart(10, "mat-error");
-    \u0275\u0275text(11);
+    \u0275\u0275elementStart(7, "mat-form-field", 25)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 28);
     \u0275\u0275pipe(12, "translate");
+    \u0275\u0275elementStart(13, "mat-error");
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -7864,11 +7900,13 @@ function CateringItemModalComponent_Conditional_5_Conditional_2_Template(rf, ctx
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r1.form.controls.name.invalid && ctx_r1.form.controls.name.touched);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "FORM.NAME"));
-    \u0275\u0275advance(6);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "FORM.NAME"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "FORM.NAME"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 8, "FORM.NAME"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 10, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 9, "FORM.NAME_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 12, "FORM.NAME_REQUIRED"));
   }
 }
 function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx) {
@@ -7881,12 +7919,15 @@ function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 25);
-    \u0275\u0275element(8, "input", 30);
-    \u0275\u0275pipe(9, "translate");
-    \u0275\u0275elementStart(10, "mat-error");
-    \u0275\u0275text(11);
+    \u0275\u0275elementStart(7, "mat-form-field", 25)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 30);
     \u0275\u0275pipe(12, "translate");
+    \u0275\u0275elementStart(13, "mat-error");
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -7895,11 +7936,13 @@ function CateringItemModalComponent_Conditional_5_Conditional_4_Template(rf, ctx
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r1.form.controls.category.invalid && ctx_r1.form.controls.category.touched);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "COMMON.CATEGORY"));
-    \u0275\u0275advance(6);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 8, "COMMON.CATEGORY"))("matAutocomplete", auto_r3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "COMMON.CATEGORY"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 9, "COMMON.CATEGORY"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 11, "COMMON.CATEGORY"))("matAutocomplete", auto_r3);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 10, "COMMON.CATEGORY_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 13, "COMMON.CATEGORY_REQUIRED"));
   }
 }
 function CateringItemModalComponent_Conditional_5_Conditional_5_Template(rf, ctx) {
@@ -7912,18 +7955,23 @@ function CateringItemModalComponent_Conditional_5_Conditional_5_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 25);
-    \u0275\u0275element(8, "input", 32);
-    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementStart(7, "mat-form-field", 25)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 32);
+    \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
     const caterer_auto_r4 = \u0275\u0275reference(13);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "CATERING.CATERER"));
-    \u0275\u0275advance(6);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 5, "CATERING.CATERER"))("matAutocomplete", caterer_auto_r4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "CATERING.CATERER"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 6, "CATERING.CATERER"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 8, "CATERING.CATERER"))("matAutocomplete", caterer_auto_r4);
   }
 }
 function CateringItemModalComponent_Conditional_5_Conditional_7_Template(rf, ctx) {
@@ -7953,23 +8001,28 @@ function CateringItemModalComponent_Conditional_5_Conditional_17_Template(rf, ct
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 25);
-    \u0275\u0275element(5, "textarea", 35);
-    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementStart(4, "mat-form-field", 25)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "textarea", 35);
+    \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "COMMON.DESCRIPTION"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "COMMON.DESCRIPTION"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "COMMON.DESCRIPTION"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "COMMON.DESCRIPTION"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "COMMON.DESCRIPTION"));
   }
 }
-function CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template(rf, ctx) {
+function CateringItemModalComponent_Conditional_5_Conditional_18_For_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 39);
-    \u0275\u0275listener("removed", function CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template_mat_chip_row_removed_0_listener() {
+    \u0275\u0275listener("removed", function CateringItemModalComponent_Conditional_5_Conditional_18_For_11_Template_mat_chip_row_removed_0_listener() {
       const item_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removeTag(item_r7));
@@ -7996,11 +8049,15 @@ function CateringItemModalComponent_Conditional_5_Conditional_18_Template(rf, ct
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 25)(5, "mat-chip-grid", 37, 2);
-    \u0275\u0275repeaterCreate(7, CateringItemModalComponent_Conditional_5_Conditional_18_For_8_Template, 6, 7, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(4, "mat-form-field", 25)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "input", 38);
-    \u0275\u0275listener("matChipInputTokenEnd", function CateringItemModalComponent_Conditional_5_Conditional_18_Template_input_matChipInputTokenEnd_9_listener($event) {
+    \u0275\u0275elementStart(8, "mat-chip-grid", 37, 2);
+    \u0275\u0275repeaterCreate(10, CateringItemModalComponent_Conditional_5_Conditional_18_For_11_Template, 6, 7, "mat-chip-row", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "input", 38);
+    \u0275\u0275listener("matChipInputTokenEnd", function CateringItemModalComponent_Conditional_5_Conditional_18_Template_input_matChipInputTokenEnd_12_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addTag($event));
@@ -8008,19 +8065,21 @@ function CateringItemModalComponent_Conditional_5_Conditional_18_Template(rf, ct
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const chipList_r8 = \u0275\u0275reference(6);
+    const chipList_r8 = \u0275\u0275reference(9);
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r1.form.controls.tags.invalid && ctx_r1.form.controls.tags.touched);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "COMMON.TAGS"), " ");
-    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "COMMON.TAGS"), " ");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 9, "COMMON.TAGS"));
+    \u0275\u0275advance(4);
     \u0275\u0275repeater(ctx_r1.tag_list);
     \u0275\u0275advance(2);
     \u0275\u0275property("matChipInputFor", chipList_r8)("matChipInputSeparatorKeyCodes", ctx_r1.separators)("matChipInputAddOnBlur", true);
   }
 }
-function CateringItemModalComponent_Conditional_5_Conditional_38_Template(rf, ctx) {
+function CateringItemModalComponent_Conditional_5_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 19)(1, "label", 41);
     \u0275\u0275text(2);
@@ -8038,11 +8097,11 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "form", 6)(1, "div", 10);
-    \u0275\u0275conditionalCreate(2, CateringItemModalComponent_Conditional_5_Conditional_2_Template, 13, 11, "div", 11);
+    \u0275\u0275conditionalCreate(2, CateringItemModalComponent_Conditional_5_Conditional_2_Template, 16, 14, "div", 11);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 10);
-    \u0275\u0275conditionalCreate(4, CateringItemModalComponent_Conditional_5_Conditional_4_Template, 13, 12, "div", 11);
-    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Conditional_5_Template, 10, 7, "div", 11);
+    \u0275\u0275conditionalCreate(4, CateringItemModalComponent_Conditional_5_Conditional_4_Template, 16, 15, "div", 11);
+    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Conditional_5_Template, 13, 10, "div", 11);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "div", 12);
     \u0275\u0275conditionalCreate(7, CateringItemModalComponent_Conditional_5_Conditional_7_Template, 7, 9, "div", 11);
@@ -8057,8 +8116,8 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementStart(15, "div", 17);
     \u0275\u0275element(16, "a-counter", 18);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(17, CateringItemModalComponent_Conditional_5_Conditional_17_Template, 7, 6, "div", 19);
-    \u0275\u0275conditionalCreate(18, CateringItemModalComponent_Conditional_5_Conditional_18_Template, 10, 8, "div", 19);
+    \u0275\u0275conditionalCreate(17, CateringItemModalComponent_Conditional_5_Conditional_17_Template, 10, 9, "div", 19);
+    \u0275\u0275conditionalCreate(18, CateringItemModalComponent_Conditional_5_Conditional_18_Template, 13, 11, "div", 19);
     \u0275\u0275elementStart(19, "label");
     \u0275\u0275text(20);
     \u0275\u0275pipe(21, "translate");
@@ -8106,10 +8165,12 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementStart(33, "div", 23)(34, "label", 24);
     \u0275\u0275text(35, "Refund Lead Time (days)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(36, "mat-form-field", 25);
-    \u0275\u0275element(37, "input", 26);
+    \u0275\u0275elementStart(36, "mat-form-field", 25)(37, "mat-label");
+    \u0275\u0275text(38, "Refund Lead Time (days)");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(39, "input", 26);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(38, CateringItemModalComponent_Conditional_5_Conditional_38_Template, 5, 3, "div", 19);
+    \u0275\u0275conditionalCreate(40, CateringItemModalComponent_Conditional_5_Conditional_40_Template, 5, 3, "div", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -8145,10 +8206,10 @@ function CateringItemModalComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275property("name", \u0275\u0275pipeBind1(30, 43, "CATERING.TAG_DAIRY"))("ngModel", ctx_r1.hasTag("Contains Dairy"))("ngModelOptions", \u0275\u0275pureFunction0(50, _c013));
     \u0275\u0275advance(2);
     \u0275\u0275property("name", \u0275\u0275pipeBind1(32, 45, "CATERING.TAG_NUTS"))("ngModel", ctx_r1.hasTag("Contains Nuts"))("ngModelOptions", \u0275\u0275pureFunction0(51, _c013));
-    \u0275\u0275advance(6);
+    \u0275\u0275advance(8);
     \u0275\u0275property("min", 0);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.form.controls.images ? 38 : -1);
+    \u0275\u0275conditional(ctx_r1.form.controls.images ? 40 : -1);
   }
 }
 function CateringItemModalComponent_Conditional_6_Template(rf, ctx) {
@@ -8325,7 +8386,7 @@ var _CateringItemModalComponent = class _CateringItemModalComponent {
 _CateringItemModalComponent.\u0275fac = function CateringItemModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringItemModalComponent)();
 };
-_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-col", "space-y-2", "mb-4"], ["for", "refund-lead-days"], ["appearance", "outline"], ["matInput", "", "type", "number", "name", "refund-lead-days", "placeholder", "Days before event for refund cutoff", "formControlName", "refund_lead_days", 3, "min"], ["for", "title"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
+_CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemModalComponent, selectors: [["catering-item-modal"]], outputs: { event: "event" }, decls: 16, vars: 6, consts: [["auto", "matAutocomplete"], ["caterer_auto", "matAutocomplete"], ["chipList", ""], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], [1, "max-h-[65vh]", "max-w-xl", "overflow-auto", "px-4", 3, "formGroup"], [1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "w-full", "items-center", "space-x-2"], [1, "flex", "flex-1", "flex-col"], [1, "flex", "space-x-4"], [1, "flex", "flex-1", "items-center", "py-4"], ["formControlName", "accept_points", 1, "w-full", 3, "name"], [1, "mb-4", "space-y-2"], [1, "w-24", "min-w-0", "flex-1"], [1, "max-w-[calc(50%-0.5rem)]"], ["formControlName", "discount_cap", 3, "min", "max", "step", "render_fn"], [1, "flex", "flex-col"], ["list", "", 1, "-mx-2", "flex", "flex-wrap", "items-center", "pb-2"], [1, "min-w-[40%]", "flex-1", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "w-1/2", "min-w-[40%]", "p-2", 3, "ngModelChange", "name", "ngModel", "ngModelOptions"], [1, "flex", "flex-col", "space-y-2", "mb-4"], ["for", "refund-lead-days"], ["appearance", "outline"], ["matInput", "", "type", "number", "name", "refund-lead-days", "placeholder", "Days before event for refund cutoff", "formControlName", "refund_lead_days", 3, "min"], ["for", "title"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "category"], ["matInput", "", "name", "category", "formControlName", "category", 3, "placeholder", "matAutocomplete"], ["for", "caterer"], ["matInput", "", "name", "caterer", "formControlName", "caterer", 3, "placeholder", "matAutocomplete"], ["formControlName", "unit_price", 3, "min", "max", "step", "render_fn"], ["for", "description"], ["matInput", "", "name", "description", "formControlName", "description", 3, "placeholder"], ["for", "tags"], ["aria-label", "Item Tags"], ["name", "tags", "placeholder", "Item tags e.g. Gluten Free, Vegan etc.", 3, "matChipInputTokenEnd", "matChipInputFor", "matChipInputSeparatorKeyCodes", "matChipInputAddOnBlur"], [3, "removed"], ["matChipRemove", ""], ["for", "images"], ["name", "images", "formControlName", "images"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 3)(1, "h2", 4);
     \u0275\u0275text(2);
@@ -8333,7 +8394,7 @@ _CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(4, CateringItemModalComponent_Conditional_4_Template, 3, 0, "button", 5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Template, 39, 52, "form", 6)(6, CateringItemModalComponent_Conditional_6_Template, 5, 3, "div", 7);
+    \u0275\u0275conditionalCreate(5, CateringItemModalComponent_Conditional_5_Template, 41, 52, "form", 6)(6, CateringItemModalComponent_Conditional_6_Template, 5, 3, "div", 7);
     \u0275\u0275conditionalCreate(7, CateringItemModalComponent_Conditional_7_Template, 4, 4, "footer", 8);
     \u0275\u0275elementStart(8, "mat-autocomplete", null, 0);
     \u0275\u0275repeaterCreate(10, CateringItemModalComponent_For_11_Template, 2, 2, "mat-option", 9, \u0275\u0275repeaterTrackByIdentity);
@@ -8371,6 +8432,7 @@ _CateringItemModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCompon
   MatProgressSpinner,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -8409,7 +8471,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -8432,6 +8494,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                                 {{ 'FORM.NAME' | translate }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="name"
@@ -8459,6 +8522,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                                 }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.CATEGORY' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="category"
@@ -8481,6 +8545,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                                 }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'CATERING.CATERER' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="caterer"
@@ -8545,6 +8610,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                             'COMMON.DESCRIPTION' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                             <textarea
                                 matInput
                                 name="description"
@@ -8566,6 +8632,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                             {{ 'COMMON.TAGS' | translate }}
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.TAGS' | translate }}</mat-label>
                             <mat-chip-grid #chipList aria-label="Item Tags">
                                 @for (item of tag_list; track item) {
                                     <mat-chip-row (removed)="removeTag(item)">
@@ -8659,6 +8726,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
                 <div class="flex flex-col space-y-2 mb-4">
                     <label for="refund-lead-days">Refund Lead Time (days)</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Refund Lead Time (days)</mat-label>
                         <input
                             matInput
                             type="number"
@@ -8740,7 +8808,7 @@ var CateringItemModalComponent = _CateringItemModalComponent;
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemModalComponent, { className: "CateringItemModalComponent", filePath: "libs/catering/src/lib/catering-item-modal.component.ts", lineNumber: 381 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemModalComponent, { className: "CateringItemModalComponent", filePath: "libs/catering/src/lib/catering-item-modal.component.ts", lineNumber: 387 });
 })();
 
 // libs/catering/src/lib/catering-option-modal.component.ts
@@ -8761,12 +8829,15 @@ function CateringItemOptionModalComponent_Conditional_5_Conditional_1_Template(r
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 11);
-    \u0275\u0275element(8, "input", 12);
-    \u0275\u0275pipe(9, "translate");
-    \u0275\u0275elementStart(10, "mat-error");
-    \u0275\u0275text(11);
+    \u0275\u0275elementStart(7, "mat-form-field", 11)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 12);
     \u0275\u0275pipe(12, "translate");
+    \u0275\u0275elementStart(13, "mat-error");
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -8774,11 +8845,13 @@ function CateringItemOptionModalComponent_Conditional_5_Conditional_1_Template(r
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r0.form.controls.name.invalid && ctx_r0.form.controls.name.touched);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "FORM.NAME"));
-    \u0275\u0275advance(6);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "FORM.NAME"));
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "FORM.NAME"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 8, "FORM.NAME"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 10, "FORM.NAME"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 9, "FORM.NAME_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 12, "FORM.NAME_REQUIRED"));
   }
 }
 function CateringItemOptionModalComponent_Conditional_5_Conditional_2_Template(rf, ctx) {
@@ -8791,12 +8864,15 @@ function CateringItemOptionModalComponent_Conditional_5_Conditional_2_Template(r
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ": ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 11);
-    \u0275\u0275element(8, "input", 14);
-    \u0275\u0275pipe(9, "translate");
-    \u0275\u0275elementStart(10, "mat-error");
-    \u0275\u0275text(11);
+    \u0275\u0275elementStart(7, "mat-form-field", 11)(8, "mat-label");
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(11, "input", 14);
     \u0275\u0275pipe(12, "translate");
+    \u0275\u0275elementStart(13, "mat-error");
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "translate");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -8805,11 +8881,13 @@ function CateringItemOptionModalComponent_Conditional_5_Conditional_2_Template(r
     \u0275\u0275advance();
     \u0275\u0275classProp("error", ctx_r0.form.controls.group.invalid && ctx_r0.form.controls.group.touched);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "COMMON.TYPE"));
-    \u0275\u0275advance(6);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 8, "CATERING.ITEM_OPTION_TYPE_PLACEHOLDER"))("matAutocomplete", auto_r2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "COMMON.TYPE"));
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(10, 9, "COMMON.TYPE"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(12, 11, "CATERING.ITEM_OPTION_TYPE_PLACEHOLDER"))("matAutocomplete", auto_r2);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 10, "CATERING.ITEM_OPTION_TYPE_REQUIRED"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(15, 13, "CATERING.ITEM_OPTION_TYPE_REQUIRED"));
   }
 }
 function CateringItemOptionModalComponent_Conditional_5_Conditional_3_Template(rf, ctx) {
@@ -8830,25 +8908,30 @@ function CateringItemOptionModalComponent_Conditional_5_Conditional_4_Template(r
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 11);
-    \u0275\u0275element(5, "input", 16);
-    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementStart(4, "mat-form-field", 11)(5, "mat-label");
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(8, "input", 16);
+    \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 2, "CATERING.ITEM_PRICE"));
-    \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 4, "CATERING.ITEM_PRICE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 3, "CATERING.ITEM_PRICE"));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(7, 5, "CATERING.ITEM_PRICE"));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 7, "CATERING.ITEM_PRICE"));
   }
 }
 function CateringItemOptionModalComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "form", 4);
-    \u0275\u0275conditionalCreate(1, CateringItemOptionModalComponent_Conditional_5_Conditional_1_Template, 13, 11, "div", 8);
-    \u0275\u0275conditionalCreate(2, CateringItemOptionModalComponent_Conditional_5_Conditional_2_Template, 13, 12, "div", 8);
+    \u0275\u0275conditionalCreate(1, CateringItemOptionModalComponent_Conditional_5_Conditional_1_Template, 16, 14, "div", 8);
+    \u0275\u0275conditionalCreate(2, CateringItemOptionModalComponent_Conditional_5_Conditional_2_Template, 16, 15, "div", 8);
     \u0275\u0275conditionalCreate(3, CateringItemOptionModalComponent_Conditional_5_Conditional_3_Template, 3, 3, "div", 9);
-    \u0275\u0275conditionalCreate(4, CateringItemOptionModalComponent_Conditional_5_Conditional_4_Template, 7, 6, "div", 8);
+    \u0275\u0275conditionalCreate(4, CateringItemOptionModalComponent_Conditional_5_Conditional_4_Template, 10, 9, "div", 8);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -8950,7 +9033,7 @@ var _CateringItemOptionModalComponent = class _CateringItemOptionModalComponent 
 _CateringItemOptionModalComponent.\u0275fac = function CateringItemOptionModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringItemOptionModalComponent)();
 };
-_CateringItemOptionModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemOptionModalComponent, selectors: [["catering-option-modal"]], outputs: { event: "event" }, decls: 12, vars: 6, consts: [["auto", "matAutocomplete"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "max-h-[65vh]", "w-md", "overflow-auto", "px-4", 3, "formGroup"], ["loading", "", 1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "flex-col"], [1, "mb-4", "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "group"], ["matInput", "", "name", "group", "formControlName", "group", 3, "placeholder", "matAutocomplete"], ["formControlName", "multiple", 3, "name"], ["matInput", "", "name", "unit-price", "type", "number", "formControlName", "unit_price", 3, "placeholder"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemOptionModalComponent_Template(rf, ctx) {
+_CateringItemOptionModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringItemOptionModalComponent, selectors: [["catering-option-modal"]], outputs: { event: "event" }, decls: 12, vars: 6, consts: [["auto", "matAutocomplete"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], [1, "max-h-[65vh]", "w-md", "overflow-auto", "px-4", 3, "formGroup"], ["loading", "", 1, "flex", "w-64", "flex-col", "items-center", "space-y-2", "p-8"], [1, "border-base-200", "flex", "items-center", "justify-end", "border-t", "border-solid", "px-4", "py-2"], [3, "value"], [1, "flex", "flex-col"], [1, "mb-4", "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["matInput", "", "name", "name", "formControlName", "name", 3, "placeholder"], ["for", "group"], ["matInput", "", "name", "group", "formControlName", "group", 3, "placeholder", "matAutocomplete"], ["formControlName", "multiple", 3, "name"], ["matInput", "", "name", "unit-price", "type", "number", "formControlName", "unit_price", 3, "placeholder"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "w-32", 3, "click", "disabled"]], template: function CateringItemOptionModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 1)(1, "h2", 2);
     \u0275\u0275text(2);
@@ -8988,6 +9071,7 @@ _CateringItemOptionModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275define
   MatAutocompleteTrigger,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatError,
   MatInputModule,
   MatInput,
@@ -9021,7 +9105,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -9043,6 +9127,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
                             {{ 'FORM.NAME' | translate }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -9067,6 +9152,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
                             {{ 'COMMON.TYPE' | translate }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.TYPE' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="group"
@@ -9101,6 +9187,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
                             'CATERING.ITEM_PRICE' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'CATERING.ITEM_PRICE' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="unit-price"
@@ -9159,7 +9246,7 @@ var CateringItemOptionModalComponent = _CateringItemOptionModalComponent;
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemOptionModalComponent, { className: "CateringItemOptionModalComponent", filePath: "libs/catering/src/lib/catering-option-modal.component.ts", lineNumber: 178 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringItemOptionModalComponent, { className: "CateringItemOptionModalComponent", filePath: "libs/catering/src/lib/catering-option-modal.component.ts", lineNumber: 181 });
 })();
 
 // node_modules/@angular/material/fesm2022/tabs.mjs
@@ -13247,22 +13334,28 @@ function CateringMenuComponent_ng_template_6_Template(rf, ctx) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-checkbox", 6);
     \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("ngModelChange", function CateringMenuComponent_ng_template_6_Template_mat_checkbox_ngModelChange_0_listener($event) {
       const row_r2 = \u0275\u0275restoreView(_r1).row;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.setEnabled(row_r2, $event));
     });
-    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 7);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const row_r2 = ctx.row;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "CATERING.ORDER_ALLOW"))("ngModel", ctx_r2.isEnabled(row_r2));
+    \u0275\u0275property("aria-label", \u0275\u0275pipeBind1(1, 4, "CATERING.ORDER_ALLOW") + ": " + row_r2.name)("matTooltip", \u0275\u0275pipeBind1(2, 6, "CATERING.ORDER_ALLOW"))("ngModel", ctx_r2.isEnabled(row_r2));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 8, "CATERING.ORDER_ALLOW") + ": " + row_r2.name);
   }
 }
 function CateringMenuComponent_ng_template_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275elementStart(0, "div", 8);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "currency");
     \u0275\u0275elementEnd();
@@ -13277,49 +13370,49 @@ function CateringMenuComponent_ng_template_8_Template(rf, ctx) {
 function CateringMenuComponent_ng_template_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "button", 9)(2, "icon");
+    \u0275\u0275elementStart(0, "div", 9)(1, "button", 10)(2, "icon");
     \u0275\u0275text(3, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "mat-menu", null, 4)(6, "button", 10);
+    \u0275\u0275elementStart(4, "mat-menu", null, 4)(6, "button", 11);
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_10_Template_button_click_6_listener() {
       const row_r6 = \u0275\u0275restoreView(_r5).row;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.addOption(row_r6));
     });
-    \u0275\u0275elementStart(7, "div", 11)(8, "icon");
+    \u0275\u0275elementStart(7, "div", 12)(8, "icon");
     \u0275\u0275text(9, "add");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(10, "div");
     \u0275\u0275text(11);
     \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(13, "button", 10);
+    \u0275\u0275elementStart(13, "button", 11);
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_10_Template_button_click_13_listener() {
       const row_r6 = \u0275\u0275restoreView(_r5).row;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.editItem(row_r6));
     });
-    \u0275\u0275elementStart(14, "div", 11)(15, "icon");
+    \u0275\u0275elementStart(14, "div", 12)(15, "icon");
     \u0275\u0275text(16, "edit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(17, "div");
     \u0275\u0275text(18);
     \u0275\u0275pipe(19, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(20, "button", 10);
+    \u0275\u0275elementStart(20, "button", 11);
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_10_Template_button_click_20_listener() {
       const row_r6 = \u0275\u0275restoreView(_r5).row;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.removeItem(row_r6));
     });
-    \u0275\u0275elementStart(21, "div", 11)(22, "icon", 12);
+    \u0275\u0275elementStart(21, "div", 12)(22, "icon", 13);
     \u0275\u0275text(23, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(24, "div");
     \u0275\u0275text(25);
     \u0275\u0275pipe(26, "translate");
     \u0275\u0275elementEnd()()()();
-    \u0275\u0275elementStart(27, "button", 13);
+    \u0275\u0275elementStart(27, "button", 14);
     \u0275\u0275pipe(28, "translate");
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_10_Template_button_click_27_listener() {
       const row_r6 = \u0275\u0275restoreView(_r5).row;
@@ -13337,14 +13430,16 @@ function CateringMenuComponent_ng_template_10_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275classProp("opacity-0", !ctx_r2.can_edit);
     \u0275\u0275property("disabled", !ctx_r2.can_edit)("matMenuTriggerFor", menu_r7);
+    \u0275\u0275attribute("aria-label", "More options for " + row_r6.name);
     \u0275\u0275advance(10);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 10, "CATERING.ITEM_OPTION_ADD"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 12, "CATERING.ITEM_OPTION_ADD"), " ");
     \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(19, 12, "CATERING.ITEM_EDIT"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(19, 14, "CATERING.ITEM_EDIT"));
     \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 14, "CATERING.ITEM_REMOVE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 16, "CATERING.ITEM_REMOVE"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("disabled", !(row_r6.options == null ? null : row_r6.options.length))("matTooltip", (row_r6.options == null ? null : row_r6.options.length) ? \u0275\u0275pipeBind1(28, 16, ctx_r2.show_children[row_r6.id] ? "CATERING.ITEM_OPTION_HIDE" : "CATERING.ITEM_OPTION_SHOW") : "");
+    \u0275\u0275property("disabled", !(row_r6.options == null ? null : row_r6.options.length))("matTooltip", (row_r6.options == null ? null : row_r6.options.length) ? \u0275\u0275pipeBind1(28, 18, ctx_r2.show_children[row_r6.id] ? "CATERING.ITEM_OPTION_HIDE" : "CATERING.ITEM_OPTION_SHOW") : "");
+    \u0275\u0275attribute("aria-label", "Toggle options for " + row_r6.name);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r2.show_children[row_r6.id] ? "keyboard_arrow_down" : "chevron_right", " ");
   }
@@ -13352,7 +13447,7 @@ function CateringMenuComponent_ng_template_10_Template(rf, ctx) {
 function CateringMenuComponent_ng_template_12_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 21);
+    \u0275\u0275elementStart(0, "button", 22);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_12_For_1_Conditional_7_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
@@ -13366,13 +13461,15 @@ function CateringMenuComponent_ng_template_12_For_1_Conditional_7_Template(rf, c
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "CATERING.ITEM_OPTION_EDIT"));
+    const option_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "CATERING.ITEM_OPTION_EDIT"));
+    \u0275\u0275attribute("aria-label", "Edit option " + option_r9.name);
   }
 }
 function CateringMenuComponent_ng_template_12_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function CateringMenuComponent_ng_template_12_For_1_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r11);
@@ -13381,26 +13478,28 @@ function CateringMenuComponent_ng_template_12_For_1_Conditional_8_Template(rf, c
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.removeOption(row_r10, option_r9));
     });
-    \u0275\u0275elementStart(2, "icon", 12);
+    \u0275\u0275elementStart(2, "icon", 13);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "CATERING.ITEM_OPTION_REMOVE"));
+    const option_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "CATERING.ITEM_OPTION_REMOVE"));
+    \u0275\u0275attribute("aria-label", "Delete option " + option_r9.name);
   }
 }
 function CateringMenuComponent_ng_template_12_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 14);
-    \u0275\u0275element(1, "div", 15);
-    \u0275\u0275elementStart(2, "div", 16)(3, "div", 17);
+    \u0275\u0275elementStart(0, "div", 15);
+    \u0275\u0275element(1, "div", 16);
+    \u0275\u0275elementStart(2, "div", 17)(3, "div", 18);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 18);
+    \u0275\u0275elementStart(5, "div", 19);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(7, CateringMenuComponent_ng_template_12_For_1_Conditional_7_Template, 4, 3, "button", 19);
-    \u0275\u0275conditionalCreate(8, CateringMenuComponent_ng_template_12_For_1_Conditional_8_Template, 4, 3, "button", 20);
+    \u0275\u0275conditionalCreate(7, CateringMenuComponent_ng_template_12_For_1_Conditional_7_Template, 4, 4, "button", 20);
+    \u0275\u0275conditionalCreate(8, CateringMenuComponent_ng_template_12_For_1_Conditional_8_Template, 4, 4, "button", 21);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -13418,7 +13517,7 @@ function CateringMenuComponent_ng_template_12_For_1_Template(rf, ctx) {
 }
 function CateringMenuComponent_ng_template_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, CateringMenuComponent_ng_template_12_For_1_Template, 9, 4, "div", 14, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(0, CateringMenuComponent_ng_template_12_For_1_Template, 9, 4, "div", 15, \u0275\u0275repeaterTrackByIdentity);
   }
   if (rf & 2) {
     const row_r10 = ctx.row;
@@ -13471,7 +13570,7 @@ var _CateringMenuComponent = class _CateringMenuComponent {
 _CateringMenuComponent.\u0275fac = function CateringMenuComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringMenuComponent)();
 };
-_CateringMenuComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringMenuComponent, selectors: [["catering-menu"]], decls: 14, vars: 38, consts: [["active_template", ""], ["price_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], [1, "block", "w-full", "min-w-lg", "text-sm", 3, "data", "columns", "filter", "show_children", "child_template", "sortable", "empty_message"], ["matTooltipPosition", "right", 1, "mx-auto", 3, "ngModelChange", "matTooltip", "ngModel"], [1, "bg-secondary", "text-secondary-content", "mx-auto", "flex", "items-center", "rounded-sm", "px-2", "py-1", "font-mono", "text-xs"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", 3, "disabled", "matMenuTriggerFor"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2"], [1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "disabled", "matTooltip"], [1, "border-base-200", "relative", "flex", "items-center", "space-x-2", "border-b", "border-solid", "p-2"], [1, "absolute", "inset-y-0", "left-0", "w-2", "bg-black", "opacity-10"], [1, "flex-1", "pr-2", "pl-4"], [1, "text"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "click", "matTooltip"]], template: function CateringMenuComponent_Template(rf, ctx) {
+_CateringMenuComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringMenuComponent, selectors: [["catering-menu"]], decls: 14, vars: 38, consts: [["active_template", ""], ["price_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], [1, "block", "w-full", "min-w-lg", "text-sm", 3, "data", "columns", "filter", "show_children", "child_template", "sortable", "empty_message"], ["matTooltipPosition", "right", 1, "mx-auto", 3, "ngModelChange", "aria-label", "matTooltip", "ngModel"], [1, "sr-only"], [1, "bg-secondary", "text-secondary-content", "mx-auto", "flex", "items-center", "rounded-sm", "px-2", "py-1", "font-mono", "text-xs"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", 3, "disabled", "matMenuTriggerFor"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2", "pr-2"], [1, "text-error"], ["icon", "", "matRipple", "", 3, "click", "disabled", "matTooltip"], [1, "border-base-200", "relative", "flex", "items-center", "space-x-2", "border-b", "border-solid", "p-2"], [1, "absolute", "inset-y-0", "left-0", "w-2", "bg-black", "opacity-10"], [1, "flex-1", "pr-2", "pl-4"], [1, "text"], [1, "text-xs", "opacity-60"], ["icon", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "matTooltip"], ["icon", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", 1, "mr-1!", 3, "click", "matTooltip"]], template: function CateringMenuComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "simple-table", 5);
     \u0275\u0275pipe(1, "translate");
@@ -13479,7 +13578,7 @@ _CateringMenuComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275pipe(5, "translate");
-    \u0275\u0275template(6, CateringMenuComponent_ng_template_6_Template, 2, 4, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(8, CateringMenuComponent_ng_template_8_Template, 3, 4, "ng-template", null, 1, \u0275\u0275templateRefExtractor)(10, CateringMenuComponent_ng_template_10_Template, 31, 18, "ng-template", null, 2, \u0275\u0275templateRefExtractor)(12, CateringMenuComponent_ng_template_12_Template, 2, 0, "ng-template", null, 3, \u0275\u0275templateRefExtractor);
+    \u0275\u0275template(6, CateringMenuComponent_ng_template_6_Template, 6, 10, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(8, CateringMenuComponent_ng_template_8_Template, 3, 4, "ng-template", null, 1, \u0275\u0275templateRefExtractor)(10, CateringMenuComponent_ng_template_10_Template, 31, 20, "ng-template", null, 2, \u0275\u0275templateRefExtractor)(12, CateringMenuComponent_ng_template_12_Template, 2, 0, "ng-template", null, 3, \u0275\u0275templateRefExtractor);
   }
   if (rf & 2) {
     const active_template_r12 = \u0275\u0275reference(7);
@@ -13554,11 +13653,18 @@ var CateringMenuComponent = _CateringMenuComponent;
         <ng-template #active_template let-row="row">
             <mat-checkbox
                 class="mx-auto"
+                [aria-label]="
+                    ('CATERING.ORDER_ALLOW' | translate) + ': ' + row.name
+                "
                 [matTooltip]="'CATERING.ORDER_ALLOW' | translate"
                 matTooltipPosition="right"
                 [ngModel]="isEnabled(row)"
                 (ngModelChange)="setEnabled(row, $event)"
-            />
+            >
+                <span class="sr-only">{{
+                    ('CATERING.ORDER_ALLOW' | translate) + ': ' + row.name
+                }}</span>
+            </mat-checkbox>
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
@@ -13572,6 +13678,7 @@ var CateringMenuComponent = _CateringMenuComponent;
                 <button
                     icon
                     matRipple
+                    [attr.aria-label]="'More options for ' + row.name"
                     [disabled]="!can_edit"
                     [class.opacity-0]="!can_edit"
                     [matMenuTriggerFor]="menu"
@@ -13615,6 +13722,7 @@ var CateringMenuComponent = _CateringMenuComponent;
                 <button
                     icon
                     matRipple
+                    [attr.aria-label]="'Toggle options for ' + row.name"
                     [disabled]="!row.options?.length"
                     [matTooltip]="
                         row.options?.length
@@ -13654,6 +13762,7 @@ var CateringMenuComponent = _CateringMenuComponent;
                         <button
                             icon
                             matRipple
+                            [attr.aria-label]="'Edit option ' + option.name"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_EDIT' | translate
                             "
@@ -13666,6 +13775,7 @@ var CateringMenuComponent = _CateringMenuComponent;
                         <button
                             icon
                             matRipple
+                            [attr.aria-label]="'Delete option ' + option.name"
                             class="mr-1!"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_REMOVE' | translate
@@ -13692,7 +13802,7 @@ var CateringMenuComponent = _CateringMenuComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringMenuComponent, { className: "CateringMenuComponent", filePath: "libs/catering/src/lib/catering-menu.component.ts", lineNumber: 209 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringMenuComponent, { className: "CateringMenuComponent", filePath: "libs/catering/src/lib/catering-menu.component.ts", lineNumber: 220 });
 })();
 
 // libs/catering/src/lib/catering-order-item.component.ts
@@ -14174,7 +14284,7 @@ var _CateringOrderListComponent = class _CateringOrderListComponent extends Asyn
 _CateringOrderListComponent.\u0275fac = function CateringOrderListComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _CateringOrderListComponent)();
 };
-_CateringOrderListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderListComponent, selectors: [["catering-order-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 61, consts: [["state_template", ""], ["time_template", ""], ["location_template", ""], ["host_template", ""], ["status_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], ["notes_template", ""], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto"], ["mode", "indeterminate", 1, "sticky", "top-0", "left-0", "w-full"], [1, "block", "w-full", "min-w-6xl", "text-sm", 3, "data", "columns", "sortable", "show_children", "child_template", "empty_message"], [1, "p-2"], [1, "bg-base-200", "flex", "items-center", "justify-center", "rounded-full", "p-2", "text-2xl"], [1, "p-4"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2"], [1, "opacity-30"], ["status", "", "matRipple", "", 1, "flex", "h-10", "w-36", "items-center", "rounded-3xl", "border-none", "px-4", "text-base", "text-white", 3, "matMenuTriggerFor"], [1, "mx-2", "flex", "text-center", "capitalize"], [1, "pl-2"], ["mat-menu-item", "", 1, "flex", "items-center"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "mr-2", "h-4", "w-4", "rounded-full"], [1, "mr-2", "w-20"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", "customTooltip", "", "xPosition", "end", "yPosition", "top", 3, "hover", "content", "disabled"], ["icon", "", "matRipple", "", 3, "click"], [1, "border-base-200", "bg-base-100", "text-base-content", "max-w-lg", "min-w-32", "rounded-lg", "border", "p-2", "shadow-sm"], [1, "mb-2"], [1, "bg-base-200", "rounded-sm", "px-4", "py-2", "text-sm"], [1, "relative", "z-0", "m-0", "w-full", "list-none", "p-0"], ["catering-order-item", "", 1, "flex", "items-center", 3, "order_id", "item"]], template: function CateringOrderListComponent_Template(rf, ctx) {
+_CateringOrderListComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CateringOrderListComponent, selectors: [["catering-order-list"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 27, vars: 61, consts: [["state_template", ""], ["time_template", ""], ["location_template", ""], ["host_template", ""], ["status_template", ""], ["actions_template", ""], ["child_template", ""], ["menu", "matMenu"], ["notes_template", ""], [1, "flex", "h-full", "w-full", "flex-col", "overflow-auto"], ["mode", "indeterminate", 1, "sticky", "top-0", "left-0", "w-full"], [1, "block", "w-full", "min-w-6xl", "text-sm", 3, "data", "columns", "sortable", "show_children", "child_template", "empty_message"], [1, "p-2"], [1, "bg-base-200", "flex", "items-center", "justify-center", "rounded-full", "p-2", "text-2xl"], [1, "p-4"], [1, "text-xs", "opacity-30"], [1, "px-4", "py-2"], [1, "opacity-30"], ["status", "", "matRipple", "", 1, "flex", "h-10", "w-36", "items-center", "rounded-3xl", "border-none", "px-4", "text-base", "text-white", 3, "matMenuTriggerFor"], [1, "mx-2", "flex", "text-center", "capitalize"], [1, "pl-2"], ["mat-menu-item", "", 1, "flex", "items-center"], ["mat-menu-item", "", 1, "flex", "items-center", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "mr-2", "h-4", "w-4", "rounded-full"], [1, "mr-2", "w-20"], [1, "mx-auto", "flex", "items-center", "space-x-2", "p-2"], ["icon", "", "matRipple", "", "aria-label", "View details", "customTooltip", "", "xPosition", "end", "yPosition", "top", 3, "hover", "content", "disabled"], ["icon", "", "matRipple", "", "aria-label", "Toggle items", 3, "click"], [1, "border-base-200", "bg-base-100", "text-base-content", "max-w-lg", "min-w-32", "rounded-lg", "border", "p-2", "shadow-sm"], [1, "mb-2"], [1, "bg-base-200", "rounded-sm", "px-4", "py-2", "text-sm"], [1, "relative", "z-0", "m-0", "w-full", "list-none", "p-0"], ["catering-order-item", "", 1, "flex", "items-center", 3, "order_id", "item"]], template: function CateringOrderListComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9);
     \u0275\u0275element(1, "mat-progress-bar", 10);
@@ -14392,6 +14502,7 @@ var CateringOrderListComponent = _CateringOrderListComponent;
                     <button
                         icon
                         matRipple
+                        aria-label="View details"
                         customTooltip
                         [hover]="true"
                         xPosition="end"
@@ -14416,6 +14527,7 @@ var CateringOrderListComponent = _CateringOrderListComponent;
                     <button
                         icon
                         matRipple
+                        aria-label="Toggle items"
                         (click)="show_children[row.id] = !show_children[row.id]"
                     >
                         <icon>
@@ -14457,7 +14569,7 @@ var CateringOrderListComponent = _CateringOrderListComponent;
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringOrderListComponent, { className: "CateringOrderListComponent", filePath: "libs/catering/src/lib/catering-order-list.component.ts", lineNumber: 256 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CateringOrderListComponent, { className: "CateringOrderListComponent", filePath: "libs/catering/src/lib/catering-order-list.component.ts", lineNumber: 258 });
 })();
 
 // libs/catering/src/lib/charge-code-list-modal.component.ts
@@ -14471,39 +14583,45 @@ function ChargeCodeListModalComponent_Conditional_4_Template(rf, ctx) {
 function ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 7)(1, "mat-form-field", 8)(2, "input", 9);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275twoWayListener("ngModelChange", function ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template_input_ngModelChange_2_listener($event) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "mat-form-field", 8)(2, "mat-label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "input", 9);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275twoWayListener("ngModelChange", function ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template_input_ngModelChange_5_listener($event) {
       const \u0275$index_17_r2 = \u0275\u0275restoreView(_r1).$index;
       const ctx_r2 = \u0275\u0275nextContext(3);
       \u0275\u0275twoWayBindingSet(ctx_r2.charge_codes()[\u0275$index_17_r2], $event) || (ctx_r2.charge_codes()[\u0275$index_17_r2] = $event);
       return \u0275\u0275resetView($event);
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 10);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275listener("click", function ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(7, "button", 10);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275listener("click", function ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template_button_click_7_listener() {
       const \u0275$index_17_r2 = \u0275\u0275restoreView(_r1).$index;
       const ctx_r2 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r2.removeCode(\u0275$index_17_r2));
     });
-    \u0275\u0275elementStart(6, "icon", 11);
-    \u0275\u0275text(7, "delete");
+    \u0275\u0275elementStart(9, "icon", 11);
+    \u0275\u0275text(10, "delete");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const \u0275$index_17_r2 = ctx.$index;
     const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 4, "CATERING.CHARGE_CODES"));
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r2.charge_codes()[\u0275$index_17_r2]);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(3, 3, "CATERING.CHARGE_CODES"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 6, "CATERING.CHARGE_CODES"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(5, 5, "CATERING.CHARGE_CODES_REMOVE"));
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(8, 8, "CATERING.CHARGE_CODES_REMOVE"));
   }
 }
 function ChargeCodeListModalComponent_Conditional_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template, 8, 7, "div", 7, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(0, ChargeCodeListModalComponent_Conditional_5_Conditional_1_For_1_Template, 11, 10, "div", 7, \u0275\u0275repeaterTrackByIndex);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
@@ -14668,7 +14786,7 @@ code-2,Another Code`;
 _ChargeCodeListModalComponent.\u0275fac = function ChargeCodeListModalComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _ChargeCodeListModalComponent)();
 };
-_ChargeCodeListModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChargeCodeListModalComponent, selectors: [["charge-code-list-modal"]], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "flex", "max-h-[65vh]", "min-h-80", "flex-col", "overflow-auto"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-20"], [1, "border-base-200", "flex", "items-center", "space-x-2", "border-t", "p-2"], [1, "flex", "h-full", "min-h-80", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-2", "px-2", "py-1"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "matRipple", "", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click", "matTooltip"], [1, "text-2xl"], [1, "opacity-30"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "inverse", "relative", "w-48"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click", "matTooltip"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function ChargeCodeListModalComponent_Template(rf, ctx) {
+_ChargeCodeListModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ChargeCodeListModalComponent, selectors: [["charge-code-list-modal"]], decls: 8, vars: 6, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", "", "aria-label", "Close dialog"], [1, "flex", "max-h-[65vh]", "min-h-80", "flex-col", "overflow-auto"], [1, "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-20"], [1, "border-base-200", "flex", "items-center", "space-x-2", "border-t", "p-2"], [1, "flex", "h-full", "min-h-80", "w-full", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-2", "px-2", "py-1"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "matRipple", "", "aria-label", "Remove charge code", 1, "border-error", "text-error", "h-12", "w-12", "rounded-sm", "border", 3, "click", "matTooltip"], [1, "text-2xl"], [1, "opacity-30"], ["diameter", "32"], ["btn", "", "matRipple", "", 1, "inverse", "relative", "w-48"], ["type", "file", 1, "absolute", "inset-0", "opacity-0", 3, "change"], ["icon", "", "matRipple", "", "aria-label", "Download template", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click", "matTooltip"], ["btn", "", "matRipple", "", 1, "w-48", 3, "click"]], template: function ChargeCodeListModalComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
     \u0275\u0275text(2);
@@ -14700,6 +14818,7 @@ _ChargeCodeListModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComp
   MatDialogClose,
   MatFormFieldModule,
   MatFormField,
+  MatLabel,
   MatInputModule,
   MatInput,
   FormsModule,
@@ -14721,7 +14840,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -14737,6 +14856,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                                 appearance="outline"
                                 class="no-subscript flex-1"
                             >
+                                <mat-label>{{ 'CATERING.CHARGE_CODES' | translate }}</mat-label>
                                 <input
                                     matInput
                                     [(ngModel)]="charge_codes()[i]"
@@ -14748,6 +14868,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                             <button
                                 icon
                                 matRipple
+                                aria-label="Remove charge code"
                                 class="border-error text-error h-12 w-12 rounded-sm border"
                                 [matTooltip]="
                                     'CATERING.CHARGE_CODES_REMOVE' | translate
@@ -14791,6 +14912,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
                 <button
                     icon
                     matRipple
+                    aria-label="Download template"
                     (click)="downloadTemplate()"
                     [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
                     class="border-secondary text-secondary h-12 w-12 rounded-sm border"
@@ -14819,7 +14941,7 @@ var ChargeCodeListModalComponent = _ChargeCodeListModalComponent;
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChargeCodeListModalComponent, { className: "ChargeCodeListModalComponent", filePath: "libs/catering/src/lib/charge-code-list-modal.component.ts", lineNumber: 128 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ChargeCodeListModalComponent, { className: "ChargeCodeListModalComponent", filePath: "libs/catering/src/lib/charge-code-list-modal.component.ts", lineNumber: 131 });
 })();
 
 // apps/workplace/src/app/book/meeting-flow/meeting-flow-confirm-modal.component.ts
@@ -19570,4 +19692,4 @@ var BookModule = _BookModule;
 export {
   BookModule
 };
-//# sourceMappingURL=book.module-S2QJTA4R.js.map
+//# sourceMappingURL=book.module-3SPK2XAA.js.map
