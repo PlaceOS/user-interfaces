@@ -38,6 +38,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             </h2>
             <div class="w-px flex-1"></div>
             <mat-form-field appearance="outline" class="no-subscript">
+                <mat-label>{{ (active() === 'items'
+                    ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                    : active() === 'purchase-orders'
+                      ? 'APP.CONCIERGE.ASSETS_ITEM_SEARCH'
+                      : 'APP.CONCIERGE.ASSETS_REQUESTS_SEARCH'
+                ) | translate }}</mat-label>
                 <icon matPrefix class="relative top-1 -left-1 text-2xl">
                     search
                 </icon>
@@ -92,6 +98,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             (options | async)?.view === 'grid'
                         "
                         (click)="setOptions({ view: 'grid' })"
+                        [attr.aria-label]="'COMMON.VIEW_AS_GRID' | translate"
                         [matTooltip]="'COMMON.VIEW_AS_GRID' | translate"
                     >
                         <icon class="text-2xl">view_module</icon>
@@ -107,6 +114,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             (options | async)?.view === 'list'
                         "
                         (click)="setOptions({ view: 'list' })"
+                        [attr.aria-label]="'COMMON.VIEW_AS_LIST' | translate"
                         [matTooltip]="'COMMON.VIEW_AS_LIST' | translate"
                     >
                         <icon class="text-2xl">view_list</icon>
@@ -117,6 +125,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     icon
                     matRipple
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
+                    "
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_CONFIG' | translate
                     "
@@ -128,6 +139,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     icon
                     matRipple
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
+                    "
                     [matTooltip]="
                         'APP.CONCIERGE.ASSETS_MANAGE_BOOKING_RULES' | translate
                     "
@@ -140,6 +154,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         icon
                         matRipple
                         class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
+                        "
                         [matTooltip]="
                             'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate
                         "
@@ -153,6 +170,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         @if (use_region && (buildings | async)?.length) {
             <div class="flex items-center space-x-2 px-4 pb-2">
                 <mat-form-field appearance="outline" class="no-subscript w-48">
+                    <mat-label>{{ 'COMMON.BUILDINGS_ALL' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="(building | async)?.id"
                         (ngModelChange)="setBuilding($event)"

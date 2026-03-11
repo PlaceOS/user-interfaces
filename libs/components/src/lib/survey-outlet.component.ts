@@ -142,6 +142,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <input
                                                             matInput
                                                             [formControlName]="
@@ -159,6 +160,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <textarea
                                                             matInput
                                                             [formControlName]="
@@ -176,6 +178,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                         appearance="outline"
                                                         class="no-subscript w-full"
                                                     >
+                                                        <mat-label>{{ question.title }}</mat-label>
                                                         <mat-select
                                                             [formControlName]="
                                                                 question.id

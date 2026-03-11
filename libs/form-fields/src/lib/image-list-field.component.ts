@@ -164,6 +164,7 @@ export interface UploadDetails {
             }
         </div>
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMMON.IMAGE_ADD_URL' | translate }}</mat-label>
             <mat-chip-grid #chipList aria-label="Image List">
                 @for (item of list; track item) {
                     <mat-chip-row (removed)="removeImage(item)">

@@ -20,7 +20,7 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'view-event-details',
     template: `
         <div
-            class="bg-neutral bg-opacity-30 fixed inset-0"
+            class="bg-neutral bg-opacity-60 fixed inset-0"
             (click)="close()"
         ></div>
         <div
@@ -69,7 +69,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                                                 user.last_name
                                     }}
                                 </div>
-                                <div class="text-xs opacity-50">
+                                <div class="text-xs opacity-60">
                                     {{ user.email }}
                                 </div>
                             </div>
@@ -130,7 +130,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                     </button>
                 </div>
             }
-            <button name="close" icon matRipple (click)="close()">
+            <button name="close" icon matRipple (click)="close()" aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </div>

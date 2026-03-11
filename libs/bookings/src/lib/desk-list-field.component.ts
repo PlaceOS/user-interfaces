@@ -42,6 +42,7 @@ const EMPTY_FAVS: string[] = [];
                                             setFeatures(opt, $event)
                                         "
                                         [ngModelOptions]="{ standalone: true }"
+                                        [aria-label]="opt"
                                     >
                                         {{ opt }}
                                     </mat-checkbox>

@@ -96,7 +96,7 @@ import {
                     <div class="p-4">
                         {{ (data | building)?.display_name }}
                         @if (!(data | building)) {
-                            <span class="opacity-30">
+                            <span class="opacity-60">
                                 {{ 'RESOURCE.BUILDING_EMPTY' | translate }}
                             </span>
                         }
@@ -106,7 +106,7 @@ import {
                     <div class="p-4 font-mono text-xs">
                         {{ data }}
                         @if (!data) {
-                            <span class="opacity-30">
+                            <span class="opacity-60">
                                 {{ 'COMMON.TRIGGER_EMPTY' | translate }}
                             </span>
                         }
@@ -118,6 +118,7 @@ import {
                         matRipple
                         [matMenuTriggerFor]="menu"
                         class="mx-auto"
+                        aria-label="More options"
                     >
                         <icon>more_vert</icon>
                     </button>

@@ -59,11 +59,18 @@ import { CateringStateService } from './catering-state.service';
         <ng-template #active_template let-row="row">
             <mat-checkbox
                 class="mx-auto"
+                [aria-label]="
+                    ('CATERING.ORDER_ALLOW' | translate) + ': ' + row.name
+                "
                 [matTooltip]="'CATERING.ORDER_ALLOW' | translate"
                 matTooltipPosition="right"
                 [ngModel]="isEnabled(row)"
                 (ngModelChange)="setEnabled(row, $event)"
-            />
+            >
+                <span class="sr-only">{{
+                    ('CATERING.ORDER_ALLOW' | translate) + ': ' + row.name
+                }}</span>
+            </mat-checkbox>
         </ng-template>
         <ng-template #price_template let-data="data">
             <div
@@ -77,6 +84,7 @@ import { CateringStateService } from './catering-state.service';
                 <button
                     icon
                     matRipple
+                    [attr.aria-label]="'More options for ' + row.name"
                     [disabled]="!can_edit"
                     [class.opacity-0]="!can_edit"
                     [matMenuTriggerFor]="menu"
@@ -120,6 +128,7 @@ import { CateringStateService } from './catering-state.service';
                 <button
                     icon
                     matRipple
+                    [attr.aria-label]="'Toggle options for ' + row.name"
                     [disabled]="!row.options?.length"
                     [matTooltip]="
                         row.options?.length
@@ -159,6 +168,7 @@ import { CateringStateService } from './catering-state.service';
                         <button
                             icon
                             matRipple
+                            [attr.aria-label]="'Edit option ' + option.name"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_EDIT' | translate
                             "
@@ -171,6 +181,7 @@ import { CateringStateService } from './catering-state.service';
                         <button
                             icon
                             matRipple
+                            [attr.aria-label]="'Delete option ' + option.name"
                             class="mr-1!"
                             [matTooltip]="
                                 'CATERING.ITEM_OPTION_REMOVE' | translate

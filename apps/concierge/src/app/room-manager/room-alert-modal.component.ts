@@ -32,7 +32,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -44,6 +44,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
                 <mat-form-field appearance="outline">
+                    <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
                     <mat-select name="status" formControlName="status">
                         <mat-option value="">{{
                             'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
@@ -63,6 +64,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                     'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
+                    <mat-label>{{ 'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate }}</mat-label>
                     <textarea
                         matInput
                         name="message"

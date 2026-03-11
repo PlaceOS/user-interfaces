@@ -45,10 +45,10 @@ import { EventStateService } from './event-state.service';
             </div>
             <div filters class="flex items-center space-x-2 px-8 pb-4">
                 <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-label>{{ 'COMMON.VIEW_PERIOD' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="period | async"
                         (ngModelChange)="setPeriodType($event)"
-                        [attr.aria-label]="'COMMON.VIEW_PERIOD' | translate"
                     >
                         <mat-option value="week">{{
                             'COMMON.WEEK' | translate
@@ -59,10 +59,10 @@ import { EventStateService } from './event-state.service';
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript w-64">
+                    <mat-label>{{ 'COMMON.DATE_RANGE' | translate }}</mat-label>
                     <mat-select
                         [(ngModel)]="selected_range"
                         (ngModelChange)="setPeriod($event)"
-                        [attr.aria-label]="'COMMON.DATE_RANGE' | translate"
                     >
                         @for (range of period_list; track range.id) {
                             <mat-option [value]="range.id">
@@ -121,7 +121,7 @@ import { EventStateService } from './event-state.service';
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
                 <div class="bg-base-100 absolute inset-0 opacity-80"></div>
-                <p class="max-w-lg text-lg text-gray-600">
+                <p class="max-w-lg text-lg text-base-content">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>
             </div>

@@ -32,6 +32,7 @@ import { SignageStateService } from './signage-state.service';
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>Search</mat-label>
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
@@ -87,7 +88,7 @@ import { SignageStateService } from './signage-state.service';
                     }
                 } @else {
                     <div
-                        class="flex flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                        class="flex flex-col items-center justify-center space-y-2 p-8 opacity-60"
                     >
                         <icon class="text-6xl">hide_image</icon>
                         <p class="text-center">

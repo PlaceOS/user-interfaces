@@ -52,6 +52,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                             <mat-select
                                 formControlName="parent_id"
                                 [placeholder]="
@@ -83,6 +84,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             'FORM.DISPLAY_NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.DISPLAY_NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="display-name"
@@ -111,6 +113,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             'APP.CONCIERGE.LEVELS_MAP_URL' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'APP.CONCIERGE.LEVELS_MAP_URL' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="map-id"

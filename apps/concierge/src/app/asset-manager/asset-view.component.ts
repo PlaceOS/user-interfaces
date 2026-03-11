@@ -44,6 +44,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         icon
                         matRipple
                         [routerLink]="['/book/assets', 'list', 'items']"
+                        aria-label="Back to assets list"
                     >
                         <icon>arrow_back</icon>
                     </a>
@@ -103,7 +104,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         '~No Description~'
                                 }}
                             } @else {
-                                <span class="opacity-30">{{
+                                <span class="opacity-60">{{
                                     'COMMON.DESCRIPTION_EMPTY' | translate
                                 }}</span>
                             }
@@ -271,6 +272,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             id: row.id,
                                             group_id: (item | async)?.id,
                                         }"
+                                        [attr.aria-label]="
+                                            ('APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
+                                                | translate) +
+                                            ' ' +
+                                            row.identifier
+                                        "
                                         [matTooltip]="
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
                                                 | translate
@@ -283,6 +290,12 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         matRipple
                                         class="text-error"
                                         (click)="removeAsset(row)"
+                                        [attr.aria-label]="
+                                            ('APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
+                                                | translate) +
+                                            ' ' +
+                                            row.identifier
+                                        "
                                         [matTooltip]="
                                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_REMOVE'
                                                 | translate
@@ -403,6 +416,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     <a
                                         icon
                                         matRipple
+                                        aria-label="Edit purchase order"
                                         [routerLink]="[
                                             base_route,
                                             'manage',
@@ -419,6 +433,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         icon
                                         matRipple
                                         class="text-error"
+                                        aria-label="Delete purchase order"
                                         (click)="removePurchaseOrder(row)"
                                     >
                                         <icon class="text-lg">delete</icon>
@@ -441,7 +456,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <div class="p-4">
                 {{ data * 1000 | date: 'mediumDate' }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-60">
                         {{ 'COMMON.DATE_EMPTY' | translate }}
                     </span>
                 }

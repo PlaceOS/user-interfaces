@@ -67,6 +67,7 @@ const EMPTY = [];
                         <mat-slide-toggle
                             name="zones"
                             class="ml-2"
+                            [aria-label]="'EXPLORE.AREAS' | translate"
                             [ngModel]="
                                 !(options | async)?.disable?.includes('zones')
                             "

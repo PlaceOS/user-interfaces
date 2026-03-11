@@ -67,7 +67,7 @@ import { UrlManagementService } from './url-management.service';
             <div class="p-4 text-xs">
                 {{ data }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-60">
                         {{ 'COMMON.DESCRIPTION_EMPTY' | translate }}
                     </span>
                 }
@@ -124,7 +124,7 @@ import { UrlManagementService } from './url-management.service';
                         </button>
                     </div>
                 </ng-template>
-                <button btn icon matRipple [matMenuTriggerFor]="menu">
+                <button btn icon matRipple [matMenuTriggerFor]="menu" aria-label="More options">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

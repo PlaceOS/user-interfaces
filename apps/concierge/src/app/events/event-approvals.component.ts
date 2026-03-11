@@ -58,9 +58,9 @@ import {
                 </button>
                 @if (_sync.connected$ | async) {
                     <span
-                        class="ml-2 flex items-center space-x-1 text-xs text-gray-600"
+                        class="ml-2 flex items-center space-x-1 text-xs text-base-content"
                     >
-                        <icon class="text-success text-xs"
+                        <icon class="text-xs" style="color: #2e7d32"
                             >cloud_done</icon
                         >
                         <span>Sync active</span>
@@ -72,6 +72,7 @@ import {
                         appearance="outline"
                         class="no-subscript w-56"
                     >
+                        <mat-label>Select Role</mat-label>
                         <mat-select
                             [ngModel]="role()"
                             (ngModelChange)="
@@ -93,7 +94,7 @@ import {
             @if (!collapsed) {
                 @if (visible_events().length === 0) {
                     <div
-                        class="flex flex-col items-center justify-center py-8 text-gray-600"
+                        class="flex flex-col items-center justify-center py-8 text-base-content"
                     >
                         <icon class="mb-2 text-4xl">{{
                             show_declined() ? 'cancel' : 'check_circle'
@@ -111,7 +112,7 @@ import {
                     ) {
                         <div class="mb-4">
                             <div
-                                class="mb-2 flex items-center space-x-2 text-sm font-medium text-gray-600"
+                                class="mb-2 flex items-center space-x-2 text-sm font-medium text-base-content"
                             >
                                 <icon class="text-base">{{
                                     group.icon
@@ -139,7 +140,7 @@ import {
                                                     )
                                                 ) {
                                                     <span
-                                                        class="rounded bg-blue-100 px-1 text-[10px] font-normal text-blue-600"
+                                                        class="rounded px-1 text-[10px] font-normal" style="background-color: #dbeafe; color: #1e40af"
                                                         >Eventmocks</span
                                                     >
                                                 }
@@ -153,13 +154,13 @@ import {
                                                 "
                                             >
                                                 <icon
-                                                    class="text-base text-gray-600"
+                                                    class="text-base text-base-content"
                                                     >info</icon
                                                 >
                                             </button>
                                         </div>
                                         <div
-                                            class="mb-1 text-xs text-gray-600"
+                                            class="mb-1 text-xs text-base-content"
                                         >
                                             {{
                                                 formatDate(event.date)
@@ -170,7 +171,7 @@ import {
                                             }}
                                         </div>
                                         <div
-                                            class="mb-1 flex items-center space-x-1 text-xs text-gray-600"
+                                            class="mb-1 flex items-center space-x-1 text-xs text-base-content"
                                         >
                                             <icon class="text-xs"
                                                 >location_on</icon
@@ -180,7 +181,7 @@ import {
                                             }}</span>
                                         </div>
                                         <div
-                                            class="mb-2 flex items-center space-x-1 text-xs text-gray-600"
+                                            class="mb-2 flex items-center space-x-1 text-xs text-base-content"
                                         >
                                             <icon class="text-xs"
                                                 >person</icon
@@ -207,7 +208,7 @@ import {
                                                         Approved
                                                     </div>
                                                     <icon
-                                                        class="text-success text-2xl"
+                                                        class="text-2xl" style="color: #2e7d32"
                                                         >done</icon
                                                     >
                                                 </button>
@@ -224,7 +225,7 @@ import {
                                                         Declined
                                                     </div>
                                                     <icon
-                                                        class="text-error text-2xl"
+                                                        class="text-2xl" style="color: #c62828"
                                                         >close</icon
                                                     >
                                                 </button>
@@ -247,7 +248,7 @@ import {
                                                         Approve
                                                     </div>
                                                     <icon
-                                                        class="text-success text-2xl"
+                                                        class="text-2xl" style="color: #2e7d32"
                                                         >done</icon
                                                     >
                                                 </button>
@@ -266,7 +267,7 @@ import {
                                                         Decline
                                                     </div>
                                                     <icon
-                                                        class="text-error text-2xl"
+                                                        class="text-2xl" style="color: #c62828"
                                                         >close</icon
                                                     >
                                                 </button>
@@ -286,9 +287,10 @@ import {
                                                         [matMenuTriggerFor]="
                                                             delegateMenu
                                                         "
+                                                        aria-label="Delegate approval"
                                                     >
                                                         <icon
-                                                            class="text-xl"
+                                                            class="text-xl" style="color: #424242"
                                                             >person_add</icon
                                                         >
                                                     </button>
@@ -336,13 +338,13 @@ import {
                                                         Reject
                                                     </div>
                                                     <icon
-                                                        class="text-error text-2xl"
+                                                        class="text-2xl" style="color: #c62828"
                                                         >close</icon
                                                     >
                                                 </button>
                                             } @else {
                                                 <span
-                                                    class="text-xs italic text-gray-600"
+                                                    class="text-xs italic text-base-content"
                                                     >View only</span
                                                 >
                                             }
@@ -354,11 +356,11 @@ import {
                                                 class="mt-2 flex items-center space-x-1 text-xs"
                                             >
                                                 <icon
-                                                    class="text-info text-sm"
+                                                    class="text-sm" style="color: #0d47a1"
                                                     >person</icon
                                                 >
                                                 <span
-                                                    class="text-info font-medium"
+                                                    class="font-medium" style="color: #0d47a1"
                                                 >
                                                     Delegated to
                                                     {{

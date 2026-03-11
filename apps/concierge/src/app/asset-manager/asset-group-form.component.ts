@@ -51,6 +51,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -68,6 +69,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.CATEGORY' | translate }}</mat-label>
                         <mat-select
                             formControlName="category_id"
                             [placeholder]="'COMMON.CATEGORY' | translate"
@@ -104,6 +106,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_ITEM_BRAND' | translate }}</mat-label>
                         <input
                             matInput
                             name="brand"
@@ -123,6 +126,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="description"
@@ -146,6 +150,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <div class="flex flex-col space-y-2">
                     <label for="refund-lead-days">Refund Lead Time (days)</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Refund Lead Time (days)</mat-label>
                         <input
                             matInput
                             type="number"

@@ -56,6 +56,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
             <div class="flex flex-1 flex-col">
                 <label for="cardholder">Name on Card</label>
                 <mat-form-field appearance="outline">
+                    <mat-label>Name on Card</mat-label>
                     <input
                         name="cardholder"
                         matInput
@@ -69,6 +70,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Month</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Expiry Month</mat-label>
                         <mat-select
                             placeholder="MM"
                             formControlName="exp_month"
@@ -85,6 +87,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <div class="flex w-1/4 flex-1 flex-col">
                     <label for="cardholder">Expiry Year</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Expiry Year</mat-label>
                         <mat-select
                             placeholder="YYYY"
                             formControlName="exp_year"
@@ -101,6 +104,7 @@ const DATE_PIPE = new DatePipe('en-us', '');
                 <div class="flex flex-col">
                     <label for="cvv">CVV</label>
                     <mat-form-field appearance="outline" class="w-20">
+                        <mat-label>CVV</mat-label>
                         <input
                             name="cvv"
                             matInput

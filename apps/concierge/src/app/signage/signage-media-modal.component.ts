@@ -77,6 +77,7 @@ import { lastValueFrom } from 'rxjs';
                     </button>
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -127,7 +128,7 @@ import { lastValueFrom } from 'rxjs';
                                         | mediaDuration: true
                                 }}
                             } @else {
-                                <span class="opacity-30">
+                                <span class="opacity-60">
                                     {{ 'COMMON.DEFAULT' | translate }} ({{
                                         item.video_length
                                             ? (item.video_length / 1000
@@ -153,6 +154,7 @@ import { lastValueFrom } from 'rxjs';
                         'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}</mat-label>
                         <mat-select
                             name="animation"
                             formControlName="animation"
@@ -192,6 +194,7 @@ import { lastValueFrom } from 'rxjs';
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="description"

@@ -73,7 +73,7 @@ import { IconComponent } from '@placeos/components';
             <div
                 class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center border-r border-b border-base-300"
             >
-                <div class="text-xs opacity-30">
+                <div class="text-xs opacity-60">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
             </div>

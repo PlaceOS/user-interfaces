@@ -35,7 +35,7 @@ import {
                 />
             </mat-form-field> -->
             <div class="flex flex-1 items-center justify-end space-x-2">
-                <button btn icon matRipple>
+                <button btn icon matRipple aria-label="Notifications">
                     <icon class="text-2xl">notifications</icon>
                 </button>
                 <user-controls-sidebar class="mr-2">

@@ -60,6 +60,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                 (ngModelChange)="
                                     $event && initialiseDay(day.getDay())
                                 "
+                                [aria-label]="'Enable ' + (day | date: 'EEEE')"
                             >
                             </mat-checkbox>
                         </div>
@@ -140,6 +141,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
                                                     appearance="outline"
                                                     class="no-subscript w-1/4 flex-1"
                                                 >
+                                                    <mat-label>Location</mat-label>
                                                     <mat-select
                                                         [(ngModel)]="
                                                             block.location

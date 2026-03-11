@@ -47,6 +47,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 [disabled]="!(options | async)?.user"
                 (click)="download.emit()"
+                aria-label="Download report"
             >
                 <icon>download</icon>
             </button>

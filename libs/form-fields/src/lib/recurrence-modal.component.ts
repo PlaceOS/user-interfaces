@@ -46,6 +46,7 @@ import { DateFieldComponent } from './date-field.component';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'FORM.RECURRENCE_REPEAT_EVERY' | translate }}</mat-label>
                     <mat-select formControlName="type">
                         <mat-option value="daily">{{
                             (form.value.interval === 1
@@ -95,6 +96,7 @@ import { DateFieldComponent } from './date-field.component';
             }
             @if (form.value.type === 'monthly') {
                 <mat-form-field appearance="outline">
+                    <mat-label>Monthly Type</mat-label>
                     <mat-select formControlName="monthly_type">
                         <mat-option value="day_of_month"
                             >Monthly on day {{ date | date: 'd' }}</mat-option

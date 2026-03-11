@@ -33,6 +33,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 {{ (requests | async)?.length }}
             </h2>
             <mat-form-field appearance="outline" class="mb-2 h-14">
+                <mat-label>Search</mat-label>
                 <icon matPrefix>search</icon>
                 <input matInput placeholder="Search..." />
             </mat-form-field>
@@ -87,7 +88,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             [features]="selected_feature"
                         ></interactive-map>
                     } @else {
-                        <p class="opacity-30">
+                        <p class="opacity-60">
                             Select a space from the list to view map location
                         </p>
                     }

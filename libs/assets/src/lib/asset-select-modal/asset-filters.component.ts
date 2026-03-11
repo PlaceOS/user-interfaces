@@ -23,6 +23,7 @@ import { AssetStateService } from '../asset-state.service';
     template: `
         <div class="mt-3 mb-2 px-4" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
+                <mat-label>{{ 'BOOKINGS.ASSETS_SEARCH' | translate }}</mat-label>
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
@@ -45,6 +46,7 @@ import { AssetStateService } from '../asset-state.service';
                         at_timeChange.emit($event); at_time.set($event)
                     "
                     [matTooltip]="exact_tooltip"
+                    [aria-label]="'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate"
                 >
                     {{ 'BOOKINGS.ASSETS_DELIVER_TOGGLE' | translate }}
                 </mat-checkbox>
@@ -56,6 +58,7 @@ import { AssetStateService } from '../asset-state.service';
                         appearance="outline"
                         class="no-subscript mb-4 w-full"
                     >
+                        <mat-label>{{ 'BOOKINGS.ASSETS_DELIVER_DATE' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="offset_day()"
                             (ngModelChange)="
@@ -102,6 +105,7 @@ import { AssetStateService } from '../asset-state.service';
                     [attr.name]="item"
                     [ngModel]="(category | async) === item.id"
                     (ngModelChange)="toggleCategory(item.id)"
+                    [aria-label]="item.name"
                 >
                     {{ item.name }}
                 </mat-checkbox>

@@ -116,7 +116,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     <div
                         class="screen-only flex flex-col items-center justify-center space-y-2 p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-60">
                             Select a user from the topbar to begin
                         </p>
                     </div>
@@ -126,7 +126,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                     class="flex flex-col items-center justify-center space-y-2 p-8"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p class="opacity-30">{{ loading | async }}</p>
+                    <p class="opacity-60">{{ loading | async }}</p>
                 </div>
             }
         </div>

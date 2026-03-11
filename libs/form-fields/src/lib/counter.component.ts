@@ -28,6 +28,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l rounded-r-none border"
                 [disabled]="!value || value === min()"
                 (click)="remove()"
+                aria-label="Decrease value"
             >
                 <icon>remove</icon>
             </button>
@@ -47,6 +48,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     (focus)="focused = true"
                     (blur)="setValue(+value); focused = false"
                     limitInput
+                    aria-label="Counter value"
                 />
             </div>
             <button
@@ -57,6 +59,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 class="border-secondary text-secondary z-10 h-12 w-12 rounded-l-none rounded-r border"
                 [disabled]="value === max()"
                 (click)="add()"
+                aria-label="Increase value"
             >
                 <icon>add</icon>
             </button>

@@ -87,6 +87,7 @@ const ICONS = {
         </div>
         <div class="mt-2 mb-2 px-2">
             <mat-form-field appearance="outline" class="h-14 w-full">
+                <mat-label>{{ 'CATERING.MENU_SEARCH' | translate }}</mat-label>
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
@@ -100,6 +101,7 @@ const ICONS = {
             <div class="hidden px-2 py-2 sm:block">
                 <label>{{ 'CATERING.CATERER' | translate }}</label>
                 <mat-form-field appearance="outline" class="h-14 w-full">
+                    <mat-label>{{ 'CATERING.CATERER' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="
                             (filters | async)?.caterer || (caterers | async)[0]
@@ -136,6 +138,7 @@ const ICONS = {
                         appearance="outline"
                         class="no-subscript mb-4 w-full"
                     >
+                        <mat-label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="offset_day()"
                             (ngModelChange)="offset_dayChange.emit($event)"

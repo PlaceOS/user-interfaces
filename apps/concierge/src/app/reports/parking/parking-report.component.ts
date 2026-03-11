@@ -60,7 +60,7 @@ import { ParkingReportService } from './parking-report.service';
                     <div
                         class="screen-only flex h-full w-full flex-col items-center p-8"
                     >
-                        <p class="opacity-30">
+                        <p class="opacity-60">
                             {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
                         </p>
                     </div>
@@ -68,7 +68,7 @@ import { ParkingReportService } from './parking-report.service';
             } @else {
                 <div class="flex h-full w-full flex-col items-center p-8">
                     <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
-                    <p class="opacity-30">
+                    <p class="opacity-60">
                         {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
                     </p>
                 </div>

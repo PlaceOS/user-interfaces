@@ -136,7 +136,7 @@ import {
                             <div>
                                 {{ (data | level)?.display_name || data }}
                             </div>
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-60">
                                 {{ data }}
                             </div>
                         </div>

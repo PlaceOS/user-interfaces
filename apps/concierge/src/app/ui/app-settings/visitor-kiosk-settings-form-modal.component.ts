@@ -54,6 +54,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
+                                <mat-label>Light Mode Logo</mat-label>
                                 <input
                                     matInput
                                     name="logo_light"
@@ -78,6 +79,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
+                                <mat-label>Dark Mode Logo</mat-label>
                                 <input
                                     matInput
                                     name="logo_dark"
@@ -104,6 +106,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
+                                <mat-label>Welcome Background</mat-label>
                                 <input
                                     matInput
                                     name="welcome-background"
@@ -124,6 +127,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="default-route">Welcome Message</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Welcome Message</mat-label>
                             <textarea
                                 matInput
                                 name="welcome-message"
@@ -174,6 +178,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="disable"> Disabled Features </label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Disabled Features</mat-label>
                             <mat-select
                                 name="disable"
                                 formControlName="disable"
@@ -202,6 +207,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Disabled Feature Actions
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Disabled Feature Actions</mat-label>
                                 <mat-select
                                     name="disable-actions"
                                     formControlName="disable_actions"
@@ -233,6 +239,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Disabled Feature Labels
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Disabled Feature Labels</mat-label>
                                 <mat-select
                                     name="disable-labels"
                                     formControlName="disable_labels"
@@ -266,6 +273,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Disabled Feature Displays
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Disabled Feature Displays</mat-label>
                                 <mat-select
                                     name="disable-features"
                                     formControlName="disable_features"
@@ -297,6 +305,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Disabled Feature Styles
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Disabled Feature Styles</mat-label>
                                 <mat-select
                                     name="disable-styles"
                                     formControlName="disable_styles"
@@ -344,6 +353,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             appearance="outline"
                                             class="no-subscript w-full"
                                         >
+                                            <mat-label>Legend Key</mat-label>
                                             <input
                                                 matInput
                                                 placeholder="Legend Key"

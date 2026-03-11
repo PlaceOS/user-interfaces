@@ -35,7 +35,7 @@ import { ParkingUser } from './parking-state.service';
                     }}
                 </h2>
                 @if (!loading) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -71,6 +71,7 @@ import { ParkingUser } from './parking-state.service';
                     </div>
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -83,6 +84,7 @@ import { ParkingUser } from './parking-state.service';
                     </mat-form-field>
                     <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                         <input
                             matInput
                             name="email"
@@ -99,6 +101,7 @@ import { ParkingUser } from './parking-state.service';
                                 'EXPLORE.PARKING_PLATE_NUMBER' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="plate-number"
@@ -115,6 +118,7 @@ import { ParkingUser } from './parking-state.service';
                                 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="car-color"
@@ -129,6 +133,7 @@ import { ParkingUser } from './parking-state.service';
                     </div>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"

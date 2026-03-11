@@ -173,12 +173,14 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                                 <mat-select
                                     formControlName="zone"
                                     [placeholder]="
                                         'APP.CONCIERGE.ROOMS_SELECT_LEVEL'
                                             | translate
                                     "
+                                    required
                                 >
                                     @for (level of levels | async; track level) {
                                         <mat-option [value]="level.id">
@@ -206,12 +208,14 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     {{ 'FORM.NAME' | translate }}<span>*</span>
                                 </label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="system-name"
                                         [placeholder]="'FORM.NAME' | translate"
                                         formControlName="name"
                                         required
+                                        aria-required="true"
                                     />
                                     @if (form.controls.name.invalid) {
                                         <mat-error>
@@ -233,6 +237,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     {{ 'FORM.EMAIL' | translate }}
                                 </label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="system-email"
@@ -256,6 +261,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     'FORM.DISPLAY_NAME' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'FORM.DISPLAY_NAME' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="display-name"
@@ -273,6 +279,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     'APP.CONCIERGE.ROOMS_CODE' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'APP.CONCIERGE.ROOMS_CODE' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="code-name"
@@ -337,6 +344,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                     <div class="flex flex-col">
                         <label>Venue Type</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Venue Type</mat-label>
                             <mat-select formControlName="venue_type" placeholder="Select venue type">
                                 @for (opt of venue_type_options; track opt.value) {
                                     <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -350,13 +358,14 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Layout & Configuration
-                        <span class="text-xs opacity-50 ml-2">Seating, layouts & square footage</span>
+                        <span class="text-xs opacity-60 ml-2">Seating, layouts & square footage</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="grid grid-cols-2 gap-4 mb-4">
                             <div class="flex flex-col min-w-0">
                                 <label>Square Footage</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Square Footage</mat-label>
                                     <input matInput type="number" formControlName="sqft" placeholder="0" [min]="0" />
                                 </mat-form-field>
                             </div>
@@ -367,6 +376,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                         <div class="flex flex-col min-w-0">
                             <label>Supported Layouts</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Supported Layouts</mat-label>
                                 <mat-select formControlName="supported_layouts" multiple placeholder="Select layouts">
                                     @for (opt of supported_layout_options; track opt.value) {
                                         <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -381,25 +391,28 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Pricing
-                        <span class="text-xs opacity-50 ml-2">Hourly, half-day & full-day rates</span>
+                        <span class="text-xs opacity-60 ml-2">Hourly, half-day & full-day rates</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="grid grid-cols-3 gap-2">
                             <div class="flex flex-col min-w-0">
                                 <label>Hourly Rate ($)</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Hourly Rate ($)</mat-label>
                                     <input matInput type="number" formControlName="hourly_rate" placeholder="0" [min]="0" />
                                 </mat-form-field>
                             </div>
                             <div class="flex flex-col min-w-0">
                                 <label>Half-Day Rate ($)</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Half-Day Rate ($)</mat-label>
                                     <input matInput type="number" formControlName="half_day_rate" placeholder="0" [min]="0" />
                                 </mat-form-field>
                             </div>
                             <div class="flex flex-col min-w-0">
                                 <label>Full-Day Rate ($)</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Full-Day Rate ($)</mat-label>
                                     <input matInput type="number" formControlName="full_day_rate" placeholder="0" [min]="0" />
                                 </mat-form-field>
                             </div>
@@ -407,6 +420,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                         <div class="flex flex-col min-w-0 mt-2">
                             <label>Refund Lead Time (days)</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Refund Lead Time (days)</mat-label>
                                 <input matInput type="number" formControlName="refund_lead_days" placeholder="e.g. 14" [min]="0" />
                                 <mat-hint>Days before event date when refund cutoff applies</mat-hint>
                             </mat-form-field>
@@ -466,12 +480,13 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         AV & Technology
-                        <span class="text-xs opacity-50 ml-2">Equipment, staffing & tech support</span>
+                        <span class="text-xs opacity-60 ml-2">Equipment, staffing & tech support</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="flex flex-col min-w-0 mb-4">
                             <label>AV & Tech Services</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>AV & Tech Services</mat-label>
                                 <mat-select formControlName="av_services" multiple placeholder="Select available services">
                                     @for (opt of av_service_options; track opt.value) {
                                         <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -486,6 +501,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                         <!-- AV Equipment & Staffing Catalog -->
                         <label class="text-xs font-medium opacity-70 mb-1">AV Equipment & Staffing Catalog</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Search AV items</mat-label>
                             <icon matPrefix class="text-xl">search</icon>
                             <input matInput placeholder="Search AV items..." [value]="av_search()" (input)="av_search.set($any($event.target).value)" />
                         </mat-form-field>
@@ -494,7 +510,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 <details class="border-b border-base-200 last:border-b-0">
                                     <summary class="cursor-pointer px-3 py-2 font-medium text-xs hover:bg-base-100 select-none flex items-center justify-between sticky top-0 bg-white z-10">
                                         <span>{{ cat.label }}</span>
-                                        <span class="text-xs opacity-50">{{ getAvEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
+                                        <span class="text-xs opacity-60">{{ getAvEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
                                     </summary>
                                     <div class="px-3 pb-2">
                                         <div class="flex items-center justify-between py-1 mb-1 border-b border-base-100">
@@ -505,7 +521,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                         </div>
                                         @for (item of cat.items; track item.id) {
                                             <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
-                                                 [class.opacity-50]="!isAvItemEnabled(item.id)">
+                                                 [class.opacity-60]="!isAvItemEnabled(item.id)">
                                                 <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
                                                     <input type="checkbox" class="accent-primary w-3.5 h-3.5"
                                                         [checked]="isAvItemEnabled(item.id)"
@@ -513,12 +529,12 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                                     <span class="truncate">{{ item.name }}</span>
                                                 </label>
                                                 <div class="flex items-center gap-1 shrink-0">
-                                                    <span class="text-xs opacity-50">$</span>
+                                                    <span class="text-xs opacity-60">$</span>
                                                     <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
                                                         [value]="getMenuItemPrice(item.id)"
                                                         (change)="setMenuItemPrice(item.id, $any($event.target).value)"
                                                         [min]="0" step="1" />
-                                                    <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                                    <span class="text-xs opacity-60 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
                                                 </div>
                                             </div>
                                         }
@@ -533,19 +549,20 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Catering & Dining
-                        <span class="text-xs opacity-50 ml-2">UCLA menu catalog & pricing</span>
+                        <span class="text-xs opacity-60 ml-2">UCLA menu catalog & pricing</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2 flex flex-col space-y-3">
                         <!-- Catering Tier selector -->
                         <div class="flex flex-col" [formGroup]="venue_form">
                             <label class="text-xs opacity-70 mb-1">Service Level</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Service Level</mat-label>
                                 <mat-select formControlName="catering_tier"
                                     (selectionChange)="active_tier.set($event.value)">
                                     @for (opt of catering_tier_options; track opt.value) {
                                         <mat-option [value]="opt.value">
                                             {{ opt.label }}
-                                            <span class="text-xs opacity-50 ml-1">— {{ opt.description }}</span>
+                                            <span class="text-xs opacity-60 ml-1">— {{ opt.description }}</span>
                                         </mat-option>
                                     }
                                 </mat-select>
@@ -560,12 +577,14 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                             <div class="flex flex-col">
                                 <label class="text-xs opacity-70">Catering Provider</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Catering Provider</mat-label>
                                     <input matInput formControlName="catering_provider" placeholder="e.g. UCLA Conferences & Catering" />
                                 </mat-form-field>
                             </div>
                             <div class="flex flex-col">
                                 <label class="text-xs opacity-70">Catering Notes</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>Catering Notes</mat-label>
                                     <input matInput formControlName="catering_notes" placeholder="Additional notes" />
                                 </mat-form-field>
                             </div>
@@ -573,6 +592,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
 
                         <!-- Menu search -->
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Search menu items</mat-label>
                             <icon matPrefix class="text-xl">search</icon>
                             <input matInput placeholder="Search menu items..." [value]="menu_search()" (input)="menu_search.set($any($event.target).value)" />
                         </mat-form-field>
@@ -584,9 +604,9 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     <summary class="cursor-pointer px-3 py-2 font-medium text-xs hover:bg-base-100 select-none flex items-center justify-between sticky top-0 bg-white z-10">
                                         <span>
                                             {{ cat.label }}
-                                            <span class="text-xs opacity-40 ml-1">{{ cat.description }}</span>
+                                            <span class="text-xs opacity-60 ml-1">{{ cat.description }}</span>
                                         </span>
-                                        <span class="text-xs opacity-50">{{ getEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
+                                        <span class="text-xs opacity-60">{{ getEnabledCount(cat.id) }}/{{ cat.items.length }}</span>
                                     </summary>
                                     <div class="px-3 pb-2">
                                         <!-- Select All toggle -->
@@ -598,7 +618,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                         </div>
                                         @for (item of cat.items; track item.id) {
                                             <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
-                                                 [class.opacity-50]="!isMenuItemEnabled(item.id)">
+                                                 [class.opacity-60]="!isMenuItemEnabled(item.id)">
                                                 <!-- Checkbox + Name -->
                                                 <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
                                                     <input type="checkbox"
@@ -609,12 +629,12 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                                 </label>
                                                 <!-- Editable price -->
                                                 <div class="flex items-center gap-1 shrink-0">
-                                                    <span class="text-xs opacity-50">$</span>
+                                                    <span class="text-xs opacity-60">$</span>
                                                     <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
                                                         [value]="getMenuItemPrice(item.id)"
                                                         (change)="setMenuItemPrice(item.id, $any($event.target).value)"
                                                         [min]="0" step="0.50" />
-                                                    <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                                    <span class="text-xs opacity-60 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
                                                 </div>
                                             </div>
                                         }
@@ -629,10 +649,11 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Setup & Furniture Rental
-                        <span class="text-xs opacity-50 ml-2">Tables, bars & event furniture</span>
+                        <span class="text-xs opacity-60 ml-2">Tables, bars & event furniture</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2">
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Search setup items</mat-label>
                             <icon matPrefix class="text-xl">search</icon>
                             <input matInput placeholder="Search setup items..." [value]="setup_search()" (input)="setup_search.set($any($event.target).value)" />
                         </mat-form-field>
@@ -647,7 +668,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     </div>
                                     @for (item of cat.items; track item.id) {
                                         <div class="flex items-center justify-between py-1 gap-2 hover:bg-base-50 rounded px-1"
-                                             [class.opacity-50]="!isSetupItemEnabled(item.id)">
+                                             [class.opacity-60]="!isSetupItemEnabled(item.id)">
                                             <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer text-xs">
                                                 <input type="checkbox" class="accent-primary w-3.5 h-3.5"
                                                     [checked]="isSetupItemEnabled(item.id)"
@@ -655,12 +676,12 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                                 <span class="truncate">{{ item.name }}</span>
                                             </label>
                                             <div class="flex items-center gap-1 shrink-0">
-                                                <span class="text-xs opacity-50">$</span>
+                                                <span class="text-xs opacity-60">$</span>
                                                 <input type="number" class="w-16 text-xs text-right border border-base-200 rounded px-1 py-0.5"
                                                     [value]="getMenuItemPrice(item.id)"
                                                     (change)="setMenuItemPrice(item.id, $any($event.target).value)"
                                                     [min]="0" step="1" />
-                                                <span class="text-xs opacity-40 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
+                                                <span class="text-xs opacity-60 w-12">{{ getUnitLabel(item.tags?.[0] || '') }}</span>
                                             </div>
                                         </div>
                                     }
@@ -678,12 +699,13 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Event Services
-                        <span class="text-xs opacity-50 ml-2">Planning, staffing & CNSI packages</span>
+                        <span class="text-xs opacity-60 ml-2">Planning, staffing & CNSI packages</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="flex flex-col min-w-0 mb-4">
                             <label>General Event Services</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>General Event Services</mat-label>
                                 <mat-select formControlName="event_services" multiple placeholder="Select available services">
                                     @for (opt of event_service_options; track opt.value) {
                                         <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -693,7 +715,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                         </div>
                         <div class="flex flex-col min-w-0">
                             <label class="mb-1">CNSI Service Packages</label>
-                            <p class="text-xs opacity-50 mb-2">
+                            <p class="text-xs opacity-60 mb-2">
                                 Select packages and add-ons from Service Management available at this venue.
                             </p>
                             @for (group of managed_service_groups(); track group.label) {
@@ -711,7 +733,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                                 <icon class="text-base-content/40 text-lg">{{ svc.icon || 'misc_services' }}</icon>
                                                 <div class="flex-1 min-w-0">
                                                     <div class="text-sm font-medium">{{ svc.name }}</div>
-                                                    <div class="text-xs opacity-50">{{ svc.internal_price }} (internal) · {{ svc.external_price }} (external)</div>
+                                                    <div class="text-xs opacity-60">{{ svc.internal_price }} (internal) · {{ svc.external_price }} (external)</div>
                                                 </div>
                                             </label>
                                         }
@@ -731,7 +753,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Parking & WiFi
-                        <span class="text-xs opacity-50 ml-2">Connectivity & transportation</span>
+                        <span class="text-xs opacity-60 ml-2">Connectivity & transportation</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2" [formGroup]="venue_form">
                         <div class="grid grid-cols-2 gap-4">
@@ -747,7 +769,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                 <details class="border border-base-300 rounded-lg mb-3 w-full overflow-hidden">
                     <summary class="cursor-pointer px-4 py-3 font-medium text-sm hover:bg-base-200 select-none">
                         Accessibility
-                        <span class="text-xs opacity-50 ml-2">ADA compliance & accommodations</span>
+                        <span class="text-xs opacity-60 ml-2">ADA compliance & accommodations</span>
                     </summary>
                     <div class="px-4 pb-4 pt-2 flex flex-col space-y-4" [formGroup]="venue_form">
                         <div class="grid grid-cols-2 gap-4">
@@ -771,6 +793,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 'COMMON.DESCRIPTION' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                                 <textarea
                                     matInput
                                     name="description"
@@ -791,6 +814,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 {{ 'COMMON.FEATURES' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.FEATURES' | translate }}</mat-label>
                                 <mat-chip-grid
                                     #chipList
                                     [attr.aria-label]="
@@ -826,6 +850,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                             }}</label>
                             <div class="flex space-x-2">
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'EXPLORE.MAP_ID' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="map_id"
@@ -842,6 +867,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                     [matTooltip]="
                                         'APP.CONCIERGE.POI_MAP_SELECT' | translate
                                     "
+                                    aria-label="Select from map"
                                     (click)="selectItemfromMap()"
                                 >
                                     <icon>place</icon>
@@ -854,6 +880,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                             'COMMON.TIMEZONE' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.TIMEZONE' | translate }}</mat-label>
                             <icon matPrefix class="text-2xl">search</icon>
                             <input
                                 matInput
@@ -898,6 +925,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 {{ 'COMMON.TIMETABLE_URL' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.TIMETABLE_URL' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="timetable-url"
@@ -924,6 +952,7 @@ const SUPPORTED_LAYOUT_OPTIONS = [
                                 {{ 'COMMON.ROOM_BOOKING_URL' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.ROOM_BOOKING_URL' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="room-booking-url"

@@ -46,6 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_PRODUCT' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_PRODUCT' | translate }}</mat-label>
                         <input
                             matInput
                             [ngModel]="product?.name || 'No Product'"
@@ -60,6 +61,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_BULK_COUNT' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'APP.CONCIERGE.ASSETS_BULK_COUNT' | translate }}</mat-label>
                             <input
                                 matInput
                                 [(ngModel)]="count"
@@ -79,6 +81,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="identifier"
@@ -100,6 +103,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_ORDER_ID' | translate }}</mat-label>
                         <mat-select
                             formControlName="purchase_order_id"
                             [placeholder]="

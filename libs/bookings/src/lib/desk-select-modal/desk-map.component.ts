@@ -36,6 +36,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"

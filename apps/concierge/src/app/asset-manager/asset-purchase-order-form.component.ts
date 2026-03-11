@@ -55,6 +55,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_PURCHASE_NUMBER' | translate }}</mat-label>
                         <input
                             matInput
                             name="order-number"
@@ -75,6 +76,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_PURCHASE_INVOICE' | translate }}</mat-label>
                         <input
                             matInput
                             name="invoice-number"
@@ -106,6 +108,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_PURCHASE_PRICE' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'APP.CONCIERGE.ASSETS_PURCHASE_PRICE' | translate }}</mat-label>
                             <div matPrefix>$</div>
                             <input
                                 matInput

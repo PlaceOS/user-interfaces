@@ -43,6 +43,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                             {{ 'RESOURCE.REGION' | translate }}
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.REGION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 formControlName="parent_id"
@@ -70,6 +71,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         >{{ 'FORM.DISPLAY_NAME' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.DISPLAY_NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="display-name"
@@ -83,6 +85,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         'COMMON.TIMEZONE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.TIMEZONE' | translate }}</mat-label>
                         <icon matPrefix class="text-2xl">search</icon>
                         <input
                             matInput
@@ -107,6 +110,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         {{ 'COMMON.LOCATION' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.LOCATION' | translate }}</mat-label>
                         <input
                             matInput
                             name="address"

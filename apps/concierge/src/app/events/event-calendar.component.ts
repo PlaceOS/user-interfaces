@@ -28,10 +28,10 @@ import { EventWeekViewComponent } from './event-week-view.component';
                 <div class="pl-4 font-medium">
                     {{ (options | async)?.date | date: 'MMM yyyy' }}
                 </div>
-                <button icon matRipple (click)="previousPeriod()">
+                <button icon matRipple (click)="previousPeriod()" aria-label="Previous period">
                     <icon>chevron_left</icon>
                 </button>
-                <button icon matRipple (click)="nextPeriod()">
+                <button icon matRipple (click)="nextPeriod()" aria-label="Next period">
                     <icon>chevron_right</icon>
                 </button>
             </div>

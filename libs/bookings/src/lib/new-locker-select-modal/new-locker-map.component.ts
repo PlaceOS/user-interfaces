@@ -34,6 +34,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"

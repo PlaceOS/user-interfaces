@@ -17,6 +17,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             Name<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Name</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -33,6 +34,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             Email<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Email</mat-label>
                             <input
                                 matInput
                                 name="email"
@@ -53,6 +55,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.ORGANISATION' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="org"
@@ -72,6 +75,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             Phone:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Phone</mat-label>
                             <input
                                 matInput
                                 name="phone"

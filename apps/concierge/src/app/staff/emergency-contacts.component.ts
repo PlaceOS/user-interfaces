@@ -46,6 +46,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                                 class="no-subscript"
                                 appearance="outline"
                             >
+                                <mat-label>Search</mat-label>
                                 <icon class="text-2xl" matPrefix> search </icon>
                                 <input
                                     matInput
@@ -76,6 +77,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             class="no-subscript"
                             appearance="outline"
                         >
+                            <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                             <mat-select
                                 [ngModel]="role_filter.getValue()"
                                 (ngModelChange)="role_filter.next($event)"
@@ -161,7 +163,7 @@ export { EmergencyContact } from './emergency-contacts.service';
                             (click)="copyToClipboard(row.email)"
                         >
                             <div class="">{{ row.name }}</div>
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-60">
                                 {{ row.email }}
                             </div>
                         </button>

@@ -38,6 +38,7 @@ import { POIManagementService } from './poi-management.service';
                 @if (use_region && (buildings | async)?.length > 1) {
                     <div class="mb-2 flex items-center justify-between px-8">
                         <mat-form-field appearance="outline" class="w-64">
+                            <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"

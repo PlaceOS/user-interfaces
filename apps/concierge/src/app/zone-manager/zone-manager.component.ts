@@ -41,6 +41,7 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
                                 matRipple
                                 [matMenuTriggerFor]="app_settings_menu"
                                 [matTooltip]="'Organisation App Settings'"
+                                aria-label="Organisation App Settings"
                             >
                                 <icon>more_vert</icon>
                             </button>

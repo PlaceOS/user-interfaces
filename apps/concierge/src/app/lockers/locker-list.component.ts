@@ -68,7 +68,7 @@ import { LockerStateService } from './locker-state.service';
             >
                 {{ data }}
                 @if (!data) {
-                    <span class="opacity-30">{{
+                    <span class="opacity-60">{{
                         'EXPLORE.MAP_ID_EMPTY' | translate
                     }}</span>
                 }
@@ -81,7 +81,7 @@ import { LockerStateService } from './locker-state.service';
             >
                 <div class="">{{ data }}</div>
                 @if (row.id !== row.map_id) {
-                    <div class="font-mono text-[0.625rem] opacity-30">
+                    <div class="font-mono text-[0.625rem] opacity-60">
                         {{ row.id }}
                     </div>
                 }
@@ -89,7 +89,7 @@ import { LockerStateService } from './locker-state.service';
         </ng-template>
         <ng-template #action_template let-row="row" let-data="data">
             <div class="flex w-full items-center justify-end space-x-2 px-2">
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button icon matRipple [matMenuTriggerFor]="menu" aria-label="More options">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
@@ -188,7 +188,7 @@ import { LockerStateService } from './locker-state.service';
             />
             <ng-template #assigned_template let-row="row" let-data="data">
                 @if (!data) {
-                    <div class="p-4 opacity-30">
+                    <div class="p-4 opacity-60">
                         {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
                 }
@@ -199,7 +199,7 @@ import { LockerStateService } from './locker-state.service';
                     >
                         <div class="">{{ row.assigned_name || data }}</div>
                         @if (row.assigned_name) {
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-60">
                                 {{ data }}
                             </div>
                         }
@@ -209,7 +209,7 @@ import { LockerStateService } from './locker-state.service';
             <ng-template #pos_template let-data="data">
                 <div class="flex w-full space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="text-xs opacity-30">
+                        <div class="text-xs opacity-60">
                             {{ 'COMMON.COLUMN' | translate }}
                         </div>
                         <div
@@ -219,7 +219,7 @@ import { LockerStateService } from './locker-state.service';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="text-xs opacity-30">
+                        <div class="text-xs opacity-60">
                             {{ 'COMMON.ROW' | translate }}
                         </div>
                         <div
@@ -233,7 +233,7 @@ import { LockerStateService } from './locker-state.service';
             <ng-template #size_template let-data="data">
                 <div class="flex w-full space-x-2 p-2">
                     <div class="flex flex-col">
-                        <div class="text-xs opacity-30">
+                        <div class="text-xs opacity-60">
                             {{ 'COMMON.WIDTH' | translate }}
                         </div>
                         <div
@@ -243,7 +243,7 @@ import { LockerStateService } from './locker-state.service';
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <div class="text-xs opacity-30">
+                        <div class="text-xs opacity-60">
                             {{ 'COMMON.HEIGHT' | translate }}
                         </div>
                         <div
@@ -283,7 +283,7 @@ import { LockerStateService } from './locker-state.service';
                 <div
                     class="flex w-full items-center justify-end space-x-2 px-2"
                 >
-                    <button icon matRipple [matMenuTriggerFor]="locker_menu">
+                    <button icon matRipple [matMenuTriggerFor]="locker_menu" aria-label="More options">
                         <icon>more_vert</icon>
                     </button>
                 </div>

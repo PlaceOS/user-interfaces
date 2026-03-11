@@ -25,6 +25,7 @@ import { TranslatePipe } from './translate.pipe';
                     'EXPLORE.PARKING_PLATE_NUMBER' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>{{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}</mat-label>
                     <input
                         matInput
                         [(ngModel)]="plate_number"

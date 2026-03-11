@@ -104,6 +104,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             <button
                 icon
                 matRipple
+                aria-label="Toggle favorite"
                 name="toggle-catering-item-favourite"
                 class="absolute top-1 right-1"
                 [class.text-info]="favourite()"

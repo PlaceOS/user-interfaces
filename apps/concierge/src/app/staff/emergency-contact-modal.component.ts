@@ -43,7 +43,7 @@ import {
                 }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -60,6 +60,7 @@ import {
                     <div class="flex flex-col">
                         <label for="name">{{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 formControlName="name"
@@ -73,6 +74,7 @@ import {
                                 'FORM.EMAIL' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                                 <input
                                     matInput
                                     formControlName="email"
@@ -86,6 +88,7 @@ import {
                                 'FORM.PHONE' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'FORM.PHONE' | translate }}</mat-label>
                                 <input
                                     matInput
                                     formControlName="phone"
@@ -103,6 +106,7 @@ import {
                             'RESOURCE.LEVEL' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                             <mat-select
                                 formControlName="zone"
                                 [placeholder]="
@@ -129,6 +133,7 @@ import {
                                 class="no-subscript flex-1"
                                 appearance="outline"
                             >
+                                <mat-label>{{ 'COMMON.ROLE' | translate }}</mat-label>
                                 <mat-select
                                     multiple
                                     formControlName="roles"
@@ -186,6 +191,7 @@ import {
         <ng-template #role_form>
             <div class="bg-base-100 rounded-sm p-4">
                 <mat-form-field appearance="outline">
+                    <mat-label>Search</mat-label>
                     <input
                         matInput
                         [(ngModel)]="role_name"

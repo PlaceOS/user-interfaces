@@ -21,7 +21,7 @@ export interface BookingModalData {
         <header>
             <h2>{{ form?.value.id ? 'Edit' : 'New' }} Booking</h2>
             <div class="w-0 flex-1"></div>
-            <button icon mat-dialog-close>
+            <button icon mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>

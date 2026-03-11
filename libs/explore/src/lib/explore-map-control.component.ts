@@ -22,6 +22,7 @@ import { ExploreStateService } from './explore-state.service';
                     has-bld="true"
                     appearance="outline"
                 >
+                    <mat-label>Select Building</mat-label>
                     <mat-select
                         placeholder="Select Building..."
                         [ngModel]="building | async"
@@ -43,6 +44,7 @@ import { ExploreStateService } from './explore-state.service';
                     [attr.has-bld]="(buildings | async)?.length > 1"
                     appearance="outline"
                 >
+                    <mat-label>Select Level</mat-label>
                     <mat-select
                         placeholder="Select Level..."
                         [ngModel]="level | async"

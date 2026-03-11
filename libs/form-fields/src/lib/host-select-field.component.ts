@@ -23,6 +23,7 @@ import { catchError, map, shareReplay } from 'rxjs/operators';
     selector: 'host-select-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Select host</mat-label>
             <mat-select
                 [ngModel]="this.item?.email"
                 (ngModelChange)="setValue($event)"

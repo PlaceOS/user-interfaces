@@ -27,6 +27,7 @@ import { IconComponent } from './icon.component';
             <div class="flex flex-col">
                 <label>File Name</label>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>File Name</mat-label>
                     <input
                         matInput
                         [ngModel]="file.name"
@@ -39,6 +40,7 @@ import { IconComponent } from './icon.component';
                 <div class="flex flex-col space-y-2">
                     <label>Permissions</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Permissions</mat-label>
                         <mat-select [(ngModel)]="permissions">
                             <mat-option value="none">None</mat-option>
                             <mat-option value="support">Support</mat-option>

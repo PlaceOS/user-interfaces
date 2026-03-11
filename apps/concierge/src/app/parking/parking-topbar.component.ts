@@ -128,6 +128,7 @@ import { ParkingStateService } from './parking-state.service';
                 </div>
             }
             <mat-form-field appearance="outline" class="no-subscript w-56">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
@@ -138,7 +139,7 @@ import { ParkingStateService } from './parking-state.service';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name

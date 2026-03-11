@@ -59,6 +59,7 @@ import { DealsService } from './deals.service';
                     </button>
                 </div>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>All Deals</mat-label>
                     <mat-select
                         [ngModel]="expires.getValue()"
                         (ngModelChange)="expires.next($event)"
@@ -76,6 +77,7 @@ import { DealsService } from './deals.service';
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript">
+                    <mat-label>All Types</mat-label>
                     <mat-select
                         [ngModel]="type.getValue()"
                         (ngModelChange)="type.next($event)"
@@ -124,7 +126,7 @@ import { DealsService } from './deals.service';
                                         <h3 class="truncate font-bold">
                                             {{ deal.name }}
                                         </h3>
-                                        <p class="text-sm opacity-50">
+                                        <p class="text-sm opacity-60">
                                             {{
                                                 'COMMON.VALID_UNTIL_DATE'
                                                     | translate
@@ -158,7 +160,7 @@ import { DealsService } from './deals.service';
                                                 | translate
                                         }}
                                     </p>
-                                    <p class="text-sm opacity-50">
+                                    <p class="text-sm opacity-60">
                                         {{
                                             'APP.CONCIERGE.DEALS_EMPTY_BODY'
                                                 | translate
@@ -245,7 +247,7 @@ import { DealsService } from './deals.service';
                         >
                             <div class="line-clamp-4">{{ data }}</div>
                             @if (!data) {
-                                <span class="opacity-30"
+                                <span class="opacity-60"
                                     >No description available</span
                                 >
                             }
@@ -265,6 +267,7 @@ import { DealsService } from './deals.service';
                                 matRipple
                                 class="h-12 w-12 rounded-sm"
                                 [matMenuTriggerFor]="menu"
+                                aria-label="More options"
                             >
                                 <icon>more_vert</icon>
                             </button>

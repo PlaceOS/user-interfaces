@@ -49,11 +49,13 @@ import { AssetStateService } from '../asset-state.service';
                                                 auth
                                                 class="h-full object-cover"
                                                 [source]="asset.images[0]"
+                                                [alt]="asset.name"
                                             />
                                         } @else {
                                             <img
                                                 class="m-auto"
                                                 src="assets/icons/asset-placeholder.svg"
+                                                [alt]="asset.name + ' placeholder'"
                                             />
                                         }
                                     </div>

@@ -43,6 +43,7 @@ import { EventsStateService } from './events-state.service';
                     "
                     matTooltipPosition="left"
                     (click)="setShow(!show())"
+                    aria-label="Hide pending approvals"
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -63,6 +64,7 @@ import { EventsStateService } from './events-state.service';
                 <input
                     type="text"
                     [placeholder]="'COMMON.SEARCH' | translate"
+                    [attr.aria-label]="'COMMON.SEARCH' | translate"
                     class="w-full py-4 pr-4 pl-10"
                     [ngModel]="search | async"
                     (ngModelChange)="search.next($event)"
@@ -79,7 +81,7 @@ import { EventsStateService } from './events-state.service';
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
                         <img src="assets/icons/no-pending.svg" />
-                        <p class="opacity-30">
+                        <p class="opacity-60">
                             {{
                                 'APP.CONCIERGE.ROOMS_PENDING_EMPTY' | translate
                             }}
@@ -105,7 +107,7 @@ import { EventsStateService } from './events-state.service';
                                 : (event.mailbox | space | async)) ||
                             event.system;
                         <h3 class="font-medium">{{ event.title }}</h3>
-                        <p class="mb-2 text-xs opacity-30">
+                        <p class="mb-2 text-xs opacity-60">
                             {{ event.date | date: 'mediumDate' : tz }}
                             {{ event.date | date: time_format : tz }} &ndash;
                             {{ event.date_end | date: time_format : tz }}
@@ -144,7 +146,7 @@ import { EventsStateService } from './events-state.service';
                                             'No Location'
                                     }}
                                 </div>
-                                <div class="text-xs opacity-50">
+                                <div class="text-xs opacity-60">
                                     {{ bld?.display_name || bld?.name }},
                                     {{ lvl?.display_name || lvl?.name }}
                                 </div>
@@ -201,6 +203,7 @@ import { EventsStateService } from './events-state.service';
                                     matRipple
                                     class="border-base-300 bg-base-200 h-12 w-12 rounded-md border"
                                     [matMenuTriggerFor]="menu"
+                                    aria-label="More actions"
                                 >
                                     <icon>more_vert</icon>
                                 </button>
@@ -270,6 +273,7 @@ import { EventsStateService } from './events-state.service';
                 (click)="setShow(!show())"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_PENDING_SHOW' | translate"
                 matTooltipPosition="left"
+                aria-label="Show pending approvals"
             >
                 <icon>chevron_left</icon>
             </button>

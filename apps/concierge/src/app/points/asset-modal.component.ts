@@ -41,7 +41,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -51,6 +51,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="flex flex-col">
                     <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
                     <mat-form-field appearance="outline" class="h-13 flex-1">
+                        <mat-label>Asset Type</mat-label>
                         <mat-select
                             formControlName="type"
                             placeholder="Select asset type"
@@ -67,10 +68,11 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="flex flex-col">
                     <label>{{ 'RESOURCE.ASSET' | translate }}</label>
                     <mat-form-field appearance="outline" class="h-13 flex-1">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <icon
                             matPrefix
                             class="text-2xl"
-                            [class.opacity-30]="!form.get('type').value"
+                            [class.opacity-60]="!form.get('type').value"
                             >search</icon
                         >
                         <input
@@ -158,6 +160,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                                         appearance="outline"
                                         class="h-13 w-32 flex-2"
                                     >
+                                        <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                                         <mat-select
                                             [(ngModel)]="rule.type"
                                             [ngModelOptions]="{

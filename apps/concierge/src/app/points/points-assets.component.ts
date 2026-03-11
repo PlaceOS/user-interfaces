@@ -92,10 +92,10 @@ export interface PointAsset {
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="mx-auto flex items-center justify-end p-2">
-                <button icon matRipple (click)="edit(row)">
+                <button icon matRipple (click)="edit(row)" aria-label="Edit asset">
                     <icon>edit</icon>
                 </button>
-                <button icon matRipple (click)="remove(row)">
+                <button icon matRipple (click)="remove(row)" aria-label="Delete asset">
                     <icon class="text-error">delete</icon>
                 </button>
             </div>

@@ -31,7 +31,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -46,6 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -62,6 +63,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_CATEGORY_PARENT' | translate }}</mat-label>
                         <mat-select
                             formControlName="parent_category_id"
                             [placeholder]="

@@ -37,7 +37,7 @@ import { SignageStateService } from './signage-state.service';
             <header class="bg-base-200 rounded-sm p-2">
                 <h2 class="px-2 text-xl font-medium">Approve Playlist</h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -56,7 +56,7 @@ import { SignageStateService } from './signage-state.service';
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Version to approve</h3>
-                                <div class="font-mono text-xs opacity-50">
+                                <div class="font-mono text-xs opacity-60">
                                     {{
                                         current_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -109,7 +109,7 @@ import { SignageStateService } from './signage-state.service';
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                                        class="flex flex-col items-center justify-center p-8 opacity-60"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">
@@ -128,7 +128,7 @@ import { SignageStateService } from './signage-state.service';
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Previous version</h3>
-                                <div class="font-mono text-xs opacity-50">
+                                <div class="font-mono text-xs opacity-60">
                                     {{
                                         previous_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -175,7 +175,7 @@ import { SignageStateService } from './signage-state.service';
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 opacity-30"
+                                        class="flex flex-col items-center justify-center p-8 opacity-60"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">

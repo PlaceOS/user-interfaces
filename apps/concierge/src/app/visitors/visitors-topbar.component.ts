@@ -19,6 +19,7 @@ import { VisitorsStateService } from './visitors-state.service';
             class="border-base-200 bg-base-100 flex h-20 items-center space-x-2 border-b px-4"
         >
             <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
@@ -33,6 +34,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">
+                <mat-label>{{ 'FORM.PERIOD' | translate }}</mat-label>
                 <mat-select
                     [ngModel]="(filters | async)?.period || 1"
                     (ngModelChange)="setFilters({ period: $event })"

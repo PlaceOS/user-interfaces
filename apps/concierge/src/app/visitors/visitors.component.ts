@@ -53,6 +53,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         appearance="outline"
                         class="no-subscript w-60"
                     >
+                        <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="(filters | async)?.zones"
                             (ngModelChange)="updateZones($event)"
@@ -63,7 +64,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-60">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name

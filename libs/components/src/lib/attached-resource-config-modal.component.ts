@@ -91,6 +91,7 @@ export interface AttachedResourceConfigModalData {
                             class="no-subscript flex-1"
                             appearance="outline"
                         >
+                            <mat-label>Zone ID, Category or Tag</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -189,6 +190,7 @@ export interface AttachedResourceConfigModalData {
                                     class="no-subscript flex-1"
                                     appearance="outline"
                                 >
+                                    <mat-label>Select Rule</mat-label>
                                     <mat-select
                                         name="booking-type"
                                         [(ngModel)]="rule[0]"
@@ -205,6 +207,7 @@ export interface AttachedResourceConfigModalData {
                                     class="no-subscript flex-1"
                                     appearance="outline"
                                 >
+                                    <mat-label>Rule value</mat-label>
                                     <input
                                         matInput
                                         name="value"

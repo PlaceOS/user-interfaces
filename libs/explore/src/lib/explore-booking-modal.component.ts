@@ -56,6 +56,7 @@ export interface ExploreBookingModalData {
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Title</mat-label>
                             <input
                                 matInput
                                 name="title"
@@ -150,7 +151,7 @@ export interface ExploreBookingModalData {
                     </div>
                     @if (allow_all_day) {
                         <div class="-mt-2 mb-2 flex justify-end">
-                            <mat-checkbox formControlName="all_day">
+                            <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>
                         </div>

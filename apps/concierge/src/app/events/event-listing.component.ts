@@ -37,7 +37,7 @@ import {
                     [ngClass]="
                         show_cancelled()
                             ? 'border-error/40 bg-error/10 text-error'
-                            : 'border-base-300 bg-base-100 text-base-content/70'
+                            : 'border-base-300 bg-base-100 text-base-content'
                     "
                     (click)="show_cancelled.set(!show_cancelled())"
                 >
@@ -142,7 +142,7 @@ import {
                 >
                     <div
                         month
-                        class="relative top-0.5 text-sm font-medium text-gray-600"
+                        class="relative top-0.5 text-sm font-medium text-base-content"
                     >
                         {{ item.date | date: 'MMM' }}
                     </div>
@@ -154,12 +154,12 @@ import {
                     <div class="flex items-center space-x-1 text-sm font-medium hover:underline">
                         <span>{{ item.title }}</span>
                         @if (isCancelled(item)) {
-                            <span class="rounded bg-error/20 px-1.5 py-0.5 text-[10px] font-semibold text-error">
+                            <span class="rounded bg-error/20 px-1.5 py-0.5 text-[10px] font-semibold" style="color: #7f1d1d">
                                 CANCELLED
                             </span>
                         }
                         @if (adhocCount(item) > 0) {
-                            <span class="rounded bg-warning/20 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                            <span class="rounded bg-warning/20 px-1.5 py-0.5 text-[10px] font-semibold" style="color: #424242">
                                 +{{ adhocCount(item) }} ad-hoc
                             </span>
                         }
@@ -170,8 +170,9 @@ import {
                                 <span
                                     class="flex items-center space-x-0.5 rounded px-1 py-0.5 text-[10px] font-medium"
                                     [ngClass]="change.type === 'cancelled'
-                                        ? 'bg-error/10 text-error'
-                                        : 'bg-info/10 text-info'"
+                                        ? 'bg-error/10'
+                                        : 'bg-info/10'"
+                                    style="color: #424242"
                                 >
                                     <icon class="text-[10px]">{{
                                         change.type === 'cancelled' ? 'cancel' : 'add_circle'
@@ -181,7 +182,7 @@ import {
                             }
                         </div>
                     }
-                    <div class="text-xs text-gray-600">
+                    <div class="text-xs text-base-content">
                         {{ item.date | date: 'EEEE, ' + time_format }}
                         &ndash;
                         {{
@@ -189,7 +190,7 @@ import {
                                 | date: time_format
                         }}
                     </div>
-                    <div class="text-xs text-gray-600">
+                    <div class="text-xs text-base-content">
                         {{ item.host }}
                     </div>
                 </div>
@@ -208,22 +209,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'venue')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -234,22 +235,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'dining')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -260,22 +261,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'av_tech')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -286,22 +287,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'safety')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -312,22 +313,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'events')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -338,22 +339,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'parking')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -364,22 +365,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'setup')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>
@@ -390,22 +391,22 @@ import {
             <div class="flex items-center justify-center p-2">
                 @switch (reqStatus(item, 'services')) {
                     @case ('approved') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-success">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #2e7d32">
                             <icon class="text-base text-white">done</icon>
                         </span>
                     }
                     @case ('declined') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-error">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #c62828">
                             <icon class="text-base text-white">close</icon>
                         </span>
                     }
                     @case ('pending') {
-                        <span class="flex h-7 w-7 items-center justify-center rounded bg-warning">
+                        <span class="flex h-7 w-7 items-center justify-center rounded" style="background-color: #b45309">
                             <icon class="text-base text-white">schedule</icon>
                         </span>
                     }
                     @default {
-                        <span class="text-gray-600">&mdash;</span>
+                        <span class="text-base-content">&mdash;</span>
                     }
                 }
             </div>

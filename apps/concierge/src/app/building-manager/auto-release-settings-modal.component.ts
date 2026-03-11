@@ -63,7 +63,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 {{ 'APP.CONCIERGE.AUTO_RELEASE_HEADER' | translate }}
             </h3>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon class="text-2xl">close</icon>
                 </button>
             }
@@ -123,7 +123,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                 <div class="my-2 grid grid-cols-2 gap-2">
                     @if (!settings.default_work_preferences?.length) {
                         <div
-                            class="bg-base-200 col-span-2 mb-2 flex w-full items-center justify-center rounded-sm py-4 opacity-30"
+                            class="bg-base-200 col-span-2 mb-2 flex w-full items-center justify-center rounded-sm py-4 opacity-60"
                         >
                             {{
                                 'APP.CONCIERGE.AUTO_RELEASE_DEFAULT_HOURS_EMPTY'
@@ -177,6 +177,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
                     'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'APP.CONCIERGE.AUTO_RELEASE_TYPES' | translate }}</mat-label>
                     <mat-select
                         multiple
                         [(ngModel)]="settings.resources"

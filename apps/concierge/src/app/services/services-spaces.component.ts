@@ -242,7 +242,7 @@ const SPACES: Space[] = [
         <div class="p-6">
             <div class="mb-6">
                 <h2 class="text-2xl font-semibold">Spaces & AV Equipment</h2>
-                <p class="text-base-content/60 mt-1">
+                <p class="mt-1" style="color: #424242">
                     Available venues and their audio-visual capabilities.
                 </p>
             </div>
@@ -288,12 +288,13 @@ const SPACES: Space[] = [
                                 <h3 class="text-lg font-semibold">
                                     {{ space.name }}
                                 </h3>
-                                <p class="text-base-content/60 text-xs">
+                                <p class="text-xs" style="color: #424242">
                                     {{ space.room_code }}
                                 </p>
                             </div>
                             <span
-                                class="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-medium"
+                                class="bg-primary/10 rounded-full px-3 py-1 text-sm font-medium"
+                                style="color: #782144"
                             >
                                 {{ space.capacity }}
                             </span>
@@ -308,10 +309,12 @@ const SPACES: Space[] = [
                                     track feature
                                 ) {
                                     <li
-                                        class="text-base-content/70 flex items-start gap-2 text-sm"
+                                        class="flex items-start gap-2 text-sm"
+                                        style="color: #424242"
                                     >
                                         <icon
-                                            class="text-success mt-0.5 text-base"
+                                            class="mt-0.5 text-base"
+                                            style="color: #2e7d32"
                                         >
                                             check_circle
                                         </icon>
@@ -338,7 +341,8 @@ const SPACES: Space[] = [
                                                 {{ addon.name }}
                                             </span>
                                             <span
-                                                class="text-primary text-sm font-medium"
+                                                class="text-sm font-medium"
+                                                style="color: #782144"
                                             >
                                                 {{
                                                     rate_type() === 'internal'
@@ -355,7 +359,8 @@ const SPACES: Space[] = [
                                 <h4 class="mb-2 text-sm font-semibold">
                                     Timed Add-ons
                                     <span
-                                        class="text-base-content/60 font-normal"
+                                        class="font-normal"
+                                        style="color: #424242"
                                     >
                                         (fee covers 4 hours)
                                     </span>
@@ -374,7 +379,8 @@ const SPACES: Space[] = [
                                                 {{ addon.name }}
                                             </span>
                                             <span
-                                                class="text-primary text-sm font-medium"
+                                                class="text-sm font-medium"
+                                                style="color: #782144"
                                             >
                                                 {{
                                                     rate_type() === 'internal'
@@ -392,7 +398,8 @@ const SPACES: Space[] = [
             </div>
 
             <div
-                class="text-base-content/50 mt-6 border-t border-base-200 pt-4 text-xs"
+                class="mt-6 border-t border-base-200 pt-4 text-xs"
+                style="color: #424242"
             >
                 <p>* Additional charges may apply. Contact events&#64;cnsi.ucla.edu for details.</p>
                 <p class="mt-1">** A conference room camera and digital speakerphone will be provided.</p>

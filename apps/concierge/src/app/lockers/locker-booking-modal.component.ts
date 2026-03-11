@@ -70,6 +70,7 @@ import { combineLatest } from 'rxjs';
                             'FORM.NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="user-name"
@@ -86,6 +87,7 @@ import { combineLatest } from 'rxjs';
                             'FORM.EMAIL' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="email"
@@ -108,6 +110,7 @@ import { combineLatest } from 'rxjs';
                         <mat-checkbox
                             formControlName="all_day"
                             class="absolute -top-2 right-0"
+                            [aria-label]="'COMMON.ALL_DAY' | translate"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>

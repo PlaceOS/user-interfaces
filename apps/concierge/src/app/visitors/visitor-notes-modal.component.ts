@@ -37,6 +37,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                     <textarea
                         matInput
                         [(ngModel)]="notes"

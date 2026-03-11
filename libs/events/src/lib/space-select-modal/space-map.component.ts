@@ -32,6 +32,7 @@ import { SpaceLocationPinComponent } from './space-location-pin.component';
                 class="w-full"
                 *ngIf="(levels | async)?.length"
             >
+                <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                 <mat-select
                     name="location"
                     [(ngModel)]="level"

@@ -36,6 +36,7 @@ interface CateringOptionGroup {
                 <button
                     icon
                     matRipple
+                    aria-label="Go back"
                     name="close-catering-item-details"
                     (click)="close.emit()"
                     class="bg-base-100 absolute top-2 left-2 lg:hidden"
@@ -45,6 +46,7 @@ interface CateringOptionGroup {
                 <button
                     icon
                     matRipple
+                    aria-label="Toggle favorite"
                     name="toggle-catering-item-favourite-details"
                     [class.text-info]="fav()"
                     (click)="toggleFav.emit()"

@@ -152,6 +152,7 @@ don't detect presence in room after a period of time"
                 <div class="mb-2">
                     <label for="custom-qr-url">Custom QR Code URL</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Custom QR Code URL</mat-label>
                         <input
                             matInput
                             name="custom-qr-url"
@@ -175,6 +176,7 @@ don't detect presence in room after a period of time"
                                 appearance="outline"
                                 class="w-1/2 flex-1"
                             >
+                                <mat-label>Room Image URL</mat-label>
                                 <input
                                     matInput
                                     name="room-image"
@@ -207,6 +209,7 @@ don't detect presence in room after a period of time"
                                 appearance="outline"
                                 class="w-1/2 flex-1"
                             >
+                                <mat-label>Offline Image URL</mat-label>
                                 <input
                                     matInput
                                     name="offline-image"

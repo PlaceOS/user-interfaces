@@ -69,7 +69,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 timezone
                 class="bg-base-100 sticky top-0 left-0 z-30 flex items-center justify-center"
             >
-                <div class="text-xs opacity-30">
+                <div class="text-xs opacity-60">
                     {{ date | async | date: 'zzzz' : tz }}
                 </div>
                 <div

@@ -64,12 +64,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                             "
                                             auth
                                             [source]="asset.images[0]"
+                                            [alt]="asset.name"
                                             class="min-h-full min-w-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img
                                                 class="m-auto"
                                                 src="assets/icons/asset-placeholder.svg"
+                                                [alt]="asset.name + ' placeholder'"
                                             />
                                         </ng-template>
                                     </div>
@@ -125,12 +127,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                                 else placeholder
                                             "
                                             [source]="asset.images[0]"
+                                            [alt]="asset.name"
                                             class="min-h-full min-w-full object-cover"
                                         />
                                         <ng-template #placeholder>
                                             <img
                                                 class="m-auto w-16"
                                                 src="assets/icons/asset-placeholder.svg"
+                                                [alt]="asset.name + ' placeholder'"
                                             />
                                         </ng-template>
                                     </div>
@@ -167,7 +171,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
-                <p class="opacity-40">
+                <p class="opacity-60">
                     {{
                         (options | async)?.search
                             ? 'No matching assets found'

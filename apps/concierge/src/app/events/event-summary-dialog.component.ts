@@ -116,29 +116,29 @@ interface OrderGroup {
                         </h4>
                         <div class="space-y-2 text-sm">
                             <div class="flex items-start space-x-3">
-                                <icon class="mt-0.5 text-lg opacity-50"
+                                <icon class="mt-0.5 text-lg opacity-60"
                                     >person</icon
                                 >
                                 <div>
-                                    <div class="text-xs opacity-50">Organizer</div>
+                                    <div class="text-xs opacity-60">Organizer</div>
                                     <div class="font-medium">{{ event.organiser }}</div>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-3">
-                                <icon class="mt-0.5 text-lg opacity-50"
+                                <icon class="mt-0.5 text-lg opacity-60"
                                     >mail</icon
                                 >
                                 <div>
-                                    <div class="text-xs opacity-50">Email</div>
+                                    <div class="text-xs opacity-60">Email</div>
                                     <div class="text-info">{{ organiserEmail() }}</div>
                                 </div>
                             </div>
                             <div class="flex items-start space-x-3">
-                                <icon class="mt-0.5 text-lg opacity-50"
+                                <icon class="mt-0.5 text-lg opacity-60"
                                     >schedule</icon
                                 >
                                 <div>
-                                    <div class="text-xs opacity-50">Date & Time</div>
+                                    <div class="text-xs opacity-60">Date & Time</div>
                                     <div class="font-medium">
                                         {{ formatDate(event.date) }}
                                     </div>
@@ -150,11 +150,11 @@ interface OrderGroup {
                                 </div>
                             </div>
                             <div class="flex items-start space-x-3">
-                                <icon class="mt-0.5 text-lg opacity-50"
+                                <icon class="mt-0.5 text-lg opacity-60"
                                     >location_on</icon
                                 >
                                 <div>
-                                    <div class="text-xs opacity-50">Location</div>
+                                    <div class="text-xs opacity-60">Location</div>
                                     <div>{{ event.location }}</div>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@ interface OrderGroup {
                                 @for (group of order_groups; track group.label) {
                                     <div class="p-3 space-y-2">
                                         <div class="flex items-center space-x-2 text-sm font-medium">
-                                            <icon class="text-base opacity-50">{{ group.icon }}</icon>
+                                            <icon class="text-base opacity-60">{{ group.icon }}</icon>
                                             <span>{{ group.label }}</span>
                                         </div>
                                         <div class="space-y-1.5 text-sm">
@@ -185,12 +185,12 @@ interface OrderGroup {
                                                 <div class="flex justify-between items-start">
                                                     <div class="flex-1 min-w-0">
                                                         <div>{{ item.menu_item.name }}</div>
-                                                        <div class="text-xs opacity-50">
+                                                        <div class="text-xs opacity-60">
                                                             {{ item.quantity }} &times;
                                                             {{ formatCurrency(item.menu_item.default_price) }}{{ unitLabel(item.menu_item.unit) }}
                                                         </div>
                                                         @if (item.notes) {
-                                                            <div class="text-xs italic opacity-40 mt-0.5">
+                                                            <div class="text-xs italic opacity-60 mt-0.5">
                                                                 {{ item.notes }}
                                                             </div>
                                                         }
@@ -203,7 +203,7 @@ interface OrderGroup {
                                         </div>
                                         @if (group.items.length > 1) {
                                             <div class="flex justify-between text-xs pt-1 border-t border-base-200">
-                                                <span class="opacity-50">Subtotal</span>
+                                                <span class="opacity-60">Subtotal</span>
                                                 <span class="font-medium">{{ formatCurrency(group.subtotal) }}</span>
                                             </div>
                                         }
@@ -243,7 +243,7 @@ interface OrderGroup {
                             <div class="rounded border border-base-300 p-4 space-y-3">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-lg opacity-50">receipt</icon>
+                                        <icon class="text-lg opacity-60">receipt</icon>
                                         <span class="text-sm font-medium">{{ quote.doc_number }}</span>
                                     </div>
                                     <span
@@ -267,7 +267,7 @@ interface OrderGroup {
                                                 />
                                                 <div class="grid grid-cols-3 gap-2">
                                                     <div>
-                                                        <label class="text-xs opacity-50">Qty</label>
+                                                        <label class="text-xs opacity-60">Qty</label>
                                                         <input
                                                             type="number"
                                                             class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -276,7 +276,7 @@ interface OrderGroup {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label class="text-xs opacity-50">Unit Price</label>
+                                                        <label class="text-xs opacity-60">Unit Price</label>
                                                         <input
                                                             type="number"
                                                             class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -285,7 +285,7 @@ interface OrderGroup {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label class="text-xs opacity-50">Tax %</label>
+                                                        <label class="text-xs opacity-60">Tax %</label>
                                                         <input
                                                             type="number"
                                                             class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -295,10 +295,10 @@ interface OrderGroup {
                                                     </div>
                                                 </div>
                                                 <div class="flex justify-end space-x-2">
-                                                    <button icon matRipple class="h-6 w-6 text-error" (click)="dialogCancelEdit()">
+                                                    <button icon matRipple class="h-6 w-6 text-error" (click)="dialogCancelEdit()" aria-label="Cancel edit">
                                                         <icon class="text-sm">close</icon>
                                                     </button>
-                                                    <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveEdit(item.id)">
+                                                    <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveEdit(item.id)" aria-label="Save edit">
                                                         <icon class="text-sm">check</icon>
                                                     </button>
                                                 </div>
@@ -313,10 +313,10 @@ interface OrderGroup {
                                                         {{ formatCurrency(item.line_total) }}
                                                     </div>
                                                     @if (dialogCanEdit()) {
-                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100" (click)="dialogStartEdit(item)">
+                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100" (click)="dialogStartEdit(item)" aria-label="Edit item">
                                                             <icon class="text-xs">edit</icon>
                                                         </button>
-                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialogConfirmRemoveItem(item)">
+                                                        <button icon matRipple class="h-5 w-5 opacity-50 hover:opacity-100 hover:text-error" (click)="dialogConfirmRemoveItem(item)" aria-label="Delete item">
                                                             <icon class="text-xs">delete</icon>
                                                         </button>
                                                     }
@@ -338,7 +338,7 @@ interface OrderGroup {
                                         />
                                         <div class="grid grid-cols-3 gap-2">
                                             <div>
-                                                <label class="text-xs opacity-50">Qty</label>
+                                                <label class="text-xs opacity-60">Qty</label>
                                                 <input
                                                     type="number"
                                                     class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -347,7 +347,7 @@ interface OrderGroup {
                                                 />
                                             </div>
                                             <div>
-                                                <label class="text-xs opacity-50">Unit Price</label>
+                                                <label class="text-xs opacity-60">Unit Price</label>
                                                 <input
                                                     type="number"
                                                     class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -356,7 +356,7 @@ interface OrderGroup {
                                                 />
                                             </div>
                                             <div>
-                                                <label class="text-xs opacity-50">Tax %</label>
+                                                <label class="text-xs opacity-60">Tax %</label>
                                                 <input
                                                     type="number"
                                                     class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -366,10 +366,10 @@ interface OrderGroup {
                                             </div>
                                         </div>
                                         <div class="flex justify-end space-x-2">
-                                            <button icon matRipple class="h-6 w-6 text-error" (click)="dialog_adding_new_item.set(false)">
+                                            <button icon matRipple class="h-6 w-6 text-error" (click)="dialog_adding_new_item.set(false)" aria-label="Cancel add">
                                                 <icon class="text-sm">close</icon>
                                             </button>
-                                            <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveAdd()">
+                                            <button icon matRipple class="h-6 w-6 text-success" (click)="dialogSaveAdd()" aria-label="Save new item">
                                                 <icon class="text-sm">check</icon>
                                             </button>
                                         </div>
@@ -405,7 +405,7 @@ interface OrderGroup {
                                     <div class="border-t border-base-300 pt-2">
                                         <div class="flex justify-between text-sm">
                                             <div class="flex items-center space-x-1.5">
-                                                <icon class="text-base opacity-50">payments</icon>
+                                                <icon class="text-base opacity-60">payments</icon>
                                                 <span>Deposit ({{ deposit.deposit_percent }}%)</span>
                                             </div>
                                             <div class="flex items-center space-x-2">
@@ -454,7 +454,7 @@ interface OrderGroup {
                                 [value]="approvalPercent()"
                                 class="rounded"
                             />
-                            <div class="mt-1 text-xs opacity-50">
+                            <div class="mt-1 text-xs opacity-60">
                                 {{ approvedCount() }} of {{ approval_items.length }} approvals complete
                             </div>
                         </div>
@@ -472,7 +472,7 @@ interface OrderGroup {
                                 </span>
                                 <div>
                                     <div class="text-sm font-medium">Event Submitted</div>
-                                    <div class="text-xs opacity-50">
+                                    <div class="text-xs opacity-60">
                                         {{ formatDateTime(event.date - 7 * 24 * 60 * 60 * 1000) }}
                                     </div>
                                 </div>
@@ -514,7 +514,7 @@ interface OrderGroup {
                                                 </span>
                                             </div>
                                             @if (item.status === 'approved') {
-                                                <div class="text-xs opacity-50 mt-0.5">
+                                                <div class="text-xs opacity-60 mt-0.5">
                                                     Completed
                                                 </div>
                                             }
@@ -595,10 +595,10 @@ interface OrderGroup {
                                                         [ngModel]="editing_refund_date()"
                                                         (ngModelChange)="editing_refund_date.set($event)"
                                                     />
-                                                    <button icon matRipple class="h-5 w-5 text-success" (click)="saveEditRefund(child.id)">
+                                                    <button icon matRipple class="h-5 w-5 text-success" (click)="saveEditRefund(child.id)" aria-label="Save refund date">
                                                         <icon class="text-xs">check</icon>
                                                     </button>
-                                                    <button icon matRipple class="h-5 w-5 text-error" (click)="cancelEditRefund()">
+                                                    <button icon matRipple class="h-5 w-5 text-error" (click)="cancelEditRefund()" aria-label="Cancel edit refund">
                                                         <icon class="text-xs">close</icon>
                                                     </button>
                                                 } @else {
@@ -611,7 +611,7 @@ interface OrderGroup {
                                                             Non-refundable (since {{ formatRefundDeadline(child) }})
                                                         </span>
                                                     }
-                                                    <button icon matRipple class="h-5 w-5 opacity-40 hover:opacity-100" (click)="startEditRefund(child)">
+                                                    <button icon matRipple class="h-5 w-5 opacity-60 hover:opacity-100" (click)="startEditRefund(child)" aria-label="Edit refund deadline">
                                                         <icon class="text-[10px]">edit</icon>
                                                     </button>
                                                 }
@@ -655,7 +655,7 @@ interface OrderGroup {
                                                         </div>
                                                     </div>
                                                     <div class="flex items-center justify-between mt-1.5 ml-8">
-                                                        <span class="text-xs opacity-50">
+                                                        <span class="text-xs opacity-60">
                                                             Added {{ child.added_date ? formatDateTime(child.added_date) : 'recently' }}
                                                         </span>
                                                         <div class="flex items-center space-x-1.5">
@@ -704,7 +704,7 @@ interface OrderGroup {
                                             (ngModelChange)="updateAdhocField('title', $event)"
                                         />
                                         <div>
-                                            <label class="text-xs opacity-50">Unit price (optional, for invoice)</label>
+                                            <label class="text-xs opacity-60">Unit price (optional, for invoice)</label>
                                             <input
                                                 type="number"
                                                 class="w-full rounded border border-base-300 bg-base-100 px-2 py-1.5 text-sm"
@@ -713,10 +713,10 @@ interface OrderGroup {
                                             />
                                         </div>
                                         <div class="flex justify-end space-x-2">
-                                            <button icon matRipple class="h-7 w-7 text-error" (click)="cancelAddAdhoc()">
+                                            <button icon matRipple class="h-7 w-7 text-error" (click)="cancelAddAdhoc()" aria-label="Cancel add service">
                                                 <icon class="text-base">close</icon>
                                             </button>
-                                            <button icon matRipple class="h-7 w-7 text-success" (click)="saveAddAdhoc()">
+                                            <button icon matRipple class="h-7 w-7 text-success" (click)="saveAddAdhoc()" aria-label="Save ad-hoc service">
                                                 <icon class="text-base">check</icon>
                                             </button>
                                         </div>

@@ -33,6 +33,7 @@ import { map, tap } from 'rxjs/operators';
                         >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.TITLE' | translate }}</mat-label>
                         <input
                             matInput
                             name="title"
@@ -56,6 +57,7 @@ import { map, tap } from 'rxjs/operators';
                         <mat-checkbox
                             formControlName="all_day"
                             class="absolute -top-2 right-0"
+                            [aria-label]="'FORM.ALL_DAY' | translate"
                         >
                             {{ 'FORM.ALL_DAY' | translate }}
                         </mat-checkbox>
@@ -143,6 +145,7 @@ import { map, tap } from 'rxjs/operators';
                                 class="mt-2 w-full"
                                 (openedChange)="focusInput()"
                             >
+                                <mat-label>Charge Code</mat-label>
                                 <mat-select
                                     formControlName="catering_charge_code"
                                     placeholder="Charge Code"
@@ -183,6 +186,7 @@ import { map, tap } from 'rxjs/operators';
                                     )
                                 "
                             >
+                                <mat-label>Catering Notes</mat-label>
                                 <textarea
                                     matInput
                                     formControlName="catering_notes"

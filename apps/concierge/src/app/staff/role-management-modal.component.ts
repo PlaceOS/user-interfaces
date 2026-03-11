@@ -22,7 +22,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -72,6 +72,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
         <ng-template #role_form>
             <div class="bg-base-100 rounded-sm p-4">
                 <mat-form-field appearance="outline">
+                    <mat-label>Search</mat-label>
                     <input
                         matInput
                         [(ngModel)]="role_name"

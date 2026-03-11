@@ -105,7 +105,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="p-4 font-mono text-[0.625rem]">
                     {{ row.group || row.extension_data?.group }}
                     @if (!(row.group || row.extension_data?.group)) {
-                        <span class="opacity-30">
+                        <span class="opacity-60">
                             {{ 'APP.CONCIERGE.DESKS_GROUP_EMPTY' | translate }}
                         </span>
                     }
@@ -156,7 +156,7 @@ import { DesksStateService } from './desks-state.service';
                     </div>
                     @if (user?.name) {
                         <div
-                            class="max-w-48 truncate text-xs opacity-30 select-all"
+                            class="max-w-48 truncate text-xs opacity-60 select-all"
                         >
                             {{ email }}
                         </div>
@@ -176,7 +176,7 @@ import { DesksStateService } from './desks-state.service';
                         [class.bg-error!]="row?.status === 'declined'"
                         [class.text-neutral-content!]="row?.status === 'ended'"
                         [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.opacity-60]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
@@ -232,7 +232,7 @@ import { DesksStateService } from './desks-state.service';
                         [class.text-neutral-content!]="!data"
                         [class.bg-success!]="data"
                         [class.text-success-content!]="data"
-                        [class.opacity-30]="row.status === 'ended'"
+                        [class.opacity-60]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="
                             row.status === 'ended'
@@ -273,6 +273,7 @@ import { DesksStateService } from './desks-state.service';
                         matRipple
                         class="h-12 w-12 rounded-sm"
                         [matMenuTriggerFor]="actionMenu"
+                        aria-label="More options"
                     >
                         <icon class="text-2xl">more_vert</icon>
                     </button>

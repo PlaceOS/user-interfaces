@@ -21,7 +21,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 class="fixed inset-0 z-50"
                 (click)="request.set(null); requestChange.emit(request())"
             >
-                <div class="absolute inset-0 bg-black opacity-50"></div>
+                <div class="absolute inset-0 bg-black opacity-60"></div>
                 <div
                     class="bg-base-100 absolute inset-y-0 right-0 w-[480px]"
                     (click)="$event.stopPropagation()"

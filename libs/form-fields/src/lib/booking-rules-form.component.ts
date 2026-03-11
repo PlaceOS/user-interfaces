@@ -52,6 +52,7 @@ import { ItemListFieldComponent } from './item-list-field.component';
                         >{{ 'COMMON.ZONE' | translate }}<span>*</span>:</label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.ZONE' | translate }}</mat-label>
                         <mat-select name="zone" formControlName="zone">
                             <mat-option value="*">{{
                                 'COMMON.ZONE_ANY' | translate
@@ -72,6 +73,7 @@ import { ItemListFieldComponent } from './item-list-field.component';
                         >{{ 'FORM.NAME' | translate }}<span>*</span></label
                     >
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -109,6 +111,7 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     'BOOKINGS.CONDITIONS' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
+                    <mat-label>{{ 'BOOKINGS.CONDITIONS' | translate }}</mat-label>
                     <mat-select
                         name="zone"
                         multiple
@@ -253,6 +256,12 @@ import { ItemListFieldComponent } from './item-list-field.component';
                         }}
                     </label>
                     <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>{{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.BEFORE_DENY'
+                                : 'BOOKINGS.BEFORE_ALLOW'
+                            ) | translate
+                        }}</mat-label>
                         <mat-select
                             name="is-before"
                             formControlName="is_before"
@@ -280,6 +289,12 @@ import { ItemListFieldComponent } from './item-list-field.component';
                         }}
                     </label>
                     <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>{{
+                            (form.value.rules.hidden
+                                ? 'BOOKINGS.AFTER_DENY'
+                                : 'BOOKINGS.AFTER_ALLOW'
+                            ) | translate
+                        }}</mat-label>
                         <mat-select name="is-after" formControlName="is_after">
                             @for (time of duration_blocks; track time) {
                                 <mat-option [value]="time">
@@ -344,6 +359,7 @@ import { ItemListFieldComponent } from './item-list-field.component';
                     </label>
                     <div class="flex w-full items-center space-x-2">
                         <mat-form-field appearance="outline" class="flex-1">
+                            <mat-label>Start Time</mat-label>
                             <mat-select
                                 name="start-time"
                                 [ngModel]="
@@ -365,6 +381,7 @@ import { ItemListFieldComponent } from './item-list-field.component';
                             </mat-select>
                         </mat-form-field>
                         <mat-form-field appearance="outline" class="flex-1">
+                            <mat-label>End Time</mat-label>
                             <mat-select
                                 name="end-time"
                                 [ngModel]="

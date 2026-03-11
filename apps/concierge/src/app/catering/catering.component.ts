@@ -46,6 +46,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
                                         [routerLink]="['/catering', 'menu']"
+                                        aria-label="Catering Menu"
                                     >
                                         <div
                                             name="img"
@@ -71,6 +72,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         matRipple
                                         class="bg-base-100 flex flex-col items-center rounded-sm text-black shadow-sm"
                                         [routerLink]="['/catering', 'orders']"
+                                        aria-label="Catering Orders"
                                     >
                                         <div
                                             name="img"

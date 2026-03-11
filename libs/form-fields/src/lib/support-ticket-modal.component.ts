@@ -47,6 +47,7 @@ export interface SupportRequestType {
                             >{{ 'FORM.NAME' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 [placeholder]="'FORM.NAME' | translate"
@@ -62,6 +63,7 @@ export interface SupportRequestType {
                             >{{ 'FORM.EMAIL' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                             <input
                                 matInput
                                 [placeholder]="'FORM.EMAIL' | translate"
@@ -76,6 +78,7 @@ export interface SupportRequestType {
                 <div class="flex flex-col">
                     <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</mat-label>
                         <mat-select
                             [placeholder]="
                                 'COMMON.SUPPORT_LOCATION' | translate
@@ -96,6 +99,7 @@ export interface SupportRequestType {
                     <div class="flex flex-col">
                         <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</mat-label>
                             <mat-select
                                 [placeholder]="
                                     'COMMON.SUPPORT_TYPE' | translate

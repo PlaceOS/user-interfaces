@@ -47,6 +47,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 class="w-1/2 flex-1"
                 [class.no-subscript]="!error()"
             >
+                <mat-label>{{ placeholder() | translate }}</mat-label>
                 <icon
                     matPrefix
                     class="block flex w-6 items-center justify-center text-2xl"

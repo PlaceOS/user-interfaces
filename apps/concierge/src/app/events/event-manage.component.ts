@@ -88,6 +88,7 @@ const EMPTY = [];
                             >{{ 'FORM.TITLE' | translate }}<span>*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'FORM.TITLE' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="title"
@@ -114,6 +115,7 @@ const EMPTY = [];
                             appearance="outline"
                             class="no-subscript"
                         >
+                            <mat-label>{{ 'COMMON.TAGS' | translate }}</mat-label>
                             <mat-chip-grid #chipList aria-label="Event Tags">
                                 @for (tag of tag_list; track tag) {
                                     <mat-chip-row
@@ -146,6 +148,7 @@ const EMPTY = [];
                                 appearance="outline"
                                 class="no-subscript"
                             >
+                                <mat-label>{{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}</mat-label>
                                 <mat-select formControlName="view_access">
                                     <mat-option value="PRIVATE">{{
                                         'APP.CONCIERGE.EVENTS_DRAFT' | translate
@@ -251,6 +254,7 @@ const EMPTY = [];
                                 {{ 'COMMON.TIMEZONE' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.TIMEZONE' | translate }}</mat-label>
                                 <icon matPrefix class="text-2xl"> search </icon>
                                 <input
                                     matInput
@@ -352,6 +356,7 @@ const EMPTY = [];
                                 {{ 'RESOURCE.BUILDING' | translate }}
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                                 <mat-select
                                     [ngModel]="building_zone"
                                     [ngModelOptions]="{ standalone: true }"
@@ -379,6 +384,7 @@ const EMPTY = [];
                                         'RESOURCE.LEVEL' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                                         <mat-select
                                             [ngModel]="level_zone"
                                             [ngModelOptions]="{
@@ -409,6 +415,7 @@ const EMPTY = [];
                                         'RESOURCE.ROOM' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'RESOURCE.ROOM' | translate }}</mat-label>
                                         <mat-select
                                             [(ngModel)]="resource"
                                             [ngModelOptions]="{
@@ -553,6 +560,7 @@ const EMPTY = [];
                                                 (change)="
                                                     toggleService(svc.id)
                                                 "
+                                                [aria-label]="svc.name"
                                             ></mat-checkbox>
                                             <icon
                                                 class="mt-0.5 text-lg"

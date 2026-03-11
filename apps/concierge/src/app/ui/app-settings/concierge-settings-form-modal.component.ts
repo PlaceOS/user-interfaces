@@ -56,6 +56,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
+                                <mat-label>Light Mode Logo</mat-label>
                                 <input
                                     matInput
                                     name="logo_light"
@@ -80,6 +81,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
+                                <mat-label>Dark Mode Logo</mat-label>
                                 <input
                                     matInput
                                     name="logo_dark"
@@ -100,6 +102,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="features">Features</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Features</mat-label>
                             <mat-select
                                 name="features"
                                 formControlName="features"
@@ -197,6 +200,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Type</mat-label>
                                     <mat-select
                                         name="banner-type"
                                         [ngModel]="
@@ -236,6 +240,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Message</mat-label>
                                     <input
                                         matInput
                                         name="banner-message"
@@ -265,6 +270,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="default-route">Default Route</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Default Route</mat-label>
                             <input
                                 matInput
                                 name="default-route"
@@ -280,6 +286,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                 Group Events Calendar
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Group Events Calendar</mat-label>
                                 <input
                                     matInput
                                     name="group-events-calendar"
@@ -295,6 +302,7 @@ import { UploadButtonComponent } from './upload-button.component';
                     <div>
                         <label for="week-start">Week Start</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Week Start</mat-label>
                             <mat-select
                                 name="week-start"
                                 formControlName="week_start"
@@ -375,6 +383,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             appearance="outline"
                                             class="w-full"
                                         >
+                                            <mat-label>Block Start Time</mat-label>
                                             <mat-select
                                                 name="block-start"
                                                 formControlName="block_start"
@@ -430,6 +439,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             appearance="outline"
                                             class="w-full"
                                         >
+                                            <mat-label>Block End Time</mat-label>
                                             <mat-select
                                                 name="block-start"
                                                 formControlName="block_start"
@@ -437,7 +447,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             >
                                                 <mat-option [value]="12"
                                                     >12PM (Midday)</mat-option
-                                                >
+>
                                                 <mat-option [value]="13"
                                                     >1PM</mat-option
                                                 >
@@ -490,6 +500,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             appearance="outline"
                                             class="w-full"
                                         >
+                                            <mat-label>Block Height</mat-label>
                                             <mat-select
                                                 name="block-height"
                                                 formControlName="block_height"
@@ -553,6 +564,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                             appearance="outline"
                                             class="w-full"
                                         >
+                                            <mat-label>Max Duration</mat-label>
                                             <mat-select
                                                 name="max-duration"
                                                 formControlName="max_duration"
@@ -723,6 +735,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Hide Guest List fields</mat-label>
                                     <mat-select
                                         name="hide-fields"
                                         formControlName="hide_fields"
@@ -820,6 +833,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         appearance="outline"
                                         class="w-full"
                                     >
+                                        <mat-label>Available Period</mat-label>
                                         <mat-select
                                             name="available-period"
                                             formControlName="available_period"
@@ -902,6 +916,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         appearance="outline"
                                         class="w-full"
                                     >
+                                        <mat-label>Max Duration</mat-label>
                                         <mat-select
                                             name="max-duration"
                                             formControlName="max_duration"
@@ -1033,6 +1048,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         appearance="outline"
                                         class="w-full"
                                     >
+                                        <mat-label>Available Period</mat-label>
                                         <mat-select
                                             name="available-period"
                                             formControlName="available_period"
@@ -1115,6 +1131,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         appearance="outline"
                                         class="w-full"
                                     >
+                                        <mat-label>Max Duration</mat-label>
                                         <mat-select
                                             name="max-duration"
                                             formControlName="max_duration"

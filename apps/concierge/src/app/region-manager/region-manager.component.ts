@@ -37,6 +37,7 @@ import { RegionManagementService } from './region-management.service';
                         matRipple
                         [matMenuTriggerFor]="app_settings_menu"
                         [matTooltip]="'Organisation App Settings'"
+                        aria-label="Organisation App Settings"
                     >
                         <icon>more_vert</icon>
                     </button>

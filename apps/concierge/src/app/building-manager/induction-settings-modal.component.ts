@@ -34,7 +34,7 @@ import { lastValueFrom } from 'rxjs';
                 {{ 'APP.CONCIERGE.INDUCTION_HEADER' | translate }}
             </h3>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon class="text-2xl">close</icon>
                 </button>
             }
@@ -49,6 +49,7 @@ import { lastValueFrom } from 'rxjs';
                     appearance="outline"
                     class="h-[50vh] w-xl max-w-[80vw]"
                 >
+                    <mat-label>Induction Content</mat-label>
                     <textarea
                         matInput
                         [(ngModel)]="induction_details"

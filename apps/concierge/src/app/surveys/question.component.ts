@@ -48,6 +48,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                             appearance="outline"
                             class="no-subscript"
                         >
+                            <mat-label>Question Type</mat-label>
                             <mat-select [(ngModel)]="question().type">
                                 @for (item of type_options; track item) {
                                     @if (item.id[0] !== '0') {
@@ -77,6 +78,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                         class="no-subscript mb-2 w-full"
                         appearance="outline"
                     >
+                        <mat-label>Question Title</mat-label>
                         <input
                             matInput
                             [placeholder]="
@@ -101,7 +103,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                         question().title
                     }}</span>
                     @if (!question().title) {
-                        <span class="mb-4 w-full text-xl opacity-30">{{
+                        <span class="mb-4 w-full text-xl opacity-60">{{
                             'Untitled Question'
                         }}</span>
                     }
@@ -109,6 +111,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                 @if (question().type === QuestionType.Comment_Box) {
                     <div class="flex w-full flex-col" *ngIf="preview()">
                         <mat-form-field appearance="outline">
+                            <mat-label>Option Text</mat-label>
                             <textarea
                                 matInput
                                 cols="30"
@@ -124,6 +127,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                 } @else if (question().type === QuestionType.Single_Line_Text) {
                     <div class="flex w-full flex-col" *ngIf="preview()">
                         <mat-form-field appearance="outline">
+                            <mat-label>Option Text</mat-label>
                             <input
                                 matInput
                                 type="text"
@@ -160,6 +164,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                             class="no-subscript w-full"
                                             appearance="outline"
                                         >
+                                            <mat-label>Option Text</mat-label>
                                             <input
                                                 matInput
                                                 type="text"
@@ -194,6 +199,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                             } @else {
                                 @if (is_dropdown) {
                                     <mat-form-field appearance="outline">
+                                        <mat-label>Select Option</mat-label>
                                         <mat-select
                                             placeholder="Select an option"
                                         >

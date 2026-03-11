@@ -40,7 +40,7 @@ import {
                 [content]="calendar_picker"
                 yPosition="top"
                 [class.pointer-events-none]="disabled()"
-                [class.opacity-30]="disabled()"
+                [class.opacity-60]="disabled()"
             >
                 <icon>today</icon>
             </button>
@@ -98,7 +98,7 @@ import {
                 [content]="calendar_picker"
                 yPosition="top"
                 [class.pointer-events-none]="disabled()"
-                [class.opacity-30]="disabled()"
+                [class.opacity-60]="disabled()"
             >
                 <icon>today</icon>
             </button>

@@ -38,7 +38,7 @@ declare let mapsindoors: any;
             <h2 class="text-xl font-medium capitalize">
                 {{ 'APP.CONCIERGE.POI_MAP_SELECT_HEADER' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>
@@ -67,6 +67,7 @@ declare let mapsindoors: any;
                         class="no-subscript mb-2 w-full"
                         appearance="outline"
                     >
+                        <mat-label>Level</mat-label>
                         <mat-select
                             name="level"
                             [(ngModel)]="level"
@@ -83,6 +84,7 @@ declare let mapsindoors: any;
                         class="no-subscript w-full"
                         appearance="outline"
                     >
+                        <mat-label>Search</mat-label>
                         <input
                             matInput
                             name="search"
@@ -146,7 +148,7 @@ declare let mapsindoors: any;
                                 >
                                     <div class="">{{ poi.name || poi.id }}</div>
                                     @if (poi.location) {
-                                        <div class="text-xs opacity-30">
+                                        <div class="text-xs opacity-60">
                                             {{ poi.location }}
                                         </div>
                                     }
@@ -161,7 +163,7 @@ declare let mapsindoors: any;
                                 src="assets/icons/no-results.svg"
                                 class="w-36"
                             />
-                            <div class="text-center opacity-30">
+                            <div class="text-center opacity-60">
                                 {{
                                     'APP.CONCIERGE.POI_MAP_SELECT_RESULTS_EMPTY'
                                         | translate

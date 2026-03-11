@@ -83,6 +83,7 @@ const EMPTY_FAVS = [];
                             <button
                                 icon
                                 matRipple
+                                aria-label="Duplicate order"
                                 [matTooltip]="
                                     'CALENDAR_EVENT.CATERING_ORDER_DUPLICATE'
                                         | translate
@@ -96,6 +97,7 @@ const EMPTY_FAVS = [];
                             <button
                                 icon
                                 matRipple
+                                aria-label="Edit order"
                                 [matTooltip]="
                                     'CALENDAR_EVENT.CATERING_ORDER_EDIT'
                                         | translate
@@ -109,6 +111,7 @@ const EMPTY_FAVS = [];
                             <button
                                 icon
                                 matRipple
+                                aria-label="Remove order"
                                 matTooltip="Remove Order"
                                 class="text-error"
                                 (click)="removeOrder(order)"
@@ -119,6 +122,7 @@ const EMPTY_FAVS = [];
                         <button
                             icon
                             matRipple
+                            aria-label="Toggle order details"
                             [matTooltip]="
                                 (show_order[order.id]
                                     ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
@@ -185,6 +189,7 @@ const EMPTY_FAVS = [];
                                     <button
                                         icon
                                         matRipple
+                                        aria-label="Remove item"
                                         matTooltip="Remove Order Item"
                                         class="text-error"
                                         (click)="removeOrderItem(order, item)"
@@ -195,6 +200,7 @@ const EMPTY_FAVS = [];
                                 <button
                                     icon
                                     matRipple
+                                    aria-label="Toggle favorite"
                                     name="toggle-catering-item-favourite"
                                     [matTooltip]="
                                         (favorites.includes(item.id)

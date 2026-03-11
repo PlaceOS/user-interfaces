@@ -80,6 +80,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                     <mat-select
                         [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         formControlName="building_id"
@@ -95,6 +96,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                     <mat-select
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         formControlName="zone_id"
@@ -113,6 +115,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'COMMON.TRIGGER' | translate }}</mat-label>
                     <mat-select
                         [placeholder]="'COMMON.NONE' | translate"
                         formControlName="trigger"
@@ -131,6 +134,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                     <input
                         matInput
                         required
@@ -142,6 +146,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                     appearance="outline"
                     class="no-subscript flex-1"
                 >
+                    <mat-label>{{ 'FORM.TITLE' | translate }}</mat-label>
                     <input
                         matInput
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
@@ -220,6 +225,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             appearance="outline"
                             class="no-subscript bg-base-100 w-1/2 flex-1 rounded-sm"
                         >
+                            <mat-label>Page Title</mat-label>
                             <input
                                 matInput
                                 formControlName="title"
@@ -256,7 +262,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
-                                            class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-50"
+                                            class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-60"
                                             *cdkDragPlaceholder
                                         ></div>
                                         <div
@@ -303,7 +309,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                             }
                         } @else {
                             <div
-                                class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 text-center opacity-30"
+                                class="flex h-full w-full flex-col items-center justify-center space-y-4 p-12 text-center opacity-60"
                             >
                                 <icon class="text-8xl">list</icon>
                                 <p>No questions added to this page yet.</p>
@@ -345,6 +351,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 class="no-subscript flex-1"
                                 appearance="outline"
                             >
+                                <mat-label>Search</mat-label>
                                 <icon
                                     class="relative -left-1 text-2xl"
                                     matPrefix
@@ -361,6 +368,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 class="no-subscript flex-1"
                                 appearance="outline"
                             >
+                                <mat-label>Question Type</mat-label>
                                 <mat-select
                                     [placeholder]="
                                         'APP.CONCIERGE.SURVEY_QUESTION_TYPES_ALL'
@@ -400,7 +408,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 cdkDrag
                             >
                                 <div
-                                    class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-50"
+                                    class="border-base-content bg-base-300 h-20 w-full rounded-lg border-3 border-dashed opacity-60"
                                     *cdkDragPlaceholder
                                 ></div>
                                 <button
@@ -413,7 +421,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 </button>
                                 <div class="bg-base-100 flex-1 py-2 pr-12 pl-4">
                                     <div>{{ question.title }}</div>
-                                    <div class="text-sm opacity-40">
+                                    <div class="text-sm opacity-60">
                                         {{ question_types[question.type] }}
                                     </div>
                                 </div>
@@ -422,6 +430,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                     matRipple
                                     class="absolute top-1 right-1"
                                     [matMenuTriggerFor]="actionsMenu"
+                                    aria-label="More options"
                                 >
                                     <icon>more_vert</icon>
                                 </button>

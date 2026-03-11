@@ -39,7 +39,7 @@ export interface CateringItemOptionModalData {
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -61,6 +61,7 @@ export interface CateringItemOptionModalData {
                             {{ 'FORM.NAME' | translate }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -85,6 +86,7 @@ export interface CateringItemOptionModalData {
                             {{ 'COMMON.TYPE' | translate }}<span>*</span>:
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.TYPE' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="group"
@@ -119,6 +121,7 @@ export interface CateringItemOptionModalData {
                             'CATERING.ITEM_PRICE' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'CATERING.ITEM_PRICE' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="unit-price"

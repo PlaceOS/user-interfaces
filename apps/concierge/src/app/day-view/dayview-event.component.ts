@@ -114,7 +114,7 @@ const DAY_IN_MINUTES = 24 * 60;
             }
 
             .overflow-block {
-                opacity: 0.3;
+                opacity: 0.6;
                 width: 12rem;
             }
 

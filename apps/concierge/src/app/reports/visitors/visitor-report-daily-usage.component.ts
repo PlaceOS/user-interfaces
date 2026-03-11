@@ -34,6 +34,7 @@ import { VisitorsReportService } from './visitors-report.service';
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        aria-label="Download report"
                     >
                         <icon>download</icon>
                     </button>

@@ -62,6 +62,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Name</mat-label>
                         <input
                             matInput
                             name="name"
@@ -76,6 +77,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Type</mat-label>
                         <input
                             matInput
                             name="type"
@@ -89,6 +91,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         'COMMON.DETAILS' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.DETAILS' | translate }}</mat-label>
                         <input
                             matInput
                             name="details"
@@ -101,6 +104,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="description"
@@ -110,6 +114,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     </mat-form-field>
                     <label for="terms">{{ 'COMMON.TERMS' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.TERMS' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="terms"
@@ -119,6 +124,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                     </mat-form-field>
                     <label for="code">{{ 'COMMON.CODE' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.CODE' | translate }}</mat-label>
                         <input
                             matInput
                             name="code"
@@ -132,6 +138,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             appearance="outline"
                             class="no-subscript w-full"
                         >
+                            <mat-label>Image URL</mat-label>
                             <input
                                 matInput
                                 name="image"

@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ASSETS_MANAGE_CATEGORIES' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>

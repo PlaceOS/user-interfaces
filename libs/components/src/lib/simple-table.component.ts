@@ -46,13 +46,16 @@ export interface TableColumn {
                         [style.gridColumn]="'1 / 2'"
                     >
                         <mat-checkbox
+                            [aria-label]="'Select all rows'"
                             [checked]="selected().length === data_view().length"
                             [indeterminate]="
                                 selected().length > 0 &&
                                 selected().length < data_view().length
                             "
                             (change)="selectAll($event.checked)"
-                        ></mat-checkbox>
+                        >
+                            <span class="sr-only">Select all rows</span>
+                        </mat-checkbox>
                     </div>
                 }
                 @for (
@@ -111,9 +114,12 @@ export interface TableColumn {
                         (touchstart)="active_row.set(i)"
                     >
                         <mat-checkbox
+                            [aria-label]="'Select row ' + (i + 1)"
                             [checked]="selected().includes(i)"
                             (change)="select(i, $event.checked)"
-                        ></mat-checkbox>
+                        >
+                            <span class="sr-only">Select row {{ i + 1 }}</span>
+                        </mat-checkbox>
                     </div>
                 }
                 @for (
@@ -153,7 +159,7 @@ export interface TableColumn {
                                             row[column.key] === '') &&
                                         column.key !== '_index'
                                     ) {
-                                        <span class="opacity-30">
+                                        <span class="opacity-60">
                                             {{
                                                 column.empty ||
                                                     ('COMMON.EMPTY' | translate)
@@ -207,7 +213,7 @@ export interface TableColumn {
             @if (!data_view().length) {
                 <div
                     [style.gridColumnStart]="'span ' + active_columns().length"
-                    class="flex items-center justify-center p-8 opacity-30"
+                    class="flex items-center justify-center p-8 opacity-60"
                 >
                     {{ empty_message() }}
                 </div>
@@ -229,6 +235,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
+                    aria-label="Previous page"
                     [disabled]="page() === 0"
                     (click)="setPage(page() - 1)"
                 >
@@ -237,6 +244,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
+                    aria-label="Next page"
                     [disabled]="page() === total_pages() - 1"
                     (click)="setPage(page() + 1)"
                 >
@@ -245,6 +253,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
+                    aria-label="First page"
                     [disabled]="page() === 0"
                     (click)="setPage(0)"
                 >
@@ -253,6 +262,7 @@ export interface TableColumn {
                 <button
                     icon
                     matRipple
+                    aria-label="Last page"
                     [disabled]="page() === total_pages() - 1"
                     (click)="setPage(total_pages() - 1)"
                 >

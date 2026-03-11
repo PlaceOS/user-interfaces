@@ -19,6 +19,7 @@ import { StaffStateService } from './staff-state.service';
             class="border-base-200 bg-base-100 flex items-center space-x-4 border-b p-4"
         >
             <mat-form-field appearance="outline" class="no-subscript w-48">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="zones"

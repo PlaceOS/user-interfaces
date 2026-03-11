@@ -56,7 +56,7 @@ const CHARS = '0123456789ABCDEF';
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -72,6 +72,7 @@ const CHARS = '0123456789ABCDEF';
                             <span>*</span>
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'APP.CONCIERGE.DESKS_ID' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="id"
@@ -90,6 +91,7 @@ const CHARS = '0123456789ABCDEF';
                                 <span>*</span>
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>{{ 'APP.CONCIERGE.DESKS_NAME' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="name"
@@ -110,6 +112,7 @@ const CHARS = '0123456789ABCDEF';
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>{{ 'EXPLORE.MAP_ID' | translate }}</mat-label>
                                     <input
                                         matInput
                                         name="map-id"
@@ -195,6 +198,7 @@ const CHARS = '0123456789ABCDEF';
                     ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"
@@ -206,6 +210,7 @@ const CHARS = '0123456789ABCDEF';
                         {{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'APP.CONCIERGE.DESKS_SECURITY' | translate }}</mat-label>
                         <input
                             matInput
                             name="security"

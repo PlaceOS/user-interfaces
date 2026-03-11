@@ -21,12 +21,12 @@ import { StaffStateService } from './staff-state.service';
                 <a-user-avatar [user]="user()"></a-user-avatar>
                 <div class="flex flex-1 flex-col">
                     <div class="px-2">{{ user()?.name }}</div>
-                    <div class="text-opacity-50 px-2 text-xs">
+                    <div class="text-opacity-60 px-2 text-xs">
                         {{ user()?.email }}
                     </div>
                 </div>
                 @if (onsite()) {
-                    <div class="px-4 text-xs opacity-50">
+                    <div class="px-4 text-xs opacity-60">
                         {{ 'APP.CONCIERGE.DIRECTORY_ONSITE' | translate }}
                     </div>
                 }

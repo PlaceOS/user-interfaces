@@ -21,7 +21,7 @@ import {
                         | translate: { name: name() }
                 }}
             </h1>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>

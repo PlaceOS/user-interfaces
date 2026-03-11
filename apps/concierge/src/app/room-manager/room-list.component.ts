@@ -17,7 +17,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-4xl text-sm"
+                class="block min-w-4xl text-sm text-base-content"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -78,9 +78,10 @@ import { RoomManagementService } from './room-management.service';
             <button
                 class="px-4 py-2 text-left leading-tight"
                 (click)="copyToClipboard(row.id)"
+                [attr.aria-label]="'Copy ID for ' + data"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-60">
                     {{ row.id }}
                 </div>
             </button>
@@ -96,6 +97,8 @@ import { RoomManagementService } from './room-management.service';
                     [class.bg-error]="!data"
                     [class.bg-success]="data"
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
+                    [attr.aria-label]="data ? 'Yes' : 'No'"
+                    role="img"
                 >
                     <icon>{{ data ? 'done' : 'close' }}</icon>
                 </div>
@@ -112,6 +115,8 @@ import { RoomManagementService } from './room-management.service';
                     [class.text-info-content]="data.status === 'info'"
                     [matTooltip]="data.message"
                     class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
+                    [attr.aria-label]="data.status === 'warn' ? 'Warning' : data.status === 'info' ? 'Info' : 'Closed'"
+                    role="img"
                 >
                     <icon>{{
                         data.status === 'warn'
@@ -130,6 +135,7 @@ import { RoomManagementService } from './room-management.service';
                     matRipple
                     class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
+                    aria-label="More options"
                 >
                     <icon>more_vert</icon>
                 </button>

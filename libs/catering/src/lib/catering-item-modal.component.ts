@@ -43,7 +43,7 @@ export interface CateringItemModalData {
                 }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -66,6 +66,7 @@ export interface CateringItemModalData {
                                 {{ 'FORM.NAME' | translate }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="name"
@@ -93,6 +94,7 @@ export interface CateringItemModalData {
                                 }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'COMMON.CATEGORY' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="category"
@@ -115,6 +117,7 @@ export interface CateringItemModalData {
                                 }}<span>*</span>:
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'CATERING.CATERER' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="caterer"
@@ -179,6 +182,7 @@ export interface CateringItemModalData {
                             'COMMON.DESCRIPTION' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                             <textarea
                                 matInput
                                 name="description"
@@ -200,6 +204,7 @@ export interface CateringItemModalData {
                             {{ 'COMMON.TAGS' | translate }}
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'COMMON.TAGS' | translate }}</mat-label>
                             <mat-chip-grid #chipList aria-label="Item Tags">
                                 @for (item of tag_list; track item) {
                                     <mat-chip-row (removed)="removeTag(item)">
@@ -293,6 +298,7 @@ export interface CateringItemModalData {
                 <div class="flex flex-col space-y-2 mb-4">
                     <label for="refund-lead-days">Refund Lead Time (days)</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Refund Lead Time (days)</mat-label>
                         <input
                             matInput
                             type="number"

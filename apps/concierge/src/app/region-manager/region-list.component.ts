@@ -53,7 +53,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-60">
                     {{ row.id }}
                 </div>
             </button>
@@ -65,6 +65,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
                     matRipple
                     class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="menu"
+                    aria-label="More options"
                 >
                     <icon>more_vert</icon>
                 </button>

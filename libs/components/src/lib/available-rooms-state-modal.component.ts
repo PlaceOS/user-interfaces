@@ -45,6 +45,7 @@ import { TranslatePipe } from './translate.pipe';
                                             (rooms | async)?.length !==
                                                 selected.length
                                         "
+                                        aria-label="Select all rooms"
                                     ></mat-checkbox>
                                 </td>
                                 <td></td>
@@ -73,6 +74,7 @@ import { TranslatePipe } from './translate.pipe';
                                             [checked]="
                                                 selected.includes(space.id)
                                             "
+                                            [aria-label]="'Select ' + (space.display_name || space.name)"
                                         ></mat-checkbox>
                                     </td>
                                     <td>

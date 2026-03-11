@@ -74,6 +74,7 @@ const DENIED_FILE_TYPES = [
                     matAutocompleteOrigin
                     #origin="matAutocompleteOrigin"
                 >
+                    <mat-label>{{ 'FORM.USER_LIST_PLACEHOLDER' | translate }}</mat-label>
                     <mat-chip-grid #chipList aria-label="User Seleciom">
                         @for (item of active_list; track item.id) {
                             <mat-chip-row

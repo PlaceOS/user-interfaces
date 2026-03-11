@@ -38,7 +38,7 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="z-0 block text-sm"
+            class="z-0 block text-sm text-base-content"
             [style.min-width]="68 + extra_width + 'rem'"
             [data]="guests"
             [columns]="[
@@ -181,7 +181,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.asset_name || row.asset_id }}</div>
                 @if (row.asset_name && row.asset_id) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-60">
                         {{ row.asset_id }}
                     </div>
                 }
@@ -191,7 +191,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-60">
                         {{ row.user_email }}
                     </div>
                 }
@@ -224,6 +224,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     />
                     <button
                         matRipple
+                        aria-label="Approve ID"
                         (click)="setExt(row, 'id_confirmed', true)"
                     >
                         {{
@@ -234,6 +235,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     <button
                         matRipple
                         class="inverse mt-2"
+                        aria-label="Reject ID"
                         (click)="setExt(row, 'id_confirmed', false)"
                     >
                         {{
@@ -297,7 +299,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         row?.status !== 'approved' &&
                         row?.status !== 'declined'
                     "
-                    [class.opacity-30]="row?.status === 'ended'"
+                    [class.opacity-60]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="
                         row?.status === 'ended' ||
@@ -357,7 +359,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ data * 1000 | date: time_format : tz }}
                 @if (timezone) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-60">
                         {{ data * 1000 | date: 'zzzz' : tz }}
                     </span>
                 }
@@ -367,7 +369,7 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ row.extension_data.pass_number }}
                 @if (!row.extension_data.pass_number) {
-                    <span class="opacity-30">No Pass</span>
+                    <span class="opacity-60">No Pass</span>
                 }
             </div>
         </ng-template>
@@ -382,7 +384,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             : tz
                 }}
                 @if (timezone) {
-                    <span class="text-xs opacity-30">
+                    <span class="text-xs opacity-60">
                         {{ row.date | date: 'zzzz' : tz }}
                     </span>
                 }
@@ -390,7 +392,7 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="flex items-center justify-end px-2">
-                <button icon matRipple [matMenuTriggerFor]="guest_menu">
+                <button icon matRipple [matMenuTriggerFor]="guest_menu" aria-label="More options">
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -521,6 +523,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                     appearance="outline"
                                     class="no-subscript"
                                 >
+                                    <mat-label>Pass Number</mat-label>
                                     <input
                                         [(ngModel)]="pass_number"
                                         matInput
@@ -608,6 +611,7 @@ import { VisitorsStateService } from './visitors-state.service';
                     matTooltipPosition="left"
                     icon
                     matRipple
+                    aria-label="Edit visitor notes"
                     (click)="editVisitorNotes(row)"
                 >
                     <icon class="text-2xl">edit_square</icon>
@@ -636,6 +640,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 matTooltipPosition="left"
                 icon
                 matRipple
+                aria-label="Download visitor list"
                 (click)="downloadVisitorList()"
             >
                 <icon>download</icon>

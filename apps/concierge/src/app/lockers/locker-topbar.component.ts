@@ -84,6 +84,7 @@ import { LockerStateService } from './locker-state.service';
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
             <mat-form-field appearance="outline" class="no-subscript w-56">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
@@ -94,7 +95,7 @@ import { LockerStateService } from './locker-state.service';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name

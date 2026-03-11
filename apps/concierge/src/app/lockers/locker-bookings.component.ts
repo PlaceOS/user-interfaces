@@ -129,7 +129,7 @@ import { LockerStateService } from './locker-state.service';
                         }}
                     </div>
                     @if (row.user_name) {
-                        <div class="text-xs opacity-30 select-all">
+                        <div class="text-xs opacity-60 select-all">
                             {{ row.user_email }}
                         </div>
                     }
@@ -148,7 +148,7 @@ import { LockerStateService } from './locker-state.service';
                         [class.bg-error!]="row?.status === 'declined'"
                         [class.text-neutral-content!]="row?.status === 'ended'"
                         [class.bg-neutral!]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.opacity-60]="row?.status === 'ended'"
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
@@ -202,7 +202,7 @@ import { LockerStateService } from './locker-state.service';
                         [class.text-neutral-content!]="!data"
                         [class.bg-success!]="data"
                         [class.text-success-content!]="data"
-                        [class.opacity-30]="row.status === 'ended'"
+                        [class.opacity-60]="row.status === 'ended'"
                         [disabled]="row.status === 'ended'"
                         [matTooltip]="
                             row.status === 'ended'

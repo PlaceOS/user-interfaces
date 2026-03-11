@@ -65,6 +65,7 @@ import { PointOfInterest } from './poi-management.service';
                             {{ 'FORM.NAME' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -80,6 +81,7 @@ import { PointOfInterest } from './poi-management.service';
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                             <mat-select
                                 [(ngModel)]="building"
                                 [ngModelOptions]="{ standalone: true }"
@@ -100,6 +102,7 @@ import { PointOfInterest } from './poi-management.service';
                             {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                             <mat-select
                                 formControlName="level_id"
                                 placeholder="Select Level"
@@ -121,6 +124,7 @@ import { PointOfInterest } from './poi-management.service';
                         {{ 'COMMON.LOCATION' | translate }}<span>*</span>
                     </label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'COMMON.LOCATION' | translate }}</mat-label>
                         <mat-select
                             [(ngModel)]="location_type"
                             [ngModelOptions]="{ standalone: true }"
@@ -140,6 +144,7 @@ import { PointOfInterest } from './poi-management.service';
                                 class="no-subscript"
                                 appearance="outline"
                             >
+                                <mat-label>Location</mat-label>
                                 <input
                                     matInput
                                     name="location"
@@ -163,6 +168,7 @@ import { PointOfInterest } from './poi-management.service';
                     @if (location_type === 'coordinates') {
                         <div class="flex items-center space-x-2">
                             <mat-form-field appearance="outline" class="flex-1">
+                                <mat-label>Latitude</mat-label>
                                 <input
                                     matInput
                                     name="latitude"
@@ -179,6 +185,7 @@ import { PointOfInterest } from './poi-management.service';
                                 />
                             </mat-form-field>
                             <mat-form-field appearance="outline" class="flex-1">
+                                <mat-label>Longitude</mat-label>
                                 <input
                                     matInput
                                     name="longitude"
@@ -212,6 +219,7 @@ import { PointOfInterest } from './poi-management.service';
                             appearance="outline"
                             class="no-subscript"
                         >
+                            <mat-label>{{ 'APP.CONCIERGE.POI_MEDIA_URL' | translate }}</mat-label>
                             <input
                                 matInput
                                 formControlName="media_url"
@@ -239,6 +247,7 @@ import { PointOfInterest } from './poi-management.service';
                                     appearance="outline"
                                     class="no-subscript"
                                 >
+                                    <mat-label>Label</mat-label>
                                     <input
                                         matInput
                                         [(ngModel)]="value[0]"
@@ -250,6 +259,7 @@ import { PointOfInterest } from './poi-management.service';
                                     appearance="outline"
                                     class="no-subscript"
                                 >
+                                    <mat-label>Content</mat-label>
                                     <input
                                         matInput
                                         [(ngModel)]="value[1]"

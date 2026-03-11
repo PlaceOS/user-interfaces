@@ -66,6 +66,7 @@ export interface DeskConfirmModalData {
                     <div reason class="mb-4 flex flex-col">
                         <label>Reason</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>Reason</mat-label>
                             <input
                                 matInput
                                 [(ngModel)]="reason"

@@ -30,6 +30,7 @@ import { CateringReportStateService } from './catering-report-state.service';
                     matRipple
                     (click)="download()"
                     class="print:hidden"
+                    aria-label="Download report"
                     [matTooltip]="
                         'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                     "

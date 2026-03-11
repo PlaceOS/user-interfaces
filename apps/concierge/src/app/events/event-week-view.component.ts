@@ -22,7 +22,7 @@ import { EventStateService } from './event-state.service';
                     class="sticky top-0 z-10 flex h-16 min-h-16 justify-end"
                 >
                     <div class="bg-base-100 h-10 pt-6">
-                        <div class="px-2 text-xs opacity-30">
+                        <div class="px-2 text-xs opacity-60">
                             {{ now | date: 'zzzz' }}
                         </div>
                     </div>

@@ -31,6 +31,7 @@ import { AssetsReportService } from './assets-report.service';
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        aria-label="Download report"
                     >
                         <icon>download</icon>
                     </button>
@@ -75,7 +76,7 @@ import { AssetsReportService } from './assets-report.service';
             <ng-template #date_template let-data="data">
                 <div class="p-4">
                     @if (!data) {
-                        <span class="opacity-30">{{
+                        <span class="opacity-60">{{
                             'COMMON.DATE_EMPTY' | translate
                         }}</span>
                     }

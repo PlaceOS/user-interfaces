@@ -43,6 +43,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                                 Username
                             </label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Username</mat-label>
                                 <input
                                     #username
                                     formControlName="username"
@@ -53,6 +54,7 @@ import { AuthenticatedImageDirective } from './authenticated-image.directive';
                         <div class="flex flex-col">
                             <label for="password">Password</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>Password</mat-label>
                                 <input
                                     #pass_field
                                     formControlName="password"

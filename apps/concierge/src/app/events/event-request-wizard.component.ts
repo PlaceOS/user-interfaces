@@ -327,6 +327,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             >Event Title <span class="text-error">*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Event Title</mat-label>
                             <input
                                 matInput
                                 [formControl]="form.controls.title"
@@ -346,6 +347,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Date</mat-label>
                                     <input
                                         matInput
                                         type="date"
@@ -362,6 +364,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Start Time</mat-label>
                                     <input
                                         matInput
                                         type="time"
@@ -378,6 +381,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                     appearance="outline"
                                     class="w-full"
                                 >
+                                    <mat-label>Duration (minutes)</mat-label>
                                     <mat-select
                                         [formControl]="
                                             form.controls.duration_minutes
@@ -438,6 +442,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             <span class="text-error">*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Location</mat-label>
                             <input
                                 matInput
                                 [formControl]="form.controls.location"
@@ -465,6 +470,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
 
                         <label class="text-sm font-medium">Description</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Description</mat-label>
                             <textarea
                                 matInput
                                 [formControl]="form.controls.description"
@@ -487,6 +493,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             <span class="text-error">*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Full Name</mat-label>
                             <input
                                 matInput
                                 [formControl]="
@@ -504,6 +511,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             <span class="text-error">*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Email</mat-label>
                             <input
                                 matInput
                                 type="email"
@@ -525,6 +533,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             <span class="text-error">*</span></label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Phone</mat-label>
                             <input
                                 matInput
                                 type="tel"
@@ -670,6 +679,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                                         $event.checked
                                                     )
                                                 "
+                                                [aria-label]="svc.name"
                                             ></mat-checkbox>
                                             <icon
                                                 class="mt-0.5 text-base"
@@ -756,6 +766,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             >Expected Attendance</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Expected Attendance</mat-label>
                             <input
                                 matInput
                                 type="number"
@@ -787,6 +798,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             >Special Requirements</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Special Requirements</mat-label>
                             <textarea
                                 matInput
                                 [formControl]="
@@ -823,7 +835,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                                 getCategoryName(svc)
                                             }}</span>
                                             <span
-                                                class="text-xs opacity-50"
+                                                class="text-xs opacity-60"
                                                 >&mdash; Pending
                                                 approval</span
                                             >
@@ -843,13 +855,13 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                         <div
                             class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-base-300 p-8 transition-colors hover:border-primary"
                         >
-                            <icon class="mb-2 text-4xl opacity-40"
+                            <icon class="mb-2 text-4xl opacity-60"
                                 >cloud_upload</icon
                             >
                             <div class="text-sm font-medium">
                                 Drag & drop files here
                             </div>
-                            <div class="mt-1 text-xs opacity-50">
+                            <div class="mt-1 text-xs opacity-60">
                                 or click to browse (PDF, DOCX, images)
                             </div>
                             <button
@@ -861,7 +873,7 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             </button>
                         </div>
 
-                        <div class="text-xs italic opacity-40">
+                        <div class="text-xs italic opacity-60">
                             File upload is for display purposes only in
                             this demo.
                         </div>

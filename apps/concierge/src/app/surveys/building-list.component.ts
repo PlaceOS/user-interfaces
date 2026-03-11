@@ -45,7 +45,7 @@ import { SurveyService } from './survey.service';
                                 />
                             }
                             @if (!building.images?.length) {
-                                <icon class="text-base-100 text-6xl"
+                                <icon class="text-6xl" style="color: #424242"
                                     >domain</icon
                                 >
                             }
@@ -107,7 +107,7 @@ import { SurveyService } from './survey.service';
                     <div
                         class="bg-base-200 flex h-[calc(100%-2rem)] w-full flex-col items-center justify-center rounded-xl"
                     >
-                        <div class="opacity-30">
+                        <div style="color: #424242">
                             {{ 'APP.CONCIERGE.SURVEY_NO_BLD' | translate }}
                         </div>
                     </div>

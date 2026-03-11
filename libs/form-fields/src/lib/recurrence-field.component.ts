@@ -37,6 +37,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
     selector: 'recurrence-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'FORM.RECURRENCE_NONE' | translate }}</mat-label>
             <mat-select
                 [(ngModel)]="recurr_type"
                 (ngModelChange)="setSimple($event)"

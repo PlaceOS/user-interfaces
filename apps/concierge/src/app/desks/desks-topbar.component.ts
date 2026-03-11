@@ -37,6 +37,7 @@ import { DesksStateService } from './desks-state.service';
             class="border-base-200 bg-base-100 flex h-20 items-center space-x-2 border-b px-4"
         >
             <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [ngModel]="
                         filters().zones?.length ? filters().zones[0] : 'All'

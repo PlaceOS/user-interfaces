@@ -65,6 +65,7 @@ import { SignageStateService } from './signage-state.service';
                     >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                     <input
                         matInput
                         name="name"
@@ -128,6 +129,7 @@ import { SignageStateService } from './signage-state.service';
                             'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}</mat-label>
                             <mat-select
                                 name="orientation"
                                 formControlName="orientation"
@@ -162,6 +164,7 @@ import { SignageStateService } from './signage-state.service';
                             'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'APP.CONCIERGE.SIGNAGE_ANIMATION' | translate }}</mat-label>
                             <mat-select
                                 name="animation"
                                 formControlName="default_animation"
@@ -206,6 +209,7 @@ import { SignageStateService } from './signage-state.service';
                     'COMMON.DESCRIPTION' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                     <textarea
                         matInput
                         name="description"
@@ -250,6 +254,7 @@ import { SignageStateService } from './signage-state.service';
                         appearance="outline"
                         class="no-subscript w-full"
                     >
+                        <mat-label>Zones</mat-label>
                         <mat-select
                             [ngModel]="schedule()"
                             (ngModelChange)="schedule.set($event)"

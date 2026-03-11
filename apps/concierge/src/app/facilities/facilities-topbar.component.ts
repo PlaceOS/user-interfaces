@@ -18,6 +18,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
             class="border-base-200 bg-base-100 flex h-20 items-center space-x-2 border-b px-4"
         >
             <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
@@ -32,6 +33,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">
+                <mat-label>Events</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="type_list"

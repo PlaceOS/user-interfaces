@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BuildingLevel } from 'libs/organisation/src/lib/level.class';
@@ -34,6 +35,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                 class="no-subscript w-full"
                 *ngIf="(levels | async)?.length"
             >
+                <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                 <mat-select
                     name="location"
                     [(ngModel)]="level"
@@ -90,6 +92,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         MatFormFieldModule,
         MatSelectModule,
         FormsModule,
+        TranslatePipe,
     ],
 })
 export class LockerMapComponent

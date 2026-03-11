@@ -69,7 +69,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         class="text-base-100 w-full p-4"
                         (click)="close.emit()"
                     >
-                        <div class="opacity-30">
+                        <div class="opacity-60">
                             {{
                                 'APP.CONCIERGE.SIGNAGE_SEARCH_EMPTY' | translate
                             }}

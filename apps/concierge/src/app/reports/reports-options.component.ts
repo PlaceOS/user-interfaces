@@ -31,6 +31,7 @@ import { combineLatest } from 'rxjs';
             class="border-base-200 bg-base-100 z-20 flex h-20 w-full items-center space-x-2 border-b p-4 print:hidden"
         >
             <mat-form-field appearance="outline" class="no-subscript w-60">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="setZones($event)"
@@ -41,7 +42,7 @@ import { combineLatest } from 'rxjs';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name
@@ -92,6 +93,7 @@ import { combineLatest } from 'rxjs';
                 [disabled]="!has_data()"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
+                aria-label="Download report"
             >
                 <icon>download</icon>
             </button>

@@ -66,7 +66,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         <ng-template #date_template let-data="data">
             <div class="p-4">
                 @if (!data) {
-                    <span class="opacity-30">{{
+                    <span class="opacity-60">{{
                         'COMMON.DATE_EMPTY' | translate
                     }}</span>
                 }

@@ -107,7 +107,7 @@ import { SplitJoinPipe } from './split-join.pipe';
         <ng-template #user_template let-row="row">
             <div class="flex flex-col px-4 py-2 text-left">
                 <div>{{ row.user_name }}</div>
-                <div class="text-xs opacity-30">
+                <div class="text-xs opacity-60">
                     {{ date(row) | date: 'MMM d, ' + time_format }} &ndash;
                     {{
                         date(row) + row.duration * 60 * 1000
@@ -150,7 +150,7 @@ import { SplitJoinPipe } from './split-join.pipe';
             <div class="p-4">
                 {{ level(row)?.display_name }}
                 @if (!level(row)) {
-                    <span class="opacity-30">N/A</span>
+                    <span class="opacity-60">N/A</span>
                 }
             </div>
         </ng-template>

@@ -61,7 +61,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     }}
                 </h2>
                 @if (!loading) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -73,6 +73,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                 >
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -219,6 +220,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"
@@ -230,6 +232,7 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         {{ 'COMMON.FEATURES' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.FEATURES' | translate }}</mat-label>
                         <mat-chip-grid
                             name="features"
                             #chipList

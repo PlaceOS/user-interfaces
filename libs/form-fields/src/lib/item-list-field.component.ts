@@ -67,6 +67,7 @@ export function removeChipItem<T = string>(
     selector: 'item-list-field',
     template: `
         <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ placeholder() || 'User groups...' }}</mat-label>
             <mat-chip-grid #chipList aria-label="Zone Tags">
                 @for (item of value; track item) {
                     <mat-chip-row (removed)="remove(item)">

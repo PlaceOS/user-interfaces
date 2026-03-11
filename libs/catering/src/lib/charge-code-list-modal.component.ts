@@ -27,7 +27,7 @@ import { CateringStateService } from './catering-state.service';
                 {{ 'CATERING.CHARGE_CODES_EDIT' | translate }}
             </h2>
             @if (!loading()) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }
@@ -43,6 +43,7 @@ import { CateringStateService } from './catering-state.service';
                                 appearance="outline"
                                 class="no-subscript flex-1"
                             >
+                                <mat-label>{{ 'CATERING.CHARGE_CODES' | translate }}</mat-label>
                                 <input
                                     matInput
                                     [(ngModel)]="charge_codes()[i]"
@@ -54,6 +55,7 @@ import { CateringStateService } from './catering-state.service';
                             <button
                                 icon
                                 matRipple
+                                aria-label="Remove charge code"
                                 class="border-error text-error h-12 w-12 rounded-sm border"
                                 [matTooltip]="
                                     'CATERING.CHARGE_CODES_REMOVE' | translate
@@ -97,6 +99,7 @@ import { CateringStateService } from './catering-state.service';
                 <button
                     icon
                     matRipple
+                    aria-label="Download template"
                     (click)="downloadTemplate()"
                     [matTooltip]="'CATERING.CHARGE_CODE_DOWNLOAD' | translate"
                     class="border-secondary text-secondary h-12 w-12 rounded-sm border"

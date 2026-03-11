@@ -8,7 +8,7 @@ import { IconComponent } from '@placeos/components';
         <div class="p-6">
             <div class="mb-6">
                 <h2 class="text-2xl font-semibold">Additional Services</h2>
-                <p class="text-base-content/60 mt-1">
+                <p style="color: #424242" class=" mt-1">
                     Catering, bar services, equipment rentals, and delivery
                     information.
                 </p>
@@ -26,14 +26,14 @@ import { IconComponent } from '@placeos/components';
                         <h3 class="text-lg font-semibold">Catering</h3>
                     </div>
                     <div class="space-y-3 p-4">
-                        <p class="text-base-content/70 text-sm">
+                        <p style="color: #424242" class=" text-sm">
                             Catering companies may use the kitchen area on the
                             3rd and 5th floor.
                         </p>
                         <div class="space-y-2">
                             <div class="flex items-start gap-2">
                                 <icon
-                                    class="text-base-content/50 mt-0.5 text-base"
+                                    style="color: #424242" class=" mt-0.5 text-base"
                                 >
                                     info
                                 </icon>
@@ -66,7 +66,7 @@ import { IconComponent } from '@placeos/components';
                         <div class="space-y-2">
                             <div class="flex items-start gap-2">
                                 <icon
-                                    class="text-base-content/50 mt-0.5 text-base"
+                                    style="color: #424242" class=" mt-0.5 text-base"
                                 >
                                     info
                                 </icon>
@@ -101,7 +101,7 @@ import { IconComponent } from '@placeos/components';
                         <div class="space-y-2">
                             <div class="flex items-start gap-2">
                                 <icon
-                                    class="text-base-content/50 mt-0.5 text-base"
+                                    style="color: #424242" class=" mt-0.5 text-base"
                                 >
                                     info
                                 </icon>
@@ -138,7 +138,7 @@ import { IconComponent } from '@placeos/components';
                         </div>
                         <div class="flex items-start gap-2">
                             <icon
-                                class="text-base-content/50 mt-0.5 text-base"
+                                style="color: #424242" class=" mt-0.5 text-base"
                             >
                                 info
                             </icon>
@@ -161,7 +161,7 @@ import { IconComponent } from '@placeos/components';
                         class="border-base-200 rounded-lg border p-4"
                     >
                         <h4 class="mb-2 font-semibold">UCLA Departments</h4>
-                        <p class="text-base-content/70 text-sm">
+                        <p style="color: #424242" class=" text-sm">
                             Please provide internal UCLA Recharge ID
                             information. CNSI may verify sufficient funds in the
                             FAU. All recharges are processed after the event.
@@ -171,11 +171,11 @@ import { IconComponent } from '@placeos/components';
                         class="border-base-200 rounded-lg border p-4"
                     >
                         <h4 class="mb-2 font-semibold">External Parties</h4>
-                        <p class="text-base-content/70 text-sm">
+                        <p style="color: #424242" class=" text-sm">
                             Pay by check or money order to "UC Regents" sent to
                             CNSI Events, or pay by credit card online.
                         </p>
-                        <p class="text-base-content/60 mt-2 text-xs">
+                        <p style="color: #424242" class=" mt-2 text-xs">
                             California NanoSystems Institute at UCLA<br />
                             570 Westwood Plaza, Building 114, MC 722710<br />
                             Los Angeles, CA 90095-7227

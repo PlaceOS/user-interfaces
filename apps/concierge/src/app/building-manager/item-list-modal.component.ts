@@ -16,7 +16,7 @@ import { showMetadata, updateMetadata } from '@placeos/ts-client';
     template: `
         <header>
             <h2>{{ 'APP.CONCIERGE.SUPPORT_TYPES_HEADER' | translate }}</h2>
-            <button icon matRipple mat-dialog-close="">
+            <button icon matRipple mat-dialog-close="" aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>

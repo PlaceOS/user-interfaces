@@ -25,7 +25,7 @@ import { EventsStateService } from './events-state.service';
     selector: 'room-booking-search',
     template: `
         <div class="relative">
-            <button icon matRipple (click)="showSearch()">
+            <button icon matRipple (click)="showSearch()" aria-label="Search bookings">
                 <icon>search</icon>
             </button>
             <input
@@ -64,7 +64,7 @@ import { EventsStateService } from './events-state.service';
                     </div>
                     @if (!(filtered | async).length) {
                         <div
-                            class="flex items-center justify-center p-4 text-center text-sm opacity-30"
+                            class="flex items-center justify-center p-4 text-center text-sm opacity-60"
                         >
                             {{
                                 ((events | async).length
@@ -116,10 +116,10 @@ import { EventsStateService } from './events-state.service';
                                             }}
                                         </div>
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-60">
                                         {{ event.system?.display_name }}
                                     </div>
-                                    <div class="truncate text-xs opacity-30">
+                                    <div class="truncate text-xs opacity-60">
                                         {{
                                             (event.host | user | async)?.name ||
                                                 event.host

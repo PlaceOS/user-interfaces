@@ -179,6 +179,7 @@ import { statusList } from './catering.vars';
                     <button
                         icon
                         matRipple
+                        aria-label="View details"
                         customTooltip
                         [hover]="true"
                         xPosition="end"
@@ -203,6 +204,7 @@ import { statusList } from './catering.vars';
                     <button
                         icon
                         matRipple
+                        aria-label="Toggle items"
                         (click)="show_children[row.id] = !show_children[row.id]"
                     >
                         <icon>

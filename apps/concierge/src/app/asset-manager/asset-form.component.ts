@@ -45,6 +45,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_PRODUCT' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_PRODUCT' | translate }}</mat-label>
                         <input
                             matInput
                             [ngModel]="product?.name || 'No Product'"
@@ -59,6 +60,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'APP.CONCIERGE.ASSETS_ITEM_ASSET_SERIAL' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="serial-number"
@@ -79,6 +81,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="identifier"
@@ -102,6 +105,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_ORDER_ID' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_ORDER_ID' | translate }}</mat-label>
                         <mat-select
                             formControlName="purchase_order_id"
                             [placeholder]="
@@ -141,6 +145,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         'APP.CONCIERGE.ASSETS_BARCODE' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.ASSETS_BARCODE' | translate }}</mat-label>
                         <input
                             matInput
                             name="barcode"
@@ -157,6 +162,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <div class="flex flex-1 flex-col space-y-2">
                     <label for="refund-deadline">Refund Deadline</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>Refund Deadline</mat-label>
                         <input
                             matInput
                             type="date"

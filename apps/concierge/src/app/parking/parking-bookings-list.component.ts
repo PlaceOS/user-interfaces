@@ -90,7 +90,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-60">
                         {{ row.user_email }}
                     </div>
                 }
@@ -100,7 +100,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="px-4 py-2">
                 <div>{{ row.booked_by_name || row.booked_by_email }}</div>
                 @if (row.booked_by_name && row.booked_by_email) {
-                    <div class="text-xs opacity-30">
+                    <div class="text-xs opacity-60">
                         {{ row.booked_by_email }}
                     </div>
                 }
@@ -151,7 +151,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="p-4 font-mono text-sm uppercase">
                 {{ row?.extension_data?.plate_number }}
                 @if (!row?.extension_data?.plate_number) {
-                    <span class="opacity-30">
+                    <span class="opacity-60">
                         {{ 'COMMON.EMPTY' | translate }}
                     </span>
                 }
@@ -168,7 +168,7 @@ import { ParkingStateService } from './parking-state.service';
                     [class.bg-error]="row?.status === 'declined'"
                     [class.text-neutral-content]="row?.status === 'ended'"
                     [class.bg-neutral]="row?.status === 'ended'"
-                    [class.opacity-30]="row?.status === 'ended'"
+                    [class.opacity-60]="row?.status === 'ended'"
                     [class.text-warning-content]="row?.status === 'tentative'"
                     [class.bg-warning]="row?.status === 'tentative'"
                     [matMenuTriggerFor]="menu"

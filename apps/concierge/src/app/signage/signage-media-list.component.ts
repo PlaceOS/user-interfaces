@@ -43,6 +43,7 @@ import { SignageStateService } from './signage-state.service';
                 appearance="outline"
                 class="no-subscript white w-full"
             >
+                <mat-label>Search</mat-label>
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
@@ -66,6 +67,7 @@ import { SignageStateService } from './signage-state.service';
                     class="border-base-300 bg-base-100 my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border p-4 shadow-sm"
                 >
                     <mat-form-field appearance="outline" class="no-subscript">
+                        <mat-label>Search</mat-label>
                         <input
                             matInput
                             [placeholder]="'COMMON.URL' | translate"
@@ -124,7 +126,7 @@ import { SignageStateService } from './signage-state.service';
                             ></div>
                         }
                         <div
-                            class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
+                            class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-60"
                             *cdkDragPlaceholder
                         >
                             <icon class="text-base-100 text-2xl"> add </icon>
@@ -139,7 +141,7 @@ import { SignageStateService } from './signage-state.service';
                                 <div
                                     class="flex h-full w-full items-center justify-center"
                                 >
-                                    <icon class="text-8xl opacity-30"
+                                    <icon class="text-8xl opacity-60"
                                         >http</icon
                                     >
                                 </div>
@@ -161,7 +163,7 @@ import { SignageStateService } from './signage-state.service';
                                     <div
                                         class="flex h-full w-full items-center justify-center"
                                     >
-                                        <icon class="text-8xl opacity-30">{{
+                                        <icon class="text-8xl opacity-60">{{
                                             media.media_type === 'video'
                                                 ? 'video_library'
                                                 : 'image'
@@ -229,6 +231,7 @@ import { SignageStateService } from './signage-state.service';
                                         class="no-subscript w-full"
                                         (click)="$event.stopPropagation()"
                                     >
+                                        <mat-label>Search</mat-label>
                                         <input
                                             matInput
                                             [placeholder]="
@@ -333,7 +336,7 @@ import { SignageStateService } from './signage-state.service';
             </div>
         } @else {
             <div
-                class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-60"
             >
                 <icon class="text-6xl">hide_image</icon>
                 <p>{{ 'APP.CONCIERGE.SIGNAGE_MEDIA_EMPTY' | translate }}</p>

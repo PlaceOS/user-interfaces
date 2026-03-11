@@ -145,7 +145,7 @@ import { NewSurveyService } from './new-survey.service';
             <div
                 class="flex min-h-40 w-full flex-col items-center justify-center"
             >
-                <span class="text-lg opacity-30">{{
+                <span class="text-lg opacity-60">{{
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
                 }}</span>
             </div>

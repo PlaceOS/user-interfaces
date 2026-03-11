@@ -38,6 +38,7 @@ import { ReportsStateService } from '../reports-state.service';
                             'APP.CONCIERGE.REPORTS_DOWNLOAD_TABLE' | translate
                         "
                         (click)="download()"
+                        aria-label="Download report"
                     >
                         <icon>download</icon>
                     </button>
@@ -99,7 +100,7 @@ import { ReportsStateService } from '../reports-state.service';
                 <div class="p-4">
                     {{ data < 1 ? '' : data }}
                     @if (data < 1) {
-                        <span class="opacity-30">{{
+                        <span class="opacity-60">{{
                             'COMMON.CAPACITY_EMPTY' | translate
                         }}</span>
                     }

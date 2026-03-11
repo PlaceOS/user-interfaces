@@ -44,7 +44,7 @@ import { ParkingSpace } from './parking-state.service';
                     }}
                 </h2>
                 @if (!loading()) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -55,6 +55,7 @@ import { ParkingSpace } from './parking-state.service';
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'APP.CONCIERGE.PARKING_SPACE_NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="identifier"
@@ -71,6 +72,7 @@ import { ParkingSpace } from './parking-state.service';
                         'EXPLORE.MAP_ID' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'EXPLORE.MAP_ID' | translate }}</mat-label>
                         <input
                             matInput
                             name="map-id"
@@ -114,6 +116,7 @@ import { ParkingSpace } from './parking-state.service';
                     </div>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"

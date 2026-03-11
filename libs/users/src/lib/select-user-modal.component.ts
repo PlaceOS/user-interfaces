@@ -36,6 +36,7 @@ import {
                 class="no-subscript bg-base-100 sticky top-0 z-10 mb-2 w-full"
                 appearance="outline"
             >
+                <mat-label>{{ 'COMMON.SELECT_USER_SEARCH' | translate }}</mat-label>
                 <icon class="relative -left-2 text-2xl" matPrefix>search</icon>
                 <input
                     matInput

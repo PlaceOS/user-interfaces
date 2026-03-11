@@ -78,7 +78,7 @@ import { SurveyService } from './survey.service';
             <div class="p-4">
                 {{ (data | level)?.display_name || (data | level)?.name }}
                 @if (!(data | level)) {
-                    <span class="opacity-30">
+                    <span class="opacity-60">
                         {{ 'COMMON.LEVEL_ALL' | translate }}
                     </span>
                 }
@@ -96,6 +96,7 @@ import { SurveyService } from './survey.service';
                     matRipple
                     class="h-12 w-12 rounded-sm"
                     [matMenuTriggerFor]="actionsMenu"
+                    aria-label="More options"
                 >
                     <icon>more_vert</icon>
                 </button>

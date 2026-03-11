@@ -111,6 +111,7 @@ function degreesToRadians(degrees: number): number {
             class="bg-base-100 text-base-content absolute top-2 left-2 z-50 flex h-min w-min flex-col rounded-lg p-2 shadow-sm"
         >
             <mat-form-field appearance="outline" class="map no-subscript">
+                <mat-label>Search</mat-label>
                 <input
                     matInput
                     #searchInput

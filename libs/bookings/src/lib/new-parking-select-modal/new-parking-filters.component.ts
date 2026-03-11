@@ -53,6 +53,7 @@ import { BookingFormService } from '../booking-form.service';
                     </label>
                     @if (use_region && (regions | async)?.length) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
@@ -70,6 +71,7 @@ import { BookingFormService } from '../booking-form.service';
                     }
                     @if (!use_region && (buildings | async)?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="building"
                                 [ngModel]="building"
@@ -89,6 +91,7 @@ import { BookingFormService } from '../booking-form.service';
                     }
                     @if (!hide_levels()) {
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
                                 [ngModel]="(options | async)?.zone_id"
@@ -151,6 +154,7 @@ import { BookingFormService } from '../booking-form.service';
                                 form.patchValue({ all_day: $event })
                             "
                             [ngModelOptions]="{ standalone: true }"
+                            [aria-label]="'COMMON.ALL_DAY' | translate"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
@@ -226,6 +230,7 @@ import { BookingFormService } from '../booking-form.service';
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
+                                [aria-label]="feat"
                             ></mat-checkbox>
                         </div>
                     }

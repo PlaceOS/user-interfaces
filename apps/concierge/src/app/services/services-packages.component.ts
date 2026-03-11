@@ -16,7 +16,7 @@ import { ServicesStateService } from './services-state.service';
                     <h2 class="text-2xl font-semibold">
                         CNSI Event Packages & Services
                     </h2>
-                    <p class="text-base-content/60 mt-1">
+                    <p class="mt-1" style="color: #424242">
                         Bundled packages include AV equipment, basic technical
                         support, and events staff assistance.
                     </p>
@@ -71,7 +71,7 @@ import { ServicesStateService } from './services-state.service';
                                 <h3 class="text-lg font-semibold">
                                     {{ pkg.name }}
                                 </h3>
-                                <p class="text-base-content/60 text-sm">
+                                <p class="text-sm" style="color: #424242">
                                     {{ pkg.space }}
                                 </p>
                             </div>
@@ -83,6 +83,7 @@ import { ServicesStateService } from './services-state.service';
                                         'form',
                                         pkg.id,
                                     ]"
+                                    [attr.aria-label]="'Edit ' + pkg.name"
                                     class="hover:bg-base-200 flex h-8 w-8 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                                 >
                                     <icon class="text-base">edit</icon>
@@ -90,15 +91,16 @@ import { ServicesStateService } from './services-state.service';
                                 <button
                                     matRipple
                                     (click)="remove(pkg.id)"
+                                    [attr.aria-label]="'Delete ' + pkg.name"
                                     class="hover:bg-error/10 flex h-8 w-8 items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                                 >
-                                    <icon class="text-error text-base">
+                                    <icon class="text-base" style="color: #c62828">
                                         delete
                                     </icon>
                                 </button>
                             </div>
                         </div>
-                        <p class="text-base-content/70 mb-3 text-sm">
+                        <p class="mb-3 text-sm" style="color: #424242">
                             {{ pkg.description }}
                         </p>
                         <div
@@ -109,7 +111,7 @@ import { ServicesStateService } from './services-state.service';
                             >
                                 {{ pkg.duration }}
                             </span>
-                            <span class="text-primary text-lg font-bold">
+                            <span class="text-lg font-bold" style="color: #782144">
                                 {{
                                     rate_type() === 'internal'
                                         ? pkg.internal_price
@@ -124,7 +126,7 @@ import { ServicesStateService } from './services-state.service';
             <!-- A La Carte -->
             <h3 class="mb-3 text-lg font-semibold">
                 A La Carte Options
-                <span class="text-base-content/60 text-sm font-normal">
+                <span class="text-sm font-normal" style="color: #424242">
                     (up to 4 hours)
                 </span>
             </h3>
@@ -150,7 +152,8 @@ import { ServicesStateService } from './services-state.service';
                                     {{ option.name }}
                                 </td>
                                 <td
-                                    class="text-primary px-4 py-3 text-right text-sm font-semibold"
+                                    class="px-4 py-3 text-right text-sm font-semibold"
+                                    style="color: #782144"
                                 >
                                     {{
                                         rate_type() === 'internal'
@@ -168,15 +171,17 @@ import { ServicesStateService } from './services-state.service';
                                                 'form',
                                                 option.id,
                                             ]"
+                                            [attr.aria-label]="'Edit ' + option.name"
                                             class="hover:bg-base-200 flex h-7 w-7 items-center justify-center rounded-full"
                                         >
                                             <icon class="text-sm">edit</icon>
                                         </a>
                                         <button
                                             (click)="remove(option.id)"
+                                            [attr.aria-label]="'Delete ' + option.name"
                                             class="hover:bg-error/10 flex h-7 w-7 items-center justify-center rounded-full"
                                         >
-                                            <icon class="text-error text-sm">
+                                            <icon class="text-sm" style="color: #c62828">
                                                 delete
                                             </icon>
                                         </button>
@@ -210,7 +215,8 @@ import { ServicesStateService } from './services-state.service';
                                 <td class="px-4 py-3 text-sm">
                                     <div class="flex items-center gap-2">
                                         <icon
-                                            class="text-base-content/40 text-base"
+                                            class="text-base"
+                                            style="color: #424242"
                                         >
                                             {{ addon.icon }}
                                         </icon>
@@ -218,12 +224,14 @@ import { ServicesStateService } from './services-state.service';
                                     </div>
                                 </td>
                                 <td
-                                    class="text-base-content/60 px-4 py-3 text-sm"
+                                    class="px-4 py-3 text-sm"
+                                    style="color: #424242"
                                 >
                                     {{ addon.space }}
                                 </td>
                                 <td
-                                    class="text-primary px-4 py-3 text-right text-sm font-semibold"
+                                    class="px-4 py-3 text-right text-sm font-semibold"
+                                    style="color: #782144"
                                 >
                                     {{
                                         rate_type() === 'internal'
@@ -241,15 +249,17 @@ import { ServicesStateService } from './services-state.service';
                                                 'form',
                                                 addon.id,
                                             ]"
+                                            [attr.aria-label]="'Edit ' + addon.name"
                                             class="hover:bg-base-200 flex h-7 w-7 items-center justify-center rounded-full"
                                         >
                                             <icon class="text-sm">edit</icon>
                                         </a>
                                         <button
                                             (click)="remove(addon.id)"
+                                            [attr.aria-label]="'Delete ' + addon.name"
                                             class="hover:bg-error/10 flex h-7 w-7 items-center justify-center rounded-full"
                                         >
-                                            <icon class="text-error text-sm">
+                                            <icon class="text-sm" style="color: #c62828">
                                                 delete
                                             </icon>
                                         </button>
@@ -261,7 +271,7 @@ import { ServicesStateService } from './services-state.service';
                 </table>
             </div>
 
-            <div class="bg-info/10 text-info mt-6 rounded-lg p-4 text-sm">
+            <div class="bg-info/10 mt-6 rounded-lg p-4 text-sm" style="color: #0d47a1">
                 Please submit agenda and additional details to
                 <strong>events&#64;cnsi.ucla.edu</strong> with subject line:
                 <em>event name and date</em>.

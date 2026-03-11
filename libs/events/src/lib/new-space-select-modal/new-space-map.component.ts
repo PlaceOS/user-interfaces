@@ -29,6 +29,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
                     appearance="outline"
                     class="no-subscript w-full"
                 >
+                    <mat-label>{{ 'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate }}</mat-label>
                     <mat-select
                         name="location"
                         [(ngModel)]="level"

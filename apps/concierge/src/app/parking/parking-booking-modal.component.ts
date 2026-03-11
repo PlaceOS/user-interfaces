@@ -64,6 +64,7 @@ import { addDays, endOfDay } from 'date-fns';
                             'FORM.NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="user-name"
@@ -80,6 +81,7 @@ import { addDays, endOfDay } from 'date-fns';
                             'FORM.EMAIL' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="email"
@@ -99,6 +101,7 @@ import { addDays, endOfDay } from 'date-fns';
                         <mat-checkbox
                             formControlName="all_day"
                             class="absolute -top-2 right-0"
+                            [aria-label]="'COMMON.ALL_DAY' | translate"
                         >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
@@ -153,6 +156,7 @@ import { addDays, endOfDay } from 'date-fns';
                     }
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}</mat-label>
                     <input
                         matInput
                         name="plate-number"

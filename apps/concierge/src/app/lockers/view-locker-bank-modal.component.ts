@@ -13,7 +13,7 @@ import { IconComponent } from '@placeos/components';
             <h2 class="text-xl font-medium">
                 View Locker Bank - {{ bank.name }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>

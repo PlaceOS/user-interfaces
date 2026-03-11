@@ -30,6 +30,7 @@ import { ServicesStateService } from './services-state.service';
                     icon
                     matRipple
                     [routerLink]="['/services', 'packages']"
+                    aria-label="Close form"
                     class="flex h-10 w-10 items-center justify-center rounded-full"
                 >
                     <icon>close</icon>
@@ -42,6 +43,7 @@ import { ServicesStateService } from './services-state.service';
             >
                 <label class="text-sm font-medium">Name *</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Service name</mat-label>
                     <input
                         matInput
                         formControlName="name"
@@ -52,6 +54,7 @@ import { ServicesStateService } from './services-state.service';
 
                 <label class="text-sm font-medium">Category *</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Select category</mat-label>
                     <mat-select
                         formControlName="category"
                         placeholder="Select category"
@@ -68,6 +71,7 @@ import { ServicesStateService } from './services-state.service';
 
                 <label class="text-sm font-medium">Space / Venue</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>e.g. Auditorium and Lobby</mat-label>
                     <input
                         matInput
                         formControlName="space"
@@ -77,6 +81,7 @@ import { ServicesStateService } from './services-state.service';
 
                 <label class="text-sm font-medium">Duration</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>e.g. Up to 4 hours</mat-label>
                     <input
                         matInput
                         formControlName="duration"
@@ -86,6 +91,7 @@ import { ServicesStateService } from './services-state.service';
 
                 <label class="text-sm font-medium">Description</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Service description</mat-label>
                     <textarea
                         matInput
                         formControlName="description"
@@ -100,6 +106,7 @@ import { ServicesStateService } from './services-state.service';
                             Internal Price (UCLA) *
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>e.g. $719</mat-label>
                             <input
                                 matInput
                                 formControlName="internal_price"
@@ -113,6 +120,7 @@ import { ServicesStateService } from './services-state.service';
                             External Price *
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>e.g. $990.94</mat-label>
                             <input
                                 matInput
                                 formControlName="external_price"
@@ -127,6 +135,7 @@ import { ServicesStateService } from './services-state.service';
                     Refund Lead Time (days)
                 </label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>e.g. 7</mat-label>
                     <input
                         matInput
                         type="number"
@@ -140,6 +149,7 @@ import { ServicesStateService } from './services-state.service';
 
                 <label class="text-sm font-medium">Icon</label>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>e.g. groups, school, meeting_room</mat-label>
                     <input
                         matInput
                         formControlName="icon"

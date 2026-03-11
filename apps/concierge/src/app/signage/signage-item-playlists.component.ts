@@ -129,7 +129,7 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                             <div class="truncate">
                                 {{ item.name }}
                             </div>
-                            <div class="truncate text-sm opacity-30">
+                            <div class="truncate text-sm opacity-60">
                                 {{
                                     'APP.CONCIERGE.SIGNAGE_MEDIA_COUNT'
                                         | translate
@@ -207,7 +207,7 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
                 class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
             >
                 <div
-                    class="flex flex-col items-center justify-center opacity-30"
+                    class="flex flex-col items-center justify-center opacity-60"
                 >
                     <icon class="text-6xl">hide_image</icon>
                     <p>

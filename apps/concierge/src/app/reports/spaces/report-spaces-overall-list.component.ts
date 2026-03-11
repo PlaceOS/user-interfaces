@@ -32,6 +32,7 @@ import { ReportsStateService } from '../reports-state.service';
                                     | translate
                             "
                             (click)="download()"
+                            aria-label="Download report"
                         >
                             <icon>download</icon>
                         </button>

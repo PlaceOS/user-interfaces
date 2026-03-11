@@ -41,6 +41,7 @@ import { lastValueFrom } from 'rxjs';
                         }}<span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -58,6 +59,7 @@ import { lastValueFrom } from 'rxjs';
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.DESCRIPTION' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="description"
@@ -72,6 +74,7 @@ import { lastValueFrom } from 'rxjs';
                         'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'APP.CONCIERGE.SIGNAGE_ORIENTATION' | translate }}</mat-label>
                         <mat-select
                             name="orientation"
                             formControlName="orientation"

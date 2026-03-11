@@ -66,6 +66,7 @@ import { SignageStateService } from './signage-state.service';
                     matRipple
                     [matMenuTriggerFor]="menu"
                     class="absolute top-2.5 right-2.5 m-0!"
+                    aria-label="More options"
                 >
                     <icon>more_vert</icon>
                 </button>
@@ -216,7 +217,7 @@ import { SignageStateService } from './signage-state.service';
             </div>
             @if (loading()) {
                 <div
-                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-60"
                 >
                     <mat-spinner diameter="32" />
                     <p>{{ 'COMMON.LOADING' | translate }}...</p>
@@ -342,7 +343,7 @@ import { SignageStateService } from './signage-state.service';
                 </div>
             } @else {
                 <div
-                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-30"
+                    class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 opacity-60"
                 >
                     <icon class="text-6xl">hide_image</icon>
                     <p>

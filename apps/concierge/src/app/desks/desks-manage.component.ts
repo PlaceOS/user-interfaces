@@ -98,7 +98,7 @@ const QR_CODES = {};
                 >
                     <div>{{ row.id || row.map_id }}</div>
                     @if (row.id && row.map_id !== row.id) {
-                        <div class="font-mono text-[0.625rem] opacity-30">
+                        <div class="font-mono text-[0.625rem] opacity-60">
                             {{ row.map_id }}
                         </div>
                     }
@@ -126,7 +126,7 @@ const QR_CODES = {};
             </ng-template>
             <ng-template #assigned_template let-row="row" let-data="data">
                 @if (!data) {
-                    <div class="p-4 opacity-30">
+                    <div class="p-4 opacity-60">
                         {{ 'APP.CONCIERGE.UNASSIGNED' | translate }}
                     </div>
                 }
@@ -137,7 +137,7 @@ const QR_CODES = {};
                     >
                         <div class="">{{ row.assigned_name || data }}</div>
                         @if (row.assigned_name) {
-                            <div class="font-mono text-[0.625rem] opacity-30">
+                            <div class="font-mono text-[0.625rem] opacity-60">
                                 {{ data }}
                             </div>
                         }

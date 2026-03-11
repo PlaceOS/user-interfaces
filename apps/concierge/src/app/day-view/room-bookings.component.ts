@@ -42,10 +42,10 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 </h2>
                 <div class="w-px flex-1"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-label>{{ 'COMMON.VIEW_PERIOD' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="dropdown_period | async"
                         (ngModelChange)="setPeriod($event)"
-                        [attr.aria-label]="'COMMON.VIEW_PERIOD' | translate"
                     >
                         <mat-option value="day">
                             {{ 'COMMON.DAY' | translate }}
@@ -76,6 +76,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                     "
                     [disabled]="downloading()"
                     (click)="downloadCsv()"
+                    aria-label="Download report"
                 >
                     @if (downloading()) {
                         <mat-spinner diameter="24"></mat-spinner>
@@ -86,11 +87,11 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
             </div>
             <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
+                    <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="zones | async"
                         (ngModelChange)="updateZones($event)"
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                        [attr.aria-label]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
                         @for (level of levels | async; track level) {

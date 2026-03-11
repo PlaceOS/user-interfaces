@@ -19,6 +19,7 @@ import { TranslatePipe } from './translate.pipe';
                             auth
                             class="h-full object-contain"
                             [source]="$any(image)?.url || image"
+                            [alt]="'Image ' + ($index + 1) + ' of ' + images().length"
                         />
                     }
                 </div>
@@ -33,6 +34,7 @@ import { TranslatePipe } from './translate.pipe';
             }
             @if (images()?.length) {
                 <button
+                    aria-label="Previous image"
                     class="absolute inset-y-0 left-0 flex w-1/3 items-center justify-center opacity-0 hover:opacity-100"
                     [disabled]="offset === 0"
                     (click)="offset = offset - 1"
@@ -47,6 +49,7 @@ import { TranslatePipe } from './translate.pipe';
             }
             @if (images()?.length) {
                 <button
+                    aria-label="Next image"
                     class="absolute inset-y-0 right-0 flex w-1/3 items-center justify-center text-white opacity-0 hover:opacity-100"
                     [disabled]="offset >= images()?.length - 1"
                     (click)="offset = offset + 1"
@@ -67,6 +70,7 @@ import { TranslatePipe } from './translate.pipe';
                         <button
                             matRipple
                             (click)="offset = i"
+                            [attr.aria-label]="'Go to image ' + (i + 1)"
                             class="flex h-4 w-4 items-center justify-center"
                         >
                             <div

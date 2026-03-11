@@ -27,6 +27,7 @@ import { UrlManagementService } from './url-management.service';
                 </header>
                 <div class="flex justify-end px-8 pb-4">
                     <mat-form-field appearance="outline" class="no-subscript">
+                        <mat-label>Search</mat-label>
                         <input
                             matInput
                             placeholder="Search"

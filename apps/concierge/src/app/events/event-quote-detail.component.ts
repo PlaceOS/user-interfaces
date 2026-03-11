@@ -34,7 +34,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                 class="fixed inset-0 z-50"
                 (click)="_state.selectDocument(null)"
             >
-                <div class="absolute inset-0 bg-black opacity-50"></div>
+                <div class="absolute inset-0 bg-black opacity-60"></div>
                 <div
                     class="bg-base-100 absolute inset-y-0 right-0 w-[480px] overflow-y-auto"
                     (click)="$event.stopPropagation()"
@@ -143,7 +143,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                             </select>
                                             <div class="grid grid-cols-3 gap-2">
                                                 <div>
-                                                    <label class="text-xs opacity-50">Qty</label>
+                                                    <label class="text-xs opacity-60">Qty</label>
                                                     <input
                                                         type="number"
                                                         class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -152,7 +152,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label class="text-xs opacity-50">Unit Price</label>
+                                                    <label class="text-xs opacity-60">Unit Price</label>
                                                     <input
                                                         type="number"
                                                         class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -161,7 +161,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label class="text-xs opacity-50">Tax %</label>
+                                                    <label class="text-xs opacity-60">Tax %</label>
                                                     <input
                                                         type="number"
                                                         class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -211,7 +211,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                 }}</span>
                                             </div>
                                             <div
-                                                class="mt-0.5 text-xs opacity-50"
+                                                class="mt-0.5 text-xs opacity-60"
                                             >
                                                 {{ categoryLabel(item.category) }}
                                                 &middot; {{ item.quantity }} x
@@ -232,7 +232,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                 <button
                                                     icon
                                                     matRipple
-                                                    class="h-6 w-6 opacity-50 hover:opacity-100"
+                                                    class="h-6 w-6 opacity-60 hover:opacity-100"
                                                     (click)="startEdit(item)"
                                                 >
                                                     <icon class="text-sm">edit</icon>
@@ -240,7 +240,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                                 <button
                                                     icon
                                                     matRipple
-                                                    class="h-6 w-6 opacity-50 hover:opacity-100 hover:text-error"
+                                                    class="h-6 w-6 opacity-60 hover:opacity-100 hover:text-error"
                                                     (click)="confirmRemoveItem(item)"
                                                 >
                                                     <icon class="text-sm">delete</icon>
@@ -274,7 +274,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                     </select>
                                     <div class="grid grid-cols-3 gap-2">
                                         <div>
-                                            <label class="text-xs opacity-50">Qty</label>
+                                            <label class="text-xs opacity-60">Qty</label>
                                             <input
                                                 type="number"
                                                 class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -283,7 +283,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                             />
                                         </div>
                                         <div>
-                                            <label class="text-xs opacity-50">Unit Price</label>
+                                            <label class="text-xs opacity-60">Unit Price</label>
                                             <input
                                                 type="number"
                                                 class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -292,7 +292,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                             />
                                         </div>
                                         <div>
-                                            <label class="text-xs opacity-50">Tax %</label>
+                                            <label class="text-xs opacity-60">Tax %</label>
                                             <input
                                                 type="number"
                                                 class="w-full rounded border border-base-300 bg-base-100 px-2 py-1 text-sm"
@@ -398,7 +398,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                 <div
                                     class="flex items-center space-x-2 py-1 text-sm"
                                 >
-                                    <icon class="text-base opacity-50"
+                                    <icon class="text-base opacity-60"
                                         >attach_file</icon
                                     >
                                     <span class="text-info underline">{{
@@ -547,7 +547,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                             {{ entry.detail }}
                                         </div>
                                         <div
-                                            class="mt-0.5 text-xs opacity-50"
+                                            class="mt-0.5 text-xs opacity-60"
                                         >
                                             {{ formatDateTime(entry.timestamp) }}
                                             &middot; {{ entry.actor }}
@@ -555,7 +555,7 @@ import { EventFinanceStateService } from './event-finance-state.service';
                                     </div>
                                 </div>
                             } @empty {
-                                <div class="text-sm opacity-40">
+                                <div class="text-sm opacity-60">
                                     No audit entries
                                 </div>
                             }

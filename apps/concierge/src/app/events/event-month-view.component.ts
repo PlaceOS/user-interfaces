@@ -42,7 +42,7 @@ import { EventStateService } from './event-state.service';
                     >
                         <div
                             class="mt-1 ml-1 flex h-8 w-8 items-center justify-center rounded-full"
-                            [class.opacity-30]="!day.is_month"
+                            [class.opacity-60]="!day.is_month"
                             [class.bg-secondary]="day.is_today"
                             [class.text-secondary-content]="day.is_today"
                         >

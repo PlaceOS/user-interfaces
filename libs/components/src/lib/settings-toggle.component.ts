@@ -17,6 +17,9 @@ import { IconComponent } from './icon.component';
             [class.border-base-300]="!value"
             [class.border-info]="value"
             (click)="setValue(!value)"
+            role="switch"
+            [attr.aria-checked]="!!value"
+            [attr.aria-label]="name()"
         >
             <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
                 <div>

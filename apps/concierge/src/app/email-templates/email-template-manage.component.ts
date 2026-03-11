@@ -63,6 +63,7 @@ import {
                             {{ 'RESOURCE.BUILDING' | translate }}
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                             <mat-select
                                 name="zone"
                                 [placeholder]="
@@ -105,7 +106,7 @@ import {
                                     }}
                                 </div>
                                 @if (!active_trigger) {
-                                    <div class="truncate opacity-30">
+                                    <div class="truncate opacity-60">
                                         {{
                                             'COMMON.TRIGGER_SELECT' | translate
                                         }}
@@ -138,7 +139,7 @@ import {
                                             <div
                                                 class="my-2 flex flex-1 flex-col-reverse leading-tight"
                                             >
-                                                <div class="text-xs opacity-30">
+                                                <div class="text-xs opacity-60">
                                                     {{ tmpl.description }}
                                                 </div>
                                                 <div class="text-sm">
@@ -190,7 +191,7 @@ import {
                                     <div class="font-mono text-sm">
                                         {{ field.name }}
                                     </div>
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{ field.description }}
                                     </div>
                                 </div>
@@ -208,6 +209,7 @@ import {
                 </div>
                 <div class="flex items-center space-x-2">
                     <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Reply To</mat-label>
                         <input
                             matInput
                             [placeholder]="
@@ -222,6 +224,7 @@ import {
                         }}</mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>From</mat-label>
                         <input
                             matInput
                             [placeholder]="
@@ -236,6 +239,7 @@ import {
                     </mat-form-field>
                 </div>
                 <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Subject</mat-label>
                     <icon matPrefix class="relative -left-1 text-2xl">
                         description
                     </icon>

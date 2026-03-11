@@ -30,7 +30,7 @@ const FAV_KEY = 'favourite_menu_items';
                 <h2 class="flex-1 px-2 text-xl font-medium capitalize">
                     {{ 'CATERING.ORDER' | translate }}
                 </h2>
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             </header>
@@ -83,6 +83,7 @@ const FAV_KEY = 'favourite_menu_items';
                     <button
                         icon
                         matRipple
+                        aria-label="Toggle filters"
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
                         (click)="show_filters = !show_filters"
                     >

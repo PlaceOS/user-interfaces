@@ -103,7 +103,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
                     >
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>

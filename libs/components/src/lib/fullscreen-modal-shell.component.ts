@@ -11,6 +11,8 @@ import { TranslatePipe } from './translate.pipe';
     template: `
         <div
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
+            role="dialog"
+            [attr.aria-label]="heading()"
         >
             <div
                 class="border-base-300 bg-base-100 fixed top-0 mx-auto h-screen max-w-full border-x"
@@ -26,13 +28,13 @@ import { TranslatePipe } from './translate.pipe';
                 </h2>
                 @if (!close()?.length) {
                     @if (!loading()) {
-                        <button icon matRipple mat-dialog-close>
+                        <button icon matRipple mat-dialog-close aria-label="Close dialog">
                             <icon>close</icon>
                         </button>
                     }
                 } @else {
                     @if (!loading()) {
-                        <a icon matRipple [routerLink]="close()">
+                        <a icon matRipple [routerLink]="close()" aria-label="Close dialog">
                             <icon>close</icon>
                         </a>
                     }
@@ -50,7 +52,7 @@ import { TranslatePipe } from './translate.pipe';
                         class="flex h-1/2 w-full flex-1 flex-col items-center justify-center space-y-4 p-12"
                     >
                         <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="text-center opacity-50">{{ loading() }}</p>
+                        <p class="text-center opacity-60">{{ loading() }}</p>
                     </div>
                 }
             </main>

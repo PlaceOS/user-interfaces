@@ -35,6 +35,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 </div>
             </button>
             <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="zones"
@@ -49,6 +50,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline">
+                <mat-label>Legend</mat-label>
                 <mat-select
                     multiple
                     [(ngModel)]="type_list"

@@ -60,6 +60,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     class="pointer-events-none"
+                                    aria-label="Use 24 Hour Time"
                                 ></mat-checkbox>
                             </button>
                         </div>
@@ -84,6 +85,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                         [ngModel]="active_features[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
+                                        [aria-label]="feature_descriptions[feature]"
                                     ></mat-checkbox>
                                 </button>
                             }
@@ -106,6 +108,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                         [ngModel]="active_features[feature]"
                                         [ngModelOptions]="{ standalone: true }"
                                         class="pointer-events-none"
+                                        [aria-label]="feature_descriptions[feature]"
                                     ></mat-checkbox>
                                 </button>
                             }
@@ -146,6 +149,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                             <mat-checkbox
                                                 [formControlName]="feature"
                                                 class="pointer-events-none"
+                                                [aria-label]="feature_descriptions[feature]"
                                             ></mat-checkbox>
                                         </button>
                                     }
@@ -188,6 +192,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                                             <mat-checkbox
                                                 [formControlName]="feature"
                                                 class="pointer-events-none"
+                                                [aria-label]="feature_descriptions[feature]"
                                             ></mat-checkbox>
                                         </button>
                                     }

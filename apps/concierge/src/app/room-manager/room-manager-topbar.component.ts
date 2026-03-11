@@ -38,6 +38,7 @@ import { RoomManagementService } from './room-management.service';
         </div>
         <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [ngModel]="(filters | async)?.zones"
                     (ngModelChange)="updateZones($event)"
@@ -48,7 +49,7 @@ import { RoomManagementService } from './room-management.service';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name
@@ -72,6 +73,7 @@ import { RoomManagementService } from './room-management.service';
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                 (click)="manageRestrictions()"
                 [matTooltip]="'APP.CONCIERGE.ROOMS_BOOKING_RULES' | translate"
+                aria-label="Manage booking rules"
             >
                 <icon>lock_open</icon>
             </button>

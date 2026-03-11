@@ -36,6 +36,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             appearance="outline"
                             class="no-subscript w-1/2 flex-1"
                         >
+                            <mat-label>Presets</mat-label>
                             <mat-select
                                 placeholder="No selected preset"
                                 [(ngModel)]="preset"

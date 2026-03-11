@@ -50,6 +50,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
         </div>
         <div class="bg-base-100 flex h-20 items-center space-x-2 px-8">
             <mat-form-field appearance="outline" class="no-subscript w-60">
+                <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                 <mat-select
                     [ngModel]="filters?.zones"
                     (ngModelChange)="updateZones($event)"
@@ -60,7 +61,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                         <mat-option [value]="level.id">
                             <div class="flex flex-col-reverse">
                                 @if (use_region) {
-                                    <div class="text-xs opacity-30">
+                                    <div class="text-xs opacity-60">
                                         {{
                                             (level.parent_id | building)
                                                 ?.display_name
@@ -78,6 +79,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
             </mat-form-field>
             @if ((caterers | async)?.length > 1) {
                 <mat-form-field appearance="outline" class="no-subscript w-60">
+                    <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
                     <mat-select
                         [ngModel]="filters?.caterer"
                         (ngModelChange)="setCaterer($event)"
@@ -108,6 +110,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
+                    [attr.aria-label]="'CATERING.MENU_ADD' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="addItem()"
                 >
@@ -119,6 +122,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.BOOKING_RULES' | translate"
+                    [attr.aria-label]="'CATERING.BOOKING_RULES' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="editConfig()"
                 >
@@ -130,6 +134,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.MENU_IMPORT' | translate"
+                    [attr.aria-label]="'CATERING.MENU_IMPORT' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="importMenu()"
                 >
@@ -141,6 +146,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.ROOM_AVAILABILITY' | translate"
+                    [attr.aria-label]="'CATERING.ROOM_AVAILABILITY' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setRoomAvailability()"
                 >
@@ -152,6 +158,7 @@ import { SearchbarComponent } from '../ui/searchbar.component';
                     icon
                     matRipple
                     [matTooltip]="'CATERING.CHARGE_CODES' | translate"
+                    [attr.aria-label]="'CATERING.CHARGE_CODES' | translate"
                     class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                     (click)="setChargeCodes()"
                 >

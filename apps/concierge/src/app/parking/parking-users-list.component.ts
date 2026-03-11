@@ -62,7 +62,7 @@ import { ParkingStateService } from './parking-state.service';
                 (click)="copyToClipboard(row.id)"
             >
                 <div class="">{{ data }}</div>
-                <div class="font-mono text-[0.625rem] opacity-30">
+                <div class="font-mono text-[0.625rem] opacity-60">
                     {{ row.email }}
                 </div>
             </button>
@@ -80,7 +80,7 @@ import { ParkingStateService } from './parking-state.service';
             <div class="p-4 font-mono text-sm uppercase">
                 {{ data }}
                 @if (!data) {
-                    <span class="opacity-30">
+                    <span class="opacity-60">
                         {{ 'COMMON.EMPTY' | translate }}
                     </span>
                 }

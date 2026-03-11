@@ -27,7 +27,7 @@ import {
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.ZONE_SELECT_HEADER' | translate }}
             </h2>
-            <button icon matRipple mat-dialog-close>
+            <button icon matRipple mat-dialog-close aria-label="Close dialog">
                 <icon>close</icon>
             </button>
         </header>
@@ -38,6 +38,7 @@ import {
                 appearance="outline"
                 class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
             >
+                <mat-label>Search</mat-label>
                 <input
                     matInput
                     [ngModel]="search_term.getValue()"
@@ -55,7 +56,7 @@ import {
                 >
                     <div class="flex-1">
                         <div class="">{{ zone.display_name || zone.name }}</div>
-                        <div class="text-xs opacity-30">
+                        <div class="text-xs opacity-60">
                             {{ zone.id }}
                         </div>
                     </div>
@@ -71,8 +72,8 @@ import {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
                 >
-                    <icon class="text-8xl opacity-30">layers_clear</icon>
-                    <div class="opacity-30">No zones found</div>
+                    <icon class="text-8xl opacity-60">layers_clear</icon>
+                    <div class="opacity-60">No zones found</div>
                 </div>
             }
         </main>

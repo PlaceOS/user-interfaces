@@ -77,6 +77,7 @@ import { BookingFormService } from './booking-form.service';
                                         }}<span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
                                         <mat-select
                                             [ngModel]="form.value.zones[0]"
                                             (ngModelChange)="
@@ -167,6 +168,7 @@ import { BookingFormService } from './booking-form.service';
                                         <span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_NAME' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="visitor-name"
@@ -222,6 +224,7 @@ import { BookingFormService } from './booking-form.service';
                                         <span>*</span>
                                     </label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_EMAIL' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="visitor-email"
@@ -281,6 +284,7 @@ import { BookingFormService } from './booking-form.service';
                                         'BOOKINGS.VISITOR_COMPANY' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_COMPANY' | translate }}</mat-label>
                                         <input
                                             matInput
                                             name="company"
@@ -311,6 +315,7 @@ import { BookingFormService } from './booking-form.service';
                                     'BOOKINGS.VISITOR_REASON' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
+                                    <mat-label>{{ 'BOOKINGS.VISITOR_REASON' | translate }}</mat-label>
                                     <input
                                         name="reason"
                                         matInput
@@ -328,6 +333,7 @@ import { BookingFormService } from './booking-form.service';
                                         'BOOKINGS.VISITOR_PASS' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
+                                        <mat-label>{{ 'BOOKINGS.VISITOR_PASS' | translate }}</mat-label>
                                         <input
                                             name="pass"
                                             matInput

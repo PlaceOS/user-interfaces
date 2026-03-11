@@ -67,9 +67,9 @@ function mockEmailFor(bill_to: string): string {
                     <div
                         class="flex items-center space-x-2 rounded border border-base-200 bg-base-200/30 px-3 py-2 text-sm"
                     >
-                        <icon class="text-base opacity-50">person</icon>
+                        <icon class="text-base opacity-60">person</icon>
                         <span class="font-medium">{{ data.recipient_name }}</span>
-                        <span class="opacity-50"
+                        <span class="opacity-60"
                             >&lt;{{ recipient_email }}&gt;</span
                         >
                     </div>
@@ -119,7 +119,7 @@ function mockEmailFor(bill_to: string): string {
                             convenience.
                         </p>
                         <br />
-                        <p class="opacity-50">
+                        <p class="opacity-60">
                             — PlaceOS Events Team
                         </p>
                     </div>
@@ -134,6 +134,7 @@ function mockEmailFor(bill_to: string): string {
                         appearance="outline"
                         class="no-subscript w-full"
                     >
+                        <mat-label>Additional Message</mat-label>
                         <textarea
                             matInput
                             [(ngModel)]="additional_message"

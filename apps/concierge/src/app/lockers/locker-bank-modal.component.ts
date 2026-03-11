@@ -54,7 +54,7 @@ import { map } from 'rxjs/operators';
                     }}
                 </h2>
                 @if (!loading) {
-                    <button icon matRipple mat-dialog-close>
+                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
                         <icon>close</icon>
                     </button>
                 }
@@ -66,6 +66,7 @@ import { map } from 'rxjs/operators';
                 >
                     <label for="name">{{ 'RESOURCE.LEVEL' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="form.value.zones[0] || ''"
                             (ngModelChange)="
@@ -77,7 +78,7 @@ import { map } from 'rxjs/operators';
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
-                                            <div class="text-xs opacity-30">
+                                            <div class="text-xs opacity-60">
                                                 {{
                                                     (level.parent_id | building)
                                                         ?.display_name
@@ -103,6 +104,7 @@ import { map } from 'rxjs/operators';
                                 'FORM.NAME' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="name"
@@ -119,6 +121,7 @@ import { map } from 'rxjs/operators';
                                 'EXPLORE.MAP_ID' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
+                                <mat-label>{{ 'EXPLORE.MAP_ID' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="map-id"
@@ -141,6 +144,7 @@ import { map } from 'rxjs/operators';
                     ></a-counter>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
+                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"
@@ -150,6 +154,7 @@ import { map } from 'rxjs/operators';
                     </mat-form-field>
                     <label for="tags"> {{ 'COMMON.TAGS' | translate }} </label>
                     <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'COMMON.TAGS' | translate }}</mat-label>
                         <mat-chip-grid
                             name="tags"
                             #chipList

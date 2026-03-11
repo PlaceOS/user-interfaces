@@ -75,6 +75,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             name="toggle-details-meeting"
                             matRipple
                             (click)="hide_block.details = !hide_block.details"
+                            [attr.aria-label]="hide_block.details ? 'Expand details' : 'Collapse details'"
                         >
                             <icon>{{
                                 hide_block.details
@@ -120,6 +121,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                 (click)="
                                     hide_block.attendees = !hide_block.attendees
                                 "
+                                [attr.aria-label]="hide_block.attendees ? 'Expand attendees' : 'Collapse attendees'"
                             >
                                 <icon>{{
                                     hide_block.attendees
@@ -158,6 +160,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             (click)="
                                 hide_block.resources = !hide_block.resources
                             "
+                            [attr.aria-label]="hide_block.resources ? 'Expand rooms' : 'Collapse rooms'"
                         >
                             <icon>{{
                                 hide_block.resources
@@ -210,6 +213,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                 (click)="
                                     hide_block.catering = !hide_block.catering
                                 "
+                                [attr.aria-label]="hide_block.catering ? 'Expand catering' : 'Collapse catering'"
                             >
                                 <icon>{{
                                     hide_block.catering
@@ -241,6 +245,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                     appearance="outline"
                                     class="mt-2 w-full"
                                 >
+                                    <mat-label>{{ 'CALENDAR_EVENT.CATERING_CHARGE_CODE' | translate }}</mat-label>
                                     <mat-select
                                         formControlName="catering_charge_code"
                                         [placeholder]="
@@ -292,6 +297,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                         )
                                     "
                                 >
+                                    <mat-label>{{ 'CALENDAR_EVENT.CATERING_NOTES' | translate }}</mat-label>
                                     <textarea
                                         matInput
                                         formControlName="catering_notes"
@@ -328,6 +334,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                 name="toggle-assets-meeting"
                                 matRipple
                                 (click)="hide_block.assets = !hide_block.assets"
+                                [attr.aria-label]="hide_block.assets ? 'Expand assets' : 'Collapse assets'"
                             >
                                 <icon>{{
                                     hide_block.assets

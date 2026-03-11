@@ -136,7 +136,7 @@ interface QR_Codes {
                         </button>
                     </div>
                 </ng-template>
-                <button icon matRipple [matMenuTriggerFor]="menu">
+                <button icon matRipple [matMenuTriggerFor]="menu" aria-label="More options">
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">

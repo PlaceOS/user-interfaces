@@ -34,7 +34,7 @@ interface ImportItem {
                 {{ 'CATERING.MENU_IMPORT' | translate }}
             </h2>
             @if (!loading) {
-                <button icon matRipple mat-dialog-close>
+                <button icon matRipple mat-dialog-close aria-label="Close dialog">
                     <icon>close</icon>
                 </button>
             }

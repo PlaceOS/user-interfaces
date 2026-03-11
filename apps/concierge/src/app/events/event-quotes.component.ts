@@ -34,6 +34,7 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
         <!-- Filter bar -->
         <div class="mb-4 flex flex-wrap items-center gap-2">
             <mat-form-field appearance="outline" class="no-subscript w-44">
+                <mat-label>Status</mat-label>
                 <mat-select
                     [(ngModel)]="status_filter"
                     (ngModelChange)="onStatusChange($event)"
@@ -47,6 +48,7 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="no-subscript w-52">
+                <mat-label>Department</mat-label>
                 <mat-select
                     [(ngModel)]="vendor_filter"
                     (ngModelChange)="onVendorChange($event)"
@@ -58,6 +60,7 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
                 </mat-select>
             </mat-form-field>
             <mat-form-field appearance="outline" class="no-subscript w-52">
+                <mat-label>Search</mat-label>
                 <input
                     matInput
                     [(ngModel)]="search_filter"
@@ -67,6 +70,7 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
             </mat-form-field>
             @if (is_mock) {
                 <mat-form-field appearance="outline" class="no-subscript w-52">
+                    <mat-label>Role</mat-label>
                     <mat-select
                         [(ngModel)]="active_role"
                         (ngModelChange)="onRoleChange($event)"
@@ -213,6 +217,7 @@ import { EventQuoteDetailComponent } from './event-quote-detail.component';
                 matRipple
                 class="mx-2 h-12 w-12 rounded-sm"
                 [matMenuTriggerFor]="menu"
+                aria-label="More options"
             >
                 <icon>more_vert</icon>
             </button>

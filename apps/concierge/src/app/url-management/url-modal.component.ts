@@ -42,6 +42,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                             {{ 'FORM.NAME' | translate }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                             <input
                                 matInput
                                 name="name"
@@ -58,6 +59,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                             }}<span>*</span>
                         </label>
                         <mat-form-field appearance="outline">
+                            <mat-label>URL</mat-label>
                             <input
                                 matInput
                                 name="uri"
