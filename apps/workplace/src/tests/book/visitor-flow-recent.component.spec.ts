@@ -9,6 +9,7 @@ import { BehaviorSubject } from 'rxjs';
 describe('VisitorFlowRecentComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowRecentComponent>;
     let form: FormGroup;
+    let get_setting: jest.Mock;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowRecentComponent,
@@ -17,7 +18,7 @@ describe('VisitorFlowRecentComponent', () => {
             MockProvider(
                 SettingsService,
                 {
-                    get: jest.fn(() => []),
+                    get: (...args: any[]) => get_setting(...args),
                 } as any,
             ),
             {
@@ -26,6 +27,9 @@ describe('VisitorFlowRecentComponent', () => {
                     form = new FormGroup({
                         id: new FormControl(''),
                         asset_id: new FormControl(''),
+                        asset_name: new FormControl(''),
+                        company: new FormControl(''),
+                        phone: new FormControl(''),
                         assets: new FormControl([]),
                     });
                     return {
@@ -41,6 +45,7 @@ describe('VisitorFlowRecentComponent', () => {
     });
 
     beforeEach(() => {
+        get_setting = jest.fn(() => []);
         spectator = createComponent();
     });
 
@@ -53,5 +58,21 @@ describe('VisitorFlowRecentComponent', () => {
         expect(spectator.component.is_edit()).toBe(true);
         expect(spectator.element).not.toHaveText('Quick Action');
         expect(spectator.element).not.toHaveText('Recent Visitors');
+    });
+
+    it('should restore visitor phone from saved recent visitors', () => {
+        get_setting.mockReturnValue([
+            'visitor.one@example.com|Visitor One|Acme|+61400111222',
+        ]);
+
+        spectator.component.ngOnInit();
+        spectator.component.selectVisitor({
+            email: 'visitor.one@example.com',
+            name: 'Visitor One',
+            company: 'Acme',
+            phone: '+61400111222',
+        });
+
+        expect(form.value.phone).toBe('+61400111222');
     });
 });

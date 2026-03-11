@@ -9,6 +9,7 @@ import { VisitorFlowNewComponent } from 'apps/workplace/src/app/book/visitor-flo
 describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
     let form: FormGroup;
+    let save_user_setting: jest.Mock;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowNewComponent,
@@ -23,6 +24,8 @@ describe('VisitorFlowNewComponent', () => {
                         description: new FormControl(''),
                         asset_name: new FormControl(''),
                         asset_id: new FormControl(''),
+                        company: new FormControl(''),
+                        phone: new FormControl(''),
                         assets: new FormControl([]),
                     });
                     return {
@@ -40,7 +43,8 @@ describe('VisitorFlowNewComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     get: jest.fn(() => []),
-                    saveUserSetting: jest.fn(),
+                    saveUserSetting: (...args: any[]) =>
+                        save_user_setting(...args),
                 },
             },
             {
@@ -57,6 +61,7 @@ describe('VisitorFlowNewComponent', () => {
     });
 
     beforeEach(() => {
+        save_user_setting = jest.fn();
         spectator = createComponent({ detectChanges: false });
     });
 
@@ -72,5 +77,20 @@ describe('VisitorFlowNewComponent', () => {
         expect(spectator.component.visit_heading()).toBe(
             'BOOKINGS.EDIT_VISITOR_DETAILS',
         );
+    });
+
+    it('should save visitor phone in recent visitors history', () => {
+        form.patchValue({
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+            company: 'Acme',
+            phone: '+61400111222',
+        });
+
+        (spectator.component as any)._saveRecentVisitors(false);
+
+        expect(save_user_setting).toHaveBeenCalledWith('visitor-invitees', [
+            'visitor.one@example.com|Visitor One|Acme|+61400111222',
+        ]);
     });
 });

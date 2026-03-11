@@ -304,12 +304,16 @@ export class VisitorFlowInvitesComponent
         });
 
         // Save to visitor history
-        const visitor_details = `${asset_id}|${asset_name}|${company}`;
+        const visitor_details = `${asset_id}|${asset_name}|${company}|${
+            item.phone || ''
+        }`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
         const old_visitor_records = this.parseRecentVisitors(old_visitors)
             .filter((visitor) => visitor.email !== asset_id)
             .map((visitor) => {
-                return `${visitor.email}|${visitor.name || ''}|${(visitor as any).company || ''}`;
+                return `${visitor.email}|${visitor.name || ''}|${
+                    (visitor as any).company || ''
+                }|${visitor.phone || ''}`;
             });
         this._settings.saveUserSetting('visitor-invitees', [
             ...old_visitor_records,
@@ -334,11 +338,12 @@ export class VisitorFlowInvitesComponent
         for (let index = visitor_history.length - 1; index >= 0; index--) {
             const item = visitor_history[index];
             if (typeof item !== 'string') continue;
-            const [email, name, company] = item.split('|');
+            const [email, name, company, phone] = item.split('|');
             const parsed_visitor = {
                 email: this.normalizeEmail(email),
                 name: this.toSafeValue(name),
                 company: this.toSafeValue(company),
+                phone: this.toSafeValue(phone),
             };
             const email_key = parsed_visitor.email;
             if (!email_key || unique_visitors.has(email_key)) continue;

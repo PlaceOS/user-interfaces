@@ -254,8 +254,12 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         const old_visitors: string[] =
             this._settings.get('visitor-invitees') || [];
         const value = this._booking_form.form.getRawValue();
-        const toEntry = (email: string, name = '', org = '') =>
-            `${email}|${name}|${org}`;
+        const toEntry = (
+            email: string,
+            name = '',
+            org = '',
+            phone = '',
+        ) => `${email}|${name}|${org}|${phone}`;
         if (is_multiple && value.assets?.length) {
             const emails = new Set(
                 value.assets.map((a) => a.email).filter(Boolean),
@@ -266,15 +270,22 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                 ),
                 ...value.assets
                     .filter((a) => !!a.email)
-                    .map((a) => toEntry(a.email, a.name, a.organisation)),
+                    .map((a) =>
+                        toEntry(
+                            a.email,
+                            a.name,
+                            a.organisation,
+                            (a as any).phone || '',
+                        ),
+                    ),
             ]);
         } else {
-            const { asset_id, asset_name, company } = value;
+            const { asset_id, asset_name, company, phone } = value;
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter(
                     (v) => `${v}`.split('|')[0] !== asset_id,
                 ),
-                toEntry(asset_id, asset_name, company),
+                toEntry(asset_id, asset_name, company, phone),
             ]);
         }
     }

@@ -192,11 +192,12 @@ export class VisitorFlowRecentComponent implements OnInit {
         for (let index = visitor_history.length - 1; index >= 0; index--) {
             const item = visitor_history[index];
             if (typeof item !== 'string') continue;
-            const [email, name, company] = item.split('|');
+            const [email, name, company, phone] = item.split('|');
             const parsed_visitor = {
                 email: this.normalizeEmail(email),
                 name: this.toSafeValue(name),
                 company: this.toSafeValue(company),
+                phone: this.toSafeValue(phone),
             };
             const email_key = parsed_visitor.email;
             if (!email_key || unique_visitors.has(email_key)) continue;
