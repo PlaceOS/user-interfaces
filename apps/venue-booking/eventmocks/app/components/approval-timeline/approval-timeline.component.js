@@ -44,7 +44,7 @@
                         <div class="overall-progress">
                             <h2>Approval Progress</h2>
                             <div class="progress-container">
-                                <div class="progress-bar">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="{{$ctrl.workflow.progress_percent}}" aria-valuemin="0" aria-valuemax="100" aria-label="Approval progress">
                                     <div class="progress-fill"
                                          ng-style="{width: $ctrl.workflow.progress_percent + '%'}">
                                     </div>
@@ -78,9 +78,9 @@
                         <div class="timeline-container">
                             <h2>Approval Timeline</h2>
 
-                            <div class="timeline">
+                            <div class="timeline" role="list" aria-label="Approval timeline">
                                 <!-- Submission -->
-                                <div class="timeline-item submitted">
+                                <div class="timeline-item submitted" role="listitem">
                                     <div class="timeline-marker">
                                         <div class="marker-icon"><span class="material-icons">send</span></div>
                                     </div>
@@ -93,7 +93,7 @@
                                 </div>
 
                                 <!-- Approval Tasks -->
-                                <div class="timeline-item"
+                                <div class="timeline-item" role="listitem"
                                      ng-repeat="task in $ctrl.workflow.approval_tasks"
                                      ng-class="'status-' + task.status">
 
@@ -320,7 +320,7 @@
 
                     <!-- Cancel Service Confirmation Modal -->
                     <div class="modal-overlay" ng-if="$ctrl.showCancelModal">
-                        <div class="modal-card">
+                        <div class="modal-card" role="dialog" aria-modal="true" aria-label="Cancel service confirmation">
                             <h3>Cancel Service</h3>
                             <p>Are you sure you want to cancel <strong>{{ $ctrl.cancelTargetName }}</strong>?</p>
 

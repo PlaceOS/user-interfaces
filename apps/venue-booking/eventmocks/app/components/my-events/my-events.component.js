@@ -30,8 +30,8 @@
 
                     <!-- Filters -->
                     <div class="filters-section">
-                        <h3>Filter By:</h3>
-                        <div class="filter-buttons">
+                        <h3 id="filter-label">Filter By:</h3>
+                        <div class="filter-buttons" role="group" aria-labelledby="filter-label">
                             <button class="filter-btn"
                                     ng-class="{active: $ctrl.activeFilter === 'all'}"
                                     ng-click="$ctrl.setFilter('all')">
@@ -81,7 +81,7 @@
                              ng-repeat="event in $ctrl.filteredEvents">
 
                             <div class="event-header">
-                                <h3 ng-click="$ctrl.viewEventDetails(event.id)" style="cursor: pointer;">{{ event.title }}</h3>
+                                <h3><a href="" ng-click="$ctrl.viewEventDetails(event.id); $event.preventDefault()">{{ event.title }}</a></h3>
                                 <div class="event-header-actions">
                                     <div class="status-badge" ng-class="'status-' + $ctrl.getWorkflowStatus(event)">
                                         {{ $ctrl.getStatusLabel(event) }}
@@ -109,7 +109,7 @@
                                     <strong>Approval Status</strong>
                                     <span class="approval-summary">{{ $ctrl.getApprovedCount(event) }} of {{ $ctrl.getApprovalTasks(event).length }} approvals completed<span ng-if="$ctrl.getCancelledCount(event) > 0">, {{ $ctrl.getCancelledCount(event) }} cancelled</span></span>
                                 </div>
-                                <div class="approval-progress-bar" ng-if="$ctrl.getWorkflowStatus(event) === 'pending'">
+                                <div class="approval-progress-bar" ng-if="$ctrl.getWorkflowStatus(event) === 'pending'" role="progressbar" aria-valuenow="{{$ctrl.getProgress(event)}}" aria-valuemin="0" aria-valuemax="100" aria-label="Approval progress: {{$ctrl.getProgress(event)}}% complete">
                                     <div class="approval-progress-fill"
                                          ng-style="{width: $ctrl.getProgress(event) + '%'}">
                                     </div>

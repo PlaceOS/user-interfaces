@@ -34,12 +34,12 @@
                                             </span>
                                         </p>
                                         <div class="quick-actions">
-                                            <a ng-click="$ctrl.viewEventDetails($ctrl.recentEvent.id)" class="action-link primary">
+                                            <button ng-click="$ctrl.viewEventDetails($ctrl.recentEvent.id)" class="action-link primary">
                                                 View Details →
-                                            </a>
-                                            <a ng-click="$ctrl.goToMyEvents()" class="action-link secondary">
+                                            </button>
+                                            <button ng-click="$ctrl.goToMyEvents()" class="action-link secondary">
                                                 All Requests
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -55,12 +55,12 @@
                                         Get started by finding an available venue for your event!
                                     </p>
                                     <div class="prompt-actions">
-                                        <a ng-click="$ctrl.goToFindVenue()" class="action-link primary large">
-                                            <span class="material-icons">search</span> Search for a Venue
-                                        </a>
-                                        <a ng-click="$ctrl.goToRequestEvent()" class="action-link secondary large">
+                                        <button ng-click="$ctrl.goToFindVenue()" class="action-link primary large">
+                                            <span class="material-icons" aria-hidden="true">search</span> Search for a Venue
+                                        </button>
+                                        <button ng-click="$ctrl.goToRequestEvent()" class="action-link secondary large">
                                             Request Event
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -68,25 +68,25 @@
                     </div>
 
                     <div class="quick-actions">
-                        <div class="action-card" ng-click="$ctrl.goToFindVenue()">
-                            <div class="action-icon"><span class="material-icons">search</span></div>
+                        <div class="action-card" role="region" aria-label="Find Venue">
+                            <div class="action-icon" aria-hidden="true"><span class="material-icons">search</span></div>
                             <h3>Find Venue</h3>
                             <p>Search availability and see details of our venues</p>
-                            <button class="btn btn-primary">Search Venues</button>
+                            <button class="btn btn-primary" ng-click="$ctrl.goToFindVenue()">Search Venues</button>
                         </div>
 
-                        <div class="action-card" ng-click="$ctrl.goToRequestEvent()">
-                            <div class="action-icon"><span class="material-icons">edit_calendar</span></div>
+                        <div class="action-card" role="region" aria-label="Request Event">
+                            <div class="action-icon" aria-hidden="true"><span class="material-icons">edit_calendar</span></div>
                             <h3>Request Event</h3>
                             <p>Submit a new event request with all requirements</p>
-                            <button class="btn btn-primary">Get Started</button>
+                            <button class="btn btn-primary" ng-click="$ctrl.goToRequestEvent()">Get Started</button>
                         </div>
 
-                        <div class="action-card" ng-click="$ctrl.goToMyEvents()">
-                            <div class="action-icon"><span class="material-icons">list_alt</span></div>
+                        <div class="action-card" role="region" aria-label="My Events">
+                            <div class="action-icon" aria-hidden="true"><span class="material-icons">list_alt</span></div>
                             <h3>My Events</h3>
                             <p>View and manage your submitted event requests</p>
-                            <button class="btn btn-secondary">View Events</button>
+                            <button class="btn btn-secondary" ng-click="$ctrl.goToMyEvents()">View Events</button>
                         </div>
                     </div>
 
@@ -120,12 +120,12 @@
                         <h2>Approval Departments</h2>
                         <div class="departments">
                             <div class="department-dropdown" ng-repeat="dept in $ctrl.departments">
-                                <button class="department-header" ng-click="$ctrl.toggleDepartment(dept.id)">
+                                <button class="department-header" ng-click="$ctrl.toggleDepartment(dept.id)" aria-expanded="{{$ctrl.expandedDept === dept.id}}">
                                     <div class="department-info">
                                         <strong>{{ dept.name }}</strong>
                                         <span>{{ dept.trigger }}</span>
                                     </div>
-                                    <span class="material-icons dropdown-icon" ng-class="{'expanded': $ctrl.expandedDept === dept.id}">expand_more</span>
+                                    <span class="material-icons dropdown-icon" ng-class="{'expanded': $ctrl.expandedDept === dept.id}" aria-hidden="true">expand_more</span>
                                 </button>
                                 <div class="department-details" ng-show="$ctrl.expandedDept === dept.id">
                                     <p class="dept-description">{{ dept.description }}</p>

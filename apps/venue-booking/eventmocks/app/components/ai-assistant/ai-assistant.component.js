@@ -2,14 +2,14 @@ angular.module('uclaEventsApp').component('aiAssistant', {
   template: `
     <div class="ai-assistant-container" ng-class="{'open': $ctrl.isOpen}">
       <!-- Floating Icon Button -->
-      <div class="ai-assistant-icon" ng-click="$ctrl.toggleChat()" ng-if="!$ctrl.isOpen">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="ai-assistant-icon" ng-click="$ctrl.toggleChat()" ng-if="!$ctrl.isOpen" aria-label="Open chat assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           <path d="M8 10h.01"></path>
           <path d="M12 10h.01"></path>
           <path d="M16 10h.01"></path>
         </svg>
-      </div>
+      </button>
 
       <!-- Chat Window -->
       <div class="ai-assistant-chat-window" ng-if="$ctrl.isOpen">
@@ -22,8 +22,8 @@ angular.module('uclaEventsApp').component('aiAssistant', {
               <span class="status">Ready to help</span>
             </div>
           </div>
-          <button class="close-btn" ng-click="$ctrl.toggleChat()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button class="close-btn" ng-click="$ctrl.toggleChat()" aria-label="Close chat assistant">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -55,15 +55,15 @@ angular.module('uclaEventsApp').component('aiAssistant', {
           <div class="suggested-prompts" ng-if="$ctrl.messages.length === 0">
             <p class="prompts-title">Suggested prompts:</p>
             <div class="prompt-cards">
-              <div class="prompt-card" ng-repeat="prompt in $ctrl.suggestedPrompts" ng-click="$ctrl.sendPrompt(prompt)">
-                <div class="prompt-icon"><span class="material-icons">{{ prompt.icon }}</span></div>
-                <div class="prompt-text">{{ prompt.text }}</div>
-              </div>
+              <button class="prompt-card" ng-repeat="prompt in $ctrl.suggestedPrompts" ng-click="$ctrl.sendPrompt(prompt)">
+                <span class="prompt-icon" aria-hidden="true"><span class="material-icons">{{ prompt.icon }}</span></span>
+                <span class="prompt-text">{{ prompt.text }}</span>
+              </button>
             </div>
           </div>
 
           <!-- Loading -->
-          <div class="typing-indicator" ng-if="$ctrl.isTyping">
+          <div class="typing-indicator" ng-if="$ctrl.isTyping" role="status" aria-label="Assistant is typing">
             <div class="typing-dot"></div>
             <div class="typing-dot"></div>
             <div class="typing-dot"></div>
@@ -72,13 +72,15 @@ angular.module('uclaEventsApp').component('aiAssistant', {
 
         <!-- Chat Footer -->
         <div class="chat-footer">
+          <label for="chat-input" class="sr-only">Type your message</label>
           <input type="text"
+                 id="chat-input"
                  ng-model="$ctrl.userInput"
                  placeholder="Ask me anything about event planning..."
                  ng-keypress="$ctrl.handleKeyPress($event)"
                  class="chat-input">
-          <button class="send-btn" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.userInput">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="send-btn" ng-click="$ctrl.sendMessage()" ng-disabled="!$ctrl.userInput" aria-label="Send message">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>

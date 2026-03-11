@@ -15,11 +15,11 @@
             },
             template: `
                 <div class="payment-modal-overlay" ng-click="$ctrl.close()">
-                    <div class="payment-modal" ng-click="$event.stopPropagation()">
+                    <div class="payment-modal" ng-click="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
                         <div class="payment-modal-header">
-                            <h2>Complete Payment</h2>
-                            <button class="btn-close" ng-click="$ctrl.close()">
-                                <span class="material-icons">close</span>
+                            <h2 id="payment-modal-title">Complete Payment</h2>
+                            <button class="btn-close" ng-click="$ctrl.close()" aria-label="Close payment modal">
+                                <span class="material-icons" aria-hidden="true">close</span>
                             </button>
                         </div>
 
@@ -52,7 +52,7 @@
                             <!-- Payment Method Selection -->
                             <div class="payment-method-selector">
                                 <h3>Payment Method</h3>
-                                <div class="method-options">
+                                <div class="method-options" role="group" aria-label="Payment method options">
                                     <button class="method-option"
                                             ng-class="{'selected': $ctrl.paymentMethod === 'card'}"
                                             ng-click="$ctrl.selectMethod('card')">
@@ -82,9 +82,10 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Card Number</label>
+                                    <label for="card-number">Card Number</label>
                                     <div class="card-input-wrapper">
                                         <input type="text"
+                                               id="card-number"
                                                class="form-control"
                                                ng-model="$ctrl.cardDetails.cardNumber"
                                                ng-change="$ctrl.formatCardNumber()"
@@ -98,8 +99,9 @@
 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label>Expiry Date</label>
+                                        <label for="card-expiry">Expiry Date</label>
                                         <input type="text"
+                                               id="card-expiry"
                                                class="form-control"
                                                ng-model="$ctrl.cardDetails.expiry"
                                                placeholder="MM/YY"
@@ -107,8 +109,9 @@
                                                ng-change="$ctrl.formatExpiry()">
                                     </div>
                                     <div class="form-group">
-                                        <label>CVC</label>
+                                        <label for="card-cvc">CVC</label>
                                         <input type="text"
+                                               id="card-cvc"
                                                class="form-control"
                                                ng-model="$ctrl.cardDetails.cvc"
                                                placeholder="123"
@@ -117,16 +120,18 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Cardholder Name</label>
+                                    <label for="card-name">Cardholder Name</label>
                                     <input type="text"
+                                           id="card-name"
                                            class="form-control"
                                            ng-model="$ctrl.cardDetails.name"
                                            placeholder="Name on card">
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Billing ZIP Code</label>
+                                    <label for="card-zip">Billing ZIP Code</label>
                                     <input type="text"
+                                           id="card-zip"
                                            class="form-control"
                                            ng-model="$ctrl.cardDetails.zip"
                                            placeholder="90095"
@@ -142,8 +147,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>FAU Code *</label>
+                                    <label for="fau-code">FAU Code *</label>
                                     <input type="text"
+                                           id="fau-code"
                                            class="form-control"
                                            ng-model="$ctrl.fauDetails.fauCode"
                                            placeholder="X-XXXXXX-XXXXX-XXXXX"
@@ -152,16 +158,18 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Department</label>
+                                    <label for="fau-department">Department</label>
                                     <input type="text"
+                                           id="fau-department"
                                            class="form-control"
                                            ng-model="$ctrl.fauDetails.department"
                                            placeholder="Department name">
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Budget Approver Email</label>
+                                    <label for="fau-approver-email">Budget Approver Email</label>
                                     <input type="email"
+                                           id="fau-approver-email"
                                            class="form-control"
                                            ng-model="$ctrl.fauDetails.approverEmail"
                                            placeholder="approver@ucla.edu">
@@ -169,8 +177,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Cost Center Description</label>
-                                    <textarea class="form-control"
+                                    <label for="fau-description">Cost Center Description</label>
+                                    <textarea id="fau-description"
+                                              class="form-control"
                                               ng-model="$ctrl.fauDetails.description"
                                               rows="2"
                                               placeholder="Brief description for accounting records"></textarea>
@@ -188,8 +197,8 @@
                                     <div class="split-item" ng-repeat="split in $ctrl.splits track by $index">
                                         <div class="split-header">
                                             <span class="split-number">Payment {{ $index + 1 }}</span>
-                                            <button class="btn-remove" ng-click="$ctrl.removeSplit($index)" ng-if="$ctrl.splits.length > 2">
-                                                <span class="material-icons">close</span>
+                                            <button class="btn-remove" ng-click="$ctrl.removeSplit($index)" ng-if="$ctrl.splits.length > 2" aria-label="Remove payment {{ $index + 1 }}">
+                                                <span class="material-icons" aria-hidden="true">close</span>
                                             </button>
                                         </div>
 

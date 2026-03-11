@@ -550,7 +550,9 @@ body {
 }
 
 .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.65;
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-600);
     cursor: not-allowed;
 }
 
@@ -1221,7 +1223,7 @@ body {
 
 .sync-status.connected {
     background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
+    color: var(--color-success);
 }
 
 .sync-dot {
@@ -1232,7 +1234,7 @@ body {
 }
 
 .sync-status.connected .sync-dot {
-    background: #16a34a;
+    background: var(--color-success);
     animation: pulse-dot 2s infinite;
 }
 
@@ -1587,7 +1589,7 @@ body {
 }
 
 .service-card.disabled {
-    opacity: 0.6;
+    opacity: 0.75;
     cursor: not-allowed;
 }
 
@@ -5105,7 +5107,7 @@ button.burger-menu-item {
 }
 
 .burger-menu-item.logout-item {
-    color: #dc2626;
+    color: var(--color-error);
 }
 
 .burger-menu-item.logout-item:hover {
@@ -5911,7 +5913,7 @@ button.burger-menu-item {
 
 .invoice-status.status-cancelled {
     background: #fef2f2;
-    color: #dc2626;
+    color: var(--color-error);
 }
 
 /* Invoice Items */
@@ -6561,7 +6563,7 @@ button.btn-clear-venue:hover {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    color: #16a34a;
+    color: var(--color-success);
     font-size: 0.8125rem;
     font-weight: 500;
 }
@@ -6574,7 +6576,7 @@ button.btn-clear-venue:hover {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    color: #dc2626;
+    color: var(--color-error);
     font-size: 0.8125rem;
     font-weight: 500;
 }
@@ -6587,7 +6589,7 @@ button.btn-clear-venue:hover {
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    color: #16a34a;
+    color: var(--color-success);
     font-size: 0.8125rem;
     font-weight: 500;
     margin-top: 0.5rem;
@@ -6604,10 +6606,10 @@ button.btn-clear-venue:hover {
     gap: 0.375rem;
     margin-top: 0.75rem;
     padding: 0.375rem 0.75rem;
-    border: 1px solid #dc2626;
+    border: 1px solid var(--color-error);
     border-radius: var(--border-radius);
     background: transparent;
-    color: #dc2626;
+    color: var(--color-error);
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
@@ -6615,7 +6617,7 @@ button.btn-clear-venue:hover {
 }
 
 .btn-cancel-service:hover {
-    background: #dc2626;
+    background: var(--color-error);
     color: white;
 }
 
@@ -6667,7 +6669,7 @@ button.btn-clear-venue:hover {
     background: #f0fdf4;
     border: 1px solid #bbf7d0;
     border-radius: var(--border-radius);
-    color: #16a34a;
+    color: var(--color-success);
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
 }
@@ -6685,7 +6687,7 @@ button.btn-clear-venue:hover {
     background: #fffbeb;
     border: 1px solid #fde68a;
     border-radius: var(--border-radius);
-    color: #d97706;
+    color: var(--color-warning);
     font-size: 0.875rem;
     margin-bottom: 1.5rem;
 }
@@ -6702,7 +6704,7 @@ button.btn-clear-venue:hover {
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: var(--color-error);
     color: white;
     border: none;
     padding: 0.5rem 1.25rem;
@@ -6816,11 +6818,11 @@ button.btn-clear-venue:hover {
 }
 
 .refund-line {
-    color: #16a34a;
+    color: var(--color-success);
 }
 
 .refund-line .item-amount {
-    color: #16a34a;
+    color: var(--color-success);
     font-weight: 500;
 }
 
@@ -6843,4 +6845,55 @@ button.btn-clear-venue:hover {
 .task-status-label.status-cancelled {
     color: var(--color-gray-500);
     font-size: 0.75rem;
+}
+
+/* ========================================
+   Accessibility Enhancements
+   ======================================== */
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--ucla-blue);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    z-index: 10000;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 var(--border-radius) 0;
+    transition: top 0.2s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Screen reader only utility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible styles for keyboard navigation */
+*:focus-visible {
+    outline: 3px solid var(--ucla-blue);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--ucla-blue);
+    outline-offset: 2px;
 }

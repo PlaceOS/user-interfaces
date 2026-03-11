@@ -47,14 +47,14 @@
                         <h2>Event Details</h2>
 
                         <div class="form-group">
-                            <label>Title <span class="required">*</span></label>
-                            <input type="text" ng-model="$ctrl.eventData.title" class="form-control" placeholder="Meeting Title">
+                            <label for="er-title">Title <span class="required">*</span></label>
+                            <input type="text" id="er-title" ng-model="$ctrl.eventData.title" class="form-control" placeholder="Meeting Title">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Date <span class="required">*</span></label>
-                                <input type="date" ng-model="$ctrl.eventData.event_date" class="form-control">
+                                <label for="er-date">Date <span class="required">*</span></label>
+                                <input type="date" id="er-date" ng-model="$ctrl.eventData.event_date" class="form-control">
                             </div>
                             <div class="form-group checkbox-inline">
                                 <label>
@@ -66,12 +66,12 @@
 
                         <div class="form-row" ng-if="!$ctrl.eventData.all_day">
                             <div class="form-group">
-                                <label>Start Time <span class="required">*</span></label>
-                                <input type="time" ng-model="$ctrl.eventData.start_time" class="form-control">
+                                <label for="er-start-time">Start Time <span class="required">*</span></label>
+                                <input type="time" id="er-start-time" ng-model="$ctrl.eventData.start_time" class="form-control">
                             </div>
                             <div class="form-group">
-                                <label>Duration <span class="required">*</span></label>
-                                <select ng-model="$ctrl.eventData.duration" class="form-control">
+                                <label for="er-duration">Duration <span class="required">*</span></label>
+                                <select id="er-duration" ng-model="$ctrl.eventData.duration" class="form-control">
                                     <option value="0.5">30 min</option>
                                     <option value="1">1 hour</option>
                                     <option value="1.5">1.5 hours</option>
@@ -87,26 +87,26 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Host <span class="required">*</span></label>
-                            <input type="text" ng-model="$ctrl.eventData.organizer_name" class="form-control" placeholder="Full name">
+                            <label for="er-host">Host <span class="required">*</span></label>
+                            <input type="text" id="er-host" ng-model="$ctrl.eventData.organizer_name" class="form-control" placeholder="Full name">
                             <small class="help-text">Person responsible for this event</small>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Host Email <span class="required">*</span></label>
-                                <input type="email" ng-model="$ctrl.eventData.organizer_email" class="form-control" placeholder="email@ucla.edu">
+                                <label for="er-host-email">Host Email <span class="required">*</span></label>
+                                <input type="email" id="er-host-email" ng-model="$ctrl.eventData.organizer_email" class="form-control" placeholder="email@ucla.edu">
                             </div>
                             <div class="form-group">
-                                <label>Host Phone</label>
-                                <input type="tel" ng-model="$ctrl.eventData.organizer_phone" class="form-control" placeholder="(310) XXX-XXXX">
+                                <label for="er-host-phone">Host Phone</label>
+                                <input type="tel" id="er-host-phone" ng-model="$ctrl.eventData.organizer_phone" class="form-control" placeholder="(310) XXX-XXXX">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Attendees</label>
+                            <label for="er-attendees">Attendees</label>
                             <div class="attendee-input">
-                                <input type="email" ng-model="$ctrl.newAttendee" class="form-control" placeholder="Add attendee email..." ng-keypress="$ctrl.addAttendeeOnEnter($event)">
+                                <input type="email" id="er-attendees" ng-model="$ctrl.newAttendee" class="form-control" placeholder="Add attendee email..." ng-keypress="$ctrl.addAttendeeOnEnter($event)">
                                 <button class="btn btn-small btn-secondary" ng-click="$ctrl.addAttendee()">
                                     <span class="material-icons">person_add</span>
                                 </button>
@@ -158,7 +158,9 @@
                             <!-- Search input -->
                             <div class="venue-search-wrapper" ng-if="!$ctrl.selectedVenue">
                                 <span class="material-icons venue-search-icon">search</span>
+                                <label for="er-venue-search" class="sr-only">Search venues</label>
                                 <input type="text"
+                                       id="er-venue-search"
                                        ng-model="$ctrl.venueSearchText"
                                        ng-change="$ctrl.filterVenues()"
                                        ng-focus="$ctrl.showVenueDropdown = true"
@@ -190,13 +192,13 @@
                         <div ng-if="$ctrl.eventData.needVenueAssistance">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Expected Capacity <span class="required">*</span></label>
-                                    <input type="number" ng-model="$ctrl.eventData.attendance_count" class="form-control" min="1" placeholder="Number of attendees">
+                                    <label for="er-capacity">Expected Capacity <span class="required">*</span></label>
+                                    <input type="number" id="er-capacity" ng-model="$ctrl.eventData.attendance_count" class="form-control" min="1" placeholder="Number of attendees">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Venue Preferences</label>
-                                <textarea ng-model="$ctrl.eventData.venue_preferences" class="form-control" rows="2" placeholder="Indoor/outdoor, location, accessibility requirements..."></textarea>
+                                <label for="er-venue-prefs">Venue Preferences</label>
+                                <textarea id="er-venue-prefs" ng-model="$ctrl.eventData.venue_preferences" class="form-control" rows="2" placeholder="Indoor/outdoor, location, accessibility requirements..."></textarea>
                             </div>
                         </div>
 
@@ -209,16 +211,16 @@
                         </div>
                         <div ng-if="$ctrl.eventData.needs_catering" class="catering-section">
                             <div class="form-group">
-                                <label>Catering Notes</label>
-                                <textarea ng-model="$ctrl.eventData.catering_notes" class="form-control" rows="2" placeholder="Dietary requirements, menu preferences, headcount for catering..."></textarea>
+                                <label for="er-catering-notes">Catering Notes</label>
+                                <textarea id="er-catering-notes" ng-model="$ctrl.eventData.catering_notes" class="form-control" rows="2" placeholder="Dietary requirements, menu preferences, headcount for catering..."></textarea>
                             </div>
                         </div>
 
                         <!-- Setup & Breakdown -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Setup Duration</label>
-                                <select ng-model="$ctrl.eventData.setup_time" class="form-control">
+                                <label for="er-setup-duration">Setup Duration</label>
+                                <select id="er-setup-duration" ng-model="$ctrl.eventData.setup_time" class="form-control">
                                     <option value="0">None</option>
                                     <option value="5">5 min</option>
                                     <option value="10">10 min</option>
@@ -229,8 +231,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Breakdown Duration</label>
-                                <select ng-model="$ctrl.eventData.breakdown_time" class="form-control">
+                                <label for="er-breakdown-duration">Breakdown Duration</label>
+                                <select id="er-breakdown-duration" ng-model="$ctrl.eventData.breakdown_time" class="form-control">
                                     <option value="0">None</option>
                                     <option value="5">5 min</option>
                                     <option value="10">10 min</option>
@@ -243,8 +245,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <textarea ng-model="$ctrl.eventData.description" class="form-control" rows="3" placeholder="Describe your event"></textarea>
+                            <label for="er-description">Description</label>
+                            <textarea id="er-description" ng-model="$ctrl.eventData.description" class="form-control" rows="3" placeholder="Describe your event"></textarea>
                         </div>
                     </div>
 
@@ -348,8 +350,8 @@
                                     </div>
                                 </div>
                                 <div class="option-group">
-                                    <label>AV Staffing:</label>
-                                    <select class="form-control" ng-model="$ctrl.serviceOptions.av_tech.staffing">
+                                    <label for="er-av-staffing">AV Staffing:</label>
+                                    <select id="er-av-staffing" class="form-control" ng-model="$ctrl.serviceOptions.av_tech.staffing">
                                         <option value="">No staffing needed</option>
                                         <option value="operator">AV Operator ($50/hr)</option>
                                         <option value="lighting">AV Lighting Operator ($60/hr)</option>
@@ -359,8 +361,8 @@
                                     </select>
                                 </div>
                                 <div class="option-group" ng-if="$ctrl.serviceOptions.av_tech.livestream">
-                                    <label>Livestream Platform:</label>
-                                    <select class="form-control" ng-model="$ctrl.serviceOptions.av_tech.livestreamPlatform">
+                                    <label for="er-livestream-platform">Livestream Platform:</label>
+                                    <select id="er-livestream-platform" class="form-control" ng-model="$ctrl.serviceOptions.av_tech.livestreamPlatform">
                                         <option value="">Select platform...</option>
                                         <option value="youtube">YouTube Live</option>
                                         <option value="zoom">Zoom Webinar</option>
@@ -369,8 +371,8 @@
                                     </select>
                                 </div>
                                 <div class="option-group">
-                                    <label>AV Notes:</label>
-                                    <textarea class="form-control" ng-model="$ctrl.serviceOptions.av_tech.notes" rows="2" placeholder="Specific equipment specs, setup timing, cable runs..."></textarea>
+                                    <label for="er-av-notes">AV Notes:</label>
+                                    <textarea id="er-av-notes" class="form-control" ng-model="$ctrl.serviceOptions.av_tech.notes" rows="2" placeholder="Specific equipment specs, setup timing, cable runs..."></textarea>
                                 </div>
                             </div>
 
@@ -432,17 +434,17 @@
                                 </div>
                                 <div class="form-row" ng-if="$ctrl.serviceOptions.setup.roundTables || $ctrl.serviceOptions.setup.rectTables || $ctrl.serviceOptions.setup.seminarTables || $ctrl.serviceOptions.setup.cocktailTables">
                                     <div class="form-group">
-                                        <label>Number of Tables:</label>
-                                        <input type="number" class="form-control" ng-model="$ctrl.serviceOptions.setup.tableCount" min="1" placeholder="Qty">
+                                        <label for="er-table-count">Number of Tables:</label>
+                                        <input type="number" id="er-table-count" class="form-control" ng-model="$ctrl.serviceOptions.setup.tableCount" min="1" placeholder="Qty">
                                     </div>
                                     <div class="form-group" ng-if="$ctrl.serviceOptions.setup.chairs">
-                                        <label>Number of Chairs:</label>
-                                        <input type="number" class="form-control" ng-model="$ctrl.serviceOptions.setup.chairCount" min="1" placeholder="Qty">
+                                        <label for="er-chair-count">Number of Chairs:</label>
+                                        <input type="number" id="er-chair-count" class="form-control" ng-model="$ctrl.serviceOptions.setup.chairCount" min="1" placeholder="Qty">
                                     </div>
                                 </div>
                                 <div class="option-group">
-                                    <label>Layout / Setup Notes:</label>
-                                    <textarea class="form-control" ng-model="$ctrl.serviceOptions.setup.notes" rows="2" placeholder="Room layout (banquet, classroom, theatre, U-shape...), specific positioning..."></textarea>
+                                    <label for="er-setup-notes">Layout / Setup Notes:</label>
+                                    <textarea id="er-setup-notes" class="form-control" ng-model="$ctrl.serviceOptions.setup.notes" rows="2" placeholder="Room layout (banquet, classroom, theatre, U-shape...), specific positioning..."></textarea>
                                 </div>
                             </div>
 
@@ -471,17 +473,17 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group" ng-if="$ctrl.serviceOptions.parking.reserved">
-                                        <label>Reserved Spaces:</label>
-                                        <input type="number" class="form-control" ng-model="$ctrl.serviceOptions.parking.reservedCount" min="1" placeholder="Qty">
+                                        <label for="er-reserved-spaces">Reserved Spaces:</label>
+                                        <input type="number" id="er-reserved-spaces" class="form-control" ng-model="$ctrl.serviceOptions.parking.reservedCount" min="1" placeholder="Qty">
                                     </div>
                                     <div class="form-group" ng-if="$ctrl.serviceOptions.parking.validation">
-                                        <label>Validations Needed:</label>
-                                        <input type="number" class="form-control" ng-model="$ctrl.serviceOptions.parking.validationCount" min="1" placeholder="Qty">
+                                        <label for="er-validations">Validations Needed:</label>
+                                        <input type="number" id="er-validations" class="form-control" ng-model="$ctrl.serviceOptions.parking.validationCount" min="1" placeholder="Qty">
                                     </div>
                                 </div>
                                 <div class="option-group">
-                                    <label>Parking Notes:</label>
-                                    <textarea class="form-control" ng-model="$ctrl.serviceOptions.parking.notes" rows="2" placeholder="Guest arrival times, loading dock access, special vehicle needs..."></textarea>
+                                    <label for="er-parking-notes">Parking Notes:</label>
+                                    <textarea id="er-parking-notes" class="form-control" ng-model="$ctrl.serviceOptions.parking.notes" rows="2" placeholder="Guest arrival times, loading dock access, special vehicle needs..."></textarea>
                                 </div>
                             </div>
 
@@ -513,20 +515,20 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Estimated Security Personnel:</label>
-                                    <input type="number" class="form-control" ng-model="$ctrl.serviceOptions.safety.personnelCount" min="1" placeholder="Number of personnel">
+                                    <label for="er-security-personnel">Estimated Security Personnel:</label>
+                                    <input type="number" id="er-security-personnel" class="form-control" ng-model="$ctrl.serviceOptions.safety.personnelCount" min="1" placeholder="Number of personnel">
                                 </div>
                                 <div class="option-group">
-                                    <label>Safety Notes:</label>
-                                    <textarea class="form-control" ng-model="$ctrl.serviceOptions.safety.notes" rows="2" placeholder="VIPs, hazards, crowd size, special security concerns..."></textarea>
+                                    <label for="er-safety-notes">Safety Notes:</label>
+                                    <textarea id="er-safety-notes" class="form-control" ng-model="$ctrl.serviceOptions.safety.notes" rows="2" placeholder="VIPs, hazards, crowd size, special security concerns..."></textarea>
                                 </div>
                             </div>
 
                             <!-- Event Services Options -->
                             <div class="service-options" ng-if="$ctrl.expandedService === 'SERVICES'">
                                 <div class="option-group">
-                                    <label>Event Package:</label>
-                                    <select class="form-control" ng-model="$ctrl.serviceOptions.services.package">
+                                    <label for="er-event-package">Event Package:</label>
+                                    <select id="er-event-package" class="form-control" ng-model="$ctrl.serviceOptions.services.package">
                                         <option value="">No package — a la carte only</option>
                                         <option value="conference">Conference Package — Auditorium + Lobby, 4-8hrs ($1,750)</option>
                                         <option value="symposium">Symposium Package — Auditorium + Lobby, up to 4hrs ($938)</option>
@@ -553,8 +555,8 @@
                                     </div>
                                 </div>
                                 <div class="option-group" ng-if="$ctrl.serviceOptions.services.liability || $ctrl.serviceOptions.services.eventCancellation || $ctrl.serviceOptions.services.liquorLiability">
-                                    <label>Coverage Amount:</label>
-                                    <select class="form-control" ng-model="$ctrl.serviceOptions.services.coverage">
+                                    <label for="er-coverage">Coverage Amount:</label>
+                                    <select id="er-coverage" class="form-control" ng-model="$ctrl.serviceOptions.services.coverage">
                                         <option value="">Select coverage...</option>
                                         <option value="1m">$1 Million</option>
                                         <option value="2m">$2 Million</option>
@@ -562,16 +564,16 @@
                                     </select>
                                 </div>
                                 <div class="option-group">
-                                    <label>Services Notes:</label>
-                                    <textarea class="form-control" ng-model="$ctrl.serviceOptions.services.notes" rows="2" placeholder="Special permits, vendor coordination, after-hours needs..."></textarea>
+                                    <label for="er-services-notes">Services Notes:</label>
+                                    <textarea id="er-services-notes" class="form-control" ng-model="$ctrl.serviceOptions.services.notes" rows="2" placeholder="Special permits, vendor coordination, after-hours needs..."></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Expected Attendance</label>
-                                <input type="number" ng-model="$ctrl.eventData.attendance_count" ng-change="$ctrl.updateApprovalPreview()" class="form-control" min="1">
+                                <label for="er-attendance">Expected Attendance</label>
+                                <input type="number" id="er-attendance" ng-model="$ctrl.eventData.attendance_count" ng-change="$ctrl.updateApprovalPreview()" class="form-control" min="1">
                             </div>
                         </div>
 
@@ -591,8 +593,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Additional Notes</label>
-                            <textarea ng-model="$ctrl.eventData.special_requirements" class="form-control" rows="4" placeholder="Any other details, special requirements, accessibility needs, or questions for the events team..."></textarea>
+                            <label for="er-additional-notes">Additional Notes</label>
+                            <textarea id="er-additional-notes" ng-model="$ctrl.eventData.special_requirements" class="form-control" rows="4" placeholder="Any other details, special requirements, accessibility needs, or questions for the events team..."></textarea>
                         </div>
 
                         <!-- Itemized Quote -->

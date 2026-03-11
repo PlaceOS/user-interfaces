@@ -11,6 +11,8 @@
   width: 64px;
   height: 64px;
   background: linear-gradient(135deg, var(--ucla-blue) 0%, #1e5a8e 100%);
+  border: none;
+  padding: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -314,6 +316,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
 }
 
 .prompt-card:hover {

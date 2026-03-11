@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="uclaEventsApp">
+<html lang="en" ng-app="uclaEventsApp">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,9 +51,10 @@
     <script src="app/components/invoice-view/invoice-view.component.js"></script>
 </head>
 <body>
+    <a href="" class="skip-link" onclick="document.getElementById('main-content').focus(); return false;">Skip to main content</a>
     <div class="app-container" ng-controller="NavController as nav">
         <!-- Navigation (hidden on login page) -->
-        <nav class="app-nav" ng-if="!nav.isLoginPage()">
+        <nav class="app-nav" ng-if="!nav.isLoginPage()" role="navigation" aria-label="Main navigation">
             <div class="nav-container">
                 <div class="nav-brand">
                     <a href="#!/" class="nav-brand-link">
@@ -67,8 +68,8 @@
                     <a href="#!/my-events" class="nav-link">My Events</a>
                 </div>
                 <!-- Burger Menu Button -->
-                <button class="burger-menu-btn" ng-click="nav.toggleMenu()">
-                    <span class="burger-icon"><span class="material-icons">menu</span></span>
+                <button class="burger-menu-btn" ng-click="nav.toggleMenu()" aria-label="Toggle navigation menu" aria-expanded="{{nav.menuOpen}}">
+                    <span class="burger-icon" aria-hidden="true"><span class="material-icons">menu</span></span>
                 </button>
             </div>
 
@@ -77,12 +78,12 @@
             <div class="burger-menu" ng-class="{'active': nav.menuOpen}">
                 <div class="burger-menu-header">
                     <h3>Menu</h3>
-                    <button class="close-menu-btn" ng-click="nav.closeMenu()">✕</button>
+                    <button class="close-menu-btn" ng-click="nav.closeMenu()" aria-label="Close menu">✕</button>
                 </div>
                 <div class="burger-menu-content">
                     <!-- User Info Section -->
-                    <div class="user-info-section" ng-if="nav.isAuthenticated()">
-                        <div class="user-avatar">
+                    <div class="user-info-section" ng-if="nav.isAuthenticated()" role="status" aria-label="Logged in user information">
+                        <div class="user-avatar" aria-hidden="true">
                             <span class="material-icons">account_circle</span>
                         </div>
                         <div class="user-details">
@@ -112,9 +113,9 @@
                         <div class="setting-item">
                             <span>Text Size</span>
                             <div class="text-size-controls">
-                                <button ng-click="nav.decreaseTextSize()" class="text-size-btn">A-</button>
-                                <span class="text-size-value">{{nav.textSize}}%</span>
-                                <button ng-click="nav.increaseTextSize()" class="text-size-btn">A+</button>
+                                <button ng-click="nav.decreaseTextSize()" class="text-size-btn" aria-label="Decrease text size">A-</button>
+                                <span class="text-size-value" aria-live="polite">{{nav.textSize}}%</span>
+                                <button ng-click="nav.increaseTextSize()" class="text-size-btn" aria-label="Increase text size">A+</button>
                             </div>
                         </div>
                     </div>
@@ -123,7 +124,7 @@
         </nav>
 
         <!-- Mobile Bottom Navigation (hidden on login page) -->
-        <nav class="mobile-bottom-nav" ng-if="!nav.isLoginPage()">
+        <nav class="mobile-bottom-nav" ng-if="!nav.isLoginPage()" role="navigation" aria-label="Mobile navigation">
             <a href="#!/find-venue" class="mobile-nav-link">
                 <span class="mobile-nav-icon"><span class="material-icons">search</span></span>
                 <span class="mobile-nav-label">Find Venue</span>
@@ -139,7 +140,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main class="app-main">
+        <main class="app-main" id="main-content" tabindex="-1">
             <div ng-view></div>
         </main>
 

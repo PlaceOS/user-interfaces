@@ -3,12 +3,13 @@
         <h1>Request Event</h1>
 
         <!-- Progress Bar -->
-        <div class="progress-bar-container">
-            <div class="progress-bar">
-                <div class="progress-step"
+        <div class="progress-bar-container" role="navigation" aria-label="Form progress">
+            <div class="progress-bar" role="list">
+                <div class="progress-step" role="listitem"
                      ng-repeat="step in $ctrl.steps"
-                     ng-class="{active: $ctrl.currentStep === step.step, complete: $ctrl.currentStep > step.step}">
-                    <div class="step-circle">
+                     ng-class="{active: $ctrl.currentStep === step.step, complete: $ctrl.currentStep > step.step}"
+                     aria-current="{{$ctrl.currentStep === step.step ? 'step' : undefined}}">
+                    <div class="step-circle" aria-hidden="true">
                         <span ng-if="$ctrl.currentStep <= step.step">{{ step.step }}</span>
                         <span class="material-icons" ng-if="$ctrl.currentStep > step.step">check</span>
                     </div>
@@ -32,29 +33,29 @@
     <div class="form-step" ng-show="$ctrl.currentStep === 1">
         <h2>Event Details</h2>
         <div class="form-group">
-            <label>Event Title *</label>
-            <input type="text" ng-model="$ctrl.eventData.title" class="form-control" placeholder="Enter event title">
+            <label for="event-title">Event Title *</label>
+            <input type="text" id="event-title" ng-model="$ctrl.eventData.title" class="form-control" placeholder="Enter event title">
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label>Event Date & Time *</label>
-                <input type="datetime-local" ng-model="$ctrl.eventData.event_start" class="form-control">
+                <label for="event-start">Event Date & Time *</label>
+                <input type="datetime-local" id="event-start" ng-model="$ctrl.eventData.event_start" class="form-control">
             </div>
             <div class="form-group">
-                <label>Duration (hours) *</label>
-                <input type="number" ng-model="$ctrl.eventData.duration" class="form-control" min="1" max="24">
+                <label for="event-duration">Duration (hours) *</label>
+                <input type="number" id="event-duration" ng-model="$ctrl.eventData.duration" class="form-control" min="1" max="24">
             </div>
         </div>
 
         <div class="form-group">
-            <label>Venue *</label>
-            <input type="text" ng-model="$ctrl.eventData.venue" class="form-control" placeholder="Enter venue name">
+            <label for="event-venue">Venue *</label>
+            <input type="text" id="event-venue" ng-model="$ctrl.eventData.venue" class="form-control" placeholder="Enter venue name">
         </div>
 
         <div class="form-group">
-            <label>Event Description</label>
-            <textarea ng-model="$ctrl.eventData.description" class="form-control" rows="4" placeholder="Describe your event"></textarea>
+            <label for="event-description">Event Description</label>
+            <textarea id="event-description" ng-model="$ctrl.eventData.description" class="form-control" rows="4" placeholder="Describe your event"></textarea>
         </div>
     </div>
 
@@ -62,18 +63,18 @@
     <div class="form-step" ng-show="$ctrl.currentStep === 2">
         <h2>Organizer Information</h2>
         <div class="form-group">
-            <label>Organizer Name *</label>
-            <input type="text" ng-model="$ctrl.eventData.organizer_name" class="form-control" placeholder="Full name">
+            <label for="organizer-name">Organizer Name *</label>
+            <input type="text" id="organizer-name" ng-model="$ctrl.eventData.organizer_name" class="form-control" placeholder="Full name">
         </div>
 
         <div class="form-group">
-            <label>Organizer Email *</label>
-            <input type="email" ng-model="$ctrl.eventData.organizer_email" class="form-control" placeholder="email@ucla.edu">
+            <label for="organizer-email">Organizer Email *</label>
+            <input type="email" id="organizer-email" ng-model="$ctrl.eventData.organizer_email" class="form-control" placeholder="email@ucla.edu">
         </div>
 
         <div class="form-group">
-            <label>Organizer Phone</label>
-            <input type="tel" ng-model="$ctrl.eventData.organizer_phone" class="form-control" placeholder="(310) XXX-XXXX">
+            <label for="organizer-phone">Organizer Phone</label>
+            <input type="tel" id="organizer-phone" ng-model="$ctrl.eventData.organizer_phone" class="form-control" placeholder="(310) XXX-XXXX">
         </div>
     </div>
 
@@ -100,8 +101,8 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>Expected Attendance</label>
-                <input type="number" ng-model="$ctrl.eventData.attendance_count" ng-change="$ctrl.updateApprovalPreview()" class="form-control" min="1">
+                <label for="attendance-count">Expected Attendance</label>
+                <input type="number" id="attendance-count" ng-model="$ctrl.eventData.attendance_count" ng-change="$ctrl.updateApprovalPreview()" class="form-control" min="1">
             </div>
         </div>
 
@@ -120,8 +121,8 @@
         </div>
 
         <div class="form-group">
-            <label>Special Requirements</label>
-            <textarea ng-model="$ctrl.eventData.special_requirements" class="form-control" rows="3" placeholder="Any additional requirements or notes"></textarea>
+            <label for="special-requirements">Special Requirements</label>
+            <textarea id="special-requirements" ng-model="$ctrl.eventData.special_requirements" class="form-control" rows="3" placeholder="Any additional requirements or notes"></textarea>
         </div>
 
         <!-- Approval Preview -->
@@ -179,7 +180,7 @@
 
                 <div class="uploaded-section" ng-if="doc.uploaded && doc.file">
                     <span class="file-name"><span class="material-icons">check_circle</span> {{ doc.file.name }}</span>
-                    <button class="btn-icon" ng-click="$ctrl.removeDocument(doc.type)"><span class="material-icons">close</span></button>
+                    <button class="btn-icon" ng-click="$ctrl.removeDocument(doc.type)" aria-label="Remove uploaded file"><span class="material-icons" aria-hidden="true">close</span></button>
                 </div>
             </div>
         </div>

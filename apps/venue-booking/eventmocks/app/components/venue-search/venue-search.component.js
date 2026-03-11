@@ -17,8 +17,8 @@
                             <span class="sync-dot"></span>
                             <span ng-if="$ctrl.syncConnected">Concierge Sync Active</span>
                             <span ng-if="!$ctrl.syncConnected">Concierge Offline</span>
-                            <button class="btn-sync" ng-if="$ctrl.syncConnected" ng-click="$ctrl.manualSync()">
-                                <span class="material-icons">sync</span>
+                            <button class="btn-sync" ng-if="$ctrl.syncConnected" ng-click="$ctrl.manualSync()" aria-label="Sync venue data">
+                                <span class="material-icons" aria-hidden="true">sync</span>
                             </button>
                         </div>
                     </div>
@@ -27,7 +27,7 @@
                     <div class="sync-notification" ng-if="$ctrl.syncNotification">
                         <span class="material-icons">cloud_download</span>
                         {{ $ctrl.syncNotification }}
-                        <button ng-click="$ctrl.syncNotification = null"><span class="material-icons">close</span></button>
+                        <button ng-click="$ctrl.syncNotification = null" aria-label="Dismiss notification"><span class="material-icons" aria-hidden="true">close</span></button>
                     </div>
 
                     <!-- Search Filters -->
@@ -43,122 +43,123 @@
 
                         <div class="filter-grid">
                             <div class="form-group" ng-if="!$ctrl.searchCriteria.flexibleDates">
-                                <label>Date *</label>
-                                <input type="date" ng-model="$ctrl.searchCriteria.date" class="form-control">
+                                <label for="search-date">Date *</label>
+                                <input type="date" id="search-date" ng-model="$ctrl.searchCriteria.date" class="form-control">
                             </div>
 
                             <div class="form-group" ng-if="$ctrl.searchCriteria.flexibleDates">
-                                <label>Start Date *</label>
-                                <input type="date" ng-model="$ctrl.searchCriteria.startDate" class="form-control">
+                                <label for="search-start-date">Start Date *</label>
+                                <input type="date" id="search-start-date" ng-model="$ctrl.searchCriteria.startDate" class="form-control">
                             </div>
 
                             <div class="form-group" ng-if="$ctrl.searchCriteria.flexibleDates">
-                                <label>End Date *</label>
-                                <input type="date" ng-model="$ctrl.searchCriteria.endDate" class="form-control">
+                                <label for="search-end-date">End Date *</label>
+                                <input type="date" id="search-end-date" ng-model="$ctrl.searchCriteria.endDate" class="form-control">
                             </div>
 
                             <div class="form-group">
-                                <label>Start Time</label>
-                                <input type="time" ng-model="$ctrl.searchCriteria.startTime" class="form-control">
+                                <label for="search-start-time">Start Time</label>
+                                <input type="time" id="search-start-time" ng-model="$ctrl.searchCriteria.startTime" class="form-control">
                             </div>
 
                             <div class="form-group">
-                                <label>Duration (hours)</label>
-                                <input type="number" ng-model="$ctrl.searchCriteria.duration" class="form-control" min="1" max="12" value="2">
+                                <label for="search-duration">Duration (hours)</label>
+                                <input type="number" id="search-duration" ng-model="$ctrl.searchCriteria.duration" class="form-control" min="1" max="12" value="2">
                             </div>
 
                             <div class="form-group">
-                                <label>Capacity (minimum)</label>
-                                <input type="number" ng-model="$ctrl.searchCriteria.minCapacity" class="form-control" min="1" placeholder="Number of attendees">
+                                <label for="search-capacity">Capacity (minimum)</label>
+                                <input type="number" id="search-capacity" ng-model="$ctrl.searchCriteria.minCapacity" class="form-control" min="1" placeholder="Number of attendees">
                             </div>
                         </div>
 
                         <div class="form-group venue-type-section">
                             <label>Venue Type</label>
                             <div class="venue-type-cards">
-                                <div class="venue-type-card"
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === ''}"
                                      ng-click="$ctrl.selectVenueType('')">
                                     <div class="type-icon"><span class="material-icons">domain</span></div>
                                     <div class="type-name">All Types</div>
                                     <div class="type-count">131</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'outdoor'}"
                                      ng-click="$ctrl.selectVenueType('outdoor')">
                                     <div class="type-icon"><span class="material-icons">park</span></div>
                                     <div class="type-name">Outdoor</div>
                                     <div class="type-count">31</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'hall'}"
                                      ng-click="$ctrl.selectVenueType('hall')">
                                     <div class="type-icon"><span class="material-icons">account_balance</span></div>
                                     <div class="type-name">Event Space</div>
                                     <div class="type-count">28</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'meeting'}"
                                      ng-click="$ctrl.selectVenueType('meeting')">
                                     <div class="type-icon"><span class="material-icons">groups</span></div>
                                     <div class="type-name">Meeting</div>
                                     <div class="type-count">19</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'conference'}"
                                      ng-click="$ctrl.selectVenueType('conference')">
                                     <div class="type-icon"><span class="material-icons">meeting_room</span></div>
                                     <div class="type-name">Conference</div>
                                     <div class="type-count">17</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'classroom'}"
                                      ng-click="$ctrl.selectVenueType('classroom')">
                                     <div class="type-icon"><span class="material-icons">school</span></div>
                                     <div class="type-name">Classroom</div>
                                     <div class="type-count">12</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'auditorium'}"
                                      ng-click="$ctrl.selectVenueType('auditorium')">
                                     <div class="type-icon"><span class="material-icons">theaters</span></div>
                                     <div class="type-name">Auditorium</div>
                                     <div class="type-count">10</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'theater'}"
                                      ng-click="$ctrl.selectVenueType('theater')">
                                     <div class="type-icon"><span class="material-icons">movie</span></div>
                                     <div class="type-name">Theater</div>
                                     <div class="type-count">8</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'ballroom'}"
                                      ng-click="$ctrl.selectVenueType('ballroom')">
                                     <div class="type-icon"><span class="material-icons">celebration</span></div>
                                     <div class="type-name">Ballroom</div>
                                     <div class="type-count">3</div>
-                                </div>
-                                <div class="venue-type-card"
+                                </button>
+                                <button class="venue-type-card"
                                      ng-class="{'selected': $ctrl.searchCriteria.venueType === 'dining'}"
                                      ng-click="$ctrl.selectVenueType('dining')">
                                     <div class="type-icon"><span class="material-icons">restaurant</span></div>
                                     <div class="type-name">Dining</div>
                                     <div class="type-count">3</div>
-                                </div>
+                                </button>
                             </div>
                         </div>
 
                         <div class="form-group service-filter-section">
                             <label>Services Needed</label>
                             <div class="service-chips">
-                                <div class="service-chip"
+                                <button class="service-chip"
                                      ng-repeat="svc in $ctrl.serviceCategories"
                                      ng-class="{'selected': $ctrl.searchCriteria.services[svc.id]}"
-                                     ng-click="$ctrl.toggleService(svc.id)">
-                                    <span class="material-icons">{{ svc.icon }}</span>
+                                     ng-click="$ctrl.toggleService(svc.id)"
+                                     aria-pressed="{{!!$ctrl.searchCriteria.services[svc.id]}}">
+                                    <span class="material-icons" aria-hidden="true">{{ svc.icon }}</span>
                                     <span>{{ svc.label }}</span>
-                                </div>
+                                </button>
                             </div>
                         </div>
 
