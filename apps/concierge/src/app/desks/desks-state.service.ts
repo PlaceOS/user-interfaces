@@ -171,9 +171,9 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
-                    include_deleted: 'all',
+                    include_deleted: true,
                     limit: 500,
-                }).pipe(
+                } as any).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
                 ),
             );
@@ -457,10 +457,13 @@ export class DesksStateService extends AsyncHandler {
                     : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING',
             ),
         );
-        const query = !series && booking.instance
-            ? { instance: true, start_time: booking.instance }
-            : {};
-        const booking_id = series ? booking.parent_id || booking.id : booking.id;
+        const query =
+            !series && booking.instance
+                ? { instance: true, start_time: booking.instance }
+                : {};
+        const booking_id = series
+            ? booking.parent_id || booking.id
+            : booking.id;
         await nextValueFrom(removeBooking(booking_id, query)).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),
