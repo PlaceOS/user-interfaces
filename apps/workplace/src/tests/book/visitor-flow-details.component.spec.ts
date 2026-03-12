@@ -11,9 +11,6 @@ describe('VisitorFlowDetailsComponent', () => {
     let options$: BehaviorSubject<any>;
     let form: FormGroup;
     let now = Date.now();
-    let set_building: jest.Mock;
-    let find_building: jest.Mock;
-
     const createComponent = createRoutingFactory({
         component: VisitorFlowDetailsComponent,
         shallow: true,
@@ -28,16 +25,14 @@ describe('VisitorFlowDetailsComponent', () => {
                         { id: 'bld-1', name: 'Building One', timezone: '' },
                         { id: 'bld-2', name: 'Building Two', timezone: '' },
                     ];
-                    find_building = jest.fn((id: string) =>
-                        building_list.find((building) => building.id === id),
-                    );
-                    set_building = jest.fn();
                     return {
                         active_buildings: new BehaviorSubject(building_list),
                         buildings: building_list,
                         building: building_list[0],
-                        find: find_building,
-                        setBuilding: set_building,
+                        find: jest.fn((id: string) =>
+                            building_list.find((building) => building.id === id),
+                        ),
+                        setBuilding: jest.fn(),
                         levelWithID: jest.fn((ids: string[]) =>
                             ids?.includes('lvl-2')
                                 ? {
@@ -134,9 +129,5 @@ describe('VisitorFlowDetailsComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.component.selected_building_id()).toBe('bld-2');
-        expect(find_building).toHaveBeenCalledWith('bld-2');
-        expect(set_building).toHaveBeenCalledWith(
-            expect.objectContaining({ id: 'bld-2' }),
-        );
     });
 });

@@ -46,6 +46,8 @@ describe('LandingUpcomingComponent', () => {
     it('should not patch resources when editing visitor bookings', () => {
         jest.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);
+        (booking_form.newForm as jest.Mock).mockClear();
+        (booking_form.form.patchValue as jest.Mock).mockClear();
         const booking = new Booking({
             booking_type: 'visitor',
             type: 'visitor',
@@ -57,6 +59,29 @@ describe('LandingUpcomingComponent', () => {
         jest.runAllTimers();
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
+        expect(booking_form.form.patchValue).not.toHaveBeenCalled();
+        jest.useRealTimers();
+    });
+
+    it('should not patch resources when editing visitor bookings with only type set', () => {
+        jest.useFakeTimers();
+        const booking_form = spectator.inject(BookingFormService);
+        (booking_form.newForm as jest.Mock).mockClear();
+        (booking_form.form.patchValue as jest.Mock).mockClear();
+        const booking = new Booking({
+            booking_type: ' ',
+            type: 'visitor',
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        } as any);
+
+        spectator.component.editBooking(booking);
+        jest.runAllTimers();
+
+        expect(booking_form.newForm).toHaveBeenLastCalledWith(
+            'visitor',
+            expect.objectContaining({ type: 'visitor' }),
+        );
         expect(booking_form.form.patchValue).not.toHaveBeenCalled();
         jest.useRealTimers();
     });

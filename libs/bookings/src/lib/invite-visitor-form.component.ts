@@ -592,7 +592,7 @@ export class InviteVisitorFormComponent
     public booking?: Booking;
     public readonly loading = this._service.loading;
     public loading_many = false;
-    public readonly buildings = this._org.active_buildings;
+    public readonly buildings = this._org.building_list;
     public last_success = this._service.last_success;
     public last_count = 0;
     public visitors = [];
@@ -665,12 +665,18 @@ export class InviteVisitorFormComponent
     }
 
     public get selected_building_id() {
-        const building_list = this._org.buildings || [];
         const zone_list = this.form?.getRawValue()?.zones || [];
-        return (
-            building_list.find((building) => zone_list.includes(building.id))
-                ?.id || this._org.building?.id
-        );
+        const level = this._org.levelWithID(zone_list);
+        const building =
+            this._org.buildings.find(
+                (bld) =>
+                    zone_list.includes(bld.id) ||
+                    zone_list.includes((bld as any).zone_id),
+            ) ||
+            this._org.buildings.find((bld) => level?.parent_id === bld.id);
+        if (building?.id) return building.id;
+        if (this.form?.getRawValue()?.id) return zone_list[0] || '';
+        return this._org.building?.id || zone_list[0] || '';
     }
 
     constructor() {
@@ -740,7 +746,17 @@ export class InviteVisitorFormComponent
     }
 
     public setBuilding(building_id: string) {
-        this.form.patchValue({ zones: building_id ? [building_id] : [] });
+        if (!building_id) {
+            this.form.patchValue({ zones: [] });
+            return;
+        }
+        const building = this._org.find(building_id);
+        const zones = [
+            this._org.organisation?.id,
+            building?.parent_id,
+            building_id,
+        ].filter((_) => _);
+        this.form.patchValue({ zones });
     }
 
     public setVisitorInternational(item: User, international: boolean) {
@@ -848,18 +864,35 @@ export class InviteVisitorFormComponent
     private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
         const form_snapshot = this.form?.getRawValue?.() as any;
+        const booking_snapshot = this._service.booking as any;
         const is_visitor_booking =
             (booking: Record<string, any>) =>
                 booking?.booking_type === 'visitor' || booking?.type === 'visitor';
         const keep_preloaded_edit =
-            !!form_snapshot.id &&
+            (!!form_snapshot.id || !!booking_snapshot?.id) &&
             (is_visitor_booking(form_snapshot) ||
-                is_visitor_booking(this._service.booking as any));
-        if (!keep_preloaded_edit) this._service.loadForm();
+                is_visitor_booking(booking_snapshot));
+        if (keep_preloaded_edit && !form_snapshot?.id && booking_snapshot?.id) {
+            const booking = new Booking(booking_snapshot);
+            this.form.reset({ user: currentUser(), booked_by: currentUser() });
+            this.form.patchValue(
+                {
+                    ...booking_snapshot,
+                    ...booking,
+                    ...(booking.extension_data || {}),
+                    _in_progress:
+                        booking_snapshot.state === 'started' ||
+                        booking_snapshot.state === 'in_progress',
+                },
+                { emitEvent: false },
+            );
+        } else if (!keep_preloaded_edit) {
+            this._service.loadForm();
+        }
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');
         this.form.patchValue({ booking_type: 'visitor' });
-        if (!this.form.value.zones?.length) {
+        if (!this.form.value.id && !this.form.value.zones?.length) {
             this.form.patchValue({ zones: [this._org.building?.id] });
         }
         if (this.multiple && !this.form.value.id)

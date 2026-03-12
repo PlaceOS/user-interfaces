@@ -836,8 +836,10 @@ export class ScheduleStateService extends AsyncHandler {
 
     public editBooking(event: Booking) {
         console.log('Edit Booking:', event.type);
+        const booking_type = `${event.booking_type || ''}`.trim() || event.type;
         this._router.navigate(['/book', `${event.type}`]);
-        this._booking_form.newForm(event.booking_type, event);
+        this._booking_form.newForm(booking_type as any, event);
+        if (booking_type === 'visitor') return;
         setTimeout(() => {
             this._booking_form.form.patchValue({
                 resources: [
