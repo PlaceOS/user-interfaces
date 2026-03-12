@@ -1,9 +1,16 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatRippleModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -56,13 +63,17 @@ type VisitorFormType = 'single' | 'group';
                             <mat-option value="single">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-xl">person</icon>
-                                    <span>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</span>
+                                    <span>{{
+                                        'BOOKINGS.VISITOR_SINGLE' | translate
+                                    }}</span>
                                 </div>
                             </mat-option>
                             <mat-option value="group">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-xl">group</icon>
-                                    <span>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</span>
+                                    <span>{{
+                                        'BOOKINGS.VISITOR_MULTIPLE' | translate
+                                    }}</span>
                                 </div>
                             </mat-option>
                         </mat-select>
@@ -70,12 +81,12 @@ type VisitorFormType = 'single' | 'group';
                 </div>
                 <!-- Desktop button toggle -->
                 <div
-                    class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
+                    class="bg-base-200 hidden w-full items-center space-x-1 rounded-lg p-1 sm:flex"
                 >
                     <button
                         btn
                         matRipple
-                        class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                        class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
                         [class.clear]="active_form() !== 'single'"
                         (click)="setActiveForm('single')"
                     >
@@ -85,7 +96,7 @@ type VisitorFormType = 'single' | 'group';
                     <button
                         btn
                         matRipple
-                        class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
+                        class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
                         [class.clear]="active_form() !== 'group'"
                         (click)="setActiveForm('group')"
                     >
@@ -123,10 +134,7 @@ type VisitorFormType = 'single' | 'group';
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
-                    <date-field
-                        name="date"
-                        formControlName="date"
-                    ></date-field>
+                    <date-field name="date" formControlName="date"></date-field>
                     @if (allow_all_day()) {
                         <mat-checkbox
                             formControlName="all_day"
@@ -138,7 +146,7 @@ type VisitorFormType = 'single' | 'group';
                 </div>
                 @if (!form_value().all_day) {
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="flex-1">
                             <label for="time">
@@ -309,10 +317,14 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this.form.patchValue({ user: currentUser() });
         }
         if (!zones.length && this._org.building?.id) {
-            this.form.patchValue({ zones: [this._org.building.id] });
+            const default_zones = [
+                this._org.organisation?.id,
+                this._org.region?.id,
+                this._org.building.id,
+            ].filter((_) => _);
+            this.form.patchValue({ zones: default_zones });
             return;
         }
-        this._syncBuildingContext();
     }
 
     public setActiveForm(form: VisitorFormType) {
@@ -370,8 +382,17 @@ export class VisitorFlowDetailsComponent implements OnInit {
     }
 
     public setBuilding(building_id: string) {
-        this._setActiveBuilding(building_id);
-        this.form.patchValue({ zones: building_id ? [building_id] : [] });
+        if (!building_id) {
+            this.form.patchValue({ zones: [] });
+            return;
+        }
+        const building = this._org.find(building_id);
+        const zones = [
+            this._org.organisation?.id,
+            building?.parent_id,
+            building_id,
+        ].filter((_) => _);
+        this.form.patchValue({ zones });
     }
 
     private _resolveSelectedBuildingId(zone_list: string[]) {
@@ -380,17 +401,5 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this._org.buildings.find((bld) => zone_list.includes(bld.id)) ||
             this._org.buildings.find((bld) => level?.parent_id === bld.id);
         return building?.id || this._org.building?.id || zone_list[0] || '';
-    }
-
-    private _syncBuildingContext() {
-        const building_id = this.selected_building_id();
-        if (!building_id || this._org.building?.id === building_id) return;
-        this._setActiveBuilding(building_id);
-    }
-
-    private _setActiveBuilding(building_id: string) {
-        const building = this._org.find(building_id);
-        if (!building) return;
-        this._org.setBuilding(building);
     }
 }

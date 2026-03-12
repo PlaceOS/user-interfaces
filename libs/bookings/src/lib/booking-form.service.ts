@@ -8,6 +8,7 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    Desk,
     flatten,
     getInvalidFields,
     i18n,
@@ -710,15 +711,6 @@ export class BookingFormService extends AsyncHandler {
                 invoice_id: receipt.invoice_id,
             };
         }
-        const selected_zones = [
-            ...(value?.zones || []),
-            ...(value.booking_asset?.zones || []),
-        ].filter((_) => _);
-        value.zones = unique(
-            selected_zones.length
-                ? selected_zones
-                : [...(this._booking.getValue()?.zones || [])],
-        );
         this._loading.next('Saving booking');
         delete value.booking_asset;
         if (value.all_day) {
@@ -730,15 +722,16 @@ export class BookingFormService extends AsyncHandler {
         const resources = value.resources || [];
         const zone =
             this._org.levelWithID(resources[0]?.zone_id) || resources[0]?.zone;
-        const zones =
-            zone && zone instanceof Object
-                ? unique([
-                      this._org.organisation.id,
-                      this._org.region?.id,
-                      zone.parent_id,
-                      zone.id,
-                  ])
-                : [this._org.organisation.id, this._org.region?.id];
+        const zones = unique(
+            [
+                this._org.organisation?.id,
+                this._org.region?.id,
+                zone?.parent_id,
+                zone?.id,
+                ...value.zones,
+            ].filter((_) => _),
+        );
+        debugger;
         const q: Record<string, any> = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id
@@ -817,9 +810,7 @@ export class BookingFormService extends AsyncHandler {
                             value.user?.department || currentUser()?.department,
                     },
                     approved: this.setting('no_approval') === true,
-                    zones: unique([...zones, ...(value.zones || [])]).filter(
-                        (_) => _,
-                    ),
+                    zones,
                 }),
                 q,
             ),
@@ -835,9 +826,7 @@ export class BookingFormService extends AsyncHandler {
                     duration: value.duration,
                     all_day: value.all_day,
                     host: value.booked_by_email,
-                    zones: unique([...zones, ...(value.zones || [])]).filter(
-                        (_) => _,
-                    ),
+                    zones,
                 },
                 value.assets,
             ).catch((e) => {
@@ -930,6 +919,16 @@ export class BookingFormService extends AsyncHandler {
                 const asset = resources[i];
                 const assets =
                     user.email == currentUser().email ? form.assets : [];
+                const zones = unique(
+                    [
+                        this._org.organisation?.id,
+                        this._org.region?.id,
+                        asset?.zone?.parent_id,
+                        asset?.zone?.id,
+                        ...form.zones,
+                    ].filter((_) => _),
+                );
+                debugger;
                 this.form.patchValue({
                     ...form,
                     assets,
@@ -942,15 +941,7 @@ export class BookingFormService extends AsyncHandler {
                     description: asset.name || asset.id,
                     map_id: asset?.map_id || asset?.id,
                     group: group_name,
-                    zones: (asset.zone
-                        ? unique([
-                              this._org.organisation.id,
-                              this._org.region?.id,
-                              asset?.zone?.parent_id,
-                              asset?.zone?.id,
-                          ])
-                        : [this._org.organisation.id, this._org.region?.id]
-                    ).filter((_) => _),
+                    zones,
                 });
                 const bkn = await this.postForm(true, false).catch((error) => {
                     throw `${user.name || user.email}: ${this._error_message(error)}`;
@@ -1118,6 +1109,13 @@ export class BookingFormService extends AsyncHandler {
                 : [];
         let first_result: Booking = null;
         try {
+            const zones = unique(
+                [
+                    this._org.organisation?.id,
+                    this._org.region.id,
+                    ...base_form.zones,
+                ].filter((_) => _),
+            );
             for (let index = 0; index < members.length; index++) {
                 const member = members[index];
                 if (!member.email) continue;
@@ -1137,11 +1135,6 @@ export class BookingFormService extends AsyncHandler {
                             !!member.extension_data?.international,
                         company: (member as any).company || member.organisation,
                         phone: member.phone,
-                        zones: base_form.zones?.length
-                            ? [...base_form.zones]
-                            : existing?.zones?.length
-                              ? [...existing.zones]
-                              : [...(this._booking.getValue()?.zones || [])],
                         assets: [],
                         attendees: [
                             new User({
@@ -1155,7 +1148,7 @@ export class BookingFormService extends AsyncHandler {
                         ],
                     });
                 } else {
-                    const asset = desk_resources[index];
+                    const asset = desk_resources[index] || ({} as Desk);
                     this.form.patchValue({
                         ...base_form,
                         id: booking_id,
@@ -1164,28 +1157,13 @@ export class BookingFormService extends AsyncHandler {
                         user: member as any,
                         user_email: member.email,
                         user_id: member.id,
-                        ...(asset
-                            ? {
-                                  asset_id: asset.id,
-                                  asset_name: asset.name || asset.id,
-                                  description: asset.name || asset.id,
-                                  map_id: asset.map_id || asset.id,
-                                  zones: (asset.zone
-                                      ? unique([
-                                            this._org.organisation.id,
-                                            this._org.region?.id,
-                                            asset.zone?.parent_id,
-                                            asset.zone?.id,
-                                        ])
-                                      : [
-                                            this._org.organisation.id,
-                                            this._org.region?.id,
-                                        ]
-                                  ).filter((_) => _),
-                              }
-                            : {}),
+                        asset_id: asset.id,
+                        asset_name: asset.name || asset.id,
+                        description: asset.name || asset.id,
+                        map_id: asset.map_id || asset.id,
                     });
                 }
+                this.form.controls.zones.setValue(zones);
                 const bkn = await this.postForm(true, false);
                 if (!first_result) first_result = bkn;
             }
@@ -1613,7 +1591,10 @@ export class BookingFormService extends AsyncHandler {
                 const resource = resources.find((_) =>
                     this._resourceMatches(_, item),
                 );
-                if (!resource || this._resourceReserved(resource, reserved_ids)) {
+                if (
+                    !resource ||
+                    this._resourceReserved(resource, reserved_ids)
+                ) {
                     asset_list = asset_list.filter(
                         (_) => !this._resourceMatches(_, item),
                     );
@@ -1634,7 +1615,9 @@ export class BookingFormService extends AsyncHandler {
         form: Partial<Booking> & { map_id?: string },
         existing_siblings: Booking[] = [],
     ): Promise<BookingAsset[]> {
-        const available_resources = await nextValueFrom(this.available_resources);
+        const available_resources = await nextValueFrom(
+            this.available_resources,
+        );
         const all_resources = await nextValueFrom(this.resources);
         const preferred_id = `${form.map_id || form.asset_id || ''}`;
         const existing_map: Record<string, Booking> = {};
@@ -1683,7 +1666,9 @@ export class BookingFormService extends AsyncHandler {
         const nearby_resources = missing_count
             ? await this._getNearbyResources(
                   level.map_id,
-                  anchor_resource?.map_id || anchor_resource?.id || preferred_id,
+                  anchor_resource?.map_id ||
+                      anchor_resource?.id ||
+                      preferred_id,
                   available_resources,
                   missing_count,
                   reserved_ids,

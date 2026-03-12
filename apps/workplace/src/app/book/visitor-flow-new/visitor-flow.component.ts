@@ -324,10 +324,19 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             group: true,
             members: visitor_members,
         });
-        if (value.id && this._existing_siblings.length) {
-            await this._booking_form.editFormForGroup(
-                this._existing_siblings,
-            );
+        if (value.id) {
+            let existing_siblings = this._existing_siblings;
+            if (!existing_siblings.length) {
+                existing_siblings =
+                    await this._booking_form.loadGroupSiblings(
+                        new Booking(value),
+                    );
+            }
+            if (!existing_siblings.length) {
+                existing_siblings = [new Booking(value)];
+            }
+            this._existing_siblings = existing_siblings;
+            await this._booking_form.editFormForGroup(existing_siblings);
         } else {
             await this._booking_form.postFormForVisitorGroup();
         }
