@@ -204,7 +204,7 @@ export class ScheduleStateService extends AsyncHandler {
                 'LocationServices',
             );
             if (!mod?.system) return of([]);
-            return mod.execute('my_bookings');
+            return mod.execute('my_bookings').catch((_) => []);
         }),
         map((_) => (_ || []).map((_) => new CalendarEvent(_))),
         shareReplay(1),
