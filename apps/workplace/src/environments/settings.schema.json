@@ -113,6 +113,9 @@
             "type": "object",
             "description": "Data associated with meeting booking flow",
             "properties": {
+                "bookable_hours": {
+                    "$ref": "#/$defs/bookable_hours"
+                },
                 "hide_nearby_desks": {
                     "type": "boolean",
                     "description": "Whether to hide the book nearby desks action on the meeting success view"
@@ -123,6 +126,9 @@
             "type": "object",
             "description": "Data associated wth desk booking flow",
             "properties": {
+                "bookable_hours": {
+                    "$ref": "#/$defs/bookable_hours"
+                },
                 "has_group_booking": {
                     "type": "boolean",
                     "description": "Whether users are allowed make group desk bookings"
@@ -219,6 +225,21 @@
         }
     },
     "$defs": {
+        "bookable_hours": {
+            "type": "object",
+            "description": "Bookable time window in minutes since midnight. For example, `480` is 8:00 AM and `1140` is 7:00 PM.",
+            "required": ["start", "end"],
+            "properties": {
+                "start": {
+                    "type": "number",
+                    "description": "Earliest allowed booking start time in minutes since midnight."
+                },
+                "end": {
+                    "type": "number",
+                    "description": "Latest allowed booking end time in minutes since midnight."
+                }
+            }
+        },
         "link": {
             "type": "object",
             "required": ["name"],
