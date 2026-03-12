@@ -1280,15 +1280,19 @@ export class BookingFormService extends AsyncHandler {
 
     /** Check if the given resource is available for the selected user to book */
     private async _checkResourceAvailable(
-        { id, asset_id, date, duration, user_email }: Partial<Booking>,
+        { id, asset_id, date, duration, all_day, user_email }: Partial<Booking>,
         type: BookingType,
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
         const bookings = await lastValueFrom(
             queryBookings({
-                period_start: getUnixTime(date),
-                period_end: getUnixTime(date + duration * 60 * 1000),
+                period_start: all_day
+                    ? getUnixTime(startOfDay(date))
+                    : getUnixTime(date),
+                period_end: all_day
+                    ? getUnixTime(endOfDay(date))
+                    : getUnixTime(date + duration * 60 * 1000),
                 type,
                 email: user_email,
                 limit: 1000,
@@ -1527,7 +1531,10 @@ export class BookingFormService extends AsyncHandler {
                 const resource = resources.find((_) =>
                     this._resourceMatches(_, item),
                 );
-                if (!resource || this._resourceReserved(resource, reserved_ids)) {
+                if (
+                    !resource ||
+                    this._resourceReserved(resource, reserved_ids)
+                ) {
                     asset_list = asset_list.filter(
                         (_) => !this._resourceMatches(_, item),
                     );
@@ -1548,7 +1555,9 @@ export class BookingFormService extends AsyncHandler {
         form: Partial<Booking> & { map_id?: string },
         existing_siblings: Booking[] = [],
     ): Promise<BookingAsset[]> {
-        const available_resources = await nextValueFrom(this.available_resources);
+        const available_resources = await nextValueFrom(
+            this.available_resources,
+        );
         const all_resources = await nextValueFrom(this.resources);
         const preferred_id = `${form.map_id || form.asset_id || ''}`;
         const existing_map: Record<string, Booking> = {};
@@ -1597,7 +1606,9 @@ export class BookingFormService extends AsyncHandler {
         const nearby_resources = missing_count
             ? await this._getNearbyResources(
                   level.map_id,
-                  anchor_resource?.map_id || anchor_resource?.id || preferred_id,
+                  anchor_resource?.map_id ||
+                      anchor_resource?.id ||
+                      preferred_id,
                   available_resources,
                   missing_count,
                   reserved_ids,
