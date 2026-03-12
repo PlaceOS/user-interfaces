@@ -5,12 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    addAssetsInBulk,
-    generateAssetForm,
-    showAsset,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetForm } from '@placeos/assets';
 import {
     AssetGroup,
     AsyncHandler,
@@ -24,6 +19,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { addAssets, showAsset, showAssetType } from '@placeos/ts-client';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -188,7 +184,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                     this.loading = i18n(
                         'APP.CONCIERGE.ASSETS_BULK_PRODUCT_LOADING',
                     );
-                    const product = await showAssetGroup(params.get('group_id'))
+                    const product = await showAssetType(params.get('group_id'))
                         .toPromise()
                         .catch(() => null);
                     if (!product) {
@@ -220,7 +216,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
         }
         this.loading = i18n('APP.CONCIERGE.ASSETS_BULK_SAVING');
         const data = this.form.value;
-        const list = await addAssetsInBulk(
+        const list = await addAssets(
             new Array(this.count).fill({
                 ...data,
                 zone_id: this._org.building.id,

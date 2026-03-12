@@ -6,11 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    generateAssetGroupForm,
-    saveAssetGroup,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetGroupForm, saveAssetType } from '@placeos/assets';
 import {
     AssetCategory,
     AsyncHandler,
@@ -23,6 +19,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ImageListFieldComponent } from '@placeos/form-fields';
+import { showAssetType } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -187,7 +184,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
                 if (params.get('id')) {
                     this.loading = 'Loading Product Details...';
                     const product = await lastValueFrom(
-                        showAssetGroup(params.get('id')),
+                        showAssetType(params.get('id')),
                     ).catch(() => null);
                     if (!product) {
                         notifyError('Unable to load product details.');
@@ -212,7 +209,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
         if (!this.form.valid) return;
         this.loading = 'Saving Product...';
         const data = this.form.value;
-        const item = await lastValueFrom(saveAssetGroup(data as any)).catch(
+        const item = await lastValueFrom(saveAssetType(data as any)).catch(
             (e) => {
                 this.loading = '';
                 notifyError(`Error saving Product: ${e.message}`);
