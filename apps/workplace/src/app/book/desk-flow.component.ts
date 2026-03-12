@@ -10,7 +10,7 @@ import {
     notifyInfo,
     OrganisationService,
 } from '@placeos/common';
-import { lastValueFrom, timer } from 'rxjs';
+import { lastValueFrom, map, timer } from 'rxjs';
 import { NewDeskFlowFormComponent } from './desk-flow/desk-flow-form.component';
 import { NewDeskFlowSuccessComponent } from './desk-flow/desk-flow-success.component';
 
@@ -90,6 +90,9 @@ export class NewDeskFlowComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.has('asset_id')) {
                     const id = params.get('asset_id');
+                    await firstTruthyValueFrom(
+                        this._state.loading.pipe(map((_) => !_)),
+                    );
                     const resources = await nextValueFrom(
                         this._state.resources,
                     );
