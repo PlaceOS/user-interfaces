@@ -48,6 +48,14 @@ interface ParkingRequestOption {
     name: string;
 }
 
+interface ParkingRequestType {
+    value: string;
+    label: string;
+    description?: string;
+    badge?: string;
+    groups?: string[];
+}
+
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
     {
         id: 'day_worker',
@@ -1012,13 +1020,7 @@ export class ParkingRequestFormDetailsComponent
         date: addDays(startOfWeek(Date.now(), { weekStartsOn: 1 }), index - 1),
     }));
 
-    private readonly _default_request_types: {
-        value: string;
-        label: string;
-        description?: string;
-        badge?: string;
-        groups?: string[];
-    }[] = [
+    private readonly _default_request_types: ParkingRequestType[] = [
         {
             value: 'standard',
             label: 'BOOKINGS.PARKING_REQUEST_STANDARD_TITLE',
@@ -1038,15 +1040,10 @@ export class ParkingRequestFormDetailsComponent
         },
     ];
 
-    public readonly request_types_setting = settingSignal<
-        {
-            value: string;
-            label: string;
-            description?: string;
-            badge?: string;
-            groups?: string[];
-        }[]
-    >('parking.request_types', null);
+    public readonly request_types_setting = settingSignal<ParkingRequestType[]>(
+        'parking.request_types',
+        null,
+    );
 
     public readonly request_types = computed(() => {
         const custom_types = this.request_types_setting();
