@@ -731,7 +731,6 @@ export class BookingFormService extends AsyncHandler {
                 ...value.zones,
             ].filter((_) => _),
         );
-        debugger;
         const q: Record<string, any> = event_id
             ? { ical_uid: value.ical_uid, event_id: event_id }
             : parent_id
@@ -928,7 +927,6 @@ export class BookingFormService extends AsyncHandler {
                         ...form.zones,
                     ].filter((_) => _),
                 );
-                debugger;
                 this.form.patchValue({
                     ...form,
                     assets,
