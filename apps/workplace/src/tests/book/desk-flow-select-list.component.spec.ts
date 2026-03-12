@@ -49,4 +49,24 @@ describe('DeskFlowSelectListComponent', () => {
             { id: 'desk-123', name: 'Desk 123' },
         ]);
     });
+
+    it('should move to the selected desk page once it is present in the real result set', () => {
+        const list = Array.from({ length: 20 }, (_, index) => ({
+            id: `desk-${index + 1}`,
+            name: `Desk ${index + 1}`,
+        }));
+
+        form.patchValue({
+            resources: [{ id: 'desk-16', name: 'Desk 16' }],
+        });
+        spectator.component.selected_items.set(['desk-16']);
+        spectator.detectChanges();
+
+        expect(spectator.component.page()).toBe(0);
+
+        available_resources.next(list);
+        spectator.detectChanges();
+
+        expect(spectator.component.page()).toBe(1);
+    });
 });

@@ -2,6 +2,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { ActivatedRoute } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
+import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
@@ -23,11 +24,12 @@ describe('DeskFlowNewComponent', () => {
                 postFormForGroup: jest.fn(),
                 view: signal('form'),
                 options: of({ type: 'desk' }),
+                loading: of(false),
                 resources: of([
                     {
                         id: 'desk-123',
                         name: 'Desk 123',
-                        zone: { id: 'level-1' },
+                        zone: { id: 'level-1', parent_id: 'building-1' },
                     },
                 ]),
                 form: (() => {
@@ -50,6 +52,11 @@ describe('DeskFlowNewComponent', () => {
                         key === 'asset_id' ? 'desk-123' : null,
                 }),
             } as any),
+            MockProvider(OrganisationService, {
+                find: jest.fn((id: string) =>
+                    id === 'building-1' ? { id: 'building-1' } : null,
+                ),
+            } as any),
         ],
     });
 
@@ -60,17 +67,24 @@ describe('DeskFlowNewComponent', () => {
     it('should hydrate the selected desk from the asset_id query param', async () => {
         await spectator.component.ngOnInit();
         await Promise.resolve();
+        await Promise.resolve();
 
         expect(spectator.inject(BookingFormService).setOptions).toHaveBeenCalledWith(
             { type: 'desk', zones: ['level-1'] },
         );
+        expect(spectator.inject(OrganisationService).find).toHaveBeenCalledWith(
+            'building-1',
+        );
+        expect(spectator.inject(OrganisationService).building).toEqual({
+            id: 'building-1',
+        });
         expect(form.getRawValue()).toEqual({
             booking_type: 'desk',
             resources: [
                 {
                     id: 'desk-123',
                     name: 'Desk 123',
-                    zone: { id: 'level-1' },
+                    zone: { id: 'level-1', parent_id: 'building-1' },
                 },
             ],
             asset_id: 'desk-123',

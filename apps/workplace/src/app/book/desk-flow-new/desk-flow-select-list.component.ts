@@ -269,28 +269,28 @@ export class DeskFlowSelectListComponent {
         ),
     ]);
 
-    private _initial_page_set = false;
+    private _last_auto_page_key = '';
 
     constructor() {
         effect(() => {
-            const items = this.available_items();
-            const selected = this.selected_items();
-            if (
-                !this._initial_page_set &&
-                items?.length &&
-                selected?.length
-            ) {
-                const selected_index = items.findIndex((item) =>
-                    selected.includes(item.id),
-                );
-                if (selected_index >= 0) {
-                    const target_page = Math.floor(
-                        selected_index / this.page_size(),
-                    );
-                    this.page.set(target_page);
-                }
-                this._initial_page_set = true;
-            }
+            const selected_id = this.selected_items()?.[0];
+            if (!selected_id) return;
+            const available_items = this._available_items();
+            const merged_items = this.available_items();
+            const item_index = available_items.findIndex(
+                (item) => item.id === selected_id,
+            );
+            const fallback_index = merged_items.findIndex(
+                (item) => item.id === selected_id,
+            );
+            const selected_index =
+                item_index >= 0 ? item_index : fallback_index;
+            if (selected_index < 0) return;
+            const target_page = Math.floor(selected_index / this.page_size());
+            const page_key = `${selected_id}:${selected_index}:${this.page_size()}`;
+            if (page_key === this._last_auto_page_key) return;
+            this._last_auto_page_key = page_key;
+            this.page.set(target_page);
         });
     }
 
