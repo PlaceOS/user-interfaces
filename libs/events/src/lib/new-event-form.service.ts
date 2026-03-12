@@ -353,6 +353,9 @@ export class EventFormService extends AsyncHandler {
         this.form.controls.duration.valueChanges.subscribe((duration) =>
             this.setOptions({ duration }),
         );
+        this.form.controls.all_day.valueChanges.subscribe((all_day) =>
+            this.setOptions({ all_day }),
+        );
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
