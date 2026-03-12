@@ -174,7 +174,13 @@ import { SpacesService } from '../spaces.service';
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox
+                            [ngModel]="form.value.all_day"
+                            (ngModelChange)="
+                                form.patchValue({ all_day: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
