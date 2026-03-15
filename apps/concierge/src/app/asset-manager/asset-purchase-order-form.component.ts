@@ -6,10 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     generateAssetPurchaseOrderForm,
-    queryAssetGroups,
     queryAssets,
     saveAssetPurchaseOrder,
-    showAssetPurchaseOrder,
 } from '@placeos/assets';
 import {
     AssetPurchaseOrder,
@@ -25,6 +23,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
+import { queryAssetTypes, showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
@@ -216,15 +215,16 @@ export class AssetPurchaseOrderFormComponent
         filter(([_, bld]) => !!_ && !!bld),
         switchMap(([id]) => queryAssets({ order_id: id })),
         switchMap(async (asset_list) => {
-            const groups = await queryAssetGroups({
+            const groups = await queryAssetTypes({
                 zone_id: this._org.building.id,
                 limit: 500,
             }).toPromise();
-            return asset_list.map((asset) => ({
+            return asset_list.data.map((asset) => ({
                 ...asset,
                 name:
-                    groups.find((_) => _.id === (asset as any).asset_type_id)
-                        ?.name || asset.id,
+                    groups.data.find(
+                        (_) => _.id === (asset as any).asset_type_id,
+                    )?.name || asset.id,
             }));
         }),
         shareReplay(1),

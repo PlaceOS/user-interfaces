@@ -64,6 +64,7 @@ const help = [
 const events = {
     multiple_spaces: false,
     desk_start: 9,
+    // bookable_hours: { start: 480, end: 1140 },
     can_book_for_others: false,
     has_catering: true,
     has_assets: true,
@@ -216,6 +217,7 @@ const app = {
     desks: {
         can_book_lockers: true,
         can_book_for_others: true,
+        // bookable_hours: { start: 480, end: 1140 },
         allow_groups: true,
         allow_time_changes: true,
         allow_all_day: true,

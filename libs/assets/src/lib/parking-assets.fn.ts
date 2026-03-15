@@ -1,16 +1,14 @@
 import { flatten } from '@placeos/common';
-import { PlaceAsset } from '@placeos/ts-client';
+import {
+    PlaceAsset,
+    queryAssetCategories,
+    queryAssets,
+    queryAssetTypes,
+    removeAsset,
+} from '@placeos/ts-client';
 import { defer, forkJoin, from, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import {
-    deleteAsset,
-    queryAssetCategories,
-    queryAssetGroups,
-    queryAssets,
-    saveAsset,
-    saveAssetCategory,
-    saveAssetGroup,
-} from './assets.fn';
+import { saveAsset, saveAssetCategory, saveAssetType } from './assets.fn';
 
 const PARKING_CATEGORY_NAME = '_PARKING_SPACES_';
 const PARKING_TYPE_NAME = '_PARKING_SPACES_';
@@ -35,6 +33,7 @@ export function resolveParkingTypeId(): Observable<string> {
 
 async function _bootstrapParkingType(): Promise<string> {
     const categories = await queryAssetCategories({ hidden: true })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let category = categories.find((_) => _.name === PARKING_CATEGORY_NAME);
@@ -44,12 +43,13 @@ async function _bootstrapParkingType(): Promise<string> {
             hidden: true,
         } as any).toPromise();
     }
-    const types = await queryAssetGroups({ category_id: category.id })
+    const types = await queryAssetTypes({ category_id: category.id })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let type = types.find((_) => _.name === PARKING_TYPE_NAME);
     if (!type) {
-        type = await saveAssetGroup({
+        type = await saveAssetType({
             name: PARKING_TYPE_NAME,
             brand: 'PlaceOS',
             category_id: category.id,
@@ -62,6 +62,7 @@ async function _bootstrapParkingType(): Promise<string> {
 export function queryParkingSpaces(zone_id: string): Observable<PlaceAsset[]> {
     return resolveParkingTypeId().pipe(
         switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
+        map((_) => _.data),
     );
 }
 
@@ -86,7 +87,7 @@ export function saveParkingSpace(
 
 /** Delete a parking space asset by ID */
 export function deleteParkingSpace(id: string) {
-    return deleteAsset(id);
+    return removeAsset(id);
 }
 
 export interface ParkingUser {
@@ -127,6 +128,7 @@ export function resolveParkingUserTypeId(): Observable<string> {
 
 async function _bootstrapParkingUserType(): Promise<string> {
     const categories = await queryAssetCategories({ hidden: true })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let category = categories.find(
@@ -138,12 +140,13 @@ async function _bootstrapParkingUserType(): Promise<string> {
             hidden: true,
         } as any).toPromise();
     }
-    const types = await queryAssetGroups({ category_id: category.id })
+    const types = await queryAssetTypes({ category_id: category.id })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let type = types.find((_) => _.name === PARKING_USER_TYPE_NAME);
     if (!type) {
-        type = await saveAssetGroup({
+        type = await saveAssetType({
             name: PARKING_USER_TYPE_NAME,
             brand: 'PlaceOS',
             category_id: category.id,
@@ -196,7 +199,7 @@ export function fromParkingUser(
 export function queryParkingUsers(zone_id: string): Observable<ParkingUser[]> {
     return resolveParkingUserTypeId().pipe(
         switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
-        map((assets) => assets.map(toParkingUser)),
+        map((assets) => assets.data.map(toParkingUser)),
     );
 }
 
@@ -213,7 +216,7 @@ export function saveParkingUser(
 
 /** Delete a parking user asset by ID */
 export function deleteParkingUser(id: string) {
-    return deleteAsset(id);
+    return removeAsset(id);
 }
 
 export interface ParkingFleetVehicle {
@@ -250,6 +253,7 @@ export function resolveParkingFleetTypeId(): Observable<string> {
 
 async function _bootstrapParkingFleetType(): Promise<string> {
     const categories = await queryAssetCategories({ hidden: true })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let category = categories.find(
@@ -261,12 +265,13 @@ async function _bootstrapParkingFleetType(): Promise<string> {
             hidden: true,
         } as any).toPromise();
     }
-    const types = await queryAssetGroups({ category_id: category.id })
+    const types = await queryAssetTypes({ category_id: category.id })
+        .pipe(map((_) => _.data))
         .toPromise()
         .catch(() => []);
     let type = types.find((_) => _.name === PARKING_FLEET_TYPE_NAME);
     if (!type) {
-        type = await saveAssetGroup({
+        type = await saveAssetType({
             name: PARKING_FLEET_TYPE_NAME,
             brand: 'PlaceOS',
             category_id: category.id,
@@ -313,7 +318,7 @@ export function queryParkingFleetVehicles(
 ): Observable<ParkingFleetVehicle[]> {
     return resolveParkingFleetTypeId().pipe(
         switchMap((type_id) => queryAssets({ zone_id, type_id, limit: 500 })),
-        map((assets) => assets.map(toParkingFleetVehicle)),
+        map((assets) => assets.data.map(toParkingFleetVehicle)),
     );
 }
 
@@ -330,5 +335,5 @@ export function saveParkingFleetVehicle(
 
 /** Delete a fleet vehicle asset by ID */
 export function deleteParkingFleetVehicle(id: string) {
-    return deleteAsset(id);
+    return removeAsset(id);
 }

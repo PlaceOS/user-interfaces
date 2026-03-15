@@ -23,6 +23,7 @@ import {
     endOfDay,
     format,
     isAfter,
+    isBefore,
     isSameDay,
     roundToNearestMinutes,
     set,
@@ -30,6 +31,11 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+
+export interface TimeFieldRange {
+    start: number;
+    end: number;
+}
 
 @Component({
     selector: 'a-time-field,time-field',
@@ -152,6 +158,8 @@ export class TimeFieldComponent
     );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
+    /** Limit selectable times by minutes since midnight */
+    public readonly range = input<TimeFieldRange>(undefined);
     public readonly timezone = input<string>('');
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
@@ -200,7 +208,12 @@ export class TimeFieldComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.no_past_times || changes.step || changes.from) {
+        if (
+            changes.no_past_times ||
+            changes.step ||
+            changes.from ||
+            changes.range
+        ) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
                 !this.no_past_times(),
@@ -258,6 +271,9 @@ export class TimeFieldComponent
             }
 
             if (target_element) {
+                if (typeof target_element.scrollIntoView !== 'function') {
+                    return;
+                }
                 target_element.scrollIntoView({
                     block: 'center',
                     behavior: 'instant',
@@ -277,7 +293,8 @@ export class TimeFieldComponent
         const time = (this.time || '00:00').split(':');
         const date = set(this.date, { hours: +time[0], minutes: +time[1] });
         if (
-            date.getMinutes() % 15 !== 0 &&
+            date.getMinutes() % this.step() !== 0 &&
+            this._isWithinRange(date) &&
             !this._time_options.find(
                 (time) => time.id === format(date, 'HH:mm'),
             )
@@ -369,18 +386,30 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15,
     ): Identity[] {
-        const now = new Date(Math.max(this.from(), Date.now()));
-        let date = new Date(datestamp);
+        const min_date = show_past ? this.from() : Math.max(this.from(), Date.now());
+        const selected_day = new Date(datestamp);
         const blocks = [];
-        if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
-            date = startOfDay(date);
-        } else if (isAfter(date, now)) {
-            date = new Date(now);
+        const time_range = this.range();
+
+        const day_start = startOfDay(selected_day).valueOf();
+        const day_end = endOfDay(selected_day).valueOf();
+        const range_start = Math.max(
+            day_start,
+            min_date,
+            time_range ? day_start + time_range.start * 60 * 1000 : day_start,
+        );
+        const range_end = Math.min(
+            day_end,
+            time_range ? day_start + time_range.end * 60 * 1000 : day_end,
+        );
+
+        if (range_start > range_end) {
+            return blocks;
         }
-        date = roundToNearestMinutes(date, { nearestTo: step as any });
-        const end = endOfDay(date);
-        // Add options for the rest of the day
-        while (isAfter(end, date)) {
+
+        let date = this._roundUpToStep(range_start, step);
+        const end = this._roundDownToStep(range_end, step);
+        while (!isAfter(date, end)) {
             blocks.push({
                 date: date.valueOf(),
                 id: format(date, 'HH:mm'),
@@ -388,5 +417,36 @@ export class TimeFieldComponent
             date = addMinutes(date, step);
         }
         return blocks;
+    }
+
+    private _isWithinRange(date: Date): boolean {
+        if (isBefore(date, this.from())) {
+            return false;
+        }
+        const time_range = this.range();
+        if (!time_range) {
+            return true;
+        }
+        const mins = date.getHours() * 60 + date.getMinutes();
+        if (mins < time_range.start || mins > time_range.end) {
+            return false;
+        }
+        return true;
+    }
+
+    private _roundUpToStep(datestamp: number, step: number): Date {
+        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
+        if (isBefore(date, datestamp)) {
+            date = addMinutes(date, step);
+        }
+        return startOfMinute(date);
+    }
+
+    private _roundDownToStep(datestamp: number, step: number): Date {
+        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
+        if (isAfter(date, datestamp)) {
+            date = addMinutes(date, -step);
+        }
+        return startOfMinute(date);
     }
 }

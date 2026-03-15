@@ -105,7 +105,7 @@ export class AssetStateService {
         this._options,
         this._org.active_building,
     ]).pipe(
-        debounceTime(300),
+        debounceTime(1000),
         switchMap(([{ zone, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
@@ -127,11 +127,11 @@ export class AssetStateService {
 
     public readonly category_list = this._org.active_building.pipe(
         filter((bld) => !!bld),
-        switchMap((bld) => queryAssetCategories({ zone_id: bld.id })),
+        switchMap((bld) => queryAssetCategories({ zone_id: bld.id } as any)),
         map((_) =>
-            _.sort((a, b) => a.name.localeCompare(b.name)).filter(
-                (c) => !c.hidden,
-            ),
+            _.data
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((c) => !c.hidden),
         ),
         shareReplay(1),
     );

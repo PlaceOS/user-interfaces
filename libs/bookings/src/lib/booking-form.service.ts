@@ -1341,15 +1341,19 @@ export class BookingFormService extends AsyncHandler {
 
     /** Check if the given resource is available for the selected user to book */
     private async _checkResourceAvailable(
-        { id, asset_id, date, duration, user_email }: Partial<Booking>,
+        { id, asset_id, date, duration, all_day, user_email }: Partial<Booking>,
         type: BookingType,
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
         const bookings = await lastValueFrom(
             queryBookings({
-                period_start: getUnixTime(date),
-                period_end: getUnixTime(date + duration * 60 * 1000),
+                period_start: all_day
+                    ? getUnixTime(startOfDay(date))
+                    : getUnixTime(date),
+                period_end: all_day
+                    ? getUnixTime(endOfDay(date))
+                    : getUnixTime(date + duration * 60 * 1000),
                 type,
                 email: user_email,
                 limit: 1000,
