@@ -160,7 +160,7 @@ export class Booking {
     public readonly linked_parent_booking?: LinkedBooking;
 
     public readonly process_state: string;
-    /** Unix epoch for the start time of the reccurence instance in seconds */
+    /** Unix epoch for the start time of the reccurence instance in seconds. Only set when instance of a recurring series */
     public readonly instance?: number;
     /** Type of recurrence instance */
     public readonly recurrence_type: 'none' | 'daily' | 'weekly' | 'monthly';

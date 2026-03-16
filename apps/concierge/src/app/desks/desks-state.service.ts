@@ -13,6 +13,7 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -37,7 +38,14 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    getUnixTime,
+    set,
+    startOfDay,
+    subDays,
+} from 'date-fns';
 import { combineLatest, lastValueFrom, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -525,19 +533,32 @@ export class DesksStateService extends AsyncHandler {
     }
 
     private async _clearAssignedBooking(desk: Desk) {
+        const today = Date.now();
         const booking_list = await lastValueFrom(
             queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
                 type: 'desk',
                 email: desk.assigned_to,
                 include_checked_out: true,
             }),
         );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
-        await Promise.all(
-            filtered.map((_) => lastValueFrom(removeBooking(_.id))),
-        );
+        for (const booking of filtered) {
+            const is_recurring =
+                booking.recurrence_type && booking.recurrence_type !== 'none';
+            if (is_recurring) {
+                // Set recurrence_end to end of yesterday to preserve past instances
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(booking.id, {
+                        recurrence_end: yesterday_end,
+                    }),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
     }
 
     private _getActiveZones(zones: string[] = []): string[] {
