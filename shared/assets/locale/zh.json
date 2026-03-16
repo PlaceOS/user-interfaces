@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "此预订选择的房间需要批准，可能要到稍后才能确认。",
         "SETUP_BREAKDOWN_HEADER": "设置活动的准备和清理时间",
         "SETUP_DURATION": "准备时长",
-        "BREAKDOWN_DURATION": "清理时长"
+        "BREAKDOWN_DURATION": "清理时长",
+        "FIRST_INSTANCE_CLASH": "系列中的第一个活动与现有预订冲突",
+        "RECURRING_CLASHES_NOT_ALLOWED": "不允许有 {{ count }} 个冲突实例的重复活动"
     },
     "CATERING": {
         "MENU": "餐饮菜单",

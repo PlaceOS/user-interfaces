@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "La salle sélectionnée pour cette réservation nécessite une approbation et peut ne pas être confirmée avant une date ultérieure.",
         "SETUP_BREAKDOWN_HEADER": "Définir l'installation et le démontage de l'événement",
         "SETUP_DURATION": "Durée d'installation",
-        "BREAKDOWN_DURATION": "Durée de démontage"
+        "BREAKDOWN_DURATION": "Durée de démontage",
+        "FIRST_INSTANCE_CLASH": "Le premier événement de la série est en conflit avec une réservation existante",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Les événements récurrents avec {{ count }} conflit(s) ne sont pas autorisés"
     },
     "CATERING": {
         "MENU": "Menu de restauration",

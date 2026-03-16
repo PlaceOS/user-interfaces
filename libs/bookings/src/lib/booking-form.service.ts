@@ -5,6 +5,7 @@ import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
     AsyncHandler,
     Booking,
+    BookingClash,
     BookingRuleset,
     BookingType,
     currentUser,
@@ -35,6 +36,7 @@ import {
     getUnixTime,
     startOfDay,
 } from 'date-fns';
+import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import {
     BehaviorSubject,
     combineLatest,
@@ -65,14 +67,12 @@ import {
 } from './booking.utilities';
 import {
     bookedResourceList,
-    BookingClash,
     findBookingClashes,
     queryBookings,
     removeBooking,
     saveBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
-import { openRecurringClashModal } from './recurring-clash-modal.component';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';

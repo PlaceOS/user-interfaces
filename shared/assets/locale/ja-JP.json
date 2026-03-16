@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "この予約で選択された会議室は承認が必要であり、後日まで確定しない場合があります。",
         "SETUP_BREAKDOWN_HEADER": "イベントの準備と片付け時間を設定",
         "SETUP_DURATION": "準備時間",
-        "BREAKDOWN_DURATION": "片付け時間"
+        "BREAKDOWN_DURATION": "片付け時間",
+        "FIRST_INSTANCE_CLASH": "シリーズの最初のイベントが既存の予約と競合しています",
+        "RECURRING_CLASHES_NOT_ALLOWED": "{{ count }} 件の競合がある定期イベントは許可されていません"
     },
     "CATERING": {
         "MENU": "ケータリングメニュー",

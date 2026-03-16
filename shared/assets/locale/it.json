@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "La stanza selezionata per questa prenotazione richiede approvazione e potrebbe non essere confermata fino a una data successiva.",
         "SETUP_BREAKDOWN_HEADER": "Imposta Preparazione e Smontaggio dell'Evento",
         "SETUP_DURATION": "Durata Preparazione",
-        "BREAKDOWN_DURATION": "Durata Smontaggio"
+        "BREAKDOWN_DURATION": "Durata Smontaggio",
+        "FIRST_INSTANCE_CLASH": "Il primo evento della serie è in conflitto con una prenotazione esistente",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Non sono consentiti eventi ricorrenti con {{ count }} conflitto/i"
     },
     "CATERING": {
         "MENU": "Menu di catering",

@@ -35,6 +35,12 @@ export interface BookingComplete extends Booking {
     guests?: User[];
 }
 
+export interface BookingClash {
+    asset_id: string;
+    booking_start: number;
+    booking_end: number;
+}
+
 export enum RecurrenceDays {
     SUNDAY = 1 << 0,
     MONDAY = 1 << 1,
