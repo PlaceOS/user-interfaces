@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    BookingClash,
     BookingRuleset,
     CalendarEvent,
     current_user,
@@ -53,10 +54,16 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
+import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { EventLinkModalComponent } from './event-link-modal.component';
-import { querySpaceAvailability, removeEvent, saveEvent } from './events.fn';
+import {
+    findEventClashes,
+    querySpaceAvailability,
+    removeEvent,
+    saveEvent,
+} from './events.fn';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 
 const BOOKING_URLS = [
@@ -543,6 +550,15 @@ export class EventFormService extends AsyncHandler {
                 spaces = [await this._space_pipe.transform(this.lone_space)];
                 this.form.patchValue({ resources: spaces });
             }
+            // Check for clashing events in recurring series
+            if (this.form.value.recurring && spaces.length) {
+                await this._checkRecurringClashes(
+                    new CalendarEvent({
+                        ...this.form.getRawValue(),
+                        resources: spaces,
+                    }),
+                ).catch(on_error);
+            }
             // Make sure host is an attendee
             this.form.patchValue({
                 attendees: unique(
@@ -788,6 +804,62 @@ export class EventFormService extends AsyncHandler {
                 spaces.length,
             );
         }
+        return true;
+    }
+
+    /**
+     * Check for clashing events in a recurring event series
+     * @param event The calendar event to check for clashes
+     * @returns true if no clashes or user confirmed to continue
+     * @throws Error if first instance clashes or clashes not allowed
+     */
+    private async _checkRecurringClashes(
+        event: CalendarEvent,
+    ): Promise<boolean> {
+        if (!event.recurring) {
+            return true;
+        }
+
+        const clashes = (await lastValueFrom(
+            findEventClashes(event, { include_clash_time: true }),
+        )) as BookingClash[];
+
+        if (!clashes?.length) {
+            return true;
+        }
+
+        const sorted_clashes = [...clashes].sort(
+            (a, b) => a.booking_start - b.booking_start,
+        );
+
+        const event_start_unix = Math.floor(event.date / 1000);
+        const first_clash = sorted_clashes[0];
+        const is_first_instance_clash =
+            first_clash.booking_start === event_start_unix;
+
+        if (is_first_instance_clash) {
+            throw i18n('CALENDAR_EVENT.FIRST_INSTANCE_CLASH');
+        }
+
+        const allow_clashes =
+            this._settings.get('app.events.allow_recurring_instance_clashes') ??
+            true;
+
+        if (!allow_clashes) {
+            throw i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED', {
+                count: clashes.length,
+            });
+        }
+
+        const result = await openRecurringClashModal(
+            { clashes: sorted_clashes },
+            this._dialog,
+        );
+
+        if (result?.reason !== 'done') {
+            throw 'User cancelled';
+        }
+
         return true;
     }
 

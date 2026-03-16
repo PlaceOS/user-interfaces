@@ -738,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "الغرفة المحددة لهذا الحجز تتطلب موافقة وقد لا يتم تأكيدها حتى تاريخ لاحق.",
         "SETUP_BREAKDOWN_HEADER": "ضبط إعداد وتفكيك الحدث",
         "SETUP_DURATION": "مدة الإعداد",
-        "BREAKDOWN_DURATION": "مدة التفكيك"
+        "BREAKDOWN_DURATION": "مدة التفكيك",
+        "FIRST_INSTANCE_CLASH": "يتعارض الحدث الأول في السلسلة مع حجز موجود",
+        "RECURRING_CLASHES_NOT_ALLOWED": "لا يُسمح بالأحداث المتكررة التي تحتوي على {{ count }} تعارض(ات)"
     },
     "CATERING": {
         "MENU": "قائمة خدمات الطعام",

@@ -23,6 +23,7 @@ import {
     rejectBookingInstance,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -48,8 +49,9 @@ import {
     set,
     startOfDay,
     startOfWeek,
+    subDays,
 } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     debounceTime,
     filter,
@@ -182,7 +184,9 @@ export class ParkingStateService extends AsyncHandler {
                     : startOfDay(options.date);
             const period_end =
                 options.period === 'week'
-                    ? endOfWeek(options.date, { weekStartsOn: this._week_start })
+                    ? endOfWeek(options.date, {
+                          weekStartsOn: this._week_start,
+                      })
                     : endOfDay(options.date);
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
             return queryBookings({
@@ -577,16 +581,33 @@ export class ParkingStateService extends AsyncHandler {
         if (result) this._change.next(Date.now());
     }
 
-    private async _clearAssignedBooking(space: ParkingSpace) {
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'parking',
-            email: space.assigned_to,
-            include_checked_out: true,
-        }).toPromise();
-        const filtered = booking_list.filter((_) => _.asset_id === space.id);
-        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+    private async _clearAssignedBooking(resource: ParkingSpace) {
+        const today = Date.now();
+        const booking_list = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
+                type: 'parking',
+                email: resource.assigned_to,
+                include_checked_out: true,
+            }),
+        );
+        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
+        for (const booking of filtered) {
+            const is_recurring =
+                booking.recurrence_type && booking.recurrence_type !== 'none';
+            if (is_recurring && booking.instance) {
+                // Set recurrence_end to end of yesterday to preserve past instances
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(booking.id, {
+                        recurrence_end: yesterday_end,
+                    }),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
     }
 
     private get _week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {

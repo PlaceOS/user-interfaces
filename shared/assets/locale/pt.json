@@ -738,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "A sala selecionada para esta reserva requer aprovação e pode não ser confirmada até uma data posterior.",
         "SETUP_BREAKDOWN_HEADER": "Definir Preparação e Desmontagem do Evento",
         "SETUP_DURATION": "Duração de Preparação",
-        "BREAKDOWN_DURATION": "Duração de Desmontagem"
+        "BREAKDOWN_DURATION": "Duração de Desmontagem",
+        "FIRST_INSTANCE_CLASH": "O primeiro evento da série conflita com uma reserva existente",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Eventos recorrentes com {{ count }} conflito(s) não são permitidos"
     },
     "CATERING": {
         "MENU": "Cardápio",

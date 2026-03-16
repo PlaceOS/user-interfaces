@@ -7,11 +7,10 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { BookingClash, DialogEvent } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { first } from 'rxjs/operators';
-import { BookingClash } from './bookings.fn';
 
 export interface RecurringClashModalData {
     clashes: BookingClash[];
