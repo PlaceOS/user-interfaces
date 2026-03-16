@@ -78,6 +78,7 @@ const events = {
     allow_externals: true,
     allow_recurrence: false,
     allow_daily_allday_recurrence: false,
+    allow_online_meetings: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||

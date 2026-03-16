@@ -1,4 +1,10 @@
-import { Component, inject, input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,11 +12,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    formatDuration,
     OrganisationService,
     SettingsService,
-    formatDuration,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -251,6 +257,23 @@ const MINUTES_IN_DAY = 24 * 60;
                         </mat-form-field>
                     </div>
                 }
+                @if (allow_online_meetings || true) {
+                    <settings-toggle
+                        [ngModel]="
+                            form().value.meeting_provider === 'teamsForBusiness'
+                        "
+                        (ngModelChange)="
+                            form().patchValue({
+                                meeting_provider: $event
+                                    ? 'teamsForBusiness'
+                                    : null,
+                            })
+                        "
+                        [ngModelOptions]="{ standalone: true }"
+                    >
+                        {{ 'CALENDAR_EVENT.TEAMS_MEETING' | translate }}
+                    </settings-toggle>
+                }
             </div>
         }
     `,
@@ -270,6 +293,7 @@ const MINUTES_IN_DAY = 24 * 60;
         MatInputModule,
         ReactiveFormsModule,
         FormsModule,
+        SettingsToggleComponent,
     ],
 })
 export class MeetingFormDetailsComponent
@@ -307,6 +331,10 @@ export class MeetingFormDetailsComponent
         return this._settings.get('app.events.allow_visibility');
     }
 
+    public get allow_online_meetings() {
+        return !!this._settings.get('app.events.allow_online_meetings');
+    }
+
     public get allow_recurrence() {
         return (
             this._settings.get('app.events.allow_recurrence') &&
@@ -330,7 +358,8 @@ export class MeetingFormDetailsComponent
     public get start_date() {
         const date = this.form().getRawValue().date || Date.now();
         const date_end =
-            this.form().getRawValue().date_end || addMinutes(date, 30).valueOf();
+            this.form().getRawValue().date_end ||
+            addMinutes(date, 30).valueOf();
         const is_next_day =
             format(date, 'yyyy-MM-dd') !== format(date_end, 'yyyy-MM-dd');
         return is_next_day

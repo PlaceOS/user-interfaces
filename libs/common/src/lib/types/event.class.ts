@@ -598,6 +598,7 @@ export class CalendarEvent {
             (i) => new AssetRequest({ ...i, event: null }),
         );
         obj.system_id = this.system?.id;
+        obj.online_meeting_provider = this.meeting_provider;
         for (const key of [
             'catering',
             'date',
