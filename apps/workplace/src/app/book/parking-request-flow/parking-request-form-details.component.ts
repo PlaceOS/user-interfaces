@@ -25,7 +25,7 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
-import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
+import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
 
 const SHIFT_PRESETS: Record<string, { start: number; end: number }> = {

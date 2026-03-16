@@ -36,14 +36,14 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     template: `
         @if (nextEvent(); as event) {
             <div
-                class="bg-grad col-span-2 space-y-2 rounded-lg border border-base-300 p-4 text-brand-content"
+                class="bg-grad border-base-300 text-brand-content col-span-2 space-y-2 rounded-lg border p-4"
             >
                 <div class="flex w-full items-center justify-between">
                     <div
                         class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
                     >
                         <div
-                            class="absolute inset-0 bg-brand-content opacity-20"
+                            class="bg-brand-content absolute inset-0 opacity-20"
                         ></div>
                         <div>
                             {{ 'CALENDAR_EVENT.GROUP_FEATURED' | translate }}
@@ -101,12 +101,24 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                             <button
                                 btn
                                 matRipple
-                                [disabled]="!canCheckin()"
-                                class="white flex-1 space-x-2"
+                                [disabled]="!canCheckin() || isCheckedIn()"
+                                class="flex-1 space-x-2"
+                                [class.white]="!isCheckedIn()"
+                                [class.bg-success]="isCheckedIn()"
+                                [class.text-success-content]="isCheckedIn()"
                                 (click)="checkIn()"
                             >
-                                <icon class="text-2xl">check_circle</icon>
-                                <div class="pr-2">Check-in</div>
+                                <icon class="text-2xl">{{
+                                    isCheckedIn() ? 'done' : 'check_circle'
+                                }}</icon>
+                                <div class="pr-2">
+                                    {{
+                                        (isCheckedIn()
+                                            ? 'COMMON.CHECKED_IN'
+                                            : 'COMMON.CHECK_IN'
+                                        ) | translate
+                                    }}
+                                </div>
                             </button>
                             <button
                                 btn
@@ -159,11 +171,11 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             </div>
         } @else {
             <div
-                class="bg-grad col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border border-base-300 p-4 text-brand-content"
+                class="bg-grad border-base-300 text-brand-content col-span-2 flex min-h-48 flex-col items-start justify-center space-y-2 rounded-lg border p-4"
             >
                 <div class="relative overflow-hidden rounded px-2 py-1 text-sm">
                     <div
-                        class="absolute inset-0 bg-brand-content opacity-20"
+                        class="bg-brand-content absolute inset-0 opacity-20"
                     ></div>
                     <div class="capitalize">No Upcoming Bookings</div>
                 </div>
@@ -176,7 +188,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         <a
                             btn
                             matRipple
-                            class="white sm:flex-0 min-w-48 flex-1 space-x-2 sm:w-48"
+                            class="white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
                             [routerLink]="['/book', 'meeting']"
                         >
                             <div>Book a Space</div>
@@ -184,7 +196,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         <a
                             btn
                             matRipple
-                            class="inverse white sm:flex-0 min-w-48 flex-1 space-x-2 sm:w-48"
+                            class="inverse white min-w-48 flex-1 space-x-2 sm:w-48 sm:flex-0"
                             [routerLink]="['/book', 'desk']"
                         >
                             <div>Find Desk</div>
@@ -310,6 +322,12 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return 0;
         const end_time = event.date + event.duration * 60 * 1000;
         return differenceInMinutes(end_time, Date.now());
+    });
+
+    public readonly isCheckedIn = computed(() => {
+        const event = this.nextEvent();
+        if (!event || !(event instanceof Booking)) return false;
+        return event.checked_in;
     });
 
     public readonly attendeeCount = computed(() => {
