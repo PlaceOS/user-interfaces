@@ -792,6 +792,7 @@
         "ERROR_TITLE_REQUIRED_SELECT": "Please enter a meeting title before selecting a room",
         "ERROR_TITLE_REQUIRED_SEARCH": "Please enter a meeting title before searching for rooms",
         "ERROR_ROOM_REQUIRED": "Please select a meeting room before continuing",
+        "TEAMS_MEETING": "Allow online attendees (Teams)",
         "CATERING": "Catering",
         "CATERING_ORDER_AT_DATE": "Order for {{ date }} at {{ time }}",
         "CATERING_ORDER_AT": "Order at {{ time }}",
