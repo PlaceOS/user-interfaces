@@ -547,7 +547,7 @@ export class DesksStateService extends AsyncHandler {
         for (const booking of filtered) {
             const is_recurring =
                 booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring) {
+            if (is_recurring && booking.instance) {
                 // Set recurrence_end to end of yesterday to preserve past instances
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
