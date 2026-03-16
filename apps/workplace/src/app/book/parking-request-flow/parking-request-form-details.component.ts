@@ -36,8 +36,8 @@ interface ParkingRequestOption {
 }
 
 interface ParkingRequestType {
-    value: string;
-    label: string;
+    id: string;
+    name: string;
     description?: string;
     badge?: string;
     groups?: string[];
@@ -314,32 +314,32 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                         {{ 'BOOKINGS.PARKING_REQUEST_TYPE' | translate }}
                     </h3>
                     <div class="space-y-2">
-                        @for (type of request_types(); track type.value) {
+                        @for (type of request_types(); track type.id) {
                             <div
                                 class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
                                 [class.border-info]="
-                                    form().value.request_type === type.value
+                                    form().value.request_type === type.id
                                 "
                                 [class.border-base-300]="
-                                    form().value.request_type !== type.value
+                                    form().value.request_type !== type.id
                                 "
                                 (click)="
                                     form().patchValue({
-                                        request_type: type.value,
+                                        request_type: type.id,
                                     })
                                 "
                             >
                                 <div
                                     class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
                                     [class.border-info]="
-                                        form().value.request_type === type.value
+                                        form().value.request_type === type.id
                                     "
                                     [class.border-base-300]="
-                                        form().value.request_type !== type.value
+                                        form().value.request_type !== type.id
                                     "
                                 >
                                     @if (
-                                        form().value.request_type === type.value
+                                        form().value.request_type === type.id
                                     ) {
                                         <div
                                             class="bg-info h-2.5 w-2.5 rounded-full"
@@ -349,7 +349,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <span class="font-medium">{{
-                                            type.label | translate
+                                            type.name | translate
                                         }}</span>
                                         @if (type.badge) {
                                             <span
@@ -861,19 +861,19 @@ export class ParkingRequestFormDetailsComponent
 
     private readonly _default_request_types: ParkingRequestType[] = [
         {
-            value: 'standard',
-            label: 'BOOKINGS.PARKING_REQUEST_STANDARD_TITLE',
+            id: 'standard',
+            name: 'BOOKINGS.PARKING_REQUEST_STANDARD_TITLE',
             description: 'BOOKINGS.PARKING_REQUEST_STANDARD_DESC',
         },
         {
-            value: 'special',
-            label: 'BOOKINGS.PARKING_REQUEST_SPECIAL_TITLE',
+            id: 'special',
+            name: 'BOOKINGS.PARKING_REQUEST_SPECIAL_TITLE',
             description: 'BOOKINGS.PARKING_REQUEST_SPECIAL_DESC',
             badge: 'BOOKINGS.PARKING_REQUIRES_APPROVAL',
         },
         {
-            value: 'after_hours',
-            label: 'BOOKINGS.PARKING_REQUEST_AFTER_HOURS_TITLE',
+            id: 'after_hours',
+            name: 'BOOKINGS.PARKING_REQUEST_AFTER_HOURS_TITLE',
             description: 'BOOKINGS.PARKING_REQUEST_AFTER_HOURS_DESC',
             badge: 'BOOKINGS.PARKING_REQUIRES_APPROVAL',
         },
@@ -892,8 +892,7 @@ export class ParkingRequestFormDetailsComponent
                 : this._default_request_types;
         const user_groups = currentUser()?.groups || [];
         return all_types.filter((t) => {
-            if (t.value === 'special' && !this.show_special_needs())
-                return false;
+            if (t.id === 'special' && !this.show_special_needs()) return false;
             if (t.groups?.length)
                 return t.groups.some((g) => user_groups.includes(g));
             return true;
