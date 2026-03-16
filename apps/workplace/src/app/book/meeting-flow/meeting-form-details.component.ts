@@ -257,7 +257,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         </mat-form-field>
                     </div>
                 }
-                @if (allow_online_meetings || true) {
+                @if (allow_online_meetings) {
                     <settings-toggle
                         [ngModel]="
                             form().value.meeting_provider === 'teamsForBusiness'
