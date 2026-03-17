@@ -239,6 +239,15 @@ const app = {
                 name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
             },
         ],
+        vehicle_types: [
+            { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
+            { id: 'bike', name: 'BOOKINGS.PARKING_VEHICLE_BIKE' },
+            { id: 'van', name: 'BOOKINGS.PARKING_VEHICLE_VAN' },
+            { id: 'truck', name: 'BOOKINGS.PARKING_VEHICLE_TRUCK' },
+            { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
+        ],
+        hide_prefer_toggle: false,
+        hide_custom_shift: false,
     },
     analytics: {
         enabled: true,
