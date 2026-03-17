@@ -779,7 +779,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(false);
     public readonly building = this._org.active_building;
-    public readonly building_list = this._org.building_list;
+    public readonly building_list = this._org.active_buildings;
 
     public readonly available_days = settingSignal(
         'parking.available_period',
@@ -892,7 +892,6 @@ export class ParkingRequestFormDetailsComponent
                 : this._default_request_types;
         const user_groups = currentUser()?.groups || [];
         return all_types.filter((t) => {
-            if (t.id === 'special' && !this.show_special_needs()) return false;
             if (t.groups?.length)
                 return t.groups.some((g) => user_groups.includes(g));
             return true;
