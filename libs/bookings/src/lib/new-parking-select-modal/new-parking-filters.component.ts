@@ -170,6 +170,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         <div class="w-1/3 flex-1">
@@ -186,6 +187,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [step]="60"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
+                                [end_time]="bookable_hours?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -314,6 +316,13 @@ export class NewParkingFiltersComponent {
     public readonly setLevel = (l) => {};
 
     public readonly setRegion = (r) => (this._org.region = r);
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
 
     public get allow_all_day() {
         return (

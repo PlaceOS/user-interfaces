@@ -201,6 +201,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         @if (multiday()) {
@@ -219,6 +220,7 @@ import { SpacesService } from '../spaces.service';
                                     [from]="form?.getRawValue()?.date"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
+                                    [range]="bookable_hours"
                                 ></a-time-field>
                             </div>
                         }
@@ -235,6 +237,7 @@ import { SpacesService } from '../spaces.service';
                                     [max]="max_duration"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
+                                    [end_time]="bookable_hours?.end"
                                 ></a-duration-field>
                             </div>
                         }
@@ -403,6 +406,10 @@ export class NewSpaceFiltersComponent {
 
     public get form() {
         return this._event_form.form;
+    }
+
+    public get bookable_hours() {
+        return this._settings.get('app.events.bookable_hours');
     }
 
     public get max_duration() {
