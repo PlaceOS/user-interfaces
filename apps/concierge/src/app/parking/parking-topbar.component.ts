@@ -86,6 +86,19 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>add</icon>
                 </button>
             }
+            @if (view() === 'fleet') {
+                <button
+                    btn
+                    matRipple
+                    class="w-52 space-x-2"
+                    (click)="newFleetVehicle()"
+                >
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_FLEET_ADD' | translate }}
+                    </div>
+                    <icon>add</icon>
+                </button>
+            }
             @if (section() === 'events' && !disable_reservations) {
                 <button
                     btn
@@ -128,7 +141,10 @@ import { ParkingStateService } from './parking-state.service';
                 </div>
             }
             @if (!is_requests_view()) {
-                <mat-form-field appearance="outline" class="no-subscript w-56">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript mr-2 w-56"
+                >
                     <mat-select
                         [(ngModel)]="zones"
                         (ngModelChange)="updateZones($event)"
@@ -153,6 +169,21 @@ import { ParkingStateService } from './parking-state.service';
                                 </div>
                             </mat-option>
                         }
+                    </mat-select>
+                </mat-form-field>
+            }
+            @if (section() === 'events' && view() !== 'map') {
+                <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-select
+                        [ngModel]="(options | async)?.period || 'day'"
+                        (ngModelChange)="setPeriod($event)"
+                    >
+                        <mat-option value="day">
+                            {{ 'COMMON.DAY' | translate }}
+                        </mat-option>
+                        <mat-option value="week">
+                            {{ 'COMMON.WEEK' | translate }}
+                        </mat-option>
                     </mat-select>
                 </mat-form-field>
             }
@@ -200,7 +231,10 @@ import { ParkingStateService } from './parking-state.service';
                 view() === 'bookings' ||
                 view() === 'map'
             ) {
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [step]="(options | async)?.period === 'week' ? 7 : 1"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             }
         </div>
     `,
@@ -227,7 +261,6 @@ import { ParkingStateService } from './parking-state.service';
         BuildingPipe,
         MatFormFieldModule,
         MatSelectModule,
-        FormsModule,
         SearchbarComponent,
         TranslatePipe,
         RouterModule,
@@ -243,7 +276,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
-        'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'
+        'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
     >('requests');
     /** List of selected levels */
     public zones: string[] = [];
@@ -255,6 +288,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly bookings = this._state.bookings;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
+    /** Set selected period */
+    public readonly setPeriod = (period: 'day' | 'week') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setOptions({ period });
+    };
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
@@ -292,6 +334,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('period')) {
+                    this._state.setOptions({
+                        period:
+                            params.get('period') === 'week' ? 'week' : 'day',
+                    });
+                }
                 if (this.is_requests_view()) {
                     this.clearZones();
                     return;
@@ -347,6 +395,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.editUser();
     }
 
+    public newFleetVehicle() {
+        this._state.editFleetVehicle();
+    }
+
     public async newReservation() {
         const { date } = await nextValueFrom(this.options);
         this._state.editReservation(undefined, {
@@ -368,9 +420,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     private clearZones() {
-        const has_query_param = this._route.snapshot.queryParamMap.has(
-            'zone_ids',
-        );
+        const has_query_param =
+            this._route.snapshot.queryParamMap.has('zone_ids');
         if (!this.zones.length && !has_query_param) {
             this._state.setOptions({ zones: [] });
             return;
@@ -380,7 +431,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     private async selectDefaultZoneForManage() {
-        if (this.section() !== 'manage' || this.use_region || this.zones.length) {
+        if (
+            this.section() !== 'manage' ||
+            this.use_region ||
+            this.zones.length
+        ) {
             return;
         }
         const levels = await nextValueFrom(this.levels);

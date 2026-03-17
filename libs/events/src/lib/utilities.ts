@@ -111,6 +111,7 @@ export function generateEventForm(
         ),
         images: new FormControl(event.extension_data?.images || []),
         featured: new FormControl(event.extension_data?.featured || false),
+        meeting_provider: new FormControl(event.meeting_provider || null),
     });
     (form as any)._lock_start_time = lock_start_time;
     const is_start_time_locked = () => !!(form as any)._lock_start_time;

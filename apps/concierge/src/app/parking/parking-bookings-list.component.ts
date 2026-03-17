@@ -4,13 +4,14 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
+import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -20,61 +21,75 @@ import { ParkingStateService } from './parking-state.service';
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
             class="sticky left-0 w-full"
         />
-        <simple-table
-            class="block min-w-304 text-sm"
-            [data]="filtered_events"
-            [columns]="[
-                {
-                    key: 'state',
-                    name: 'COMMON.STATUS_BUSY' | translate,
-                    content: state_template,
-                    size: '4.75rem',
-                    sortable: false,
-                },
-                {
-                    key: 'date',
-                    name: 'FORM.TIME' | translate,
-                    content: date_template,
-                },
-                {
-                    key: 'asset_name',
-                    name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
-                },
-                {
-                    key: 'user_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                    content: person_template,
-                },
-                {
-                    key: 'booked_by_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                    content: host_template,
-                },
-                {
-                    key: 'plate_number',
-                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                    content: plate_template,
-                    size: '10rem',
-                    sortable: false,
-                },
-                {
-                    key: 'status',
-                    name: 'COMMON.STATUS' | translate,
-                    content: status_template,
-                    size: '9.5rem',
-                },
-                {
-                    key: 'actions',
-                    name: ' ',
-                    content: action_template,
-                    size: '3.5rem',
-                    sortable: false,
-                },
-            ]"
-            [filter]="(options | async)?.search"
-            [sortable]="true"
-            [empty_message]="'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate"
-        />
+        @if ((options | async)?.period === 'week') {
+            <parking-bookings-week-view
+                [booking_events]="(filtered_events | async) || []"
+                [date]="(options | async)?.date || 0"
+                [week_start]="week_start"
+                [time_format]="time_format"
+                [approve]="approve"
+                [reject]="reject"
+                [edit_reservation]="editReservation"
+            />
+        } @else {
+            <simple-table
+                class="block min-w-304 text-sm"
+                [data]="filtered_events"
+                [columns]="[
+                    {
+                        key: 'state',
+                        name: 'COMMON.STATUS_BUSY' | translate,
+                        content: state_template,
+                        size: '4.75rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'date',
+                        name: 'FORM.TIME' | translate,
+                        content: date_template,
+                    },
+                    {
+                        key: 'asset_name',
+                        name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
+                        content: person_template,
+                    },
+                    {
+                        key: 'booked_by_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                        content: host_template,
+                    },
+                    {
+                        key: 'plate_number',
+                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        content: plate_template,
+                        size: '10rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATUS' | translate,
+                        content: status_template,
+                        size: '9.5rem',
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '3.5rem',
+                        sortable: false,
+                    },
+                ]"
+                [filter]="(options | async)?.search"
+                [sortable]="true"
+                [empty_message]="
+                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate
+                "
+            />
+        }
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{
@@ -241,6 +256,7 @@ import { ParkingStateService } from './parking-state.service';
         MatMenuModule,
         MatTooltipModule,
         IconComponent,
+        ParkingBookingsWeekViewComponent,
     ],
 })
 export class ParkingBookingsListComponent
@@ -287,6 +303,10 @@ export class ParkingBookingsListComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get week_start() {
+        return this._settings.get('app.week_start') || 0;
     }
 
     public ngOnInit() {

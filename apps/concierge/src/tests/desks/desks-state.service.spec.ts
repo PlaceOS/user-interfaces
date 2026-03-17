@@ -2,7 +2,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
 import { EventEmitter } from '@angular/core';
-import { lastValueFrom, of } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -19,24 +19,46 @@ jest.mock('@placeos/ts-client');
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
+    let active_building: BehaviorSubject<any>;
+    let active_region: BehaviorSubject<any>;
+    let current_building: any;
+    const organisation_service: any = {
+        active_levels: of([]),
+        initialised: of(true),
+        levelWithID: jest.fn(),
+        organisation: { id: 'org-1' },
+        region: { id: 'region-1' },
+        buildings: [],
+        levelsForBuilding: jest.fn((building) => [
+            { id: `${building?.id || 'bld-1'}-lvl-1` },
+        ]),
+        levelsForRegion: jest.fn(() => []),
+        get building() {
+            return current_building;
+        },
+        set building(value) {
+            current_building = value;
+        },
+    };
     const createService = createServiceFactory({
         service: DesksStateService,
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(OrganisationService, {
-                active_levels: of([]),
-                initialised: of(true),
-                levelWithID: jest.fn(),
-                organisation: { id: 'org-1' },
-                region: { id: 'region-1' },
-                building: { id: 'bld-1' },
-                buildings: [],
+            MockProvider(SettingsService, {
+                get: ((name: string) =>
+                    name === 'app.use_region' ? false : undefined) as any,
             } as any),
+            MockProvider(OrganisationService, organisation_service),
         ],
     });
 
     beforeEach(() => {
+        current_building = { id: 'bld-1' };
+        active_building = new BehaviorSubject(current_building);
+        active_region = new BehaviorSubject({ id: 'region-1' });
+        organisation_service.active_building = active_building;
+        organisation_service.active_region = active_region;
+        organisation_service.region = { id: 'region-1' };
         (booking_mod as any).queryPagedBookings = jest.fn(() =>
             of({ data: [], total: 0, next: null }),
         );
@@ -61,6 +83,27 @@ describe('DesksStateService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should reload desk bookings when the active building changes', async () => {
+        jest.useFakeTimers();
+        spectator.service.setFilters({ view: 'events' });
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(1);
+        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({ zones: 'bld-1' }),
+        );
+
+        current_building = { id: 'bld-2' };
+        active_building.next(current_building);
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(2);
+        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({ zones: 'bld-2' }),
+        );
+        jest.useRealTimers();
     });
 
     it('should cancel only one recurring booking instance', async () => {
@@ -118,6 +161,42 @@ describe('DesksStateService', () => {
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
         expect(booking_mod.saveBooking).toHaveBeenCalled();
+    });
+
+    it('should persist homebase when editing desks', async () => {
+        jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
+            of({}) as any,
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-1',
+                        name: 'Desk 1',
+                        map_id: 'desk-1',
+                        homebase: 'Sydney HQ',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service.editDesk({ id: 'desk-1' } as any);
+
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-1',
+            expect.objectContaining({
+                details: expect.arrayContaining([
+                    expect.objectContaining({ homebase: 'Sydney HQ' }),
+                ]),
+            }),
+        );
     });
 
     it.todo('should handle loading desk bookings');

@@ -205,7 +205,7 @@ export class ScheduleStateService extends AsyncHandler {
                 'LocationServices',
             );
             if (!mod?.system) return of([]);
-            return mod.execute('my_bookings');
+            return mod.execute('my_bookings').catch((_) => []);
         }),
         map((_) => (_ || []).map((_) => new CalendarEvent(_))),
         shareReplay(1),
@@ -399,7 +399,7 @@ export class ScheduleStateService extends AsyncHandler {
             switchMap(([[date, end_date], options]) =>
                 this._bookingQuery('visitor', options.period, date, end_date),
             ),
-            map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+            map((_) => _.filter((_) => !_.linked_event)),
             tap(() =>
                 this.timeout('end_loading', () => this._loading.set(false)),
             ),
@@ -859,8 +859,10 @@ export class ScheduleStateService extends AsyncHandler {
 
     public editBooking(event: Booking) {
         console.log('Edit Booking:', event.type);
+        const booking_type = `${event.booking_type || ''}`.trim() || event.type;
         this._router.navigate(['/book', `${event.type}`]);
-        this._booking_form.newForm(event.booking_type, event);
+        this._booking_form.newForm(booking_type as any, event);
+        if (booking_type === 'visitor') return;
         setTimeout(() => {
             this._booking_form.form.patchValue({
                 resources: [

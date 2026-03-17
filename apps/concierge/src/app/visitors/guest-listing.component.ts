@@ -222,7 +222,7 @@ import { VisitorsStateService } from './visitors-state.service';
                             }}
                         </div>
                         <div class="text-sm font-medium">
-                            {{ 'BOOKINGS.VISITOR_COMPANY' | translate }}
+                            {{ 'COMMON.ORGANISATION' | translate }}
                         </div>
                         <div class="text-base-content/80 pb-2 text-xs">
                             {{

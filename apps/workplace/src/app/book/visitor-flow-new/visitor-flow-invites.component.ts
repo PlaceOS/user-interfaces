@@ -1,10 +1,10 @@
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatRippleModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { BookingFormService } from '@placeos/bookings';
 import {
@@ -13,7 +13,7 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { TranslatePipe } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
 
 @Component({
@@ -23,7 +23,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
             <div [formGroup]="form">
                 @if (is_single()) {
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="flex flex-1 flex-col">
                             <label for="visitor-name">
@@ -39,7 +39,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         'BOOKINGS.VISITOR_NAME_PLACEHOLDER'
                                             | translate
                                     "
-                                    (focus)="search_term.set(form.value.asset_name)"
+                                    (focus)="
+                                        search_term.set(form.value.asset_name)
+                                    "
                                     [matAutocomplete]="name_auto"
                                 />
                             </mat-form-field>
@@ -49,13 +51,16 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         [value]="item.name"
                                         (click)="setVisitor(item)"
                                     >
-                                        <div class="flex flex-col leading-tight">
+                                        <div
+                                            class="flex flex-col leading-tight"
+                                        >
                                             <div>{{ item.name }}</div>
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
                                                     item.organisation
-                                                        ? '| ' + item.organisation
+                                                        ? '| ' +
+                                                          item.organisation
                                                         : ''
                                                 }}
                                             </div>
@@ -79,7 +84,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         'BOOKINGS.VISITOR_EMAIL_PLACEHOLDER'
                                             | translate
                                     "
-                                    (focus)="search_term.set(form.value.asset_id)"
+                                    (focus)="
+                                        search_term.set(form.value.asset_id)
+                                    "
                                     [matAutocomplete]="email_auto"
                                 />
                                 <mat-error>
@@ -92,13 +99,16 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                         [value]="item.email"
                                         (click)="setVisitor(item)"
                                     >
-                                        <div class="flex flex-col leading-tight">
+                                        <div
+                                            class="flex flex-col leading-tight"
+                                        >
                                             <div>{{ item.name }}</div>
                                             <div class="text-xs opacity-60">
                                                 {{ item.email }}
                                                 {{
                                                     item.organisation
-                                                        ? '| ' + item.organisation
+                                                        ? '| ' +
+                                                          item.organisation
                                                         : ''
                                                 }}
                                             </div>
@@ -108,20 +118,41 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                             </mat-autocomplete>
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <label for="company">{{
-                            'BOOKINGS.VISITOR_COMPANY' | translate
-                        }}</label>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <input
-                                matInput
-                                name="company"
-                                formControlName="company"
-                                [placeholder]="
-                                    'BOOKINGS.VISITOR_COMPANY' | translate
-                                "
-                            />
-                        </mat-form-field>
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                    >
+                        <div class="flex flex-1 flex-col">
+                            <label for="company">{{
+                                'COMMON.ORGANISATION' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="company"
+                                    formControlName="company"
+                                    [placeholder]="
+                                        'COMMON.ORGANISATION' | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="flex flex-1 flex-col">
+                            <label for="phone">{{
+                                'BOOKINGS.VISITOR_PHONE' | translate
+                            }}</label>
+                            <mat-form-field appearance="outline" class="w-full">
+                                <input
+                                    matInput
+                                    name="phone"
+                                    type="tel"
+                                    formControlName="phone"
+                                    [placeholder]="
+                                        'BOOKINGS.VISITOR_PHONE_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                        </div>
                     </div>
                 } @else {
                     <div class="flex flex-col" [formGroup]="form">
@@ -179,7 +210,7 @@ export class VisitorFlowInvitesComponent
     public readonly search_term = signal<string>('');
     public readonly visitors = signal<User[]>([]);
     public readonly options = toSignal(this._booking_form.options, {
-        initialValue: { type: 'visitor', group: false }
+        initialValue: { type: 'visitor', group: false },
     });
 
     public readonly is_single = computed(() => {
@@ -188,32 +219,6 @@ export class VisitorFlowInvitesComponent
         // Return true if NOT in group mode (i.e., in single mode)
         return !is_group_mode;
     });
-
-    constructor() {
-        super();
-        // Effect to update form when mode changes
-        effect(() => {
-            const is_group = this.options()?.group === true;
-            // Only update if form exists
-            if (this.form) {
-                if (is_group) {
-                    // Group mode: set placeholder for multiple visitors
-                    this.form.patchValue({
-                        asset_id: 'multiple@place.tech',
-                        asset_name: '',
-                        company: ''
-                    }, { emitEvent: false });
-                } else {
-                    // Single mode: clear group fields
-                    this.form.patchValue({
-                        assets: [],
-                        asset_id: '',
-                        asset_name: ''
-                    }, { emitEvent: false });
-                }
-            }
-        });
-    }
 
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
@@ -251,13 +256,7 @@ export class VisitorFlowInvitesComponent
 
         // Load previous visitors from settings
         const visitors = this._settings.get('visitor-invitees') || [];
-        this.visitors.update((list) => {
-            for (const item of visitors) {
-                const [email, name, company] = item.split('|');
-                list.push({ email, name, company } as any);
-            }
-            return list;
-        });
+        this.visitors.set(this.parseRecentVisitors(visitors));
 
         // Initialize search term
         this.search_term.set('');
@@ -276,31 +275,80 @@ export class VisitorFlowInvitesComponent
                 ?.valueChanges.subscribe((_) => this.search_term.set(_ || '')),
         );
 
-        // Set default title
-        this.form.patchValue({ title: 'Visit' });
+        if (
+            !this.form.value.id &&
+            !this.form.value.title &&
+            !this.form.value.description
+        ) {
+            this.form.patchValue({ title: 'Visit', description: 'Visit' });
+        }
 
         // Initialize based on current mode
         const is_group = this.options()?.group === true;
-        if (is_group) {
+        if (is_group && !this.form.value.asset_id) {
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         }
     }
 
     public setVisitor(item: any) {
+        const asset_id = this.normalizeEmail(item?.asset_id || item?.email);
+        const asset_name = item?.asset_name || item?.name || asset_id;
+        const company = item?.company || item?.organisation || '';
+        if (!asset_id) return;
+
         this.form.patchValue({
-            asset_id: item.email,
-            asset_name: item.name,
-            company: item.company,
+            asset_id,
+            asset_name,
+            company,
             phone: item.phone,
         });
 
         // Save to visitor history
-        const { asset_id, asset_name, company } = item;
-        const visitor_details = `${asset_id}|${asset_name}|${company}`;
+        const visitor_details = `${asset_id}|${asset_name}|${company}|${
+            item.phone || ''
+        }`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
+        const old_visitor_records = this.parseRecentVisitors(old_visitors)
+            .filter((visitor) => visitor.email !== asset_id)
+            .map((visitor) => {
+                return `${visitor.email}|${visitor.name || ''}|${
+                    (visitor as any).company || ''
+                }|${visitor.phone || ''}`;
+            });
         this._settings.saveUserSetting('visitor-invitees', [
-            ...old_visitors.filter((_: string) => !_.includes(asset_id)),
+            ...old_visitor_records,
             visitor_details,
         ]);
+    }
+
+    private toSafeValue(value: any): string {
+        if (!value || value === 'null' || value === 'undefined') return '';
+        return `${value}`.trim();
+    }
+
+    private normalizeEmail(value: any): string {
+        const email = this.toSafeValue(value)
+            .replace(/^mailto:/i, '')
+            .replace(/[<>"']/g, '');
+        return email.toLowerCase();
+    }
+
+    private parseRecentVisitors(visitor_history: string[]): User[] {
+        const unique_visitors = new Map<string, User>();
+        for (let index = visitor_history.length - 1; index >= 0; index--) {
+            const item = visitor_history[index];
+            if (typeof item !== 'string') continue;
+            const [email, name, company, phone] = item.split('|');
+            const parsed_visitor = {
+                email: this.normalizeEmail(email),
+                name: this.toSafeValue(name),
+                company: this.toSafeValue(company),
+                phone: this.toSafeValue(phone),
+            };
+            const email_key = parsed_visitor.email;
+            if (!email_key || unique_visitors.has(email_key)) continue;
+            unique_visitors.set(email_key, parsed_visitor as any);
+        }
+        return [...unique_visitors.values()].reverse();
     }
 }

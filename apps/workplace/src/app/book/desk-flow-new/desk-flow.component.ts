@@ -5,12 +5,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
+    firstTruthyValueFrom,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { firstValueFrom, map } from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
 import { DeskFlowSelectComponent } from './desk-flow-select.component';
@@ -111,6 +114,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
 })
 export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
+    private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
@@ -148,6 +152,43 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))
                     this._booking_form.setView(param.get('step') as any);
+            }),
+        );
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe(async (params) => {
+                if (!params.has('asset_id')) return;
+                const asset_id = params.get('asset_id');
+                const form = this._booking_form.form.getRawValue();
+                if (
+                    asset_id === form.asset_id &&
+                    (form.resources || []).some(({ id }) => id === asset_id)
+                ) {
+                    return;
+                }
+                await firstTruthyValueFrom(
+                    this._booking_form.loading.pipe(map((_) => !_)),
+                );
+                const resources = await firstValueFrom(
+                    this._booking_form.resources,
+                );
+                const resource = resources.find((item) => item.id === asset_id);
+                if (!resource) return;
+                const building = resource.zone?.parent_id
+                    ? this._org.find(resource.zone.parent_id)
+                    : null;
+                if (building) {
+                    this._org.building = building;
+                }
+                this._booking_form.setOptions({
+                    type: 'desk',
+                    ...(resource.zone?.id ? { zones: [resource.zone.id] } : {}),
+                });
+                this._booking_form.form.patchValue({
+                    booking_type: 'desk',
+                    resources: [resource],
+                    asset_id: resource.id,
+                });
             }),
         );
     }

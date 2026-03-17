@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import {
@@ -15,6 +16,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BroadcastEmailModalComponent } from './broadcast-email-modal.component';
 import {
     EmailTemplate,
     EmailTemplatesFilters,
@@ -40,6 +42,12 @@ import {
               <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
             </mat-select>
           </mat-form-field> -->
+            @if (has_mailing_binding) {
+                <button btn matRipple (click)="openBroadcastModal()">
+                    <div class="ml-2">Broadcast Email</div>
+                    <icon class="text-2xl">campaign</icon>
+                </button>
+            }
             <a btn matRipple [routerLink]="['/email-templates', 'manage']">
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
@@ -183,12 +191,19 @@ import {
 export class EmailTemplatesListComponent {
     private _state = inject(EmailTemplatesStateService);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
 
     public sending_email: string;
     public readonly filters = this._state.filters;
     public readonly templates = this._state.filtered_templates;
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
+    public readonly openBroadcastModal = () =>
+        this._dialog.open(BroadcastEmailModalComponent, {});
+
+    public get has_mailing_binding() {
+        return !!this._org.binding('smtp');
+    }
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
         this._state.setFilters(filters);

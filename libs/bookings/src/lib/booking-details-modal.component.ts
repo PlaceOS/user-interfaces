@@ -65,9 +65,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 >
                     {{ display_title() }}
                 </h3>
-                @if (is_visitor() && visitor_reason()) {
+                @if (is_visitor()) {
                     <p class="w-full px-3 text-sm opacity-70">
-                        {{ visitor_reason() }}
+                        {{ visitor_display_name() }}
                     </p>
                 }
                 <div class="w-full items-center justify-between sm:flex">
@@ -459,14 +459,27 @@ export class BookingDetailsModalComponent {
     public readonly level = computed(() =>
         this._org.levelWithID(this.booking()?.zones || []),
     );
+    public readonly level_or_building = computed(
+        () => this.level() || this.building(),
+    );
+    public readonly resource_location = computed(() => {
+        const location_name =
+            this.level_or_building()?.display_name ||
+            this.level_or_building()?.name ||
+            '';
+        const resource_name = this.booking().asset_name || this.booking().asset_id;
+        return location_name ? `${location_name}, ${resource_name}` : resource_name;
+    });
     public readonly building = computed(() => {
+        const zones = this.booking()?.zones || [];
+        const level = this.level();
         const building = this._org.buildings.find((bld) =>
-            (this.booking()?.zones || []).includes(bld.id),
+            zones.includes(bld.id) || bld.id === level?.parent_id,
         );
         if (this._settings.get('app.use_region')) {
             const region = this._org.regions.find(
                 (region) =>
-                    (this.booking()?.zones || []).includes(region.id) ||
+                    zones.includes(region.id) ||
                     region.id === building?.parent_id,
             );
             if (region) return region;
@@ -530,7 +543,6 @@ export class BookingDetailsModalComponent {
     public readonly display_title = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
-        if (this.is_visitor()) return this._visitorDisplayNameFor(booking);
         return booking.title || booking.asset_name || booking.asset_id;
     });
     public readonly visitor_display_name = computed(() =>
@@ -678,7 +690,7 @@ export class BookingDetailsModalComponent {
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking.asset_name || ''}`.trim();
+        const asset_name = `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
         const reason_values = [
             `${booking.title || ''}`.trim().toLowerCase(),
             `${booking.description || ''}`.trim().toLowerCase(),

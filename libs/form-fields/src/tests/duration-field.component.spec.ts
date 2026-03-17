@@ -100,4 +100,33 @@ describe('DurationFieldComponent', () => {
             30, 45, 60, 90,
         ]);
     });
+
+    it('should limit durations by the latest end time', () => {
+        spectator.setInput({
+            time: new Date(2026, 0, 1, 16, 0).valueOf(),
+            min: 30,
+            max: 240,
+            step: 30,
+            end_time: 17 * 60,
+        });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
+            30, 60,
+        ]);
+    });
+
+    it('should filter custom durations outside the latest end time', () => {
+        spectator.setInput({
+            time: new Date(2026, 0, 1, 16, 0).valueOf(),
+            min: 30,
+            max: 240,
+            step: 30,
+            custom_options: [45, 90],
+            end_time: 17 * 60,
+        });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
+            30, 45, 60,
+        ]);
+    });
 });

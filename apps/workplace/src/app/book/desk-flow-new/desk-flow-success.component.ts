@@ -109,6 +109,9 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                         <div class="text-sm">{{ formatted_recurrence }}</div>
                     </div>
                 }
+                @if (show_booked_for) {
+                    <p class="text-sm">Booked for {{ booked_for_name }}</p>
+                }
                 @if (is_group && group_bookings().length > 0) {
                     <div
                         class="mt-4 w-full max-w-[32rem] rounded-lg border border-base-300 bg-base-100 p-4"

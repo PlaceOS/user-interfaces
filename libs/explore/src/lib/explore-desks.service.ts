@@ -27,6 +27,7 @@ import {
 
 import {
     AsyncHandler,
+    Booking,
     BookingRuleset,
     currentUser,
     Desk,
@@ -77,8 +78,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _presence = new BehaviorSubject<string[]>([]);
     private _signs_of_life = new BehaviorSubject<string[]>([]);
     private _statuses: Record<string, WritableSignal<string>> = {};
+
     private _users: Record<string, string> = {};
     private _departments: Record<string, string> = {};
+    private _desk_bookings = new BehaviorSubject<Record<string, Booking[]>>({});
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
@@ -135,6 +138,26 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }),
     );
 
+    private _bind_desk_bookings = combineLatest([
+        this._state.level,
+        this._state.options,
+    ]).pipe(
+        debounceTime(300),
+        filter(([_, { is_public }]) => !!_ && !is_public),
+        map(([lvl]) => {
+            const mod = this._org.module('area_management', 'AreaManagement');
+            if (!mod) return;
+            const binding = mod.variable(`${lvl.id}:desk_bookings`);
+            if (!binding) return;
+            this.subscription(
+                `lvl-desk_bookings`,
+                binding.bindThenSubscribe((d) =>
+                    this.processDeskBookings(d || {}),
+                ),
+            );
+        }),
+    );
+
     private _booking_list = combineLatest([
         this._options,
         this._state.level,
@@ -169,6 +192,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._signs_of_life,
         this.booking_rules,
         this._options,
+        this._desk_bookings,
     ]).pipe(
         debounceTime(50),
         map(
@@ -239,6 +263,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         });
         this.subscription('bookings', this._booking_list.subscribe());
         this.subscription('bind', this._bind.subscribe());
+        this.subscription(
+            'bind_desk_bookings',
+            this._bind_desk_bookings.subscribe(),
+        );
         this.subscription('booking_rules', this.booking_rules.subscribe());
         this.subscription('changes', this._state_change.subscribe());
         this.subscription(
@@ -263,6 +291,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 v.location === 'desk' ||
                 (v.location === 'booking' && v.type === 'desk'),
         );
+
         const date = this._options.getValue().date || Date.now();
         if (
             date <= endOfDay(Date.now()).valueOf() &&
@@ -293,11 +322,20 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         for (const desk of desks) {
             const d_id = desk.map_id || desk.asset_id;
             this._users[d_id] = desk.staff_name;
-            this._departments[d_id] =
-                departments[desk.department] || '';
+            this._departments[d_id] = departments[desk.department] || '';
         }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
+    }
+
+    public processDeskBookings({ value }: { value: Record<string, any[]> }) {
+        const bookings_map: Record<string, Booking[]> = {};
+        for (const desk_id in value || {}) {
+            bookings_map[desk_id] = (value[desk_id] || []).map((b) =>
+                b instanceof Booking ? b : new Booking(b),
+            );
+        }
+        this._desk_bookings.next(bookings_map);
     }
 
     private updateStatus() {
@@ -344,6 +382,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._settings.get('app.desks.show_users') ?? true;
         for (const desk of desks) {
             const d_id = this._desk_key(desk);
+
             if (!this._statuses[d_id]) {
                 this._statuses[d_id] = signal('free');
             }
@@ -364,6 +403,11 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                         : '',
                     status: this._statuses[d_id],
                     department: this._departments[d_id] || '',
+                    bookings:
+                        this._desk_bookings.getValue()[d_id] ||
+                        this._desk_bookings.getValue()[desk.id] ||
+                        [],
+                    date: options.date || Date.now(),
                 },
                 z_index: 20,
             });

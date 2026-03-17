@@ -595,6 +595,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "Email del visitatore",
         "VISITOR_COMPANY": "Azienda Visitatore",
         "VISITOR_COMPANY_PLACEHOLDER": "Azienda del visitatore",
+        "VISITOR_PHONE": "Numero di telefono",
+        "VISITOR_PHONE_PLACEHOLDER": "Numero di telefono del visitatore",
         "VISITOR_REASON": "Motivo della visita",
         "VISITOR_REASON_PLACEHOLDER": "es. Riunione di aggiornamento",
         "VISITOR_PASS": "Numero Pass",
@@ -605,8 +607,10 @@
         "VISITOR_SENT_SINGLE": "Invito al visitatore inviato a {{ name }}",
         "VISITOR_SENT_MULTIPLE": "Invito al visitatore inviato a {{ count }} persone",
         "VISITOR_SENT_MSG": "L'invito è stato inviato per partecipare a {{ location }} dal {{ date }} alle {{ time }}",
+        "VISITOR_SENT_MSG_MULTIPLE": "Gli inviti sono stati inviati per partecipare a {{ location }} dal {{ date }} alle {{ time }}",
         "VISITOR_SENDING": "Invio inviti ai visitatori...",
         "VISITOR_BOOK_ANOTHER": "Prenota un altro visitatore",
+        "VISITOR_BOOK_ANOTHER_MULTIPLE": "Prenota altri visitatori",
         "SPACE_REMOVE": "Rimuovi questo spazio",
         "SPACE_ADD_TO": "Aggiungi questo spazio",
         "INDUCTED": "Abilitato",
@@ -734,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "La stanza selezionata per questa prenotazione richiede approvazione e potrebbe non essere confermata fino a una data successiva.",
         "SETUP_BREAKDOWN_HEADER": "Imposta Preparazione e Smontaggio dell'Evento",
         "SETUP_DURATION": "Durata Preparazione",
-        "BREAKDOWN_DURATION": "Durata Smontaggio"
+        "BREAKDOWN_DURATION": "Durata Smontaggio",
+        "FIRST_INSTANCE_CLASH": "Il primo evento della serie è in conflitto con una prenotazione esistente",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Non sono consentiti eventi ricorrenti con {{ count }} conflitto/i"
     },
     "CATERING": {
         "MENU": "Menu di catering",

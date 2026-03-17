@@ -70,6 +70,10 @@ const QR_CODES = {};
                         name: 'APP.CONCIERGE.DESKS_SECURITY' | translate,
                     },
                     {
+                        key: 'homebase',
+                        name: 'APP.CONCIERGE.DESKS_HOMEBASE' | translate,
+                    },
+                    {
                         key: 'bookable',
                         name: 'COMMON.BOOKABLE' | translate,
                         content: bool_template,

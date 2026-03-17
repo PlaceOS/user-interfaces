@@ -122,21 +122,20 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
         { initialValue: this._booking_form.form.value },
     );
 
-    // Include currently booked resource in edit mode
+    // Keep the active desk visible even if it falls outside the current
+    // availability result set while the form is loading or filters are updating.
     private readonly current_available = computed(() => {
         const available = this.available_resources();
         const form = this.form_value();
         const resources = form.resources || [];
 
-        // If in edit mode and we have a resource selected, ensure it's in the list
-        if (form.id && resources.length > 0) {
+        if (resources.length > 0) {
             const existing_ids = available.map((r) => r.id);
             const missing_resources = resources.filter(
                 (r) => !existing_ids.includes(r.id),
             );
 
             if (missing_resources.length > 0) {
-                // Add the currently booked desk(s) to the available list
                 return [...missing_resources, ...available];
             }
         }

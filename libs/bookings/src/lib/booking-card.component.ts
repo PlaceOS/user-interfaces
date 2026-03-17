@@ -289,8 +289,18 @@ export class BookingCardComponent
     }
 
     public get location() {
-        const level = this._org.levelWithID(this.booking()?.zones || []);
-        return `${level?.display_name || level?.name || ''}`;
+        const zones = this.booking()?.zones || [];
+        const level = this._org.levelWithID(zones);
+        const building = (this._org.buildings || []).find(
+            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
+        );
+        return `${
+            level?.display_name ||
+            level?.name ||
+            building?.display_name ||
+            building?.name ||
+            ''
+        }`;
     }
 
     public get period() {
@@ -355,7 +365,7 @@ export class BookingCardComponent
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking?.asset_name || ''}`.trim();
+        const asset_name = `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
         const reason_values = [
             `${booking?.title || ''}`.trim().toLowerCase(),
             `${booking?.description || ''}`.trim().toLowerCase(),

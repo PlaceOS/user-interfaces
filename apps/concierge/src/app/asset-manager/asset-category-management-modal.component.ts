@@ -7,9 +7,9 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { deleteAssetCategory } from '@placeos/assets';
 import { AssetCategory } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { removeAssetCategory } from '@placeos/ts-client';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -98,7 +98,7 @@ export class AssetCategoryManagementModalComponent {
     public readonly edit = this._data.edit;
 
     public readonly remove = async (category: AssetCategory) => {
-        await deleteAssetCategory(category.id).toPromise();
+        await removeAssetCategory(category.id).toPromise();
         this.changed.emit();
     };
 }

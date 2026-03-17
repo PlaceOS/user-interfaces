@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 import {
     Booking,
+    firstTruthyValueFrom,
     OrganisationService,
     settingSignal,
     SettingsService,
@@ -48,7 +49,10 @@ import { BookingFormService } from '@placeos/bookings';
                 <img class="mx-auto" src="assets/icons/sent.svg" />
                 <p>
                     {{
-                        'BOOKINGS.VISITOR_SENT_MSG'
+                        (multiple() && count() > 1
+                            ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
+                            : 'BOOKINGS.VISITOR_SENT_MSG'
+                        )
                             | translate
                                 : {
                                       location:
@@ -121,7 +125,12 @@ import { BookingFormService } from '@placeos/bookings';
                         class="flex-1"
                         (click)="bookAnother()"
                     >
-                        {{ 'BOOKINGS.VISITOR_BOOK_ANOTHER' | translate }}
+                        {{
+                            (multiple() && count() > 1
+                                ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
+                                : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
+                            ) | translate
+                        }}
                     </button>
                 </div>
             </div>
@@ -202,11 +211,13 @@ export class VisitorFlowSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         const last = this._form.last_success;
         if (last) {
             this.last_success.set(last);
         }
+        this.count.set(this._form.last_count || 1);
     }
 
     public done() {

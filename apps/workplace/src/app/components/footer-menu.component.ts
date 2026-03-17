@@ -73,20 +73,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-parking-requests"
                             [routerLink]="['/book', 'parking-request']"
                             routerLinkActive="active"
-                            class="m-2 flex w-1/3 flex-col items-center justify-center space-y-2 text-base"
+                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
                         >
-                            <div
-                                class="bg-base-100 text-base-content flex h-12 w-12 items-center justify-center rounded-full text-2xl"
+                            <icon class="text-secondary text-6xl"
+                                >local_parking</icon
                             >
-                                <icon filled>local_parking</icon>
-                                <icon
-                                    outline
-                                    class="text-neutral"
-                                    className="material-symbols-outlined"
-                                    >local_parking</icon
-                                >
-                            </div>
-                            <div class="text-xs">
+                            <div>
                                 {{
                                     'APP.WORKPLACE.MENU_PARKING_REQUESTS'
                                         | translate

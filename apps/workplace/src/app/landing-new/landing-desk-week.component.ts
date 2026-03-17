@@ -22,6 +22,7 @@ import {
     Booking,
     i18n,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -48,6 +49,8 @@ interface WeekDay {
     is_today: boolean;
     is_weekend: boolean;
 }
+
+type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 @Component({
     selector: 'landing-desk-week',
@@ -414,11 +417,15 @@ export class LandingDeskWeekComponent
 
     public readonly loading = signal(false);
     public readonly selected_date = signal(Date.now());
+    public readonly offset_weekday = settingSignal<WeekdayIndex>(
+        'week_start',
+        0,
+    );
 
     public readonly weekdays = computed(() => {
         const days: WeekDay[] = [];
         const week_start = startOfWeek(this.selected_date(), {
-            weekStartsOn: this._offset_weekday,
+            weekStartsOn: this.offset_weekday(),
         });
         for (let i = 0; i < 7; i++) {
             const date = addDays(week_start, i);
@@ -442,10 +449,10 @@ export class LandingDeskWeekComponent
 
     public readonly week_range = computed(() => {
         const week_start = startOfWeek(this.selected_date(), {
-            weekStartsOn: this._offset_weekday,
+            weekStartsOn: this.offset_weekday(),
         });
         const week_end = endOfWeek(this.selected_date(), {
-            weekStartsOn: this._offset_weekday,
+            weekStartsOn: this.offset_weekday(),
         });
         return `${format(week_start, 'dd MMM')} - ${format(week_end, 'dd MMM yyyy')}`;
     });
@@ -453,10 +460,10 @@ export class LandingDeskWeekComponent
     public readonly is_current_week = computed(() => {
         const today = Date.now();
         const current_week_start = startOfWeek(today, {
-            weekStartsOn: this._offset_weekday,
+            weekStartsOn: this.offset_weekday(),
         });
         const selected_week_start = startOfWeek(this.selected_date(), {
-            weekStartsOn: this._offset_weekday,
+            weekStartsOn: this.offset_weekday(),
         });
         return isSameDay(current_week_start, selected_week_start);
     });
@@ -465,10 +472,10 @@ export class LandingDeskWeekComponent
         tap(() => this.loading.set(true)),
         switchMap((date) => {
             const week_start = startOfWeek(date, {
-                weekStartsOn: this._offset_weekday,
+                weekStartsOn: this.offset_weekday(),
             });
             const week_end = endOfWeek(date, {
-                weekStartsOn: this._offset_weekday,
+                weekStartsOn: this.offset_weekday(),
             });
             return queryBookings({
                 period_start: getUnixTime(week_start),
@@ -495,10 +502,6 @@ export class LandingDeskWeekComponent
         }
         return date_map;
     });
-
-    private get _offset_weekday(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
-        return this._settings.get('app.week_start') || 0;
-    }
 
     ngOnInit(): void {
         // Start polling for updates
@@ -559,8 +562,8 @@ export class LandingDeskWeekComponent
             data: {
                 booking,
                 edit_fn: (b) => this._schedule.editBooking(b),
-                remove_fn: (b, s) => {
-                    this._schedule.remove(b, s);
+                remove_fn: async (b, s) => {
+                    await this._schedule.remove(b, s);
                     this.selected_date.set(Date.now());
                 },
                 end_fn: (b) => this._schedule.end(b),

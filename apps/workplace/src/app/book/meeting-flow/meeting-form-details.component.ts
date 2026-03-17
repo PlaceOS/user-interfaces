@@ -1,15 +1,22 @@
-import { Component, inject, input } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnChanges,
+    SimpleChanges,
+} from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
+    AsyncHandler,
+    formatDuration,
     OrganisationService,
     SettingsService,
-    formatDuration,
 } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import {
     DateFieldComponent,
@@ -17,6 +24,7 @@ import {
     HostSelectFieldComponent,
     RecurrenceFieldComponent,
     TimeFieldComponent,
+    TimeFieldRange,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import {
@@ -27,7 +35,10 @@ import {
     format,
     set,
     startOfDay,
+    startOfMinute,
 } from 'date-fns';
+
+const MINUTES_IN_DAY = 24 * 60;
 
 @Component({
     selector: 'meeting-form-details',
@@ -137,6 +148,7 @@ import {
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form().controls.date.disabled"
+                                [range]="start_time_range"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -158,6 +170,7 @@ import {
                                         form()?.getRawValue()?.date +
                                         30 * 60 * 1000
                                     "
+                                    [range]="bookable_hours"
                                     [use_24hr]="use_24hr"
                                     [extra_info_fn]="duration_info"
                                     [timezone]="timezone"
@@ -175,6 +188,7 @@ import {
                                     formControlName="duration"
                                     [time]="form()?.getRawValue()?.date"
                                     [max]="max_duration"
+                                    [end_time]="bookable_hours?.end"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
                                 ></a-duration-field>
@@ -243,6 +257,23 @@ import {
                         </mat-form-field>
                     </div>
                 }
+                @if (allow_online_meetings) {
+                    <settings-toggle
+                        [ngModel]="
+                            form().value.meeting_provider === 'teamsForBusiness'
+                        "
+                        (ngModelChange)="
+                            form().patchValue({
+                                meeting_provider: $event
+                                    ? 'teamsForBusiness'
+                                    : null,
+                            })
+                        "
+                        [ngModelOptions]="{ standalone: true }"
+                    >
+                        {{ 'CALENDAR_EVENT.TEAMS_MEETING' | translate }}
+                    </settings-toggle>
+                }
             </div>
         }
     `,
@@ -262,19 +293,20 @@ import {
         MatInputModule,
         ReactiveFormsModule,
         FormsModule,
+        SettingsToggleComponent,
     ],
 })
-export class MeetingFormDetailsComponent {
+export class MeetingFormDetailsComponent
+    extends AsyncHandler
+    implements OnChanges
+{
     private _settings = inject(SettingsService);
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
 
     public readonly form = input<FormGroup>(undefined);
 
-    public readonly force_time = set(Date.now(), {
-        hours: 6,
-        minutes: 0,
-    }).valueOf();
+    public readonly minimum_duration = 30;
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
@@ -289,11 +321,18 @@ export class MeetingFormDetailsComponent {
     }
 
     public get allow_all_day() {
-        return this._settings.get('app.events.allow_all_day');
+        return (
+            this._settings.get('app.events.allow_all_day') &&
+            !this.bookable_hours
+        );
     }
 
     public get allow_visibility() {
         return this._settings.get('app.events.allow_visibility');
+    }
+
+    public get allow_online_meetings() {
+        return !!this._settings.get('app.events.allow_online_meetings');
     }
 
     public get allow_recurrence() {
@@ -312,13 +351,15 @@ export class MeetingFormDetailsComponent {
 
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
+            ? this._org.building?.timezone || ''
             : '';
     }
 
     public get start_date() {
-        const date = this.form().getRawValue().date;
-        const date_end = this.form().getRawValue().date_end;
+        const date = this.form().getRawValue().date || Date.now();
+        const date_end =
+            this.form().getRawValue().date_end ||
+            addMinutes(date, 30).valueOf();
         const is_next_day =
             format(date, 'yyyy-MM-dd') !== format(date_end, 'yyyy-MM-dd');
         return is_next_day
@@ -339,6 +380,50 @@ export class MeetingFormDetailsComponent {
         return this._settings.get('app.use_24_hour_time');
     }
 
+    public get bookable_hours() {
+        const minutes = this._settings.get('app.events.bookable_hours');
+        const start = Number(minutes?.start);
+        const end = Number(minutes?.end);
+        if (!Number.isFinite(start) || !Number.isFinite(end)) {
+            return undefined;
+        }
+        const normalised_start = Math.max(0, Math.min(MINUTES_IN_DAY, start));
+        const normalised_end = Math.max(0, Math.min(MINUTES_IN_DAY, end));
+        if (normalised_start >= normalised_end) {
+            return undefined;
+        }
+        return { start: normalised_start, end: normalised_end };
+    }
+
+    public get start_time_range() {
+        const bookable_hours = this.bookable_hours;
+        if (!bookable_hours) {
+            return undefined;
+        }
+        return {
+            start: bookable_hours.start,
+            end: Math.max(
+                bookable_hours.start,
+                bookable_hours.end -
+                    (this.allow_multiday ? 0 : this.minimum_duration),
+            ),
+        };
+    }
+
+    public ngOnChanges(changes: SimpleChanges): void {
+        const form = this.form();
+        if (!changes.form || !form) {
+            return;
+        }
+        this.subscription(
+            'meeting_bookable_hours',
+            form.valueChanges.subscribe(() => this.enforceBookableHours()),
+        );
+        this.timeout('meeting_bookable_hours_init', () =>
+            this.enforceBookableHours(),
+        );
+    }
+
     public readonly duration_info = (time: number) => {
         const date = this.form().getRawValue().date;
         if (format(date, 'yyyy-MM-dd') !== format(time, 'yyyy-MM-dd'))
@@ -357,4 +442,90 @@ export class MeetingFormDetailsComponent {
         { value: 'private', label: 'PRIVATE' },
         { value: 'confidential', label: 'CONFIDENTIAL' },
     ];
+
+    private enforceBookableHours(): void {
+        const form = this.form();
+        const bookable_hours = this.bookable_hours;
+        const start_time_range = this.start_time_range;
+        if (!form || !bookable_hours || !start_time_range) {
+            return;
+        }
+        const value = form.getRawValue();
+        const patch: Record<string, any> = {};
+        if (value.all_day) {
+            patch.all_day = false;
+        }
+        if (value.date) {
+            const start_date = this.clampDateToRange(
+                value.date,
+                start_time_range,
+            );
+            if (start_date !== value.date) {
+                patch.date = start_date;
+            }
+        }
+        if (this.allow_multiday && value.date_end) {
+            const end_date = this.clampDateToRange(
+                value.date_end,
+                bookable_hours,
+            );
+            if (end_date !== value.date_end) {
+                patch.date_end = end_date;
+            }
+        }
+        const start_date = patch.date ?? value.date;
+        if (!start_date) {
+            this.patchBookableHours(form, patch);
+            return;
+        }
+        const start_minutes = this.minutesSinceMidnight(start_date);
+        const max_duration = Math.min(
+            this.max_duration,
+            bookable_hours.end - start_minutes,
+        );
+        if (!this.allow_multiday && value.duration > max_duration) {
+            patch.duration = max_duration;
+        }
+        this.patchBookableHours(form, patch);
+    }
+
+    private clampDateToRange(datestamp: number, range: TimeFieldRange): number {
+        const current_minutes = this.minutesSinceMidnight(datestamp);
+        if (current_minutes < range.start) {
+            return this.setMinutesSinceMidnight(datestamp, range.start);
+        }
+        if (current_minutes > range.end) {
+            return this.setMinutesSinceMidnight(datestamp, range.end);
+        }
+        return datestamp;
+    }
+
+    private minutesSinceMidnight(datestamp: number): number {
+        const date = new Date(datestamp);
+        return date.getHours() * 60 + date.getMinutes();
+    }
+
+    private setMinutesSinceMidnight(
+        datestamp: number,
+        minute_of_day: number,
+    ): number {
+        return startOfMinute(
+            set(datestamp, {
+                hours: Math.floor(minute_of_day / 60),
+                minutes: minute_of_day % 60,
+                seconds: 0,
+                milliseconds: 0,
+            }),
+        ).valueOf();
+    }
+
+    private patchBookableHours(
+        form: FormGroup,
+        patch: Record<string, any>,
+    ): void {
+        if (!Object.keys(patch).length) {
+            return;
+        }
+        form.patchValue(patch, { emitEvent: false });
+    }
 }

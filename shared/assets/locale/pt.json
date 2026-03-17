@@ -595,6 +595,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "E-mail do visitante",
         "VISITOR_COMPANY": "Empresa do Visitante",
         "VISITOR_COMPANY_PLACEHOLDER": "Empresa do visitante",
+        "VISITOR_PHONE": "Número de telefone",
+        "VISITOR_PHONE_PLACEHOLDER": "Número de telefone do visitante",
         "VISITOR_REASON": "Motivo da visita",
         "VISITOR_REASON_PLACEHOLDER": "Ex: Reunião de Acompanhamento",
         "VISITOR_PASS": "Número do Passe",
@@ -605,8 +607,10 @@
         "VISITOR_SENT_SINGLE": "Convite enviado para {{ name }}",
         "VISITOR_SENT_MULTIPLE": "Convite enviado para {{ count }} pessoas",
         "VISITOR_SENT_MSG": "O convite foi enviado para comparecer em {{ location }} a partir de {{ date }} às {{ time }}",
+        "VISITOR_SENT_MSG_MULTIPLE": "Os convites foram enviados para comparecer em {{ location }} a partir de {{ date }} às {{ time }}",
         "VISITOR_SENDING": "Enviando convites de visitante...",
         "VISITOR_BOOK_ANOTHER": "Reservar outro visitante",
+        "VISITOR_BOOK_ANOTHER_MULTIPLE": "Reservar mais visitantes",
         "SPACE_REMOVE": "Remover este espaço",
         "SPACE_ADD_TO": "Adicionar este espaço",
         "INDUCTED": "Treinado",
@@ -734,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "A sala selecionada para esta reserva requer aprovação e pode não ser confirmada até uma data posterior.",
         "SETUP_BREAKDOWN_HEADER": "Definir Preparação e Desmontagem do Evento",
         "SETUP_DURATION": "Duração de Preparação",
-        "BREAKDOWN_DURATION": "Duração de Desmontagem"
+        "BREAKDOWN_DURATION": "Duração de Desmontagem",
+        "FIRST_INSTANCE_CLASH": "O primeiro evento da série conflita com uma reserva existente",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Eventos recorrentes com {{ count }} conflito(s) não são permitidos"
     },
     "CATERING": {
         "MENU": "Cardápio",

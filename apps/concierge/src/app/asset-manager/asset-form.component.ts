@@ -5,12 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    generateAssetForm,
-    saveAsset,
-    showAsset,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetForm, saveAsset } from '@placeos/assets';
 import {
     AssetGroup,
     AsyncHandler,
@@ -23,6 +18,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { showAsset, showAssetType } from '@placeos/ts-client';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -202,7 +198,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.get('group_id')) {
                     this.loading = 'Loading Product Details...';
-                    const product = await showAssetGroup(params.get('group_id'))
+                    const product = await showAssetType(params.get('group_id'))
                         .toPromise()
                         .catch(() => null);
                     if (!product) {

@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
     AsyncHandler,
-    currentUser,
+    Booking,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
-    randomString,
+    SettingsService,
     User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -36,7 +36,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         >
                             <icon>info</icon>
                             <div>
-                                {{ 'BOOKINGS.VISITOR_TIME_HEADER' | translate }}
+                                {{ visit_heading() | translate }}
                             </div>
                         </div>
                         <visitor-flow-details />
@@ -45,10 +45,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
                         >
                             <icon>info</icon>
                             <div>
-                                {{
-                                    'BOOKINGS.VISITOR_DETAILS_HEADER'
-                                        | translate
-                                }}
+                                {{ 'BOOKINGS.VISITOR_DETAILS_HEADER' | translate }}
                             </div>
                         </div>
                         <visitor-flow-invites />
@@ -129,8 +126,10 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
 })
 export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     private _booking_form = inject(BookingFormService);
+    private _settings = inject(SettingsService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _existing_siblings: Booking[] = [];
 
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
@@ -145,6 +144,11 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     public readonly is_multiple = computed(
         () => !!this.form_value()?.assets?.length,
     );
+    public readonly visit_heading = computed(() =>
+        this.form_value()?.id
+            ? 'BOOKINGS.EDIT_VISITOR_DETAILS'
+            : 'BOOKINGS.VISITOR_TIME_HEADER',
+    );
 
     public ngOnInit() {
         this._booking_form.form.patchValue({ booking_type: 'visitor' });
@@ -156,12 +160,46 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     this._booking_form.setView(param.get('step') as any);
             }),
         );
+        this._loadGroupVisitors();
+    }
+
+    private async _loadGroupVisitors() {
+        const value = this._booking_form.form.getRawValue();
+        if (!value.id) return;
+        const booking = this._booking_form.booking;
+        const is_group =
+            !!booking?.parent_id ||
+            !!booking?.group ||
+            !!booking?.extension_data?.group_members?.length;
+        if (!is_group) return;
+        const siblings =
+            await this._booking_form.loadGroupSiblings(booking);
+        if (!siblings?.length) return;
+        this._existing_siblings = siblings;
+        const visitors = siblings.map(
+            (s) =>
+                new User({
+                    name: s.asset_name,
+                    email: s.asset_id,
+                    organisation: s.extension_data?.company,
+                    phone: s.extension_data?.phone,
+                }),
+        );
+        this._booking_form.form.patchValue({
+            assets: visitors,
+            asset_id: 'multiple@place.tech',
+        });
+        this._booking_form.setOptions({ group: true });
     }
 
     public async confirmBooking() {
         this._booking_form.form.markAllAsTouched();
 
         const is_multiple = this.is_multiple();
+        const visitor_reason =
+            this.form_value()?.title ||
+            this.form_value()?.description ||
+            'Visit';
 
         // Validate form
         if (!this._booking_form.form.valid) {
@@ -182,6 +220,14 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
         this.loading.set(true);
         try {
             const asset_name = this.form_value()?.asset_name;
+            this._booking_form.form.patchValue({
+                title: visitor_reason,
+                description: visitor_reason,
+            });
+            this._booking_form.last_count = is_multiple
+                ? this.form_value()?.assets?.length || 1
+                : 1;
+            this._saveRecentVisitors(is_multiple);
             await (is_multiple ? this._bookForMany() : this._bookForOne());
             const name = is_multiple ? i18n('BOOKINGS.VISITORS') : asset_name;
             notifySuccess(
@@ -189,7 +235,7 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
                     is_multiple
                         ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                         : 'BOOKINGS.VISITOR_SENT_SINGLE',
-                    { name, count: this.form_value()?.assets?.length || 1 },
+                    { name, count: this._booking_form.last_count },
                 ),
             );
             this._router.navigate(['/book/visitor/success']);
@@ -201,6 +247,46 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
             );
         } finally {
             this.loading.set(false);
+        }
+    }
+
+    private _saveRecentVisitors(is_multiple: boolean) {
+        const old_visitors: string[] =
+            this._settings.get('visitor-invitees') || [];
+        const value = this._booking_form.form.getRawValue();
+        const toEntry = (
+            email: string,
+            name = '',
+            org = '',
+            phone = '',
+        ) => `${email}|${name}|${org}|${phone}`;
+        if (is_multiple && value.assets?.length) {
+            const emails = new Set(
+                value.assets.map((a) => a.email).filter(Boolean),
+            );
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter(
+                    (v) => !emails.has(`${v}`.split('|')[0]),
+                ),
+                ...value.assets
+                    .filter((a) => !!a.email)
+                    .map((a) =>
+                        toEntry(
+                            a.email,
+                            a.name,
+                            a.organisation,
+                            (a as any).phone || '',
+                        ),
+                    ),
+            ]);
+        } else {
+            const { asset_id, asset_name, company, phone } = value;
+            this._settings.saveUserSetting('visitor-invitees', [
+                ...old_visitors.filter(
+                    (v) => `${v}`.split('|')[0] !== asset_id,
+                ),
+                toEntry(asset_id, asset_name, company, phone),
+            ]);
         }
     }
 
@@ -221,31 +307,38 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     }
 
     private async _bookForMany() {
-        const group = `grp-${randomString(8)}`;
-        const value = this._booking_form.form.value;
-        const assets = value.assets;
-
-        for (const user of assets) {
-            if (!user.email) continue;
-            this._booking_form.form.patchValue({
-                ...value,
-                booking_type: 'visitor',
-                asset_id: user.email,
-                asset_name: user.name,
-                user: currentUser(),
-                description: group,
-                name: user.name,
-                assets: [],
-                attendees: [
+        const value = this._booking_form.form.getRawValue();
+        const visitor_reason = value.title || value.description || 'Visit';
+        const assets: User[] = value.assets || [];
+        const visitor_members = assets
+            .filter((_) => !!_.email)
+            .map(
+                (user) =>
                     new User({
-                        name: user.name,
-                        email: user.email,
-                        organisation: user.company || user.organisation,
-                        phone: user.phone,
-                    }),
-                ],
-            });
-            await this._booking_form.postForm();
+                        ...user,
+                        name: user.name || user.email,
+                    } as any),
+            );
+        this._booking_form.setOptions({
+            type: 'visitor',
+            group: true,
+            members: visitor_members,
+        });
+        if (value.id) {
+            let existing_siblings = this._existing_siblings;
+            if (!existing_siblings.length) {
+                existing_siblings =
+                    await this._booking_form.loadGroupSiblings(
+                        new Booking(value),
+                    );
+            }
+            if (!existing_siblings.length) {
+                existing_siblings = [new Booking(value)];
+            }
+            this._existing_siblings = existing_siblings;
+            await this._booking_form.editFormForGroup(existing_siblings);
+        } else {
+            await this._booking_form.postFormForVisitorGroup();
         }
     }
 }

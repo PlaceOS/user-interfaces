@@ -236,21 +236,20 @@ export class DeskFlowSelectListComponent {
         },
     );
 
-    // Include currently booked resource in edit mode
+    // Keep the active desk visible even if it falls outside the current
+    // availability result set while the form is loading or filters are updating.
     public readonly available_items = computed(() => {
         const available = this._available_items();
         const form = this.form_value();
         const resources = form.resources || [];
 
-        // If in edit mode and we have a resource selected, ensure it's in the list
-        if (form.id && resources.length > 0) {
+        if (resources.length > 0) {
             const existing_ids = available.map((r) => r.id);
             const missing_resources = resources.filter(
                 (r) => !existing_ids.includes(r.id),
             );
 
             if (missing_resources.length > 0) {
-                // Add the currently booked desk(s) to the available list
                 return [...missing_resources, ...available];
             }
         }
@@ -270,28 +269,28 @@ export class DeskFlowSelectListComponent {
         ),
     ]);
 
-    private _initial_page_set = false;
+    private _last_auto_page_key = '';
 
     constructor() {
         effect(() => {
-            const items = this.available_items();
-            const selected = this.selected_items();
-            if (
-                !this._initial_page_set &&
-                items?.length &&
-                selected?.length
-            ) {
-                const selected_index = items.findIndex((item) =>
-                    selected.includes(item.id),
-                );
-                if (selected_index >= 0) {
-                    const target_page = Math.floor(
-                        selected_index / this.page_size(),
-                    );
-                    this.page.set(target_page);
-                }
-                this._initial_page_set = true;
-            }
+            const selected_id = this.selected_items()?.[0];
+            if (!selected_id) return;
+            const available_items = this._available_items();
+            const merged_items = this.available_items();
+            const item_index = available_items.findIndex(
+                (item) => item.id === selected_id,
+            );
+            const fallback_index = merged_items.findIndex(
+                (item) => item.id === selected_id,
+            );
+            const selected_index =
+                item_index >= 0 ? item_index : fallback_index;
+            if (selected_index < 0) return;
+            const target_page = Math.floor(selected_index / this.page_size());
+            const page_key = `${selected_id}:${selected_index}:${this.page_size()}`;
+            if (page_key === this._last_auto_page_key) return;
+            this._last_auto_page_key = page_key;
+            this.page.set(target_page);
         });
     }
 

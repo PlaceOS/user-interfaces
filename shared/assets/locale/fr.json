@@ -595,6 +595,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "Courriel du visiteur",
         "VISITOR_COMPANY": "Entreprise du visiteur",
         "VISITOR_COMPANY_PLACEHOLDER": "Entreprise du visiteur",
+        "VISITOR_PHONE": "Numéro de téléphone",
+        "VISITOR_PHONE_PLACEHOLDER": "Numéro de téléphone du visiteur",
         "VISITOR_REASON": "Raison de la visite",
         "VISITOR_REASON_PLACEHOLDER": "ex. Rencontre",
         "VISITOR_PASS": "Numéro de laissez-passer",
@@ -605,8 +607,10 @@
         "VISITOR_SENT_SINGLE": "Invitation envoyée à {{ name }}",
         "VISITOR_SENT_MULTIPLE": "Invitation envoyée à {{ count }} personnes",
         "VISITOR_SENT_MSG": "L'invitation a été envoyée pour {{ location }} du {{ date }} à {{ time }}",
+        "VISITOR_SENT_MSG_MULTIPLE": "Les invitations ont été envoyées pour {{ location }} du {{ date }} à {{ time }}",
         "VISITOR_SENDING": "Envoi des invitations aux visiteurs...",
         "VISITOR_BOOK_ANOTHER": "Réserver pour un autre visiteur",
+        "VISITOR_BOOK_ANOTHER_MULTIPLE": "Réserver pour d'autres visiteurs",
         "SPACE_REMOVE": "Supprimer cet espace",
         "SPACE_ADD_TO": "Ajouter cet espace",
         "INDUCTED": "Formé",
@@ -734,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "La salle sélectionnée pour cette réservation nécessite une approbation et peut ne pas être confirmée avant une date ultérieure.",
         "SETUP_BREAKDOWN_HEADER": "Définir l'installation et le démontage de l'événement",
         "SETUP_DURATION": "Durée d'installation",
-        "BREAKDOWN_DURATION": "Durée de démontage"
+        "BREAKDOWN_DURATION": "Durée de démontage",
+        "FIRST_INSTANCE_CLASH": "Le premier événement de la série est en conflit avec une réservation existante",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Les événements récurrents avec {{ count }} conflit(s) ne sont pas autorisés"
     },
     "CATERING": {
         "MENU": "Menu de restauration",

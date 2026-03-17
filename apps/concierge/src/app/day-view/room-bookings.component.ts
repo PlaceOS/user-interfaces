@@ -289,13 +289,16 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         ),
     );
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (zones: string[]) => {
+        const zone_ids = this._clean_zone_ids(zones);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: {
+                zone_ids: zone_ids.length ? zone_ids.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
-        this._state.setZones(z);
+        this._state.setZones(zone_ids);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
@@ -372,7 +375,9 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 }
                 if (this.use_region) return;
                 if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
+                    const zones = this._clean_zone_ids(
+                        params.get('zone_ids').split(','),
+                    );
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
@@ -393,9 +398,6 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                     const zones = (await nextValueFrom(this.zones)).filter(
                         (zone) => levels.find((lvl) => lvl.id === zone),
                     );
-                    if (!zones.length && levels.length) {
-                        zones.push(levels[0].id);
-                    }
                     this.updateZones(zones);
                 }),
         );
@@ -449,4 +451,8 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             this.downloading.set(false);
         }
     };
+
+    private _clean_zone_ids(zones: string[] = []) {
+        return (zones || []).filter((zone_id) => !!zone_id);
+    }
 }

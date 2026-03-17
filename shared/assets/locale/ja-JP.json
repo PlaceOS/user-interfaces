@@ -595,6 +595,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "訪問者のメールアドレス",
         "VISITOR_COMPANY": "訪問者の会社",
         "VISITOR_COMPANY_PLACEHOLDER": "訪問者の会社",
+        "VISITOR_PHONE": "電話番号",
+        "VISITOR_PHONE_PLACEHOLDER": "訪問者の電話番号",
         "VISITOR_REASON": "訪問理由",
         "VISITOR_REASON_PLACEHOLDER": "例：打ち合わせ",
         "VISITOR_PASS": "パス番号",
@@ -605,8 +607,10 @@
         "VISITOR_SENT_SINGLE": "訪問者の招待を{{ name }}に送信しました",
         "VISITOR_SENT_MULTIPLE": "訪問者の招待を{{ count }}人に送信しました",
         "VISITOR_SENT_MSG": "{{ location }}への{{ date }} {{ time }}からの出席招待が送信されました",
+        "VISITOR_SENT_MSG_MULTIPLE": "{{ location }}への{{ date }} {{ time }}からの出席招待が送信されました",
         "VISITOR_SENDING": "訪問者の招待を送信中...",
         "VISITOR_BOOK_ANOTHER": "別の訪問者を予約",
+        "VISITOR_BOOK_ANOTHER_MULTIPLE": "他の訪問者を予約",
         "SPACE_REMOVE": "このスペースを削除",
         "SPACE_ADD_TO": "このスペースを追加",
         "INDUCTED": "研修済み",
@@ -734,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "この予約で選択された会議室は承認が必要であり、後日まで確定しない場合があります。",
         "SETUP_BREAKDOWN_HEADER": "イベントの準備と片付け時間を設定",
         "SETUP_DURATION": "準備時間",
-        "BREAKDOWN_DURATION": "片付け時間"
+        "BREAKDOWN_DURATION": "片付け時間",
+        "FIRST_INSTANCE_CLASH": "シリーズの最初のイベントが既存の予約と競合しています",
+        "RECURRING_CLASHES_NOT_ALLOWED": "{{ count }} 件の競合がある定期イベントは許可されていません"
     },
     "CATERING": {
         "MENU": "ケータリングメニュー",

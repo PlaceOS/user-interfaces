@@ -1,4 +1,9 @@
-import { CalendarEvent, GuestUser, toQueryString } from '@placeos/common';
+import {
+    BookingClash,
+    CalendarEvent,
+    GuestUser,
+    toQueryString,
+} from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { Observable, combineLatest, of } from 'rxjs';
@@ -400,5 +405,34 @@ export function querySpaceAvailability(
             }
             return short_list;
         }),
+    );
+}
+
+export interface EventClashQueryOptions {
+    // Requires multple assets in the event to use
+    return_available?: boolean;
+    // Added the time that the clashes occur with each returned asset
+    include_clash_time?: boolean;
+}
+
+/**
+ * List resources that clash within the given parameters
+ * @param q Parameters to pass to the API request
+ */
+export function findEventClashes(
+    event: CalendarEvent,
+    q: EventClashQueryOptions = {},
+): Observable<string[] | BookingClash[]> {
+    const query = toQueryString({ ...q, limit: 10000 });
+    return post(
+        `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
+        event.toJSON(),
+    ).pipe(
+        map((list) =>
+            q.include_clash_time
+                ? (list as BookingClash[])
+                : (list as string[]),
+        ),
+        catchError((_) => of([])),
     );
 }

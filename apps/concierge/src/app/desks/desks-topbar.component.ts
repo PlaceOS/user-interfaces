@@ -280,6 +280,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             bookable: true,
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
+            homebase: 'Sydney HQ',
         }).toJSON();
         delete desk.images;
         const data = jsonToCsv([desk]);

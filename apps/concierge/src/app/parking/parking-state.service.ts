@@ -1,13 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 import {
+    deleteParkingFleetVehicle,
     deleteParkingSpace,
     deleteParkingUser,
-    ParkingUser,
+    queryParkingFleetVehicles,
     queryParkingSpaces,
     queryParkingUsers,
+    saveParkingFleetVehicle,
     saveParkingSpace,
     saveParkingUser,
+    toParkingFleetVehicle,
 } from '@placeos/assets';
 import {
     approveBooking,
@@ -19,6 +23,7 @@ import {
     rejectBookingInstance,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -36,8 +41,17 @@ import {
 import { openConfirmModal } from '@placeos/components';
 import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import {
+    addHours,
+    endOfDay,
+    endOfWeek,
+    getUnixTime,
+    set,
+    startOfDay,
+    startOfWeek,
+    subDays,
+} from 'date-fns';
+import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
     debounceTime,
     filter,
@@ -49,18 +63,20 @@ import {
 } from 'rxjs/operators';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
+import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 
 export interface ParkingOptions {
     date: number;
+    period: 'day' | 'week';
     search: string;
     zones: string[];
 }
 
 export type ParkingSpace = PlaceAsset;
 
-export type { ParkingUser } from '@placeos/assets';
+export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 
@@ -74,8 +90,10 @@ export class ParkingStateService extends AsyncHandler {
 
     private _poll = new BehaviorSubject<number>(0);
     private _change = new BehaviorSubject(0);
+    private _fleet_vehicles = new BehaviorSubject<ParkingFleetVehicle[]>([]);
     private _options = new BehaviorSubject<ParkingOptions>({
         date: Date.now(),
+        period: 'day',
         search: '',
         zones: [],
     });
@@ -146,6 +164,8 @@ export class ParkingStateService extends AsyncHandler {
         ),
         shareReplay(1),
     );
+    /** List of fleet vehicles for the current building */
+    public readonly fleet_vehicles = this._fleet_vehicles.asObservable();
     /** List of parking bookings for the current building/level */
     public bookings = combineLatest([
         this._org.active_building,
@@ -156,10 +176,22 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
+            const period_start =
+                options.period === 'week'
+                    ? startOfWeek(options.date, {
+                          weekStartsOn: this._week_start,
+                      })
+                    : startOfDay(options.date);
+            const period_end =
+                options.period === 'week'
+                    ? endOfWeek(options.date, {
+                          weekStartsOn: this._week_start,
+                      })
+                    : endOfDay(options.date);
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
             return queryBookings({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(endOfDay(options.date)),
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')
@@ -195,6 +227,19 @@ export class ParkingStateService extends AsyncHandler {
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
+
+    constructor() {
+        super();
+        this.subscription(
+            'fleet_vehicles',
+            combineLatest([this._org.active_building, this._change])
+                .pipe(
+                    filter(([bld]) => !!bld?.id),
+                    switchMap(([bld]) => this._loadFleetVehicles(bld.id)),
+                )
+                .subscribe((list) => this._fleet_vehicles.next(list)),
+        );
+    }
 
     public setOptions(options: Partial<ParkingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
@@ -362,6 +407,60 @@ export class ParkingStateService extends AsyncHandler {
         this._change.next(Date.now());
     }
 
+    /** Add or update a fleet vehicle in the available list */
+    public async editFleetVehicle(vehicle?: ParkingFleetVehicle) {
+        const ref = this._dialog.open(ParkingFleetModalComponent, {
+            data: vehicle,
+        });
+        const state = await Promise.race([
+            ref.afterClosed().toPromise(),
+            ref.componentInstance.event
+                .pipe(first((_) => _.reason === 'done'))
+                .toPromise(),
+        ]);
+        if (state?.reason !== 'done') return;
+        const zone = this._org.building.id;
+        const new_vehicle = {
+            ...state.metadata,
+            id: state.metadata.id || undefined,
+        };
+        const saved = await saveParkingFleetVehicle(
+            new_vehicle,
+            zone,
+        ).toPromise();
+        this._upsertFleetVehicle(toParkingFleetVehicle(saved));
+        ref.close();
+    }
+
+    /** Remove the given fleet vehicle from the available list */
+    public async removeFleetVehicle(vehicle: ParkingFleetVehicle) {
+        const state = await openConfirmModal(
+            {
+                title: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE'),
+                content: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_MSG', {
+                    name: vehicle.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (state?.reason !== 'done') return;
+        state.loading(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'));
+        await deleteParkingFleetVehicle(vehicle.id)
+            .toPromise()
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
+                        error: e,
+                    }),
+                );
+                throw e;
+            });
+        state.close();
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_SUCCESS'));
+        this._removeFleetVehicleFromList(vehicle.id);
+    }
+
     public editReservation(
         reservation?: Booking,
         {
@@ -482,15 +581,65 @@ export class ParkingStateService extends AsyncHandler {
         if (result) this._change.next(Date.now());
     }
 
-    private async _clearAssignedBooking(space: ParkingSpace) {
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'parking',
-            email: space.assigned_to,
-            include_checked_out: true,
-        }).toPromise();
-        const filtered = booking_list.filter((_) => _.asset_id === space.id);
-        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+    private async _clearAssignedBooking(resource: ParkingSpace) {
+        const today = Date.now();
+        const booking_list = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
+                type: 'parking',
+                email: resource.assigned_to,
+                include_checked_out: true,
+            }),
+        );
+        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
+        for (const booking of filtered) {
+            const is_recurring =
+                booking.recurrence_type && booking.recurrence_type !== 'none';
+            if (is_recurring && booking.instance) {
+                // Set recurrence_end to end of yesterday to preserve past instances
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(booking.id, {
+                        recurrence_end: yesterday_end,
+                    }),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
+    }
+
+    private get _week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+        return this._settings.get('app.week_start') || 0;
+    }
+
+    private _loadFleetVehicles(building_id: string) {
+        this._loading.next([...this._loading.getValue(), 'fleet']);
+        return queryParkingFleetVehicles(building_id).pipe(
+            tap(() =>
+                this._loading.next(
+                    this._loading.getValue().filter((_) => _ !== 'fleet'),
+                ),
+            ),
+        );
+    }
+
+    private _upsertFleetVehicle(vehicle: ParkingFleetVehicle) {
+        const fleet_list = this._fleet_vehicles.getValue();
+        const index = fleet_list.findIndex((_) => _.id === vehicle.id);
+        this._fleet_vehicles.next(
+            index >= 0
+                ? fleet_list.map((item, idx) =>
+                      idx === index ? vehicle : item,
+                  )
+                : [...fleet_list, vehicle],
+        );
+    }
+
+    private _removeFleetVehicleFromList(vehicle_id: string) {
+        this._fleet_vehicles.next(
+            this._fleet_vehicles.getValue().filter((_) => _.id !== vehicle_id),
+        );
     }
 }

@@ -49,6 +49,10 @@ function setBookingAsset(form: FormGroup, resource: any) {
 }
 
 export function generateBookingForm(booking: Booking = new Booking()) {
+    const visitor_name =
+        booking.booking_type === 'visitor'
+            ? booking.extension_data?.visitor_name || booking.asset_name || ''
+            : booking.asset_name || booking.description;
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         parent_id: new FormControl(booking.parent_id || ''),
@@ -69,7 +73,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         resources: new FormControl([]),
         company: new FormControl(booking.extension_data?.company || ''),
         asset_id: new FormControl(booking.asset_id, [Validators.required]),
-        asset_name: new FormControl(booking.asset_name || booking.description),
+        asset_name: new FormControl(visitor_name),
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),
@@ -105,7 +109,10 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.extension_data.request_type || 'standard',
         ),
         space_restrictions: new FormControl(
-            booking.extension_data.space_restrictions || false,
+            booking.extension_data.space_restrictions ?? false,
+        ),
+        approver_group: new FormControl(
+            booking.extension_data.approver_group || '',
         ),
         prefer_booked_location_first: new FormControl(
             booking.extension_data.prefer_booked_location_first ?? false,
@@ -125,10 +132,18 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
         notes: new FormControl(booking.extension_data.notes || ''),
+        p2_document_names: new FormControl(
+            booking.extension_data.p2_document_names || [],
+        ),
+        attachments: new FormControl(
+            booking.extension_data.attachments || [],
+        ),
         update_master: new FormControl(false),
         self_registered: new FormControl(false),
         is_assgined: new FormControl(false),
-        _in_progress: new FormControl(booking.state === 'started'),
+        _in_progress: new FormControl(
+            booking.state === 'started' || booking.state === 'in_progress',
+        ),
     });
     form.controls.user.valueChanges.subscribe((user) => {
         if (!user) return;
@@ -226,7 +241,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             form.get('date')?.enable({ emitEvent: false });
         }
     });
-    if (booking.state === 'started') form.get('date').disable();
+    if (booking.state === 'started' || booking.state === 'in_progress') {
+        form.get('date').disable();
+    }
     return form;
 }
 

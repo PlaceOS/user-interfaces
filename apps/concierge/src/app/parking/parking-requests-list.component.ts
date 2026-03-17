@@ -1,16 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService, currentUser } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest, map } from 'rxjs';
+import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
+import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -20,57 +23,85 @@ import { ParkingStateService } from './parking-state.service';
             [class.opacity-0]="!(loading | async)?.includes('bookings')"
             class="sticky left-0 w-full"
         />
-        <simple-table
-            class="block min-w-304 text-sm"
-            [data]="filtered_events"
-            [columns]="[
-                {
-                    key: 'state',
-                    name: 'COMMON.STATUS_BUSY' | translate,
-                    content: state_template,
-                    size: '4.75rem',
-                    sortable: false,
-                },
-                {
-                    key: 'date',
-                    name: 'FORM.TIME' | translate,
-                    content: date_template,
-                },
-                {
-                    key: 'user_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
-                    content: person_template,
-                },
-                {
-                    key: 'booked_by_name',
-                    name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
-                    content: host_template,
-                },
-                {
-                    key: 'plate_number',
-                    name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
-                    content: plate_template,
-                    size: '10rem',
-                    sortable: false,
-                },
-                {
-                    key: 'status',
-                    name: 'COMMON.STATUS' | translate,
-                    content: status_template,
-                    size: '9.5rem',
-                },
-                {
-                    key: 'actions',
-                    name: ' ',
-                    content: action_template,
-                    size: '6.5rem',
-                    sortable: false,
-                },
-            ]"
-            [filter]="(options | async)?.search"
-            [sortable]="true"
-            [empty_message]="'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate"
-        />
+        @if ((options | async)?.period === 'week') {
+            <parking-requests-week-view
+                [booking_events]="(filtered_events | async) || []"
+                [date]="(options | async)?.date || 0"
+                [week_start]="week_start"
+                [time_format]="time_format"
+                [approve]="approve"
+                [reject]="reject"
+                [assign_space]="assignSpace"
+                [view_special_needs_request]="viewSpecialNeedsRequest"
+            />
+        } @else {
+            <simple-table
+                class="block min-w-360 text-sm"
+                [data]="filtered_events"
+                [columns]="[
+                    {
+                        key: 'state',
+                        name: 'COMMON.STATUS_BUSY' | translate,
+                        content: state_template,
+                        size: '4.75rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'date',
+                        name: 'FORM.TIME' | translate,
+                        content: date_template,
+                    },
+                    {
+                        key: 'request_type',
+                        name: 'BOOKINGS.PARKING_REQUEST_TYPE' | translate,
+                        content: request_type_template,
+                        size: '9rem',
+                    },
+                    {
+                        key: 'submission_date',
+                        name: 'COMMON.CREATED_AT' | translate,
+                        content: submission_template,
+                        size: '9rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'user_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_FOR' | translate,
+                        content: person_template,
+                    },
+                    {
+                        key: 'booked_by_name',
+                        name: 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
+                        content: host_template,
+                    },
+                    {
+                        key: 'plate_number',
+                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        content: plate_template,
+                        size: '10rem',
+                        sortable: false,
+                    },
+                    {
+                        key: 'status',
+                        name: 'COMMON.STATUS' | translate,
+                        content: status_template,
+                        size: '9.5rem',
+                    },
+                    {
+                        key: 'actions',
+                        name: ' ',
+                        content: action_template,
+                        size: '6rem',
+                        sortable: false,
+                    },
+                ]"
+                [filter]="(options | async)?.search"
+                [sortable]="true"
+                [empty_message]="
+                    'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate
+                "
+            />
+        }
         <ng-template #date_template let-row="row">
             <div class="px-4 py-2">
                 {{
@@ -80,6 +111,23 @@ import { ParkingStateService } from './parking-state.service';
                           ' - ' +
                           (row.date_end | date: time_format)
                 }}
+            </div>
+        </ng-template>
+        <ng-template #request_type_template let-row="row">
+            <div class="px-4 py-2">
+                {{ request_type_label(request_type(row)) | translate }}
+            </div>
+        </ng-template>
+        <ng-template #submission_template let-row="row">
+            <div class="px-4 py-2">
+                @if (request_submitted_at(row)) {
+                    {{
+                        request_submitted_at(row)
+                            | date: 'MMM d, ' + time_format
+                    }}
+                } @else {
+                    {{ 'COMMON.EMPTY' | translate }}
+                }
             </div>
         </ng-template>
         <ng-template #person_template let-row="row">
@@ -207,7 +255,20 @@ import { ParkingStateService } from './parking-state.service';
             </mat-menu>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="mx-auto flex items-center justify-end space-x-2">
+            <div
+                class="mx-auto flex w-full items-center justify-end space-x-2 px-2"
+            >
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="
+                        'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS' | translate
+                    "
+                    [disabled]="request_type(row) !== 'special'"
+                    (click)="viewSpecialNeedsRequest(row)"
+                >
+                    <icon class="text-2xl">description</icon>
+                </button>
                 <button
                     icon
                     matRipple
@@ -222,20 +283,6 @@ import { ParkingStateService } from './parking-state.service';
                     (click)="assignSpace(row)"
                 >
                     <icon class="text-2xl">add_location</icon>
-                </button>
-                <button
-                    icon
-                    matRipple
-                    [disabled]="
-                        row.checked_in ||
-                        row.state === 'in_progress' ||
-                        row.status === 'ended' ||
-                        row.instance
-                    "
-                    [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
-                    (click)="editReservation(row)"
-                >
-                    <icon class="text-2xl">edit</icon>
                 </button>
             </div>
         </ng-template>
@@ -252,6 +299,7 @@ import { ParkingStateService } from './parking-state.service';
         MatMenuModule,
         MatTooltipModule,
         IconComponent,
+        ParkingRequestsWeekViewComponent,
     ],
 })
 export class ParkingRequestsListComponent
@@ -260,6 +308,7 @@ export class ParkingRequestsListComponent
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
@@ -269,10 +318,30 @@ export class ParkingRequestsListComponent
         this.options,
     ]).pipe(
         map(([booking_list, { search }]) => {
-            const unallocated = booking_list.filter((b) =>
-                b.asset_id?.startsWith('unallocated'),
-            );
+            const user_groups = currentUser()?.groups || [];
+            const unallocated = booking_list.filter((b) => {
+                if (!b.asset_id?.startsWith('unallocated')) return false;
+                const approver_group = b.extension_data?.approver_group;
+                if (approver_group && !user_groups.includes(approver_group))
+                    return false;
+                return true;
+            });
             const s = search.toLowerCase();
+            const type_index = (i) =>
+                this.request_type(i) == 'special'
+                    ? 2
+                    : this.request_type(i) == 'after_hours'
+                      ? 1
+                      : 0;
+            unallocated.sort((a, b) => {
+                const type_diff = type_index(a) - type_index(b);
+                if (type_diff !== 0) return type_diff;
+                const submitted_a = this.request_submitted_at(a);
+                const submitted_b = this.request_submitted_at(b);
+                if (submitted_a !== submitted_b)
+                    return submitted_b - submitted_a;
+                return b.date - a.date;
+            });
             return !s
                 ? unallocated
                 : unallocated.filter(
@@ -286,13 +355,50 @@ export class ParkingRequestsListComponent
         }),
     );
 
-    public readonly reject = (e) => this._state.rejectBooking(e);
-    public readonly approve = (e) => this._state.approveBooking(e);
-    public readonly editReservation = (e) => this._state.editReservation(e);
-    public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly reject = (e: Booking) => this._state.rejectBooking(e);
+    public readonly approve = (e: Booking) => this._state.approveBooking(e);
+    public readonly editReservation = (e: Booking) =>
+        this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly viewSpecialNeedsRequest = (booking: Booking) =>
+        this._dialog.open(ParkingSpecialRequestModalComponent, {
+            data: { booking },
+        });
+    public readonly request_type = (booking: Booking) =>
+        booking?.extension_data?.request_type || '';
+    public readonly request_submitted_at = (booking: Booking): number => {
+        const value =
+            booking?.extension_data?.submitted_at ||
+            booking?.extension_data?.submission_date ||
+            booking?.extension_data?.created_at ||
+            booking?.extension_data?.created ||
+            0;
+        if (!value) return 0;
+        if (typeof value === 'string') {
+            const parsed_value = Date.parse(value);
+            return Number.isFinite(parsed_value) ? parsed_value : 0;
+        }
+        if (typeof value === 'number') {
+            return value < 1_000_000_000_000 ? value * 1000 : value;
+        }
+        return 0;
+    };
+
+    private readonly _request_type_labels: Record<string, string> = {
+        standard: 'Standard',
+        special: 'P2',
+        after_hours: 'After-hours',
+    };
+
+    public readonly request_type_label = (request_type: string) =>
+        this._request_type_labels[request_type] || 'COMMON.EMPTY';
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get week_start() {
+        return this._settings.get('app.week_start') || 0;
     }
 
     public ngOnInit() {

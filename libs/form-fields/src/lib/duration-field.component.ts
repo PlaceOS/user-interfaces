@@ -143,6 +143,8 @@ export class DurationFieldComponent
     public readonly use_24hr = input(false);
     /** Display extra information for displayed times for timezone */
     public readonly timezone = input('');
+    /** Latest selectable end time in minutes since midnight */
+    public readonly end_time = input<number>(undefined);
 
     public duration = 60;
     /** List of available duration options */
@@ -190,7 +192,8 @@ export class DurationFieldComponent
             changes.min ||
             changes.step ||
             changes.time ||
-            changes.custom_options
+            changes.custom_options ||
+            changes.end_time
         ) {
             this.duration_options = this.generateDurationOptions(
                 this.max(),
@@ -280,6 +283,7 @@ export class DurationFieldComponent
         let time = min;
         const timeValue = this.time();
         const date = timeValue ? timeValue : null;
+        const effective_max = this._effectiveMax(max, timeValue);
 
         // Add special cases
         for (const option of this.custom_options()) {
@@ -298,7 +302,7 @@ export class DurationFieldComponent
             });
         }
 
-        while (time <= max) {
+        while (time <= effective_max) {
             blocks.push({
                 id: time,
                 date: date ? addMinutes(date, time).valueOf() : undefined,
@@ -319,7 +323,9 @@ export class DurationFieldComponent
         blocks.sort((a, b) => a.id - b.id);
         return blocks.filter(
             (option, index, options) =>
-                index === 0 || options[index - 1].id !== option.id,
+                (index === 0 || options[index - 1].id !== option.id) &&
+                option.id >= min &&
+                option.id <= effective_max,
         );
     }
 
@@ -328,6 +334,16 @@ export class DurationFieldComponent
         const idx = this.duration_options.findIndex(
             (_) => _.id === this.duration,
         );
-        if (idx < 0) this.setValue(this.min());
+        if (idx < 0) this.setValue(this.duration_options[0]?.id ?? this.min());
+    }
+
+    private _effectiveMax(max: number, time_value?: number): number {
+        const end_time = this.end_time();
+        if (end_time === undefined || end_time === null || !time_value) {
+            return max;
+        }
+        const date = new Date(time_value);
+        const start_minutes = date.getHours() * 60 + date.getMinutes();
+        return Math.max(0, Math.min(max, end_time - start_minutes));
     }
 }

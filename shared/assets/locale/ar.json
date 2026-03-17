@@ -595,6 +595,8 @@
         "VISITOR_EMAIL_PLACEHOLDER": "البريد الإلكتروني للزائر",
         "VISITOR_COMPANY": "شركة الزائر",
         "VISITOR_COMPANY_PLACEHOLDER": "شركة الزائر",
+        "VISITOR_PHONE": "رقم الهاتف",
+        "VISITOR_PHONE_PLACEHOLDER": "رقم هاتف الزائر",
         "VISITOR_REASON": "سبب الزيارة",
         "VISITOR_REASON_PLACEHOLDER": "مثال: اجتماع متابعة",
         "VISITOR_PASS": "رقم التصريح",
@@ -605,8 +607,10 @@
         "VISITOR_SENT_SINGLE": "تم إرسال دعوة الزائر إلى {{ name }}",
         "VISITOR_SENT_MULTIPLE": "تم إرسال دعوة الزائر إلى {{ count }} أشخاص",
         "VISITOR_SENT_MSG": "تم إرسال الدعوة للحضور إلى {{ location }} من {{ date }} في {{ time }}",
+        "VISITOR_SENT_MSG_MULTIPLE": "تم إرسال الدعوات للحضور إلى {{ location }} من {{ date }} في {{ time }}",
         "VISITOR_SENDING": "جاري إرسال دعوات الزوار...",
         "VISITOR_BOOK_ANOTHER": "حجز زائر آخر",
+        "VISITOR_BOOK_ANOTHER_MULTIPLE": "حجز المزيد من الزوار",
         "SPACE_REMOVE": "إزالة هذه المساحة",
         "SPACE_ADD_TO": "إضافة هذه المساحة",
         "INDUCTED": "تم توجيهه",
@@ -734,7 +738,9 @@
         "APPROVAL_REQUIRED_MSG": "الغرفة المحددة لهذا الحجز تتطلب موافقة وقد لا يتم تأكيدها حتى تاريخ لاحق.",
         "SETUP_BREAKDOWN_HEADER": "ضبط إعداد وتفكيك الحدث",
         "SETUP_DURATION": "مدة الإعداد",
-        "BREAKDOWN_DURATION": "مدة التفكيك"
+        "BREAKDOWN_DURATION": "مدة التفكيك",
+        "FIRST_INSTANCE_CLASH": "يتعارض الحدث الأول في السلسلة مع حجز موجود",
+        "RECURRING_CLASHES_NOT_ALLOWED": "لا يُسمح بالأحداث المتكررة التي تحتوي على {{ count }} تعارض(ات)"
     },
     "CATERING": {
         "MENU": "قائمة خدمات الطعام",

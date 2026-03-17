@@ -874,6 +874,7 @@ a[icon] {
     font-size: 1em;
     padding: 0;
     border-radius: 9999px;
+    cursor: pointer;
 
     .mdc-button-wrapper {
         display: flex;

@@ -85,7 +85,7 @@ import { firstValueFrom, skip } from 'rxjs';
                         </p>
                     }
                     <div class="h-4"></div>
-                    @if (space().email && allow_desk_booking()) {
+                    @if (space().email && allow_desk_booking) {
                         <button
                             btn
                             matRipple
@@ -138,6 +138,13 @@ export class MeetingFlowSuccessComponent implements OnInit {
         return this._org.levelWithID(this.space().zones) || new BuildingLevel();
     });
 
+    public get allow_desk_booking() {
+        return (
+            (this._settings.get('app.features') || []).includes('desks') &&
+            this._settings.get('app.events.hide_nearby_desks') !== true
+        );
+    }
+
     public get time_format() {
         return this._settings.time_format;
     }
@@ -170,13 +177,14 @@ export class MeetingFlowSuccessComponent implements OnInit {
         const event_space = this.last_event()?.space;
         if (event_space) {
             this.space.set(new Space(event_space));
-            if (this._org.initialised) {
-                const resolved_space = await this._space_pipe
-                    .transform(event_space.email || event_space.id)
-                    .catch(() => null);
-                if (resolved_space) {
-                    this.space.set(resolved_space);
-                }
+            try {
+                this.space.set(
+                    await this._space_pipe.transform(
+                        event_space.email || event_space.id,
+                    ),
+                );
+            } catch {
+                /* Falls back to event space details when org data is unavailable */
             }
         }
         setTimeout(() => this.loading.set(false), 500);

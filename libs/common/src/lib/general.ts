@@ -164,11 +164,7 @@ export function csvToJson(csv: string, delimiter = ','): HashMap[] {
             return index === 0 ? value.replace(/^\uFEFF/, '') : value;
         },
     );
-    const filtered_data = arrData.filter(
-        (row) =>
-            row.length > 0 && row.some((cell) => cell && cell.trim() !== ''),
-    );
-    const elements = filtered_data.map((row) => {
+    const elements = arrData.map((row) => {
         const element = {};
         for (let i = 0; i < row.length; i++) {
             const key = (headers[i] || '').split(' ').join('_').toLowerCase();
@@ -633,10 +629,10 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
 
 export function mapLastValueFrom<T = any>(
     obs: Observable<T>,
-    map_fn?: (value: any) => T,
+    map_fn: (value: any) => T,
 ): Promise<T> {
     return obs
-        ? map_fn
+        ? map
             ? lastValueFrom(obs.pipe(map(map_fn)))
             : lastValueFrom(obs)
         : Promise.resolve(null);

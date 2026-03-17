@@ -123,10 +123,13 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (zones: string[]) => {
+        const zone_ids = this._clean_zone_ids(zones);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: {
+                zone_ids: zone_ids.length ? zone_ids.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
     };
@@ -153,7 +156,9 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
+                    const zones = this._clean_zone_ids(
+                        params.get('zone_ids').split(','),
+                    );
                     if (zones.length) {
                         this.zones = zones;
                         const level = this._org.levelWithID(zones);
@@ -166,5 +171,9 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
             }),
         );
         this.updateTypes(this.type_list);
+    }
+
+    private _clean_zone_ids(zones: string[] = []) {
+        return (zones || []).filter((zone_id) => !!zone_id);
     }
 }

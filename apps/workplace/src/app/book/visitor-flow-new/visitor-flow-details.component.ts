@@ -1,7 +1,15 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,6 +20,7 @@ import {
     OrganisationService,
     settingSignal,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -20,6 +29,7 @@ import {
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
+import { addHours, addMinutes } from 'date-fns';
 
 type VisitorFormType = 'single' | 'group';
 
@@ -28,67 +38,73 @@ type VisitorFormType = 'single' | 'group';
     template: `
         <div class="w-full p-4">
             <!-- Mobile select dropdown -->
-            <div class="mb-4 flex w-full sm:hidden">
-                <mat-form-field
-                    appearance="outline"
-                    class="no-subscript w-full"
-                >
-                    <mat-select
-                        [ngModel]="active_form()"
-                        (ngModelChange)="setActiveForm($event)"
-                        [ngModelOptions]="{ standalone: true }"
+            @if (!is_edit()) {
+                <div class="mb-4 flex w-full sm:hidden">
+                    <mat-form-field
+                        appearance="outline"
+                        class="no-subscript w-full"
                     >
-                        <mat-select-trigger>
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">{{
-                                    form_type_config()[active_form()].icon
-                                }}</icon>
-                                <span>{{
-                                    form_type_config()[active_form()].label
-                                        | translate
-                                }}</span>
-                            </div>
-                        </mat-select-trigger>
-                        <mat-option value="single">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">person</icon>
-                                <span>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</span>
-                            </div>
-                        </mat-option>
-                        <mat-option value="group">
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-xl">group</icon>
-                                <span>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</span>
-                            </div>
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
-            <!-- Desktop button toggle -->
-            <div
-                class="hidden w-full items-center space-x-1 rounded-lg bg-base-200 p-1 sm:flex"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
-                    [class.clear]="active_form() !== 'single'"
-                    (click)="setActiveForm('single')"
+                        <mat-select
+                            [ngModel]="active_form()"
+                            (ngModelChange)="setActiveForm($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        >
+                            <mat-select-trigger>
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">{{
+                                        form_type_config()[active_form()].icon
+                                    }}</icon>
+                                    <span>{{
+                                        form_type_config()[active_form()].label
+                                            | translate
+                                    }}</span>
+                                </div>
+                            </mat-select-trigger>
+                            <mat-option value="single">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">person</icon>
+                                    <span>{{
+                                        'BOOKINGS.VISITOR_SINGLE' | translate
+                                    }}</span>
+                                </div>
+                            </mat-option>
+                            <mat-option value="group">
+                                <div class="flex items-center space-x-2">
+                                    <icon class="text-xl">group</icon>
+                                    <span>{{
+                                        'BOOKINGS.VISITOR_MULTIPLE' | translate
+                                    }}</span>
+                                </div>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Desktop button toggle -->
+                <div
+                    class="bg-base-200 hidden w-full items-center space-x-1 rounded-lg p-1 sm:flex"
                 >
-                    <icon class="text-xl">person</icon>
-                    <div>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</div>
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1 space-x-2 border border-base-300 hover:bg-base-300"
-                    [class.clear]="active_form() !== 'group'"
-                    (click)="setActiveForm('group')"
-                >
-                    <icon class="text-xl">group</icon>
-                    <div>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</div>
-                </button>
-            </div>
+                    <button
+                        btn
+                        matRipple
+                        class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
+                        [class.clear]="active_form() !== 'single'"
+                        (click)="setActiveForm('single')"
+                    >
+                        <icon class="text-xl">person</icon>
+                        <div>{{ 'BOOKINGS.VISITOR_SINGLE' | translate }}</div>
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="border-base-300 hover:bg-base-300 flex-1 space-x-2 border"
+                        [class.clear]="active_form() !== 'group'"
+                        (click)="setActiveForm('group')"
+                    >
+                        <icon class="text-xl">group</icon>
+                        <div>{{ 'BOOKINGS.VISITOR_MULTIPLE' | translate }}</div>
+                    </button>
+                </div>
+            }
             <div class="mt-4" [formGroup]="form">
                 @if (buildings && (buildings | async)?.length > 1) {
                     <div class="flex flex-col">
@@ -97,12 +113,8 @@ type VisitorFormType = 'single' | 'group';
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
-                                [ngModel]="form_value().zones?.[0]"
-                                (ngModelChange)="
-                                    form.patchValue({
-                                        zones: [$event],
-                                    })
-                                "
+                                [ngModel]="selected_building_id()"
+                                (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{
                                     standalone: true,
                                 }"
@@ -118,43 +130,54 @@ type VisitorFormType = 'single' | 'group';
                         </mat-form-field>
                     </div>
                 }
-                <div class="flex flex-col">
+                <div class="relative flex flex-col">
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
-                    <date-field
-                        name="date"
-                        formControlName="date"
-                    ></date-field>
+                    <date-field name="date" formControlName="date"></date-field>
+                    @if (allow_all_day()) {
+                        <mat-checkbox
+                            formControlName="all_day"
+                            class="absolute -top-2 right-2"
+                        >
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    }
                 </div>
-                <div
-                    class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
-                >
-                    <div class="flex-1">
-                        <label for="time">
-                            {{ 'FORM.TIME_START' | translate }}<span>*</span>
-                        </label>
-                        <time-field
-                            name="time"
-                            [ngModel]="form_value().date"
-                            (ngModelChange)="form.patchValue({ date: $event })"
-                            [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr()"
-                        />
+                @if (!form_value().all_day) {
+                    <div
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
+                    >
+                        <div class="flex-1">
+                            <label for="time">
+                                {{ 'FORM.TIME_START' | translate
+                                }}<span>*</span>
+                            </label>
+                            <time-field
+                                name="time"
+                                [ngModel]="form_value().date"
+                                (ngModelChange)="
+                                    form.patchValue({ date: $event })
+                                "
+                                [ngModelOptions]="{ standalone: true }"
+                                [disabled]="is_edit_in_progress()"
+                                [use_24hr]="use_24hr()"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <label for="duration">
+                                {{ 'FORM.DURATION' | translate }}<span>*</span>
+                            </label>
+                            <duration-field
+                                name="duration"
+                                formControlName="duration"
+                                [time]="form_value().date"
+                                [max]="max_duration()"
+                                [use_24hr]="use_24hr()"
+                            />
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label for="duration">
-                            {{ 'FORM.DURATION' | translate }}<span>*</span>
-                        </label>
-                        <duration-field
-                            name="duration"
-                            formControlName="duration"
-                            [time]="form_value().date"
-                            [max]="max_duration()"
-                            [use_24hr]="use_24hr()"
-                        />
-                    </div>
-                </div>
+                }
                 @if (can_book_for_others()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
@@ -200,12 +223,32 @@ type VisitorFormType = 'single' | 'group';
         TranslatePipe,
         IconComponent,
         UserSearchFieldComponent,
+        MatCheckboxModule,
     ],
 })
 export class VisitorFlowDetailsComponent implements OnInit {
     private _booking_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+
+    private _options = toSignal(this._booking_form.options, {
+        initialValue: { type: 'visitor' as const, group: false },
+    });
+
+    private _sync_group = effect(() => {
+        const is_group = this._options()?.group === true;
+        if (is_group && this.active_form() !== 'group') {
+            this.active_form.set('group');
+        }
+    });
+    private _timing_fields_locked = false;
+    private _sync_timing_fields = effect(() => {
+        const should_disable = this.is_edit_in_progress();
+        if (this._timing_fields_locked === should_disable) return;
+        this._timing_fields_locked = should_disable;
+        const action = should_disable ? 'disable' : 'enable';
+        this.form.get('date')?.[action]({ emitEvent: false });
+    });
 
     public readonly active_form = signal<VisitorFormType>('single');
     public readonly form_type_config = signal({
@@ -216,6 +259,20 @@ export class VisitorFlowDetailsComponent implements OnInit {
     public readonly form_value = toSignal(this.form.valueChanges, {
         initialValue: this.form.value,
     });
+    public readonly is_edit = computed(() => !!this.form_value()?.id);
+    public readonly is_edit_in_progress = computed(() => {
+        if (!this.is_edit()) return false;
+        const booking_date = Number(this.form_value()?.date || 0);
+        if (!booking_date) return false;
+        const duration = Number(this.form_value()?.duration || 0);
+        const end_date = this.form_value()?.all_day
+            ? addHours(booking_date, 24).valueOf()
+            : addMinutes(booking_date, duration).valueOf();
+        return Date.now() >= booking_date && Date.now() < end_date;
+    });
+    public readonly selected_building_id = computed(() => {
+        return this._resolveSelectedBuildingId(this.form_value()?.zones || []);
+    });
 
     public readonly max_duration = computed(() =>
         Math.min(
@@ -224,6 +281,10 @@ export class VisitorFlowDetailsComponent implements OnInit {
         ),
     );
 
+    public readonly allow_all_day = settingSignal(
+        'visitors.allow_all_day',
+        false,
+    );
     public readonly can_book_for_others = settingSignal(
         'bookings.can_book_for_others',
         false,
@@ -244,29 +305,101 @@ export class VisitorFlowDetailsComponent implements OnInit {
     }
 
     public ngOnInit() {
-        // Initialize with single mode
-        this._booking_form.setOptions({ group: false });
-        this.form.patchValue({ user: currentUser() });
+        const value = this.form.getRawValue();
+        const has_assets = Array.isArray(value.assets) && value.assets.length;
+        const is_group =
+            !!value.asset_id &&
+            (value.asset_id === 'multiple@place.tech' || has_assets > 1);
+        this.active_form.set(is_group ? 'group' : 'single');
+        this._booking_form.setOptions({ group: is_group });
+        const zones = this.form.value?.zones || [];
+        if (!this.form.value?.user_email) {
+            this.form.patchValue({ user: currentUser() });
+        }
+        if (!zones.length && this._org.building?.id) {
+            const default_zones = [
+                this._org.organisation?.id,
+                this._org.region?.id,
+                this._org.building.id,
+            ].filter((_) => _);
+            this.form.patchValue({ zones: default_zones });
+            return;
+        }
     }
 
     public setActiveForm(form: VisitorFormType) {
+        if (this.is_edit() || this.active_form() === form) return;
         this.active_form.set(form);
         this._booking_form.setOptions({ group: form === 'group' });
+        const value = this.form.getRawValue();
 
         if (form === 'single') {
+            const [visitor] = (value.assets || []) as User[];
+            const use_selected_visitor =
+                !!visitor?.email &&
+                (!value.asset_id || value.asset_id === 'multiple@place.tech');
             this.form.patchValue({
                 user: currentUser(),
                 assets: [],
-                asset_id: '',
-                asset_name: ''
+                asset_id: use_selected_visitor
+                    ? visitor.email
+                    : value.asset_id === 'multiple@place.tech'
+                      ? ''
+                      : value.asset_id,
+                asset_name: use_selected_visitor
+                    ? visitor.name || visitor.email
+                    : value.asset_name || '',
+                company: use_selected_visitor
+                    ? (visitor as any).company || visitor.organisation || ''
+                    : value.company || '',
+                phone: use_selected_visitor
+                    ? visitor.phone || value.phone || ''
+                    : value.phone || '',
             });
         } else {
+            const assets = [...(value.assets || [])];
+            if (value.asset_id && value.asset_id !== 'multiple@place.tech') {
+                assets.unshift(
+                    new User({
+                        name: value.asset_name || value.asset_id,
+                        email: value.asset_id,
+                        organisation: value.company || '',
+                        phone: value.phone || '',
+                    }),
+                );
+            }
+            const unique_assets = assets.filter(
+                (item, index, list) =>
+                    !!item?.email &&
+                    list.findIndex((_) => _.email === item.email) === index,
+            );
             this.form.patchValue({
                 user: currentUser(),
                 asset_id: 'multiple@place.tech',
-                asset_name: '',
-                company: ''
+                assets: unique_assets,
             });
         }
+    }
+
+    public setBuilding(building_id: string) {
+        if (!building_id) {
+            this.form.patchValue({ zones: [] });
+            return;
+        }
+        const building = this._org.find(building_id);
+        const zones = [
+            this._org.organisation?.id,
+            building?.parent_id,
+            building_id,
+        ].filter((_) => _);
+        this.form.patchValue({ zones });
+    }
+
+    private _resolveSelectedBuildingId(zone_list: string[]) {
+        const level = this._org.levelWithID(zone_list);
+        const building =
+            this._org.buildings.find((bld) => zone_list.includes(bld.id)) ||
+            this._org.buildings.find((bld) => level?.parent_id === bld.id);
+        return building?.id || this._org.building?.id || zone_list[0] || '';
     }
 }

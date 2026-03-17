@@ -8,6 +8,9 @@ import {
     inject,
     signal,
 } from '@angular/core';
+import { AsyncHandler, Booking } from '@placeos/common';
+import { IconComponent } from '@placeos/components';
+import { isSameDay } from 'date-fns';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
@@ -30,6 +33,8 @@ export interface DeskInfoData {
     start?: number;
     end?: number;
     department?: string;
+    bookings?: Booking[];
+    date?: number;
     status: WritableSignal<DeskStatus>;
 }
 
@@ -68,20 +73,23 @@ export interface DeskInfoData {
                             <h4 map-id class="m-0 truncate font-medium">
                                 {{ name() || map_id() || id() }}
                             </h4>
-                            @if (user()) {
+                            @if (display_user()) {
                                 <p user class="text-xs">
-                                    {{ user() }}
+                                    {{ display_user() }}
                                 </p>
                             }
-                            @if (user() && department()) {
+                            @if (display_user() && department()) {
                                 <p user class="text-xs">
                                     {{ department() }}
                                 </p>
                             }
-                            @if (start()) {
+                            @if (display_start()) {
                                 <p start class="text-xs">
-                                    {{ start() | date: 'shortTime' }} &ndash;
-                                    {{ end() | date: 'shortTime' }}
+                                    {{
+                                        display_start() | date: 'shortTime'
+                                    }}
+                                    &ndash;
+                                    {{ display_end() | date: 'shortTime' }}
                                 </p>
                             }
                         </div>
@@ -102,14 +110,28 @@ export interface DeskInfoData {
                                         ) | translate
                                     }}
                                 </div>
-                                @if (status() !== 'not-bookable') {
-                                    <div available-until>
-                                        {{ available_until }}
-                                    </div>
-                                }
                             </div>
                         }
                     </div>
+                    @if (next_booking()) {
+                        <div
+                            class="mt-1 flex items-center space-x-2 px-2 pb-2 text-sm"
+                        >
+                            <icon>alarm</icon>
+                            <div>
+                                Free
+                                {{
+                                    current_booking() ? 'at' : 'until'
+                                }}
+                                {{
+                                    (current_booking()
+                                        ? next_booking().date_end
+                                        : next_booking().date
+                                    ) | date: 'shortTime'
+                                }}
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </ng-template>
@@ -199,9 +221,9 @@ export interface DeskInfoData {
             }
         `,
     ],
-    imports: [CommonModule, CustomTooltipComponent, TranslatePipe],
+    imports: [CommonModule, CustomTooltipComponent, IconComponent, TranslatePipe],
 })
-export class ExploreDeskInfoComponent implements OnInit {
+export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     private _details = inject<DeskInfoData>(MAP_FEATURE_DATA);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -214,6 +236,46 @@ export class ExploreDeskInfoComponent implements OnInit {
     public readonly start = signal(this._details.start);
     public readonly end = signal(this._details.end);
     public readonly department = signal(this._details.department);
+    public readonly bookings = signal(
+        (this._details.bookings || []).map((booking) =>
+            booking instanceof Booking ? booking : new Booking(booking),
+        ),
+    );
+    public readonly date = signal(this._details.date || Date.now());
+    public readonly now = signal(Date.now());
+    public readonly active_time = computed(() =>
+        isSameDay(this.date(), Date.now()) ? this.now() : this.date(),
+    );
+    public readonly next_booking = computed(() =>
+        this.bookings()
+            .filter(
+                (booking) =>
+                    booking.date_end > this.active_time() &&
+                    isSameDay(booking.date, this.date()),
+            )
+            .sort((a, b) => a.date - b.date)[0],
+    );
+    public readonly current_booking = computed(() =>
+        this.next_booking()
+            ? this.next_booking().date <= this.active_time() &&
+              this.next_booking().date_end > this.active_time()
+            : false,
+    );
+    public readonly display_booking = computed(
+        () => this.next_booking() || null,
+    );
+    public readonly display_user = computed(
+        () =>
+            this.display_booking()?.user_name ||
+            this.display_booking()?.booked_by_name ||
+            this.user(),
+    );
+    public readonly display_start = computed(
+        () => this.display_booking()?.date || this.start(),
+    );
+    public readonly display_end = computed(
+        () => this.display_booking()?.date_end || this.end(),
+    );
 
     public y_pos = signal<'top' | 'bottom'>('top');
 
@@ -222,10 +284,7 @@ export class ExploreDeskInfoComponent implements OnInit {
     public ngOnInit(tries = 0) {
         if (tries > 10) return;
         setTimeout(() => this.updatePosition(), 200);
-    }
-
-    public get available_until() {
-        return '';
+        this.interval('time', () => this.now.set(Date.now()), 5000);
     }
 
     public updatePosition(tries = 0) {

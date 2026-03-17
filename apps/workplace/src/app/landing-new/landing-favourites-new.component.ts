@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    OrganisationService,
     SETTING_KEYS,
     settingSignal,
     SettingsService,
@@ -19,6 +20,7 @@ import {
 } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { ExploreSpacesService } from '@placeos/explore';
+import { filter, startWith, switchMap } from 'rxjs/operators';
 
 export interface FavoriteEntry {
     id: string;
@@ -166,6 +168,7 @@ export class LandingFavouritesNewComponent {
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
     private _settings = inject(SettingsService);
+    private _org = inject(OrganisationService);
 
     // Favorite IDs
     public readonly fav_space_ids = settingSignal<string[]>(
@@ -194,15 +197,29 @@ export class LandingFavouritesNewComponent {
         initialValue: [] as Space[],
     });
     public readonly all_desks = toSignal(
-        this._booking_form.loadResourceList('desks'),
+        this._org.active_building.pipe(
+            filter((building) => !!building),
+            switchMap(() => this._booking_form.loadResourceList('desks')),
+            startWith([] as any[]),
+        ),
         { initialValue: [] as any[] },
     );
     public readonly all_parking = toSignal(
-        this._booking_form.loadResourceList('parking-spaces'),
+        this._org.active_building.pipe(
+            filter((building) => !!building),
+            switchMap(() =>
+                this._booking_form.loadResourceList('parking-spaces'),
+            ),
+            startWith([] as any[]),
+        ),
         { initialValue: [] as any[] },
     );
     public readonly all_lockers = toSignal(
-        this._booking_form.loadResourceList('lockers'),
+        this._org.active_building.pipe(
+            filter((building) => !!building),
+            switchMap(() => this._booking_form.loadResourceList('lockers')),
+            startWith([] as any[]),
+        ),
         { initialValue: [] as any[] },
     );
 
@@ -328,24 +345,10 @@ export class LandingFavouritesNewComponent {
                 break;
 
             case 'desk':
-                const desk = this.all_desks().find((d) => d.id === item.id);
-                if (!desk) return;
-
-                // Initialize form with desk before navigating
-                this._booking_form.newForm('desk');
-                this._booking_form.setOptions({ type: 'desk' });
-                this._booking_form.form.patchValue({
-                    resources: [desk],
-                    asset_id: desk.id,
-                    booking_type: 'desk',
-                });
-
-                // Navigate after setting the resource
-                if (use_new_features) {
-                    this._router.navigate(['/book', 'desk']);
-                } else {
-                    this._router.navigate(['/book', 'desks']);
-                }
+                this._router.navigate(
+                    ['/book', use_new_features ? 'desk' : 'desks'],
+                    { queryParams: { asset_id: item.id } },
+                );
                 break;
 
             case 'parking':
