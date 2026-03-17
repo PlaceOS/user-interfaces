@@ -189,17 +189,50 @@ import { ParkingStateService } from './parking-state.service';
             }
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
-                <button
-                    icon
-                    matRipple
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                    (click)="manageRestrictions()"
-                    [matTooltip]="
-                        'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
-                    "
-                >
-                    <icon>lock_open</icon>
-                </button>
+                <div class="flex gap-2">
+                    @if (view() === 'spaces') {
+                        <button
+                            icon
+                            matRipple
+                            class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
+                            "
+                            [disabled]="!(options | async)?.zones?.length"
+                        >
+                            <icon>upload</icon>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                class="absolute inset-0 opacity-0"
+                                [disabled]="!(options | async)?.zones?.length"
+                                (change)="uploadSpacesCSV($any($event))"
+                            />
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                            (click)="downloadSpacesCSV()"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
+                            "
+                        >
+                            <icon>download</icon>
+                        </button>
+                    }
+                    <button
+                        icon
+                        matRipple
+                        class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                        (click)="manageRestrictions()"
+                        [matTooltip]="
+                            'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
+                        "
+                    >
+                        <icon>lock_open</icon>
+                    </button>
+                </div>
             }
             @if (section() === 'events') {
                 <div
@@ -389,6 +422,14 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public newParkingSpace() {
         this._state.editSpace();
+    }
+
+    public downloadSpacesCSV() {
+        this._state.downloadSpacesCSV();
+    }
+
+    public uploadSpacesCSV(event: InputEvent) {
+        this._state.uploadSpacesCSV(event);
     }
 
     public newParkingUser() {

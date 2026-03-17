@@ -29,11 +29,10 @@ import {
     DurationFieldComponent,
     RecurrenceFieldComponent,
     TimeFieldComponent,
-    TimeFieldRange,
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { addDays, endOfDay, set, startOfMinute } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 
 const MINUTES_IN_DAY = 24 * 60;
 
@@ -165,7 +164,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                         form().patchValue({ date: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
-                                    [range]="start_time_range"
+                                    [range]="bookable_hours"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
                                 ></a-time-field>
@@ -261,7 +260,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         </div>
                     </section>
                 }
-                @if (form().contains('resources')) {
+                @if (form().contains('resources') && !auto_allocation) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -283,6 +282,17 @@ const MINUTES_IN_DAY = 24 * 60;
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>
                         }
+                    </section>
+                }
+                @if (auto_allocation) {
+                    <section class="p-2">
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-4 py-3 text-center text-sm"
+                        >
+                            {{
+                                'BOOKINGS.DESK_AUTO_ALLOCATION_INFO' | translate
+                            }}
+                        </p>
                     </section>
                 }
                 @if (has_assets && !(options | async)?.group) {
@@ -405,6 +415,10 @@ export class NewDeskFormDetailsComponent
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
+    public get auto_allocation() {
+        return !!this._state.auto_allocation;
+    }
+
     public get allow_time_changes() {
         return this._settings.get('app.desks.allow_time_changes') !== false;
     }
@@ -412,8 +426,7 @@ export class NewDeskFormDetailsComponent
     public get allow_all_day() {
         return (
             this.allow_time_changes &&
-            !this.bookable_hours &&
-            (!!this._settings.get('app.desks.allow_all_day') ||
+            (this._settings.get('app.desks.allow_all_day') ??
                 !!this._settings.get('app.bookings.allow_all_day'))
         );
     }
@@ -439,34 +452,10 @@ export class NewDeskFormDetailsComponent
     }
 
     public get bookable_hours() {
-        const minutes =
+        return (
             this._settings.get('app.desks.bookable_hours') ||
-            this._settings.get('app.bookings.bookable_hours');
-        const start = Number(minutes?.start);
-        const end = Number(minutes?.end);
-        if (!Number.isFinite(start) || !Number.isFinite(end)) {
-            return undefined;
-        }
-        const normalised_start = Math.max(0, Math.min(MINUTES_IN_DAY, start));
-        const normalised_end = Math.max(0, Math.min(MINUTES_IN_DAY, end));
-        if (normalised_start >= normalised_end) {
-            return undefined;
-        }
-        return { start: normalised_start, end: normalised_end };
-    }
-
-    public get start_time_range() {
-        const bookable_hours = this.bookable_hours;
-        if (!bookable_hours) {
-            return undefined;
-        }
-        return {
-            start: bookable_hours.start,
-            end: Math.max(
-                bookable_hours.start,
-                bookable_hours.end - this.minimum_duration,
-            ),
-        };
+            this._settings.get('app.bookings.bookable_hours')
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -478,94 +467,10 @@ export class NewDeskFormDetailsComponent
                     asset_id: this.selected_desk.id,
                 });
             }
-            this.subscription(
-                'desk_bookable_hours',
-                form.valueChanges.subscribe(() => this.enforceBookableHours()),
-            );
-            this.timeout('desk_bookable_hours_init', () =>
-                this.enforceBookableHours(),
-            );
         }
     }
 
     public onRecurrenceChange(recurrence: BookingRecurrence) {
         this.form().patchValue(recurrence);
-    }
-
-    private enforceBookableHours(): void {
-        const form = this.form();
-        const bookable_hours = this.bookable_hours;
-        const start_time_range = this.start_time_range;
-        if (!form || !bookable_hours || !start_time_range) {
-            return;
-        }
-        const value = form.getRawValue();
-        const patch: Record<string, any> = {};
-        if (value.all_day) {
-            patch.all_day = false;
-        }
-        if (value.date) {
-            const start_date = this.clampDateToRange(
-                value.date,
-                start_time_range,
-            );
-            if (start_date !== value.date) {
-                patch.date = start_date;
-            }
-        }
-        const start_date = patch.date ?? value.date;
-        if (!start_date) {
-            this.patchBookableHours(form, patch);
-            return;
-        }
-        const start_minutes = this.minutesSinceMidnight(start_date);
-        const max_duration = Math.min(
-            this.max_duration,
-            bookable_hours.end - start_minutes,
-        );
-        if (value.duration > max_duration) {
-            patch.duration = max_duration;
-        }
-        this.patchBookableHours(form, patch);
-    }
-
-    private clampDateToRange(datestamp: number, range: TimeFieldRange): number {
-        const current_minutes = this.minutesSinceMidnight(datestamp);
-        if (current_minutes < range.start) {
-            return this.setMinutesSinceMidnight(datestamp, range.start);
-        }
-        if (current_minutes > range.end) {
-            return this.setMinutesSinceMidnight(datestamp, range.end);
-        }
-        return datestamp;
-    }
-
-    private minutesSinceMidnight(datestamp: number): number {
-        const date = new Date(datestamp);
-        return date.getHours() * 60 + date.getMinutes();
-    }
-
-    private setMinutesSinceMidnight(
-        datestamp: number,
-        minute_of_day: number,
-    ): number {
-        return startOfMinute(
-            set(datestamp, {
-                hours: Math.floor(minute_of_day / 60),
-                minutes: minute_of_day % 60,
-                seconds: 0,
-                milliseconds: 0,
-            }),
-        ).valueOf();
-    }
-
-    private patchBookableHours(
-        form: FormGroup,
-        patch: Record<string, any>,
-    ): void {
-        if (!Object.keys(patch).length) {
-            return;
-        }
-        form.patchValue(patch, { emitEvent: false });
     }
 }

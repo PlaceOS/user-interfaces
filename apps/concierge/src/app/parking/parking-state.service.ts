@@ -28,7 +28,11 @@ import {
 import {
     AsyncHandler,
     Booking,
+    csvToJson,
+    downloadFile,
     i18n,
+    jsonToCsv,
+    loadTextFileFromInputEvent,
     nextValueFrom,
     notifyError,
     notifySuccess,
@@ -253,6 +257,110 @@ export class ParkingStateService extends AsyncHandler {
 
     public stopPolling() {
         this.clearInterval('poll');
+    }
+
+    /** Download current parking spaces as a CSV file */
+    public async downloadSpacesCSV() {
+        const spaces = await nextValueFrom(this.spaces);
+        const rows = spaces.map((space) => ({
+            id: space.id || '',
+            identifier: space.identifier || '',
+            map_id: space.map_id || '',
+            assigned_to: space.assigned_to || '',
+            assigned_name: space.assigned_name || '',
+            bookable: space.bookable ?? false,
+            place_groups: (space.place_groups || []).join('|'),
+            features: (space.features || []).join('|'),
+            notes: space.notes || '',
+        }));
+        if (!rows.length) {
+            // Download an empty template with headers
+            rows.push({
+                id: '',
+                identifier: '',
+                map_id: '',
+                assigned_to: '',
+                assigned_name: '',
+                bookable: false,
+                place_groups: '',
+                features: '',
+                notes: '',
+            });
+        }
+        const csv = jsonToCsv(rows);
+        downloadFile('parking-spaces.csv', csv);
+    }
+
+    /** Upload a CSV file to create or update parking spaces */
+    public async uploadSpacesCSV(event: InputEvent) {
+        const data = await loadTextFileFromInputEvent(event).catch(([m, e]) => {
+            notifyError(m);
+            throw e;
+        });
+        try {
+            const rows = csvToJson(data) || [];
+            if (!rows.length) {
+                notifyError(i18n('APP.CONCIERGE.PARKING_CSV_EMPTY'));
+                return;
+            }
+            const zone_id =
+                this._options.getValue().zones[0] ||
+                this._org.levelsForBuilding()[0]?.id;
+            if (!zone_id) {
+                notifyError(i18n('APP.CONCIERGE.PARKING_CSV_NO_ZONE'));
+                return;
+            }
+            let success_count = 0;
+            let error_count = 0;
+            for (const row of rows) {
+                try {
+                    const space_data: Partial<ParkingSpace> = {
+                        ...(row.id ? { id: row.id } : {}),
+                        identifier: row.identifier || '',
+                        map_id: row.map_id || '',
+                        assigned_to: row.assigned_to || '',
+                        assigned_name: row.assigned_name || '',
+                        bookable:
+                            row.bookable === true ||
+                            row.bookable === 'true' ||
+                            row.bookable === 'TRUE',
+                        place_groups: row.place_groups
+                            ? String(row.place_groups)
+                                  .split('|')
+                                  .filter(Boolean)
+                            : [],
+                        features: row.features
+                            ? String(row.features).split('|').filter(Boolean)
+                            : [],
+                        notes: row.notes || '',
+                        ...(!row.id ? { zone_id } : {}),
+                    };
+                    await saveParkingSpace(space_data).toPromise();
+                    success_count++;
+                } catch (e) {
+                    console.error('Failed to save parking space row:', row, e);
+                    error_count++;
+                }
+            }
+            if (error_count > 0) {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_CSV_SAVE_ERROR', {
+                        count: error_count,
+                    }),
+                );
+            }
+            if (success_count > 0) {
+                notifySuccess(
+                    i18n('APP.CONCIERGE.PARKING_CSV_SAVE_SUCCESS', {
+                        count: success_count,
+                    }),
+                );
+            }
+            this._change.next(Date.now());
+        } catch (e) {
+            console.error('CSV parsing error:', e);
+            notifyError(i18n('APP.CONCIERGE.PARKING_CSV_PARSE_ERROR'));
+        }
     }
 
     /** Add or update a space in the available list */

@@ -102,6 +102,7 @@ import { BookingFormService } from './booking-form.service';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
+                                [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
                         <div class="flex w-1/3 flex-1 flex-col">
@@ -115,6 +116,7 @@ import { BookingFormService } from './booking-form.service';
                                 [time]="form.value.date"
                                 [max]="max_duration()"
                                 [use_24hr]="use_24hr()"
+                                [end_time]="bookable_hours()?.end"
                             ></a-duration-field>
                         </div>
                     </div>
@@ -390,6 +392,11 @@ export class VisitorInviteFormComponent
     public readonly can_book_for_others = settingSignal(
         'bookings.can_book_for_others',
         false,
+    );
+    public readonly bookable_hours = computed(
+        () =>
+            settingSignal('visitors.bookable_hours', null)() ||
+            settingSignal('bookings.bookable_hours', null)(),
     );
     public readonly max_duration = computed(() =>
         Math.min(

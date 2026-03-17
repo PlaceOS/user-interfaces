@@ -854,6 +854,59 @@ export class BookingFormService extends AsyncHandler {
         return result;
     }
 
+    /** Whether auto-allocation is enabled for the current booking type */
+    public get auto_allocation(): boolean {
+        return !!this.setting('auto_allocation');
+    }
+
+    /**
+     * Auto-allocate a desk from the active building.
+     * Picks the level with the most available desks, then selects one at random.
+     */
+    public async autoAllocateDesk(): Promise<void> {
+        const available = await nextValueFrom(this.available_resources);
+        if (!available?.length) {
+            throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
+        }
+        // Group available desks by zone (level) id
+        const zone_map: Record<string, BookingAsset[]> = {};
+        for (const asset of available) {
+            const zone_id = asset.zone?.id || 'unknown';
+            if (!zone_map[zone_id]) zone_map[zone_id] = [];
+            zone_map[zone_id].push(asset);
+        }
+        // Find the level with the most free desks
+        let best_zone_id = '';
+        let best_count = 0;
+        for (const zone_id in zone_map) {
+            if (zone_map[zone_id].length > best_count) {
+                best_count = zone_map[zone_id].length;
+                best_zone_id = zone_id;
+            }
+        }
+        const candidates = zone_map[best_zone_id];
+        // Select a random desk from that level
+        const selected =
+            candidates[Math.floor(Math.random() * candidates.length)];
+        const zone = selected.zone;
+        this.form.patchValue({
+            resources: [selected],
+            asset_id: selected.id,
+            asset_name: selected.name || selected.id,
+            map_id: selected.map_id || selected.id,
+            booking_asset: selected,
+            zones: (zone
+                ? unique([
+                      this._org.organisation.id,
+                      this._org.region?.id,
+                      zone.parent_id,
+                      zone.id,
+                  ])
+                : [this._org.organisation.id, this._org.region?.id]
+            ).filter((_) => _),
+        });
+    }
+
     public async postFormForGroup() {
         const { members, group, type } = this._options.getValue();
         if (!group) throw i18n('BOOKINGS.GROUP_NOT_SET');

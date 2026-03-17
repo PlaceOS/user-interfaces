@@ -1,10 +1,4 @@
-import {
-    Component,
-    inject,
-    input,
-    OnChanges,
-    SimpleChanges,
-} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +18,6 @@ import {
     HostSelectFieldComponent,
     RecurrenceFieldComponent,
     TimeFieldComponent,
-    TimeFieldRange,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import {
@@ -33,9 +26,7 @@ import {
     differenceInMinutes,
     endOfDay,
     format,
-    set,
     startOfDay,
-    startOfMinute,
 } from 'date-fns';
 
 const MINUTES_IN_DAY = 24 * 60;
@@ -148,7 +139,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form().controls.date.disabled"
-                                [range]="start_time_range"
+                                [range]="bookable_hours"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -296,10 +287,7 @@ const MINUTES_IN_DAY = 24 * 60;
         SettingsToggleComponent,
     ],
 })
-export class MeetingFormDetailsComponent
-    extends AsyncHandler
-    implements OnChanges
-{
+export class MeetingFormDetailsComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
@@ -321,10 +309,7 @@ export class MeetingFormDetailsComponent
     }
 
     public get allow_all_day() {
-        return (
-            this._settings.get('app.events.allow_all_day') &&
-            !this.bookable_hours
-        );
+        return this._settings.get('app.events.allow_all_day');
     }
 
     public get allow_visibility() {
@@ -381,47 +366,7 @@ export class MeetingFormDetailsComponent
     }
 
     public get bookable_hours() {
-        const minutes = this._settings.get('app.events.bookable_hours');
-        const start = Number(minutes?.start);
-        const end = Number(minutes?.end);
-        if (!Number.isFinite(start) || !Number.isFinite(end)) {
-            return undefined;
-        }
-        const normalised_start = Math.max(0, Math.min(MINUTES_IN_DAY, start));
-        const normalised_end = Math.max(0, Math.min(MINUTES_IN_DAY, end));
-        if (normalised_start >= normalised_end) {
-            return undefined;
-        }
-        return { start: normalised_start, end: normalised_end };
-    }
-
-    public get start_time_range() {
-        const bookable_hours = this.bookable_hours;
-        if (!bookable_hours) {
-            return undefined;
-        }
-        return {
-            start: bookable_hours.start,
-            end: Math.max(
-                bookable_hours.start,
-                bookable_hours.end -
-                    (this.allow_multiday ? 0 : this.minimum_duration),
-            ),
-        };
-    }
-
-    public ngOnChanges(changes: SimpleChanges): void {
-        const form = this.form();
-        if (!changes.form || !form) {
-            return;
-        }
-        this.subscription(
-            'meeting_bookable_hours',
-            form.valueChanges.subscribe(() => this.enforceBookableHours()),
-        );
-        this.timeout('meeting_bookable_hours_init', () =>
-            this.enforceBookableHours(),
-        );
+        return this._settings.get('app.events.bookable_hours');
     }
 
     public readonly duration_info = (time: number) => {
@@ -442,90 +387,4 @@ export class MeetingFormDetailsComponent
         { value: 'private', label: 'PRIVATE' },
         { value: 'confidential', label: 'CONFIDENTIAL' },
     ];
-
-    private enforceBookableHours(): void {
-        const form = this.form();
-        const bookable_hours = this.bookable_hours;
-        const start_time_range = this.start_time_range;
-        if (!form || !bookable_hours || !start_time_range) {
-            return;
-        }
-        const value = form.getRawValue();
-        const patch: Record<string, any> = {};
-        if (value.all_day) {
-            patch.all_day = false;
-        }
-        if (value.date) {
-            const start_date = this.clampDateToRange(
-                value.date,
-                start_time_range,
-            );
-            if (start_date !== value.date) {
-                patch.date = start_date;
-            }
-        }
-        if (this.allow_multiday && value.date_end) {
-            const end_date = this.clampDateToRange(
-                value.date_end,
-                bookable_hours,
-            );
-            if (end_date !== value.date_end) {
-                patch.date_end = end_date;
-            }
-        }
-        const start_date = patch.date ?? value.date;
-        if (!start_date) {
-            this.patchBookableHours(form, patch);
-            return;
-        }
-        const start_minutes = this.minutesSinceMidnight(start_date);
-        const max_duration = Math.min(
-            this.max_duration,
-            bookable_hours.end - start_minutes,
-        );
-        if (!this.allow_multiday && value.duration > max_duration) {
-            patch.duration = max_duration;
-        }
-        this.patchBookableHours(form, patch);
-    }
-
-    private clampDateToRange(datestamp: number, range: TimeFieldRange): number {
-        const current_minutes = this.minutesSinceMidnight(datestamp);
-        if (current_minutes < range.start) {
-            return this.setMinutesSinceMidnight(datestamp, range.start);
-        }
-        if (current_minutes > range.end) {
-            return this.setMinutesSinceMidnight(datestamp, range.end);
-        }
-        return datestamp;
-    }
-
-    private minutesSinceMidnight(datestamp: number): number {
-        const date = new Date(datestamp);
-        return date.getHours() * 60 + date.getMinutes();
-    }
-
-    private setMinutesSinceMidnight(
-        datestamp: number,
-        minute_of_day: number,
-    ): number {
-        return startOfMinute(
-            set(datestamp, {
-                hours: Math.floor(minute_of_day / 60),
-                minutes: minute_of_day % 60,
-                seconds: 0,
-                milliseconds: 0,
-            }),
-        ).valueOf();
-    }
-
-    private patchBookableHours(
-        form: FormGroup,
-        patch: Record<string, any>,
-    ): void {
-        if (!Object.keys(patch).length) {
-            return;
-        }
-        form.patchValue(patch, { emitEvent: false });
-    }
 }

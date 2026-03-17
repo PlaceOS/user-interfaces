@@ -48,6 +48,11 @@ interface ParkingRequestOption {
     name: string;
 }
 
+interface VehicleTypeOption {
+    id: string;
+    name: string;
+}
+
 interface ParkingRequestType {
     id: string;
     name: string;
@@ -87,6 +92,14 @@ const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
         start_time: SHIFT_PRESETS.half_day_pm.start,
         end_time: SHIFT_PRESETS.half_day_pm.end,
     },
+];
+
+const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
+    { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
+    { id: 'bike', name: 'BOOKINGS.PARKING_VEHICLE_BIKE' },
+    { id: 'van', name: 'BOOKINGS.PARKING_VEHICLE_VAN' },
+    { id: 'truck', name: 'BOOKINGS.PARKING_VEHICLE_TRUCK' },
+    { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
 ];
 
 const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
@@ -588,28 +601,32 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                                 }})
                                             </mat-option>
                                         }
-                                        <mat-option value="custom">
-                                            {{
-                                                'BOOKINGS.PARKING_SHIFT_CUSTOM'
-                                                    | translate
-                                            }}
-                                            ({{
-                                                shiftTime(
-                                                    custom_start_time_mins()
-                                                ) | date: time_format
-                                            }}
-                                            -
-                                            {{
-                                                shiftTime(
-                                                    custom_end_time_mins()
-                                                ) | date: time_format
-                                            }})
-                                        </mat-option>
+                                        @if (!hide_custom_shift()) {
+                                            <mat-option value="custom">
+                                                {{
+                                                    'BOOKINGS.PARKING_SHIFT_CUSTOM'
+                                                        | translate
+                                                }}
+                                                ({{
+                                                    shiftTime(
+                                                        custom_start_time_mins()
+                                                    ) | date: time_format
+                                                }}
+                                                -
+                                                {{
+                                                    shiftTime(
+                                                        custom_end_time_mins()
+                                                    ) | date: time_format
+                                                }})
+                                            </mat-option>
+                                        }
                                     </mat-select>
                                 </mat-form-field>
                             }
                         </div>
-                        @if (shift_type() === 'custom') {
+                        @if (
+                            shift_type() === 'custom' && !hide_custom_shift()
+                        ) {
                             <div class="flex gap-4">
                                 <div class="flex-1">
                                     <label
@@ -745,14 +762,16 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                 </div>
                             }
                         </div>
-                        <settings-toggle
-                            formControlName="prefer_booked_location_first"
-                        >
-                            {{
-                                'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
-                                    | translate
-                            }}
-                        </settings-toggle>
+                        @if (!hide_prefer_toggle()) {
+                            <settings-toggle
+                                formControlName="prefer_booked_location_first"
+                            >
+                                {{
+                                    'BOOKINGS.PARKING_PREFER_BOOKED_LOCATION_FIRST'
+                                        | translate
+                                }}
+                            </settings-toggle>
+                        }
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
@@ -774,26 +793,14 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                             </label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select formControlName="vehicle_type">
-                                    <mat-option value="car">{{
-                                        'BOOKINGS.PARKING_VEHICLE_CAR'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="bike">{{
-                                        'BOOKINGS.PARKING_VEHICLE_BIKE'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="van">{{
-                                        'BOOKINGS.PARKING_VEHICLE_VAN'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="truck">{{
-                                        'BOOKINGS.PARKING_VEHICLE_TRUCK'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="other">{{
-                                        'BOOKINGS.PARKING_VEHICLE_OTHER'
-                                            | translate
-                                    }}</mat-option>
+                                    @for (
+                                        vtype of vehicle_type_options();
+                                        track vtype.id
+                                    ) {
+                                        <mat-option [value]="vtype.id">{{
+                                            vtype.name | translate
+                                        }}</mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>
@@ -839,9 +846,6 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                         | translate
                                 "
                             >
-                                <mat-option value="">{{
-                                    'COMMON.ANY' | translate
-                                }}</mat-option>
                                 @for (
                                     option of approver_group_options();
                                     track option.id
@@ -882,10 +886,6 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                     setSpaceRestriction($event.value)
                                 "
                             >
-                                <mat-option value="none">{{
-                                    'BOOKINGS.PARKING_RESTRICTION_NONE'
-                                        | translate
-                                }}</mat-option>
                                 @for (
                                     option of space_restriction_options();
                                     track option.id
@@ -939,7 +939,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(true);
     public readonly building = this._org.active_building;
-    public readonly building_list = this._org.building_list;
+    public readonly building_list = this._org.active_buildings;
 
     public readonly available_days = settingSignal(
         'parking.available_period',
@@ -952,12 +952,23 @@ export class ParkingRequestFormDetailsComponent
     public readonly shift_options_setting = settingSignal<
         ParkingRequestShiftOption[]
     >('parking.request_shift_options', DEFAULT_SHIFT_OPTIONS);
+    public readonly hide_custom_shift = settingSignal<boolean>(
+        'parking.hide_custom_shift',
+        false,
+    );
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
     public readonly approver_groups_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.approver_groups', []);
+    public readonly vehicle_type_options_setting = settingSignal<
+        VehicleTypeOption[]
+    >('parking.vehicle_types', DEFAULT_VEHICLE_TYPE_OPTIONS);
+    public readonly hide_prefer_toggle = settingSignal<boolean>(
+        'parking.hide_prefer_toggle',
+        false,
+    );
     public readonly auto_approved_groups_setting = settingSignal<string[]>(
         'parking.auto_approved_groups',
         [],
@@ -997,8 +1008,13 @@ export class ParkingRequestFormDetailsComponent
     public readonly selected_shift_option = computed(() =>
         this.shift_options().find((_) => _.id === this.shift_type()),
     );
-    public readonly show_shift_select = computed(
-        () => this.shift_options().length + 1 > 1,
+    public readonly show_shift_select = computed(() => {
+        const preset_count = this.shift_options().length;
+        const custom_count = this.hide_custom_shift() ? 0 : 1;
+        return preset_count + custom_count > 1;
+    });
+    public readonly vehicle_type_options = computed(() =>
+        this._normaliseOptions(this.vehicle_type_options_setting()),
     );
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
@@ -1009,10 +1025,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly selected_space_restriction = computed(() => {
         const value = this.form()?.getRawValue()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
-        if (value === true) {
-            return this.space_restriction_options()[0]?.id || 'none';
-        }
-        return 'none';
+        return this.space_restriction_options()[0]?.id || '';
     });
 
     public readonly WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7].map((index) => ({
@@ -1053,7 +1066,6 @@ export class ParkingRequestFormDetailsComponent
                 : this._default_request_types;
         const user_groups = currentUser()?.groups || [];
         return all_types.filter((t) => {
-            if (t.id === 'special' && !this.show_special_needs()) return false;
             if (t.groups?.length)
                 return t.groups.some((g) => user_groups.includes(g));
             return true;
@@ -1125,11 +1137,15 @@ export class ParkingRequestFormDetailsComponent
             this.end_time_mins.set(start + duration);
             this._detectShiftType(start, start + duration);
             if (this.shift_type() === 'custom') {
-                this.custom_start_time_mins.set(start);
-                this.custom_end_time_mins.set(start + duration);
+                if (this.hide_custom_shift() && this.shift_options().length) {
+                    this.setShiftType(this.shift_options()[0].id);
+                } else {
+                    this.custom_start_time_mins.set(start);
+                    this.custom_end_time_mins.set(start + duration);
+                }
             }
         } else {
-            if (this.shift_options().length) {
+            if (this.hide_custom_shift() && this.shift_options().length) {
                 this.setShiftType(this.shift_options()[0].id);
             } else {
                 this.start_time_mins.set(default_custom_shift.start_time);
@@ -1137,11 +1153,20 @@ export class ParkingRequestFormDetailsComponent
                 this.shift_type.set('custom');
             }
         }
-        if (
-            form.value.space_restrictions === true &&
-            this.space_restriction_options().length
-        ) {
-            this.setSpaceRestriction(this.space_restriction_options()[0].id);
+        if (this.space_restriction_options().length) {
+            const current = form.value.space_restrictions;
+            if (
+                !current ||
+                current === true ||
+                (typeof current === 'string' &&
+                    !this.space_restriction_options().find(
+                        (_) => _.id === current,
+                    ))
+            ) {
+                this.setSpaceRestriction(
+                    this.space_restriction_options()[0].id,
+                );
+            }
         }
         const is_daily =
             this.allow_recurrence() && form.value.recurrence_type === 'daily';
@@ -1272,7 +1297,7 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         form.patchValue({
-            space_restrictions: value === 'none' ? false : value,
+            space_restrictions: value || false,
         });
     }
 

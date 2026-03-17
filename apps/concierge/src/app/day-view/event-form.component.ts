@@ -76,6 +76,7 @@ import { map, tap } from 'rxjs/operators';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr_time"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         <div class="flex flex-1 flex-col">
@@ -88,6 +89,8 @@ import { map, tap } from 'rxjs/operators';
                                 [time]="form().controls?.date?.value"
                                 formControlName="duration"
                                 [use_24hr]="use_24hr_time"
+                                [max]="max_duration"
+                                [end_time]="bookable_hours?.end"
                             ></a-duration-field>
                         </div>
                     </div>
@@ -287,5 +290,13 @@ export class EventFormComponent {
 
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return this._settings.get('app.events.bookable_hours');
+    }
+
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 480;
     }
 }

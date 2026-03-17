@@ -80,7 +80,19 @@ export class NewDeskFlowFormComponent implements OnInit {
         this._state.clearForm();
     };
 
-    public readonly viewConfirm = () => {
+    public readonly viewConfirm = async () => {
+        // Auto-allocate a desk if the setting is enabled and none selected
+        if (this._state.auto_allocation) {
+            try {
+                await this._state.autoAllocateDesk();
+            } catch (e) {
+                return notifyError(
+                    typeof e === 'string'
+                        ? e
+                        : i18n('BOOKINGS.DESK_AVAILABLE_ERROR'),
+                );
+            }
+        }
         const { asset_id, resources } = this.form.getRawValue();
         if (resources?.length && asset_id !== resources[0].id) {
             this.form.patchValue({ asset_id: resources[0].id });
