@@ -6,17 +6,22 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     BuildingPipe,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateRangeFieldComponent } from '@placeos/form-fields';
+import { endOfDay, startOfDay } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { VipVisitorListingComponent } from './vip-visitor-listing.component';
 import { VipVisitorsStateService } from './vip-visitors-state.service';
@@ -79,7 +84,18 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
                         </mat-select>
                     </mat-form-field>
                     <div class="w-2 flex-1"></div>
-                    <date-options (dateChange)="setDate($event)"></date-options>
+                    <date-range-field [week_start]="week_start" [from]="0">
+                        <input
+                            #startDate
+                            [ngModel]="start"
+                            (ngModelChange)="$event ? setStartDate($event) : ''"
+                        />
+                        <input
+                            #endDate
+                            [ngModel]="end"
+                            (ngModelChange)="$event ? setEndDate($event) : ''"
+                        />
+                    </date-range-field>
                 </div>
                 <div class="mx-8 h-1/2 flex-1 overflow-auto">
                     <vip-visitor-listings></vip-visitor-listings>
@@ -109,7 +125,7 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,
-        DateOptionsComponent,
+        DateRangeFieldComponent,
         VipVisitorListingComponent,
         FormsModule,
         MatRippleModule,
@@ -121,7 +137,10 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
         IconComponent,
     ],
 })
-export class VipVisitorsComponent implements OnInit, OnDestroy {
+export class VipVisitorsComponent
+    extends AsyncHandler
+    implements OnInit, OnDestroy
+{
     private _state = inject(VipVisitorsStateService);
     private _org = inject(OrganisationService);
     private _router = inject(Router);
@@ -131,6 +150,8 @@ export class VipVisitorsComponent implements OnInit, OnDestroy {
     public readonly loading = this._state.loading;
     public readonly filters = this._state.filters;
     public zones: string[] = [];
+    public start: number = startOfDay(Date.now()).getTime();
+    public end: number = endOfDay(Date.now()).getTime();
     public readonly levels = combineLatest([
         this._org.active_building,
         this._org.active_region,
@@ -141,8 +162,6 @@ export class VipVisitorsComponent implements OnInit, OnDestroy {
                 : this._org.levelsForBuilding(bld),
         ),
     );
-    public readonly setDate = (date: number) =>
-        this._state.setFilters({ date });
     public readonly setFilters = (filters: any) =>
         this._state.setFilters(filters);
     public readonly setSearch = (str: string) =>
@@ -156,15 +175,55 @@ export class VipVisitorsComponent implements OnInit, OnDestroy {
         this._state.setFilters({ zones });
     };
 
+    public readonly setStartDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this.start = date;
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { start: date },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setFilters({ start_date: date });
+    };
+
+    public readonly setEndDate = (date) => {
+        if (date instanceof Date) date = date.valueOf();
+        this.end = endOfDay(date).valueOf();
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { end: endOfDay(date).valueOf() },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setFilters({ end_date: endOfDay(date).valueOf() });
+    };
+
     public get use_region() {
         return !!this._settings.get('app.use_region');
     }
 
+    public get week_start() {
+        return this._settings.get('app.week_start');
+    }
+
     public ngOnInit() {
         this._state.startPolling();
+        this.subscription(
+            'route.query',
+            this._route.queryParamMap.subscribe((params) => {
+                if (params.has('start')) {
+                    this.start = +params.get('start');
+                    this._state.setFilters({ start_date: this.start });
+                }
+                if (params.has('end')) {
+                    this.end = +params.get('end');
+                    this._state.setFilters({ end_date: this.end });
+                }
+            }),
+        );
     }
 
     public ngOnDestroy() {
+        super.ngOnDestroy();
         this._state.stopPolling();
     }
 }

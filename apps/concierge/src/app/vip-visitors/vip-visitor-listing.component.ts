@@ -25,14 +25,14 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
     selector: 'vip-visitor-listings',
     template: `
         <simple-table
-            class="z-0 block min-w-240 text-sm"
+            class="z-0 block min-w-320 text-sm"
             [data]="visitors"
             [columns]="[
                 {
                     key: 'date',
                     name: 'FORM.DATE' | translate,
                     content: date_template,
-                    size: '7rem',
+                    size: '8rem',
                 },
                 {
                     key: 'time',

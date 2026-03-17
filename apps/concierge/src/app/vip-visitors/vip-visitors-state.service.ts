@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { addDays, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -31,10 +31,10 @@ import {
 import { openConfirmModal } from '@placeos/components';
 
 export interface VipVisitorFilters {
-    date?: number;
+    start_date?: number;
+    end_date?: number;
     zones?: string[];
     all_bookings?: boolean;
-    period?: number;
 }
 
 @Injectable({
@@ -66,9 +66,12 @@ export class VipVisitorsStateService extends AsyncHandler {
         debounceTime(150),
         switchMap(([bld, filters]) => {
             this._loading.next(true);
-            const date = filters.date ? new Date(filters.date) : new Date();
-            const start = startOfDay(date);
-            const end = addDays(start, filters.period || 1);
+            const start = filters.start_date
+                ? startOfDay(new Date(filters.start_date))
+                : startOfDay(new Date());
+            const end = filters.end_date
+                ? endOfDay(new Date(filters.end_date))
+                : endOfDay(start);
             return queryBookings({
                 type: 'vip-visitor',
                 period_start: getUnixTime(start),
