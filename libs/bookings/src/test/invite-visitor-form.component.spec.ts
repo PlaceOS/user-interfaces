@@ -16,8 +16,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SettingsService } from '@placeos/common';
 import { InviteVisitorFormComponent } from '../lib/invite-visitor-form.component';
 
-const wait = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('InviteVisitorFormComponent', () => {
     let spectator: SpectatorRouting<InviteVisitorFormComponent>;
@@ -31,9 +30,7 @@ describe('InviteVisitorFormComponent', () => {
                 loading: new BehaviorSubject(''),
                 setOptions: jest.fn(),
                 postForm: jest.fn(async () => new Booking()),
-                postFormForVisitorGroup: jest.fn(
-                    async () => new Booking(),
-                ),
+                postFormForVisitorGroup: jest.fn(async () => new Booking()),
                 loadGroupSiblings: jest.fn(async () => []),
                 editFormForGroup: jest.fn(async () => new Booking()),
             }),
@@ -245,9 +242,8 @@ describe('InviteVisitorFormComponent', () => {
     it('should persist edited reason from title when sending invite', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
-            (key: string) =>
-                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
         service.form.patchValue({
@@ -293,9 +289,9 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.sendInvite();
 
         expect(service.editFormForGroup).toHaveBeenCalledTimes(1);
-        expect((service.editFormForGroup as jest.Mock).mock.calls[0][0][0].id).toBe(
-            'booking-parent',
-        );
+        expect(
+            (service.editFormForGroup as jest.Mock).mock.calls[0][0][0].id,
+        ).toBe('booking-parent');
         expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
     });
 
@@ -326,7 +322,9 @@ describe('InviteVisitorFormComponent', () => {
 
         await spectator.component.ngOnInit();
 
-        expect(service.form.value.asset_id).toBe('original.visitor@example.com');
+        expect(service.form.value.asset_id).toBe(
+            'original.visitor@example.com',
+        );
     });
 
     it('should load siblings before edit submit when sibling cache is still empty', async () => {
@@ -380,9 +378,8 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep start time available when date control is disabled', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
-            (key: string) =>
-                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         const booking_date = Date.now() - 10 * 60 * 1000;
         service.form.patchValue({
@@ -404,9 +401,8 @@ describe('InviteVisitorFormComponent', () => {
     it('should set reason on title only when sending invite', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
-            (key: string) =>
-                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         await spectator.component.ngOnInit();
         service.form.patchValue({
@@ -426,9 +422,8 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep preloaded edit booking date when initialising visitor form', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
-            (key: string) =>
-                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_filters');
@@ -451,9 +446,8 @@ describe('InviteVisitorFormComponent', () => {
     it('should keep preloaded edit booking date when booking only has visitor type', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(
-            (key: string) =>
-                key === 'app.bookings.multiple_visitors' ? false : undefined,
+        (settings.get as jest.Mock).mockImplementation((key: string) =>
+            key === 'app.bookings.multiple_visitors' ? false : undefined,
         );
         sessionStorage.removeItem('PLACEOS.booking_form');
         sessionStorage.removeItem('PLACEOS.booking_form_filters');
@@ -480,6 +474,29 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.form.getRawValue().id).toBe('booking-edit-type-only');
         expect(service.form.getRawValue().date).toBe(booking_date);
+    });
+
+    it('should read bookable_hours from visitor settings with fallback', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation((key: string) => {
+            if (key === 'app.visitors.bookable_hours')
+                return { start: 480, end: 1140 };
+            return undefined;
+        });
+        expect(spectator.component.bookable_hours).toEqual({
+            start: 480,
+            end: 1140,
+        });
+
+        (settings.get as jest.Mock).mockImplementation((key: string) => {
+            if (key === 'app.bookings.bookable_hours')
+                return { start: 540, end: 1080 };
+            return undefined;
+        });
+        expect(spectator.component.bookable_hours).toEqual({
+            start: 540,
+            end: 1080,
+        });
     });
 
     it('should not block init while loading sibling visitors', async () => {
