@@ -28,10 +28,10 @@ import {
     template: `
         <div class="h-full w-full">
             <div
-                class="flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 flex w-full flex-col overflow-hidden rounded-xl border"
             >
                 <div
-                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                    class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
                     <div>
@@ -55,7 +55,7 @@ import {
                         />
                     </mat-form-field>
                     <div
-                        class="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0"
+                        class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
                     >
                         <div class="relative flex-1">
                             <label for="date" class="uppercase">{{
@@ -82,6 +82,7 @@ import {
                                     form().patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
+                                [range]="bookable_hours()"
                                 [disabled]="form_value().all_day"
                             />
                         </div>
@@ -97,6 +98,7 @@ import {
                                 [step]="duration_step()"
                                 [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
+                                [end_time]="bookable_hours()?.end"
                                 [timezone]="timezone"
                                 formControlName="duration"
                                 [disabled]="form_value().all_day"
@@ -124,7 +126,7 @@ import {
                     }
                 </div>
                 <div
-                    class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                    class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
                 >
                     <icon>info</icon>
                     <div>
@@ -147,7 +149,7 @@ import {
                             </div>
                         </div>
                         @if (!(capacity !== 1 && capacity !== -1)) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -164,7 +166,7 @@ import {
                             </div>
                         </div>
                         @if (capacity === 3) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -181,7 +183,7 @@ import {
                             </div>
                         </div>
                         @if (capacity === 5) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                     <button
@@ -201,14 +203,14 @@ import {
                             </div>
                         </div>
                         @if (capacity === 9) {
-                            <icon class="absolute right-0 top-0">task_alt</icon>
+                            <icon class="absolute top-0 right-0">task_alt</icon>
                         }
                     </button>
                 </div>
             </div>
             <div class="min-h-4 sm:min-h-[calc(100vh-44.25rem)]"></div>
             <div
-                class="sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+                class="border-base-300 bg-base-100 sticky bottom-0 z-20 flex justify-between rounded-t-xl border-x border-t p-3"
             >
                 <div></div>
                 <button btn matRipple (click)="searchRooms()">
@@ -278,6 +280,10 @@ export class MeetingFlowDetailsComponent {
         'events.custom_duration_options',
         [],
     );
+
+    public readonly bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('events.bookable_hours', undefined);
 
     public get timezone() {
         return this._settings.get('app.events.use_building_timezone')
