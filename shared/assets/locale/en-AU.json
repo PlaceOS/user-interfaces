@@ -590,6 +590,7 @@
         "DESK_GROUP_MEMBERS": "Group Members",
         "DESK_GROUP_MEMBERS_INFO": "Group members will be assigned desks nearby to your selected desk",
         "DESK_GROUP_INFO": "Desks nearby to the selected desk will booked for group members",
+        "DESK_AUTO_ALLOCATION_INFO": "A desk will be automatically assigned to you when you confirm your booking.",
         "DESK_DETAILS_HEADER": "Booking Details",
         "DESK_SELECT_HEADER": "Select Desk",
         "DESK_ASSETS_REQUESTED": "Requested assets",

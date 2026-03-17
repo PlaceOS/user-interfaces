@@ -260,7 +260,7 @@ const MINUTES_IN_DAY = 24 * 60;
                         </div>
                     </section>
                 }
-                @if (form().contains('resources')) {
+                @if (form().contains('resources') && !auto_allocation) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -282,6 +282,17 @@ const MINUTES_IN_DAY = 24 * 60;
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>
                         }
+                    </section>
+                }
+                @if (auto_allocation) {
+                    <section class="p-2">
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-4 py-3 text-center text-sm"
+                        >
+                            {{
+                                'BOOKINGS.DESK_AUTO_ALLOCATION_INFO' | translate
+                            }}
+                        </p>
                     </section>
                 }
                 @if (has_assets && !(options | async)?.group) {
@@ -404,6 +415,10 @@ export class NewDeskFormDetailsComponent
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
+    public get auto_allocation() {
+        return !!this._state.auto_allocation;
+    }
+
     public get allow_time_changes() {
         return this._settings.get('app.desks.allow_time_changes') !== false;
     }
@@ -411,7 +426,7 @@ export class NewDeskFormDetailsComponent
     public get allow_all_day() {
         return (
             this.allow_time_changes &&
-            (!!this._settings.get('app.desks.allow_all_day') ||
+            (this._settings.get('app.desks.allow_all_day') ??
                 !!this._settings.get('app.bookings.allow_all_day'))
         );
     }
