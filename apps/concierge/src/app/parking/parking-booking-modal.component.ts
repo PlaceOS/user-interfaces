@@ -120,6 +120,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.controls.date.disabled"
                                 [use_24hr]="use_24hr"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         <div class="relative w-1/3 flex-1">
@@ -133,6 +134,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [time]="form?.getRawValue()?.date"
                                 [max]="max_duration"
                                 [use_24hr]="use_24hr"
+                                [end_time]="bookable_hours?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -241,6 +243,13 @@ export class ParkingBookingModalComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
     }
 
     public ngOnInit() {
