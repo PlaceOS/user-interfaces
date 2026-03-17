@@ -65,7 +65,7 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
                     key: 'actions',
                     name: ' ',
                     content: action_template,
-                    size: '3.25rem',
+                    size: '10.5rem',
                     sortable: false,
                 },
             ]"
@@ -198,78 +198,65 @@ import { VipVisitorsStateService } from './vip-visitors-state.service';
             </mat-menu>
         </ng-template>
         <ng-template #action_template let-row="row">
-            <div class="flex items-center justify-end px-2">
-                <button icon matRipple [matMenuTriggerFor]="visitor_menu">
-                    <icon>more_horiz</icon>
+            <div class="flex w-full items-center justify-end space-x-1 px-2">
+                <button
+                    icon
+                    matRipple
+                    class="rounded"
+                    (click)="viewDetails(row)"
+                    [matTooltip]="'APP.CONCIERGE.VIP_VIEW_DETAILS' | translate"
+                >
+                    <icon>visibility</icon>
                 </button>
-                <mat-menu #visitor_menu="matMenu">
-                    <button mat-menu-item (click)="viewDetails(row)">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">visibility</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VIP_VIEW_DETAILS' | translate
-                                }}
-                            </div>
-                        </div>
-                    </button>
-                    <a mat-menu-item [href]="'mailto:' + row?.asset_id">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">email</icon>
-                            <div>
-                                {{
-                                    'APP.CONCIERGE.VISITORS_ACTION_EMAIL_visitor'
-                                        | translate
-                                }}
-                            </div>
-                        </div>
+                <a
+                    icon
+                    matRipple
+                    class="rounded"
+                    [href]="'mailto:' + row?.asset_id"
+                    [matTooltip]="
+                        'APP.CONCIERGE.VISITORS_ACTION_EMAIL_visitor'
+                            | translate
+                    "
+                >
+                    <icon>email</icon>
+                </a>
+                @if (row.extension_data?.vip_assistant_email) {
+                    <a
+                        icon
+                        matRipple
+                        class="rounded"
+                        [href]="
+                            'mailto:' + row.extension_data.vip_assistant_email
+                        "
+                        [matTooltip]="
+                            'APP.CONCIERGE.VIP_EMAIL_ASSISTANT' | translate
+                        "
+                    >
+                        <icon>support_agent</icon>
                     </a>
-                    @if (row.extension_data?.vip_assistant_email) {
-                        <a
-                            mat-menu-item
-                            [href]="
-                                'mailto:' +
-                                row.extension_data.vip_assistant_email
-                            "
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">support_agent</icon>
-                                <div>
-                                    {{
-                                        'APP.CONCIERGE.VIP_EMAIL_ASSISTANT'
-                                            | translate
-                                    }}
-                                </div>
-                            </div>
-                        </a>
-                    }
-                    @if (!row.checked_out_at) {
-                        <button
-                            mat-menu-item
-                            (click)="
-                                row.checked_in ? checkout(row) : checkin(row)
-                            "
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">
-                                    {{
-                                        row.checked_in
-                                            ? 'event_busy'
-                                            : 'event_available'
-                                    }}
-                                </icon>
-                                <div>
-                                    {{
-                                        (row.checked_in
-                                            ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
-                                            : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
-                                        ) | translate
-                                    }}
-                                </div>
-                            </div>
-                        </button>
-                    }
-                </mat-menu>
+                }
+                @if (!row.checked_out_at) {
+                    <button
+                        icon
+                        matRipple
+                        class="rounded"
+                        (click)="row.checked_in ? checkout(row) : checkin(row)"
+                        [matTooltip]="
+                            (row.checked_in
+                                ? 'APP.CONCIERGE.VISITORS_ACTION_CHECKOUT'
+                                : 'APP.CONCIERGE.VISITORS_ACTION_CHECKIN'
+                            ) | translate
+                        "
+                    >
+                        <icon>
+                            {{
+                                row.checked_in
+                                    ? 'event_busy'
+                                    : 'event_available'
+                            }}
+                        </icon>
+                    </button>
+                }
             </div>
         </ng-template>
         <div class="h-8 w-full"></div>
