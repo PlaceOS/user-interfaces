@@ -152,7 +152,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this.subscription(
                 `lvl-desk_bookings`,
                 binding.bindThenSubscribe((d) =>
-                    this.processDeskBookings(d || {}),
+                    this._desk_bookings.next(d || {}),
                 ),
             );
         }),
@@ -326,16 +326,6 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         this.processDevices(devices, system_id);
         this.timeout('update', () => this.updateStatus(), 100);
-    }
-
-    public processDeskBookings({ value }: { value: Record<string, any[]> }) {
-        const bookings_map: Record<string, Booking[]> = {};
-        for (const desk_id in value || {}) {
-            bookings_map[desk_id] = (value[desk_id] || []).map((b) =>
-                b instanceof Booking ? b : new Booking(b),
-            );
-        }
-        this._desk_bookings.next(bookings_map);
     }
 
     private updateStatus() {

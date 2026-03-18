@@ -17,6 +17,7 @@ import { map } from 'rxjs/operators';
 import {
     buildCurrencyOptions,
     currentUser,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -37,6 +38,16 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { lastValueFrom } from 'rxjs';
+import {
+    AVAILABLE_PERIOD_EXTENDED_OPTIONS,
+    BANNER_TYPE_OPTIONS,
+    CACHE_DURATION_OPTIONS,
+    EXPLORE_FEATURE_OPTIONS,
+    MAX_DURATION_FULL_OPTIONS,
+    MAX_DURATION_SHORT_OPTIONS,
+    SETUP_BREAKDOWN_OPTIONS,
+    WEEK_START_OPTIONS,
+} from './settings-option.constants';
 import { UploadButtonComponent } from './upload-button.component';
 
 @Component({
@@ -200,16 +211,14 @@ import { UploadButtonComponent } from './upload-button.component';
                                             standalone: true,
                                         }"
                                     >
-                                        <mat-option value="">None</mat-option>
-                                        <mat-option value="info">
-                                            Info
-                                        </mat-option>
-                                        <mat-option value="warn">
-                                            Warning
-                                        </mat-option>
-                                        <mat-option value="error">
-                                            Error
-                                        </mat-option>
+                                        @for (
+                                            opt of BANNER_TYPE;
+                                            track opt.value
+                                        ) {
+                                            <mat-option [value]="opt.value">{{
+                                                opt.label
+                                            }}</mat-option>
+                                        }
                                     </mat-select>
                                 </mat-form-field>
                             </div>
@@ -312,13 +321,11 @@ import { UploadButtonComponent } from './upload-button.component';
                                 formControlName="week_start"
                                 placeholder="Sunday"
                             >
-                                <mat-option [value]="0">Sunday</mat-option>
-                                <mat-option [value]="1">Monday</mat-option>
-                                <mat-option [value]="2">Tuesday</mat-option>
-                                <mat-option [value]="3">Wednesday</mat-option>
-                                <mat-option [value]="4">Thursday</mat-option>
-                                <mat-option [value]="5">Friday</mat-option>
-                                <mat-option [value]="6">Saturday</mat-option>
+                                @for (opt of WEEK_START; track opt.value) {
+                                    <mat-option [value]="opt.value">{{
+                                        opt.label
+                                    }}</mat-option>
+                                }
                             </mat-select>
                             <mat-hint>
                                 Day of the week to show initially on various
@@ -539,72 +546,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="available-period"
                                             formControlName="allowed_future_days"
                                         >
-                                            <mat-option [value]="1"
-                                                >1 Day</mat-option
-                                            >
-                                            <mat-option [value]="2"
-                                                >2 Day</mat-option
-                                            >
-                                            <mat-option [value]="3"
-                                                >3 Day</mat-option
-                                            >
-                                            <mat-option [value]="4"
-                                                >4 Day</mat-option
-                                            >
-                                            <mat-option [value]="5"
-                                                >5 Day</mat-option
-                                            >
-                                            <mat-option [value]="6"
-                                                >6 Day</mat-option
-                                            >
-                                            <mat-option [value]="7"
-                                                >1 Week</mat-option
-                                            >
-                                            <mat-option [value]="8"
-                                                >8 Day</mat-option
-                                            >
-                                            <mat-option [value]="9"
-                                                >9 Day</mat-option
-                                            >
-                                            <mat-option [value]="10"
-                                                >10 Day</mat-option
-                                            >
-                                            <mat-option [value]="11"
-                                                >11 Day</mat-option
-                                            >
-                                            <mat-option [value]="12"
-                                                >12 Day</mat-option
-                                            >
-                                            <mat-option [value]="13"
-                                                >13 Day</mat-option
-                                            >
-                                            <mat-option [value]="14">
-                                                2 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="21">
-                                                3 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="30">
-                                                1 Month
-                                            </mat-option>
-                                            <mat-option [value]="45">
-                                                6 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="60">
-                                                2 Months
-                                            </mat-option>
-                                            <mat-option [value]="90">
-                                                3 Months
-                                            </mat-option>
-                                            <mat-option [value]="120">
-                                                4 Months
-                                            </mat-option>
-                                            <mat-option [value]="150">
-                                                5 Months
-                                            </mat-option>
-                                            <mat-option [value]="180">
-                                                6 Month
-                                            </mat-option>
+                                            @for (
+                                                opt of AVAILABLE_PERIOD_EXTENDED;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead the user is
@@ -645,69 +595,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="max-duration"
                                             formControlName="max_duration"
                                         >
-                                            <mat-option [value]="60"
-                                                >1 Hour</mat-option
-                                            >
-                                            <mat-option [value]="90"
-                                                >1 Hour 30 Minutes</mat-option
-                                            >
-                                            <mat-option [value]="120"
-                                                >2 Hours</mat-option
-                                            >
-                                            <mat-option [value]="180"
-                                                >3 Hours</mat-option
-                                            >
-                                            <mat-option [value]="240"
-                                                >4 Hours</mat-option
-                                            >
-                                            <mat-option [value]="300"
-                                                >5 Hours</mat-option
-                                            >
-                                            <mat-option [value]="360"
-                                                >6 Hours</mat-option
-                                            >
-                                            <mat-option [value]="420"
-                                                >7 Hours</mat-option
-                                            >
-                                            <mat-option [value]="480"
-                                                >8 Hours</mat-option
-                                            >
-                                            <mat-option [value]="540"
-                                                >9 Hours</mat-option
-                                            >
-                                            <mat-option [value]="600"
-                                                >10 Hours</mat-option
-                                            >
-                                            <mat-option [value]="660"
-                                                >11 Hours</mat-option
-                                            >
-                                            <mat-option [value]="720"
-                                                >12 Hours</mat-option
-                                            >
-                                            <mat-option [value]="780"
-                                                >13 Hours</mat-option
-                                            >
-                                            <mat-option [value]="840"
-                                                >14 Hours</mat-option
-                                            >
-                                            <mat-option [value]="900"
-                                                >15 Hours</mat-option
-                                            >
-                                            <mat-option [value]="960"
-                                                >16 Hours</mat-option
-                                            >
-                                            <mat-option [value]="1020"
-                                                >17 Hours</mat-option
-                                            >
-                                            <mat-option [value]="1080"
-                                                >18 Hours</mat-option
-                                            >
-                                            <mat-option [value]="1140"
-                                                >19 Hours</mat-option
-                                            >
-                                            <mat-option [value]="1200"
-                                                >20 Hours</mat-option
-                                            >
+                                            @for (
+                                                opt of MAX_DURATION_FULL;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                         <mat-hint>
                                             Max duration for single day bookings
@@ -728,30 +624,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 formControlName="setup"
                                                 placeholder="No default setup"
                                             >
-                                                <mat-option [value]="5">
-                                                    5 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="10">
-                                                    10 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="15">
-                                                    15 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="30">
-                                                    30 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="45">
-                                                    45 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="60">
-                                                    1 Hour
-                                                </mat-option>
-                                                <mat-option [value]="90">
-                                                    1 Hour 30 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="120">
-                                                    2 Hours
-                                                </mat-option>
+                                                @for (
+                                                    opt of SETUP_BREAKDOWN;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -768,30 +651,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 formControlName="breakdown"
                                                 placeholder="No default breakdown"
                                             >
-                                                <mat-option [value]="5">
-                                                    5 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="10">
-                                                    10 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="15">
-                                                    15 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="30">
-                                                    30 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="45">
-                                                    45 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="60">
-                                                    1 Hour
-                                                </mat-option>
-                                                <mat-option [value]="90">
-                                                    1 Hour 30 Minutes
-                                                </mat-option>
-                                                <mat-option [value]="120">
-                                                    2 Hours
-                                                </mat-option>
+                                                @for (
+                                                    opt of SETUP_BREAKDOWN;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -808,57 +678,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="cache-duration"
                                             formControlName="cache_duration_in_days"
                                         >
-                                            <mat-option [value]="-1">
-                                                No cache
-                                            </mat-option>
-                                            <mat-option [value]="1"
-                                                >1 Day</mat-option
-                                            >
-                                            <mat-option [value]="2"
-                                                >2 Days</mat-option
-                                            >
-                                            <mat-option [value]="3"
-                                                >3 Days</mat-option
-                                            >
-                                            <mat-option [value]="4"
-                                                >4 Days</mat-option
-                                            >
-                                            <mat-option [value]="5"
-                                                >5 Days</mat-option
-                                            >
-                                            <mat-option [value]="6"
-                                                >6 Days</mat-option
-                                            >
-                                            <mat-option [value]="7"
-                                                >1 Week</mat-option
-                                            >
-                                            <mat-option [value]="8"
-                                                >8 Days</mat-option
-                                            >
-                                            <mat-option [value]="9"
-                                                >9 Days</mat-option
-                                            >
-                                            <mat-option [value]="10"
-                                                >10 Days</mat-option
-                                            >
-                                            <mat-option [value]="11"
-                                                >11 Days</mat-option
-                                            >
-                                            <mat-option [value]="12"
-                                                >12 Days</mat-option
-                                            >
-                                            <mat-option [value]="13"
-                                                >13 Days</mat-option
-                                            >
-                                            <mat-option [value]="14">
-                                                2 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="21">
-                                                3 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="30">
-                                                1 Month
-                                            </mat-option>
+                                            @for (
+                                                opt of CACHE_DURATION;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead to grab
@@ -1003,45 +831,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="max-duration"
                                             formControlName="max_duration"
                                         >
-                                            <mat-option [value]="60"
-                                                >1 Hour</mat-option
-                                            >
-                                            <mat-option [value]="90"
-                                                >1 Hour 30 Minutes</mat-option
-                                            >
-                                            <mat-option [value]="120"
-                                                >2 Hours</mat-option
-                                            >
-                                            <mat-option [value]="180"
-                                                >3 Hours</mat-option
-                                            >
-                                            <mat-option [value]="240"
-                                                >4 Hours</mat-option
-                                            >
-                                            <mat-option [value]="300"
-                                                >5 Hours</mat-option
-                                            >
-                                            <mat-option [value]="360"
-                                                >6 Hours</mat-option
-                                            >
-                                            <mat-option [value]="420"
-                                                >7 Hours</mat-option
-                                            >
-                                            <mat-option [value]="480"
-                                                >8 Hours</mat-option
-                                            >
-                                            <mat-option [value]="540"
-                                                >9 Hours</mat-option
-                                            >
-                                            <mat-option [value]="600"
-                                                >10 Hours</mat-option
-                                            >
-                                            <mat-option [value]="660"
-                                                >11 Hours</mat-option
-                                            >
-                                            <mat-option [value]="720"
-                                                >12 Hours</mat-option
-                                            >
+                                            @for (
+                                                opt of MAX_DURATION_SHORT;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -1057,69 +855,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="available-period"
                                             formControlName="available_period"
                                         >
-                                            <mat-option [value]="1"
-                                                >1 Day</mat-option
-                                            >
-                                            <mat-option [value]="2"
-                                                >2 Days</mat-option
-                                            >
-                                            <mat-option [value]="3"
-                                                >3 Days</mat-option
-                                            >
-                                            <mat-option [value]="4"
-                                                >4 Days</mat-option
-                                            >
-                                            <mat-option [value]="5"
-                                                >5 Days</mat-option
-                                            >
-                                            <mat-option [value]="6"
-                                                >6 Days</mat-option
-                                            >
-                                            <mat-option [value]="7"
-                                                >1 Week</mat-option
-                                            >
-                                            <mat-option [value]="8"
-                                                >8 Days</mat-option
-                                            >
-                                            <mat-option [value]="9"
-                                                >9 Days</mat-option
-                                            >
-                                            <mat-option [value]="10"
-                                                >10 Days</mat-option
-                                            >
-                                            <mat-option [value]="11"
-                                                >11 Days</mat-option
-                                            >
-                                            <mat-option [value]="12"
-                                                >12 Days</mat-option
-                                            >
-                                            <mat-option [value]="13"
-                                                >13 Days</mat-option
-                                            >
-                                            <mat-option [value]="14">
-                                                2 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="21">
-                                                3 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="30">
-                                                1 Month
-                                            </mat-option>
-                                            <mat-option [value]="60">
-                                                2 Months
-                                            </mat-option>
-                                            <mat-option [value]="90">
-                                                3 Months
-                                            </mat-option>
-                                            <mat-option [value]="120">
-                                                4 Months
-                                            </mat-option>
-                                            <mat-option [value]="150">
-                                                5 Months
-                                            </mat-option>
-                                            <mat-option [value]="180">
-                                                6 Month
-                                            </mat-option>
+                                            @for (
+                                                opt of AVAILABLE_PERIOD_EXTENDED;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead the user is
@@ -1356,27 +1100,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             placeholder="No disabled features"
                                             multiple
                                         >
-                                            <mat-option value="devices"
-                                                >Devices</mat-option
-                                            >
-                                            <mat-option value="desks"
-                                                >Desks</mat-option
-                                            >
-                                            <mat-option value="lockers">
-                                                Lockers
-                                            </mat-option>
-                                            <mat-option value="parking">
-                                                parking
-                                            </mat-option>
-                                            <mat-option value="spaces">
-                                                Rooms
-                                            </mat-option>
-                                            <mat-option value="spaces-presence">
-                                                Room Presence
-                                            </mat-option>
-                                            <mat-option value="zones"
-                                                >Zones</mat-option
-                                            >
+                                            @for (
+                                                opt of EXPLORE_FEATURE;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -1395,29 +1127,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 placeholder="No disabled actions"
                                                 multiple
                                             >
-                                                <mat-option value="devices"
-                                                    >Devices</mat-option
-                                                >
-                                                <mat-option value="desks"
-                                                    >Desks</mat-option
-                                                >
-                                                <mat-option value="lockers">
-                                                    Lockers
-                                                </mat-option>
-                                                <mat-option value="parking">
-                                                    parking
-                                                </mat-option>
-                                                <mat-option value="spaces">
-                                                    Rooms
-                                                </mat-option>
-                                                <mat-option
-                                                    value="spaces-presence"
-                                                >
-                                                    Room Presence
-                                                </mat-option>
-                                                <mat-option value="zones"
-                                                    >Zones</mat-option
-                                                >
+                                                @for (
+                                                    opt of EXPLORE_FEATURE;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -1435,29 +1155,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 placeholder="No disabled labels"
                                                 multiple
                                             >
-                                                <mat-option value="devices"
-                                                    >Devices</mat-option
-                                                >
-                                                <mat-option value="desks"
-                                                    >Desks</mat-option
-                                                >
-                                                <mat-option value="lockers">
-                                                    Lockers
-                                                </mat-option>
-                                                <mat-option value="parking">
-                                                    parking
-                                                </mat-option>
-                                                <mat-option value="spaces">
-                                                    Rooms
-                                                </mat-option>
-                                                <mat-option
-                                                    value="spaces-presence"
-                                                >
-                                                    Room Presence
-                                                </mat-option>
-                                                <mat-option value="zones"
-                                                    >Zones</mat-option
-                                                >
+                                                @for (
+                                                    opt of EXPLORE_FEATURE;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -1477,29 +1185,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 placeholder="No disabled displays"
                                                 multiple
                                             >
-                                                <mat-option value="devices"
-                                                    >Devices</mat-option
-                                                >
-                                                <mat-option value="desks"
-                                                    >Desks</mat-option
-                                                >
-                                                <mat-option value="lockers">
-                                                    Lockers
-                                                </mat-option>
-                                                <mat-option value="parking">
-                                                    parking
-                                                </mat-option>
-                                                <mat-option value="spaces">
-                                                    Rooms
-                                                </mat-option>
-                                                <mat-option
-                                                    value="spaces-presence"
-                                                >
-                                                    Room Presence
-                                                </mat-option>
-                                                <mat-option value="zones"
-                                                    >Zones</mat-option
-                                                >
+                                                @for (
+                                                    opt of EXPLORE_FEATURE;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -1517,29 +1213,17 @@ import { UploadButtonComponent } from './upload-button.component';
                                                 placeholder="No disabled styles"
                                                 multiple
                                             >
-                                                <mat-option value="devices"
-                                                    >Devices</mat-option
-                                                >
-                                                <mat-option value="desks"
-                                                    >Desks</mat-option
-                                                >
-                                                <mat-option value="lockers">
-                                                    Lockers
-                                                </mat-option>
-                                                <mat-option value="parking">
-                                                    parking
-                                                </mat-option>
-                                                <mat-option value="spaces">
-                                                    Rooms
-                                                </mat-option>
-                                                <mat-option
-                                                    value="spaces-presence"
-                                                >
-                                                    Room Presence
-                                                </mat-option>
-                                                <mat-option value="zones"
-                                                    >Zones</mat-option
-                                                >
+                                                @for (
+                                                    opt of EXPLORE_FEATURE;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
@@ -1688,45 +1372,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="max-duration"
                                             formControlName="max_duration"
                                         >
-                                            <mat-option [value]="60"
-                                                >1 Hour</mat-option
-                                            >
-                                            <mat-option [value]="90"
-                                                >1 Hour 30 Minutes</mat-option
-                                            >
-                                            <mat-option [value]="120"
-                                                >2 Hours</mat-option
-                                            >
-                                            <mat-option [value]="180"
-                                                >3 Hours</mat-option
-                                            >
-                                            <mat-option [value]="240"
-                                                >4 Hours</mat-option
-                                            >
-                                            <mat-option [value]="300"
-                                                >5 Hours</mat-option
-                                            >
-                                            <mat-option [value]="360"
-                                                >6 Hours</mat-option
-                                            >
-                                            <mat-option [value]="420"
-                                                >7 Hours</mat-option
-                                            >
-                                            <mat-option [value]="480"
-                                                >8 Hours</mat-option
-                                            >
-                                            <mat-option [value]="540"
-                                                >9 Hours</mat-option
-                                            >
-                                            <mat-option [value]="600"
-                                                >10 Hours</mat-option
-                                            >
-                                            <mat-option [value]="660"
-                                                >11 Hours</mat-option
-                                            >
-                                            <mat-option [value]="720"
-                                                >12 Hours</mat-option
-                                            >
+                                            @for (
+                                                opt of MAX_DURATION_SHORT;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -1742,69 +1396,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="available-period"
                                             formControlName="available_period"
                                         >
-                                            <mat-option [value]="1"
-                                                >1 Day</mat-option
-                                            >
-                                            <mat-option [value]="2"
-                                                >2 Days</mat-option
-                                            >
-                                            <mat-option [value]="3"
-                                                >3 Days</mat-option
-                                            >
-                                            <mat-option [value]="4"
-                                                >4 Days</mat-option
-                                            >
-                                            <mat-option [value]="5"
-                                                >5 Days</mat-option
-                                            >
-                                            <mat-option [value]="6"
-                                                >6 Days</mat-option
-                                            >
-                                            <mat-option [value]="7"
-                                                >1 Week</mat-option
-                                            >
-                                            <mat-option [value]="8"
-                                                >8 Days</mat-option
-                                            >
-                                            <mat-option [value]="9"
-                                                >9 Days</mat-option
-                                            >
-                                            <mat-option [value]="10"
-                                                >10 Days</mat-option
-                                            >
-                                            <mat-option [value]="11"
-                                                >11 Days</mat-option
-                                            >
-                                            <mat-option [value]="12"
-                                                >12 Days</mat-option
-                                            >
-                                            <mat-option [value]="13"
-                                                >13 Days</mat-option
-                                            >
-                                            <mat-option [value]="14">
-                                                2 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="21">
-                                                3 Weeks
-                                            </mat-option>
-                                            <mat-option [value]="30">
-                                                1 Month
-                                            </mat-option>
-                                            <mat-option [value]="60">
-                                                2 Months
-                                            </mat-option>
-                                            <mat-option [value]="90">
-                                                3 Months
-                                            </mat-option>
-                                            <mat-option [value]="120">
-                                                4 Months
-                                            </mat-option>
-                                            <mat-option [value]="150">
-                                                5 Months
-                                            </mat-option>
-                                            <mat-option [value]="180">
-                                                6 Month
-                                            </mat-option>
+                                            @for (
+                                                opt of AVAILABLE_PERIOD_EXTENDED;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                         <mat-hint>
                                             Number of days ahead the user is
@@ -1895,45 +1495,15 @@ import { UploadButtonComponent } from './upload-button.component';
                                             name="max-duration"
                                             formControlName="max_duration"
                                         >
-                                            <mat-option [value]="60"
-                                                >1 Hour</mat-option
-                                            >
-                                            <mat-option [value]="90"
-                                                >1 Hour 30 Minutes</mat-option
-                                            >
-                                            <mat-option [value]="120"
-                                                >2 Hours</mat-option
-                                            >
-                                            <mat-option [value]="180"
-                                                >3 Hours</mat-option
-                                            >
-                                            <mat-option [value]="240"
-                                                >4 Hours</mat-option
-                                            >
-                                            <mat-option [value]="300"
-                                                >5 Hours</mat-option
-                                            >
-                                            <mat-option [value]="360"
-                                                >6 Hours</mat-option
-                                            >
-                                            <mat-option [value]="420"
-                                                >7 Hours</mat-option
-                                            >
-                                            <mat-option [value]="480"
-                                                >8 Hours</mat-option
-                                            >
-                                            <mat-option [value]="540"
-                                                >9 Hours</mat-option
-                                            >
-                                            <mat-option [value]="600"
-                                                >10 Hours</mat-option
-                                            >
-                                            <mat-option [value]="660"
-                                                >11 Hours</mat-option
-                                            >
-                                            <mat-option [value]="720"
-                                                >12 Hours</mat-option
-                                            >
+                                            @for (
+                                                opt of MAX_DURATION_SHORT;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
@@ -2025,6 +1595,16 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public readonly zone = this._data.zone;
     public readonly settings_key =
         this._settings.get('app.workplace_metadata_key') || 'workplace_app';
+
+    public readonly AVAILABLE_PERIOD_EXTENDED =
+        AVAILABLE_PERIOD_EXTENDED_OPTIONS;
+    public readonly MAX_DURATION_FULL = MAX_DURATION_FULL_OPTIONS;
+    public readonly MAX_DURATION_SHORT = MAX_DURATION_SHORT_OPTIONS;
+    public readonly WEEK_START = WEEK_START_OPTIONS;
+    public readonly SETUP_BREAKDOWN = SETUP_BREAKDOWN_OPTIONS;
+    public readonly CACHE_DURATION = CACHE_DURATION_OPTIONS;
+    public readonly EXPLORE_FEATURE = EXPLORE_FEATURE_OPTIONS;
+    public readonly BANNER_TYPE = BANNER_TYPE_OPTIONS;
 
     public readonly form = new FormGroup({
         logo_light: new FormControl(''),
@@ -2227,8 +1807,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     ...form_value[key],
                 };
             } else {
-                new_settings[key] =
-                    this.existing_settings[key] || form_value[key];
+                new_settings[key] = form_value[key];
             }
         }
         for (const key in new_settings) {
@@ -2274,10 +1853,13 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         ).catch((e) => {
             console.error(e);
             this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
             throw e;
         });
         this.loading.set('');
-        notifySuccess('Sucessfully saved workplace app settings');
+        notifySuccess('Successfully saved workplace app settings');
         this._dialog_ref.close();
     }
 
