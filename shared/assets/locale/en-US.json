@@ -1072,7 +1072,7 @@
             "DESKS_SECURITY": "Security Group",
             "BOOKING_DELETED": "Canceled",
             "BOOKING_ENDED": "Manually Ended",
-            "BOOKING_EXPIRED": "Expired",
+            "BOOKING_EXPIRED": "Declined",
             "BOOKING_STATUS_ENDED": "Ended",
             "BOOKING_STATUS_APPROVED": "Approved",
             "BOOKING_STATUS_DECLINED": "Declined",
