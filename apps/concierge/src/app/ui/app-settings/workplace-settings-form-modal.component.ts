@@ -17,6 +17,7 @@ import { map } from 'rxjs/operators';
 import {
     buildCurrencyOptions,
     currentUser,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -2227,8 +2228,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
                     ...form_value[key],
                 };
             } else {
-                new_settings[key] =
-                    this.existing_settings[key] || form_value[key];
+                new_settings[key] = form_value[key];
             }
         }
         for (const key in new_settings) {
@@ -2274,10 +2274,13 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         ).catch((e) => {
             console.error(e);
             this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
             throw e;
         });
         this.loading.set('');
-        notifySuccess('Sucessfully saved workplace app settings');
+        notifySuccess('Successfully saved workplace app settings');
         this._dialog_ref.close();
     }
 

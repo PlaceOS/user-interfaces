@@ -150,7 +150,7 @@ export class InductionSettingsModalComponent implements OnInit {
             induction_enabled: this.is_enabled,
         };
         const concierge_metadata = {
-            ...metadata.details,
+            ...con_metadata.details,
             induction_details: this.induction_details,
             induction_enabled: this.is_enabled,
         };

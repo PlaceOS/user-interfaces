@@ -13,6 +13,7 @@ import {
 import {
     buildCurrencyOptions,
     currentUser,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -295,7 +296,9 @@ import { UploadButtonComponent } from './upload-button.component';
                     }
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
-                            <label for="workplace-url-path">Workplace URL Path</label>
+                            <label for="workplace-url-path"
+                                >Workplace URL Path</label
+                            >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
@@ -306,7 +309,9 @@ import { UploadButtonComponent } from './upload-button.component';
                             </mat-form-field>
                         </div>
                         <div>
-                            <label for="kiosk-url-path">Map Kiosk URL Path</label>
+                            <label for="kiosk-url-path"
+                                >Map Kiosk URL Path</label
+                            >
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
@@ -342,7 +347,9 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </div>
                     <div>
-                        <label for="short-url-public-key">Short URL Public Key</label>
+                        <label for="short-url-public-key"
+                            >Short URL Public Key</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 matInput
@@ -551,7 +558,7 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-form-field>
                                     </div>
                                     <div class="flex-1">
-                                        <label for="block-start"
+                                        <label for="block-end"
                                             >Block End Time</label
                                         >
                                         <mat-form-field
@@ -559,8 +566,8 @@ import { UploadButtonComponent } from './upload-button.component';
                                             class="w-full"
                                         >
                                             <mat-select
-                                                name="block-start"
-                                                formControlName="block_start"
+                                                name="block-end"
+                                                formControlName="block_end"
                                                 placeholder="12AM (Midnight)"
                                             >
                                                 <mat-option [value]="12"
@@ -1806,8 +1813,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                     ...form_value[key],
                 };
             } else {
-                new_settings[key] =
-                    this.existing_settings[key] || form_value[key];
+                new_settings[key] = form_value[key];
             }
         }
         for (const key in new_settings) {
@@ -1854,10 +1860,13 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         ).catch((e) => {
             console.error(e);
             this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
             throw e;
         });
         this.loading.set('');
-        notifySuccess('Sucessfully saved concierge app settings');
+        notifySuccess('Successfully saved concierge app settings');
         this._dialog_ref.close();
     }
 

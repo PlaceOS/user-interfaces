@@ -12,6 +12,7 @@ import {
 } from '@angular/material/dialog';
 import {
     currentUser,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -742,6 +743,9 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         ).catch((e) => {
             console.error(e);
             this.loading.set('');
+            notifyError(
+                `Failed to save settings: ${e.message || e.error || e}`,
+            );
             throw e;
         });
         this.loading.set('');
