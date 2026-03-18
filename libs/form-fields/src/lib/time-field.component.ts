@@ -24,7 +24,6 @@ import {
     format,
     isAfter,
     isBefore,
-    isSameDay,
     roundToNearestMinutes,
     set,
     startOfDay,
@@ -44,8 +43,8 @@ export interface TimeFieldRange {
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
+            [disabled]="disabled() || no_options"
+            [class.opacity-30]="disabled() || no_options"
             [matMenuTriggerFor]="menu"
         >
             <div
@@ -171,6 +170,8 @@ export class TimeFieldComponent
     public show_select: boolean;
 
     public active_time: number = Date.now();
+    /** Whether there are no available time options */
+    public no_options = false;
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
@@ -201,6 +202,7 @@ export class TimeFieldComponent
             !this.no_past_times(),
             this.step(),
         );
+        this._updateNoOptions();
         this.timeout('hide', () => (this.show_select = false));
         this.active_time =
             this._time_options.find((_) => _.id === format(this.date, 'HH:mm'))
@@ -219,6 +221,7 @@ export class TimeFieldComponent
                 !this.no_past_times(),
                 this.step(),
             );
+            this._updateNoOptions();
         }
     }
 
@@ -346,6 +349,7 @@ export class TimeFieldComponent
             !this.no_past_times(),
             this.step(),
         );
+        this._updateNoOptions();
         const time = this.force_time() || this.time;
         this.active_time =
             this._time_options.find((_) => _.id === time)?.date || date;
@@ -358,6 +362,7 @@ export class TimeFieldComponent
             !this.no_past_times() || disabled,
             this.step(),
         );
+        this._updateNoOptions();
     }
 
     /**
@@ -376,6 +381,14 @@ export class TimeFieldComponent
         this._onTouch = fn;
     }
 
+    /** Update whether the field should show as disabled due to no options */
+    private _updateNoOptions(): void {
+        this.no_options =
+            !this.disabled() &&
+            (!this._time_options || this._time_options.length === 0) &&
+            !this.force_time();
+    }
+
     /**
      * Generate a list of time options for the given date
      * @param datestamp Date to generate options for
@@ -386,7 +399,9 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15,
     ): Identity[] {
-        const min_date = show_past ? this.from() : Math.max(this.from(), Date.now());
+        const min_date = show_past
+            ? this.from()
+            : Math.max(this.from(), Date.now());
         const selected_day = new Date(datestamp);
         const blocks = [];
         const time_range = this.range();

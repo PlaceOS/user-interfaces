@@ -11,6 +11,7 @@ import {
     currentUser,
     flatten,
     getInvalidFields,
+    getNextBookableTime,
     i18n,
     nextValueFrom,
     notifyError,
@@ -352,6 +353,16 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
+        if (!booking.id) {
+            const bookable_hours =
+                this._settings.get(`app.${type}s.bookable_hours`) ||
+                this._settings.get('app.bookings.bookable_hours');
+            const next_time = getNextBookableTime(bookable_hours);
+            if (next_time) {
+                (booking as any).date = next_time;
+                this.form.patchValue({ date: next_time }, { emitEvent: false });
+            }
+        }
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => {

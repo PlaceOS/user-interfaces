@@ -12,6 +12,7 @@ import {
     firstTruthyValueFrom,
     flatten,
     getInvalidFields,
+    getNextBookableTime,
     i18n,
     nextValueFrom,
     rulesForResource,
@@ -420,7 +421,19 @@ export class EventFormService extends AsyncHandler {
         this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
             emitEvent: false,
         });
-        if (!event.id) return;
+        if (!event.id) {
+            const bookable_hours = this._settings.get(
+                'app.events.bookable_hours',
+            );
+            const next_time = getNextBookableTime(bookable_hours);
+            if (next_time) {
+                this._form.patchValue(
+                    { date: next_time },
+                    { emitEvent: false },
+                );
+            }
+            return;
+        }
         sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
         this._event.next(event);
     }
