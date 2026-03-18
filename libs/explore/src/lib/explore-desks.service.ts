@@ -81,7 +81,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _users: Record<string, string> = {};
     private _departments: Record<string, string> = {};
-    private _desk_bookings = new BehaviorSubject<Record<string, Booking[]>>({});
+    private _desk_bookings = new Map<string, WritableSignal<Booking[]>>();
 
     private _checked_in = new BehaviorSubject<string[]>([]);
 
@@ -151,9 +151,26 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             if (!binding) return;
             this.subscription(
                 `lvl-desk_bookings`,
-                binding.bindThenSubscribe((d) =>
-                    this._desk_bookings.next(d || {}),
-                ),
+                binding.bindThenSubscribe((d) => {
+                    const value = { ...(d || {}) };
+                    for (const id in value) {
+                        const new_bookings = value[id].map(
+                            (_) =>
+                                new Booking({
+                                    ..._,
+                                    booking_start:
+                                        _.booking_start || _.started_at,
+                                    booking_end: _.booking_end || _.ends_at,
+                                    duration: _.duration / 60,
+                                }),
+                        );
+                        if (!this._desk_bookings[id]) {
+                            this._desk_bookings[id] = signal(new_bookings);
+                        } else {
+                            this._desk_bookings[id].set(new_bookings);
+                        }
+                    }
+                }),
             );
         }),
     );
@@ -192,7 +209,6 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         this._signs_of_life,
         this.booking_rules,
         this._options,
-        this._desk_bookings,
     ]).pipe(
         debounceTime(50),
         map(
@@ -376,6 +392,8 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             if (!this._statuses[d_id]) {
                 this._statuses[d_id] = signal('free');
             }
+            if (!this._desk_bookings[d_id])
+                this._desk_bookings[d_id] = signal([]);
             list.push({
                 track_id: `desk:hover:${d_id}`,
                 location: d_id,
@@ -393,10 +411,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                         : '',
                     status: this._statuses[d_id],
                     department: this._departments[d_id] || '',
-                    bookings:
-                        this._desk_bookings.getValue()[d_id] ||
-                        this._desk_bookings.getValue()[desk.id] ||
-                        [],
+                    bookings: this._desk_bookings[d_id],
                     date: options.date || Date.now(),
                 },
                 z_index: 20,
