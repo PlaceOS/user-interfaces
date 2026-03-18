@@ -117,6 +117,8 @@ export interface TimeFieldRange {
                         }
                     </div>
                 </button>
+            } @empty {
+                <div mat-menu-item disabled>No time options to select</div>
             }
         </mat-menu>
         @if (!no_error()) {

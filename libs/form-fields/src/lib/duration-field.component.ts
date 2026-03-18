@@ -95,6 +95,8 @@ export interface DurationOption {
                         }
                     </div>
                 </button>
+            } @empty {
+                <div mat-menu-item disabled>No duration options to select</div>
             }
         </mat-menu>
         <mat-error><ng-content /></mat-error>

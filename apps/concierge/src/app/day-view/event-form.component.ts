@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,8 +10,9 @@ import {
     CateringListFieldComponent,
     CateringOrderStateService,
 } from '@placeos/catering';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { queryCalendarPermission } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -20,8 +21,14 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+
+const ALLOWED_CALENDAR_ROLES = [
+    'write',
+    'delegateWithoutPrivateEventAccess',
+    'delegateWithPrivateEventAccess',
+];
 
 @Component({
     selector: 'event-form',
@@ -95,15 +102,24 @@ import { map, tap } from 'rxjs/operators';
                         </div>
                     </div>
                 }
-                <div class="flex flex-1 flex-col">
+                <div class="mb-4 flex flex-1 flex-col">
                     <label for="organiser"
                         >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
                     >
                     <a-user-search-field
                         name="organiser"
                         formControlName="organiser"
-                        class="mb-4"
                     ></a-user-search-field>
+                    @if (checking_permission()) {
+                        <p class="text-pending mt-1 text-xs">
+                            Checking calendar permissions...
+                        </p>
+                    }
+                    @if (permission_error()) {
+                        <p class="text-error mt-1 text-xs">
+                            {{ permission_error() }}
+                        </p>
+                    }
                 </div>
                 <div class="flex flex-1 flex-col">
                     <label for="attendees">
@@ -248,12 +264,66 @@ import { map, tap } from 'rxjs/operators';
         CateringListFieldComponent,
     ],
 })
-export class EventFormComponent {
+export class EventFormComponent extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _catering = inject(CateringOrderStateService);
 
     public readonly form = input<FormGroup>(undefined);
+    public readonly checking_permission = signal(false);
+    public readonly permission_error = signal('');
+
+    constructor() {
+        super();
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
+            this.subscription(
+                'organiser_permission_check',
+                form.get('organiser').valueChanges.subscribe((user) => {
+                    this._checkCalendarPermission(user);
+                }),
+            );
+        });
+    }
+
+    private async _checkCalendarPermission(user: any) {
+        this.permission_error.set('');
+        if (!user?.email) return;
+        const current = currentUser();
+        if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
+        const checked_email = user.email;
+        this.checking_permission.set(true);
+        try {
+            const permission = await lastValueFrom(
+                queryCalendarPermission(checked_email),
+            );
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            if (
+                !permission.has_access ||
+                !ALLOWED_CALENDAR_ROLES.includes(permission.role)
+            ) {
+                this.permission_error.set(
+                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                );
+                this.form()?.patchValue(
+                    { organiser: currentUser() },
+                    { emitEvent: false },
+                );
+            }
+        } catch (_) {
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            this.permission_error.set(
+                "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+            );
+            this.form()?.patchValue(
+                { organiser: currentUser() },
+                { emitEvent: false },
+            );
+        } finally {
+            this.checking_permission.set(false);
+        }
+    }
 
     public code_filter = new BehaviorSubject('');
 
