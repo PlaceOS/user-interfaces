@@ -83,15 +83,6 @@ export interface DeskInfoData {
                                     {{ department() }}
                                 </p>
                             }
-                            @if (display_start()) {
-                                <p start class="text-xs">
-                                    {{
-                                        display_start() | date: 'shortTime'
-                                    }}
-                                    &ndash;
-                                    {{ display_end() | date: 'shortTime' }}
-                                </p>
-                            }
                         </div>
                         @if (status()) {
                             <div class="relative flex flex-wrap text-sm">
@@ -120,9 +111,7 @@ export interface DeskInfoData {
                             <icon>alarm</icon>
                             <div>
                                 Free
-                                {{
-                                    current_booking() ? 'at' : 'until'
-                                }}
+                                {{ current_booking() ? 'at' : 'until' }}
                                 {{
                                     (current_booking()
                                         ? next_booking().date_end
@@ -221,7 +210,12 @@ export interface DeskInfoData {
             }
         `,
     ],
-    imports: [CommonModule, CustomTooltipComponent, IconComponent, TranslatePipe],
+    imports: [
+        CommonModule,
+        CustomTooltipComponent,
+        IconComponent,
+        TranslatePipe,
+    ],
 })
 export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     private _details = inject<DeskInfoData>(MAP_FEATURE_DATA);
@@ -246,14 +240,15 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     public readonly active_time = computed(() =>
         isSameDay(this.date(), Date.now()) ? this.now() : this.date(),
     );
-    public readonly next_booking = computed(() =>
-        this.bookings()
-            .filter(
-                (booking) =>
-                    booking.date_end > this.active_time() &&
-                    isSameDay(booking.date, this.date()),
-            )
-            .sort((a, b) => a.date - b.date)[0],
+    public readonly next_booking = computed(
+        () =>
+            this.bookings()
+                .filter(
+                    (booking) =>
+                        booking.date > this.active_time() &&
+                        isSameDay(booking.date, this.date()),
+                )
+                .sort((a, b) => a.date - b.date)[0],
     );
     public readonly current_booking = computed(() =>
         this.next_booking()
