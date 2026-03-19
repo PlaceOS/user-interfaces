@@ -458,7 +458,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         all_day = false,
     ) {
         let user = null;
-        if (!!this._settings.get('app.desks.allow_time_changes')) {
+        if (this._settings.get('app.desks.allow_time_changes')) {
             const until = endOfDay(
                 addDays(
                     Date.now(),
