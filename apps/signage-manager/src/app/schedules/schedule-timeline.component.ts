@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -263,13 +262,7 @@ import {
             }
         `,
     ],
-    imports: [
-        DatePipe,
-        MatRippleModule,
-        MatTooltipModule,
-        RouterLink,
-        IconComponent,
-    ],
+    imports: [MatRippleModule, MatTooltipModule, RouterLink, IconComponent],
 })
 export class ScheduleTimelineComponent {
     public readonly rows = input<ScheduleTimelineRow[]>([]);
