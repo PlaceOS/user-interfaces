@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifySuccess } from '@placeos/common';
@@ -10,7 +10,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
 import { ParkingStateService } from './parking-state.service';
 
 @Component({
@@ -113,8 +112,8 @@ import { ParkingStateService } from './parking-state.service';
     styles: [``],
     imports: [
         CommonModule,
+        MatRippleModule,
         MatProgressBarModule,
-        SimpleTableComponent,
         IconComponent,
         TranslatePipe,
         SimpleTableComponent,
@@ -127,8 +126,6 @@ export class ParkingUsersListComponent {
 
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
-
-    public readonly new_items = new BehaviorSubject<FormGroup[]>([]);
     public readonly user_list = this._state.users;
 
     public readonly editUser = (u?) => this._state.editUser(u);

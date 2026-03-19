@@ -46,7 +46,7 @@ const EMPTY_FAVS: string[] = [];
                     ></catering-item-filters>
                     <catering-item-list
                         [active]="displayed?.custom_id"
-                        [selected]="selected_ids"
+                        [selected]="selected_keys"
                         [selected_items]="selected"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event)"
@@ -59,7 +59,7 @@ const EMPTY_FAVS: string[] = [];
                     class="bg-base-100 absolute z-20 h-full w-full sm:relative sm:flex sm:h-[65vh] sm:max-w-[16rem]"
                     [class.hidden]="!displayed"
                     [class.inset-0]="displayed"
-                    [active]="selected_ids.includes(displayed?.custom_id || '')"
+                    [active]="displayed?.in_order"
                     (activeChange)="setSelected(displayed!, $event)"
                     [code]="code"
                     [fav]="
@@ -123,21 +123,16 @@ const EMPTY_FAVS: string[] = [];
                     matRipple
                     name="toggle-catering-item"
                     [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.custom_id)"
-                    (click)="
-                        setSelected(
-                            displayed,
-                            !isSelected(displayed?.custom_id)
-                        )
-                    "
+                    [class.inverse]="displayed?.in_order"
+                    (click)="setSelected(displayed, !displayed?.in_order)"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.custom_id) ? 'remove' : 'add'
+                            displayed?.in_order ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.custom_id)
+                                (displayed?.in_order
                                     ? 'COMMON.REMOVE_FROM'
                                     : 'COMMON.ADD_TO'
                                 ) | translate
@@ -184,8 +179,8 @@ export class NewCateringOrderModalComponent {
         );
     }
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.custom_id).join(',');
+    public get selected_keys() {
+        return this.selected.map((_) => this.selectionKey(_));
     }
 
     public get count() {
@@ -212,22 +207,71 @@ export class NewCateringOrderModalComponent {
         }
     }
 
-    public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+    public itemSelectionId(item?: CateringItem | null) {
+        return item?.custom_id?.replace(/menu$/, '') || '';
+    }
+
+    public selectionKey(item?: CateringItem | null) {
+        return `${item?.caterer || ''}::${this.itemSelectionId(item)}`;
     }
 
     public setSelected(item: CateringItem, state: boolean) {
-        const list = this.selected.filter(
-            (_) =>
-                _.custom_id !== item.custom_id &&
-                (!item.caterer || item.caterer === _.caterer),
+        if (!item) return;
+        const selection_key = this.selectionKey(item);
+        const existing_index = this.selected.findIndex(
+            (_) => this.selectionKey(_) === selection_key,
         );
-        if (state) {
-            const new_item = new CateringItem({ ...item, in_order: true });
-            list.push(new_item);
-            this.displayed = new_item;
+        const existing = this.selected.find(
+            (_) => this.selectionKey(_) === selection_key,
+        );
+        const list = this.selected.filter(
+            (_) => this.selectionKey(_) !== selection_key,
+        );
+        if (!state) {
+            if (
+                this.displayed &&
+                this.selectionKey(this.displayed) === selection_key
+            ) {
+                this.displayed = null;
+            }
+            this.selected = list;
+            return;
         }
+        if (item.in_order) {
+            const new_item = new CateringItem({ ...item, in_order: true });
+            this.insertSelection(list, new_item, existing_index);
+            this.displayed = new_item;
+            this.selected = list;
+            return;
+        }
+        const new_item = new CateringItem({
+            ...item,
+            quantity: (existing?.quantity || 0) + (item.quantity || 1),
+            in_order: true,
+        });
+        this.insertSelection(list, new_item, existing_index);
+        this.resetMenuItem(item);
+        this.displayed = new_item;
         this.selected = list;
+    }
+
+    public insertSelection(
+        list: CateringItem[],
+        item: CateringItem,
+        existing_index: number,
+    ) {
+        if (existing_index < 0 || existing_index >= list.length) {
+            list.push(item);
+            return;
+        }
+        list.splice(existing_index, 0, item);
+    }
+
+    public resetMenuItem(item: CateringItem) {
+        (item as any).quantity = 1;
+        for (const option of item.options || []) {
+            delete option.active;
+        }
     }
 
     public toggleFavourite(item: CateringItem) {

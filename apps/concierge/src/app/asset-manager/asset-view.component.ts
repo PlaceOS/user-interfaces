@@ -6,11 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import {
-    deleteAsset,
-    deleteAssetPurchaseOrder,
-    removeAssetRequests,
-} from '@placeos/assets';
+import { removeAssetRequests } from '@placeos/assets';
 import {
     Asset,
     AssetPurchaseOrder,
@@ -26,6 +22,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { removeAsset, removeAssetPurchaseOrder } from '@placeos/ts-client';
 import { addMinutes } from 'date-fns';
 import { combineLatest, lastValueFrom } from 'rxjs';
 import { first, map } from 'rxjs/operators';
@@ -607,7 +604,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting asset...');
-        await lastValueFrom(deleteAsset(asset.id));
+        await lastValueFrom(removeAsset(asset.id));
         await removeAssetRequests(asset.id);
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
@@ -632,7 +629,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting purchase order...');
-        await lastValueFrom(deleteAssetPurchaseOrder(asset.id));
+        await lastValueFrom(removeAssetPurchaseOrder(asset.id));
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
         );

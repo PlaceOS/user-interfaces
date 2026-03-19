@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "La stanza selezionata per questa prenotazione richiede approvazione e potrebbe non essere confermata fino a una data successiva.",
         "SETUP_BREAKDOWN_HEADER": "Imposta Preparazione e Smontaggio dell'Evento",
         "SETUP_DURATION": "Durata Preparazione",
-        "BREAKDOWN_DURATION": "Durata Smontaggio"
+        "BREAKDOWN_DURATION": "Durata Smontaggio",
+        "FIRST_INSTANCE_CLASH": "Il primo evento della serie è in conflitto con una prenotazione esistente",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Non sono consentiti eventi ricorrenti con {{ count }} conflitto/i"
     },
     "CATERING": {
         "MENU": "Menu di catering",
@@ -1431,6 +1433,13 @@
             "PARKING_STATUS_FREE": "Posto non assegnato e disponibile",
             "PARKING_COPIED_USER": "Email dell'utente copiato negli appunti",
             "PARKING_COPIED_ID": "ID del posto auto copiato negli appunti",
+            "PARKING_CSV_UPLOAD": "Carica CSV dei posti",
+            "PARKING_CSV_DOWNLOAD": "Scarica CSV dei posti",
+            "PARKING_CSV_EMPTY": "Il file CSV è vuoto. Nessun posto auto da importare.",
+            "PARKING_CSV_NO_ZONE": "Selezionare un livello prima di caricare.",
+            "PARKING_CSV_SAVE_ERROR": "Salvataggio di {{ count }} posto/i fallito.",
+            "PARKING_CSV_SAVE_SUCCESS": "{{ count }} posto/i salvato/i con successo.",
+            "PARKING_CSV_PARSE_ERROR": "Analisi del file CSV fallita.",
             "PARKING_BOOKINGS_EMPTY": "Nessuna prenotazione di parcheggio per il piano e l'orario selezionati",
             "PARKING_REQUESTS_EMPTY": "Nessuna richiesta di parcheggio per il piano e l'orario selezionati",
             "PARKING_UNAVAILABLE": "Nessun piano di parcheggio per l'edificio selezionato",

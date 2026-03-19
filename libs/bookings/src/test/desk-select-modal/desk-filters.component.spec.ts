@@ -78,7 +78,14 @@ describe('DeskFiltersComponent', () => {
     it('should allow setting all day', () => {
         expect('[formControlName="all_day"]').not.toExist();
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => true,
+            (key: string) => {
+                if (
+                    key === 'app.desks.bookable_hours' ||
+                    key === 'app.bookings.bookable_hours'
+                )
+                    return undefined;
+                return true;
+            },
         );
         spectator.detectChanges();
         expect('[formControlName="all_day"]').toExist();

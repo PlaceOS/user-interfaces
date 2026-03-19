@@ -35,6 +35,12 @@ export interface BookingComplete extends Booking {
     guests?: User[];
 }
 
+export interface BookingClash {
+    asset_id: string;
+    booking_start: number;
+    booking_end: number;
+}
+
 export enum RecurrenceDays {
     SUNDAY = 1 << 0,
     MONDAY = 1 << 1,
@@ -154,7 +160,7 @@ export class Booking {
     public readonly linked_parent_booking?: LinkedBooking;
 
     public readonly process_state: string;
-    /** Unix epoch for the start time of the reccurence instance in seconds */
+    /** Unix epoch for the start time of the reccurence instance in seconds. Only set when instance of a recurring series */
     public readonly instance?: number;
     /** Type of recurrence instance */
     public readonly recurrence_type: 'none' | 'daily' | 'weekly' | 'monthly';
@@ -211,13 +217,22 @@ export class Booking {
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
         this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
+        const booking_type = data.booking_type || data.type || ' ';
         this.asset_name =
-            data.asset_name ||
-            data.extension_data?.asset_name ||
-            data.extension_data?.name ||
-            data.description ||
-            data.asset_id ||
-            '';
+            booking_type === 'visitor'
+                ? data.extension_data?.visitor_name ||
+                  data.asset_name ||
+                  data.extension_data?.asset_name ||
+                  data.extension_data?.name ||
+                  data.asset_id ||
+                  ''
+                : data.extension_data?.assigned_asset_name ||
+                  data.asset_name ||
+                  data.extension_data?.asset_name ||
+                  data.extension_data?.name ||
+                  data.description ||
+                  data.asset_id ||
+                  '';
         this.zones = data.zones || [];
         this.booking_start =
             Math.floor(data.date / 1000) ||

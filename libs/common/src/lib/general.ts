@@ -1,5 +1,10 @@
 import { FormGroup } from '@angular/forms';
-import { formatDuration as duration } from 'date-fns';
+import {
+    addDays,
+    formatDuration as duration,
+    roundToNearestMinutes,
+    startOfDay,
+} from 'date-fns';
 import { first, lastValueFrom, map, Observable, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { HashMap } from './types';
@@ -142,21 +147,28 @@ export function randomString(
  * @param csv CSV data to parse
  */
 export function csvToJson(csv: string, delimiter = ','): HashMap[] {
+    const escaped_delimiter = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const objPattern = new RegExp(
-        '(\\,|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^\\,\\r\\n]*))',
+        `(${escaped_delimiter}|\\r?\\n|\\r|^)(?:"([^"]*(?:""[^"]*)*)"|([^${escaped_delimiter}\\r\\n]*))`,
         'gi',
     );
     let arrMatches = null;
     const arrData = [[]];
     while ((arrMatches = objPattern.exec(csv))) {
-        if (arrMatches[1].length && arrMatches[1] !== ',') arrData.push([]);
+        if (arrMatches[1].length && arrMatches[1] !== delimiter)
+            arrData.push([]);
         arrData[arrData.length - 1].push(
             arrMatches[2]
                 ? arrMatches[2]?.replace(new RegExp('""', 'g'), '"')
                 : arrMatches[3],
         );
     }
-    const headers: string[] = arrData.splice(0, 1)[0];
+    const headers: string[] = (arrData.splice(0, 1)[0] || []).map(
+        (header, index) => {
+            const value = header || '';
+            return index === 0 ? value.replace(/^\uFEFF/, '') : value;
+        },
+    );
     const elements = arrData.map((row) => {
         const element = {};
         for (let i = 0; i < row.length; i++) {
@@ -205,17 +217,37 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
     if (json instanceof Array && json.length > 0) {
         const keys = Object.keys(json[0]);
         const valid_keys = keys.filter((key) => key in json[0]);
-        return `${valid_keys.join(seperator)}\n${json
-            .map((item) =>
-                valid_keys
-                    .map((key) =>
-                        (JSON.stringify(item[key]) || '')?.replace(',', '|'),
-                    )
-                    .join(seperator),
-            )
-            .join('\n')}`;
+        const map_cell = (value: any) => {
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'object') return JSON.stringify(value);
+            return `${value}`;
+        };
+        const escape_cell = (value: string) => {
+            const escaped_value = value.replace(/"/g, '""');
+            const should_wrap =
+                escaped_value.includes(seperator) ||
+                escaped_value.includes('"') ||
+                escaped_value.includes('\n') ||
+                escaped_value.includes('\r');
+            return should_wrap ? `"${escaped_value}"` : escaped_value;
+        };
+        const header_row = valid_keys
+            .map((key) => escape_cell(key))
+            .join(seperator);
+        const rows = json.map((item) =>
+            valid_keys
+                .map((key) => escape_cell(map_cell(item[key])))
+                .join(seperator),
+        );
+        return [header_row, ...rows].join('\r\n');
     }
     return '';
+}
+
+function textFileType(filename: string) {
+    if (filename.endsWith('.csv')) return 'text/csv';
+    if (filename.endsWith('.tsv')) return 'text/tab-separated-values';
+    return 'text/plain';
 }
 
 /**
@@ -224,11 +256,24 @@ export function jsonToCsv(json: HashMap[], seperator = ',') {
  * @param contents Contents of the file to download
  */
 export function downloadFile(filename: string, contents: string) {
+    const lower_filename = filename.toLowerCase();
+    const file_type = textFileType(lower_filename);
+    const should_prefix_bom =
+        lower_filename.endsWith('.csv') || lower_filename.endsWith('.tsv');
+    const data = `${should_prefix_bom ? '\uFEFF' : ''}${contents}`;
     const element = document.createElement('a');
-    element.setAttribute(
-        'href',
-        'data:text/plain;charset=utf-8,' + encodeURIComponent(contents),
-    );
+    const use_blob_url = !!window.URL?.createObjectURL;
+    if (use_blob_url) {
+        const blob = new Blob([data], { type: `${file_type};charset=utf-8` });
+        const object_url = window.URL.createObjectURL(blob);
+        element.setAttribute('href', object_url);
+        setTimeout(() => window.URL.revokeObjectURL(object_url), 0);
+    } else {
+        element.setAttribute(
+            'href',
+            `data:${file_type};charset=utf-8,${encodeURIComponent(data)}`,
+        );
+    }
     element.setAttribute('download', filename);
 
     element.style.display = 'none';
@@ -586,6 +631,49 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
     return obs
         ? lastValueFrom(obs.pipe(first((_) => !!_)))
         : Promise.resolve(null);
+}
+
+export interface BookableHoursRange {
+    start: number;
+    end: number;
+}
+
+/**
+ * Given the current time and a bookable_hours range, returns the next available
+ * booking start time (as ms epoch). If the current time falls within the
+ * bookable window it is returned unchanged (rounded up to the nearest 5 min).
+ * If it falls outside, the start of the next bookable window is returned.
+ *
+ * @param bookable_hours Range with `start` and `end` in minutes since midnight
+ * @param now            Reference timestamp in ms (defaults to Date.now())
+ * @returns ms epoch of the next available booking time, or `undefined` if no
+ *          adjustment is needed (bookable_hours is not set)
+ */
+export function getNextBookableTime(
+    bookable_hours: BookableHoursRange | undefined | null,
+    now: number = Date.now(),
+): number | undefined {
+    if (!bookable_hours) return undefined;
+    const { start, end } = bookable_hours;
+    if (start == null || end == null) return undefined;
+
+    const date = new Date(now);
+    const current_minutes = date.getHours() * 60 + date.getMinutes();
+
+    if (current_minutes >= start && current_minutes < end) {
+        // Within bookable hours — return now rounded up to nearest 5 min
+        return roundToNearestMinutes(now, {
+            nearestTo: 5,
+            roundingMethod: 'ceil',
+        }).valueOf();
+    }
+
+    // Outside bookable hours — advance to the start of the next window
+    const base_day =
+        current_minutes < start
+            ? startOfDay(date)
+            : addDays(startOfDay(date), 1);
+    return base_day.getTime() + start * 60 * 1000;
 }
 
 export function mapLastValueFrom<T = any>(

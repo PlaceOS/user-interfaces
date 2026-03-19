@@ -20,6 +20,7 @@ import {
     BehaviorSubject,
     combineLatest,
     forkJoin,
+    lastValueFrom,
     merge,
     Observable,
     of,
@@ -52,10 +53,13 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
+import { openRecurringClashModal } from 'libs/bookings/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import {
+    EventClash,
+    findEventClashes,
     querySpaceAvailability,
     removeEvent,
     saveEvent,
@@ -639,6 +643,19 @@ export class OldEventFormService extends AsyncHandler {
                     throw _;
                 });
             }
+            // Check for clashing events in recurring series
+            if (value.recurring && spaces.length) {
+                await this._checkRecurringClashes(
+                    new CalendarEvent({
+                        ...value,
+                        resources: spaces,
+                    }),
+                ).catch((_) => {
+                    this._loading.next('');
+                    reject(_);
+                    throw _;
+                });
+            }
             spaces = form.get('resources')?.value || [];
             const is_owner =
                 host === currentUser()?.email ||
@@ -913,6 +930,62 @@ export class OldEventFormService extends AsyncHandler {
                         : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
                 );
         }
+        return true;
+    }
+
+    /**
+     * Check for clashing events in a recurring event series
+     * @param event The calendar event to check for clashes
+     * @returns true if no clashes or user confirmed to continue
+     * @throws Error if first instance clashes or clashes not allowed
+     */
+    private async _checkRecurringClashes(
+        event: CalendarEvent,
+    ): Promise<boolean> {
+        if (!event.recurring) {
+            return true;
+        }
+
+        const clashes = (await lastValueFrom(
+            findEventClashes(event, { include_clash_time: true }),
+        )) as EventClash[];
+
+        if (!clashes?.length) {
+            return true;
+        }
+
+        const sorted_clashes = [...clashes].sort(
+            (a, b) => a.booking_start - b.booking_start,
+        );
+
+        const event_start_unix = Math.floor(event.date / 1000);
+        const first_clash = sorted_clashes[0];
+        const is_first_instance_clash =
+            first_clash.booking_start === event_start_unix;
+
+        if (is_first_instance_clash) {
+            throw i18n('CALENDAR_EVENT.FIRST_INSTANCE_CLASH');
+        }
+
+        const allow_clashes =
+            this._settings.get('app.events.allow_recurring_instance_clashes') ??
+            true;
+
+        if (!allow_clashes) {
+            throw i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED', {
+                count: clashes.length,
+            });
+        }
+
+        const result = await openRecurringClashModal(
+            { clashes: sorted_clashes },
+            this._dialog,
+        );
+
+        if (result?.reason !== 'done') {
+            throw 'User cancelled';
+        }
+
         return true;
     }
 

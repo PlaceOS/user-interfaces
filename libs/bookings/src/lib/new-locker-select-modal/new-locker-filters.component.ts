@@ -173,6 +173,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [disabled]="disable_start"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         @if (!hide_end) {
@@ -189,6 +190,7 @@ import { BookingFormService } from '../booking-form.service';
                                     [min]="60"
                                     [step]="60"
                                     [use_24hr]="use_24hr"
+                                    [end_time]="bookable_hours?.end"
                                 >
                                 </a-duration-field>
                             </div>
@@ -314,6 +316,13 @@ export class NewLockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.lockers.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
 
     public get disable_date() {
         return this._settings.get('app.lockers.disabled_date_select');

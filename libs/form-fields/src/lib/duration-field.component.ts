@@ -27,8 +27,8 @@ export interface DurationOption {
         <button
             duration-field
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
+            [disabled]="disabled() || no_options"
+            [class.opacity-30]="disabled() || no_options"
             matRipple
             [matMenuTriggerFor]="menu"
         >
@@ -95,6 +95,8 @@ export interface DurationOption {
                         }
                     </div>
                 </button>
+            } @empty {
+                <div mat-menu-item disabled>No duration options to select</div>
             }
         </mat-menu>
         <mat-error><ng-content /></mat-error>
@@ -140,10 +142,14 @@ export class DurationFieldComponent
     public readonly use_24hr = input(false);
     /** Display extra information for displayed times for timezone */
     public readonly timezone = input('');
+    /** Latest selectable end time in minutes since midnight */
+    public readonly end_time = input<number>(undefined);
 
     public duration = 60;
     /** List of available duration options */
     public duration_options: DurationOption[] = [];
+    /** Whether there are no available duration options */
+    public no_options = false;
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -175,6 +181,7 @@ export class DurationFieldComponent
             this.min(),
             this.step(),
         );
+        this._updateNoOptions();
         this._updateOption();
     }
 
@@ -185,13 +192,15 @@ export class DurationFieldComponent
             changes.min ||
             changes.step ||
             changes.time ||
-            changes.custom_options
+            changes.custom_options ||
+            changes.end_time
         ) {
             this.duration_options = this.generateDurationOptions(
                 this.max(),
                 this.min(),
                 this.step(),
             );
+            this._updateNoOptions();
             this._updateOption();
         }
     }
@@ -245,6 +254,7 @@ export class DurationFieldComponent
         let time = min;
         const timeValue = this.time();
         const date = timeValue ? timeValue : null;
+        const effective_max = this._effectiveMax(max, timeValue);
 
         // Add special cases
         for (const option of this.custom_options()) {
@@ -263,7 +273,7 @@ export class DurationFieldComponent
             });
         }
 
-        while (time <= max) {
+        while (time <= effective_max) {
             blocks.push({
                 id: time,
                 date: date ? addMinutes(date, time).valueOf() : undefined,
@@ -282,7 +292,19 @@ export class DurationFieldComponent
             time += step;
         }
         blocks.sort((a, b) => a.id - b.id);
-        return blocks;
+        return blocks.filter(
+            (option, index, options) =>
+                (index === 0 || options[index - 1].id !== option.id) &&
+                option.id >= min &&
+                option.id <= effective_max,
+        );
+    }
+
+    /** Update whether the field should show as disabled due to no options */
+    private _updateNoOptions(): void {
+        this.no_options =
+            !this.disabled() &&
+            (!this.duration_options || this.duration_options.length === 0);
     }
 
     private _updateOption() {
@@ -290,6 +312,16 @@ export class DurationFieldComponent
         const idx = this.duration_options.findIndex(
             (_) => _.id === this.duration,
         );
-        if (idx < 0) this.setValue(this.min());
+        if (idx < 0) this.setValue(this.duration_options[0]?.id ?? this.min());
+    }
+
+    private _effectiveMax(max: number, time_value?: number): number {
+        const end_time = this.end_time();
+        if (end_time === undefined || end_time === null || !time_value) {
+            return max;
+        }
+        const date = new Date(time_value);
+        const start_minutes = date.getHours() * 60 + date.getMinutes();
+        return Math.max(0, Math.min(max, end_time - start_minutes));
     }
 }

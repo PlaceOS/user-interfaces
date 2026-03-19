@@ -7,7 +7,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,8 +29,10 @@ import { ParkingUser } from './parking-state.service';
     selector: 'parking-user-modal',
     template: `
         <div class="w-md">
-            <header class="flex w-full items-center justify-between px-2">
-                <h2 class="px-2">
+            <header
+                class="bg-base-200 sticky top-0 z-10 m-2 min-h-12 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            >
+                <h2 class="px-2 text-xl font-medium">
                     {{
                         (id
                             ? 'APP.CONCIERGE.PARKING_USER_EDIT'
@@ -118,7 +124,7 @@ import { ParkingUser } from './parking-state.service';
                                 <input
                                     matInput
                                     name="car-color"
-                                    formControlName="car_color"
+                                    formControlName="car_colour"
                                     [placeholder]="
                                         'APP.CONCIERGE.PARKING_CAR_COLOUR'
                                             | translate
@@ -158,7 +164,7 @@ import { ParkingUser } from './parking-state.service';
             }
             @if (!loading) {
                 <footer
-                    class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
+                    class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
                 >
                     <button btn matRipple class="w-32" (click)="postForm()">
                         {{ 'COMMON.SAVE' | translate }}
@@ -180,6 +186,7 @@ import { ParkingUser } from './parking-state.service';
         FormsModule,
         MatTooltipModule,
         UserSearchFieldComponent,
+        MatDialogModule,
     ],
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
@@ -200,7 +207,7 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         name: new FormControl('', [Validators.required]),
         email: new FormControl('', [Validators.required]),
         plate_number: new FormControl(''),
-        car_color: new FormControl(''),
+        car_colour: new FormControl(''),
         notes: new FormControl(''),
         deny: new FormControl(false),
     });
@@ -209,7 +216,13 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         super();
         const _data = this._data;
 
-        if (_data) this.form.patchValue(_data);
+        if (_data) {
+            this.form.patchValue({
+                ..._data,
+                car_colour:
+                    (_data as any).car_colour || (_data as any).car_color || '',
+            });
+        }
     }
 
     public ngOnInit() {

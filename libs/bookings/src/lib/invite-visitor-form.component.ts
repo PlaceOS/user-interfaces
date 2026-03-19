@@ -78,11 +78,9 @@ import { BookingFormService } from './booking-form.service';
                                     </label>
                                     <mat-form-field appearance="outline">
                                         <mat-select
-                                            [ngModel]="form.value.zones[0]"
+                                            [ngModel]="selected_building_id"
                                             (ngModelChange)="
-                                                form.patchValue({
-                                                    zones: [$event],
-                                                })
+                                                setBuilding($event)
                                             "
                                             [ngModelOptions]="{
                                                 standalone: true,
@@ -131,6 +129,7 @@ import { BookingFormService } from './booking-form.service';
                                         <a-time-field
                                             name="start-time"
                                             [ngModel]="form_date"
+                                            [disabled]="is_start_time_disabled"
                                             (ngModelChange)="
                                                 form.patchValue({
                                                     date: $event,
@@ -140,6 +139,7 @@ import { BookingFormService } from './booking-form.service';
                                                 standalone: true,
                                             }"
                                             [use_24hr]="use_24hr"
+                                            [range]="bookable_hours"
                                         ></a-time-field>
                                     </div>
                                     <div class="flex w-1/3 flex-1 flex-col">
@@ -153,6 +153,7 @@ import { BookingFormService } from './booking-form.service';
                                             [time]="form_date"
                                             [max]="max_duration"
                                             [use_24hr]="use_24hr"
+                                            [end_time]="bookable_hours?.end"
                                         ></a-duration-field>
                                     </div>
                                 </div>
@@ -594,6 +595,13 @@ export class InviteVisitorFormComponent
     public filtered_visitors = [];
     public visitor_international: Record<string, boolean> = {};
 
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.visitors.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
+
     public get max_duration() {
         return (
             this._settings.get('app.visitors.max_duration') ||
@@ -653,6 +661,19 @@ export class InviteVisitorFormComponent
 
     public get form_date() {
         return this.form?.getRawValue()?.date;
+    }
+
+    public get is_start_time_disabled() {
+        return this.form?.get('date')?.disabled || false;
+    }
+
+    public get selected_building_id() {
+        const building_list = this._org.buildings || [];
+        const zone_list = this.form?.getRawValue()?.zones || [];
+        return (
+            building_list.find((building) => zone_list.includes(building.id))
+                ?.id || this._org.building?.id
+        );
     }
 
     constructor() {
@@ -721,6 +742,10 @@ export class InviteVisitorFormComponent
         });
     }
 
+    public setBuilding(building_id: string) {
+        this.form.patchValue({ zones: building_id ? [building_id] : [] });
+    }
+
     public setVisitorInternational(item: User, international: boolean) {
         const key = item.email || item.id;
         if (!key) return;
@@ -765,10 +790,7 @@ export class InviteVisitorFormComponent
     public async sendInvite() {
         this.form.markAllAsTouched();
         const form_data = this.form.getRawValue();
-        if (
-            !this.form.valid ||
-            (this.multiple && !form_data.assets?.length)
-        ) {
+        if (!this.form.valid || (this.multiple && !form_data.assets?.length)) {
             return notifyError(
                 `Some fields are invalid. [${
                     getInvalidFields(this.form).join(', ') || 'visitors'
@@ -825,7 +847,14 @@ export class InviteVisitorFormComponent
 
     private async initFormZone() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this._service.loadForm();
+        const form_snapshot = this.form?.getRawValue?.() as any;
+        const is_visitor_booking = (booking: Record<string, any>) =>
+            booking?.booking_type === 'visitor' || booking?.type === 'visitor';
+        const keep_preloaded_edit =
+            !!form_snapshot.id &&
+            (is_visitor_booking(form_snapshot) ||
+                is_visitor_booking(this._service.booking as any));
+        if (!keep_preloaded_edit) this._service.loadForm();
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');
         this.form.patchValue({ booking_type: 'visitor' });
@@ -889,18 +918,24 @@ export class InviteVisitorFormComponent
         this._existing_siblings =
             await this._service.loadGroupSiblings(booking_ref);
         if (!this._existing_siblings.length) return;
-        const visitors = this._existing_siblings.map(
-            (s) =>
-                new User({
-                    name: s.asset_name,
-                    email: s.asset_id,
-                    organisation: s.extension_data?.company,
-                    phone: s.extension_data?.phone,
-                    extension_data: {
-                        international: !!s.extension_data?.international,
-                    },
-                }),
-        );
+        const visitors = this._existing_siblings.map((s) => {
+            const group_member = (s.extension_data?.group_members || []).find(
+                (member) => member?.email === s.asset_id,
+            );
+            return new User({
+                name: group_member?.name || s.asset_name || s.asset_id,
+                email: s.asset_id,
+                organisation:
+                    group_member?.company || s.extension_data?.company,
+                phone: group_member?.phone || s.extension_data?.phone,
+                extension_data: {
+                    international: !!(
+                        group_member?.international ||
+                        s.extension_data?.international
+                    ),
+                },
+            });
+        });
         this.form.patchValue({ assets: visitors });
         this.syncVisitorInternational(visitors);
     }
@@ -965,9 +1000,16 @@ export class InviteVisitorFormComponent
             members: visitor_members,
         });
         if (this.is_edit) {
-            const existing_siblings = this._existing_siblings.length
-                ? this._existing_siblings
-                : [new Booking(this.form.getRawValue())];
+            let existing_siblings = this._existing_siblings;
+            if (!existing_siblings.length) {
+                existing_siblings = await this._service.loadGroupSiblings(
+                    new Booking(this.form.getRawValue()),
+                );
+            }
+            if (!existing_siblings.length) {
+                existing_siblings = [new Booking(this.form.getRawValue())];
+            }
+            this._existing_siblings = existing_siblings;
             await this._service
                 .editFormForGroup(existing_siblings)
                 .catch((e) => {

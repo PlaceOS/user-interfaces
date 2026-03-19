@@ -86,6 +86,19 @@ import { ParkingStateService } from './parking-state.service';
                     <icon>add</icon>
                 </button>
             }
+            @if (view() === 'fleet') {
+                <button
+                    btn
+                    matRipple
+                    class="w-52 space-x-2"
+                    (click)="newFleetVehicle()"
+                >
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_FLEET_ADD' | translate }}
+                    </div>
+                    <icon>add</icon>
+                </button>
+            }
             @if (section() === 'events' && !disable_reservations) {
                 <button
                     btn
@@ -158,17 +171,50 @@ import { ParkingStateService } from './parking-state.service';
             }
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
-                <button
-                    icon
-                    matRipple
-                    class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                    (click)="manageRestrictions()"
-                    [matTooltip]="
-                        'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
-                    "
-                >
-                    <icon>lock_open</icon>
-                </button>
+                <div class="flex gap-2">
+                    @if (view() === 'spaces') {
+                        <button
+                            icon
+                            matRipple
+                            class="bg-secondary text-secondary-content relative h-12 w-12 rounded-sm"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
+                            "
+                            [disabled]="!(options | async)?.zones?.length"
+                        >
+                            <icon>upload</icon>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                class="absolute inset-0 opacity-0"
+                                [disabled]="!(options | async)?.zones?.length"
+                                (change)="uploadSpacesCSV($any($event))"
+                            />
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                            (click)="downloadSpacesCSV()"
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_CSV_DOWNLOAD' | translate
+                            "
+                        >
+                            <icon>download</icon>
+                        </button>
+                    }
+                    <button
+                        icon
+                        matRipple
+                        class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
+                        (click)="manageRestrictions()"
+                        [matTooltip]="
+                            'APP.CONCIERGE.PARKING_BOOKING_RULES' | translate
+                        "
+                    >
+                        <icon>lock_open</icon>
+                    </button>
+                </div>
             }
             @if (section() === 'events') {
                 <div
@@ -227,7 +273,6 @@ import { ParkingStateService } from './parking-state.service';
         BuildingPipe,
         MatFormFieldModule,
         MatSelectModule,
-        FormsModule,
         SearchbarComponent,
         TranslatePipe,
         RouterModule,
@@ -243,7 +288,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
-        'spaces' | 'list' | 'map' | 'users' | 'requests' | 'bookings'
+        'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
     >('requests');
     /** List of selected levels */
     public zones: string[] = [];
@@ -343,8 +388,20 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.editSpace();
     }
 
+    public downloadSpacesCSV() {
+        this._state.downloadSpacesCSV();
+    }
+
+    public uploadSpacesCSV(event: InputEvent) {
+        this._state.uploadSpacesCSV(event);
+    }
+
     public newParkingUser() {
         this._state.editUser();
+    }
+
+    public newFleetVehicle() {
+        this._state.editFleetVehicle();
     }
 
     public async newReservation() {
@@ -368,9 +425,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     private clearZones() {
-        const has_query_param = this._route.snapshot.queryParamMap.has(
-            'zone_ids',
-        );
+        const has_query_param =
+            this._route.snapshot.queryParamMap.has('zone_ids');
         if (!this.zones.length && !has_query_param) {
             this._state.setOptions({ zones: [] });
             return;
@@ -380,7 +436,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     private async selectDefaultZoneForManage() {
-        if (this.section() !== 'manage' || this.use_region || this.zones.length) {
+        if (
+            this.section() !== 'manage' ||
+            this.use_region ||
+            this.zones.length
+        ) {
             return;
         }
         const levels = await nextValueFrom(this.levels);

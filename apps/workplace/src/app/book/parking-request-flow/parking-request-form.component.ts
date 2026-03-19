@@ -16,7 +16,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IconComponent, SanitizePipe, TranslatePipe } from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
 import { ParkingRequestFormDetailsComponent } from './parking-request-form-details.component';
 
@@ -63,6 +63,17 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                 <div
                     class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-2"
                 >
+                    @if (submission_notes_html()) {
+                        <div class="bg-base-100 border-base-300 rounded-lg border p-4">
+                            <h3 class="mb-3 text-lg font-semibold">
+                                {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
+                            </h3>
+                            <div
+                                class="prose prose-sm max-w-none"
+                                [innerHTML]="submission_notes_html() | sanitize"
+                            ></div>
+                        </div>
+                    }
                     <!-- Buttons -->
                     <div class="flex items-center justify-end gap-3">
                         @if (loading()) {
@@ -102,6 +113,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         MatRippleModule,
         ReactiveFormsModule,
         TranslatePipe,
+        SanitizePipe,
         IconComponent,
         ParkingRequestFormDetailsComponent,
         MatProgressSpinnerModule,
@@ -122,6 +134,10 @@ export class ParkingRequestFormComponent
     public readonly available_days = settingSignal(
         'parking.available_period',
         14,
+    );
+    public readonly submission_notes_html = settingSignal(
+        'parking.request_submission_notes_html',
+        '',
     );
 
     public readonly clearForm = () => this._state.resetForm();

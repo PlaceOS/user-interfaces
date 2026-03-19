@@ -316,7 +316,8 @@ function contains(str: string, substr: string) {
                             </div>
                         </ng-template>
                         <ng-template #feed_template let-space="row">
-                            @if (space.camera_snapshot_url) {
+                            @let feed_url = cameraSnapshotFeed(space);
+                            @if (feed_url) {
                                 <button
                                     snap
                                     matRipple
@@ -329,11 +330,7 @@ function contains(str: string, substr: string) {
                                     <div viewport-only class="h-full w-full">
                                         <img
                                             auth
-                                            [source]="
-                                                snapshotUrl(
-                                                    space.camera_snapshot_url
-                                                )
-                                            "
+                                            [source]="snapshotUrl(feed_url)"
                                             class="h-full w-full object-cover"
                                             alt="Camera Feed"
                                         />
@@ -606,6 +603,12 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         return `${base_url}${separator}t=${timestamp}`;
     }
 
+    public cameraSnapshotFeed(
+        space: Partial<Space> & { camera_snapshot_urls?: string[] },
+    ): string {
+        return space.camera_snapshot_urls?.[0] || '';
+    }
+
     public setHovering(hovering: boolean) {
         this._is_hovering.set(hovering);
     }
@@ -711,7 +714,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public openCameraSnapshot(space: Space) {
         this._dialog.open(CameraSnapshotModalComponent, {
             data: {
-                camera_snapshot_url: space.camera_snapshot_url,
+                camera_snapshot_urls: space.camera_snapshot_urls,
                 camera_url: space.camera_url,
                 room_name: space.display_name || space.name,
             },

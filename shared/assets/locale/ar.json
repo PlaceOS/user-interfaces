@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "الغرفة المحددة لهذا الحجز تتطلب موافقة وقد لا يتم تأكيدها حتى تاريخ لاحق.",
         "SETUP_BREAKDOWN_HEADER": "ضبط إعداد وتفكيك الحدث",
         "SETUP_DURATION": "مدة الإعداد",
-        "BREAKDOWN_DURATION": "مدة التفكيك"
+        "BREAKDOWN_DURATION": "مدة التفكيك",
+        "FIRST_INSTANCE_CLASH": "يتعارض الحدث الأول في السلسلة مع حجز موجود",
+        "RECURRING_CLASHES_NOT_ALLOWED": "لا يُسمح بالأحداث المتكررة التي تحتوي على {{ count }} تعارض(ات)"
     },
     "CATERING": {
         "MENU": "قائمة خدمات الطعام",
@@ -1431,6 +1433,13 @@
             "PARKING_STATUS_FREE": "الموقف غير معين ومتاح للاستخدام",
             "PARKING_COPIED_USER": "تم نسخ بريد المستخدم الإلكتروني إلى الحافظة",
             "PARKING_COPIED_ID": "تم نسخ معرف خليج وقوف السيارات إلى الحافظة",
+            "PARKING_CSV_UPLOAD": "تحميل ملف CSV للمواقف",
+            "PARKING_CSV_DOWNLOAD": "تنزيل ملف CSV للمواقف",
+            "PARKING_CSV_EMPTY": "ملف CSV فارغ. لا توجد مواقف للاستيراد.",
+            "PARKING_CSV_NO_ZONE": "يرجى تحديد مستوى قبل التحميل.",
+            "PARKING_CSV_SAVE_ERROR": "فشل في حفظ {{ count }} موقف/مواقف.",
+            "PARKING_CSV_SAVE_SUCCESS": "تم حفظ {{ count }} موقف/مواقف بنجاح.",
+            "PARKING_CSV_PARSE_ERROR": "فشل في تحليل ملف CSV.",
             "PARKING_BOOKINGS_EMPTY": "لا توجد حجوزات مواقف سيارات للطابق والوقت المحددين",
             "PARKING_REQUESTS_EMPTY": "لا توجد طلبات مواقف سيارات للطابق والوقت المحددين",
             "PARKING_UNAVAILABLE": "لا توجد طوابق مواقف سيارات للمبنى المحدد حاليًا",

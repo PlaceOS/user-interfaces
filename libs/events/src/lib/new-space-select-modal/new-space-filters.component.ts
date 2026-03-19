@@ -62,10 +62,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="region"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_REGION_ANY'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 @for (reg of regions | async; track reg) {
                                     <mat-option [value]="reg">
@@ -102,9 +99,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModel]="(options | async)?.zones"
                                 (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
-                                "
+                                [placeholder]="'COMMON.LEVEL_ANY' | translate"
                                 [multiple]="true"
                             >
                                 @for (lvl of levels | async; track lvl) {
@@ -179,7 +174,13 @@ import { SpacesService } from '../spaces.service';
                 <!-- All Day -->
                 @if (allow_all_day) {
                     <div class="-mt-2 mb-2 flex justify-end">
-                        <mat-checkbox formControlName="all_day">
+                        <mat-checkbox
+                            [ngModel]="form.value.all_day"
+                            (ngModelChange)="
+                                form.patchValue({ all_day: $event })
+                            "
+                            [ngModelOptions]="{ standalone: true }"
+                        >
                             {{ 'COMMON.ALL_DAY' | translate }}
                         </mat-checkbox>
                     </div>
@@ -200,6 +201,7 @@ import { SpacesService } from '../spaces.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         @if (multiday()) {
@@ -218,6 +220,7 @@ import { SpacesService } from '../spaces.service';
                                     [from]="form?.getRawValue()?.date"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
+                                    [range]="bookable_hours"
                                 ></a-time-field>
                             </div>
                         }
@@ -234,6 +237,7 @@ import { SpacesService } from '../spaces.service';
                                     [max]="max_duration"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
+                                    [end_time]="bookable_hours?.end"
                                 ></a-duration-field>
                             </div>
                         }
@@ -402,6 +406,10 @@ export class NewSpaceFiltersComponent {
 
     public get form() {
         return this._event_form.form;
+    }
+
+    public get bookable_hours() {
+        return this._settings.get('app.events.bookable_hours');
     }
 
     public get max_duration() {

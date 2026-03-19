@@ -109,10 +109,26 @@
                 }
             }
         },
+        "events": {
+            "type": "object",
+            "description": "Data associated with meeting booking flow",
+            "properties": {
+                "bookable_hours": {
+                    "$ref": "#/$defs/bookable_hours"
+                },
+                "hide_nearby_desks": {
+                    "type": "boolean",
+                    "description": "Whether to hide the book nearby desks action on the meeting success view"
+                }
+            }
+        },
         "desks": {
             "type": "object",
             "description": "Data associated wth desk booking flow",
             "properties": {
+                "bookable_hours": {
+                    "$ref": "#/$defs/bookable_hours"
+                },
                 "has_group_booking": {
                     "type": "boolean",
                     "description": "Whether users are allowed make group desk bookings"
@@ -124,6 +140,53 @@
                 "can_set_host": {
                     "type": "boolean",
                     "description": "Whether user is allowed to make desk bookings for others"
+                }
+            }
+        },
+        "parking": {
+            "type": "object",
+            "description": "Data associated with the parking booking and request flows",
+            "properties": {
+                "allow_recurrence": {
+                    "type": "boolean",
+                    "description": "Whether multi-day recurrence options should be available in parking flows"
+                },
+                "request_submission_notes_html": {
+                    "type": "string",
+                    "description": "Optional sanitized HTML content shown in the parking request summary and submission section."
+                },
+                "request_shift_options": {
+                    "type": "array",
+                    "description": "Shift presets shown in the parking request flow. The custom shift option is always shown separately.",
+                    "items": { "$ref": "#/$defs/parking_request_shift_option" }
+                },
+                "auto_approved_groups": {
+                    "type": "array",
+                    "description": "List of user group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector.",
+                    "items": { "type": "string" }
+                },
+                "request_types": {
+                    "type": "array",
+                    "description": "Request type options shown in the parking request flow. Each item requires a `value` and `label`. Optional `description` and `badge` fields. Defaults to standard, special, and after_hours types.",
+                    "items": { "$ref": "#/$defs/parking_request_type" }
+                },
+                "request_space_restrictions": {
+                    "type": "array",
+                    "description": "Space restriction options shown in the parking request flow. If this list is empty, the field is hidden.",
+                    "items": { "$ref": "#/$defs/identity" }
+                },
+                "vehicle_types": {
+                    "type": "array",
+                    "description": "Vehicle type options shown in the parking request flow. Defaults to car, bike, van, truck, and other.",
+                    "items": { "$ref": "#/$defs/identity" }
+                },
+                "hide_prefer_toggle": {
+                    "type": "boolean",
+                    "description": "Whether to hide the 'Prefer booked location first' toggle in the location preference section of the parking request flow."
+                },
+                "hide_custom_shift": {
+                    "type": "boolean",
+                    "description": "Whether to hide the custom option from the shift selection dropdown in the parking request flow."
                 }
             }
         },
@@ -175,6 +238,21 @@
         }
     },
     "$defs": {
+        "bookable_hours": {
+            "type": "object",
+            "description": "Bookable time window in minutes since midnight. For example, `480` is 8:00 AM and `1140` is 7:00 PM.",
+            "required": ["start", "end"],
+            "properties": {
+                "start": {
+                    "type": "number",
+                    "description": "Earliest allowed booking start time in minutes since midnight."
+                },
+                "end": {
+                    "type": "number",
+                    "description": "Latest allowed booking end time in minutes since midnight."
+                }
+            }
+        },
         "link": {
             "type": "object",
             "required": ["name"],
@@ -232,6 +310,55 @@
                 "name": {
                     "type": "string",
                     "description": "Display string for the object"
+                }
+            }
+        },
+        "parking_request_type": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "Unique value identifying this request type"
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Display label for the request type. Supports translation keys."
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description text shown below the label. Supports translation keys."
+                },
+                "badge": {
+                    "type": "string",
+                    "description": "Optional badge text shown alongside the request type. Supports translation keys."
+                },
+                "groups": {
+                    "type": "array",
+                    "description": "Optional list of user groups that can see this request type. If empty or omitted, the type is visible to all users.",
+                    "items": { "type": "string" }
+                }
+            }
+        },
+        "parking_request_shift_option": {
+            "type": "object",
+            "required": ["id", "name", "start_time", "end_time"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier for the shift preset. `custom` is reserved and added automatically."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display string for the shift preset"
+                },
+                "start_time": {
+                    "type": "number",
+                    "description": "Shift start time in minutes from midnight"
+                },
+                "end_time": {
+                    "type": "number",
+                    "description": "Shift end time in minutes from midnight"
                 }
             }
         }

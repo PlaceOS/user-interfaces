@@ -38,19 +38,30 @@ export interface CateringOption {
     active?: boolean;
 }
 
+function cloneOption(option: Partial<CateringOption> = {}): CateringOption {
+    return {
+        id: option.id || '',
+        name: option.name || '',
+        group: option.group || '',
+        multiple: !!option.multiple,
+        unit_price: option.unit_price || 0,
+        active: option.active,
+    };
+}
+
 function deliverAtTime(order: CateringOrder) {
     let date =
         order.event?.date ||
         order.event?.event_start * 1000 ||
         (order as any)._time;
+    if (order.deliver_day_offset > 0 || order.event?.all_day) {
+        date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
+    }
     if (order.deliver_time) {
         date = set(date, {
             hours: Math.floor(order.deliver_time),
             minutes: (order.deliver_time % 1) * 60,
         }).valueOf();
-    }
-    if (order.deliver_day_offset > 0 || order.event?.all_day) {
-        date = addDays(startOfDay(date), order.deliver_day_offset).valueOf();
     }
     return addMinutes(date, order.deliver_offset).valueOf();
 }
@@ -80,21 +91,34 @@ export class CateringItem {
     public readonly discount_cap: number;
     /** Total cost for the item */
     public readonly total_cost: number;
-    /** String list of available options */
-    public readonly options_string: string;
     /** List of images for the catering item */
     public readonly images: string[];
-    /** List of active options for the item */
-    public readonly option_list: CateringOption[];
     /** Price per unit with selected options */
     public readonly unit_price_with_options: number;
     /** Zones in which this item is not allow to be ordered in */
     public readonly hide_for_zones: string[];
     /** Whether item in part of an order */
     public readonly in_order: boolean;
+    private readonly _option_list: CateringOption[];
+
+    public get option_list() {
+        const active_options = this.options.filter((_) => _.active === true);
+        return active_options.length ? active_options : this._option_list;
+    }
+
+    /** String list of selected option ids */
+    public get options_string() {
+        return this.option_list
+            .map((_) => _.id || '')
+            .sort((a, b) => a.localeCompare(b))
+            .join(',');
+    }
 
     public get custom_id() {
-        const options = this.option_list.map((_) => _.id).join('+');
+        const options = this.option_list
+            .map((_) => _.id)
+            .sort((a, b) => a.localeCompare(b))
+            .join('+');
         return `${this.id}[${options}]${!this.in_order ? 'menu' : ''}`;
     }
 
@@ -108,26 +132,23 @@ export class CateringItem {
         this.quantity = data.quantity || 0;
         this.discount_cap = data.discount_cap || 0;
         this.accept_points = !!data.accept_points;
-        this.tags = (data.tags instanceof Array ? data.tags : null) || [];
-        this.images = data.images || [];
-        this.options = data.options || [];
+        this.tags = [
+            ...((data.tags instanceof Array ? data.tags : null) || []),
+        ];
+        this.images = [...(data.images || [])];
+        this.options = (data.options || []).map((_) => cloneOption(_));
         const has_options = this.options.some((_) => _.active === true);
-        this.option_list =
+        this._option_list =
             (has_options
                 ? this.options.filter((_) => _.active === true)
-                : data.option_list) || [];
-        this.hide_for_zones = data.hide_for_zones || [];
+                : (data.option_list || []).map((_) => cloneOption(_))) || [];
+        this.hide_for_zones = [...(data.hide_for_zones || [])];
         this.unit_price_with_options =
             this.unit_price +
             this.option_list
                 .map((i) => i.unit_price || 0)
                 .reduce((c, a) => c + a, 0);
         this.total_cost = this.unit_price_with_options * this.quantity;
-        this.options_string =
-            this.options
-                ?.map((_) => _.id || '')
-                .sort((a, b) => a.localeCompare(b))
-                .join(',') || '';
         this.in_order = data.in_order ?? false;
     }
 }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+    AfterViewInit,
     Component,
     forwardRef,
     input,
@@ -11,8 +12,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSelect } from '@angular/material/select';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
     AsyncHandler,
     getTimezoneOffsetString,
@@ -23,13 +23,18 @@ import {
     endOfDay,
     format,
     isAfter,
-    isSameDay,
+    isBefore,
     roundToNearestMinutes,
     set,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
+
+export interface TimeFieldRange {
+    start: number;
+    end: number;
+}
 
 @Component({
     selector: 'a-time-field,time-field',
@@ -38,8 +43,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
+            [disabled]="disabled() || no_options"
+            [class.opacity-30]="disabled() || no_options"
             [matMenuTriggerFor]="menu"
         >
             <div
@@ -87,6 +92,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             @for (option of time_options; track option.id) {
                 <button
                     mat-menu-item
+                    [attr.data-time]="option.id"
                     [value]="option.id"
                     class="text-left"
                     (click)="setValue(option.id)"
@@ -111,6 +117,8 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         }
                     </div>
                 </button>
+            } @empty {
+                <div mat-menu-item disabled>No time options to select</div>
             }
         </mat-menu>
         @if (!no_error()) {
@@ -135,7 +143,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 })
 export class TimeFieldComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, ControlValueAccessor
+    implements OnInit, OnChanges, AfterViewInit, ControlValueAccessor
 {
     /** Time step between each allowed time option */
     public readonly step = input(15);
@@ -151,6 +159,8 @@ export class TimeFieldComponent
     );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
+    /** Limit selectable times by minutes since midnight */
+    public readonly range = input<TimeFieldRange>(undefined);
     public readonly timezone = input<string>('');
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
@@ -162,13 +172,15 @@ export class TimeFieldComponent
     public show_select: boolean;
 
     public active_time: number = Date.now();
+    /** Whether there are no available time options */
+    public no_options = false;
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
 
-    /** Select field for selecting the time */
-    private readonly select_field = viewChild<MatSelect>('select');
+    /** Menu trigger for the time selection dropdown */
+    private readonly _menu_trigger = viewChild(MatMenuTrigger);
 
     public get time_format() {
         return this.use_24hr() ? 'HH : mm' : 'h : mm a';
@@ -192,6 +204,7 @@ export class TimeFieldComponent
             !this.no_past_times(),
             this.step(),
         );
+        this._updateNoOptions();
         this.timeout('hide', () => (this.show_select = false));
         this.active_time =
             this._time_options.find((_) => _.id === format(this.date, 'HH:mm'))
@@ -199,13 +212,85 @@ export class TimeFieldComponent
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.no_past_times || changes.step || changes.from) {
+        if (
+            changes.no_past_times ||
+            changes.step ||
+            changes.from ||
+            changes.range
+        ) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
                 !this.no_past_times(),
                 this.step(),
             );
+            this._updateNoOptions();
         }
+    }
+
+    public ngAfterViewInit(): void {
+        const trigger = this._menu_trigger();
+        if (trigger) {
+            this.subscription(
+                'menu_opened',
+                trigger.menuOpened.subscribe(() => {
+                    this._scrollToSelectedTime();
+                }),
+            );
+        }
+    }
+
+    /** Scroll the menu to the selected or nearest time option */
+    private _scrollToSelectedTime(): void {
+        // Use requestAnimationFrame for immediate execution after render
+        requestAnimationFrame(() => {
+            const trigger = this._menu_trigger();
+            if (!trigger?.menu) return;
+
+            const panel = document.querySelector('.mat-mdc-menu-panel');
+            if (!panel) return;
+
+            // Find the selected time, or fallback to the nearest time
+            const target_time = this.time || format(new Date(), 'HH:mm');
+            let target_element = panel.querySelector(
+                `[data-time="${target_time}"]`,
+            );
+
+            // If exact time not found, find the nearest option
+            if (!target_element && this._time_options?.length) {
+                const current_minutes = this._timeToMinutes(target_time);
+                let closest_option = this._time_options[0];
+                let closest_diff = Infinity;
+
+                for (const option of this._time_options) {
+                    const option_minutes = this._timeToMinutes(option.id);
+                    const diff = Math.abs(option_minutes - current_minutes);
+                    if (diff < closest_diff) {
+                        closest_diff = diff;
+                        closest_option = option;
+                    }
+                }
+
+                target_element = panel.querySelector(
+                    `[data-time="${closest_option.id}"]`,
+                );
+            }
+
+            if (target_element) {
+                if (typeof target_element.scrollIntoView !== 'function') {
+                    return;
+                }
+                target_element.scrollIntoView({
+                    block: 'center',
+                    behavior: 'instant',
+                });
+            }
+        });
+    }
+
+    /** Convert time string (HH:mm) to minutes since midnight */
+    private _timeToMinutes(time_str: string): number {
+        const [hours, minutes] = time_str.split(':').map(Number);
+        return hours * 60 + minutes;
     }
 
     /** Available time blocks for the selected date */
@@ -213,7 +298,8 @@ export class TimeFieldComponent
         const time = (this.time || '00:00').split(':');
         const date = set(this.date, { hours: +time[0], minutes: +time[1] });
         if (
-            date.getMinutes() % 15 !== 0 &&
+            date.getMinutes() % this.step() !== 0 &&
+            this._isWithinRange(date) &&
             !this._time_options.find(
                 (time) => time.id === format(date, 'HH:mm'),
             )
@@ -265,6 +351,7 @@ export class TimeFieldComponent
             !this.no_past_times(),
             this.step(),
         );
+        this._updateNoOptions();
         const time = this.force_time() || this.time;
         this.active_time =
             this._time_options.find((_) => _.id === time)?.date || date;
@@ -277,6 +364,7 @@ export class TimeFieldComponent
             !this.no_past_times() || disabled,
             this.step(),
         );
+        this._updateNoOptions();
     }
 
     /**
@@ -295,26 +383,12 @@ export class TimeFieldComponent
         this._onTouch = fn;
     }
 
-    /**
-     * Show select field for time options
-     */
-    public showSelect() {
-        this.show_select = true;
-        this.timeout('on_shown', () => {
-            const select_field = this.select_field();
-            if (select_field) {
-                select_field.focus();
-                select_field.open();
-                this.subscription(
-                    'listen_close',
-                    select_field.openedChange.subscribe((state) => {
-                        if (!state) {
-                            this.show_select = false;
-                        }
-                    }),
-                );
-            }
-        });
+    /** Update whether the field should show as disabled due to no options */
+    private _updateNoOptions(): void {
+        this.no_options =
+            !this.disabled() &&
+            (!this._time_options || this._time_options.length === 0) &&
+            !this.force_time();
     }
 
     /**
@@ -327,18 +401,32 @@ export class TimeFieldComponent
         show_past: boolean,
         step: number = 15,
     ): Identity[] {
-        const now = new Date(Math.max(this.from(), Date.now()));
-        let date = new Date(datestamp);
+        const min_date = show_past
+            ? this.from()
+            : Math.max(this.from(), Date.now());
+        const selected_day = new Date(datestamp);
         const blocks = [];
-        if (show_past || (!isSameDay(date, now) && isAfter(date, now))) {
-            date = startOfDay(date);
-        } else if (isAfter(date, now)) {
-            date = new Date(now);
+        const time_range = this.range();
+
+        const day_start = startOfDay(selected_day).valueOf();
+        const day_end = endOfDay(selected_day).valueOf();
+        const range_start = Math.max(
+            day_start,
+            min_date,
+            time_range ? day_start + time_range.start * 60 * 1000 : day_start,
+        );
+        const range_end = Math.min(
+            day_end,
+            time_range ? day_start + time_range.end * 60 * 1000 : day_end,
+        );
+
+        if (range_start > range_end) {
+            return blocks;
         }
-        date = roundToNearestMinutes(date, { nearestTo: step as any });
-        const end = endOfDay(date);
-        // Add options for the rest of the day
-        while (isAfter(end, date)) {
+
+        let date = this._roundUpToStep(range_start, step);
+        const end = this._roundDownToStep(range_end, step);
+        while (!isAfter(date, end)) {
             blocks.push({
                 date: date.valueOf(),
                 id: format(date, 'HH:mm'),
@@ -346,5 +434,36 @@ export class TimeFieldComponent
             date = addMinutes(date, step);
         }
         return blocks;
+    }
+
+    private _isWithinRange(date: Date): boolean {
+        if (isBefore(date, this.from())) {
+            return false;
+        }
+        const time_range = this.range();
+        if (!time_range) {
+            return true;
+        }
+        const mins = date.getHours() * 60 + date.getMinutes();
+        if (mins < time_range.start || mins > time_range.end) {
+            return false;
+        }
+        return true;
+    }
+
+    private _roundUpToStep(datestamp: number, step: number): Date {
+        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
+        if (isBefore(date, datestamp)) {
+            date = addMinutes(date, step);
+        }
+        return startOfMinute(date);
+    }
+
+    private _roundDownToStep(datestamp: number, step: number): Date {
+        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
+        if (isAfter(date, datestamp)) {
+            date = addMinutes(date, -step);
+        }
+        return startOfMinute(date);
     }
 }

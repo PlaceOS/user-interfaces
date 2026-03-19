@@ -12,6 +12,7 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -30,8 +31,22 @@ import {
     User,
 } from '@placeos/common';
 import { QueryResponse, updateMetadata } from '@placeos/ts-client';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    addHours,
+    endOfDay,
+    getUnixTime,
+    set,
+    startOfDay,
+    subDays,
+} from 'date-fns';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -789,15 +804,32 @@ export class LockerStateService extends AsyncHandler {
         this.refresh();
     }
 
-    private async _clearAssignedBooking(locker: Locker) {
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'locker',
-            email: locker.assigned_to,
-            include_checked_out: true,
-        }).toPromise();
-        const filtered = booking_list.filter((_) => _.asset_id === locker.id);
-        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+    private async _clearAssignedBooking(resource: Locker) {
+        const today = Date.now();
+        const booking_list = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
+                type: 'locker',
+                email: resource.assigned_to,
+                include_checked_out: true,
+            }),
+        );
+        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
+        for (const booking of filtered) {
+            const is_recurring =
+                booking.recurrence_type && booking.recurrence_type !== 'none';
+            if (is_recurring && booking.instance) {
+                // Set recurrence_end to end of yesterday to preserve past instances
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(booking.id, {
+                        recurrence_end: yesterday_end,
+                    }),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
     }
 }

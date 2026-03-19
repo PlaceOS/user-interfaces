@@ -13,10 +13,12 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    BuildingLevel,
     Desk,
     generateQRCode,
     i18n,
@@ -36,7 +38,14 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
+import {
+    addHours,
+    endOfDay,
+    getUnixTime,
+    set,
+    startOfDay,
+    subDays,
+} from 'date-fns';
 import { combineLatest, lastValueFrom, of, Subject } from 'rxjs';
 import {
     catchError,
@@ -96,6 +105,8 @@ export class DesksStateService extends AsyncHandler {
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
         toObservable(this._change),
+        this._org.active_building,
+        this._org.active_region,
     ]).pipe(
         debounceTime(500),
         switchMap(([filters]) => {
@@ -104,7 +115,7 @@ export class DesksStateService extends AsyncHandler {
                 return of({ list: [] as any[], is_manage: false });
             }
             this._loading.set(true);
-            const zones = filters.zones || [];
+            const zones = this._getActiveZones(filters.zones);
             const fetch$ =
                 zones && !zones.includes('All')
                     ? showMetadata(zones[0], 'desks').pipe(
@@ -147,15 +158,15 @@ export class DesksStateService extends AsyncHandler {
     public readonly setup_paging = combineLatest([
         toObservable(this._filters),
         this._org.initialised,
+        this._org.active_building,
+        this._org.active_region,
     ]).pipe(
         debounceTime(500),
         tap(([filters, loaded]) => {
             // Only load bookings when on events view
             if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
-            const active_zones = (filters.zones || []).filter(
-                (_) => !this._all_zones_keys.includes(_),
-            );
+            const active_zones = this._getActiveZones(filters.zones);
             const zones = !active_zones.length
                 ? this._settings.get('app.use_region')
                     ? this._org.buildingsForRegion().map((_) => _.id)
@@ -168,9 +179,9 @@ export class DesksStateService extends AsyncHandler {
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
-                    include_deleted: 'all',
+                    include_deleted: true,
                     limit: 500,
-                }).pipe(
+                } as any).pipe(
                     catchError((_) => of({ data: [], total: 0, next: null })),
                 ),
             );
@@ -454,10 +465,13 @@ export class DesksStateService extends AsyncHandler {
                     : 'APP.CONCIERGE.DESKS_BOOKING_DELETE_LOADING',
             ),
         );
-        const query = !series && booking.instance
-            ? { instance: true, start_time: booking.instance }
-            : {};
-        const booking_id = series ? booking.parent_id || booking.id : booking.id;
+        const query =
+            !series && booking.instance
+                ? { instance: true, start_time: booking.instance }
+                : {};
+        const booking_id = series
+            ? booking.parent_id || booking.id
+            : booking.id;
         await nextValueFrom(removeBooking(booking_id, query)).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_ERROR', { error: e }),
@@ -519,18 +533,46 @@ export class DesksStateService extends AsyncHandler {
     }
 
     private async _clearAssignedBooking(desk: Desk) {
+        const today = Date.now();
         const booking_list = await lastValueFrom(
             queryBookings({
-                period_start: getUnixTime(startOfDay(Date.now())),
-                period_end: getUnixTime(endOfDay(Date.now())),
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
                 type: 'desk',
                 email: desk.assigned_to,
                 include_checked_out: true,
             }),
         );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
-        await Promise.all(
-            filtered.map((_) => lastValueFrom(removeBooking(_.id))),
+        for (const booking of filtered) {
+            const is_recurring =
+                booking.recurrence_type && booking.recurrence_type !== 'none';
+            if (is_recurring && booking.instance) {
+                // Set recurrence_end to end of yesterday to preserve past instances
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(booking.id, {
+                        recurrence_end: yesterday_end,
+                    }),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
+    }
+
+    private _getActiveZones(zones: string[] = []): string[] {
+        const level_list = this._currentLevelList();
+        const level_ids = new Set(level_list.map((level) => level.id));
+        return (zones || []).filter(
+            (zone) =>
+                !this._all_zones_keys.includes(zone) && level_ids.has(zone),
         );
+    }
+
+    private _currentLevelList(): BuildingLevel[] {
+        return this._settings.get('app.use_region')
+            ? this._org.levelsForRegion(this._org.region)
+            : this._org.levelsForBuilding(this._org.building);
     }
 }

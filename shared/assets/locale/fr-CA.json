@@ -734,7 +734,9 @@
         "APPROVAL_REQUIRED_MSG": "La salle sélectionnée pour cette réservation nécessite une approbation et pourrait ne pas être confirmée avant une date ultérieure.",
         "SETUP_BREAKDOWN_HEADER": "Définir la préparation et le rangement de l'événement",
         "SETUP_DURATION": "Durée de la préparation",
-        "BREAKDOWN_DURATION": "Durée du rangement"
+        "BREAKDOWN_DURATION": "Durée du rangement",
+        "FIRST_INSTANCE_CLASH": "Le premier événement de la série est en conflit avec une réservation existante",
+        "RECURRING_CLASHES_NOT_ALLOWED": "Les événements récurrents avec {{ count }} conflit(s) ne sont pas autorisés"
     },
     "CATERING": {
         "MENU": "Menu traiteur",
@@ -1431,6 +1433,13 @@
             "PARKING_STATUS_FREE": "La place n'est pas assignée et est disponible",
             "PARKING_COPIED_USER": "Courriel de l'utilisateur copié dans le presse-papiers",
             "PARKING_COPIED_ID": "ID de la baie de stationnement copié dans le presse-papiers",
+            "PARKING_CSV_UPLOAD": "Importer CSV des places",
+            "PARKING_CSV_DOWNLOAD": "Exporter CSV des places",
+            "PARKING_CSV_EMPTY": "Le fichier CSV est vide. Aucune place à importer.",
+            "PARKING_CSV_NO_ZONE": "Veuillez sélectionner un niveau avant d'importer.",
+            "PARKING_CSV_SAVE_ERROR": "Échec de l'enregistrement de {{ count }} place(s).",
+            "PARKING_CSV_SAVE_SUCCESS": "{{ count }} place(s) enregistrée(s) avec succès.",
+            "PARKING_CSV_PARSE_ERROR": "Échec de l'analyse du fichier CSV.",
             "PARKING_BOOKINGS_EMPTY": "Aucune réservation de stationnement pour l'étage et l'heure sélectionnés",
             "PARKING_REQUESTS_EMPTY": "Aucune demande de stationnement pour l'étage et l'heure sélectionnés",
             "PARKING_UNAVAILABLE": "Aucun étage de stationnement pour l'immeuble actuellement sélectionné",

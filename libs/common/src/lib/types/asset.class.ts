@@ -29,4 +29,5 @@ export interface AssetGroup extends PlaceAssetType {
     purchase_orders?: PlaceAssetPurchaseOrder[];
     quantity?: number;
     zone_id?: string;
+    available?: any;
 }

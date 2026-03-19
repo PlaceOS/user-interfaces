@@ -259,7 +259,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                                                 standalone: true,
                                             }"
                                             [placeholder]="
-                                                'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEARCH'
                                                     | translate
                                             "
                                         />

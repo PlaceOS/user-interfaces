@@ -64,19 +64,21 @@ const help = [
 const events = {
     multiple_spaces: false,
     desk_start: 9,
+    // bookable_hours: { start: 480, end: 1140 },
     can_book_for_others: false,
     has_catering: true,
     has_assets: true,
-    catering_enabled: 'bld-01',
     allow_all_day: true,
     hide_notes: false,
     hide_attendees: false,
+    hide_nearby_desks: false,
     features_label: '',
     features_on_form: false,
     booking_unavailable: false,
     allow_externals: true,
     allow_recurrence: false,
     allow_daily_allday_recurrence: false,
+    allow_online_meetings: false,
 };
 /*===========================*\
 ||  SPACE LISTING SETTINGS   ||
@@ -216,6 +218,7 @@ const app = {
     desks: {
         can_book_lockers: true,
         can_book_for_others: true,
+        // bookable_hours: { start: 480, end: 1140 },
         allow_groups: true,
         allow_time_changes: true,
         allow_all_day: true,
@@ -228,6 +231,23 @@ const app = {
     },
     parking: {
         allow_all_day: true,
+        allow_recurrence: true,
+        request_submission_notes_html: '',
+        request_space_restrictions: [
+            {
+                id: 'oversized',
+                name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
+            },
+        ],
+        vehicle_types: [
+            { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },
+            { id: 'bike', name: 'BOOKINGS.PARKING_VEHICLE_BIKE' },
+            { id: 'van', name: 'BOOKINGS.PARKING_VEHICLE_VAN' },
+            { id: 'truck', name: 'BOOKINGS.PARKING_VEHICLE_TRUCK' },
+            { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
+        ],
+        hide_prefer_toggle: false,
+        hide_custom_shift: false,
     },
     analytics: {
         enabled: true,

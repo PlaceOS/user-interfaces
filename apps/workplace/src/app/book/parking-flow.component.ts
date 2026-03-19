@@ -12,7 +12,22 @@ import { ParkingFlowSuccessComponent } from './parking-flow/parking-flow-success
     selector: 'placeos-parking-flow',
     template: `
         @if (!(deny_parking_access | async)) {
-            @if (!(assigned_space | async) || !(has_booking | async)) {
+            @if (is_home_location | async) {
+                <div
+                    class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
+                >
+                    <img
+                        src="assets/icons/permission-none.svg"
+                        class="h-64 w-64"
+                    />
+                    <p>
+                        {{
+                            'APP.WORKPLACE.PARKING_HOME_LOCATION_RESTRICTED'
+                                | translate
+                        }}
+                    </p>
+                </div>
+            } @else if (!(assigned_space | async) || !(has_booking | async)) {
                 <div class="bg-base-100 z-50 h-full w-full">
                     @switch (view()) {
                         @case ('success') {
@@ -88,6 +103,7 @@ export class NewParkingFlowComponent extends AsyncHandler implements OnInit {
     public readonly deny_parking_access = this._parking.deny_parking_access;
     public readonly assigned_space = this._parking.assigned_space;
     public readonly has_booking = this._parking.has_booking;
+    public readonly is_home_location = this._parking.is_home_location;
     public readonly view = this._state.view;
 
     public get last_success() {

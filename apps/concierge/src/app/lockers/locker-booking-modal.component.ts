@@ -131,6 +131,7 @@ import { combineLatest } from 'rxjs';
                                     form.controls.date.disabled || disable_start
                                 "
                                 [use_24hr]="use_24hr"
+                                [range]="bookable_hours"
                             ></a-time-field>
                         </div>
                         @if (!hide_end) {
@@ -145,6 +146,7 @@ import { combineLatest } from 'rxjs';
                                     [time]="form?.getRawValue()?.date"
                                     [max]="max_duration"
                                     [use_24hr]="use_24hr"
+                                    [end_time]="bookable_hours?.end"
                                 >
                                 </a-duration-field>
                             </div>
@@ -250,6 +252,13 @@ export class LockerBookingModalComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.lockers.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
     }
 
     public ngOnInit() {

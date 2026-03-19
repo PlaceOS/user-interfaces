@@ -99,6 +99,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
+                                [range]="bookable_hours"
                                 [disabled]="form().controls.date.disabled"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -114,6 +115,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [max]="max_duration"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
+                                [end_time]="bookable_hours?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -221,6 +223,13 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
             this._settings.get('app.parking.use_building_timezone')
             ? this._org.building.timezone
             : '';
+    }
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);

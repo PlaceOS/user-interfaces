@@ -5,6 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import {
     BookableResource,
     Booking,
+    BookingClash,
     BookingType,
     CalendarEvent,
     flatten,
@@ -79,12 +80,6 @@ export interface BookingClashQueryOptions {
     return_available?: boolean;
     // Added the time that the clashes occur with each returned asset
     include_clash_time?: boolean;
-}
-
-export interface BookingClash {
-    asset_id: string;
-    booking_start: number;
-    booking_end: number;
 }
 
 /**
@@ -366,7 +361,7 @@ export function queryBookingGuests(id: string) {
 export function checkinBookingGuest(
     id: string,
     guest_id: string,
-    state: boolean = true,
+    state = true,
 ) {
     return post(
         `${BOOKINGS_ENDPOINT}/${encodeURIComponent(
