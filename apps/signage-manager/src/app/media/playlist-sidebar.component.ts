@@ -56,7 +56,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 matRipple
                             >
                                 <div
-                                    class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
+                                    class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
                                 >
                                     @if (
                                         playlist_thumbnail_media()[playlist.id]
