@@ -29,8 +29,8 @@ export interface DurationOption {
         <button
             duration-field
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled()"
-            [class.opacity-30]="disabled()"
+            [disabled]="disabled() || no_options"
+            [class.opacity-30]="disabled() || no_options"
             matRipple
             [matMenuTriggerFor]="menu"
         >
@@ -98,6 +98,8 @@ export interface DurationOption {
                         }
                     </div>
                 </button>
+            } @empty {
+                <div mat-menu-item disabled>No duration options to select</div>
             }
         </mat-menu>
         <mat-error><ng-content /></mat-error>
@@ -149,6 +151,8 @@ export class DurationFieldComponent
     public duration = 60;
     /** List of available duration options */
     public duration_options: DurationOption[] = [];
+    /** Whether there are no available duration options */
+    public no_options = false;
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -182,6 +186,7 @@ export class DurationFieldComponent
             this.min(),
             this.step(),
         );
+        this._updateNoOptions();
         this._updateOption();
     }
 
@@ -200,6 +205,7 @@ export class DurationFieldComponent
                 this.min(),
                 this.step(),
             );
+            this._updateNoOptions();
             this._updateOption();
         }
     }
@@ -327,6 +333,13 @@ export class DurationFieldComponent
                 option.id >= min &&
                 option.id <= effective_max,
         );
+    }
+
+    /** Update whether the field should show as disabled due to no options */
+    private _updateNoOptions(): void {
+        this.no_options =
+            !this.disabled() &&
+            (!this.duration_options || this.duration_options.length === 0);
     }
 
     private _updateOption() {

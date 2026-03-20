@@ -67,7 +67,7 @@ const EMPTY = [];
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
                     [disabled]="downloading()"
-                    (click)="downloadCsv()"
+                    (click)="downloadAttendeeList()"
                 >
                     @if (downloading()) {
                         <mat-spinner diameter="24"></mat-spinner>
@@ -421,15 +421,22 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         this._state.setFilters({ hide_type });
     }
 
-    public readonly downloadCsv = async () => {
+    public async downloadAttendeeList() {
         this.downloading.set(true);
         try {
             const events = await nextValueFrom(this._state.filtered);
             const emails = new Set<string>();
             for (const event of events) {
-                if (event.host) emails.add(event.host);
+                if (event.host && event.system?.email !== event.host)
+                    emails.add(event.host);
                 for (const attendee of event.attendees || []) {
-                    if (attendee.email) emails.add(attendee.email);
+                    if (
+                        attendee.email &&
+                        event.system?.email !== attendee.email &&
+                        !attendee.resource
+                    ) {
+                        emails.add(attendee.email);
+                    }
                 }
             }
             const data = await Promise.all(
@@ -450,7 +457,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         } finally {
             this.downloading.set(false);
         }
-    };
+    }
 
     private _clean_zone_ids(zones: string[] = []) {
         return (zones || []).filter((zone_id) => !!zone_id);

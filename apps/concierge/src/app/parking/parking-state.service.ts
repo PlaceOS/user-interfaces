@@ -30,6 +30,7 @@ import {
     Booking,
     csvToJson,
     downloadFile,
+    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
@@ -47,6 +48,7 @@ import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     endOfWeek,
     getUnixTime,
@@ -102,6 +104,15 @@ export class ParkingStateService extends AsyncHandler {
         zones: [],
     });
     private _loading = new BehaviorSubject<string[]>([]);
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
+
     /** List of available parking levels for the current building */
     public levels = combineLatest([
         this._org.active_region,
@@ -180,19 +191,24 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(500),
         switchMap(([bld, options, users]) => {
-            const period_start =
+            const base_period_start =
                 options.period === 'week'
                     ? startOfWeek(options.date, {
                           weekStartsOn: this._week_start,
                       })
                     : startOfDay(options.date);
-            const period_end =
+            const base_period_end =
                 options.period === 'week'
                     ? endOfWeek(options.date, {
                           weekStartsOn: this._week_start,
                       })
                     : endOfDay(options.date);
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
+            const period_start = addMinutes(
+                base_period_start,
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(base_period_end, this.tz_offset * 60);
             return queryBookings({
                 period_start: getUnixTime(period_start),
                 period_end: getUnixTime(period_end),
@@ -390,7 +406,7 @@ export class ParkingStateService extends AsyncHandler {
             (space.assigned_to !== asset_data.assigned_to ||
                 space.id !== asset_data.id)
         ) {
-            this._clearAssignedBooking(space);
+            await this._clearAssignedBooking(space);
             recreate = true;
         }
         const saved = await saveParkingSpace(asset_data).toPromise();
@@ -457,7 +473,7 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
-        this._clearAssignedBooking(space);
+        await this._clearAssignedBooking(space);
         await deleteParkingSpace(space.id).toPromise();
         this._change.next(Date.now());
         state.close();
@@ -702,15 +718,15 @@ export class ParkingStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

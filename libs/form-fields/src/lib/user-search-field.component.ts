@@ -4,7 +4,6 @@ import {
     Component,
     ElementRef,
     forwardRef,
-    inject,
     input,
     model,
     signal,
@@ -20,11 +19,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, SettingsService, User } from '@placeos/common';
-import { authority, queryUsers } from '@placeos/ts-client';
-import { searchGuests } from 'libs/users/src/lib/guests.fn';
-import { searchStaff } from 'libs/users/src/lib/staff.fn';
-import { BehaviorSubject, forkJoin, Observable, of } from 'rxjs';
+import { AsyncHandler, settingSignal, User } from '@placeos/common';
+import { authority, queryUsers, showUser } from '@placeos/ts-client';
+import { searchGuests, searchStaff } from '@placeos/users';
+import { BehaviorSubject, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -164,7 +162,7 @@ export class UserSearchFieldComponent
     extends AsyncHandler
     implements ControlValueAccessor
 {
-    private _settings = inject(SettingsService);
+    private use_basic_search = settingSignal('basic_user_search', true);
 
     public readonly search_term = new BehaviorSubject<string>('');
     public readonly loading = signal(false);
@@ -190,7 +188,7 @@ export class UserSearchFieldComponent
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
     public readonly query_fn = input<(_: string) => Observable<User[]>>((q) =>
-        this._settings.get('app.basic_user_search')
+        this.use_basic_search()
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
@@ -249,6 +247,23 @@ export class UserSearchFieldComponent
         this._onTouch ? this._onTouch(value) : null;
         this.user.set(value);
         console.log('Set User:', value);
+        if (
+            typeof new_value !== 'string' &&
+            !this.use_basic_search() &&
+            (value?.id || value?.email)
+        ) {
+            lastValueFrom(showUser(value.id || value.email))
+                .then((details) => {
+                    if (!details) return;
+                    const updated = new User({
+                        ...value,
+                        ...new User(details),
+                    });
+                    this._onChange ? this._onChange(updated) : null;
+                    this.user.set(updated);
+                })
+                .catch(() => null);
+        }
     }
 
     /**

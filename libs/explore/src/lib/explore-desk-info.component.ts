@@ -33,9 +33,9 @@ export interface DeskInfoData {
     start?: number;
     end?: number;
     department?: string;
-    bookings?: Booking[];
     date?: number;
     status: WritableSignal<DeskStatus>;
+    bookings: WritableSignal<Booking[]>;
 }
 
 @Component({
@@ -104,7 +104,7 @@ export interface DeskInfoData {
                             </div>
                         }
                     </div>
-                    @if (next_booking()) {
+                    @if (next_booking() || current_booking()) {
                         <div
                             class="mt-1 flex items-center space-x-2 px-2 pb-2 text-sm"
                         >
@@ -114,7 +114,7 @@ export interface DeskInfoData {
                                 {{ current_booking() ? 'at' : 'until' }}
                                 {{
                                     (current_booking()
-                                        ? next_booking().date_end
+                                        ? current_booking().date_end
                                         : next_booking().date
                                     ) | date: 'shortTime'
                                 }}
@@ -230,11 +230,7 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     public readonly start = signal(this._details.start);
     public readonly end = signal(this._details.end);
     public readonly department = signal(this._details.department);
-    public readonly bookings = signal(
-        (this._details.bookings || []).map((booking) =>
-            booking instanceof Booking ? booking : new Booking(booking),
-        ),
-    );
+    public readonly bookings = this._details.bookings;
     public readonly date = signal(this._details.date || Date.now());
     public readonly now = signal(Date.now());
     public readonly active_time = computed(() =>
@@ -251,10 +247,11 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
                 .sort((a, b) => a.date - b.date)[0],
     );
     public readonly current_booking = computed(() =>
-        this.next_booking()
-            ? this.next_booking().date <= this.active_time() &&
-              this.next_booking().date_end > this.active_time()
-            : false,
+        this.bookings().find(
+            (booking) =>
+                this.active_time() >= booking.date &&
+                this.active_time() < booking.date_end,
+        ),
     );
     public readonly display_booking = computed(
         () => this.next_booking() || null,

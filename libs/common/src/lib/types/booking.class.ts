@@ -3,16 +3,15 @@ import {
     addHours,
     addMinutes,
     differenceInMinutes,
-    endOfDay,
     getUnixTime,
     isAfter,
     isBefore,
     isSameDay,
     roundToNearestMinutes,
-    startOfDay,
 } from 'date-fns';
 import { capitalizeFirstLetter, removeEmptyFields } from '../general';
 import { WeekOfMonth } from '../recurrence';
+import { endOfDayInTimezone, startOfDayInTimezone } from '../timezone-helpers';
 import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { User } from './user.class';
@@ -299,14 +298,15 @@ export class Booking {
         this.all_day = data.all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
         if (this.all_day) {
-            (this as any).date = startOfDay(this.date).getTime();
+            (this as any).date = startOfDayInTimezone(this.date, this.timezone);
             (this as any).duration = Math.max(
                 24 * 60 - 1,
                 this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0),
             );
-            (this as any).date_end = endOfDay(
+            (this as any).date_end = endOfDayInTimezone(
                 addMinutes(this.date, this.duration - 1).valueOf(),
-            ).getTime();
+                this.timezone,
+            );
         }
         this.checked_out_at = data.checked_out_at;
         this.checked_in_at = data.checked_in_at;

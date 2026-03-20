@@ -1,6 +1,8 @@
 import {
     csvToJson,
     downloadFile,
+    getNextBookableTime,
+    isWithinBookableHours,
     jsonToCsv,
     timePeriodsIntersect,
 } from '../lib/general';
@@ -80,6 +82,30 @@ describe('General Methods', () => {
                 jest.useRealTimers();
                 (window as any).URL = original_url;
             }
+        });
+    });
+
+    describe('bookable hours helpers', () => {
+        it('should return the next rounded time within the current window', () => {
+            const date = new Date(2026, 2, 20, 9, 2).valueOf();
+            expect(
+                getNextBookableTime({ start: 8 * 60, end: 17 * 60 }, date),
+            ).toBe(new Date(2026, 2, 20, 9, 5).valueOf());
+        });
+
+        it('should detect whether a start time is inside bookable hours', () => {
+            expect(
+                isWithinBookableHours(new Date(2026, 2, 20, 9, 0).valueOf(), {
+                    start: 8 * 60,
+                    end: 17 * 60,
+                }),
+            ).toBe(true);
+            expect(
+                isWithinBookableHours(new Date(2026, 2, 20, 17, 0).valueOf(), {
+                    start: 8 * 60,
+                    end: 17 * 60,
+                }),
+            ).toBe(false);
         });
     });
 });

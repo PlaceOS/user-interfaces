@@ -323,6 +323,7 @@
     },
     "FORM": {
         "INVALID_FIELDS": "Some fields are invalid. [{{ field_list }}]",
+        "BOOKABLE_HOURS_ERROR": "Start time must be within configured bookable hours.",
         "DISPLAY_NAME": "Display Name",
         "NAME": "Name",
         "NAME_REQUIRED": "A valid name is required",

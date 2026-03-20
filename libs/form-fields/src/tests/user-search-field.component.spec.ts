@@ -19,6 +19,14 @@ jest.mock('@placeos/users', () => {
     };
 });
 
+jest.mock('@placeos/ts-client', () => {
+    return {
+        __esModule: true,
+        ...jest.requireActual('@placeos/ts-client'),
+        showUser: jest.fn(() => of(null)),
+    };
+});
+
 import { SettingsService } from '@placeos/common';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 

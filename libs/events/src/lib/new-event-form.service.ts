@@ -12,18 +12,20 @@ import {
     firstTruthyValueFrom,
     flatten,
     getInvalidFields,
+    getNextBookableTime,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     rulesForResource,
     setDefaultCreator,
     SETTING_KEYS,
     SettingsService,
     Space,
+    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
-import { startOfDay } from 'date-fns';
 import {
     BehaviorSubject,
     combineLatest,
@@ -108,6 +110,12 @@ export class EventFormService extends AsyncHandler {
     private _assets = inject(AssetStateService);
     private _dialog = inject(MatDialog);
     private _user_pipe = new UserPipe();
+
+    private get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
+    }
 
     private _view = new BehaviorSubject<EventFlowView>('form');
     private _options = new BehaviorSubject<EventFormOptions>({
@@ -281,7 +289,8 @@ export class EventFormService extends AsyncHandler {
 
             return method(
                 spaces.map(({ id }) => id),
-                (all_day ? startOfDay(date).valueOf() : date) || 60,
+                (all_day ? startOfDayInTimezone(date, this.timezone) : date) ||
+                    60,
                 (all_day ? Math.max(24 * 60, duration) : duration) || 60,
                 event?.resources[0]?.id || event?.system?.id || event?.id,
                 undefined,
@@ -434,7 +443,19 @@ export class EventFormService extends AsyncHandler {
         this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
             emitEvent: false,
         });
-        if (!event.id) return;
+        if (!event.id) {
+            const bookable_hours = this._settings.get(
+                'app.events.bookable_hours',
+            );
+            const next_time = getNextBookableTime(bookable_hours);
+            if (next_time) {
+                this._form.patchValue(
+                    { date: next_time },
+                    { emitEvent: false },
+                );
+            }
+            return;
+        }
         sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
         this._event.next(event);
     }
@@ -520,6 +541,22 @@ export class EventFormService extends AsyncHandler {
                 !event.id ||
                 event.date !== this.form.value.date ||
                 event.duration !== this.form.value.duration;
+            this.form.patchValue(
+                { timezone: this.timezone || this.form.value.timezone },
+                { emitEvent: false },
+            );
+            const bookable_hours = this._settings.get(
+                'app.events.bookable_hours',
+            );
+            if (
+                !isWithinBookableHours(
+                    this.form.value.date,
+                    bookable_hours,
+                    this.form.value.timezone,
+                )
+            ) {
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+            }
 
             // Validate that all selected room resource are available
             if (spaces.length && has_time_changed) {
@@ -529,7 +566,10 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
                 const date = this.form.value.all_day
-                    ? startOfDay(this.form.value.date).valueOf()
+                    ? startOfDayInTimezone(
+                          this.form.value.date,
+                          this.form.value.timezone,
+                      )
                     : this.form.value.date;
                 const duration = this.form.value.all_day
                     ? Math.max(24 * 60, this.form.value.duration)

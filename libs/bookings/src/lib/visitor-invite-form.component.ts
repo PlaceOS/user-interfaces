@@ -398,11 +398,15 @@ export class VisitorInviteFormComponent
             settingSignal('visitors.bookable_hours', null)() ||
             settingSignal('bookings.bookable_hours', null)(),
     );
-    public readonly max_duration = computed(() =>
-        Math.min(
-            settingSignal('visitors.max_duration', 180)(),
-            settingSignal('bookings.max_duration', 180)(),
-        ),
+    private readonly _visitor_max_duration = settingSignal(
+        'visitors.max_duration',
+    );
+    private readonly _booking_max_duration = settingSignal(
+        'bookings.max_duration',
+    );
+    public readonly max_duration = computed(
+        () =>
+            this._visitor_max_duration() || this._booking_max_duration() || 180,
     );
     public readonly multiple = settingSignal(
         'bookings.multiple_visitors',

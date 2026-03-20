@@ -21,6 +21,7 @@ import {
     BuildingLevel,
     Desk,
     generateQRCode,
+    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -40,6 +41,7 @@ import {
 } from '@placeos/ts-client';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     getUnixTime,
     set,
@@ -101,6 +103,14 @@ export class DesksStateService extends AsyncHandler {
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
 
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
@@ -166,6 +176,11 @@ export class DesksStateService extends AsyncHandler {
             // Only load bookings when on events view
             if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
+            const period_start = addMinutes(
+                startOfDay(date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
             const active_zones = this._getActiveZones(filters.zones);
             const zones = !active_zones.length
                 ? this._settings.get('app.use_region')
@@ -174,8 +189,8 @@ export class DesksStateService extends AsyncHandler {
                 : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
@@ -545,15 +560,15 @@ export class DesksStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

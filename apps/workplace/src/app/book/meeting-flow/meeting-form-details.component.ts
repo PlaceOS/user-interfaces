@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,12 +6,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    currentUser,
     formatDuration,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, queryCalendarPermission } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -28,8 +29,15 @@ import {
     format,
     startOfDay,
 } from 'date-fns';
+import { lastValueFrom } from 'rxjs';
 
 const MINUTES_IN_DAY = 24 * 60;
+
+const ALLOWED_CALENDAR_ROLES = [
+    'write',
+    'delegateWithoutPrivateEventAccess',
+    'delegateWithPrivateEventAccess',
+];
 
 @Component({
     selector: 'meeting-form-details',
@@ -188,7 +196,7 @@ const MINUTES_IN_DAY = 24 * 60;
                     </div>
                 }
                 @if (can_book_for_anyone) {
-                    <div class="flex w-full flex-col">
+                    <div class="mb-4 flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
@@ -196,6 +204,16 @@ const MINUTES_IN_DAY = 24 * 60;
                             name="host"
                             formControlName="organiser"
                         ></a-user-search-field>
+                        @if (checking_permission()) {
+                            <p class="text-pending mt-1 text-xs">
+                                Checking calendar permissions...
+                            </p>
+                        }
+                        @if (permission_error()) {
+                            <p class="text-error mt-1 text-xs">
+                                {{ permission_error() }}
+                            </p>
+                        }
                     </div>
                 } @else if (can_book_for_others) {
                     <div class="flex w-full flex-col">
@@ -293,8 +311,62 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
 
     public readonly form = input<FormGroup>(undefined);
+    public readonly checking_permission = signal(false);
+    public readonly permission_error = signal('');
 
     public readonly minimum_duration = 30;
+
+    constructor() {
+        super();
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
+            this.subscription(
+                'organiser_permission_check',
+                form.get('organiser').valueChanges.subscribe((user) => {
+                    this._checkCalendarPermission(user);
+                }),
+            );
+        });
+    }
+
+    private async _checkCalendarPermission(user: any) {
+        this.permission_error.set('');
+        if (!user?.email || !this.can_book_for_anyone) return;
+        const current = currentUser();
+        if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
+        const checked_email = user.email;
+        this.checking_permission.set(true);
+        try {
+            const permission = await lastValueFrom(
+                queryCalendarPermission(checked_email),
+            );
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            if (
+                !permission.has_access ||
+                !ALLOWED_CALENDAR_ROLES.includes(permission.role)
+            ) {
+                this.permission_error.set(
+                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                );
+                this.form()?.patchValue(
+                    { organiser: currentUser() },
+                    { emitEvent: false },
+                );
+            }
+        } catch (_) {
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            this.permission_error.set(
+                "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+            );
+            this.form()?.patchValue(
+                { organiser: currentUser() },
+                { emitEvent: false },
+            );
+        } finally {
+            this.checking_permission.set(false);
+        }
+    }
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
