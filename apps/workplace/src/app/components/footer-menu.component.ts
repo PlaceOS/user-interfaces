@@ -13,12 +13,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     template: `
         @if (show_book_items() && features().length > 1) {
             <div
-                class="fixed inset-0 bottom-16 z-30"
+                class="border-base-100 fixed inset-0 bottom-16 z-30 border-t"
                 [attr.dark]="dark_mode()"
                 (click)="show_book_items.set(false); blur_backdrop.set(false)"
             >
                 <div
-                    class="border-base-200 bg-base-100 absolute inset-x-0 bottom-0 grid max-h-[60vh] grid-cols-2 gap-4 overflow-y-auto rounded-t-xl border-t p-4"
+                    class="border-base-100 bg-base-100 absolute inset-x-0 bottom-0 grid max-h-[60vh] grid-cols-2 gap-4 overflow-y-auto rounded-t-xl border-t p-4"
                 >
                     @if (features().includes('spaces')) {
                         <a
@@ -26,7 +26,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             matRipple
                             [routerLink]="['/book', 'meeting']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >meeting_room</icon
@@ -42,7 +42,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-desks"
                             [routerLink]="['/book', 'desk']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl">desk</icon>
                             <div>
@@ -56,7 +56,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-parking"
                             [routerLink]="['/book', 'parking']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >directions_car</icon
@@ -72,7 +72,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-parking-requests"
                             [routerLink]="['/book', 'parking-request']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >local_parking</icon
@@ -91,7 +91,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-visitor-invite"
                             [routerLink]="['/book', 'visitor']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl">person</icon>
                             <div>
@@ -105,7 +105,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-my-day"
                             [routerLink]="['/your-bookings']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl">event</icon>
                             <div>
@@ -119,7 +119,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-group-events"
                             [routerLink]="['/group-events']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >local_activity</icon
@@ -135,7 +135,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-lockers"
                             [routerLink]="['/book', 'locker']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl">lock</icon>
                             <div>
@@ -149,7 +149,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-control"
                             [routerLink]="['/control']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >remote_gen</icon
@@ -165,7 +165,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-deals"
                             [routerLink]="['/deals-n-offers']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl"
                                 >confirmation_number</icon
@@ -181,7 +181,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             name="footer-nav-team-schedule"
                             [routerLink]="['/team-schedule']"
                             routerLinkActive="active"
-                            class="bg-base-200 flex flex-col items-center justify-center space-y-4 rounded-xl px-4 py-8"
+                            class="bg-base-200 flex flex-col items-center justify-center gap-2 rounded-xl p-4"
                         >
                             <icon class="text-secondary text-6xl">groups</icon>
                             <div>
@@ -197,15 +197,15 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         }
         @if (features().length > 1) {
             <div
-                class="border-base-200 bg-base-100 relative z-[60] flex h-16 w-full items-center justify-center border-t shadow-sm sm:hidden"
+                class="border-base-200 bg-base-100 relative z-60 flex h-16 w-full items-center justify-center gap-3 border-t px-2 shadow-sm sm:hidden"
                 [attr.dark]="dark_mode()"
             >
                 <a
                     matRipple
-                    class="relative flex flex-1 flex-col items-center justify-center"
+                    class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
                     [routerLink]="[default_page()]"
                     name="footer-nav-home"
-                    routerLinkActive="text-secondary active"
+                    routerLinkActive="text-secondary active font-medium bg-secondary/10"
                 >
                     <icon filled class="text-2xl">home</icon>
                     <icon
@@ -235,11 +235,11 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 </button>
                 <a
                     matRipple
-                    class="relative flex flex-1 flex-col items-center justify-center"
+                    class="relative flex flex-1 flex-col items-center justify-center rounded-lg"
                     [routerLink]="['/explore']"
                     [attr.disabled]="!features().includes('explore')"
                     [class.opacity-0]="!features().includes('explore')"
-                    routerLinkActive="text-secondary active"
+                    routerLinkActive="text-secondary active font-medium bg-secondary/10"
                 >
                     <icon filled class="text-2xl">place</icon>
                     <icon
@@ -267,18 +267,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             :host {
                 position: relative;
                 z-index: 200;
-            }
-
-            a.active icon {
-                color: var(--secondary) !important;
-            }
-
-            a.active {
-                background-color: var(--brand-200) !important;
-                color: #fff !important;
-            }
-            a.active icon {
-                color: #fff !important;
             }
 
             a:not(.active) [filled],
