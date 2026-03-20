@@ -595,7 +595,7 @@ export class BookingFormService extends AsyncHandler {
                 this.timezone || value.timezone,
             )
         ) {
-            throw 'Start time must be within configured bookable hours.';
+            throw i18n('FORM.BOOKABLE_HOURS_ERROR');
         }
         if (!ignore_check) {
             const host =

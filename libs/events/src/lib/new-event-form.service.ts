@@ -541,7 +541,7 @@ export class EventFormService extends AsyncHandler {
                     this.form.value.timezone,
                 )
             ) {
-                throw 'Start time must be within configured bookable hours.';
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
             }
 
             // Validate that all selected room resource are available
