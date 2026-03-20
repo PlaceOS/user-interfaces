@@ -14,6 +14,7 @@ import {
     getInvalidFields,
     getNextBookableTime,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     rulesForResource,
     setDefaultCreator,
@@ -530,6 +531,18 @@ export class EventFormService extends AsyncHandler {
                 { timezone: this.timezone || this.form.value.timezone },
                 { emitEvent: false },
             );
+            const bookable_hours = this._settings.get(
+                'app.events.bookable_hours',
+            );
+            if (
+                !isWithinBookableHours(
+                    this.form.value.date,
+                    bookable_hours,
+                    this.form.value.timezone,
+                )
+            ) {
+                throw 'Start time must be within configured bookable hours.';
+            }
 
             // Validate that all selected room resource are available
             if (spaces.length && has_time_changed) {

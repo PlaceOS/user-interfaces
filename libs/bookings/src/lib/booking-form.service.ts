@@ -14,6 +14,7 @@ import {
     getInvalidFields,
     getNextBookableTime,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifyWarn,
@@ -586,6 +587,16 @@ export class BookingFormService extends AsyncHandler {
         });
         const value = this.form.getRawValue();
         const booking = this._booking.getValue() || new Booking();
+        const bookable_hours = this.setting('bookable_hours');
+        if (
+            !isWithinBookableHours(
+                value.date,
+                bookable_hours,
+                this.timezone || value.timezone,
+            )
+        ) {
+            throw 'Start time must be within configured bookable hours.';
+        }
         if (!ignore_check) {
             const host =
                 value.user?.email || value.user_email || currentUser()?.email;

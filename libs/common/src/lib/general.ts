@@ -5,6 +5,7 @@ import {
     roundToNearestMinutes,
     startOfDay,
 } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { first, lastValueFrom, map, Observable, take } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { HashMap } from './types';
@@ -674,6 +675,19 @@ export function getNextBookableTime(
             ? startOfDay(date)
             : addDays(startOfDay(date), 1);
     return base_day.getTime() + start * 60 * 1000;
+}
+
+export function isWithinBookableHours(
+    date: Date | number,
+    bookable_hours: BookableHoursRange | undefined | null,
+    timezone = '',
+): boolean {
+    if (!bookable_hours) return true;
+    const { start, end } = bookable_hours;
+    if (start == null || end == null) return true;
+    const time = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const minutes = time.getHours() * 60 + time.getMinutes();
+    return minutes >= start && minutes < end;
 }
 
 export function mapLastValueFrom<T = any>(
