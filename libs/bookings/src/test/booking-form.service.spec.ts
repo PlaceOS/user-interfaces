@@ -37,7 +37,11 @@ describe('BookingFormService', () => {
                 buildings: [{ id: 'bld-1', parent_id: 'reg-1' }],
                 levelWithID: jest.fn((ids: string[]) =>
                     ids?.[0]
-                        ? { id: ids[0], parent_id: 'bld-1', map_id: 'map-lvl-1' }
+                        ? {
+                              id: ids[0],
+                              parent_id: 'bld-1',
+                              map_id: 'map-lvl-1',
+                          }
                         : null,
                 ),
             } as any),
@@ -64,6 +68,9 @@ describe('BookingFormService', () => {
         );
         spectator = createService();
         (ts_client as any).cleanObject = jest.fn((a) => a);
+        jest.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
+            () => undefined,
+        );
     });
 
     afterEach(() => {
@@ -187,6 +194,83 @@ describe('BookingFormService', () => {
         jest.useRealTimers();
     });
 
+    it('should use parking booking hours when creating a new parking form', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 2, 20, 18, 15, 0));
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.parking.bookable_hours') {
+                return { start: 8 * 60, end: 17 * 60 };
+            }
+            return undefined;
+        });
+
+        spectator.service.newForm('parking');
+
+        expect(spectator.service.form.getRawValue().date).toBe(
+            new Date(2026, 2, 21, 8, 0, 0, 0).valueOf(),
+        );
+        jest.useRealTimers();
+    });
+
+    it('should align loaded draft bookings to the start of bookable hours', () => {
+        jest.useFakeTimers();
+        const draft_date = new Date(2026, 2, 24, 0, 0, 0, 0).valueOf();
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.bookable_hours') {
+                return { start: 8 * 60, end: 17 * 60 };
+            }
+            return undefined;
+        });
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                booking_type: 'desk',
+                date: draft_date,
+                duration: 60,
+                title: 'Desk booking',
+            }),
+        );
+
+        spectator.service.loadForm();
+        jest.runAllTimers();
+
+        expect(spectator.service.form.getRawValue().date).toBe(
+            new Date(2026, 2, 24, 8, 0, 0, 0).valueOf(),
+        );
+        jest.useRealTimers();
+    });
+
+    it('should move same-day after-hours drafts to the next bookable day', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 2, 24, 18, 15, 0, 0));
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.bookable_hours') {
+                return { start: 8 * 60, end: 17 * 60 };
+            }
+            return undefined;
+        });
+        sessionStorage.setItem(
+            'PLACEOS.booking_form',
+            JSON.stringify({
+                booking_type: 'desk',
+                date: new Date(2026, 2, 24, 18, 15, 0, 0).valueOf(),
+                duration: 60,
+                title: 'Desk booking',
+            }),
+        );
+
+        spectator.service.loadForm();
+        jest.runAllTimers();
+
+        expect(spectator.service.form.getRawValue().date).toBe(
+            new Date(2026, 2, 25, 8, 0, 0, 0).valueOf(),
+        );
+        jest.useRealTimers();
+    });
+
     it('should store visitor_name in extension data when saving visitor bookings', async () => {
         const save_booking = booking_mod.saveBooking as jest.Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
@@ -249,8 +333,10 @@ describe('BookingFormService', () => {
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');
-        jest.spyOn(spectator.service as any, '_checkResourceAvailable')
-            .mockResolvedValue(true);
+        jest.spyOn(
+            spectator.service as any,
+            '_checkResourceAvailable',
+        ).mockResolvedValue(true);
         const saved_desks: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
@@ -332,8 +418,10 @@ describe('BookingFormService', () => {
         jest.spyOn(booking_utility_mod, 'findNearbyFeature')
             .mockResolvedValueOnce('map-2')
             .mockResolvedValueOnce('map-3');
-        jest.spyOn(spectator.service as any, '_checkResourceAvailable')
-            .mockResolvedValue(true);
+        jest.spyOn(
+            spectator.service as any,
+            '_checkResourceAvailable',
+        ).mockResolvedValue(true);
         const saved_names: string[] = [];
         jest.spyOn(spectator.service, 'postForm').mockImplementation(
             async () => {
@@ -577,11 +665,7 @@ describe('BookingFormService', () => {
         expect(post_form).toHaveBeenNthCalledWith(1, true, false);
         expect(post_form).toHaveBeenNthCalledWith(2, true, false);
         expect(clear_form).toHaveBeenCalledTimes(1);
-        expect(saved_forms[0].zones).toEqual([
-            'org-1',
-            'bld-1',
-        ]);
+        expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
     });
-
 });

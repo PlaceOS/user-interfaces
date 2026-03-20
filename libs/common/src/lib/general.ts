@@ -3,6 +3,7 @@ import {
     addDays,
     formatDuration as duration,
     roundToNearestMinutes,
+    set,
     startOfDay,
 } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
@@ -675,6 +676,46 @@ export function getNextBookableTime(
             ? startOfDay(date)
             : addDays(startOfDay(date), 1);
     return base_day.getTime() + start * 60 * 1000;
+}
+
+export function alignDateToBookableHours(
+    date: number,
+    bookable_hours: BookableHoursRange | undefined | null,
+    fallback_date?: number,
+): number {
+    if (!date || !bookable_hours) return date;
+    const { start, end } = bookable_hours;
+    if (start == null || end == null) return date;
+
+    const base_date = new Date(date);
+    const reference_date = new Date(fallback_date || date);
+    let adjusted_date = set(base_date, {
+        hours: reference_date.getHours(),
+        minutes: reference_date.getMinutes(),
+        seconds: reference_date.getSeconds(),
+        milliseconds: reference_date.getMilliseconds(),
+    }).valueOf();
+    const adjusted_minutes =
+        new Date(adjusted_date).getHours() * 60 +
+        new Date(adjusted_date).getMinutes();
+
+    if (adjusted_minutes >= start && adjusted_minutes < end) {
+        return adjusted_date;
+    }
+
+    if (adjusted_minutes >= end && adjusted_date <= Date.now()) {
+        return (
+            getNextBookableTime(bookable_hours, adjusted_date) || adjusted_date
+        );
+    }
+
+    adjusted_date = set(base_date, {
+        hours: Math.floor(start / 60),
+        minutes: start % 60,
+        seconds: 0,
+        milliseconds: 0,
+    }).valueOf();
+    return adjusted_date;
 }
 
 export function isWithinBookableHours(

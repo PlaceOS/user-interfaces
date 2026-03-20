@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     Booking,
     BookingClash,
@@ -334,6 +335,27 @@ export class BookingFormService extends AsyncHandler {
         return use_building_timezone ? this._org.building?.timezone || '' : '';
     }
 
+    private _bookableHoursForType(type?: BookingType) {
+        if (!type) return this._settings.get('app.bookings.bookable_hours');
+        return (
+            this._settings.get(`app.${type}.bookable_hours`) ||
+            this._settings.get(`app.${type}s.bookable_hours`) ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
+
+    public alignDateToBookableHours(
+        date: number,
+        type?: BookingType,
+        fallback_date?: number,
+    ) {
+        return alignDateToBookableHours(
+            date,
+            this._bookableHoursForType(type || this._options.getValue().type),
+            fallback_date,
+        );
+    }
+
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
@@ -355,9 +377,7 @@ export class BookingFormService extends AsyncHandler {
             { emitEvent: false },
         );
         if (!booking.id) {
-            const bookable_hours =
-                this._settings.get(`app.${type}s.bookable_hours`) ||
-                this._settings.get('app.bookings.bookable_hours');
+            const bookable_hours = this._bookableHoursForType(type);
             const next_time = getNextBookableTime(bookable_hours);
             if (next_time) {
                 (booking as any).date = next_time;
@@ -487,6 +507,18 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
         const booking = new Booking(data);
+        const booking_type =
+            booking.booking_type ||
+            data.booking_type ||
+            this._options.getValue().type;
+        const aligned_date =
+            !booking.id && booking.date
+                ? this.alignDateToBookableHours(
+                      booking.date,
+                      booking_type,
+                      booking.date,
+                  )
+                : booking.date;
         this._booking.next(booking);
         const booking_data = cleanObject(
             {
@@ -499,7 +531,7 @@ export class BookingFormService extends AsyncHandler {
         this.form.patchValue(booking_data, { emitEvent: false });
         this.timeout('load-date', async () =>
             this.form.patchValue({
-                date: booking.date,
+                date: aligned_date,
                 duration: booking.duration,
             }),
         );
