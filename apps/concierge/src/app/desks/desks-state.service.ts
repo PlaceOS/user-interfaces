@@ -560,15 +560,15 @@ export class DesksStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

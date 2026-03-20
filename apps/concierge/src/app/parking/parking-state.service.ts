@@ -393,7 +393,7 @@ export class ParkingStateService extends AsyncHandler {
             (space.assigned_to !== asset_data.assigned_to ||
                 space.id !== asset_data.id)
         ) {
-            this._clearAssignedBooking(space);
+            await this._clearAssignedBooking(space);
             recreate = true;
         }
         const saved = await saveParkingSpace(asset_data).toPromise();
@@ -460,7 +460,7 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
-        this._clearAssignedBooking(space);
+        await this._clearAssignedBooking(space);
         await deleteParkingSpace(space.id).toPromise();
         this._change.next(Date.now());
         state.close();
@@ -705,15 +705,15 @@ export class ParkingStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));
