@@ -30,6 +30,7 @@ import {
     Booking,
     csvToJson,
     downloadFile,
+    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
@@ -47,6 +48,7 @@ import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     getUnixTime,
     set,
@@ -98,6 +100,15 @@ export class ParkingStateService extends AsyncHandler {
         zones: [],
     });
     private _loading = new BehaviorSubject<string[]>([]);
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
+
     /** List of available parking levels for the current building */
     public levels = combineLatest([
         this._org.active_region,
@@ -177,9 +188,17 @@ export class ParkingStateService extends AsyncHandler {
         debounceTime(500),
         switchMap(([bld, options, users]) => {
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
+            const period_start = addMinutes(
+                startOfDay(options.date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(
+                endOfDay(options.date),
+                this.tz_offset * 60,
+            );
             return queryBookings({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(endOfDay(options.date)),
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')

@@ -17,6 +17,7 @@ import {
 import {
     AsyncHandler,
     Booking,
+    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -33,6 +34,7 @@ import {
 import { QueryResponse, updateMetadata } from '@placeos/ts-client';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     getUnixTime,
     set,
@@ -108,6 +110,14 @@ export class LockerStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asObservable();
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
 
     public readonly filters = this._filters.asObservable();
 
@@ -194,6 +204,11 @@ export class LockerStateService extends AsyncHandler {
         tap(([filters, loaded]) => {
             if (!loaded) return;
             const date = filters.date || Date.now();
+            const period_start = addMinutes(
+                startOfDay(date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
@@ -203,8 +218,8 @@ export class LockerStateService extends AsyncHandler {
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
                     type: 'locker',
                     zones: zones.join(','),
                     include_checked_out: true,

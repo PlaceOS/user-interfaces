@@ -1,5 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
+import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { lastValueFrom, of } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -28,9 +29,19 @@ describe('VisitorStateService', () => {
                 })),
             } as any),
             MockProvider(OrganisationService, {
-                active_building: of({ id: 'bld-1' }),
+                active_building: of({
+                    id: 'bld-1',
+                    timezone: 'Australia/Sydney',
+                }),
+                building: { id: 'bld-1', timezone: 'Australia/Sydney' },
             } as any),
-            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+            MockProvider(SettingsService, {
+                time_format: 'h:mm a',
+                get: ((name: string) =>
+                    name === 'app.bookings.use_building_timezone'
+                        ? true
+                        : undefined) as any,
+            } as any),
         ],
     });
 
@@ -53,6 +64,28 @@ describe('VisitorStateService', () => {
             .toPromise();
         expect(events).toHaveLength(1);
         expect(booking_mod.queryBookings).toHaveBeenCalled();
+    });
+
+    it('should apply building timezone to visitor listing requests', async () => {
+        (booking_mod as any).queryBookings = jest.fn(() =>
+            of([{ extension_data: {} }]),
+        );
+        (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
+            2,
+        );
+        const date = new Date('2026-06-15T12:00:00').valueOf();
+
+        spectator.service.setFilters({ date, period: 1 });
+        await spectator.service.bookings.pipe(take(1)).toPromise();
+
+        const start = addMinutes(startOfDay(new Date(date)), 120);
+        const end = addDays(start, 1);
+        expect(booking_mod.queryBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+            }),
+        );
     });
 
     it('should allow filtering of visitor events', async () => {
