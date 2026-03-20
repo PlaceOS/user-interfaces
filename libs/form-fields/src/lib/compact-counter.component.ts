@@ -11,7 +11,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     template: `
         <div
             counter
-            class="flex items-center space-x-1 text-base"
+            class="flex items-center gap-1 text-base"
             (window:keydown.shift)="shift_key = true"
             (window:keydown.control)="ctrl_key = true"
             (window:keydown.meta)="ctrl_key = true"

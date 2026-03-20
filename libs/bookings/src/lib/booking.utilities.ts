@@ -131,6 +131,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         ),
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
+        recurrence_instances: new FormControl(
+            booking.extension_data.recurrence_instances,
+        ),
         notes: new FormControl(booking.extension_data.notes || ''),
         update_master: new FormControl(false),
         self_registered: new FormControl(false),

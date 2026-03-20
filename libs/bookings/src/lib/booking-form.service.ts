@@ -773,6 +773,7 @@ export class BookingFormService extends AsyncHandler {
                                   group_members,
                               }
                             : {}),
+                        recurrence_instances: value.recurrence_instances,
                         department:
                             value.user?.department || currentUser()?.department,
                     },

@@ -13,7 +13,15 @@ import {
     RecurrEndType,
     RecurrType,
 } from '@placeos/common';
-import { addDays, addMonths, endOfDay, startOfWeek } from 'date-fns';
+import {
+    addDays,
+    addMonths,
+    addWeeks,
+    endOfDay,
+    endOfMonth,
+    endOfWeek,
+    startOfWeek,
+} from 'date-fns';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CompactCounterComponent } from './compact-counter.component';
 import { DateFieldComponent } from './date-field.component';
@@ -146,7 +154,12 @@ import { DateFieldComponent } from './date-field.component';
             <button btn matRipple class="inverse w-32" mat-dialog-close>
                 {{ 'COMMON.CANCEL' | translate }}
             </button>
-            <button btn matRipple class="w-32" [mat-dialog-close]="form.value">
+            <button
+                btn
+                matRipple
+                class="w-32"
+                [mat-dialog-close]="confirmValue()"
+            >
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
@@ -265,6 +278,32 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         const set = this.form.value.weekdays;
         set.has(idx) ? set.delete(idx) : set.add(idx);
         this.form.patchValue({ weekdays: set });
+    }
+
+    public confirmValue(): Recurrence {
+        const value = this.form.getRawValue() as Recurrence;
+
+        if (value.end_type === 'instances' && value.end_instances) {
+            const end_step =
+                value.interval * Math.max(value.end_instances - 1, 0);
+            value.end_date =
+                value.type === 'daily'
+                    ? endOfDay(addDays(this.date, end_step)).valueOf()
+                    : value.type === 'weekly'
+                      ? endOfWeek(addWeeks(this.date, end_step)).valueOf()
+                      : endOfMonth(addMonths(this.date, end_step)).valueOf();
+        }
+
+        if (value.end_type !== 'instances') {
+            value.end_instances = undefined;
+        }
+
+        if (value.end_type !== 'date') {
+            value.end_date =
+                value.end_type === 'instances' ? value.end_date : undefined;
+        }
+
+        return value;
     }
 
     private _onEndTypeChange(type: RecurrEndType) {
