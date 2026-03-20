@@ -10,11 +10,12 @@ import {
     getInvalidFields,
     i18n,
     notifyError,
+    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { differenceInDays, startOfDay } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import {
     BehaviorSubject,
@@ -291,7 +292,9 @@ export class OldEventFormService extends AsyncHandler {
             ) as any;
             return (list || [])
                 .filter((_, idx) => {
-                    const start = all_day ? startOfDay(date).valueOf() : date;
+                    const start = all_day
+                        ? startOfDayInTimezone(date, this.timezone)
+                        : date;
                     const end =
                         start +
                         (all_day ? Math.max(24 * 60, duration) : duration) *
@@ -334,7 +337,7 @@ export class OldEventFormService extends AsyncHandler {
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
-                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? startOfDayInTimezone(date, this.timezone) : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
                     this?.event?.resources[0]?.id ||
                         this.event?.system?.id ||
@@ -392,6 +395,12 @@ export class OldEventFormService extends AsyncHandler {
 
     public get has_calendar() {
         return this._settings.get('app.events.use_bookings') !== true;
+    }
+
+    private get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
     }
 
     constructor() {
@@ -610,6 +619,7 @@ export class OldEventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = value;
+            value.timezone = this.timezone || value.timezone;
             let spaces = form.get('resources')?.value || [];
             if (ignore_space_check.length) {
                 spaces = spaces.filter(
@@ -634,7 +644,7 @@ export class OldEventFormService extends AsyncHandler {
                 changed_times = true;
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
-                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? startOfDayInTimezone(date, value.timezone) : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
                     ical_uid || id || '',
                 ).catch((_) => {

@@ -1,5 +1,5 @@
-import { addMilliseconds } from 'date-fns';
-import { getTimezoneOffset } from 'date-fns-tz';
+import { addMilliseconds, endOfDay, startOfDay } from 'date-fns';
+import { fromZonedTime, getTimezoneOffset, toZonedTime } from 'date-fns-tz';
 import { padLength } from './general';
 
 export const LOCAL_TIMEZONE =
@@ -21,6 +21,22 @@ export function timezoneToLocal(
     const offset_diff =
         getTimezoneOffset(LOCAL_TIMEZONE) - getTimezoneOffset(tz);
     return addMilliseconds(date, offset_diff).valueOf();
+}
+
+export function startOfDayInTimezone(
+    date: Date | number,
+    tz: string = LOCAL_TIMEZONE,
+) {
+    if (!tz) return startOfDay(date).valueOf();
+    return fromZonedTime(startOfDay(toZonedTime(date, tz)), tz).valueOf();
+}
+
+export function endOfDayInTimezone(
+    date: Date | number,
+    tz: string = LOCAL_TIMEZONE,
+) {
+    if (!tz) return endOfDay(date).valueOf();
+    return fromZonedTime(endOfDay(toZonedTime(date, tz)), tz).valueOf();
 }
 
 const TIMZONE_OFFSET_STRINGS = {};

@@ -9,6 +9,7 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    endOfDayInTimezone,
     flatten,
     getInvalidFields,
     getNextBookableTime,
@@ -19,6 +20,7 @@ import {
     OrganisationService,
     rulesForResource,
     SettingsService,
+    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
@@ -29,14 +31,7 @@ import {
     showMetadata,
     showUser,
 } from '@placeos/ts-client';
-import {
-    addDays,
-    addMinutes,
-    endOfDay,
-    format,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import {
     BehaviorSubject,
@@ -235,7 +230,7 @@ export class BookingFormService extends AsyncHandler {
         switchMap(([options, resources, restrictions]) => {
             let { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
-                date = startOfDay(date).valueOf();
+                date = startOfDayInTimezone(date, this.timezone);
                 duration = 24 * 60 - 1;
             }
             return bookedResourceList({
@@ -331,6 +326,11 @@ export class BookingFormService extends AsyncHandler {
 
     public resourceUserName(id: string) {
         return this._resource_use[id];
+    }
+
+    private get timezone() {
+        const use_building_timezone = this.setting('use_building_timezone');
+        return use_building_timezone ? this._org.building?.timezone || '' : '';
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
@@ -637,8 +637,9 @@ export class BookingFormService extends AsyncHandler {
         );
         this._loading.next('Saving booking');
         delete value.booking_asset;
+        value.timezone = this.timezone || value.timezone;
         if (value.all_day) {
-            value.date = startOfDay(value.date).valueOf();
+            value.date = startOfDayInTimezone(value.date, value.timezone);
             value.duration = 24 * 60 - 1;
         }
         const { event_id, parent_id } = value;
@@ -786,8 +787,8 @@ export class BookingFormService extends AsyncHandler {
     public setting(key: string) {
         const { type } = this._options.getValue();
         return (
-            this._settings.get(`app.${type}.${key}`) ||
-            this._settings.get(`app.${type}s.${key}`) ||
+            this._settings.get(`app.${type}.${key}`) ??
+            this._settings.get(`app.${type}s.${key}`) ??
             this._settings.get(`app.bookings.${key}`)
         );
     }
@@ -1352,10 +1353,10 @@ export class BookingFormService extends AsyncHandler {
         const bookings = await lastValueFrom(
             queryBookings({
                 period_start: all_day
-                    ? getUnixTime(startOfDay(date))
+                    ? getUnixTime(startOfDayInTimezone(date, this.timezone))
                     : getUnixTime(date),
                 period_end: all_day
-                    ? getUnixTime(endOfDay(date))
+                    ? getUnixTime(endOfDayInTimezone(date, this.timezone))
                     : getUnixTime(date + duration * 60 * 1000),
                 type,
                 email: user_email,
