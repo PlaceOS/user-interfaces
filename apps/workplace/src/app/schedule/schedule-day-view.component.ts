@@ -54,7 +54,7 @@ interface PositionedBooking {
                         {{ date() | date: 'EEEE, MMMM d, yyyy' }}
                     </h2>
                     <div
-                        class="rounded-md border border-base-300 bg-base-100 px-2 py-1 text-sm text-base-content"
+                        class="border-base-300 bg-base-100 text-base-content rounded-md border px-2 py-1 text-sm"
                     >
                         {{ bookings()?.length || 0 }} booking{{
                             bookings()?.length !== 1 ? 's' : ''
@@ -66,7 +66,7 @@ interface PositionedBooking {
                     <div class="w-12 flex-shrink-0 pr-2">
                         @for (slot of timeSlots(); track slot.hour) {
                             <div
-                                class="flex h-16 items-start justify-end text-xs text-base-content opacity-60"
+                                class="text-base-content flex h-16 items-start justify-end text-xs opacity-60"
                             >
                                 <div class="relative -translate-y-1/2">
                                     {{ slot.label }}
@@ -77,17 +77,17 @@ interface PositionedBooking {
 
                     <!-- Calendar grid -->
                     <div
-                        class="relative flex-1 overflow-hidden rounded-xl border-x border-b border-base-300 bg-base-100"
+                        class="border-base-300 bg-base-100 relative flex-1 overflow-hidden rounded-xl border-x border-b"
                     >
                         <!-- Grid lines -->
                         <div class="absolute inset-0">
                             @for (slot of timeSlots(); track slot.hour) {
                                 <div class="relative h-16">
                                     <div
-                                        class="absolute inset-x-0 top-0 border-t border-base-300"
+                                        class="border-base-300 absolute inset-x-0 top-0 border-t"
                                     ></div>
                                     <div
-                                        class="absolute inset-x-0 top-8 border-t border-dashed border-base-300"
+                                        class="border-base-300 absolute inset-x-0 top-8 border-t border-dashed"
                                     ></div>
                                 </div>
                             }
@@ -101,10 +101,10 @@ interface PositionedBooking {
                                 [style.top.%]="currentTimePosition()"
                             >
                                 <div
-                                    class="-ml-1 h-2 w-2 rounded-full bg-error"
+                                    class="bg-error -ml-1 h-2 w-2 rounded-full"
                                 ></div>
                                 <div
-                                    class="flex-1 border-t-2 border-error"
+                                    class="border-error flex-1 border-t-2"
                                 ></div>
                             </div>
                         }
@@ -139,8 +139,11 @@ interface PositionedBooking {
                                         '
 ' +
                                         ($any(item.booking).user_name ||
-                                            ($any(item.booking).host | user | async)
-                                                ?.name ||
+                                            (
+                                                $any(item.booking).host
+                                                | user
+                                                | async
+                                            )?.name ||
                                             $any(item.booking).host) +
                                         '
 ' +
@@ -152,16 +155,35 @@ interface PositionedBooking {
                                     "
                                 >
                                     <div
-                                        class="flex items-center space-x-1 truncate text-sm font-medium"
+                                        class="flex items-start justify-between gap-2 text-sm font-medium"
                                     >
-                                        <div>{{ item.booking.title }}</div>
+                                        <div class="min-w-0 truncate">
+                                            {{ item.booking.title }}
+                                            @if (
+                                                item.height <= 5 &&
+                                                location(item.booking)
+                                            ) {
+                                                <span
+                                                    class="text-xs opacity-60"
+                                                >
+                                                    ·
+                                                    {{ location(item.booking) }}
+                                                </span>
+                                            }
+                                        </div>
                                         @if (
-                                            item.height <= 5 &&
-                                            location(item.booking)
+                                            bookingStatus(item.booking);
+                                            as status
                                         ) {
-                                            <div class="text-xs opacity-60">
-                                                · {{ location(item.booking) }}
-                                            </div>
+                                            <div
+                                                class="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                                                [style.background-color]="
+                                                    statusColor(status)
+                                                "
+                                                [matTooltip]="
+                                                    statusLabel(status)
+                                                "
+                                            ></div>
                                         }
                                     </div>
                                     @if (item.height > 3) {
@@ -187,7 +209,10 @@ interface PositionedBooking {
                                             {{ location(item.booking) }}
                                         </div>
                                     }
-                                    @if (item.height > 7 && $any(item.booking).host) {
+                                    @if (
+                                        item.height > 7 &&
+                                        $any(item.booking).host
+                                    ) {
                                         <div
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
@@ -214,14 +239,16 @@ interface PositionedBooking {
                                         >
                                             Booked by
                                             {{
-                                                $any(item.booking).booked_by_name ||
+                                                $any(item.booking)
+                                                    .booked_by_name ||
                                                     (
                                                         $any(item.booking)
                                                             .booked_by_email
                                                         | user
                                                         | async
                                                     )?.name ||
-                                                    $any(item.booking).booked_by_email
+                                                    $any(item.booking)
+                                                        .booked_by_email
                                             }}
                                         </div>
                                     }
@@ -456,6 +483,27 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
     public type(booking: Booking | CalendarEvent) {
         if (booking instanceof Booking) return booking.booking_type;
         return booking.extension_data?.shared_event ? 'group-event' : 'event';
+    }
+
+    public bookingStatus(
+        booking: Booking | CalendarEvent,
+    ): 'approved' | 'tentative' | 'declined' | null {
+        const status = booking.status;
+        return status === 'approved' ||
+            status === 'tentative' ||
+            status === 'declined'
+            ? status
+            : null;
+    }
+
+    public statusLabel(status: 'approved' | 'tentative' | 'declined') {
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    public statusColor(status: 'approved' | 'tentative' | 'declined') {
+        if (status === 'approved') return 'var(--success)';
+        if (status === 'tentative') return 'var(--warn)';
+        return 'var(--error)';
     }
 
     public location(booking: Booking | CalendarEvent): string {

@@ -80,7 +80,7 @@ interface Weekday {
                     @for (day of weekdays(); track day.id) {
                         <div
                             body
-                            class="flex min-h-[calc(100vh-15rem)] flex-col space-y-2 rounded-xl border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex min-h-[calc(100vh-15rem)] flex-col space-y-2 rounded-xl border p-2"
                             [class.opacity-30]="day.is_past"
                         >
                             @for (
@@ -89,7 +89,7 @@ interface Weekday {
                             ) {
                                 <button
                                     matRipple
-                                    class="w-full rounded-lg border bg-base-100 p-2 text-left text-black"
+                                    class="bg-base-100 w-full rounded-lg border p-2 text-left text-black"
                                     [style.border-color]="colors[type(bkn)][1]"
                                     [style.background-color]="
                                         colors[type(bkn)][0]
@@ -104,7 +104,8 @@ interface Weekday {
                                         '
 ' +
                                         ($any(bkn).user_name ||
-                                            ($any(bkn).host | user | async)?.name ||
+                                            ($any(bkn).host | user | async)
+                                                ?.name ||
                                             $any(bkn).host) +
                                         '
 ' +
@@ -113,8 +114,23 @@ interface Weekday {
                                         (bkn.date_end | date: 'shortTime')
                                     "
                                 >
-                                    <div class="truncate text-sm">
-                                        {{ bkn.title }}
+                                    <div
+                                        class="flex items-start justify-between gap-2"
+                                    >
+                                        <div class="min-w-0 truncate text-sm">
+                                            {{ bkn.title }}
+                                        </div>
+                                        @if (bookingStatus(bkn); as status) {
+                                            <div
+                                                class="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                                                [style.background-color]="
+                                                    statusColor(status)
+                                                "
+                                                [matTooltip]="
+                                                    statusLabel(status)
+                                                "
+                                            ></div>
+                                        }
                                     </div>
                                     @if (location(bkn)) {
                                         <div
@@ -231,6 +247,27 @@ export class ScheduleWeekViewComponent {
     public type(booking: Booking | CalendarEvent) {
         if (booking instanceof Booking) return booking.booking_type;
         return booking.extension_data?.shared_event ? 'group-event' : 'event';
+    }
+
+    public bookingStatus(
+        booking: Booking | CalendarEvent,
+    ): 'approved' | 'tentative' | 'declined' | null {
+        const status = booking.status;
+        return status === 'approved' ||
+            status === 'tentative' ||
+            status === 'declined'
+            ? status
+            : null;
+    }
+
+    public statusLabel(status: 'approved' | 'tentative' | 'declined') {
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    public statusColor(status: 'approved' | 'tentative' | 'declined') {
+        if (status === 'approved') return 'var(--success)';
+        if (status === 'tentative') return 'var(--warn)';
+        return 'var(--error)';
     }
 
     public location(booking: Booking | CalendarEvent): string {
