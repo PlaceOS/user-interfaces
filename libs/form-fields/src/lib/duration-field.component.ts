@@ -1,19 +1,22 @@
 import { CommonModule } from '@angular/common';
 import {
-    AfterViewInit,
     Component,
+    computed,
     forwardRef,
     input,
     model,
     OnChanges,
     OnInit,
     SimpleChanges,
-    viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { formatDuration, getTimezoneOffsetString } from '@placeos/common';
+import { MatMenuModule } from '@angular/material/menu';
+import {
+    formatDuration,
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+} from '@placeos/common';
 import { addMinutes } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -48,9 +51,9 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                @if (timezone() && tz) {
+                @if (timezone() && tz()) {
                     <div class="truncate text-xs opacity-30">
-                        {{ selected?.date | date: time_format + ' (z)' : tz }}
+                        {{ selected?.date | date: time_format + ' (z)' : tz() }}
                     </div>
                 }
             </div>
@@ -60,7 +63,6 @@ export interface DurationOption {
             @for (option of duration_options; track option.id) {
                 <button
                     mat-menu-item
-                    [attr.data-duration]="option.id"
                     class="text-left"
                     (click)="setValue(option.id)"
                 >
@@ -80,13 +82,13 @@ export interface DurationOption {
                                     }}{{ option.name
                                     }}{{ option.date ? ')' : '' }}
                                 </div>
-                                @if (timezone() && tz) {
+                                @if (timezone() && tz()) {
                                     <div class="truncate text-xs opacity-30">
                                         {{
                                             option.date
                                                 | date
                                                     : time_format + ' (z)'
-                                                    : tz
+                                                    : tz()
                                         }}
                                     </div>
                                 }
@@ -125,7 +127,7 @@ export interface DurationOption {
     imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent],
 })
 export class DurationFieldComponent
-    implements OnInit, OnChanges, AfterViewInit, ControlValueAccessor
+    implements OnInit, OnChanges, ControlValueAccessor
 {
     /** Maximum duration option available */
     public readonly max = input(240);
@@ -158,8 +160,6 @@ export class DurationFieldComponent
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
     private _onTouch: (_: number) => void;
-    /** Menu trigger for the duration selection dropdown */
-    private readonly _menu_trigger = viewChild(MatMenuTrigger);
 
     public get time_format() {
         return this.use_24hr() ? 'HH : mm' : 'h : mm a';
@@ -173,12 +173,12 @@ export class DurationFieldComponent
         Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
-    public get tz() {
+    public readonly tz = computed(() => {
         const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
     public ngOnInit(): void {
         this.duration_options = this.generateDurationOptions(
@@ -208,36 +208,6 @@ export class DurationFieldComponent
             this._updateNoOptions();
             this._updateOption();
         }
-    }
-
-    public ngAfterViewInit(): void {
-        const trigger = this._menu_trigger();
-        if (trigger) {
-            trigger.menuOpened.subscribe(() => {
-                this._scrollToSelectedDuration();
-            });
-        }
-    }
-
-    /** Scroll the menu to the selected duration option */
-    private _scrollToSelectedDuration(): void {
-        // Use requestAnimationFrame for immediate execution after render
-        requestAnimationFrame(() => {
-            const panel = document.querySelector('.mat-mdc-menu-panel');
-            if (!panel) return;
-
-            // Find the selected duration element
-            const target_element = panel.querySelector(
-                `[data-duration="${this.duration}"]`,
-            );
-
-            if (target_element) {
-                target_element.scrollIntoView({
-                    block: 'center',
-                    behavior: 'instant',
-                });
-            }
-        });
     }
 
     /**
@@ -355,8 +325,11 @@ export class DurationFieldComponent
         if (end_time === undefined || end_time === null || !time_value) {
             return max;
         }
-        const date = new Date(time_value);
-        const start_minutes = date.getHours() * 60 + date.getMinutes();
+        // Use building timezone to compute start minutes since end_time
+        // is in building timezone minutes-since-midnight
+        const tz = this.timezone() || undefined;
+        const { hours, minutes } = getTimeInTimezone(time_value, tz);
+        const start_minutes = hours * 60 + minutes;
         return Math.max(0, Math.min(max, end_time - start_minutes));
     }
 }
