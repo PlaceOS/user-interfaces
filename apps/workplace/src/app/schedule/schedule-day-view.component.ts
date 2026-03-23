@@ -13,7 +13,10 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BookingDetailsModalComponent } from '@placeos/bookings';
+import {
+    BookingDetailsModalComponent,
+    visitorDisplayNameFor,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -136,6 +139,10 @@ interface PositionedBooking {
                                             ? '
 ' + location(item.booking)
                                             : '') +
+                                        (visitorName(item.booking)
+                                            ? '
+' + visitorName(item.booking)
+                                            : '') +
                                         '
 ' +
                                         ($any(item.booking).user_name ||
@@ -168,6 +175,21 @@ interface PositionedBooking {
                                                 >
                                                     ·
                                                     {{ location(item.booking) }}
+                                                </span>
+                                            }
+                                            @if (
+                                                item.height <= 5 &&
+                                                visitorName(item.booking)
+                                            ) {
+                                                <span
+                                                    class="text-xs opacity-60"
+                                                >
+                                                    ·
+                                                    {{
+                                                        visitorName(
+                                                            item.booking
+                                                        )
+                                                    }}
                                                 </span>
                                             }
                                         </div>
@@ -207,6 +229,16 @@ interface PositionedBooking {
                                             class="mt-1 truncate text-xs opacity-60"
                                         >
                                             {{ location(item.booking) }}
+                                        </div>
+                                    }
+                                    @if (
+                                        item.height > 5 &&
+                                        visitorName(item.booking)
+                                    ) {
+                                        <div
+                                            class="mt-1 truncate text-xs opacity-60"
+                                        >
+                                            {{ visitorName(item.booking) }}
                                         </div>
                                     }
                                     @if (
@@ -504,6 +536,13 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
         if (status === 'approved') return 'var(--success)';
         if (status === 'tentative') return 'var(--warn)';
         return 'var(--error)';
+    }
+
+    public visitorName(booking: Booking | CalendarEvent): string {
+        if (booking instanceof Booking) {
+            return visitorDisplayNameFor(booking);
+        }
+        return '';
     }
 
     public location(booking: Booking | CalendarEvent): string {

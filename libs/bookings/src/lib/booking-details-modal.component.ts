@@ -33,6 +33,7 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import { visitorDisplayNameFor } from './booking.utilities';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -163,10 +164,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         <div>{{ period() }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon
-                            matTooltip="Level and Resource"
-                            >{{ is_visitor() ? 'person' : 'map' }}</icon
-                        >
+                        <icon matTooltip="Level and Resource">{{
+                            is_visitor() ? 'person' : 'map'
+                        }}</icon>
                         <div>
                             @if (is_visitor()) {
                                 <div>{{ visitor_display_name() }}</div>
@@ -467,14 +467,17 @@ export class BookingDetailsModalComponent {
             this.level_or_building()?.display_name ||
             this.level_or_building()?.name ||
             '';
-        const resource_name = this.booking().asset_name || this.booking().asset_id;
-        return location_name ? `${location_name}, ${resource_name}` : resource_name;
+        const resource_name =
+            this.booking().asset_name || this.booking().asset_id;
+        return location_name
+            ? `${location_name}, ${resource_name}`
+            : resource_name;
     });
     public readonly building = computed(() => {
         const zones = this.booking()?.zones || [];
         const level = this.level();
-        const building = this._org.buildings.find((bld) =>
-            zones.includes(bld.id) || bld.id === level?.parent_id,
+        const building = this._org.buildings.find(
+            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
         );
         if (this._settings.get('app.use_region')) {
             const region = this._org.regions.find(
@@ -545,13 +548,15 @@ export class BookingDetailsModalComponent {
         if (!booking) return '';
         return booking.title || booking.asset_name || booking.asset_id;
     });
-    public readonly visitor_display_name = computed(() =>
-        this._visitorDisplayNameFor(this.booking()),
+    public readonly visitor_display_name = computed(
+        () => visitorDisplayNameFor(this.booking()) || 'Visitor',
     );
     public readonly visitor_reason = computed(() => {
         const booking = this.booking();
         if (!booking || !this.is_visitor()) return '';
-        const visitor_name = this._visitorDisplayNameFor(booking).toLowerCase();
+        const visitor_name = (
+            visitorDisplayNameFor(booking) || 'Visitor'
+        ).toLowerCase();
         const reason = `${booking.title || booking.description || ''}`.trim();
         if (!reason.length) return '';
         return reason.toLowerCase() === visitor_name ? '' : reason;
@@ -560,7 +565,7 @@ export class BookingDetailsModalComponent {
         const booking = this.booking();
         const asset_id = `${booking?.asset_id || ''}`.trim();
         if (!asset_id || !this._looksLikeEmail(asset_id)) return '';
-        const display_name = this._visitorDisplayNameFor(booking);
+        const display_name = visitorDisplayNameFor(booking) || 'Visitor';
         return display_name.toLowerCase() === asset_id.toLowerCase()
             ? ''
             : asset_id;
@@ -681,55 +686,6 @@ export class BookingDetailsModalComponent {
                 id: this.booking().asset_ids[0] || this.booking().asset_id,
             },
         });
-    }
-
-    private _visitorDisplayNameFor(booking: Booking) {
-        if (!booking) return 'Visitor';
-        const asset_id = `${booking.asset_id || ''}`.trim();
-        const group_member_name = this._visitorGroupMemberName(booking);
-        if (group_member_name) return group_member_name;
-        const attendee_name = this._visitorAttendeeName(booking);
-        if (attendee_name) return attendee_name;
-        const asset_name = `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
-        const reason_values = [
-            `${booking.title || ''}`.trim().toLowerCase(),
-            `${booking.description || ''}`.trim().toLowerCase(),
-        ].filter((_) => !!_);
-        if (
-            asset_name &&
-            asset_name.toLowerCase() !== asset_id.toLowerCase() &&
-            !reason_values.includes(asset_name.toLowerCase())
-        ) {
-            return asset_name;
-        }
-        return this._formatEmailName(asset_id || asset_name || 'Visitor');
-    }
-
-    private _visitorGroupMemberName(booking: Booking) {
-        const member = (booking.extension_data?.group_members || []).find(
-            (item) => item?.email === booking.asset_id,
-        );
-        const name = `${member?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _visitorAttendeeName(booking: Booking) {
-        const attendee =
-            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
-            booking.attendees?.[0];
-        const name = `${attendee?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _formatEmailName(value: string) {
-        if (!this._looksLikeEmail(value)) return value;
-        const [local_part] = value.split('@');
-        const formatted_local = local_part
-            .replace(/[._-]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-        if (!formatted_local) return value;
-        return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
     }
 
     private _looksLikeEmail(value: string) {

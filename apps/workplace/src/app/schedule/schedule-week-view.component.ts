@@ -11,7 +11,10 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BookingDetailsModalComponent } from '@placeos/bookings';
+import {
+    BookingDetailsModalComponent,
+    visitorDisplayNameFor,
+} from '@placeos/bookings';
 import {
     Booking,
     BOOKING_TYPE_COLORS,
@@ -101,6 +104,10 @@ interface Weekday {
                                             ? '
 ' + location(bkn)
                                             : '') +
+                                        (visitorName(bkn)
+                                            ? '
+' + visitorName(bkn)
+                                            : '') +
                                         '
 ' +
                                         ($any(bkn).user_name ||
@@ -137,6 +144,13 @@ interface Weekday {
                                             class="truncate text-xs opacity-75"
                                         >
                                             {{ location(bkn) }}
+                                        </div>
+                                    }
+                                    @if (visitorName(bkn)) {
+                                        <div
+                                            class="truncate text-xs opacity-60"
+                                        >
+                                            {{ visitorName(bkn) }}
                                         </div>
                                     }
                                     <div class="text-xs">
@@ -268,6 +282,13 @@ export class ScheduleWeekViewComponent {
         if (status === 'approved') return 'var(--success)';
         if (status === 'tentative') return 'var(--warn)';
         return 'var(--error)';
+    }
+
+    public visitorName(booking: Booking | CalendarEvent): string {
+        if (booking instanceof Booking) {
+            return visitorDisplayNameFor(booking);
+        }
+        return '';
     }
 
     public location(booking: Booking | CalendarEvent): string {

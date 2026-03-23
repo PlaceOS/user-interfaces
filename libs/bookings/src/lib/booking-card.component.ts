@@ -31,6 +31,7 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
+import { visitorDisplayNameFor } from './booking.utilities';
 import { ParkingService } from './parking.service';
 
 @Component({
@@ -59,7 +60,7 @@ import { ParkingService } from './parking.service';
                     class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <div
-                        class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
+                        class="bg-base-300 absolute top-2 right-2 rounded-full p-1 text-2xl"
                         [style.background-color]="typeColors[0]"
                         [style.color]="typeColors[1]"
                     >
@@ -125,21 +126,21 @@ import { ParkingService } from './parking.service';
                         booking()?.booking_type !== 'group-event'
                     ) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
                     @if (booking()?.booking_type === 'group-event') {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
                     @if (is_reserved_parking_space | async) {
                         <div
-                            class="bg-warning/50 absolute right-2 top-14 rounded-xl px-2 py-1 text-xs"
+                            class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{
                                 (booking().status !== 'declined'
@@ -329,7 +330,7 @@ export class BookingCardComponent
                 this.raw_description() || booking.asset_name || booking.asset_id
             );
         }
-        return this._visitorDisplayNameFor(booking);
+        return visitorDisplayNameFor(booking) || 'Visitor';
     }
 
     public removeHtmlTags(html: string) {
@@ -357,53 +358,5 @@ export class BookingCardComponent
             };
             this._dialog.open(view_component, { data });
         });
-    }
-
-    private _visitorDisplayNameFor(booking: Booking) {
-        const asset_id = `${booking?.asset_id || ''}`.trim();
-        const group_member_name = this._visitorGroupMemberName(booking);
-        if (group_member_name) return group_member_name;
-        const attendee_name = this._visitorAttendeeName(booking);
-        if (attendee_name) return attendee_name;
-        const asset_name = `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
-        const reason_values = [
-            `${booking?.title || ''}`.trim().toLowerCase(),
-            `${booking?.description || ''}`.trim().toLowerCase(),
-        ].filter((_) => !!_);
-        if (
-            asset_name &&
-            asset_name.toLowerCase() !== asset_id.toLowerCase() &&
-            !reason_values.includes(asset_name.toLowerCase())
-        ) {
-            return asset_name;
-        }
-        return this._formatEmailName(asset_id || asset_name || 'Visitor');
-    }
-
-    private _visitorGroupMemberName(booking: Booking) {
-        const member = (booking.extension_data?.group_members || []).find(
-            (item) => item?.email === booking.asset_id,
-        );
-        const name = `${member?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _visitorAttendeeName(booking: Booking) {
-        const attendee =
-            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
-            booking.attendees?.[0];
-        const name = `${attendee?.name || ''}`.trim();
-        return name || '';
-    }
-
-    private _formatEmailName(value: string) {
-        if (!value.includes('@')) return value;
-        const [local_part] = value.split('@');
-        const formatted_local = local_part
-            .replace(/[._-]+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-        if (!formatted_local) return value;
-        return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
     }
 }
