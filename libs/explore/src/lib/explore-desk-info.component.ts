@@ -28,7 +28,7 @@ type DeskStatus =
 export interface DeskInfoData {
     id: string;
     map_id: string;
-    user: string;
+    user: WritableSignal<string>;
     name: string;
     start?: number;
     end?: number;
@@ -226,7 +226,7 @@ export class ExploreDeskInfoComponent extends AsyncHandler implements OnInit {
     public readonly id = signal(this._details.id);
     public readonly map_id = signal(this._details.map_id);
     public readonly name = signal(this._details.name);
-    public readonly user = signal(this._details.user);
+    public readonly user = this._details.user;
     public readonly start = signal(this._details.start);
     public readonly end = signal(this._details.end);
     public readonly department = signal(this._details.department);
