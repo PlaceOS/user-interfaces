@@ -100,6 +100,40 @@
                         }
                     ],
                     "serviceWorker": "apps/booking-panel/ngsw-config.json"
+                },
+                "mobile": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/booking-panel/src/environments/environment.ts",
+                            "with": "apps/booking-panel/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/booking-panel/src/environments/settings.ts"
+                        }
+                    ],
+                    "optimization": true,
+                    "outputHashing": "all",
+                    "sourceMap": true,
+                    "namedChunks": false,
+                    "extractLicenses": true,
+                    "serviceWorker": false,
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2mb",
+                            "maximumError": "5mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "6kb",
+                            "maximumError": "10kb"
+                        }
+                    ]
                 }
             }
         },
@@ -125,6 +159,84 @@
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
                 "jestConfig": "apps/booking-panel/jest.config.ts"
+            }
+        },
+        "mobile:sync:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "parallel": false,
+                "commands": [
+                    {
+                        "command": "npx nx build booking-panel --configuration=mobile"
+                    },
+                    {
+                        "command": "node tools/capacitor/run.mjs sync booking-panel android"
+                    }
+                ]
+            }
+        },
+        "mobile:sync:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "parallel": false,
+                "commands": [
+                    {
+                        "command": "npx nx build booking-panel --configuration=mobile"
+                    },
+                    {
+                        "command": "node tools/capacitor/run.mjs sync booking-panel ios"
+                    }
+                ]
+            }
+        },
+        "mobile:open:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs open booking-panel android"
+            }
+        },
+        "mobile:open:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs open booking-panel ios"
+            }
+        },
+        "mobile:build:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs build booking-panel android"
+            }
+        },
+        "mobile:build:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs build booking-panel ios"
+            }
+        },
+        "mobile:run:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs run booking-panel android"
+            }
+        },
+        "mobile:run:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs run booking-panel ios"
             }
         }
     }

@@ -1,0 +1,83 @@
+name: MOBILE
+
+on:
+    workflow_dispatch:
+    push:
+        branches: [release/**, rc/**]
+        paths:
+            - 'apps/workplace/**'
+            - 'apps/booking-panel/**'
+            - 'apps/control/**'
+            - 'libs/**'
+            - 'tools/capacitor/**'
+            - 'package.json'
+            - 'package-lock.json'
+            - 'nx.json'
+            - '.github/workflows/mobile.yml'
+
+jobs:
+    android:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                app: [workplace, booking-panel, control]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: 'temurin'
+                  java-version: '21'
+
+            - name: Install dependencies
+              run: npm install --force
+
+            - name: Setup version
+              run: npm run postinstall
+
+            - name: Build Android artifact
+              run: npx nx run ${{ matrix.app }}:"mobile:build:android"
+
+            - name: Upload Android artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.app }}-android-debug
+                  path: .capacitor/${{ matrix.app }}/artifacts/${{ matrix.app }}-android-debug.apk
+                  if-no-files-found: error
+
+    ios:
+        runs-on: macos-latest
+        strategy:
+            matrix:
+                app: [workplace, booking-panel, control]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm install --force
+
+            - name: Setup version
+              run: npm run postinstall
+
+            - name: Build iOS simulator artifact
+              run: npx nx run ${{ matrix.app }}:"mobile:build:ios"
+
+            - name: Upload iOS artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.app }}-ios-simulator
+                  path: .capacitor/${{ matrix.app }}/artifacts/${{ matrix.app }}-ios-simulator.zip
+                  if-no-files-found: error

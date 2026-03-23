@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     currentUser,
     firstTruthyValueFrom,
@@ -484,7 +485,13 @@ export class VisitorInviteFormComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.date && this.date()) {
-            this.form.patchValue({ date: this.date() });
+            this.form.patchValue({
+                date: alignDateToBookableHours(
+                    this.date(),
+                    this.bookable_hours(),
+                    this.form.getRawValue().date,
+                ),
+            });
         }
         if (changes.confirm && this.confirm() > 0) {
             this.sendInvite();

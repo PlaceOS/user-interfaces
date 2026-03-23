@@ -34,6 +34,7 @@
     },
     "private": true,
     "dependencies": {
+        "@capacitor/core": "8.2.0",
         "@angular/animations": "20.0.3",
         "@angular/cdk": "20.0.3",
         "@angular/common": "20.0.3",
@@ -53,6 +54,10 @@
         "zone.js": "0.15.0"
     },
     "devDependencies": {
+        "@capacitor/android": "8.2.0",
+        "@capacitor/assets": "3.0.5",
+        "@capacitor/cli": "8.2.0",
+        "@capacitor/ios": "8.2.0",
         "@angular-devkit/build-angular": "20.0.2",
         "@angular-devkit/core": "20.0.2",
         "@angular-devkit/schematics": "20.0.2",

@@ -23,6 +23,7 @@ import {
     Booking,
     SettingsService,
     User,
+    alignDateToBookableHours,
     currentUser,
     getInvalidFields,
     i18n,
@@ -741,7 +742,13 @@ export class InviteVisitorFormComponent
     public ngOnChanges(changes: SimpleChanges) {
         const date = this.date();
         if (changes.date && date) {
-            this.form.patchValue({ date: date });
+            this.form.patchValue({
+                date: alignDateToBookableHours(
+                    date,
+                    this.bookable_hours,
+                    this.form.getRawValue().date,
+                ),
+            });
         }
     }
 

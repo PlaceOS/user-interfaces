@@ -32,6 +32,7 @@ import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
+import { clearNativeDomain, getNativeDomain, isNativeApp } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { setupPlace } from './placeos';
@@ -48,6 +49,8 @@ declare global {
 }
 
 const LOADING_MESSAGE = signal('Loading...');
+const NEEDS_DOMAIN = signal(false);
+const DOMAIN_ERROR = signal('');
 
 export function getLoadingMessage() {
     return LOADING_MESSAGE;
@@ -55,6 +58,16 @@ export function getLoadingMessage() {
 
 export function setLoadingMessage(message: string) {
     LOADING_MESSAGE.set(message);
+}
+
+/** Signal indicating the native domain overlay should be displayed. */
+export function needsNativeDomain() {
+    return NEEDS_DOMAIN;
+}
+
+/** Signal containing an error message to display in the domain overlay. */
+export function nativeDomainError() {
+    return DOMAIN_ERROR;
 }
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -108,6 +121,7 @@ export class PlaceOS_Service extends AsyncHandler {
     private _zone = '';
     private _region = '';
     private _initial_token = '';
+    private _domain_resolve: (() => void) | null = null;
 
     public get debug() {
         return (
@@ -129,6 +143,13 @@ export class PlaceOS_Service extends AsyncHandler {
 
     public setInitialToken(token: string) {
         this._initial_token = token || '';
+    }
+
+    /** Called by the native domain overlay once the user has set a domain. */
+    public onNativeDomainSet(): void {
+        NEEDS_DOMAIN.set(false);
+        this._domain_resolve?.();
+        this._domain_resolve = null;
     }
 
     public async init() {
@@ -206,9 +227,33 @@ export class PlaceOS_Service extends AsyncHandler {
                 queryParams: query,
             });
         }
-        setLoadingMessage('Authenticating...');
-        /** Wait for authentication details to load */
-        await setupPlace(settings).catch((_) => console.error(_));
+        /** On native platforms, ensure we have a server domain before auth. */
+        while (isNativeApp()) {
+            let domain = getNativeDomain();
+            while (!domain) {
+                setLoadingMessage('Waiting for server configuration...');
+                NEEDS_DOMAIN.set(true);
+                await new Promise<void>((r) => (this._domain_resolve = r));
+                domain = getNativeDomain();
+            }
+            settings.domain = domain;
+            settings.protocol = 'https:';
+            settings.use_domain = true;
+            setLoadingMessage('Authenticating...');
+            const auth_error = await setupPlace(settings)
+                .then(() => null)
+                .catch((_) => _);
+            if (!auth_error) break;
+            log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
+            clearNativeDomain();
+            DOMAIN_ERROR.set(
+                'Unable to connect to this server. Check the domain and try again.',
+            );
+        }
+        if (!isNativeApp()) {
+            setLoadingMessage('Authenticating...');
+            await setupPlace(settings).catch((_) => console.error(_));
+        }
         if (this._initial_token) setToken(this._initial_token);
         await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
         if (this._locale) {

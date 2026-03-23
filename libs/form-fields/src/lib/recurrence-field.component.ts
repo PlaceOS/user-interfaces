@@ -42,6 +42,38 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 (ngModelChange)="setSimple($event)"
                 [placeholder]="'FORM.RECURRENCE_NONE' | translate"
             >
+                <mat-select-trigger>
+                    @if (value?._custom) {
+                        <div class="flex w-full">
+                            <div class="trunctate w-1/2 flex-1">
+                                {{ formatted_value }}
+                            </div>
+                            <div
+                                class="bg-base-200 border-base-300/30 mr-2 rounded border px-2 py-1 text-xs uppercase"
+                            >
+                                {{ 'FORM.RECURRENCE_CUSTOM' | translate }}
+                            </div>
+                        </div>
+                    } @else if (recurr_type === 'daily') {
+                        {{ 'FORM.RECURRENCE_DAILY' | translate }}
+                    } @else if (recurr_type === 'weekly') {
+                        {{
+                            'FORM.RECURRENCE_WEEKLY_ON'
+                                | translate: { day: date() | date: 'EEEE' }
+                        }}
+                    } @else if (recurr_type === 'monthly') {
+                        {{
+                            'FORM.RECURRENCE_MONTH_INSTANCE'
+                                | translate
+                                    : {
+                                          index: instance_of_month,
+                                          day: date() | date: 'EEEE',
+                                      }
+                        }}
+                    } @else {
+                        {{ 'FORM.RECURRENCE_NONE' | translate }}
+                    }
+                </mat-select-trigger>
                 <mat-option value="none">{{
                     'FORM.RECURRENCE_NONE' | translate
                 }}</mat-option>
@@ -75,7 +107,16 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 }
                 @if (value?._custom) {
                     <mat-option value="custom_display">
-                        {{ formatted_value }}
+                        <div class="flex w-full">
+                            <div class="trunctate w-1/2 flex-1">
+                                {{ formatted_value }}
+                            </div>
+                            <div
+                                class="bg-base-200 border-base-300/30 mr-2 rounded border px-2 py-1 text-xs uppercase"
+                            >
+                                {{ 'FORM.RECURRENCE_CUSTOM' | translate }}
+                            </div>
+                        </div>
                     </mat-option>
                 }
                 <mat-option
@@ -124,6 +165,7 @@ export class RecurrenceFieldComponent
     public iom = 0;
     public instance_of_month: string;
     public value: Recurrence = NO_RECURR;
+    private _custom_cache: Recurrence;
 
     /** Form control on change handler */
     private _onChange: (_: RecurrenceDetails | BookingRecurrence) => void;
@@ -169,6 +211,7 @@ export class RecurrenceFieldComponent
      */
     public setValue(new_value: Recurrence): void {
         this.value = new_value;
+        this._custom_cache = new_value?._custom ? { ...new_value } : undefined;
         if (this._onChange) this._onChange(this.toRaw(new_value));
     }
 
@@ -178,7 +221,8 @@ export class RecurrenceFieldComponent
      */
     public writeValue(value: RecurrenceDetails | BookingRecurrence) {
         if (!value) return (this.value = NO_RECURR);
-        this.value = this.fromRaw(value || ({} as any));
+        const next_value = this.fromRaw(value || ({} as any));
+        this.value = this._restoreCustomEnd(next_value);
         this.recurr_type = this.value._custom
             ? 'custom_display'
             : this.value.type;
@@ -199,7 +243,6 @@ export class RecurrenceFieldComponent
         });
         ref.afterClosed().subscribe((d?) =>
             setTimeout(() => {
-                console.log('Prev Type:', this.prev_type);
                 d ? this.setValue({ ...d }) : '';
                 this.recurr_type = d ? 'custom_display' : this.prev_type;
             }, 10),
@@ -257,5 +300,48 @@ export class RecurrenceFieldComponent
             });
             this.prev_type = this.recurr_type;
         }
+    }
+
+    private _restoreCustomEnd(next_value: Recurrence): Recurrence {
+        const custom_value = this._custom_cache || this.value;
+
+        if (
+            !next_value?._custom ||
+            !custom_value?._custom ||
+            custom_value.end_type !== 'instances' ||
+            !this._samePattern(next_value, custom_value)
+        ) {
+            return next_value;
+        }
+
+        return {
+            ...next_value,
+            end_type: 'instances' as const,
+            end_instances: custom_value.end_instances,
+            end_date: custom_value.end_date || next_value.end_date,
+        };
+    }
+
+    private _samePattern(left: Recurrence, right: Recurrence) {
+        const has_matching_days =
+            left.type === 'weekly'
+                ? this._sameWeekdays(left.weekdays, right.weekdays)
+                : left.type === 'monthly' && left.monthly_type === 'day_of_week'
+                  ? this._sameWeekdays(left.weekdays, right.weekdays)
+                  : true;
+
+        return (
+            left.type === right.type &&
+            left.interval === right.interval &&
+            left.week === right.week &&
+            left.monthly_type === right.monthly_type &&
+            has_matching_days
+        );
+    }
+
+    private _sameWeekdays(left?: Set<number>, right?: Set<number>) {
+        if (!left?.size && !right?.size) return true;
+        if (!left || !right || left.size !== right.size) return false;
+        return Array.from(left).every((day) => right.has(day));
     }
 }

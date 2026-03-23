@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     Booking,
     BookingClash,
@@ -411,10 +412,7 @@ export class BookingFormService extends AsyncHandler {
         if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
         if (!booking.id) {
-            (booking as any).all_day =
-                this._settings.get(`app.${type}s.all_day_default`) ??
-                this._settings.get(`app.${type}.all_day_default`) ??
-                this._settings.get('app.bookings.all_day_default');
+            (booking as any).all_day = this.setting('all_day_default');
         }
         this.form.reset();
         this.form.patchValue(
@@ -431,9 +429,7 @@ export class BookingFormService extends AsyncHandler {
             { emitEvent: false },
         );
         if (!booking.id) {
-            const bookable_hours =
-                this._settings.get(`app.${type}s.bookable_hours`) ||
-                this._settings.get('app.bookings.bookable_hours');
+            const bookable_hours = this.setting('bookable_hours');
             const next_time = getNextBookableTime(bookable_hours);
             if (next_time) {
                 (booking as any).date = next_time;
@@ -564,6 +560,19 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
         const booking = new Booking(data);
+        this.setOptions({
+            ...JSON.parse(
+                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+            ),
+        });
+        const aligned_date =
+            !booking.id && booking.date
+                ? alignDateToBookableHours(
+                      booking.date,
+                      this.setting('bookable_hours'),
+                      booking.date,
+                  )
+                : booking.date;
         this._booking.next(booking);
         const booking_data = cleanObject(
             {
@@ -577,7 +586,7 @@ export class BookingFormService extends AsyncHandler {
         this.form.patchValue(booking_data, { emitEvent: false });
         this.timeout('load-date', async () =>
             this.form.patchValue({
-                date: booking.date,
+                date: aligned_date,
                 duration: booking.duration,
             }),
         );
@@ -828,6 +837,7 @@ export class BookingFormService extends AsyncHandler {
                                   group_members,
                               }
                             : {}),
+                        recurrence_instances: value.recurrence_instances,
                         department:
                             value.user?.department || currentUser()?.department,
                     },
