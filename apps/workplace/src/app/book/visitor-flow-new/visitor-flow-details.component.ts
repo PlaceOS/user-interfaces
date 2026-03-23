@@ -161,7 +161,9 @@ type VisitorFormType = 'single' | 'group';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="is_edit_in_progress()"
+                                [range]="effective_bookable_hours()"
                                 [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                             />
                         </div>
                         <div class="flex-1">
@@ -173,7 +175,9 @@ type VisitorFormType = 'single' | 'group';
                                 formControlName="duration"
                                 [time]="form_value().date"
                                 [max]="max_duration()"
+                                [end_time]="effective_bookable_hours()?.end"
                                 [use_24hr]="use_24hr()"
+                                [timezone]="timezone"
                             />
                         </div>
                     </div>
@@ -279,6 +283,18 @@ export class VisitorFlowDetailsComponent implements OnInit {
             settingSignal('visitors.max_duration', 180)(),
             settingSignal('bookings.max_duration', 180)(),
         ),
+    );
+
+    public readonly bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('visitors.bookable_hours', undefined);
+
+    private readonly _fallback_bookable_hours = settingSignal<
+        { start: number; end: number } | undefined
+    >('bookings.bookable_hours', undefined);
+
+    public readonly effective_bookable_hours = computed(
+        () => this.bookable_hours() ?? this._fallback_bookable_hours(),
     );
 
     public readonly allow_all_day = settingSignal(
