@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     forwardRef,
     input,
     model,
@@ -11,7 +12,11 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
-import { formatDuration, getTimezoneOffsetString } from '@placeos/common';
+import {
+    formatDuration,
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+} from '@placeos/common';
 import { addMinutes } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
@@ -46,9 +51,9 @@ export interface DurationOption {
                             : ''
                     }}{{ selected?.name }}{{ selected?.date ? ')' : '' }}
                 </div>
-                @if (timezone() && tz) {
+                @if (timezone() && tz()) {
                     <div class="truncate text-xs opacity-30">
-                        {{ selected?.date | date: time_format + ' (z)' : tz }}
+                        {{ selected?.date | date: time_format + ' (z)' : tz() }}
                     </div>
                 }
             </div>
@@ -77,13 +82,13 @@ export interface DurationOption {
                                     }}{{ option.name
                                     }}{{ option.date ? ')' : '' }}
                                 </div>
-                                @if (timezone() && tz) {
+                                @if (timezone() && tz()) {
                                     <div class="truncate text-xs opacity-30">
                                         {{
                                             option.date
                                                 | date
                                                     : time_format + ' (z)'
-                                                    : tz
+                                                    : tz()
                                         }}
                                     </div>
                                 }
@@ -168,12 +173,12 @@ export class DurationFieldComponent
         Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
-    public get tz() {
+    public readonly tz = computed(() => {
         const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
     public ngOnInit(): void {
         this.duration_options = this.generateDurationOptions(
@@ -320,8 +325,11 @@ export class DurationFieldComponent
         if (end_time === undefined || end_time === null || !time_value) {
             return max;
         }
-        const date = new Date(time_value);
-        const start_minutes = date.getHours() * 60 + date.getMinutes();
+        // Use building timezone to compute start minutes since end_time
+        // is in building timezone minutes-since-midnight
+        const tz = this.timezone() || undefined;
+        const { hours, minutes } = getTimeInTimezone(time_value, tz);
+        const start_minutes = hours * 60 + minutes;
         return Math.max(0, Math.min(max, end_time - start_minutes));
     }
 }
