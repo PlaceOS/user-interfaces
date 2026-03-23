@@ -3,17 +3,26 @@ import {
     AsyncHandler,
     firstTruthyValueFrom,
     getLoadingMessage,
+    needsNativeDomain,
+    OrganisationService,
+    PlaceOS_Service,
     SettingsService,
 } from '@placeos/common';
 import { authority, isOnline, token } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { OrganisationService } from '@placeos/common';
+import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
 import { TranslatePipe } from './translate.pipe';
 
 @Component({
     selector: 'global-loading',
     template: `
+        @if (show_domain_overlay()) {
+            <native-domain-overlay
+                [serverError]="domain_error()"
+                (domainSet)="onDomainSet()"
+            ></native-domain-overlay>
+        }
         @if (!online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
@@ -57,15 +66,26 @@ import { TranslatePipe } from './translate.pipe';
             }
         `,
     ],
-    imports: [MatProgressBarModule, TranslatePipe],
+    imports: [
+        MatProgressBarModule,
+        NativeDomainOverlayComponent,
+        TranslatePipe,
+    ],
 })
 export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
+    private _placeos = inject(PlaceOS_Service);
     private _settings = inject(SettingsService);
 
     public loading = signal(true);
     public readonly online = signal(true);
     public readonly message = getLoadingMessage();
+    public readonly show_domain_overlay = needsNativeDomain();
+    public readonly domain_error = nativeDomainError();
+
+    public onDomainSet(): void {
+        this._placeos.onNativeDomainSet();
+    }
 
     public async ngOnInit() {
         this.loading.set(true);

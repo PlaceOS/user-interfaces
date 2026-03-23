@@ -105,6 +105,40 @@
                         }
                     ],
                     "serviceWorker": "apps/workplace/ngsw-config.json"
+                },
+                "mobile": {
+                    "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
+                        {
+                            "replace": "apps/workplace/src/environments/environment.ts",
+                            "with": "apps/workplace/src/environments/environment.prod.ts"
+                        },
+                        {
+                            "replace": "libs/common/src/lib/settings.ts",
+                            "with": "apps/workplace/src/environments/settings.ts"
+                        }
+                    ],
+                    "optimization": true,
+                    "outputHashing": "all",
+                    "sourceMap": true,
+                    "namedChunks": false,
+                    "extractLicenses": true,
+                    "serviceWorker": false,
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "2mb",
+                            "maximumError": "5mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "6kb",
+                            "maximumError": "10kb"
+                        }
+                    ]
                 }
             }
         },
@@ -130,6 +164,84 @@
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
                 "jestConfig": "apps/workplace/jest.config.ts"
+            }
+        },
+        "mobile:sync:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "parallel": false,
+                "commands": [
+                    {
+                        "command": "npx nx build workplace --configuration=mobile"
+                    },
+                    {
+                        "command": "node tools/capacitor/run.mjs sync workplace android"
+                    }
+                ]
+            }
+        },
+        "mobile:sync:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "options": {
+                "parallel": false,
+                "commands": [
+                    {
+                        "command": "npx nx build workplace --configuration=mobile"
+                    },
+                    {
+                        "command": "node tools/capacitor/run.mjs sync workplace ios"
+                    }
+                ]
+            }
+        },
+        "mobile:open:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs open workplace android"
+            }
+        },
+        "mobile:open:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs open workplace ios"
+            }
+        },
+        "mobile:build:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs build workplace android"
+            }
+        },
+        "mobile:build:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs build workplace ios"
+            }
+        },
+        "mobile:run:android": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:android"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs run workplace android"
+            }
+        },
+        "mobile:run:ios": {
+            "executor": "nx:run-commands",
+            "cache": false,
+            "dependsOn": ["mobile:sync:ios"],
+            "options": {
+                "command": "node tools/capacitor/run.mjs run workplace ios"
             }
         }
     }
