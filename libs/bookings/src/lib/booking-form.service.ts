@@ -335,35 +335,11 @@ export class BookingFormService extends AsyncHandler {
         return use_building_timezone ? this._org.building?.timezone || '' : '';
     }
 
-    private _bookableHoursForType(type?: BookingType) {
-        if (!type) return this._settings.get('app.bookings.bookable_hours');
-        return (
-            this._settings.get(`app.${type}.bookable_hours`) ||
-            this._settings.get(`app.${type}s.bookable_hours`) ||
-            this._settings.get('app.bookings.bookable_hours')
-        );
-    }
-
-    public alignDateToBookableHours(
-        date: number,
-        type?: BookingType,
-        fallback_date?: number,
-    ) {
-        return alignDateToBookableHours(
-            date,
-            this._bookableHoursForType(type || this._options.getValue().type),
-            fallback_date,
-        );
-    }
-
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
         if (!booking.id) {
-            (booking as any).all_day =
-                this._settings.get(`app.${type}s.all_day_default`) ??
-                this._settings.get(`app.${type}.all_day_default`) ??
-                this._settings.get('app.bookings.all_day_default');
+            (booking as any).all_day = this.setting('all_day_default');
         }
         this.form.reset();
         this.form.patchValue(
@@ -377,7 +353,7 @@ export class BookingFormService extends AsyncHandler {
             { emitEvent: false },
         );
         if (!booking.id) {
-            const bookable_hours = this._bookableHoursForType(type);
+            const bookable_hours = this.setting('bookable_hours');
             const next_time = getNextBookableTime(bookable_hours);
             if (next_time) {
                 (booking as any).date = next_time;
@@ -507,15 +483,16 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
         const booking = new Booking(data);
-        const booking_type =
-            booking.booking_type ||
-            data.booking_type ||
-            this._options.getValue().type;
+        this.setOptions({
+            ...JSON.parse(
+                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+            ),
+        });
         const aligned_date =
             !booking.id && booking.date
-                ? this.alignDateToBookableHours(
+                ? alignDateToBookableHours(
                       booking.date,
-                      booking_type,
+                      this.setting('bookable_hours'),
                       booking.date,
                   )
                 : booking.date;
