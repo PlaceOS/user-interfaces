@@ -132,7 +132,7 @@ import { ParkingStateService } from './parking-state.service';
             }
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
-            @if (section() === 'events') {
+            @if (section() === 'events' && view() === 'bookings') {
                 <div class="mr-2 flex items-center">
                     <a
                         btn
@@ -158,7 +158,7 @@ import { ParkingStateService } from './parking-state.service';
                     </a>
                 </div>
             }
-            @if (!is_requests_view()) {
+            @if (view() !== 'requests') {
                 <mat-form-field appearance="outline" class="no-subscript w-56">
                     <mat-select
                         [(ngModel)]="zones"
@@ -335,8 +335,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         });
         this._state.setOptions({ zones: z });
     };
-    public readonly is_requests_view = () =>
-        this.section() === 'events' && this.view() === 'requests';
 
     public readonly setPeriod = (p: 'day' | 'week') => {
         this._router.navigate([], {
@@ -373,7 +371,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                         params.get('period') === 'week' ? 'week' : 'day';
                     this._state.setPeriod(period);
                 }
-                if (this.is_requests_view()) {
+                if (this.section() === 'events' && this.view() === 'requests') {
                     this.clearZones();
                     return;
                 }
@@ -398,7 +396,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             'levels',
             this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
                 if (this.use_region) return;
-                if (this.is_requests_view()) {
+                if (this.section() === 'events' && this.view() === 'requests') {
                     this.clearZones();
                     return;
                 }
@@ -453,7 +451,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const [section, view] = parts.slice(-2);
         this.section.set(section as any);
         this.view.set(view.split('?')[0] as any);
-        if (this.is_requests_view()) {
+        if (this.section() === 'events' && this.view() === 'requests') {
             this.clearZones();
             return;
         }
