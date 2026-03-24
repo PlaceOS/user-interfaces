@@ -69,14 +69,14 @@ import { ParkingStateService } from './parking-state.service';
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <div
-                [matTooltip]="
-                    (options | async)?.zones?.length
-                        ? ''
-                        : 'Select a level to add a space'
-                "
-            >
-                @if (view() === 'spaces') {
+            @if (view() === 'spaces') {
+                <div
+                    [matTooltip]="
+                        (options | async)?.zones?.length
+                            ? ''
+                            : 'Select a level to add a space'
+                    "
+                >
                     <button
                         btn
                         matRipple
@@ -89,8 +89,8 @@ import { ParkingStateService } from './parking-state.service';
                         </div>
                         <icon>add</icon>
                     </button>
-                }
-            </div>
+                </div>
+            }
             @if (view() === 'users') {
                 <button
                     btn
