@@ -36,7 +36,7 @@ import { ParkingStateService } from './parking-state.service';
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex w-full items-center space-x-2 px-8 py-4">
+        <div class="flex w-full items-center gap-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{
                     (section() !== 'events'
@@ -46,8 +46,26 @@ import { ParkingStateService } from './parking-state.service';
                 }}
             </h2>
             <div class="w-px flex-1"></div>
+            @if (
+                section() === 'events' &&
+                view() !== 'map' &&
+                (view() === 'requests' || view() === 'bookings')
+            ) {
+                <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-select
+                        [ngModel]="period | async"
+                        (ngModelChange)="setPeriod($event)"
+                    >
+                        <mat-option value="day">
+                            {{ 'COMMON.DAY' | translate }}
+                        </mat-option>
+                        <mat-option value="week">
+                            {{ 'COMMON.WEEK' | translate }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            }
             <searchbar
-                class="mr-2"
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
@@ -246,7 +264,10 @@ import { ParkingStateService } from './parking-state.service';
                 view() === 'bookings' ||
                 view() === 'map'
             ) {
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [step]="(period | async) === 'week' ? 7 : 1"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             }
         </div>
     `,
@@ -298,6 +319,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly bookings = this._state.bookings;
+    public readonly period = this._state.period;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */
@@ -315,6 +337,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     };
     public readonly is_requests_view = () =>
         this.section() === 'events' && this.view() === 'requests';
+
+    public readonly setPeriod = (p: 'day' | 'week') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: p },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setPeriod(p);
+    };
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
@@ -337,6 +368,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                if (params.has('period')) {
+                    const period =
+                        params.get('period') === 'week' ? 'week' : 'day';
+                    this._state.setPeriod(period);
+                }
                 if (this.is_requests_view()) {
                     this.clearZones();
                     return;

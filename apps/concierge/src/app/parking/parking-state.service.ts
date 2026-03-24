@@ -50,9 +50,11 @@ import {
     addHours,
     addMinutes,
     endOfDay,
+    endOfWeek,
     getUnixTime,
     set,
     startOfDay,
+    startOfWeek,
     subDays,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
@@ -75,6 +77,7 @@ export interface ParkingOptions {
     date: number;
     search: string;
     zones: string[];
+    period: 'day' | 'week';
 }
 
 export type ParkingSpace = PlaceAsset;
@@ -98,6 +101,7 @@ export class ParkingStateService extends AsyncHandler {
         date: Date.now(),
         search: '',
         zones: [],
+        period: 'day',
     });
     private _loading = new BehaviorSubject<string[]>([]);
 
@@ -188,14 +192,17 @@ export class ParkingStateService extends AsyncHandler {
         debounceTime(500),
         switchMap(([bld, options, users]) => {
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
-            const period_start = addMinutes(
-                startOfDay(options.date),
-                this.tz_offset * 60,
-            );
-            const period_end = addMinutes(
-                endOfDay(options.date),
-                this.tz_offset * 60,
-            );
+            const week_start = this._settings.get('app.week_start') || 0;
+            const range_start =
+                options.period === 'week'
+                    ? startOfWeek(options.date, { weekStartsOn: week_start })
+                    : startOfDay(options.date);
+            const range_end =
+                options.period === 'week'
+                    ? endOfWeek(options.date, { weekStartsOn: week_start })
+                    : endOfDay(options.date);
+            const period_start = addMinutes(range_start, this.tz_offset * 60);
+            const period_end = addMinutes(range_end, this.tz_offset * 60);
             return queryBookings({
                 period_start: getUnixTime(period_start),
                 period_end: getUnixTime(period_end),
@@ -234,6 +241,11 @@ export class ParkingStateService extends AsyncHandler {
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
+    public readonly period = this._options.pipe(map((o) => o.period));
+
+    public get week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+        return this._settings.get('app.week_start') || 0;
+    }
 
     constructor() {
         super();
@@ -250,6 +262,10 @@ export class ParkingStateService extends AsyncHandler {
 
     public setOptions(options: Partial<ParkingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public setPeriod(period: 'day' | 'week') {
+        this.setOptions({ period });
     }
 
     public startPolling(delay = 2 * 60 * 1000) {
