@@ -1,313 +1,357 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Booking } from '@placeos/common';
+import {
+    AsyncHandler,
+    Booking,
+    currentUser,
+    SettingsService,
+} from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
+import { addDays, isSameDay, startOfWeek } from 'date-fns';
+import { combineLatest } from 'rxjs';
+import { map, shareReplay, startWith } from 'rxjs/operators';
+import { ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-requests-week-view',
     template: `
-        <div class="border-base-200 flex items-center gap-3 border-b px-3 py-2">
-            <div class="flex items-center gap-2 text-xs">
-                <span
-                    class="inline-block h-2.5 w-2.5 rounded-full"
-                    [style.background-color]="request_type_color('standard')"
-                ></span>
-                <span>{{ request_type_label('standard') | translate }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-                <span
-                    class="inline-block h-2.5 w-2.5 rounded-full"
-                    [style.background-color]="request_type_color('after_hours')"
-                ></span>
-                <span>{{ request_type_label('after_hours') | translate }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-                <span
-                    class="inline-block h-2.5 w-2.5 rounded-full"
-                    [style.background-color]="request_type_color('special')"
-                ></span>
-                <span>{{ request_type_label('special') | translate }}</span>
-            </div>
-        </div>
-        <div timeline class="z-0 grid h-full w-full flex-1 overflow-auto">
-            <div
-                day-headers
-                class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-w-full items-center border-b"
-                [style.width]="days().length * 16 + 'rem'"
-            >
-                @for (date of days(); track date) {
+        <mat-progress-bar
+            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+            class="sticky left-0 w-full"
+        />
+        <div class="flex h-full min-h-0 flex-1">
+            @for (day of days | async; track day) {
+                <div
+                    class="border-base-200 flex min-w-36 flex-1 flex-col border-r last:border-r-0"
+                >
                     <div
-                        class="relative flex h-full min-w-64 flex-1 flex-col items-center justify-center py-2 leading-tight"
+                        class="border-base-200 bg-base-100 flex h-14 flex-col items-center justify-center border-b px-2 text-center"
                     >
-                        <div class="truncate">
-                            {{ date | date: 'EEE, MMM d' }}
+                        <div class="text-sm font-medium">
+                            {{ day | date: 'EEE, MMM d' }}
                         </div>
-                        @if (is_today(date)) {
-                            <div
-                                class="text-info absolute bottom-1 left-1/2 -translate-x-1/2 text-xs"
-                            >
-                                {{ 'COMMON.TODAY' | translate }}
-                            </div>
-                        }
                         <div
-                            class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
-                        ></div>
+                            class="text-info text-xs"
+                            [class.invisible]="!isToday(day)"
+                        >
+                            {{ 'COMMON.TODAY' | translate }}
+                        </div>
                     </div>
-                }
-            </div>
-            <div
-                date-blocks
-                class="relative flex min-h-full min-w-full overflow-hidden"
-                [style.width]="days().length * 16 + 'rem'"
-            >
-                @for (date of days(); track date) {
-                    <div
-                        class="border-base-200 min-w-64 flex-1 space-y-2 overflow-auto border-r p-2"
-                    >
+                    <div class="flex flex-1 flex-col gap-1 overflow-auto p-2">
                         @for (
-                            event of events_map()[date] || [];
-                            track event.id + '-' + event.instance
+                            booking of (grouped_requests | async)?.[day] || [];
+                            track booking.id
                         ) {
                             <div
-                                class="border-base-300 bg-base-100 relative space-y-1 rounded-sm border p-2"
-                                [style.border-left-width.rem]="0.35"
-                                [style.border-left-color]="
-                                    request_type_color(request_type(event))
+                                class="hover:bg-base-200 flex flex-col rounded-sm border p-2 text-xs"
+                                [class.border-success]="
+                                    booking.status === 'approved'
                                 "
+                                [class.border-warning]="
+                                    booking.status === 'tentative'
+                                "
+                                [class.border-error]="
+                                    booking.status === 'declined'
+                                "
+                                [class.border-base-300]="
+                                    booking.status === 'ended'
+                                "
+                                [class.opacity-50]="booking.status === 'ended'"
                             >
-                                <div class="absolute top-0 right-2 z-20">
-                                    @if (request_type(event) === 'special') {
-                                        <button
-                                            icon
-                                            matRipple
-                                            [matTooltip]="
-                                                'BOOKINGS.P2_SPECIAL_NEEDS_DETAILS'
-                                                    | translate
-                                            "
-                                            (click)="
-                                                view_special_needs_request()(
-                                                    event
-                                                )
-                                            "
+                                <div class="flex items-center gap-1">
+                                    @if (booking.checked_in) {
+                                        <div
+                                            class="bg-success text-success-content flex h-5 w-5 items-center justify-center rounded-full"
                                         >
-                                            <icon class="text-xl"
-                                                >description</icon
+                                            <icon class="text-xs">done</icon>
+                                        </div>
+                                    } @else if (booking.checked_out_at) {
+                                        <div
+                                            class="bg-base-300 text-base-100 flex h-5 w-5 items-center justify-center rounded-full"
+                                        >
+                                            <icon class="text-xs">done</icon>
+                                        </div>
+                                    } @else {
+                                        <div
+                                            class="bg-warning text-warning-content flex h-5 w-5 items-center justify-center rounded-full"
+                                        >
+                                            <icon class="text-xs"
+                                                >question_mark</icon
                                             >
-                                        </button>
+                                        </div>
                                     }
+                                    <span class="flex-1 truncate font-medium">
+                                        {{
+                                            booking.user_name ||
+                                                booking.user_email
+                                        }}
+                                    </span>
                                 </div>
-                                <div class="text-xs opacity-60">
+                                <div class="mt-1 opacity-60">
                                     {{
-                                        event.all_day ||
-                                        event.duration > 12 * 60
+                                        booking.all_day ||
+                                        booking.duration > 12 * 60
                                             ? ('COMMON.ALL_DAY' | translate)
-                                            : (event.date
-                                                  | date: time_format()) +
+                                            : (booking.date
+                                                  | date: time_format) +
                                               ' - ' +
-                                              (event.date_end
-                                                  | date: time_format())
+                                              (booking.date_end
+                                                  | date: time_format)
                                     }}
                                 </div>
-                                <div class="truncate text-xs">
-                                    {{ event.user_name || event.user_email }}
-                                </div>
-                                <div class="text-xs opacity-60">
-                                    {{ event?.extension_data?.plate_number }}
-                                </div>
-                                <div class="flex items-center justify-between">
+                                @if (
+                                    booking.extension_data?.plate_number;
+                                    as plate
+                                ) {
                                     <div
-                                        class="rounded-full px-2 py-1 text-xs"
-                                        [class.bg-success]="
-                                            event?.status === 'approved'
-                                        "
+                                        class="mt-0.5 font-mono uppercase opacity-40"
+                                    >
+                                        {{ plate }}
+                                    </div>
+                                }
+                                <div class="mt-1 flex items-center gap-1">
+                                    <button
+                                        matRipple
+                                        class="h-6 flex-1 rounded-full border-none text-xs"
                                         [class.text-success-content]="
-                                            event?.status === 'approved'
+                                            booking.status === 'approved'
                                         "
-                                        [class.bg-error]="
-                                            event?.status === 'declined'
+                                        [class.bg-success]="
+                                            booking.status === 'approved'
                                         "
                                         [class.text-error-content]="
-                                            event?.status === 'declined'
+                                            booking.status === 'declined'
                                         "
-                                        [class.bg-neutral]="
-                                            event?.status === 'ended'
-                                        "
-                                        [class.text-neutral-content]="
-                                            event?.status === 'ended'
-                                        "
-                                        [class.bg-warning]="
-                                            event?.status === 'tentative'
+                                        [class.bg-error]="
+                                            booking.status === 'declined'
                                         "
                                         [class.text-warning-content]="
-                                            event?.status === 'tentative'
+                                            booking.status === 'tentative'
                                         "
+                                        [class.bg-warning]="
+                                            booking.status === 'tentative'
+                                        "
+                                        [class.text-neutral-content]="
+                                            booking.status === 'ended'
+                                        "
+                                        [class.bg-neutral]="
+                                            booking.status === 'ended'
+                                        "
+                                        [matMenuTriggerFor]="menu"
+                                        [disabled]="booking.status === 'ended'"
                                     >
                                         {{
-                                            status_label(event?.status)
-                                                | translate
+                                            (booking.status === 'ended'
+                                                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                                                : booking.status === 'approved'
+                                                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                                                  : booking.status ===
+                                                      'declined'
+                                                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                                                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                            ) | translate
                                         }}
-                                    </div>
-                                    <div class="flex items-center space-x-1">
+                                    </button>
+                                    <mat-menu #menu="matMenu">
                                         <button
-                                            icon
-                                            matRipple
-                                            (click)="approve()(event)"
-                                            [disabled]="
-                                                event?.status === 'approved' ||
-                                                event?.status === 'ended'
-                                            "
-                                            [matTooltip]="
-                                                'APP.CONCIERGE.PARKING_APPROVE'
-                                                    | translate
-                                            "
+                                            mat-menu-item
+                                            (click)="approve(booking)"
                                         >
-                                            <icon class="text-xl"
-                                                >event_available</icon
+                                            <div
+                                                class="flex items-center space-x-2"
                                             >
+                                                <icon class="text-2xl"
+                                                    >event_available</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'APP.CONCIERGE.PARKING_APPROVE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
                                         </button>
                                         <button
-                                            icon
-                                            matRipple
-                                            (click)="reject()(event)"
-                                            [disabled]="
-                                                event?.status === 'declined' ||
-                                                event?.status === 'ended'
-                                            "
-                                            [matTooltip]="
-                                                'APP.CONCIERGE.PARKING_DECLINE'
-                                                    | translate
-                                            "
+                                            mat-menu-item
+                                            (click)="reject(booking)"
                                         >
-                                            <icon class="text-xl"
-                                                >event_busy</icon
+                                            <div
+                                                class="flex items-center space-x-2"
                                             >
+                                                <icon class="text-2xl"
+                                                    >event_busy</icon
+                                                >
+                                                <div class="pr-2">
+                                                    {{
+                                                        'APP.CONCIERGE.PARKING_DECLINE'
+                                                            | translate
+                                                    }}
+                                                </div>
+                                            </div>
                                         </button>
-                                        <button
-                                            icon
-                                            matRipple
-                                            [disabled]="
-                                                event.checked_in ||
-                                                event.state === 'in_progress' ||
-                                                event.status === 'ended'
-                                            "
-                                            [matTooltip]="
-                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
-                                                    | translate
-                                            "
-                                            (click)="assign_space()(event)"
+                                    </mat-menu>
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="h-6 w-6"
+                                        [disabled]="
+                                            booking.checked_in ||
+                                            booking.state === 'in_progress' ||
+                                            booking.status === 'ended'
+                                        "
+                                        [matTooltip]="
+                                            'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                | translate
+                                        "
+                                        (click)="assignSpace(booking)"
+                                    >
+                                        <icon class="text-base"
+                                            >add_location</icon
                                         >
-                                            <icon class="text-xl"
-                                                >add_location</icon
-                                            >
-                                        </button>
-                                    </div>
+                                    </button>
+                                    <button
+                                        icon
+                                        matRipple
+                                        class="h-6 w-6"
+                                        [disabled]="
+                                            booking.checked_in ||
+                                            booking.state === 'in_progress' ||
+                                            booking.status === 'ended' ||
+                                            booking.instance
+                                        "
+                                        [matTooltip]="
+                                            'APP.CONCIERGE.PARKING_EDIT'
+                                                | translate
+                                        "
+                                        (click)="editReservation(booking)"
+                                    >
+                                        <icon class="text-base">edit</icon>
+                                    </button>
                                 </div>
                             </div>
-                        } @empty {
-                            <div
-                                class="text-base-content/30 w-full rounded-sm p-4 text-center text-xs uppercase"
-                            >
-                                No requests
+                        }
+                        @if (!(grouped_requests | async)?.[day]?.length) {
+                            <div class="p-4 text-center text-xs opacity-30">
+                                {{
+                                    'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
+                                        | translate
+                                }}
                             </div>
                         }
                     </div>
-                }
-            </div>
+                </div>
+            }
         </div>
     `,
     styles: [
         `
             :host {
-                display: block;
+                display: flex;
+                flex-direction: column;
                 height: 100%;
-            }
-
-            [timeline] {
-                grid-template-rows: 3rem auto;
+                overflow: auto;
             }
         `,
     ],
     imports: [
         CommonModule,
+        MatProgressBarModule,
         MatRippleModule,
+        MatMenuModule,
         MatTooltipModule,
         IconComponent,
         TranslatePipe,
     ],
 })
-export class ParkingRequestsWeekViewComponent {
-    public readonly booking_events = input<Booking[]>([]);
-    public readonly date = input<number>(Date.now());
-    public readonly week_start = input<number>(0);
-    public readonly time_format = input<string>('shortTime');
+export class ParkingRequestsWeekViewComponent
+    extends AsyncHandler
+    implements OnInit
+{
+    private _state = inject(ParkingStateService);
+    private _settings = inject(SettingsService);
+    private _date_pipe = new DatePipe('en');
 
-    public readonly approve = input<(e: Booking) => void>(() => undefined);
-    public readonly reject = input<(e: Booking) => void>(() => undefined);
-    public readonly assign_space = input<(e: Booking) => void>(() => undefined);
-    public readonly view_special_needs_request = input<(e: Booking) => void>(
-        () => undefined,
+    public readonly loading = this._state.loading;
+    public readonly options = this._state.options;
+
+    public readonly days = this._state.options.pipe(
+        map((options) => {
+            const week_start = this._state.week_start;
+            const start = startOfWeek(options.date, {
+                weekStartsOn: week_start,
+            });
+            return Array.from({ length: 7 }, (_, i) =>
+                addDays(start, i).valueOf(),
+            );
+        }),
     );
 
-    public readonly days = computed(() =>
-        new Array(7).fill(0).map((_, index) =>
-            addDays(
-                startOfWeek(this.date(), {
-                    weekStartsOn: this.week_start() as
-                        | 0
-                        | 1
-                        | 2
-                        | 3
-                        | 4
-                        | 5
-                        | 6,
-                }),
-                index,
-            ).valueOf(),
-        ),
+    public readonly grouped_requests = combineLatest([
+        this._state.bookings,
+        this.days,
+        this.options,
+    ]).pipe(
+        map(([bookings, days, { search }]) => {
+            const user_groups = currentUser()?.groups || [];
+            let list = bookings.filter((b) => {
+                if (!b.asset_id?.startsWith('unallocated')) return false;
+                const approver_group = b.extension_data?.approver_group;
+                if (approver_group && !user_groups.includes(approver_group))
+                    return false;
+                return true;
+            });
+            const s = search?.toLowerCase();
+            if (s) {
+                list = list.filter(
+                    (b) =>
+                        b.user_name?.toLowerCase().includes(s) ||
+                        b.user_email?.toLowerCase().includes(s) ||
+                        b.booked_by_name?.toLowerCase().includes(s) ||
+                        b.booked_by_email?.toLowerCase().includes(s) ||
+                        b.asset_name?.toLowerCase().includes(s),
+                );
+            }
+            const grouped: Record<number, Booking[]> = {};
+            for (const day of days) {
+                grouped[day] = list
+                    .filter((b) => {
+                        const booking_date = this._date_pipe.transform(
+                            b.date,
+                            'yyyy-MM-dd',
+                        );
+                        const day_date = this._date_pipe.transform(
+                            day,
+                            'yyyy-MM-dd',
+                        );
+                        return booking_date === day_date;
+                    })
+                    .sort((a, b) => a.date - b.date);
+            }
+            return grouped;
+        }),
+        startWith({}),
+        shareReplay(1),
     );
 
-    public readonly events_map = computed(() => {
-        const data: Record<number, Booking[]> = {};
-        const day_list = this.days();
-        const events = this.booking_events();
-        for (const day of day_list) {
-            const day_key = format(day, 'yyyy-MM-dd');
-            data[day] = events
-                .filter((event) => format(event.date, 'yyyy-MM-dd') === day_key)
-                .sort((a, b) => a.date - b.date);
-        }
-        return data;
-    });
+    public readonly reject = (e: Booking) => this._state.rejectBooking(e);
+    public readonly approve = (e: Booking) => this._state.approveBooking(e);
+    public readonly editReservation = (e: Booking) =>
+        this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
 
-    public readonly is_today = (date: number) => isSameDay(date, Date.now());
+    public get time_format() {
+        return this._settings.time_format;
+    }
 
-    public readonly request_type = (booking: Booking) =>
-        booking?.extension_data?.request_type || '';
+    public isToday(date: number) {
+        return isSameDay(date, Date.now());
+    }
 
-    public readonly request_type_color = (request_type: string) =>
-        request_type === 'special'
-            ? '#ef4444'
-            : request_type === 'after_hours'
-              ? '#f59e0b'
-              : '#3b82f6';
-    private readonly _request_type_labels: Record<string, string> = {
-        standard: 'Standard',
-        special: 'P2',
-        after_hours: 'After-hours',
-    };
-
-    public readonly request_type_label = (request_type: string) =>
-        this._request_type_labels[request_type] || 'COMMON.EMPTY';
-
-    public readonly status_label = (status: string) =>
-        status === 'ended'
-            ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-            : status === 'approved'
-              ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-              : status === 'declined'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+    public ngOnInit() {
+        this.subscription('poll', this._state.startPolling());
+    }
 }
