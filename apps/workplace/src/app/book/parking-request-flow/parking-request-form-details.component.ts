@@ -19,7 +19,10 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { DateFieldComponent } from '@placeos/form-fields';
+import {
+    DateFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
 import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
@@ -77,18 +80,28 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
 ];
 
-const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
-    {
-        id: 'oversized',
-        name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
-    },
-];
-
 @Component({
     selector: 'parking-request-form-details',
     template: `
         @if (form()) {
             <div class="space-y-4" [formGroup]="form()">
+                <!-- HOST SELECTION -->
+                @if (can_book_for_others()) {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                    >
+                        <h3
+                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                        >
+                            <icon class="text-lg">person</icon>
+                            {{ 'FORM.HOST' | translate }}
+                        </h3>
+                        <a-user-search-field
+                            formControlName="user"
+                        ></a-user-search-field>
+                    </div>
+                }
+
                 <!-- BOOKING FREQUENCY -->
                 <div class="border-base-300 space-y-3 rounded-lg border p-4">
                     <h3
@@ -766,6 +779,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
         TranslatePipe,
         IconComponent,
         DateFieldComponent,
+        UserSearchFieldComponent,
         SettingsToggleComponent,
     ],
 })
@@ -780,6 +794,12 @@ export class ParkingRequestFormDetailsComponent
     public readonly show_special_needs = input<boolean>(false);
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
+
+    public readonly can_book_for_others = computed(
+        () =>
+            this._settings.get('app.bookings.can_book_for_others') ||
+            this._settings.get('app.parking.can_book_for_others'),
+    );
 
     public readonly available_days = settingSignal(
         'parking.available_period',
@@ -798,7 +818,7 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
-    >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    >('parking.request_space_restrictions', []);
     public readonly approver_groups_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.approver_groups', []);
