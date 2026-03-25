@@ -558,36 +558,60 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                             >Services Required</label
                         >
                         <div
-                            class="flex flex-col space-y-2 rounded-lg border border-base-300 p-4"
+                            class="divide-base-200 rounded-lg border border-base-300 divide-y overflow-hidden"
                         >
                             @for (
                                 svc of service_options;
                                 track svc.key
                             ) {
-                                <mat-checkbox
-                                    [checked]="
+                                <label
+                                    class="flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors"
+                                    [class]="
                                         isServiceSelected(svc.key)
-                                    "
-                                    (change)="
-                                        toggleService(
-                                            svc.key,
-                                            $event.checked
-                                        )
+                                            ? 'bg-primary/5'
+                                            : 'hover:bg-base-200/50'
                                     "
                                 >
-                                    <div
-                                        class="flex items-center space-x-2"
+                                    <mat-checkbox
+                                        [checked]="
+                                            isServiceSelected(svc.key)
+                                        "
+                                        (change)="
+                                            toggleService(
+                                                svc.key,
+                                                $event.checked
+                                            )
+                                        "
+                                        [aria-label]="svc.label"
+                                    ></mat-checkbox>
+                                    <icon
+                                        class="text-lg"
+                                        [class]="
+                                            isServiceSelected(svc.key)
+                                                ? 'text-primary'
+                                                : 'text-base-content/40'
+                                        "
+                                        >{{ svc.icon }}</icon
                                     >
-                                        <icon class="text-lg">{{
-                                            svc.icon
-                                        }}</icon>
-                                        <span>{{ svc.label }}</span>
-                                    </div>
-                                </mat-checkbox>
+                                    <span class="text-sm font-medium">{{
+                                        svc.label
+                                    }}</span>
+                                </label>
                                 @if (isServiceSelected(svc.key)) {
                                     @if (getServiceDeadline(svc.key)) {
-                                        <div class="ml-8 mt-1 mb-1 text-xs opacity-60">
-                                            Refund deadline: {{ getServiceDeadline(svc.key) | date:'d MMM yyyy' }}
+                                        <div
+                                            class="bg-base-200/30 flex items-center justify-between px-4 py-2 pl-14 text-xs opacity-70"
+                                        >
+                                            <span
+                                                >Refund deadline</span
+                                            >
+                                            <span class="font-medium">{{
+                                                getServiceDeadline(
+                                                    svc.key
+                                                )
+                                                    | date
+                                                        : 'd MMM yyyy'
+                                            }}</span>
                                         </div>
                                     }
                                 }
