@@ -1,10 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
+    BookableHoursRange,
     BookingRuleset,
     currentUser,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifySuccess,
@@ -314,16 +317,30 @@ export class ExploreParkingService extends AsyncHandler {
                 this._bookings.newForm('parking');
                 this._bookings.setOptions({ type: 'parking' });
                 options = this._options.getValue();
+                const bookable_hours: BookableHoursRange | null =
+                    this._settings.get('app.parking.bookable_hours') ||
+                    this._settings.get('app.bookings.bookable_hours') ||
+                    null;
+                if (
+                    bookable_hours &&
+                    !this._settings.get('app.parking.allow_time_changes') &&
+                    !isWithinBookableHours(Date.now(), bookable_hours)
+                ) {
+                    return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
+                }
                 let user = options.host || currentUser();
                 const user_email = user?.email;
                 const zone =
                     this._org.levelWithID([
                         space.zone_id || (space as any).zone,
                     ]) || this._state.active_level;
-                const date =
+                let date =
                     !options.date || isSameDay(options.date, Date.now())
                         ? startOfMinute(Date.now()).valueOf()
                         : setHours(options.date, 8).valueOf();
+                if (bookable_hours) {
+                    date = alignDateToBookableHours(date, bookable_hours);
+                }
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
@@ -380,6 +397,7 @@ export class ExploreParkingService extends AsyncHandler {
         duration: number,
         host: boolean = false,
         resource: any = null,
+        bookable_hours: BookableHoursRange | null = null,
     ) {
         let user = null;
         if (!!this._settings.get('app.parking.allow_time_changes')) {
@@ -390,7 +408,7 @@ export class ExploreParkingService extends AsyncHandler {
                 ),
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host, resource },
+                data: { date, duration, until, host, resource, bookable_hours },
             });
             const details = await ref.afterClosed().toPromise();
             if (!details) throw 'User cancelled';

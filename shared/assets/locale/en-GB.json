@@ -438,6 +438,7 @@
         "DESK_RESTRICTION_ERROR": "You are not allowed to book \"{{ name }}\"",
         "DESK_BOOKING_ERROR": "Failed to book desk \"{{ name }}\". Error: {{ error }}",
         "DESK_BOOKING_SUCCESS": "Successfully booked desk \"{{ name }}\".",
+        "OUTSIDE_BOOKABLE_HOURS": "Bookings are not available outside of bookable hours.",
         "BOOKING_HEADER": "New booking",
         "BOOKING_TITLE_REQUIRED": "Booking title is required",
         "BOOKING_SPACE": "Space",

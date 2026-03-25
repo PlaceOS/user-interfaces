@@ -6,11 +6,13 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import {
+    BookableHoursRange,
     currentUser,
     i18n,
     notifyError,
     notifySuccess,
     SettingsService,
+    Space,
 } from '@placeos/common';
 
 import { DatePipe } from '@angular/common';
@@ -21,7 +23,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { Space } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -142,6 +143,7 @@ export interface ExploreBookingModalData {
                                     formControlName="duration"
                                     [time]="form.value.date"
                                     [max]="max_duration"
+                                    [end_time]="bookable_hours?.end"
                                     class="w-full"
                                     [use_24hr]="use_24hr_time"
                                 ></a-duration-field>
@@ -213,6 +215,10 @@ export class ExploreBookingModalComponent implements OnInit {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 4 * 60;
+    }
+
+    public get bookable_hours(): BookableHoursRange | null {
+        return this._settings.get('app.events.bookable_hours') ?? null;
     }
 
     public get can_book_for_others() {
