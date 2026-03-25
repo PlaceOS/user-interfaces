@@ -310,7 +310,8 @@
         "ALL_DEPARTMENTS": "All Departments",
         "ALL_OFFICES": "All Offices",
         "ALL_STATUSES": "All Statuses",
-        "MAP_KIOSK": "Map Kiosk"
+        "MAP_KIOSK": "Map Kiosk",
+        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time."
     },
     "LANGUAGE": {
         "ENGLISH": "English",

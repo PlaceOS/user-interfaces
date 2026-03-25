@@ -16,7 +16,7 @@ import {
     NG_VALUE_ACCESSOR,
     NgControl,
 } from '@angular/forms';
-import { getTimezoneOffsetString } from '@placeos/common';
+import { getTimezoneOffsetString, markUserDateChange } from '@placeos/common';
 import { addYears, endOfDay, set, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -217,6 +217,7 @@ export class DateFieldComponent
             new_date = this.from.valueOf();
         }
         this.date.set(new_date);
+        markUserDateChange();
         if (this._onChange) this._onChange(new_date);
         this._tooltip()?.close();
     }

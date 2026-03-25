@@ -21,6 +21,25 @@ import { i18n, i18nAvailable } from './locale.service';
 import { notifyWarn } from './notifications';
 import { HashMap } from './types';
 
+/**
+ * Flag set by date/time field components to indicate the next `date`
+ * value change was triggered by the user (not a programmatic patch).
+ * Read and cleared by {@link setupFormTimeSync} to decide whether to
+ * show the bookable-hours warning.
+ */
+let _user_date_change = false;
+let _user_date_change_timeout: ReturnType<typeof setTimeout>;
+
+/** Mark the next date value change as user-initiated. */
+export function markUserDateChange(): void {
+    _user_date_change = true;
+    if (_user_date_change_timeout) clearTimeout(_user_date_change_timeout);
+    _user_date_change_timeout = setTimeout(
+        () => (_user_date_change = false),
+        300,
+    );
+}
+
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
 
@@ -918,9 +937,10 @@ export function setupFormTimeSync(
             min_duration,
         );
         if (next && next !== date) {
-            notifyWarn(
-                'Current date is outside available booking hours. Switched to next available time.',
-            );
+            if (_user_date_change) {
+                notifyWarn(i18n('COMMON.BOOKABLE_HOURS_ERROR'));
+                _user_date_change = false;
+            }
             return next;
         }
         return alignDateToBookableHours(

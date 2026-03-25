@@ -9,6 +9,7 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import {
     addDays,
@@ -76,7 +77,7 @@ interface DateItem {
                         icon
                         name="schedule-set-date"
                         class="relative my-0.5 h-9 w-9 min-w-[14%] overflow-visible"
-                        [class.hover:bg-base-100]="day.id !== active_date"
+                        [class.hover:bg-base-200]="day.id !== active_date"
                         [class.text-base-300!]="!day.is_month"
                         [class.text-secondary-content]="day.id === active_date"
                         [class.text-base-content]="day.id !== active_date"
@@ -88,7 +89,7 @@ interface DateItem {
                         {{ day.id | date: 'd' }}
                         @if (today === day.id) {
                             <div
-                                class="border-secondary absolute -inset-[2px] overflow-hidden rounded-full border"
+                                class="border-secondary absolute -inset-0.5 z-20 overflow-hidden rounded-full border"
                                 matRipple
                             ></div>
                         }
@@ -109,7 +110,7 @@ interface DateItem {
             multi: true,
         },
     ],
-    imports: [CommonModule, IconComponent],
+    imports: [CommonModule, IconComponent, MatRippleModule],
 })
 export class DateCalendarComponent
     extends AsyncHandler

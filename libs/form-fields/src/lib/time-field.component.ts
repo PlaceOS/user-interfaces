@@ -21,6 +21,7 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     Identity,
+    markUserDateChange,
     setTimeInTimezone,
     startOfDayInTimezone,
 } from '@placeos/common';
@@ -348,6 +349,7 @@ export class TimeFieldComponent
                 +time[1],
                 tz,
             );
+            markUserDateChange();
             this._onChange(date_value);
         }
 

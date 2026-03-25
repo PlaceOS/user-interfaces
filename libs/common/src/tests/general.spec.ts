@@ -7,6 +7,7 @@ import {
     getNextBookableTime,
     isWithinBookableHours,
     jsonToCsv,
+    markUserDateChange,
     setupFormTimeSync,
     timePeriodsIntersect,
 } from '../lib/general';
@@ -702,6 +703,42 @@ describe('General Methods', () => {
             form.controls.date.setValue(ok);
 
             expect(form.getRawValue().date).toBe(ok);
+        });
+
+        it('should show notification when markUserDateChange is called before setValue', () => {
+            const notifyWarnMock = jest.fn();
+            jest.doMock('../lib/notifications', () => ({
+                notifyWarn: notifyWarnMock,
+            }));
+
+            // 06:00 is before the 09:00–17:00 window
+            const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
+            const form = createForm({ date: early, duration: 60 });
+            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+            // Simulate user interaction: mark then set
+            markUserDateChange();
+            form.controls.date.setValue(early);
+
+            // Should snap to 09:00
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            );
+        });
+
+        it('should not show notification without markUserDateChange', () => {
+            // 06:00 is before the 09:00–17:00 window
+            const early = new Date(2028, 5, 15, 6, 0, 0, 0).valueOf();
+            const form = createForm({ date: early, duration: 60 });
+            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+            // Programmatic set (no markUserDateChange)
+            form.controls.date.setValue(early);
+
+            // Should still snap to 09:00 (alignment still works)
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            );
         });
     });
 });
