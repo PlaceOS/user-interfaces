@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import { queryParkingSpacesForZones } from '@placeos/assets';
 import {
-    alignDateToBookableHours,
     AsyncHandler,
     Booking,
     BookingClash,
@@ -12,8 +11,8 @@ import {
     currentUser,
     endOfDayInTimezone,
     flatten,
+    getFormTimeSyncHandle,
     getInvalidFields,
-    getNextBookableTime,
     i18n,
     isWithinBookableHours,
     nextValueFrom,
@@ -352,26 +351,13 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
-        if (!booking.id) {
-            const bookable_hours = this.setting('bookable_hours');
-            const next_time = getNextBookableTime(bookable_hours);
-            if (next_time) {
-                (booking as any).date = next_time;
-                this.form.patchValue({ date: next_time }, { emitEvent: false });
-            }
-        }
+        this._applyDurationSettings();
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => {
                 const { date, duration } = this.form.getRawValue();
                 this._assets.setOptions({ date, duration });
                 this.storeForm();
-            }),
-        );
-        this.subscription(
-            'all_day_change',
-            this.form.get('all_day').valueChanges.subscribe((all_day) => {
-                if (!all_day) this.form.patchValue({ duration: 60 });
             }),
         );
         this.timeout('date', async () =>
@@ -413,6 +399,27 @@ export class BookingFormService extends AsyncHandler {
         this._org.initialised
             .pipe(first((_) => _))
             .subscribe(() => this.setOptions({}));
+        this.subscription(
+            'building_change',
+            this._org.active_building
+                .pipe(
+                    filter((_) => !!_),
+                    distinctUntilKeyChanged('id'),
+                )
+                .subscribe(() => this._applyDurationSettings()),
+        );
+    }
+
+    /** Push the current building's duration and bookable-hours settings into the time sync. */
+    private _applyDurationSettings() {
+        const handle = getFormTimeSyncHandle(this.form);
+        handle?.updateOptions({
+            min_duration: this.setting('min_duration') ?? 30,
+            max_duration: this.setting('max_duration') ?? 0,
+            default_duration: this.setting('default_duration') ?? 60,
+            bookable_hours: this.setting('bookable_hours') ?? null,
+            timezone: this.timezone,
+        });
     }
 
     public setView(value: BookingFlowView) {
@@ -488,14 +495,6 @@ export class BookingFormService extends AsyncHandler {
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
             ),
         });
-        const aligned_date =
-            !booking.id && booking.date
-                ? alignDateToBookableHours(
-                      booking.date,
-                      this.setting('bookable_hours'),
-                      booking.date,
-                  )
-                : booking.date;
         this._booking.next(booking);
         const booking_data = cleanObject(
             {
@@ -506,9 +505,10 @@ export class BookingFormService extends AsyncHandler {
             [null, undefined, ''],
         );
         this.form.patchValue(booking_data, { emitEvent: false });
+        this._applyDurationSettings();
         this.timeout('load-date', async () =>
             this.form.patchValue({
-                date: aligned_date,
+                date: booking.date,
                 duration: booking.duration,
             }),
         );

@@ -76,6 +76,7 @@ describe('BookingFormService', () => {
     afterEach(() => {
         jest.restoreAllMocks();
         spectator?.service?.clearForm();
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
     });
 
     it('should create service', () => {
@@ -215,7 +216,10 @@ describe('BookingFormService', () => {
 
     it('should align loaded draft bookings to the start of bookable hours', () => {
         jest.useFakeTimers();
-        const draft_date = new Date(2026, 2, 24, 0, 0, 0, 0).valueOf();
+        // Set system time well before the draft date so it is not considered
+        // past and snapped to "now" by the form time sync.
+        jest.setSystemTime(new Date(2028, 5, 14, 6, 0, 0, 0));
+        const draft_date = new Date(2028, 5, 15, 0, 0, 0, 0).valueOf();
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
@@ -233,18 +237,19 @@ describe('BookingFormService', () => {
             }),
         );
 
+        spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
         jest.runAllTimers();
 
         expect(spectator.service.form.getRawValue().date).toBe(
-            new Date(2026, 2, 24, 8, 0, 0, 0).valueOf(),
+            new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
     });
 
     it('should move same-day after-hours drafts to the next bookable day', () => {
         jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 2, 24, 18, 15, 0, 0));
+        jest.setSystemTime(new Date(2028, 5, 15, 18, 15, 0, 0));
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
@@ -256,17 +261,18 @@ describe('BookingFormService', () => {
             'PLACEOS.booking_form',
             JSON.stringify({
                 booking_type: 'desk',
-                date: new Date(2026, 2, 24, 18, 15, 0, 0).valueOf(),
+                date: new Date(2028, 5, 15, 18, 15, 0, 0).valueOf(),
                 duration: 60,
                 title: 'Desk booking',
             }),
         );
 
+        spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
         jest.runAllTimers();
 
         expect(spectator.service.form.getRawValue().date).toBe(
-            new Date(2026, 2, 25, 8, 0, 0, 0).valueOf(),
+            new Date(2028, 5, 16, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
     });

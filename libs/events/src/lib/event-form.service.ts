@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    BookingClash,
     BookingRuleset,
     currentUser,
     filterResourcesFromRules,
@@ -54,12 +55,10 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { openRecurringClashModal } from 'libs/bookings/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import {
-    EventClash,
     findEventClashes,
     querySpaceAvailability,
     removeEvent,
@@ -69,6 +68,7 @@ import {
 import { periodInFreeTimeSlot } from './helpers';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 
+import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
 
 const BOOKING_URLS = [
@@ -958,7 +958,7 @@ export class OldEventFormService extends AsyncHandler {
 
         const clashes = (await lastValueFrom(
             findEventClashes(event, { include_clash_time: true }),
-        )) as EventClash[];
+        )) as BookingClash[];
 
         if (!clashes?.length) {
             return true;

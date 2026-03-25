@@ -148,6 +148,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form().controls.date.disabled"
                                 [range]="bookable_hours"
+                                [min_duration]="min_duration"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -439,6 +440,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
 
     public get bookable_hours() {
         return this._settings.get('app.events.bookable_hours');
+    }
+
+    public get min_duration() {
+        return this._settings.get('app.events.min_duration') || 30;
     }
 
     public readonly duration_info = (time: number) => {

@@ -6,6 +6,7 @@ import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
 
 describe('GlobalSearchComponent', () => {
@@ -13,6 +14,7 @@ describe('GlobalSearchComponent', () => {
     const createComponent = createRoutingFactory({
         component: GlobalSearchComponent,
         providers: [
+            MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(ExploreSearchService, {
                 search_results: new BehaviorSubject([]),
                 loading: new BehaviorSubject(''),
