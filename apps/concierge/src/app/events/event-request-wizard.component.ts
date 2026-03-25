@@ -585,15 +585,11 @@ const SERVICE_OPTIONS: { key: ApprovalCategory; label: string; icon: string }[] 
                                     </div>
                                 </mat-checkbox>
                                 @if (isServiceSelected(svc.key)) {
-                                    <div class="ml-8 mt-1 mb-1 flex items-center space-x-2">
-                                        <label class="text-xs opacity-60 whitespace-nowrap">Refund deadline:</label>
-                                        <input
-                                            type="date"
-                                            class="rounded border border-base-300 bg-base-100 px-2 py-0.5 text-xs"
-                                            [value]="getServiceDeadline(svc.key)"
-                                            (change)="setServiceDeadline(svc.key, $any($event.target).value)"
-                                        />
-                                    </div>
+                                    @if (getServiceDeadline(svc.key)) {
+                                        <div class="ml-8 mt-1 mb-1 text-xs opacity-60">
+                                            Refund deadline: {{ getServiceDeadline(svc.key) | date:'d MMM yyyy' }}
+                                        </div>
+                                    }
                                 }
                             }
                         </div>
@@ -1179,7 +1175,13 @@ export class EventRequestWizardComponent {
         const deadlines = this.service_refund_deadlines();
         if (deadlines[key]) return deadlines[key];
         const fallback = this._defaultDeadlineDate(key);
-        this.service_refund_deadlines.update((d) => ({ ...d, [key]: fallback }));
+        // Defer signal write to avoid NG0600 (writing during render)
+        Promise.resolve().then(() => {
+            this.service_refund_deadlines.update((d) => {
+                if (d[key]) return d;
+                return { ...d, [key]: fallback };
+            });
+        });
         return fallback;
     }
 
