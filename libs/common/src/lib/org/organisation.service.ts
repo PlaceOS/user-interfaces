@@ -648,12 +648,16 @@ export class OrganisationService {
         if (!this._organisation) return;
         const app_settings = (
             await lastValueFrom(
-                showMetadata(this._organisation?.id, this.app_key),
+                showMetadata(this._organisation?.id, this.app_key).pipe(
+                    catchError(() => of({} as PlaceMetadata)),
+                ),
             )
         )?.details;
         const global_settings = (
             await lastValueFrom(
-                showMetadata(this._organisation?.id, 'settings'),
+                showMetadata(this._organisation?.id, 'settings').pipe(
+                    catchError(() => of({} as PlaceMetadata)),
+                ),
             )
         )?.details;
         this._settings = [global_settings, app_settings];
@@ -706,8 +710,8 @@ export class OrganisationService {
                         resolve();
                     },
                 );
-            } else if (!this.building?.id) {
-                this._setDefaultBuilding();
+            } else {
+                if (!this.building?.id) this._setDefaultBuilding();
                 resolve();
             }
         });
