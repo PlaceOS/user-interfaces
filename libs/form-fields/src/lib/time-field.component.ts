@@ -21,6 +21,7 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     Identity,
+    markUserDateChange,
     setTimeInTimezone,
     startOfDayInTimezone,
 } from '@placeos/common';
@@ -38,7 +39,9 @@ import {
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 export interface TimeFieldRange {
+    /** Earliest allowed hour of the day (0–24). For example, `8` means 8:00 AM. */
     start: number;
+    /** Latest allowed hour of the day (0–24). For example, `17` means 5:00 PM. */
     end: number;
 }
 
@@ -165,8 +168,13 @@ export class TimeFieldComponent
     );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
-    /** Limit selectable times by minutes since midnight */
+    /** Limit selectable times by hour of the day (0–24) */
     public readonly range = input<TimeFieldRange>(undefined);
+    /** Minimum booking duration in minutes. When set together with `range`,
+     *  the effective end of the selectable window is reduced by this amount
+     *  so that only start times that leave room for at least one minimum-
+     *  length booking are offered. */
+    public readonly min_duration = input(0);
     public readonly timezone = input<string>('');
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
@@ -224,7 +232,8 @@ export class TimeFieldComponent
             changes.no_past_times ||
             changes.step ||
             changes.from ||
-            changes.range
+            changes.range ||
+            changes.min_duration
         ) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
@@ -342,6 +351,7 @@ export class TimeFieldComponent
                 +time[1],
                 tz,
             );
+            markUserDateChange();
             this._onChange(date_value);
         }
 
@@ -445,14 +455,25 @@ export class TimeFieldComponent
         const day_end = tz
             ? endOfDayInTimezone(datestamp, tz)
             : endOfDay(datestamp).valueOf();
+        const min_dur = this.min_duration() || 0;
+        const start_minutes = time_range ? time_range.start * 60 : undefined;
+        const end_minutes = time_range ? time_range.end * 60 : undefined;
+        const effective_end =
+            end_minutes != null && min_dur > 0
+                ? end_minutes - min_dur
+                : end_minutes;
         const range_start = Math.max(
             day_start,
             min_date,
-            time_range ? day_start + time_range.start * 60 * 1000 : day_start,
+            start_minutes != null
+                ? day_start + start_minutes * 60 * 1000
+                : day_start,
         );
         const range_end = Math.min(
             day_end,
-            time_range ? day_start + time_range.end * 60 * 1000 : day_end,
+            effective_end != null
+                ? day_start + effective_end * 60 * 1000
+                : day_end,
         );
 
         if (range_start > range_end) {
@@ -479,10 +500,14 @@ export class TimeFieldComponent
         if (!time_range) {
             return true;
         }
+        const start_minutes = time_range.start * 60;
+        const end_minutes = time_range.end * 60;
+        const min_dur = this.min_duration() || 0;
+        const effective_end = min_dur > 0 ? end_minutes - min_dur : end_minutes;
         const tz = this.timezone() || undefined;
         const { hours, minutes } = getTimeInTimezone(date, tz);
         const mins = hours * 60 + minutes;
-        if (mins < time_range.start || mins > time_range.end) {
+        if (mins < start_minutes || mins > effective_end) {
             return false;
         }
         return true;

@@ -16,15 +16,20 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     currentUser,
+    getTimeInTimezone,
     notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
+    startOfDayInTimezone,
     UploadsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { DateFieldComponent } from '@placeos/form-fields';
-import { addDays, endOfDay, startOfDay, startOfWeek } from 'date-fns';
+import {
+    DateFieldComponent,
+    UserSearchFieldComponent,
+} from '@placeos/form-fields';
+import { addDays, endOfDay, startOfWeek } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { FullscreenEmbedComponent } from '../../components/fullscreen-embed.component';
 
@@ -59,6 +64,7 @@ interface ParkingRequestType {
     description?: string;
     badge?: string;
     groups?: string[];
+    approver_groups?: string[];
 }
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
@@ -102,18 +108,29 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     { id: 'other', name: 'BOOKINGS.PARKING_VEHICLE_OTHER' },
 ];
 
-const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
-    {
-        id: 'oversized',
-        name: 'BOOKINGS.PARKING_RESTRICTION_OVERSIZED',
-    },
-];
-
 @Component({
     selector: 'parking-request-form-details',
     template: `
         @if (form()) {
-            <div [formGroup]="form()">
+            <div class="space-y-4" [formGroup]="form()">
+                <!-- HOST SELECTION -->
+                @if (can_book_for_anyone()) {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                    >
+                        <h3
+                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                        >
+                            <icon class="text-lg">person</icon>
+                            {{ 'FORM.HOST' | translate }}
+                        </h3>
+                        <a-user-search-field
+                            formControlName="user"
+                            [allow_externals]="allow_externals()"
+                        ></a-user-search-field>
+                    </div>
+                }
+
                 <!-- BOOKING FREQUENCY -->
                 <div
                     class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
@@ -365,11 +382,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                 [class.border-base-300]="
                                     form().value.request_type !== type.id
                                 "
-                                (click)="
-                                    form().patchValue({
-                                        request_type: type.id,
-                                    })
-                                "
+                                (click)="setRequestType(type.id)"
                             >
                                 <div
                                     class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
@@ -825,7 +838,10 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                 </div>
 
                 <!-- APPROVER GROUP -->
-                @if (approver_group_options().length && !is_auto_approved()) {
+                @if (
+                    filtered_approver_group_options().length &&
+                    !is_auto_approved()
+                ) {
                     <div
                         class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
@@ -847,7 +863,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
                                 "
                             >
                                 @for (
-                                    option of approver_group_options();
+                                    option of filtered_approver_group_options();
                                     track option.id
                                 ) {
                                     <mat-option [value]="option.id">{{
@@ -923,6 +939,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS: ParkingRequestOption[] = [
         TranslatePipe,
         IconComponent,
         DateFieldComponent,
+        UserSearchFieldComponent,
         SettingsToggleComponent,
         MatRippleModule,
     ],
@@ -941,6 +958,18 @@ export class ParkingRequestFormDetailsComponent
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
 
+    public readonly can_book_for_anyone = computed(
+        () =>
+            settingSignal('parking.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')(),
+    );
+
+    public readonly can_book_for_others = computed(
+        () =>
+            settingSignal('parking.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')(),
+    );
+
     public readonly available_days = settingSignal(
         'parking.available_period',
         14,
@@ -958,7 +987,7 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
-    >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    >('parking.request_space_restrictions', []);
     public readonly approver_groups_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.approver_groups', []);
@@ -973,12 +1002,23 @@ export class ParkingRequestFormDetailsComponent
         'parking.auto_approved_groups',
         [],
     );
+    public readonly allow_externals_groups_setting = settingSignal<string[]>(
+        'parking.allow_externals_groups',
+        [],
+    );
 
     public readonly is_auto_approved = computed(() => {
         const auto_groups = this.auto_approved_groups_setting();
         if (!auto_groups?.length) return false;
         const user_groups = currentUser()?.groups || [];
         return auto_groups.some((g) => user_groups.includes(g));
+    });
+
+    public readonly allow_externals = computed(() => {
+        const allowed_groups = this.allow_externals_groups_setting();
+        if (!allowed_groups?.length) return false;
+        const user_groups = currentUser()?.groups || [];
+        return allowed_groups.some((g) => user_groups.includes(g));
     });
 
     public readonly end_date = computed(() =>
@@ -1019,9 +1059,20 @@ export class ParkingRequestFormDetailsComponent
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
     );
+    public readonly selected_request_type_id = signal<string>('standard');
     public readonly approver_group_options = computed(() =>
         this._normaliseOptions(this.approver_groups_setting()),
     );
+    public readonly filtered_approver_group_options = computed(() => {
+        const all_options = this.approver_group_options();
+        const request_type_id = this.selected_request_type_id();
+        const request_type = this.request_types().find(
+            (_) => _.id === request_type_id,
+        );
+        const allowed_ids = request_type?.approver_groups;
+        if (!allowed_ids?.length) return all_options;
+        return all_options.filter((_) => allowed_ids.includes(_.id));
+    });
     public readonly selected_space_restriction = computed(() => {
         const value = this.form()?.getRawValue()?.space_restrictions;
         if (typeof value === 'string' && value) return value;
@@ -1129,15 +1180,16 @@ export class ParkingRequestFormDetailsComponent
         this.custom_start_time_mins.set(default_custom_shift.start_time);
         this.custom_end_time_mins.set(default_custom_shift.end_time);
         const date = form.getRawValue().date;
-        if (is_edit && date) {
-            const d = new Date(date);
-            const start = d.getHours() * 60 + d.getMinutes();
+        if (date) {
+            const tz = this.timezone;
+            const { hours, minutes } = getTimeInTimezone(date, tz || undefined);
+            const start = hours * 60 + minutes;
             const duration = form.value.duration || 600;
             this.start_time_mins.set(start);
             this.end_time_mins.set(start + duration);
             this._detectShiftType(start, start + duration);
             if (this.shift_type() === 'custom') {
-                if (this.hide_custom_shift() && this.shift_options().length) {
+                if (this.shift_options().length) {
                     this.setShiftType(this.shift_options()[0].id);
                 } else {
                     this.custom_start_time_mins.set(start);
@@ -1145,12 +1197,32 @@ export class ParkingRequestFormDetailsComponent
                 }
             }
         } else {
-            if (this.hide_custom_shift() && this.shift_options().length) {
+            if (this.shift_options().length) {
                 this.setShiftType(this.shift_options()[0].id);
             } else {
                 this.start_time_mins.set(default_custom_shift.start_time);
                 this.end_time_mins.set(default_custom_shift.end_time);
                 this.shift_type.set('custom');
+            }
+        }
+        if (form.value.request_type) {
+            this.selected_request_type_id.set(form.value.request_type);
+        }
+        if (
+            this.filtered_approver_group_options().length &&
+            !this.is_auto_approved()
+        ) {
+            const current = form.value.approver_group;
+            if (
+                !current ||
+                !this.filtered_approver_group_options().find(
+                    (_) => _.id === current,
+                )
+            ) {
+                form.patchValue({
+                    approver_group:
+                        this.filtered_approver_group_options()[0].id,
+                });
             }
         }
         if (this.space_restriction_options().length) {
@@ -1217,6 +1289,20 @@ export class ParkingRequestFormDetailsComponent
     public setNumWeeks(weeks: number) {
         this.num_weeks.set(weeks);
         this._updateRecurrenceEnd();
+    }
+
+    public setRequestType(type_id: string) {
+        this.selected_request_type_id.set(type_id);
+        const form = this.form();
+        if (!form) return;
+        form.patchValue({ request_type: type_id });
+        const options = this.filtered_approver_group_options();
+        if (options.length && !this.is_auto_approved()) {
+            const current = form.value.approver_group;
+            if (!current || !options.find((_) => _.id === current)) {
+                form.patchValue({ approver_group: options[0].id });
+            }
+        }
     }
 
     public setBookingFrequency(freq: 'single' | 'daily') {
@@ -1364,7 +1450,8 @@ export class ParkingRequestFormDetailsComponent
 
     public shiftTime(mins: number): number {
         const raw_date = this.form()?.getRawValue()?.date || Date.now();
-        return startOfDay(raw_date).valueOf() + mins * 60 * 1000;
+        const tz = this.timezone;
+        return startOfDayInTimezone(raw_date, tz) + mins * 60 * 1000;
     }
 
     public getBayInfo(bld: any): string {
@@ -1387,8 +1474,9 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         const raw_date = form.getRawValue().date || Date.now();
-        const day = startOfDay(raw_date);
-        const new_date = day.valueOf() + start_mins * 60 * 1000;
+        const tz = this.timezone;
+        const day = startOfDayInTimezone(raw_date, tz);
+        const new_date = day + start_mins * 60 * 1000;
         const duration =
             end_mins > start_mins
                 ? end_mins - start_mins
@@ -1440,8 +1528,12 @@ export class ParkingRequestFormDetailsComponent
     }
 
     private _defaultCustomShift() {
-        const now = new Date();
-        const current_mins = now.getHours() * 60 + now.getMinutes();
+        const tz = this.timezone;
+        const { hours, minutes } = getTimeInTimezone(
+            Date.now(),
+            tz || undefined,
+        );
+        const current_mins = hours * 60 + minutes;
         const start_time = Math.min(
             (Math.floor(current_mins / 30) + 1) * 30,
             1410,

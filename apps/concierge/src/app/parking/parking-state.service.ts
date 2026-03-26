@@ -73,11 +73,14 @@ import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 
+export type ParkingRequestFilter = 'all' | 'waitlist' | 'pending';
+
 export interface ParkingOptions {
     date: number;
     period: 'day' | 'week';
     search: string;
     zones: string[];
+    request_filter: ParkingRequestFilter;
 }
 
 export type ParkingSpace = PlaceAsset;
@@ -102,6 +105,7 @@ export class ParkingStateService extends AsyncHandler {
         period: 'day',
         search: '',
         zones: [],
+        request_filter: 'all',
     });
     private _loading = new BehaviorSubject<string[]>([]);
 

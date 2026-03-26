@@ -11,8 +11,8 @@ import {
     filterResourcesFromRules,
     firstTruthyValueFrom,
     flatten,
+    getFormTimeSyncHandle,
     getInvalidFields,
-    getNextBookableTime,
     i18n,
     isWithinBookableHours,
     nextValueFrom,
@@ -412,7 +412,27 @@ export class EventFormService extends AsyncHandler {
             }
             this.storeForm();
         });
+        this.subscription(
+            'settings_change',
+            this._settings.overrides$
+                .pipe(filter((_) => !!_?.length))
+                .subscribe(() => this._applyDurationSettings()),
+        );
         this.loadLastSuccess();
+    }
+
+    /** Push the current building's duration and bookable-hours settings into the time sync. */
+    private _applyDurationSettings() {
+        const handle = getFormTimeSyncHandle(this._form);
+        handle?.updateOptions({
+            min_duration: this._settings.get('app.events.min_duration') ?? 30,
+            max_duration: this._settings.get('app.events.max_duration') ?? 0,
+            default_duration:
+                this._settings.get('app.events.default_duration') ?? 60,
+            bookable_hours:
+                this._settings.get('app.events.bookable_hours') ?? null,
+            timezone: this.timezone,
+        });
     }
 
     public setView(value: EventFlowView) {
@@ -443,19 +463,8 @@ export class EventFormService extends AsyncHandler {
         this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
             emitEvent: false,
         });
-        if (!event.id) {
-            const bookable_hours = this._settings.get(
-                'app.events.bookable_hours',
-            );
-            const next_time = getNextBookableTime(bookable_hours);
-            if (next_time) {
-                this._form.patchValue(
-                    { date: next_time },
-                    { emitEvent: false },
-                );
-            }
-            return;
-        }
+        this._applyDurationSettings();
+        if (!event.id) return;
         sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
         this._event.next(event);
     }
@@ -551,6 +560,18 @@ export class EventFormService extends AsyncHandler {
             if (
                 !isWithinBookableHours(
                     this.form.value.date,
+                    bookable_hours,
+                    this.form.value.timezone,
+                )
+            ) {
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+            }
+            // For multiday bookings, also validate the end time
+            if (
+                this.form.value.date_end &&
+                this.form.value.duration > 24 * 60 &&
+                !isWithinBookableHours(
+                    this.form.value.date_end,
                     bookable_hours,
                     this.form.value.timezone,
                 )

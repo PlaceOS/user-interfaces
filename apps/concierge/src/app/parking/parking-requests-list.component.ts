@@ -16,10 +16,14 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { endOfWeek, startOfWeek } from 'date-fns';
 import { combineLatest, map } from 'rxjs';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
 import { ParkingSpecialRequestModalComponent } from './parking-special-request-modal.component';
-import { ParkingStateService } from './parking-state.service';
+import {
+    ParkingRequestFilter,
+    ParkingStateService,
+} from './parking-state.service';
 
 @Component({
     selector: 'parking-requests-list',
@@ -210,10 +214,18 @@ import { ParkingStateService } from './parking-state.service';
                         [class.text-neutral-content]="row?.status === 'ended'"
                         [class.bg-neutral]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
-                        [class.text-warning-content]="
-                            row?.status === 'tentative'
+                        [class.text-info-content]="
+                            row?.status === 'tentative' && isWaitlisted(row)
                         "
-                        [class.bg-warning]="row?.status === 'tentative'"
+                        [class.bg-info]="
+                            row?.status === 'tentative' && isWaitlisted(row)
+                        "
+                        [class.text-warning-content]="
+                            row?.status === 'tentative' && !isWaitlisted(row)
+                        "
+                        [class.bg-warning]="
+                            row?.status === 'tentative' && !isWaitlisted(row)
+                        "
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
@@ -226,7 +238,9 @@ import { ParkingStateService } from './parking-state.service';
                                           ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                           : row?.status === 'declined'
                                             ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                            : isWaitlisted(row)
+                                              ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
                                 }}
                             </div>
@@ -319,15 +333,16 @@ export class ParkingRequestsListComponent
         this._state.bookings,
         this.options,
     ]).pipe(
-        map(([booking_list, { search }]) => {
+        map(([booking_list, { search, request_filter }]) => {
             const user_groups = currentUser()?.groups || [];
-            const unallocated = booking_list.filter((b) => {
+            let unallocated = booking_list.filter((b) => {
                 if (!b.asset_id?.startsWith('unallocated')) return false;
                 const approver_group = b.extension_data?.approver_group;
                 if (approver_group && !user_groups.includes(approver_group))
                     return false;
                 return true;
             });
+            unallocated = this._applyRequestFilter(unallocated, request_filter);
             const s = search.toLowerCase();
             const type_index = (i) =>
                 this.request_type(i) == 'special'
@@ -395,12 +410,55 @@ export class ParkingRequestsListComponent
     public readonly request_type_label = (request_type: string) =>
         this._request_type_labels[request_type] || 'COMMON.EMPTY';
 
+    private _applyRequestFilter(
+        list: Booking[],
+        filter_type: ParkingRequestFilter,
+    ): Booking[] {
+        if (filter_type === 'all') return list;
+        const now = Date.now();
+        const week_start = this._state.week_start;
+        const current_week_start = startOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        const current_week_end = endOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        if (filter_type === 'waitlist') {
+            return list.filter(
+                (b) =>
+                    b.status === 'tentative' &&
+                    b.date >= current_week_start &&
+                    b.date <= current_week_end,
+            );
+        }
+        if (filter_type === 'pending') {
+            return list.filter(
+                (b) =>
+                    b.status === 'tentative' &&
+                    (b.date < current_week_start || b.date > current_week_end),
+            );
+        }
+        return list;
+    }
+
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get week_start() {
-        return this._settings.get('app.week_start') || 0;
+    public isWaitlisted(booking: Booking): boolean {
+        if (booking.status !== 'tentative') return false;
+        const now = Date.now();
+        const week_start = this._state.week_start;
+        const current_week_start = startOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        const current_week_end = endOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        return (
+            booking.date >= current_week_start &&
+            booking.date <= current_week_end
+        );
     }
 
     public ngOnInit() {

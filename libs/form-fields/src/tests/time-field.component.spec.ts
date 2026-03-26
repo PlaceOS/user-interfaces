@@ -99,7 +99,7 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({
             no_past_times: false,
             from: date,
-            range: { start: 60, end: 105 },
+            range: { start: 1, end: 1.75 },
         });
         spectator.component.writeValue(date);
         spectator.detectChanges();
@@ -116,7 +116,7 @@ describe('TimeFieldComponent', () => {
         spectator.setInput({
             no_past_times: false,
             from: date,
-            range: { start: 60, end: 120 },
+            range: { start: 1, end: 2 },
         });
         spectator.component.writeValue(addMinutes(date, 35).valueOf());
         spectator.detectChanges();

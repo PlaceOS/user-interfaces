@@ -310,7 +310,8 @@
         "ALL_DEPARTMENTS": "All Departments",
         "ALL_OFFICES": "All Offices",
         "ALL_STATUSES": "All Statuses",
-        "MAP_KIOSK": "Map Kiosk"
+        "MAP_KIOSK": "Map Kiosk",
+        "BOOKABLE_HOURS_ERROR": "Current date is outside available booking hours. Switched to next available time."
     },
     "LANGUAGE": {
         "ENGLISH": "English",
@@ -483,6 +484,7 @@
         "DESK_RESTRICTION_ERROR": "You are not allowed to book \"{{ name }}\"",
         "DESK_BOOKING_ERROR": "Failed to book desk \"{{ name }}\". Error: {{ error }}",
         "DESK_BOOKING_SUCCESS": "Successfully booked desk \"{{ name }}\".",
+        "OUTSIDE_BOOKABLE_HOURS": "Bookings are not available outside of bookable hours.",
         "BOOKING_HEADER": "New booking",
         "BOOKING_TITLE_REQUIRED": "Booking title is required",
         "BOOKING_SPACE": "Space",
@@ -659,7 +661,7 @@
         "PARKING_SELECT_MSG": "Select a parking space to view its details",
         "PARKING_REQUEST_TITLE": "Parking Booking Request",
         "PARKING_REQUEST_SUBTITLE": "Reserve your parking space in advance",
-        "PARKING_BOOKING_FREQUENCY": "Booking Frequency",
+        "PARKING_BOOKING_FREQUENCY": "Booking Date",
         "PARKING_FREQUENCY_SINGLE": "Single Day",
         "PARKING_FREQUENCY_SINGLE_DESC": "Book parking for the selected date only",
         "PARKING_FREQUENCY_DAILY": "Multi-day",
@@ -1648,6 +1650,8 @@
             "PARKING_CHECKED_OUT_AT": "Left at {{ time }}",
             "PARKING_CHECKED_IN": "Arrived at space",
             "PARKING_NOT_CHECKED_IN": "Has not arrived at space",
+            "PARKING_WAITLIST": "Waitlist",
+            "PARKING_WAITLISTED": "Waitlisted",
             "PARKING_APPROVE": "Approve Reservation",
             "PARKING_APPROVE_ERROR": "Failed to approve the parking reservation. Error: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "Successfully approved parking reservation.",

@@ -27,7 +27,10 @@ describe('BookingFormService', () => {
                 navigate: jest.fn(),
                 events: new Subject(),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                overrides$: new BehaviorSubject([]),
+            }),
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 active_building: new BehaviorSubject({ id: 'bld-1' }),
@@ -76,6 +79,7 @@ describe('BookingFormService', () => {
     afterEach(() => {
         jest.restoreAllMocks();
         spectator?.service?.clearForm();
+        sessionStorage.removeItem('PLACEOS.booking_form_filters');
     });
 
     it('should create service', () => {
@@ -200,7 +204,7 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.parking.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });
@@ -215,11 +219,14 @@ describe('BookingFormService', () => {
 
     it('should align loaded draft bookings to the start of bookable hours', () => {
         jest.useFakeTimers();
-        const draft_date = new Date(2026, 2, 24, 0, 0, 0, 0).valueOf();
+        // Set system time well before the draft date so it is not considered
+        // past and snapped to "now" by the form time sync.
+        jest.setSystemTime(new Date(2028, 5, 14, 6, 0, 0, 0));
+        const draft_date = new Date(2028, 5, 15, 0, 0, 0, 0).valueOf();
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });
@@ -233,22 +240,23 @@ describe('BookingFormService', () => {
             }),
         );
 
+        spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
         jest.runAllTimers();
 
         expect(spectator.service.form.getRawValue().date).toBe(
-            new Date(2026, 2, 24, 8, 0, 0, 0).valueOf(),
+            new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
     });
 
     it('should move same-day after-hours drafts to the next bookable day', () => {
         jest.useFakeTimers();
-        jest.setSystemTime(new Date(2026, 2, 24, 18, 15, 0, 0));
+        jest.setSystemTime(new Date(2028, 5, 15, 18, 15, 0, 0));
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });
@@ -256,17 +264,18 @@ describe('BookingFormService', () => {
             'PLACEOS.booking_form',
             JSON.stringify({
                 booking_type: 'desk',
-                date: new Date(2026, 2, 24, 18, 15, 0, 0).valueOf(),
+                date: new Date(2028, 5, 15, 18, 15, 0, 0).valueOf(),
                 duration: 60,
                 title: 'Desk booking',
             }),
         );
 
+        spectator.service.setOptions({ type: 'desk' });
         spectator.service.loadForm();
         jest.runAllTimers();
 
         expect(spectator.service.form.getRawValue().date).toBe(
-            new Date(2026, 2, 25, 8, 0, 0, 0).valueOf(),
+            new Date(2028, 5, 16, 8, 0, 0, 0).valueOf(),
         );
         jest.useRealTimers();
     });

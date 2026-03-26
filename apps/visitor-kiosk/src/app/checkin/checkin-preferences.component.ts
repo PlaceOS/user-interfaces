@@ -22,24 +22,20 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { saveBooking, updateBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
-    Booking,
     CateringItem,
-    CateringOrder,
     i18n,
-    LinkedCalendarEvent,
     log,
     nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
     parseJWT,
-    SettingsService,
+    settingSignal,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { showEventMetadata, updateEventMetadata } from '@placeos/events';
+import { getGuestCateringItem, setGuestCateringItem } from '@placeos/users';
 import { CheckinStateService } from './checkin-state.service';
 import { parseTokenFromUrl } from './token-from-url';
 
@@ -50,7 +46,7 @@ import { parseTokenFromUrl } from './token-from-url';
             <div
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                @let has_beverage = !!(event | async)?.extension_data.beverage;
+                @let has_beverage = !!existing_beverage();
                 <h3 class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
                 </h3>
@@ -144,15 +140,19 @@ export class CheckinPreferencesComponent
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _checkin = inject(CheckinStateService);
-    private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _last_jwt = '';
 
     public loading = signal(false);
     public type = signal<'save' | 'menu'>('menu');
+    public existing_beverage = signal<CateringItem>(null);
     public beverage: CateringItem;
     public readonly event = this._checkin.event;
     public readonly bld_id = new BehaviorSubject('');
+    public readonly allow_standalone = settingSignal(
+        'standalone_visitor_location',
+        '',
+    );
 
     public readonly menu = this.bld_id.pipe(
         filter((_) => !!_),
@@ -233,15 +233,24 @@ export class CheckinPreferencesComponent
         this.timeout(
             'event',
             () => {
-                this.event.pipe(first()).subscribe((event) => {
+                this.event.pipe(first()).subscribe(async (event) => {
                     if (!event) return this.next();
-                    if (!event.linked_event) {
+                    if (!event.linked_event && !this.allow_standalone()) {
                         log(
                             'CHECKIN',
                             'Visitor booking does not support catering.',
                             undefined,
                             'info',
                         );
+                    }
+                    const existing = await lastValueFrom(
+                        getGuestCateringItem(event.asset_id, event.id).pipe(
+                            catchError(() => of(null)),
+                        ),
+                    );
+                    if (existing) {
+                        this.existing_beverage.set(existing);
+                        this.beverage = existing;
                     }
                 });
             },
@@ -273,54 +282,14 @@ export class CheckinPreferencesComponent
         this.loading.set(true);
         const booking = await nextValueFrom(this._checkin.event);
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
+        const email = booking.asset_id;
+        const catering_item = new CateringItem({
+            ...this.beverage,
+            quantity: 1,
+        });
         await lastValueFrom(
-            updateBooking(booking.id, {
-                ...booking.toJSON(),
-                extension_data: {
-                    ...booking.extension_data,
-                    beverage: this.beverage,
-                },
-            }),
+            setGuestCateringItem(email, catering_item, booking.id),
         );
-        if (booking.linked_event) {
-            const event = booking.linked_event;
-            const metadata = await lastValueFrom(
-                showEventMetadata(event.event_id, event.system_id),
-            );
-            const order_list = metadata.catering || [];
-            let order =
-                order_list.find((_) => _.caterer == this.beverage.caterer) ||
-                new CateringOrder({ caterer: this.beverage.caterer });
-            order = await this._createCateringOrder(booking, order, event);
-            await lastValueFrom(
-                updateEventMetadata(
-                    event.event_id,
-                    event.system_id,
-                    {
-                        ...metadata,
-                        catering: [
-                            ...(metadata.catering?.filter(
-                                (_) => _.id !== order.id,
-                            ) || []),
-                            order,
-                        ],
-                    },
-                    { ical_uid: event.ical_uid },
-                ),
-            );
-        } else {
-            const standalone_location = this._settings.get(
-                'app.standalone_visitor_location',
-            );
-            this._createCateringOrder(
-                booking,
-                booking.linked_bookings[0]
-                    ? booking.linked_bookings[0].extension_data.details
-                    : undefined,
-                undefined,
-                standalone_location,
-            );
-        }
         notifySuccess(i18n('APP.VISITOR_KIOSK.BEVERAGE_SUCCESS'));
         this.loading.set(false);
         this.next();
@@ -333,59 +302,5 @@ export class CheckinPreferencesComponent
     private handleError(message: any) {
         this._checkin.setError(message?.statusText || message);
         this._router.navigate(['/checkin', 'error']);
-    }
-
-    private async _createCateringOrder(
-        parent: Booking,
-        old_order: CateringOrder = new CateringOrder(),
-        event?: LinkedCalendarEvent,
-        location?: string,
-    ) {
-        const existing_item = old_order.items.find(
-            (_) => _.custom_id === this.beverage.custom_id,
-        );
-        if (existing_item) (existing_item as any).quantity += 1;
-        const order = new CateringOrder({
-            ...old_order,
-            caterer: this.beverage.caterer,
-            items: existing_item
-                ? [...old_order.items]
-                : [
-                      ...old_order.items,
-                      new CateringItem({
-                          ...this.beverage,
-                          quantity: 1,
-                      }),
-                  ],
-        });
-        const booking = new Booking({
-            type: 'catering-order',
-            booking_type: 'catering-order',
-            date: parent.date,
-            duration: parent.duration,
-            description: parent.title,
-            user_id: parent.user_id,
-            user_email: parent.user_email,
-            booked_by_email: parent.asset_id,
-            asset_id: order.id,
-            title: `Catering order for ${parent.user_name}`,
-            attendees: [],
-            approved: true,
-            extension_data: {
-                parent_id: parent.id,
-                details: order,
-                location: location || parent.location,
-            },
-            parent_id: parent.id,
-            zones: parent.zones,
-            location: location || parent.location,
-        });
-        const query: Record<string, any> = { booking_id: booking.id };
-        if (event) {
-            query.event_id = event.id;
-            query.ical_uid = event.ical_uid;
-        }
-        await lastValueFrom(saveBooking(booking, query));
-        return order;
     }
 }

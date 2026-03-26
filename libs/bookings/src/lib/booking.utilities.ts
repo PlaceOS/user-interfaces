@@ -6,6 +6,7 @@ import {
     currentUser,
     flatten,
     OrganisationService,
+    setupFormTimeSync,
 } from '@placeos/common';
 import {
     createViewer,
@@ -14,11 +15,6 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import {
-    addMinutes,
-    differenceInMinutes,
-    roundToNearestMinutes,
-} from 'date-fns';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
@@ -172,70 +168,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0]),
     );
-    form.controls.duration.valueChanges.subscribe((duration) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-    });
-    form.controls.date_end.valueChanges.subscribe((date) => {
-        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
-            form.patchValue(
-                {
-                    date_end: roundToNearestMinutes(
-                        addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' },
-                    ).valueOf(),
-                    duration: 30,
-                },
-                { emitEvent: false },
-            );
-        } else {
-            form.patchValue(
-                {
-                    duration: differenceInMinutes(
-                        date,
-                        form.getRawValue().date,
-                    ),
-                },
-                { emitEvent: false },
-            );
-        }
-    });
-    form.controls.date.valueChanges.subscribe((date) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        if (date < Date.now() && !form.value._in_progress) {
-            form.patchValue(
-                {
-                    date: roundToNearestMinutes(Date.now(), {
-                        nearestTo: 5,
-                        roundingMethod: 'ceil',
-                    }).valueOf(),
-                },
-                { emitEvent: false },
-            );
-        }
-    });
-    form.controls._in_progress.valueChanges.subscribe((in_progress) => {
-        if (in_progress) {
-            form.get('date')?.disable({ emitEvent: false });
-        } else {
-            form.get('date')?.enable({ emitEvent: false });
-        }
-    });
+    (form as any)._time_sync = setupFormTimeSync(form);
     if (booking.state === 'started' || booking.state === 'in_progress') {
         form.get('date').disable();
     }

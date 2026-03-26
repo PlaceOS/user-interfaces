@@ -1413,6 +1413,8 @@
             "PARKING_CHECKED_OUT_AT": "غادر في {{ time }}",
             "PARKING_CHECKED_IN": "وصل إلى الموقف",
             "PARKING_NOT_CHECKED_IN": "لم يصل إلى الموقف",
+            "PARKING_WAITLIST": "قائمة الانتظار",
+            "PARKING_WAITLISTED": "في قائمة الانتظار",
             "PARKING_APPROVE": "الموافقة على الحجز",
             "PARKING_APPROVE_ERROR": "فشل الموافقة على حجز موقف السيارات. خطأ: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "تمت الموافقة على حجز موقف السيارات بنجاح.",

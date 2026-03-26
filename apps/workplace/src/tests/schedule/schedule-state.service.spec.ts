@@ -1,6 +1,6 @@
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -17,6 +17,7 @@ describe('ScheduleStateService', () => {
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 active_building: of({} as any),
+                building_list: new BehaviorSubject([]),
                 level_list: of([]),
                 building_list: of([]),
             }),

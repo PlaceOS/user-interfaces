@@ -23,6 +23,7 @@ describe('BookingCardComponent', () => {
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 level_list: new BehaviorSubject([]),
+                building_list: new BehaviorSubject([]),
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),

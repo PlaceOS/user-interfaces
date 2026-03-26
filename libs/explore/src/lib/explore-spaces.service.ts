@@ -18,6 +18,7 @@ import {
     currentUser,
     HashMap,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     OrganisationService,
     rulesForResource,
@@ -154,6 +155,13 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         }
         if (room_alerts[space.id]?.[0] === 'closed') {
             return notifyError(`${room_alerts[space.id][1]}`);
+        }
+        const bookable_hours = this._settings.get('app.events.bookable_hours');
+        if (
+            bookable_hours &&
+            !isWithinBookableHours(Date.now(), bookable_hours)
+        ) {
+            return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
         }
         if (this._settings.get('app.events.booking_unavailable')) {
             return this._event_form.openEventLinkModal();

@@ -240,16 +240,16 @@
     "$defs": {
         "bookable_hours": {
             "type": "object",
-            "description": "Bookable time window in minutes since midnight. For example, `480` is 8:00 AM and `1140` is 7:00 PM.",
+            "description": "Bookable time window as hours of the day (0-24). For example, `8` is 8:00 AM and `19` is 7:00 PM.",
             "required": ["start", "end"],
             "properties": {
                 "start": {
                     "type": "number",
-                    "description": "Earliest allowed booking start time in minutes since midnight."
+                    "description": "Earliest allowed booking start time as hour of the day (0-24)."
                 },
                 "end": {
                     "type": "number",
-                    "description": "Latest allowed booking end time in minutes since midnight."
+                    "description": "Latest allowed booking end time as hour of the day (0-24)."
                 }
             }
         },

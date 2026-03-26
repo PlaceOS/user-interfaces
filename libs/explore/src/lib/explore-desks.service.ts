@@ -26,13 +26,16 @@ import {
 } from 'rxjs/operators';
 
 import {
+    alignDateToBookableHours,
     AsyncHandler,
+    BookableHoursRange,
     Booking,
     BookingRuleset,
     currentUser,
     Desk,
     firstTruthyValueFrom,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifySuccess,
@@ -468,6 +471,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         host = false,
         resource: Desk = null,
         all_day = false,
+        bookable_hours: BookableHoursRange | null = null,
     ) {
         let user = null;
         if (this._settings.get('app.desks.allow_time_changes')) {
@@ -489,6 +493,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     resource,
                     all_day,
                     allow_all_day,
+                    bookable_hours,
                 },
             });
             const details = await lastValueFrom(ref.afterClosed());
@@ -520,12 +525,32 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         this._bookings.newForm('desk');
         this._bookings.setOptions({ type: 'desk' });
+        const bookable_hours: BookableHoursRange | null =
+            this._settings.get('app.desks.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours') ||
+            null;
+        if (
+            bookable_hours &&
+            !this._settings.get('app.desks.allow_time_changes') &&
+            !isWithinBookableHours(Date.now(), bookable_hours)
+        ) {
+            return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
+        }
         if (options.date) {
             this._bookings.form.patchValue({
-                date: options.date,
+                date: bookable_hours
+                    ? alignDateToBookableHours(options.date, bookable_hours)
+                    : options.date,
             });
             this._bookings.form.patchValue({
                 all_day: !!options.all_day,
+            });
+        } else if (bookable_hours) {
+            this._bookings.form.patchValue({
+                date: alignDateToBookableHours(
+                    this._bookings.form.value.date,
+                    bookable_hours,
+                ),
             });
         }
         let { date, duration, user, all_day } = await this._setBookingTime(
@@ -534,6 +559,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._options.getValue()?.custom ?? false,
             desk as any,
             !!options.all_day,
+            bookable_hours,
         );
         user = user || options.host || currentUser();
         const user_email = user?.email;

@@ -84,6 +84,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr_time"
                                 [range]="bookable_hours"
+                                [min_duration]="min_duration"
                             ></a-time-field>
                         </div>
                         <div class="flex flex-1 flex-col">
@@ -364,6 +365,10 @@ export class EventFormComponent extends AsyncHandler {
 
     public get bookable_hours() {
         return this._settings.get('app.events.bookable_hours');
+    }
+
+    public get min_duration() {
+        return this._settings.get('app.events.min_duration') || 30;
     }
 
     public get max_duration() {

@@ -101,6 +101,30 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                         </mat-option>
                     }
                     @if (
+                        term &&
+                        allow_externals() &&
+                        isValidEmail(term) &&
+                        !(validate() && validate()(term))
+                    ) {
+                        <mat-option class="pointer-events-none relative">
+                            <div
+                                class="pointer-events-auto absolute inset-0 px-4"
+                                (mousedown)="stopEvent($event)"
+                                (touchstart)="stopEvent($event)"
+                                (click)="
+                                    setValueFromEmail(term); stopEvent($event)
+                                "
+                            >
+                                <div class="pointer-events-none">
+                                    {{
+                                        'FORM.USER_ADD_EXTERNAL'
+                                            | translate: { name: term }
+                                    }}
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                    @if (
                         !user_list?.length &&
                         (search_term.getValue() || error())
                     ) {
@@ -184,6 +208,8 @@ export class UserSearchFieldComponent
     public readonly validate = input<(s: string) => boolean>(undefined);
     /** Function to call when empty list option is clicked */
     public readonly empty_fn = input<() => void>(undefined);
+    /** Whether to allow selecting an external user from a typed email address */
+    public readonly allow_externals = input<boolean>(false);
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
@@ -282,6 +308,22 @@ export class UserSearchFieldComponent
     public stopEvent(event: Event) {
         event.stopPropagation();
         event.preventDefault();
+    }
+
+    /** Check if a string is a valid email address */
+    public isValidEmail(value: string): boolean {
+        const re =
+            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(value);
+    }
+
+    /**
+     * Set the value from a typed email address
+     * @param email Email address to create a user from
+     */
+    public setValueFromEmail(email: string): void {
+        const name = email.split('@')[0];
+        this.setValue(name, email);
     }
 
     public clearUser() {
