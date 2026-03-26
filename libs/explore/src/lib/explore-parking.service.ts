@@ -187,7 +187,7 @@ export class ExploreParkingService extends AsyncHandler {
                     event?.extension_data?.plate_number ||
                     user?.plate_number ||
                     undefined;
-                return !event && !is_restricted;
+                return !event && !is_restricted && space.bookable !== false;
             });
             this._updateParkingSpaces(spaces, available);
             return available;
@@ -240,13 +240,16 @@ export class ExploreParkingService extends AsyncHandler {
                 this._settings.app_name.toLowerCase().includes('staff');
             const is_assigned = is_workplace ? false : !!space.assigned_to;
             const id = space.map_id || space.id;
-            const status = is_assigned
-                ? can_book
-                    ? 'pending'
-                    : 'busy'
-                : can_book
-                  ? 'free'
-                  : 'busy';
+            const status =
+                space.bookable === false
+                    ? 'not-bookable'
+                    : is_assigned
+                      ? can_book
+                          ? 'pending'
+                          : 'busy'
+                      : can_book
+                        ? 'free'
+                        : 'busy';
             styles[`#${id}`] = {
                 fill:
                     colours[`parking-${status}`] ||
