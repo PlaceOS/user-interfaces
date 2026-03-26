@@ -19,6 +19,7 @@ import {
 } from '@placeos/bookings';
 import {
     AsyncHandler,
+    currentUser,
     Desk,
     firstTruthyValueFrom,
     i18n,
@@ -44,7 +45,7 @@ import { isBefore, startOfMinute } from 'date-fns';
         >
             <!-- Header -->
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{ 'BOOKINGS.DESK_AUTO_ASSIGNED_TITLE' | translate }}
@@ -84,7 +85,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                     <!-- Success Message -->
                     <div class="mb-6 flex items-start space-x-3">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-success text-white"
+                            class="bg-success flex h-8 w-8 items-center justify-center rounded-full text-white"
                         >
                             <icon class="text-xl">done</icon>
                         </div>
@@ -103,12 +104,12 @@ import { isBefore, startOfMinute } from 'date-fns';
 
                     <!-- Desk Details Card -->
                     <div
-                        class="mb-4 space-y-3 rounded-lg border border-base-200 bg-base-100 p-4"
+                        class="border-base-200 bg-base-100 mb-4 space-y-3 rounded-lg border p-4"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">chair</icon>
                             <div class="leading-tight">
-                                <div class="text-xs uppercase tracking-wide">
+                                <div class="text-xs tracking-wide uppercase">
                                     {{ 'RESOURCE.DESK' | translate }}
                                 </div>
                                 <div class="text-lg font-medium">
@@ -122,7 +123,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">layers</icon>
                             <div class="leading-tight">
-                                <div class="text-xs uppercase tracking-wide">
+                                <div class="text-xs tracking-wide uppercase">
                                     {{ 'COMMON.FLOOR' | translate }}
                                 </div>
                                 <div class="text-lg font-medium">
@@ -133,7 +134,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">place</icon>
                             <div class="leading-none">
-                                <div class="text-xs uppercase tracking-wide">
+                                <div class="text-xs tracking-wide uppercase">
                                     {{
                                         'BOOKINGS.DESK_NEIGHBOURHOOD'
                                             | translate
@@ -151,7 +152,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                         {{ 'BOOKINGS.DESK_LOCATION_ON_MAP' | translate }}
                     </div>
                     <div
-                        class="relative h-64 overflow-hidden rounded-lg border border-base-200 bg-base-200"
+                        class="border-base-200 bg-base-200 relative h-64 overflow-hidden rounded-lg border"
                     >
                         @if (map_url()) {
                             <interactive-map
@@ -162,7 +163,7 @@ import { isBefore, startOfMinute } from 'date-fns';
                             ></interactive-map>
                         } @else {
                             <div
-                                class="flex h-full w-full items-center justify-center text-base-content opacity-30"
+                                class="text-base-content flex h-full w-full items-center justify-center opacity-30"
                             >
                                 <div class="text-center">
                                     <icon class="mb-2 text-4xl">map</icon>
@@ -181,7 +182,7 @@ import { isBefore, startOfMinute } from 'date-fns';
 
             <!-- Footer -->
             <footer
-                class="flex items-center justify-between gap-2 border-t border-base-200 p-4"
+                class="border-base-200 flex items-center justify-between gap-2 border-t p-4"
             >
                 <button
                     btn
@@ -332,8 +333,22 @@ export class AutoAssignedDeskModalComponent
 
             // Fallback to original logic if no nearby desk found
             if (!assigned_desk) {
+                // Prefer desks whose tags match the current user's groups
+                const user_groups = currentUser()?.groups || [];
+                const tag_matched = user_groups.length
+                    ? available_desks.filter(
+                          (desk) =>
+                              desk.tags?.length &&
+                              desk.tags.some((tag) =>
+                                  user_groups.includes(tag),
+                              ),
+                      )
+                    : [];
+                const pool =
+                    tag_matched.length > 0 ? tag_matched : available_desks;
+
                 // Group desks by level and find level with most available desks
-                const desks_by_level = available_desks.reduce(
+                const desks_by_level = pool.reduce(
                     (acc, desk) => {
                         const zone_id = desk.zone?.id || 'unknown';
                         if (!acc[zone_id]) {

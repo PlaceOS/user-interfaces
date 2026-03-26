@@ -122,6 +122,7 @@ export interface BookingAsset {
     groups?: string[];
     assigned_to?: string;
     features: string[];
+    tags?: string[];
 }
 
 @Injectable({
@@ -891,16 +892,27 @@ export class BookingFormService extends AsyncHandler {
 
     /**
      * Auto-allocate a desk from the active building.
-     * Picks the level with the most available desks, then selects one at random.
+     * Prefers desks with tags matching the user's groups, then
+     * picks the level with the most available desks and selects one at random.
      */
     public async autoAllocateDesk(): Promise<void> {
         const available = await nextValueFrom(this.available_resources);
         if (!available?.length) {
             throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
         }
+        // Prefer desks whose tags match the current user's groups
+        const user_groups = currentUser()?.groups || [];
+        const tag_matched = user_groups.length
+            ? available.filter(
+                  (asset) =>
+                      asset.tags?.length &&
+                      asset.tags.some((tag) => user_groups.includes(tag)),
+              )
+            : [];
+        const pool = tag_matched.length ? tag_matched : available;
         // Group available desks by zone (level) id
         const zone_map: Record<string, BookingAsset[]> = {};
-        for (const asset of available) {
+        for (const asset of pool) {
             const zone_id = asset.zone?.id || 'unknown';
             if (!zone_map[zone_id]) zone_map[zone_id] = [];
             zone_map[zone_id].push(asset);
