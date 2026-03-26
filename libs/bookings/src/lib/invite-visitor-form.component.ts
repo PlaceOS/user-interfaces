@@ -141,6 +141,8 @@ import { BookingFormService } from './booking-form.service';
                                             }"
                                             [use_24hr]="use_24hr"
                                             [range]="bookable_hours"
+                                            [min_duration]="min_duration"
+                                            [timezone]="timezone"
                                         ></a-time-field>
                                     </div>
                                     <div class="flex w-1/3 flex-1 flex-col">
@@ -155,6 +157,7 @@ import { BookingFormService } from './booking-form.service';
                                             [max]="max_duration"
                                             [use_24hr]="use_24hr"
                                             [end_time]="bookable_hours?.end"
+                                            [timezone]="timezone"
                                         ></a-duration-field>
                                     </div>
                                 </div>
@@ -658,6 +661,21 @@ export class InviteVisitorFormComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.visitors.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.visitors.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30
+        );
     }
 
     public get form_date() {

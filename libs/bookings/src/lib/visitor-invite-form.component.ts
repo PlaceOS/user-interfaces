@@ -104,6 +104,8 @@ import { BookingFormService } from './booking-form.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
                                 [range]="bookable_hours()"
+                                [min_duration]="min_duration()"
+                                [timezone]="timezone()"
                             ></a-time-field>
                         </div>
                         <div class="flex w-1/3 flex-1 flex-col">
@@ -118,6 +120,7 @@ import { BookingFormService } from './booking-form.service';
                                 [max]="max_duration()"
                                 [use_24hr]="use_24hr()"
                                 [end_time]="bookable_hours()?.end"
+                                [timezone]="timezone()"
                             ></a-duration-field>
                         </div>
                     </div>
@@ -393,6 +396,29 @@ export class VisitorInviteFormComponent
         false,
     );
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
+    private readonly _visitor_use_bld_tz = settingSignal(
+        'visitors.use_building_timezone',
+        false,
+    );
+    private readonly _booking_use_bld_tz = settingSignal(
+        'bookings.use_building_timezone',
+        false,
+    );
+    public readonly timezone = computed(() =>
+        this._visitor_use_bld_tz() || this._booking_use_bld_tz()
+            ? this._org.building?.timezone || ''
+            : '',
+    );
+    private readonly _visitor_min_duration = settingSignal(
+        'visitors.min_duration',
+    );
+    private readonly _booking_min_duration = settingSignal(
+        'bookings.min_duration',
+    );
+    public readonly min_duration = computed(
+        () =>
+            this._visitor_min_duration() || this._booking_min_duration() || 30,
+    );
     public readonly buildings = this._org.active_buildings;
     public readonly building = computed(() =>
         settingSignal('use_region', false)()
