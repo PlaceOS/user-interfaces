@@ -661,7 +661,7 @@
         "PARKING_SELECT_MSG": "Select a parking space to view its details",
         "PARKING_REQUEST_TITLE": "Parking Booking Request",
         "PARKING_REQUEST_SUBTITLE": "Reserve your parking space in advance",
-        "PARKING_BOOKING_FREQUENCY": "Booking Frequency",
+        "PARKING_BOOKING_FREQUENCY": "Booking Date",
         "PARKING_FREQUENCY_SINGLE": "Single Day",
         "PARKING_FREQUENCY_SINGLE_DESC": "Book parking for the selected date only",
         "PARKING_FREQUENCY_DAILY": "Multi-day",
