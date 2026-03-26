@@ -11,10 +11,13 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { addDays, isSameDay, startOfWeek } from 'date-fns';
+import { addDays, endOfWeek, isSameDay, startOfWeek } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-import { ParkingStateService } from './parking-state.service';
+import {
+    ParkingRequestFilter,
+    ParkingStateService,
+} from './parking-state.service';
 
 @Component({
     selector: 'parking-requests-week-view',
@@ -51,8 +54,13 @@ import { ParkingStateService } from './parking-state.service';
                                 [class.border-success]="
                                     booking.status === 'approved'
                                 "
+                                [class.border-info]="
+                                    booking.status === 'tentative' &&
+                                    isWaitlisted(booking)
+                                "
                                 [class.border-warning]="
-                                    booking.status === 'tentative'
+                                    booking.status === 'tentative' &&
+                                    !isWaitlisted(booking)
                                 "
                                 [class.border-error]="
                                     booking.status === 'declined'
@@ -129,11 +137,21 @@ import { ParkingStateService } from './parking-state.service';
                                         [class.bg-error]="
                                             booking.status === 'declined'
                                         "
+                                        [class.text-info-content]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
+                                        "
+                                        [class.bg-info]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
+                                        "
                                         [class.text-warning-content]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
                                         "
                                         [class.bg-warning]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
                                         "
                                         [class.text-neutral-content]="
                                             booking.status === 'ended'
@@ -152,7 +170,9 @@ import { ParkingStateService } from './parking-state.service';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                                    : isWaitlisted(booking)
+                                                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                                                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                             ) | translate
                                         }}
                                     </button>
@@ -295,7 +315,7 @@ export class ParkingRequestsWeekViewComponent
         this.days,
         this.options,
     ]).pipe(
-        map(([bookings, days, { search }]) => {
+        map(([bookings, days, { search, request_filter }]) => {
             const user_groups = currentUser()?.groups || [];
             let list = bookings.filter((b) => {
                 if (!b.asset_id?.startsWith('unallocated')) return false;
@@ -304,6 +324,7 @@ export class ParkingRequestsWeekViewComponent
                     return false;
                 return true;
             });
+            list = this._applyRequestFilter(list, request_filter);
             const s = search?.toLowerCase();
             if (s) {
                 list = list.filter(
@@ -343,8 +364,55 @@ export class ParkingRequestsWeekViewComponent
         this._state.editReservation(e);
     public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
 
+    private _applyRequestFilter(
+        list: Booking[],
+        filter_type: ParkingRequestFilter,
+    ): Booking[] {
+        if (filter_type === 'all') return list;
+        const now = Date.now();
+        const week_start = this._state.week_start;
+        const current_week_start = startOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        const current_week_end = endOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        if (filter_type === 'waitlist') {
+            return list.filter(
+                (b) =>
+                    b.status === 'tentative' &&
+                    b.date >= current_week_start &&
+                    b.date <= current_week_end,
+            );
+        }
+        if (filter_type === 'pending') {
+            return list.filter(
+                (b) =>
+                    b.status === 'tentative' &&
+                    (b.date < current_week_start || b.date > current_week_end),
+            );
+        }
+        return list;
+    }
+
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public isWaitlisted(booking: Booking): boolean {
+        if (booking.status !== 'tentative') return false;
+        const now = Date.now();
+        const week_start = this._state.week_start;
+        const current_week_start = startOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        const current_week_end = endOfWeek(now, {
+            weekStartsOn: week_start,
+        }).valueOf();
+        return (
+            booking.date >= current_week_start &&
+            booking.date <= current_week_end
+        );
     }
 
     public isToday(date: number) {

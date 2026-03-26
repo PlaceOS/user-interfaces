@@ -1409,6 +1409,8 @@
             "PARKING_CHECKED_OUT_AT": "离开于 {{ time }}",
             "PARKING_CHECKED_IN": "已到达车位",
             "PARKING_NOT_CHECKED_IN": "尚未到达车位",
+            "PARKING_WAITLIST": "候补名单",
+            "PARKING_WAITLISTED": "候补中",
             "PARKING_APPROVE": "批准预留",
             "PARKING_APPROVE_ERROR": "批准停车预留失败。错误：{{ error }}",
             "PARKING_APPROVE_SUCCESS": "成功批准停车预留。",

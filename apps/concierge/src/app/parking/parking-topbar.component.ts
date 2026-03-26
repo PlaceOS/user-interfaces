@@ -31,7 +31,10 @@ import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { ParkingStateService } from './parking-state.service';
+import {
+    ParkingRequestFilter,
+    ParkingStateService,
+} from './parking-state.service';
 
 @Component({
     selector: 'parking-topbar',
@@ -158,7 +161,27 @@ import { ParkingStateService } from './parking-state.service';
                     </a>
                 </div>
             }
-            @if (view() !== 'requests') {
+            @if (view() === 'requests') {
+                <mat-form-field appearance="outline" class="no-subscript w-40">
+                    <mat-select
+                        [ngModel]="(options | async)?.request_filter"
+                        (ngModelChange)="setRequestFilter($event)"
+                    >
+                        <mat-option value="all">
+                            {{ 'COMMON.ALL' | translate }}
+                        </mat-option>
+                        <mat-option value="waitlist">
+                            {{ 'APP.CONCIERGE.PARKING_WAITLIST' | translate }}
+                        </mat-option>
+                        <mat-option value="pending">
+                            {{
+                                'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    | translate
+                            }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            } @else {
                 <mat-form-field appearance="outline" class="no-subscript w-56">
                     <mat-select
                         [(ngModel)]="zones"
@@ -325,6 +348,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
+    /** Set request filter (all / waitlist / pending) */
+    public readonly setRequestFilter = (f: ParkingRequestFilter) =>
+        this._state.setOptions({ request_filter: f });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('parking')) return;

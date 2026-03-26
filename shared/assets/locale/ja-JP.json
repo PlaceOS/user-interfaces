@@ -1409,6 +1409,8 @@
             "PARKING_CHECKED_OUT_AT": "{{ time }}に出発",
             "PARKING_CHECKED_IN": "スペースに到着済み",
             "PARKING_NOT_CHECKED_IN": "スペースに未到着",
+            "PARKING_WAITLIST": "キャンセル待ち",
+            "PARKING_WAITLISTED": "キャンセル待ち中",
             "PARKING_APPROVE": "予約を承認",
             "PARKING_APPROVE_ERROR": "駐車予約の承認に失敗しました。エラー: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "駐車予約の承認に成功しました。",

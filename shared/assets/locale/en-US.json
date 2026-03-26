@@ -1423,6 +1423,8 @@
             "PARKING_CHECKED_OUT_AT": "Left at {{ time }}",
             "PARKING_CHECKED_IN": "Arrived at space",
             "PARKING_NOT_CHECKED_IN": "Has not arrived at space",
+            "PARKING_WAITLIST": "Waitlist",
+            "PARKING_WAITLISTED": "Waitlisted",
             "PARKING_APPROVE": "Approve Reservation",
             "PARKING_APPROVE_ERROR": "Failed to approve the parking reservation. Error: {{ error }}",
             "PARKING_APPROVE_SUCCESS": "Successfully approved parking reservation.",

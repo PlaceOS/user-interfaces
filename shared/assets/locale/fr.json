@@ -1409,6 +1409,8 @@
             "PARKING_CHECKED_OUT_AT": "Parti à {{ time }}",
             "PARKING_CHECKED_IN": "Arrivé à la place",
             "PARKING_NOT_CHECKED_IN": "N’est pas arrivé à la place",
+            "PARKING_WAITLIST": "Liste d'attente",
+            "PARKING_WAITLISTED": "En attente",
             "PARKING_APPROVE": "Approuver la réservation",
             "PARKING_APPROVE_ERROR": "Impossible d’approuver la réservation de stationnement. Erreur : {{ error }}",
             "PARKING_APPROVE_SUCCESS": "Réservation de stationnement approuvée avec succès.",
