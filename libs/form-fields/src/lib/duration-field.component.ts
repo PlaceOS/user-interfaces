@@ -147,7 +147,7 @@ export class DurationFieldComponent
     public readonly use_24hr = input(false);
     /** Display extra information for displayed times for timezone */
     public readonly timezone = input('');
-    /** Latest selectable end time in minutes since midnight */
+    /** Latest selectable end time as hour of the day (0–24) */
     public readonly end_time = input<number>(undefined);
 
     public duration = 60;
@@ -325,11 +325,12 @@ export class DurationFieldComponent
         if (end_time === undefined || end_time === null || !time_value) {
             return max;
         }
-        // Use building timezone to compute start minutes since end_time
-        // is in building timezone minutes-since-midnight
+        // Convert end_time from hour-of-day to minutes-since-midnight,
+        // then compute the remaining minutes from the current start time
+        const end_time_minutes = end_time * 60;
         const tz = this.timezone() || undefined;
         const { hours, minutes } = getTimeInTimezone(time_value, tz);
         const start_minutes = hours * 60 + minutes;
-        return Math.max(0, Math.min(max, end_time - start_minutes));
+        return Math.max(0, Math.min(max, end_time_minutes - start_minutes));
     }
 }

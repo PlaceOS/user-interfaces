@@ -93,38 +93,38 @@ describe('General Methods', () => {
     describe('bookable hours helpers', () => {
         it('should return the next rounded time within the current window', () => {
             const date = new Date(2026, 2, 20, 9, 2).valueOf();
-            expect(
-                getNextBookableTime({ start: 8 * 60, end: 17 * 60 }, date),
-            ).toBe(new Date(2026, 2, 20, 9, 5).valueOf());
+            expect(getNextBookableTime({ start: 8, end: 17 }, date)).toBe(
+                new Date(2026, 2, 20, 9, 5).valueOf(),
+            );
         });
 
         it('should detect whether a start time is inside bookable hours', () => {
             expect(
                 isWithinBookableHours(new Date(2026, 2, 20, 9, 0).valueOf(), {
-                    start: 8 * 60,
-                    end: 17 * 60,
+                    start: 8,
+                    end: 17,
                 }),
             ).toBe(true);
             expect(
                 isWithinBookableHours(new Date(2026, 2, 20, 17, 0).valueOf(), {
-                    start: 8 * 60,
-                    end: 17 * 60,
+                    start: 8,
+                    end: 17,
                 }),
             ).toBe(false);
         });
 
         it('should advance to the next day when past the bookable window', () => {
             const date = new Date(2028, 5, 10, 18, 30).valueOf();
-            expect(
-                getNextBookableTime({ start: 8 * 60, end: 17 * 60 }, date),
-            ).toBe(new Date(2028, 5, 11, 8, 0).valueOf());
+            expect(getNextBookableTime({ start: 8, end: 17 }, date)).toBe(
+                new Date(2028, 5, 11, 8, 0).valueOf(),
+            );
         });
 
         it('should snap to start of today when before the bookable window', () => {
             const date = new Date(2028, 5, 10, 6, 0).valueOf();
-            expect(
-                getNextBookableTime({ start: 8 * 60, end: 17 * 60 }, date),
-            ).toBe(new Date(2028, 5, 10, 8, 0).valueOf());
+            expect(getNextBookableTime({ start: 8, end: 17 }, date)).toBe(
+                new Date(2028, 5, 10, 8, 0).valueOf(),
+            );
         });
 
         it('should return undefined when no bookable_hours configured', () => {
@@ -136,8 +136,8 @@ describe('General Methods', () => {
             const date = new Date(2028, 5, 10, 3, 0).valueOf();
             expect(
                 alignDateToBookableHours(date, {
-                    start: 8 * 60,
-                    end: 17 * 60,
+                    start: 8,
+                    end: 17,
                 }),
             ).toBe(new Date(2028, 5, 10, 8, 0).valueOf());
         });
@@ -146,8 +146,8 @@ describe('General Methods', () => {
             const date = new Date(2028, 5, 10, 12, 30).valueOf();
             expect(
                 alignDateToBookableHours(date, {
-                    start: 8 * 60,
-                    end: 17 * 60,
+                    start: 8,
+                    end: 17,
                 }),
             ).toBe(date);
         });
@@ -161,12 +161,7 @@ describe('General Methods', () => {
             // 16:45 with min_duration=30 → effective end is 16:30 → outside
             const date = new Date(2028, 5, 10, 16, 45).valueOf();
             expect(
-                getNextBookableTime(
-                    { start: 8 * 60, end: 17 * 60 },
-                    date,
-                    '',
-                    30,
-                ),
+                getNextBookableTime({ start: 8, end: 17 }, date, '', 30),
             ).toBe(new Date(2028, 5, 11, 8, 0).valueOf());
         });
 
@@ -174,12 +169,7 @@ describe('General Methods', () => {
             // 16:00 with min_duration=30 → effective end is 16:30 → inside
             const date = new Date(2028, 5, 10, 16, 0).valueOf();
             expect(
-                getNextBookableTime(
-                    { start: 8 * 60, end: 17 * 60 },
-                    date,
-                    '',
-                    30,
-                ),
+                getNextBookableTime({ start: 8, end: 17 }, date, '', 30),
             ).toBe(new Date(2028, 5, 10, 16, 0).valueOf());
         });
 
@@ -189,7 +179,7 @@ describe('General Methods', () => {
             expect(
                 alignDateToBookableHours(
                     date,
-                    { start: 8 * 60, end: 17 * 60 },
+                    { start: 8, end: 17 },
                     date,
                     '',
                     30,
@@ -574,7 +564,7 @@ describe('General Methods', () => {
 
         // --- bookable hours ---
 
-        const HOURS_9_TO_17 = { start: 9 * 60, end: 17 * 60 };
+        const HOURS_9_TO_17 = { start: 9, end: 17 };
 
         it('should snap date into the bookable window for new items', () => {
             // 06:00 is before the 09:00–17:00 window

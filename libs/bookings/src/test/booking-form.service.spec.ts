@@ -201,7 +201,7 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.parking.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });
@@ -223,7 +223,7 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });
@@ -253,7 +253,7 @@ describe('BookingFormService', () => {
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
             if (key === 'app.desks.bookable_hours') {
-                return { start: 8 * 60, end: 17 * 60 };
+                return { start: 8, end: 17 };
             }
             return undefined;
         });

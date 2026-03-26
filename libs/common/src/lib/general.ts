@@ -666,7 +666,9 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
 }
 
 export interface BookableHoursRange {
+    /** Earliest allowed booking hour (0–24). For example, `8` means 8:00 AM. */
     start: number;
+    /** Latest allowed booking hour (0–24). For example, `17` means 5:00 PM. */
     end: number;
 }
 
@@ -676,21 +678,17 @@ export interface BookableHoursRange {
  * bookable window it is returned unchanged (rounded up to the nearest 5 min).
  * If it falls outside, the start of the next bookable window is returned.
  *
- * @param bookable_hours Range with `start` and `end` in minutes since midnight
- * @param now            Reference timestamp in ms (defaults to Date.now())
- * @returns ms epoch of the next available booking time, or `undefined` if no
- *          adjustment is needed (bookable_hours is not set)
- */
-/**
- * @param bookable_hours  The bookable window (minutes since midnight).
+ * @param bookable_hours  The bookable window (hours of the day, 0–24).
  * @param now             Reference timestamp (ms epoch). Defaults to `Date.now()`.
  * @param timezone        IANA timezone for wall-clock calculations. Empty = local.
  * @param min_duration    When > 0, the effective end of the bookable window is
  *                        shifted earlier by this many minutes so that a booking
  *                        of at least `min_duration` can still fit. For example
- *                        with `end = 1020` (17:00) and `min_duration = 30`,
+ *                        with `end = 17` (17:00) and `min_duration = 30`,
  *                        any time at or after 16:30 is treated as outside the
  *                        window.
+ * @returns ms epoch of the next available booking time, or `undefined` if no
+ *          adjustment is needed (bookable_hours is not set)
  */
 export function getNextBookableTime(
     bookable_hours: BookableHoursRange | undefined | null,
@@ -702,11 +700,14 @@ export function getNextBookableTime(
     const { start, end } = bookable_hours;
     if (start == null || end == null) return undefined;
 
-    const effective_end = min_duration > 0 ? end - min_duration : end;
+    const start_minutes = start * 60;
+    const end_minutes = end * 60;
+    const effective_end =
+        min_duration > 0 ? end_minutes - min_duration : end_minutes;
     const time = timezone ? toZonedTime(now, timezone) : new Date(now);
     const current_minutes = time.getHours() * 60 + time.getMinutes();
 
-    if (current_minutes >= start && current_minutes < effective_end) {
+    if (current_minutes >= start_minutes && current_minutes < effective_end) {
         // Within bookable hours — return now rounded up to nearest 5 min
         return roundToNearestMinutes(now, {
             nearestTo: 5,
@@ -716,11 +717,11 @@ export function getNextBookableTime(
 
     // Outside bookable hours — advance to the start of the next window
     const base_day =
-        current_minutes < start
+        current_minutes < start_minutes
             ? startOfDay(time)
             : addDays(startOfDay(time), 1);
     // Convert wall-clock result back to UTC epoch when timezone-aware
-    const wall_clock_ms = base_day.getTime() + start * 60 * 1000;
+    const wall_clock_ms = base_day.getTime() + start_minutes * 60 * 1000;
     return timezone
         ? fromZonedTime(wall_clock_ms, timezone).valueOf()
         : wall_clock_ms;
@@ -743,7 +744,10 @@ export function alignDateToBookableHours(
     const { start, end } = bookable_hours;
     if (start == null || end == null) return date;
 
-    const effective_end = min_duration > 0 ? end - min_duration : end;
+    const start_minutes = start * 60;
+    const end_minutes = end * 60;
+    const effective_end =
+        min_duration > 0 ? end_minutes - min_duration : end_minutes;
     const base_date = new Date(date);
     const reference = timezone
         ? toZonedTime(fallback_date || date, timezone)
@@ -760,7 +764,7 @@ export function alignDateToBookableHours(
     const adjusted_minutes =
         adjusted_time.getHours() * 60 + adjusted_time.getMinutes();
 
-    if (adjusted_minutes >= start && adjusted_minutes < effective_end) {
+    if (adjusted_minutes >= start_minutes && adjusted_minutes < effective_end) {
         return adjusted_date;
     }
 
@@ -776,8 +780,8 @@ export function alignDateToBookableHours(
     }
 
     adjusted_date = set(base_date, {
-        hours: Math.floor(start / 60),
-        minutes: start % 60,
+        hours: start,
+        minutes: 0,
         seconds: 0,
         milliseconds: 0,
     }).valueOf();
@@ -794,7 +798,7 @@ export function isWithinBookableHours(
     if (start == null || end == null) return true;
     const time = timezone ? toZonedTime(date, timezone) : new Date(date);
     const minutes = time.getHours() * 60 + time.getMinutes();
-    return minutes >= start && minutes < end;
+    return minutes >= start * 60 && minutes < end * 60;
 }
 
 export function mapLastValueFrom<T = any>(
@@ -843,7 +847,7 @@ export interface FormTimeSyncOptions {
     round_to?: number;
 
     /**
-     * Bookable hours range (minutes since midnight). When set, the `date`
+     * Bookable hours range (hours of the day, 0–24). When set, the `date`
      * handler will snap new-form dates to the next bookable window via
      * {@link getNextBookableTime}, and dates set outside the window are
      * aligned via {@link alignDateToBookableHours}.
@@ -974,17 +978,16 @@ export function setupFormTimeSync(
             ? toZonedTime(date_end, timezone)
             : new Date(date_end);
         const end_minutes = time.getHours() * 60 + time.getMinutes();
-        if (
-            end_minutes >= bookable_hours.start &&
-            end_minutes <= bookable_hours.end
-        ) {
+        const bh_start_minutes = bookable_hours.start * 60;
+        const bh_end_minutes = bookable_hours.end * 60;
+        if (end_minutes >= bh_start_minutes && end_minutes <= bh_end_minutes) {
             return date_end;
         }
         // Snap to the end of the bookable window on the same day
-        if (end_minutes > bookable_hours.end) {
+        if (end_minutes > bh_end_minutes) {
             const snapped = set(time, {
-                hours: Math.floor(bookable_hours.end / 60),
-                minutes: bookable_hours.end % 60,
+                hours: bookable_hours.end,
+                minutes: 0,
                 seconds: 0,
                 milliseconds: 0,
             });
@@ -994,8 +997,8 @@ export function setupFormTimeSync(
         }
         // Before start — snap to the start of the bookable window
         const snapped = set(time, {
-            hours: Math.floor(bookable_hours.start / 60),
-            minutes: bookable_hours.start % 60,
+            hours: bookable_hours.start,
+            minutes: 0,
             seconds: 0,
             milliseconds: 0,
         });
