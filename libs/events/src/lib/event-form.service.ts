@@ -8,6 +8,7 @@ import {
     currentUser,
     filterResourcesFromRules,
     flatten,
+    getFormTimeSyncHandle,
     getInvalidFields,
     i18n,
     notifyError,
@@ -407,6 +408,7 @@ export class OldEventFormService extends AsyncHandler {
         super();
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
+        this._space_pipe = space_pipe;
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
@@ -439,6 +441,26 @@ export class OldEventFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
+        this.subscription(
+            'settings_change',
+            this._settings.overrides$
+                .pipe(filter((_) => !!_?.length))
+                .subscribe(() => this._applyDurationSettings()),
+        );
+    }
+
+    /** Push the current building's duration and bookable-hours settings into the time sync. */
+    private _applyDurationSettings() {
+        const handle = getFormTimeSyncHandle(this._form);
+        handle?.updateOptions({
+            min_duration: this._settings.get('app.events.min_duration') ?? 30,
+            max_duration: this._settings.get('app.events.max_duration') ?? 0,
+            default_duration:
+                this._settings.get('app.events.default_duration') ?? 60,
+            bookable_hours:
+                this._settings.get('app.events.bookable_hours') ?? null,
+            timezone: this.timezone,
+        });
     }
 
     public listenForStatusChanges() {

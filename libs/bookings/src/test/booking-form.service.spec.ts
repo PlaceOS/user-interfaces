@@ -27,7 +27,10 @@ describe('BookingFormService', () => {
                 navigate: jest.fn(),
                 events: new Subject(),
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                overrides$: new BehaviorSubject([]),
+            }),
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 active_building: new BehaviorSubject({ id: 'bld-1' }),

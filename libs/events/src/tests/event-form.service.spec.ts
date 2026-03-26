@@ -37,7 +37,10 @@ describe('EventFormService', () => {
                 makePayment: jest.fn(),
                 enabled: true,
             }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn(),
+                overrides$: new BehaviorSubject([]),
+            }),
             MockProvider(AssetStateService, {}),
             MockProvider(MatDialog, { open: jest.fn() }),
         ],

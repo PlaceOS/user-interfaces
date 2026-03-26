@@ -399,12 +399,9 @@ export class EventFormService extends AsyncHandler {
             this.storeForm();
         });
         this.subscription(
-            'building_change',
-            this._org.active_building
-                .pipe(
-                    filter((_) => !!_),
-                    distinctUntilKeyChanged('id'),
-                )
+            'settings_change',
+            this._settings.overrides$
+                .pipe(filter((_) => !!_?.length))
                 .subscribe(() => this._applyDurationSettings()),
         );
         this.loadLastSuccess();
