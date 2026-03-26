@@ -555,6 +555,18 @@ export class EventFormService extends AsyncHandler {
             ) {
                 throw i18n('FORM.BOOKABLE_HOURS_ERROR');
             }
+            // For multiday bookings, also validate the end time
+            if (
+                this.form.value.date_end &&
+                this.form.value.duration > 24 * 60 &&
+                !isWithinBookableHours(
+                    this.form.value.date_end,
+                    bookable_hours,
+                    this.form.value.timezone,
+                )
+            ) {
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+            }
 
             // Validate that all selected room resource are available
             if (spaces.length && has_time_changed) {

@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from '@angular/forms';
-import { addMinutes } from 'date-fns';
+import { addMinutes, differenceInMinutes } from 'date-fns';
 import {
     alignDateToBookableHours,
     csvToJson,
@@ -739,6 +739,155 @@ describe('General Methods', () => {
             expect(form.getRawValue().date).toBe(
                 new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
             );
+        });
+
+        // --- multiday bookings ---
+
+        it('should not clamp date_end with max_duration for multiday bookings', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const end = new Date(2028, 5, 17, 14, 0, 0, 0).valueOf();
+            const form = createForm({
+                date: start,
+                duration: 60,
+                date_end: end,
+            });
+            setupFormTimeSync(form, { max_duration: 120 });
+
+            // Set date_end to 2 days later — should NOT be clamped by max_duration
+            form.controls.date_end.setValue(end);
+
+            const result_end = form.getRawValue().date_end;
+            // End should remain on June 17 (multiday), not clamped to start + 120 min
+            expect(new Date(result_end).getDate()).toBe(17);
+        });
+
+        it('should still clamp single-day date_end with max_duration', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const form = createForm({ date: start, duration: 60 });
+            setupFormTimeSync(form, { max_duration: 120 });
+
+            // Same-day date_end 5 hours later — should be clamped
+            const end = new Date(2028, 5, 15, 15, 0, 0, 0).valueOf();
+            form.controls.date_end.setValue(end);
+
+            expect(form.getRawValue().duration).toBe(120);
+        });
+
+        it('should update duration correctly when date_end crosses into a new day', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const form = createForm({ date: start, duration: 60 });
+            setupFormTimeSync(form, { max_duration: 120 });
+
+            // End time is next day at 14:00 — multiday, ~28 hours
+            const end = new Date(2028, 5, 16, 14, 0, 0, 0).valueOf();
+            form.controls.date_end.setValue(end);
+
+            // Duration should reflect the full multiday span, not clamped
+            expect(form.getRawValue().duration).toBe(
+                differenceInMinutes(end, start),
+            );
+        });
+
+        it('should preserve multiday date_end when date (start) changes', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const end = new Date(2028, 5, 17, 14, 0, 0, 0).valueOf();
+            const form = createForm({
+                date: start,
+                duration: differenceInMinutes(end, start),
+                date_end: end,
+            });
+            setupFormTimeSync(form);
+
+            // Change start time by 1 hour — should NOT collapse date_end
+            const new_start = new Date(2028, 5, 15, 11, 0, 0, 0).valueOf();
+            form.controls.date.setValue(new_start);
+
+            // date_end should still be on June 17 (not recalculated as start + duration on same day)
+            expect(new Date(form.getRawValue().date_end).getDate()).toBe(17);
+        });
+
+        it('should align multiday end time to bookable hours on the end day', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const form = createForm({ date: start, duration: 60 });
+            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+            // Set date_end to next day at 19:00 (after bookable hours end at 17:00)
+            const late_end = new Date(2028, 5, 16, 19, 0, 0, 0).valueOf();
+            form.controls.date_end.setValue(late_end);
+
+            // Should be aligned to 17:00 on the same day
+            const result_end = form.getRawValue().date_end;
+            const result_date = new Date(result_end);
+            expect(result_date.getDate()).toBe(16);
+            expect(result_date.getHours()).toBe(17);
+            expect(result_date.getMinutes()).toBe(0);
+        });
+
+        it('should align multiday end time before bookable start to start of window', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const form = createForm({ date: start, duration: 60 });
+            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+            // Set date_end to next day at 07:00 (before bookable hours start at 09:00)
+            const early_end = new Date(2028, 5, 16, 7, 0, 0, 0).valueOf();
+            form.controls.date_end.setValue(early_end);
+
+            // Should be aligned to 09:00 on the same day
+            const result_end = form.getRawValue().date_end;
+            const result_date = new Date(result_end);
+            expect(result_date.getDate()).toBe(16);
+            expect(result_date.getHours()).toBe(9);
+            expect(result_date.getMinutes()).toBe(0);
+        });
+
+        it('should not modify multiday end time that is within bookable hours', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const form = createForm({ date: start, duration: 60 });
+            setupFormTimeSync(form, { bookable_hours: HOURS_9_TO_17 });
+
+            // Set date_end to next day at 14:00 (within 09:00–17:00)
+            const ok_end = new Date(2028, 5, 16, 14, 0, 0, 0).valueOf();
+            form.controls.date_end.setValue(ok_end);
+
+            expect(form.getRawValue().date_end).toBe(ok_end);
+        });
+
+        it('should align multiday end via updateOptions when bookable hours change', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const end = new Date(2028, 5, 17, 19, 0, 0, 0).valueOf();
+            const form = createForm({
+                date: start,
+                duration: differenceInMinutes(end, start),
+                date_end: end,
+            });
+            const handle = setupFormTimeSync(form);
+
+            // Apply bookable hours — end at 19:00 exceeds 17:00 window
+            handle.updateOptions({ bookable_hours: HOURS_9_TO_17 });
+
+            const result_end = form.getRawValue().date_end;
+            const result_date = new Date(result_end);
+            expect(result_date.getDate()).toBe(17);
+            expect(result_date.getHours()).toBe(17);
+            expect(result_date.getMinutes()).toBe(0);
+        });
+
+        it('should not apply max_duration re-clamp for multiday via updateOptions', () => {
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const end = new Date(2028, 5, 17, 14, 0, 0, 0).valueOf();
+            const dur = differenceInMinutes(end, start);
+            const form = createForm({
+                date: start,
+                duration: dur,
+                date_end: end,
+            });
+            const handle = setupFormTimeSync(form);
+
+            // Tighten max to 120 — should not clamp multiday duration
+            handle.updateOptions({ max_duration: 120 });
+
+            expect(form.getRawValue().duration).toBe(dur);
+            expect(new Date(form.getRawValue().date_end).getDate()).toBe(17);
         });
     });
 });

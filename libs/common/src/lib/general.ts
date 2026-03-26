@@ -4,6 +4,7 @@ import {
     addMinutes,
     differenceInMinutes,
     formatDuration as duration,
+    isSameDay,
     roundToNearestMinutes,
     set,
     startOfDay,
@@ -952,6 +953,57 @@ export function setupFormTimeSync(
         );
     };
 
+    /** Check whether date and date_end fall on different calendar days. */
+    const isMultiday = (date: number, date_end: number): boolean => {
+        if (!date || !date_end) return false;
+        const d = timezone ? toZonedTime(date, timezone) : new Date(date);
+        const e = timezone
+            ? toZonedTime(date_end, timezone)
+            : new Date(date_end);
+        return !isSameDay(d, e);
+    };
+
+    /**
+     * For multiday bookings, align the end time so it falls within bookable
+     * hours on the end-date's day. Only the wall-clock time is adjusted;
+     * the calendar date is preserved.
+     */
+    const alignEndToBookableHours = (date_end: number): number => {
+        if (!bookable_hours || !date_end || form.value.id) return date_end;
+        const time = timezone
+            ? toZonedTime(date_end, timezone)
+            : new Date(date_end);
+        const end_minutes = time.getHours() * 60 + time.getMinutes();
+        if (
+            end_minutes >= bookable_hours.start &&
+            end_minutes <= bookable_hours.end
+        ) {
+            return date_end;
+        }
+        // Snap to the end of the bookable window on the same day
+        if (end_minutes > bookable_hours.end) {
+            const snapped = set(time, {
+                hours: Math.floor(bookable_hours.end / 60),
+                minutes: bookable_hours.end % 60,
+                seconds: 0,
+                milliseconds: 0,
+            });
+            return timezone
+                ? fromZonedTime(snapped, timezone).valueOf()
+                : snapped.valueOf();
+        }
+        // Before start — snap to the start of the bookable window
+        const snapped = set(time, {
+            hours: Math.floor(bookable_hours.start / 60),
+            minutes: bookable_hours.start % 60,
+            seconds: 0,
+            milliseconds: 0,
+        });
+        return timezone
+            ? fromZonedTime(snapped, timezone).valueOf()
+            : snapped.valueOf();
+    };
+
     const subscriptions: Subscription[] = [];
 
     // duration → date_end (with min/max enforcement)
@@ -959,11 +1011,23 @@ export function setupFormTimeSync(
         form.controls.duration.valueChanges.subscribe((dur: number) => {
             if (form.value.all_day) return;
             const date = form.getRawValue().date;
-            const clamped = clampDuration(dur);
-            const new_end = roundCeil(addMinutes(date, clamped));
-            const patch: Record<string, any> = { date_end: new_end };
-            if (clamped !== dur) patch.duration = clamped;
-            form.patchValue(patch, { emitEvent: false });
+            const new_end = roundCeil(addMinutes(date, dur));
+            const multiday = isMultiday(date, new_end);
+            if (multiday) {
+                // For multiday, skip duration clamping; just align end
+                // time to bookable hours on the end day
+                const aligned_end = alignEndToBookableHours(new_end);
+                const actual_dur = differenceInMinutes(aligned_end, date);
+                const patch: Record<string, any> = { date_end: aligned_end };
+                if (actual_dur !== dur) patch.duration = actual_dur;
+                form.patchValue(patch, { emitEvent: false });
+            } else {
+                const clamped = clampDuration(dur);
+                const clamped_end = roundCeil(addMinutes(date, clamped));
+                const patch: Record<string, any> = { date_end: clamped_end };
+                if (clamped !== dur) patch.duration = clamped;
+                form.patchValue(patch, { emitEvent: false });
+            }
             on_change?.();
         }),
     );
@@ -974,17 +1038,33 @@ export function setupFormTimeSync(
             if (form.value.all_day) return;
             const date = form.getRawValue().date;
             const raw = differenceInMinutes(end, date);
-            const clamped = clampDuration(raw);
-            if (clamped !== raw) {
-                form.patchValue(
-                    {
-                        date_end: roundCeil(addMinutes(date, clamped)),
-                        duration: clamped,
-                    },
-                    { emitEvent: false },
-                );
+            const multiday = isMultiday(date, end);
+            if (multiday) {
+                // For multiday bookings, align end time to bookable
+                // hours on the end day but don't apply max_duration
+                const aligned_end = alignEndToBookableHours(end);
+                const actual_dur = differenceInMinutes(aligned_end, date);
+                if (aligned_end !== end) {
+                    form.patchValue(
+                        { date_end: aligned_end, duration: actual_dur },
+                        { emitEvent: false },
+                    );
+                } else {
+                    form.patchValue({ duration: raw }, { emitEvent: false });
+                }
             } else {
-                form.patchValue({ duration: raw }, { emitEvent: false });
+                const clamped = clampDuration(raw);
+                if (clamped !== raw) {
+                    form.patchValue(
+                        {
+                            date_end: roundCeil(addMinutes(date, clamped)),
+                            duration: clamped,
+                        },
+                        { emitEvent: false },
+                    );
+                } else {
+                    form.patchValue({ duration: raw }, { emitEvent: false });
+                }
             }
             on_change?.();
         }),
@@ -995,15 +1075,45 @@ export function setupFormTimeSync(
         form.controls.date.valueChanges.subscribe((date: number) => {
             const aligned = alignToBookableHours(date);
             const effective = aligned !== date ? aligned : date;
+            const current_end = form.getRawValue().date_end;
+            const multiday = isMultiday(effective, current_end);
             if (!form.value.all_day) {
-                form.patchValue(
-                    {
-                        date_end: roundCeil(
-                            addMinutes(effective, form.value.duration),
-                        ),
-                    },
-                    { emitEvent: false },
-                );
+                if (multiday) {
+                    // For multiday, preserve the existing end date/time
+                    // but align its wall-clock time to bookable hours
+                    const aligned_end = alignEndToBookableHours(current_end);
+                    if (aligned_end !== current_end) {
+                        form.patchValue(
+                            {
+                                date_end: aligned_end,
+                                duration: differenceInMinutes(
+                                    aligned_end,
+                                    effective,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    } else {
+                        form.patchValue(
+                            {
+                                duration: differenceInMinutes(
+                                    current_end,
+                                    effective,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    }
+                } else {
+                    form.patchValue(
+                        {
+                            date_end: roundCeil(
+                                addMinutes(effective, form.value.duration),
+                            ),
+                        },
+                        { emitEvent: false },
+                    );
+                }
             }
             if (effective < Date.now() && !form.value.id) {
                 const snapped = roundCeil(Date.now());
@@ -1051,39 +1161,78 @@ export function setupFormTimeSync(
 
             // Re-clamp the current duration to the new bounds
             if (!form.value.all_day) {
-                const current = form.getRawValue().duration;
-                const clamped = clampDuration(current);
-                if (clamped !== current) {
-                    const date = form.getRawValue().date;
-                    form.patchValue(
-                        {
-                            duration: clamped,
-                            date_end: roundCeil(addMinutes(date, clamped)),
-                        },
-                        { emitEvent: false },
-                    );
-                    on_change?.();
+                const date = form.getRawValue().date;
+                const date_end = form.getRawValue().date_end;
+                const multiday = isMultiday(date, date_end);
+                if (!multiday) {
+                    const current = form.getRawValue().duration;
+                    const clamped = clampDuration(current);
+                    if (clamped !== current) {
+                        form.patchValue(
+                            {
+                                duration: clamped,
+                                date_end: roundCeil(addMinutes(date, clamped)),
+                            },
+                            { emitEvent: false },
+                        );
+                        on_change?.();
+                    }
                 }
             }
 
             // Re-align the current date to the (possibly new) bookable window
             if (bookable_hours && !form.value.all_day) {
                 const date = form.getRawValue().date;
+                const date_end = form.getRawValue().date_end;
+                const multiday = isMultiday(date, date_end);
                 const aligned = alignToBookableHours(date);
                 if (aligned !== date) {
-                    form.patchValue(
-                        {
-                            date: aligned,
-                            date_end: roundCeil(
-                                addMinutes(
+                    if (multiday) {
+                        // For multiday, align start to bookable hours
+                        // and also align end to bookable hours on its day
+                        const aligned_end = alignEndToBookableHours(date_end);
+                        form.patchValue(
+                            {
+                                date: aligned,
+                                date_end: aligned_end,
+                                duration: differenceInMinutes(
+                                    aligned_end,
                                     aligned,
-                                    form.getRawValue().duration,
                                 ),
-                            ),
-                        },
-                        { emitEvent: false },
-                    );
+                            },
+                            { emitEvent: false },
+                        );
+                    } else {
+                        form.patchValue(
+                            {
+                                date: aligned,
+                                date_end: roundCeil(
+                                    addMinutes(
+                                        aligned,
+                                        form.getRawValue().duration,
+                                    ),
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    }
                     on_change?.();
+                } else if (multiday) {
+                    // Start is fine, but also align end to bookable hours
+                    const aligned_end = alignEndToBookableHours(date_end);
+                    if (aligned_end !== date_end) {
+                        form.patchValue(
+                            {
+                                date_end: aligned_end,
+                                duration: differenceInMinutes(
+                                    aligned_end,
+                                    date,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                        on_change?.();
+                    }
                 }
             }
         },
