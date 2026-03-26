@@ -86,7 +86,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         @if (form()) {
             <div class="space-y-4" [formGroup]="form()">
                 <!-- HOST SELECTION -->
-                @if (can_book_for_others()) {
+                @if (can_book_for_anyone()) {
                     <div
                         class="border-base-300 space-y-3 rounded-lg border p-4"
                     >
@@ -98,6 +98,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         </h3>
                         <a-user-search-field
                             formControlName="user"
+                            [allow_externals]="allow_externals()"
                         ></a-user-search-field>
                     </div>
                 }
@@ -795,10 +796,16 @@ export class ParkingRequestFormDetailsComponent
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
 
+    public readonly can_book_for_anyone = computed(
+        () =>
+            settingSignal('parking.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')(),
+    );
+
     public readonly can_book_for_others = computed(
         () =>
-            this._settings.get('app.bookings.can_book_for_others') ||
-            this._settings.get('app.parking.can_book_for_others'),
+            settingSignal('parking.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')(),
     );
 
     public readonly available_days = settingSignal(
@@ -833,12 +840,23 @@ export class ParkingRequestFormDetailsComponent
         'parking.auto_approved_groups',
         [],
     );
+    public readonly allow_externals_groups_setting = settingSignal<string[]>(
+        'parking.allow_externals_groups',
+        [],
+    );
 
     public readonly is_auto_approved = computed(() => {
         const auto_groups = this.auto_approved_groups_setting();
         if (!auto_groups?.length) return false;
         const user_groups = currentUser()?.groups || [];
         return auto_groups.some((g) => user_groups.includes(g));
+    });
+
+    public readonly allow_externals = computed(() => {
+        const allowed_groups = this.allow_externals_groups_setting();
+        if (!allowed_groups?.length) return false;
+        const user_groups = currentUser()?.groups || [];
+        return allowed_groups.some((g) => user_groups.includes(g));
     });
 
     public readonly end_date = computed(() =>
