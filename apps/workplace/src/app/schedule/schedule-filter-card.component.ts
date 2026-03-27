@@ -108,7 +108,7 @@ export class ScheduleFilterCardComponent {
         },
         {
             type: 'parking',
-            feat: 'parking',
+            feat: ['parking', 'parking-requests'],
             icon: 'drive_eta',
             name: 'RESOURCE.PARKING',
         },
@@ -152,7 +152,11 @@ export class ScheduleFilterCardComponent {
     public readonly toggleType = (t) => this._state.toggleType(t);
     public readonly dismiss = () => this._sheet_ref.dismiss();
 
-    public hasFeature(feature: string) {
-        return this._settings.get('app.features')?.includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this._settings.get('app.features') || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 }

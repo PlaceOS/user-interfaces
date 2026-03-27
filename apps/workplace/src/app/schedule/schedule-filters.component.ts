@@ -125,7 +125,11 @@ export class ScheduleFiltersComponent {
     public readonly feature_list = [
         { type: 'desk', feat: 'desks', name: 'RESOURCE.DESKS' },
         { type: 'event', feat: 'spaces', name: 'RESOURCE.MEETINGS' },
-        { type: 'parking', feat: 'parking', name: 'RESOURCE.PARKING' },
+        {
+            type: 'parking',
+            feat: ['parking', 'parking-requests'],
+            name: 'RESOURCE.PARKING',
+        },
         { type: 'visitor', feat: 'visitor-invite', name: 'RESOURCE.VISITORS' },
         { type: 'locker', feat: 'lockers', name: 'RESOURCE.LOCKERS' },
         { type: 'group-event', feat: 'group-events', name: 'RESOURCE.EVENTS' },
@@ -133,8 +137,12 @@ export class ScheduleFiltersComponent {
 
     public readonly toggleType = (t, c = false) => this._state.toggleType(t, c);
 
-    public hasFeature(feature: string) {
-        return this.features()?.includes(feature);
+    public hasFeature(feature: string | string[]) {
+        const features = this.features() || [];
+        if (Array.isArray(feature)) {
+            return feature.some((f) => features.includes(f));
+        }
+        return features.includes(feature);
     }
 
     public openFilters() {
