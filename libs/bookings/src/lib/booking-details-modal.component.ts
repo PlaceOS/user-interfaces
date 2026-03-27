@@ -163,10 +163,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         <div>{{ period() }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon
-                            matTooltip="Level and Resource"
-                            >{{ is_visitor() ? 'person' : 'map' }}</icon
-                        >
+                        <icon matTooltip="Level and Resource">{{
+                            is_visitor() ? 'person' : 'map'
+                        }}</icon>
                         <div>
                             @if (is_visitor()) {
                                 <div>{{ visitor_display_name() }}</div>
@@ -480,10 +479,17 @@ export class BookingDetailsModalComponent {
         const is_visitor = this.booking().booking_type === 'visitor';
         const visitor_edit_allowed =
             is_visitor && settingSignal('visitors.allow_editing', false)();
+        const is_parking = this.booking().booking_type === 'parking';
+        const features: string[] = settingSignal<string[]>('features', [])();
+        const parking_allocated_edit_blocked =
+            is_parking &&
+            !!this.booking().asset_id &&
+            !features.includes('parking');
         return (
             !this.booking().is_done &&
             !this.booking().checked_in &&
-            (!is_visitor || visitor_edit_allowed)
+            (!is_visitor || visitor_edit_allowed) &&
+            !parking_allocated_edit_blocked
         );
     });
 
@@ -679,7 +685,8 @@ export class BookingDetailsModalComponent {
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
+        const asset_name =
+            `${booking.extension_data?.visitor_name || booking.asset_name || ''}`.trim();
         const reason_values = [
             `${booking.title || ''}`.trim().toLowerCase(),
             `${booking.description || ''}`.trim().toLowerCase(),
@@ -704,8 +711,9 @@ export class BookingDetailsModalComponent {
 
     private _visitorAttendeeName(booking: Booking) {
         const attendee =
-            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
-            booking.attendees?.[0];
+            (booking.attendees || []).find(
+                (item) => item?.email === booking.asset_id,
+            ) || booking.attendees?.[0];
         const name = `${attendee?.name || ''}`.trim();
         return name || '';
     }
