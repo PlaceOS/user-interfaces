@@ -31,18 +31,16 @@ import { ScheduleStateService } from './schedule-state.service';
             </h2>
             <icon></icon>
         </div>
-        <div class="mb-4 space-y-2 border-b border-base-200 px-4 pb-4">
+        <div class="border-base-200 mb-4 space-y-2 border-b px-4 pb-4">
             @for (item of feature_list; track item.type) {
                 @if (hasFeature(item.feat)) {
                     <settings-toggle
-                        [ngModel]="
-                            filters()?.shown_types?.includes(item.type)
-                        "
+                        [ngModel]="filters()?.shown_types?.includes(item.type)"
                         (click)="toggleType(item.type)"
                     >
                         <div class="-my-2 -ml-2 flex items-center space-x-2">
                             <div
-                                class="rounded-full bg-base-300 p-1 text-2xl"
+                                class="bg-base-300 rounded-full p-1 text-2xl"
                                 [style.background-color]="colors[item.type][0]"
                                 [style.color]="colors[item.type][1]"
                             >

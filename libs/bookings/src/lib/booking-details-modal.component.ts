@@ -494,10 +494,17 @@ export class BookingDetailsModalComponent {
         const is_visitor = this.booking().booking_type === 'visitor';
         const visitor_edit_allowed =
             is_visitor && settingSignal('visitors.allow_editing', false)();
+        const is_parking = this.booking().booking_type === 'parking';
+        const features: string[] = settingSignal<string[]>('features', [])();
+        const parking_allocated_edit_blocked =
+            is_parking &&
+            !!this.booking().asset_id &&
+            !features.includes('parking');
         return (
             !this.booking().is_done &&
             !this.booking().checked_in &&
-            (!is_visitor || visitor_edit_allowed)
+            (!is_visitor || visitor_edit_allowed) &&
+            !parking_allocated_edit_blocked
         );
     });
 

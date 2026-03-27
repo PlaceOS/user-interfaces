@@ -34,11 +34,11 @@ import {
     selector: 'schedule-sidebar',
     template: `
         <div
-            class="flex h-full w-[18rem] flex-col overflow-hidden border-r border-base-300 bg-base-100"
+            class="border-base-300 bg-base-100 flex h-full w-[18rem] flex-col overflow-hidden border-r"
         >
             @if (period === 'day') {
                 <date-calendar
-                    class="border-b border-base-200"
+                    class="border-base-200 border-b"
                     [ngModel]="date()"
                     (ngModelChange)="setDate($event)"
                     [offset_weekday]="offset_weekday"
@@ -78,7 +78,7 @@ import {
             }
             @if (period === 'list') {
                 <date-range-calendar
-                    class="border-b border-base-200 p-2"
+                    class="border-base-200 border-b p-2"
                     [from]="null"
                     [start]="date()?.valueOf()"
                     [end]="end_date()?.valueOf()"
@@ -86,7 +86,9 @@ import {
                     (startChange)="setStartDate($event)"
                     (endChange)="setEndDate($event)"
                 ></date-range-calendar>
-                <div class="m-2 w-[calc(100%-1rem)] rounded bg-info p-1 text-xs text-info-content text-center">
+                <div
+                    class="bg-info text-info-content m-2 w-[calc(100%-1rem)] rounded p-1 text-center text-xs"
+                >
                     Pick a date range selecting the start then end date.
                 </div>
             }
@@ -106,7 +108,7 @@ import {
                                 class="-my-2 -ml-2 flex items-center space-x-2"
                             >
                                 <div
-                                    class="rounded-full bg-base-300 p-1 text-2xl"
+                                    class="bg-base-300 rounded-full p-1 text-2xl"
                                     [style.background-color]="
                                         colors[item.type][0]
                                     "
@@ -269,7 +271,11 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
                 .subscribe((_) => {
                     this._state.setType('event', this.hasFeature('spaces'));
                     this._state.setType('desk', this.hasFeature('desks'));
-                    this._state.setType('parking', this.hasFeature('parking'));
+                    this._state.setType(
+                        'parking',
+                        this.hasFeature('parking') ||
+                            this.hasFeature('parking-requests'),
+                    );
                     this._state.setType(
                         'visitor',
                         this.hasFeature('visitor-invite'),
