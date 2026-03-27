@@ -435,6 +435,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             bookable: true,
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
+            tags: ['engineering', 'level-3'],
             homebase: 'Sydney HQ',
         }).toJSON();
         delete desk.images;
@@ -518,7 +519,10 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         this.updateZones(next_zones);
     }
 
-    private _sameZones(current_zones: string[] = [], next_zones: string[] = []) {
+    private _sameZones(
+        current_zones: string[] = [],
+        next_zones: string[] = [],
+    ) {
         return (
             current_zones.length === next_zones.length &&
             current_zones.every((zone, index) => zone === next_zones[index])

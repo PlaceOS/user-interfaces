@@ -193,6 +193,12 @@ const CHARS = '0123456789ABCDEF';
                         [placeholder]="'COMMON.FEATURES' | translate"
                         formControlName="features"
                     ></item-list-field>
+                    <label for="tags">{{ 'COMMON.TAGS' | translate }}</label>
+                    <item-list-field
+                        class="w-full"
+                        [placeholder]="'COMMON.TAGS' | translate"
+                        formControlName="tags"
+                    ></item-list-field>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <textarea
@@ -288,6 +294,7 @@ export class DeskModalComponent implements OnInit {
         map_id: new FormControl('', [Validators.required]),
         groups: new FormControl<string[]>([]),
         features: new FormControl<string[]>([]),
+        tags: new FormControl<string[]>([]),
         bookable: new FormControl(false),
         notes: new FormControl(''),
         assigned_user: new FormControl<User>(null),

@@ -66,6 +66,11 @@ const QR_CODES = {};
                         content: item_list_template,
                     },
                     {
+                        key: 'tags',
+                        name: 'COMMON.TAGS' | translate,
+                        content: item_list_template,
+                    },
+                    {
                         key: 'security',
                         name: 'APP.CONCIERGE.DESKS_SECURITY' | translate,
                     },

@@ -280,6 +280,7 @@ export class DesksTopbarComponent extends AsyncHandler implements OnInit {
             bookable: true,
             groups: ['test-desk-group', 'desk-bookers'],
             features: ['Standing Desk', 'Dual Monitor'],
+            tags: ['engineering', 'level-3'],
             homebase: 'Sydney HQ',
         }).toJSON();
         delete desk.images;
