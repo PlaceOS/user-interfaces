@@ -1,13 +1,20 @@
 import {
     Component,
+    computed,
+    DestroyRef,
+    effect,
     forwardRef,
     inject,
     input,
-    OnChanges,
-    SimpleChanges,
+    OnInit,
+    signal,
+    untracked,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+    ControlContainer,
     ControlValueAccessor,
+    FormGroup,
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
@@ -22,8 +29,15 @@ import {
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
-
-import { addDays, addYears, endOfDay } from 'date-fns';
+import {
+    addDays,
+    addMonths,
+    addWeeks,
+    addYears,
+    endOfDay,
+    endOfMonth,
+    endOfWeek,
+} from 'date-fns';
 
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,15 +52,15 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
     template: `
         <mat-form-field appearance="outline" class="w-full">
             <mat-select
-                [(ngModel)]="recurr_type"
+                [ngModel]="recurr_type()"
                 (ngModelChange)="setSimple($event)"
                 [placeholder]="'FORM.RECURRENCE_NONE' | translate"
             >
                 <mat-select-trigger>
-                    @if (value?._custom) {
+                    @if (value()?._custom) {
                         <div class="flex w-full">
                             <div class="trunctate w-1/2 flex-1">
-                                {{ formatted_value }}
+                                {{ formatted_value() }}
                             </div>
                             <div
                                 class="bg-base-200 border-base-300/30 mr-2 rounded border px-2 py-1 text-xs uppercase"
@@ -54,19 +68,19 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                                 {{ 'FORM.RECURRENCE_CUSTOM' | translate }}
                             </div>
                         </div>
-                    } @else if (recurr_type === 'daily') {
+                    } @else if (recurr_type() === 'daily') {
                         {{ 'FORM.RECURRENCE_DAILY' | translate }}
-                    } @else if (recurr_type === 'weekly') {
+                    } @else if (recurr_type() === 'weekly') {
                         {{
                             'FORM.RECURRENCE_WEEKLY_ON'
                                 | translate: { day: date() | date: 'EEEE' }
                         }}
-                    } @else if (recurr_type === 'monthly') {
+                    } @else if (recurr_type() === 'monthly') {
                         {{
                             'FORM.RECURRENCE_MONTH_INSTANCE'
                                 | translate
                                     : {
-                                          index: instance_of_month,
+                                          index: instance_of_month(),
                                           day: date() | date: 'EEEE',
                                       }
                         }}
@@ -94,7 +108,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                             'FORM.RECURRENCE_MONTH_INSTANCE'
                                 | translate
                                     : {
-                                          index: instance_of_month,
+                                          index: instance_of_month(),
                                           day: date() | date: 'EEEE',
                                       }
                         }}
@@ -105,11 +119,11 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                         Anually on {{ date() | date: 'LLLL dd' }}
                     </mat-option>
                 }
-                @if (value?._custom) {
+                @if (value()?._custom) {
                     <mat-option value="custom_display">
                         <div class="flex w-full">
                             <div class="trunctate w-1/2 flex-1">
-                                {{ formatted_value }}
+                                {{ formatted_value() }}
                             </div>
                             <div
                                 class="bg-base-200 border-base-300/30 mr-2 rounded border px-2 py-1 text-xs uppercase"
@@ -151,52 +165,71 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
         FormsModule,
     ],
 })
-export class RecurrenceFieldComponent
-    implements ControlValueAccessor, OnChanges
-{
+export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
+    private _destroyRef = inject(DestroyRef);
+    private _controlContainer = inject(ControlContainer, { optional: true });
 
     public readonly type = input<'event' | 'booking'>('booking');
     public readonly date = input(Date.now());
     public readonly available_days = input(180);
-    public prev_type = 'none';
-    public recurr_type = 'none';
-    public iom = 0;
-    public instance_of_month: string;
-    public value: Recurrence = NO_RECURR;
-    private _custom_cache: Recurrence;
+
+    public readonly prev_type = signal('none');
+    public readonly recurr_type = signal('none');
+    public readonly iom = signal(0);
+    public readonly instance_of_month = signal('');
+    public readonly value = signal<Recurrence>(NO_RECURR);
+
+    private readonly _custom_cache = signal<Recurrence | undefined>(undefined);
+    private _prev_date: number | undefined;
 
     /** Form control on change handler */
     private _onChange: (_: RecurrenceDetails | BookingRecurrence) => void;
     /** Form control on touch handler */
     private _onTouch: (_: RecurrenceDetails | BookingRecurrence) => void;
 
-    public ngOnChanges(changes: SimpleChanges) {
-        const dateValue = this.date();
-        if (changes.date && dateValue) {
-            const date = new Date(dateValue).getDate();
-            let instance = Math.floor(date / 7) + (date % 7 ? 1 : 0);
-            this.instance_of_month = `${instance}${
-                instance === 2 ? 'nd' : instance === 3 ? 'rd' : 'th'
-            }`;
-            if ((instance === 4 && date >= 25) || instance === 5) {
-                this.instance_of_month = 'Last';
-                instance = -1;
-            }
-            if (instance === 1) this.instance_of_month = 'First';
-            this.iom = instance;
+    /**
+     * Formatted display string for the current recurrence value.
+     * For instance-based recurrences the end date is always recomputed
+     * from the current date() so the display stays in sync.
+     */
+    public readonly formatted_value = computed(() => {
+        const val = this.value();
+        if (!val) return '';
+        if (val.end_type === 'instances' && val.end_instances) {
+            return formatRecurrence({
+                ...val,
+                end_date: this._computeEndDate(val, this.date()),
+            });
         }
+        return formatRecurrence(val);
+    });
+
+    constructor() {
+        effect(() => {
+            const date_value = this.date();
+            if (!date_value) return;
+            untracked(() => this._onDateChange(date_value));
+        });
     }
 
-    public get formatted_value() {
-        return !this.value ? '' : formatRecurrence(this.value);
+    public ngOnInit(): void {
+        const parent_form = this._controlContainer?.control as FormGroup;
+        const date_ctrl = parent_form?.get('date');
+        if (date_ctrl) {
+            date_ctrl.valueChanges
+                .pipe(takeUntilDestroyed(this._destroyRef))
+                .subscribe((date_value: number) => {
+                    if (date_value) this._onDateChange(date_value);
+                });
+        }
     }
 
     public toRaw(data: Recurrence) {
         return this.type() === 'event'
             ? toEventRecurrence(data, this.date())
-            : toBookingRecurrence(data);
+            : toBookingRecurrence(data, this.date());
     }
 
     public fromRaw(data: RecurrenceDetails | BookingRecurrence) {
@@ -205,28 +238,24 @@ export class RecurrenceFieldComponent
             : fromBookingRecurrence(data as BookingRecurrence);
     }
 
-    /**
-     * Update the form field value
-     * @param new_value New value to set on the form field
-     */
+    /** Update the form field value. */
     public setValue(new_value: Recurrence): void {
-        this.value = new_value;
-        this._custom_cache = new_value?._custom ? { ...new_value } : undefined;
+        this.value.set(new_value);
+        this._custom_cache.set(
+            new_value?._custom ? { ...new_value } : undefined,
+        );
         if (this._onChange) this._onChange(this.toRaw(new_value));
     }
 
-    /**
-     * Update local value when form control value is changed
-     * @param value The new value for the component
-     */
+    /** Update local value when form control value is changed externally. */
     public writeValue(value: RecurrenceDetails | BookingRecurrence) {
-        if (!value) return (this.value = NO_RECURR);
+        if (!value) return this.value.set(NO_RECURR);
         const next_value = this.fromRaw(value || ({} as any));
-        this.value = this._restoreCustomEnd(next_value);
-        this.recurr_type = this.value._custom
-            ? 'custom_display'
-            : this.value.type;
-        this.prev_type = this.recurr_type;
+        this.value.set(this._restoreCustomEnd(next_value));
+        this.recurr_type.set(
+            this.value()._custom ? 'custom_display' : this.value().type,
+        );
+        this.prev_type.set(this.recurr_type());
     }
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
@@ -235,8 +264,8 @@ export class RecurrenceFieldComponent
     public openCustomRecurrenceModal() {
         const ref = this._dialog.open(RecurrenceModalComponent, {
             data: {
-                value: this.value,
-                iom: this.iom,
+                value: this.value(),
+                iom: this.iom(),
                 date: this.date(),
                 available_days: this.available_days(),
             },
@@ -244,7 +273,7 @@ export class RecurrenceFieldComponent
         ref.afterClosed().subscribe((d?) =>
             setTimeout(() => {
                 d ? this.setValue({ ...d }) : '';
-                this.recurr_type = d ? 'custom_display' : this.prev_type;
+                this.recurr_type.set(d ? 'custom_display' : this.prev_type());
             }, 10),
         );
     }
@@ -258,7 +287,6 @@ export class RecurrenceFieldComponent
         ).valueOf();
         if (pattern === 'none') {
             this.setValue(NO_RECURR);
-            this.prev_type = this.recurr_type;
         } else if (pattern === 'daily') {
             this.setValue({
                 _custom: false,
@@ -267,7 +295,6 @@ export class RecurrenceFieldComponent
                 end_type: 'date',
                 end_date,
             });
-            this.prev_type = this.recurr_type;
         } else if (pattern === 'weekly') {
             this.setValue({
                 _custom: false,
@@ -277,7 +304,6 @@ export class RecurrenceFieldComponent
                 end_type: 'date',
                 end_date,
             });
-            this.prev_type = this.recurr_type;
         } else if (pattern === 'monthly') {
             this.setValue({
                 _custom: false,
@@ -285,11 +311,10 @@ export class RecurrenceFieldComponent
                 interval: 1,
                 weekdays: new Set<any>([day_of_week]),
                 monthly_type: 'day_of_week',
-                week: this.iom as any,
+                week: this.iom() as any,
                 end_type: 'date',
                 end_date,
             });
-            this.prev_type = this.recurr_type;
         } else if (pattern === 'yearly') {
             this.setValue({
                 _custom: false,
@@ -298,13 +323,87 @@ export class RecurrenceFieldComponent
                 end_type: 'date',
                 end_date: addYears(this.date(), 7).valueOf(),
             });
-            this.prev_type = this.recurr_type;
+        }
+        this.prev_type.set(this.recurr_type());
+    }
+
+    // -----------------------------------------------------------------------
+    // Private helpers
+    // -----------------------------------------------------------------------
+
+    /** React to a date change from either the signal input or the parent form. */
+    private _onDateChange(date_value: number): void {
+        const day = new Date(date_value).getDate();
+        let week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+        let label = `${week}${week === 2 ? 'nd' : week === 3 ? 'rd' : 'th'}`;
+        if ((week === 4 && day >= 25) || week === 5) {
+            label = 'Last';
+            week = -1;
+        }
+        if (week === 1) label = 'First';
+        this.instance_of_month.set(label);
+        this.iom.set(week);
+        if (this._prev_date && this._prev_date !== date_value) {
+            this._recalculateValue(date_value, week);
+        }
+        this._prev_date = date_value;
+    }
+
+    /**
+     * Recalculate the stored recurrence value to match the new date.
+     * Updates weekday, week-of-month, and instance-based end dates.
+     * Multi-day custom weekly selections are preserved.
+     */
+    private _recalculateValue(date_value: number, week: number): void {
+        const current = this.value();
+        if (!current || current.type === 'none') return;
+        const day_of_week = new Date(date_value).getDay();
+        const updated: Partial<Recurrence> = {};
+        const has_multi_day_custom =
+            current._custom && current.weekdays?.size > 1;
+        if (
+            !has_multi_day_custom &&
+            (current.type === 'weekly' ||
+                (current.type === 'monthly' &&
+                    current.monthly_type === 'day_of_week'))
+        ) {
+            updated.weekdays = new Set<any>([day_of_week]);
+        }
+        if (
+            current.type === 'monthly' &&
+            current.monthly_type === 'day_of_week'
+        ) {
+            updated.week = week as any;
+        }
+        if (current.end_type === 'instances' && current.end_instances) {
+            updated.end_date = this._computeEndDate(current, date_value);
+        }
+        if (Object.keys(updated).length) {
+            this.setValue({ ...current, ...updated });
         }
     }
 
-    private _restoreCustomEnd(next_value: Recurrence): Recurrence {
-        const custom_value = this._custom_cache || this.value;
+    /** Compute the concrete end date for an instance-based recurrence. */
+    private _computeEndDate(recurrence: Recurrence, date: number): number {
+        const end_step =
+            recurrence.interval *
+            Math.max((recurrence.end_instances || 1) - 1, 0);
+        if (recurrence.type === 'daily') {
+            return endOfDay(addDays(date, end_step)).valueOf();
+        }
+        if (recurrence.type === 'weekly') {
+            return endOfWeek(addWeeks(date, end_step)).valueOf();
+        }
+        return endOfMonth(addMonths(date, end_step)).valueOf();
+    }
 
+    /**
+     * When a round-tripped value comes back through writeValue, the
+     * serialisation/deserialisation may lose the end_instances fields.
+     * Restore them from the cached custom value when the pattern matches.
+     */
+    private _restoreCustomEnd(next_value: Recurrence): Recurrence {
+        const custom_value = this._custom_cache() || this.value();
         if (
             !next_value?._custom ||
             !custom_value?._custom ||
@@ -313,7 +412,6 @@ export class RecurrenceFieldComponent
         ) {
             return next_value;
         }
-
         return {
             ...next_value,
             end_type: 'instances' as const,
@@ -322,26 +420,25 @@ export class RecurrenceFieldComponent
         };
     }
 
-    private _samePattern(left: Recurrence, right: Recurrence) {
-        const has_matching_days =
-            left.type === 'weekly'
-                ? this._sameWeekdays(left.weekdays, right.weekdays)
-                : left.type === 'monthly' && left.monthly_type === 'day_of_week'
-                  ? this._sameWeekdays(left.weekdays, right.weekdays)
+    private _samePattern(a: Recurrence, b: Recurrence) {
+        const same_days =
+            a.type === 'weekly'
+                ? this._sameWeekdays(a.weekdays, b.weekdays)
+                : a.type === 'monthly' && a.monthly_type === 'day_of_week'
+                  ? this._sameWeekdays(a.weekdays, b.weekdays)
                   : true;
-
         return (
-            left.type === right.type &&
-            left.interval === right.interval &&
-            left.week === right.week &&
-            left.monthly_type === right.monthly_type &&
-            has_matching_days
+            a.type === b.type &&
+            a.interval === b.interval &&
+            a.week === b.week &&
+            a.monthly_type === b.monthly_type &&
+            same_days
         );
     }
 
-    private _sameWeekdays(left?: Set<number>, right?: Set<number>) {
-        if (!left?.size && !right?.size) return true;
-        if (!left || !right || left.size !== right.size) return false;
-        return Array.from(left).every((day) => right.has(day));
+    private _sameWeekdays(a?: Set<number>, b?: Set<number>) {
+        if (!a?.size && !b?.size) return true;
+        if (!a || !b || a.size !== b.size) return false;
+        return Array.from(a).every((day) => b.has(day));
     }
 }

@@ -6,6 +6,7 @@ import {
     endOfDay,
     endOfMonth,
     endOfWeek,
+    format,
     getUnixTime,
     startOfDay,
 } from 'date-fns';
@@ -292,7 +293,10 @@ export function toBookingRecurrence(
     return booking;
 }
 
-export function formatRecurrence(recurrence: Recurrence): string {
+export function formatRecurrence(
+    recurrence: Recurrence,
+    selected_date = Date.now(),
+): string {
     const {
         type,
         interval,
@@ -345,27 +349,11 @@ export function formatRecurrence(recurrence: Recurrence): string {
                 return '';
             case 'date':
                 if (!end_date) return '';
-                return ` until ${new Date(end_date).toLocaleDateString(
-                    undefined,
-                    {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    },
-                )}`;
+                return ` until ${format(end_date, 'dd MMM yyyy')}`;
             case 'instances':
                 if (!end_instances) return '';
                 return ` ends after ${end_instances} ${plural(end_instances, 'instance')}${
-                    end_date
-                        ? ` (${new Date(end_date).toLocaleDateString(
-                              undefined,
-                              {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric',
-                              },
-                          )})`
-                        : ''
+                    end_date ? ` (${format(end_date, 'dd MMM yyyy')})` : ''
                 }`;
         }
     }
