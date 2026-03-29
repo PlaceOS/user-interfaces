@@ -271,15 +271,13 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     });
 
     public get is_group() {
-        const stored_ids = localStorage.getItem(
-            'PLACEOS.last_group_booking_ids',
-        );
-        const booking_ids: string[] = stored_ids ? JSON.parse(stored_ids) : [];
-        return booking_ids.length > 1;
+        const members = this.last_event?.extension_data?.group_members as any[];
+        return members?.length > 1;
     }
 
     public get group_size() {
-        return this.group_bookings().length || 1;
+        const members = this.last_event?.extension_data?.group_members as any[];
+        return members?.length || this.group_bookings().length || 1;
     }
 
     public get last_event() {

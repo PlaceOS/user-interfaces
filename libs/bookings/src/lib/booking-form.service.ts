@@ -1088,6 +1088,12 @@ export class BookingFormService extends AsyncHandler {
                 JSON.stringify(user_booking),
             );
         }
+        if (booking_ids.length > 1) {
+            localStorage.setItem(
+                'PLACEOS.last_group_booking_ids',
+                JSON.stringify(booking_ids),
+            );
+        }
         this.clearForm();
         this.form?.patchValue({ booking_type: type });
         this.setView('success');

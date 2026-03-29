@@ -11,7 +11,7 @@ import { BuildingPipe, LevelPipe } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
+import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 
 describe('NewDeskFlowSuccessComponent', () => {
     const group_members = [
