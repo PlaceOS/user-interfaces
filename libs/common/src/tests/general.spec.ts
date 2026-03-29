@@ -731,6 +731,56 @@ describe('General Methods', () => {
             );
         });
 
+        // --- date change to a different calendar day (regression: date_end stale bug) ---
+
+        it('should update date_end when date changes to a different calendar day', () => {
+            // A 1-hour meeting on Jun 15 2028 at 14:00 (day D)
+            // date_end is correctly set to 15:00 on the same day (day D)
+            const start_day1 = new Date(2028, 5, 15, 14, 0, 0, 0).valueOf(); // Jun 15 14:00
+            const end_day1 = new Date(2028, 5, 15, 15, 0, 0, 0).valueOf(); // Jun 15 15:00
+
+            const form = createForm({
+                date: start_day1,
+                duration: 60,
+                date_end: end_day1,
+            });
+            setupFormTimeSync(form);
+
+            // Precondition: date_end is on the original day
+            expect(form.getRawValue().date_end).toBe(end_day1);
+
+            // Move the meeting to Jun 16 (next calendar day) at the same time (14:00)
+            // date_end MUST be recalculated as Jun 16 14:00 + 60min = Jun 16 15:00
+            const start_day2 = new Date(2028, 5, 16, 14, 0, 0, 0).valueOf(); // Jun 16 14:00
+            form.controls.date.setValue(start_day2);
+
+            const expected_end = new Date(2028, 5, 16, 15, 0, 0, 0).valueOf(); // Jun 16 15:00
+            expect(form.getRawValue().date_end).toBe(expected_end);
+        });
+
+        it('should advance date_end when start moves past it on a multiday booking', () => {
+            // A multiday booking: Jun 15 10:00 to Jun 17 14:00 (2 days, 28 hours)
+            const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+            const end = new Date(2028, 5, 17, 14, 0, 0, 0).valueOf();
+            const dur = differenceInMinutes(end, start);
+
+            const form = createForm({
+                date: start,
+                duration: dur,
+                date_end: end,
+            });
+            setupFormTimeSync(form);
+
+            // Move start to Jun 20 — well past the old end (Jun 17)
+            // date_end must be advanced, not left in the past
+            const new_start = new Date(2028, 5, 20, 10, 0, 0, 0).valueOf();
+            form.controls.date.setValue(new_start);
+
+            const result_end = form.getRawValue().date_end;
+            // End must be after the new start
+            expect(result_end).toBeGreaterThan(new_start);
+        });
+
         // --- multiday bookings ---
 
         it('should not clamp date_end with max_duration for multiday bookings', () => {
