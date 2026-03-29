@@ -123,6 +123,7 @@ export interface BookingAsset {
     assigned_to?: string;
     features: string[];
     tags?: string[];
+    homebase?: string;
 }
 
 @Injectable({
@@ -892,7 +893,7 @@ export class BookingFormService extends AsyncHandler {
 
     /**
      * Auto-allocate a desk from the active building.
-     * Prefers desks with tags matching the user's groups, then
+     * Prefers desks with tags and homebase matching the user's groups, then
      * picks the level with the most available desks and selects one at random.
      */
     public async autoAllocateDesk(): Promise<void> {
@@ -900,7 +901,7 @@ export class BookingFormService extends AsyncHandler {
         if (!available?.length) {
             throw i18n('BOOKINGS.DESK_AVAILABLE_ERROR');
         }
-        // Prefer desks whose tags match the current user's groups
+        // Prefer desks whose tags or homebase match the current user's groups
         const user_groups = currentUser()?.groups || [];
         const tag_matched = user_groups.length
             ? available.filter(
@@ -909,7 +910,24 @@ export class BookingFormService extends AsyncHandler {
                       asset.tags.some((tag) => user_groups.includes(tag)),
               )
             : [];
-        const pool = tag_matched.length ? tag_matched : available;
+        const homebase_matched = user_groups.length
+            ? available.filter(
+                  (asset) =>
+                      asset.homebase && user_groups.includes(asset.homebase),
+              )
+            : [];
+        // Best: desks matching both tags and homebase
+        const both_matched = tag_matched.filter(
+            (asset) => asset.homebase && user_groups.includes(asset.homebase),
+        );
+        // Priority: both > homebase > tags > all
+        const pool = both_matched.length
+            ? both_matched
+            : homebase_matched.length
+              ? homebase_matched
+              : tag_matched.length
+                ? tag_matched
+                : available;
         // Group available desks by zone (level) id
         const zone_map: Record<string, BookingAsset[]> = {};
         for (const asset of pool) {

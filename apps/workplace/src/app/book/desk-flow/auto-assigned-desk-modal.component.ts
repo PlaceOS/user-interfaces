@@ -333,7 +333,7 @@ export class AutoAssignedDeskModalComponent
 
             // Fallback to original logic if no nearby desk found
             if (!assigned_desk) {
-                // Prefer desks whose tags match the current user's groups
+                // Prefer desks whose tags or homebase match the current user's groups
                 const user_groups = currentUser()?.groups || [];
                 const tag_matched = user_groups.length
                     ? available_desks.filter(
@@ -344,8 +344,26 @@ export class AutoAssignedDeskModalComponent
                               ),
                       )
                     : [];
-                const pool =
-                    tag_matched.length > 0 ? tag_matched : available_desks;
+                const homebase_matched = user_groups.length
+                    ? available_desks.filter(
+                          (desk) =>
+                              desk.homebase &&
+                              user_groups.includes(desk.homebase),
+                      )
+                    : [];
+                // Best: desks matching both tags and homebase
+                const both_matched = tag_matched.filter(
+                    (desk) =>
+                        desk.homebase && user_groups.includes(desk.homebase),
+                );
+                // Priority: both > homebase > tags > all
+                const pool = both_matched.length
+                    ? both_matched
+                    : homebase_matched.length
+                      ? homebase_matched
+                      : tag_matched.length
+                        ? tag_matched
+                        : available_desks;
 
                 // Group desks by level and find level with most available desks
                 const desks_by_level = pool.reduce(
