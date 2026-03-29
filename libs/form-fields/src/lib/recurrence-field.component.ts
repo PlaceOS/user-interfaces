@@ -42,7 +42,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { RecurrenceDetails } from 'libs/events/src/lib/event.interfaces';
 import { RecurrenceModalComponent } from './recurrence-modal.component';
@@ -167,7 +166,6 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
 })
 export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
     private _dialog = inject(MatDialog);
-    private _settings = inject(SettingsService);
     private _destroyRef = inject(DestroyRef);
     private _controlContainer = inject(ControlContainer, { optional: true });
 
@@ -280,10 +278,8 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
 
     public setSimple(pattern: string) {
         const day_of_week = new Date(this.date()).getDay();
-        const default_recurrence =
-            this._settings.get('app.default_recurrence_period') || 180;
         const end_date = endOfDay(
-            addDays(this.date(), default_recurrence),
+            addDays(this.date(), this.available_days()),
         ).valueOf();
         if (pattern === 'none') {
             this.setValue(NO_RECURR);
@@ -377,6 +373,17 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
         }
         if (current.end_type === 'instances' && current.end_instances) {
             updated.end_date = this._computeEndDate(current, date_value);
+        } else if (
+            current.end_type === 'date' &&
+            current.end_date &&
+            // end_date is always stored as endOfDay(), so this comparison
+            // is effectively a day-boundary check: reset only when
+            // the entire end day is before the new booking date.
+            current.end_date < date_value
+        ) {
+            updated.end_date = endOfDay(
+                addDays(date_value, this.available_days()),
+            ).valueOf();
         }
         if (Object.keys(updated).length) {
             this.setValue({ ...current, ...updated });

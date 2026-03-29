@@ -21,7 +21,6 @@ import {
 import { MockModule, MockProvider } from 'ng-mocks';
 
 import { BookingRecurrence } from '@placeos/common';
-import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { RecurrenceFieldComponent } from '../lib/recurrence-field.component';
 
 // ---------------------------------------------------------------------------
@@ -52,10 +51,7 @@ describe('RecurrenceFieldComponent – date change regression', () => {
     const createComponent = createComponentFactory({
         component: RecurrenceFieldComponent,
         imports: [MockModule(MatFormFieldModule), MockModule(MatSelectModule)],
-        providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
-            MockProvider(MatDialog, { open: jest.fn() }),
-        ],
+        providers: [MockProvider(MatDialog, { open: jest.fn() })],
     });
 
     /** Update the date signal input and flush effects. */
@@ -295,8 +291,14 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 endOfMonth(addMonths(mar15, 2)).valueOf(),
             );
         });
+    });
 
-        it('should NOT change end_date when end_type is "date"', () => {
+    // -----------------------------------------------------------------------
+    // Date-based end_date is clamped when booking date moves past it
+    // -----------------------------------------------------------------------
+    describe('date-based end_date is clamped when booking date moves forward', () => {
+        it('should NOT change end_date when end_type is "date" and new date is still before end_date', () => {
+            // end_date is June 30; new booking date Feb 1 is still well before it
             const fixed_end = new Date(2024, 5, 30).valueOf();
             setDate(new Date(2024, 0, 8).valueOf());
             spectator.component.setValue({
@@ -310,7 +312,53 @@ describe('RecurrenceFieldComponent – date change regression', () => {
 
             setDate(new Date(2024, 1, 1).valueOf());
 
+            // end_date is still in the future relative to the new booking date
+            // so it should remain unchanged
             expect(spectator.component.value().end_date).toBe(fixed_end);
+        });
+
+        it('should update end_date when booking date moves past the recurrence end_date', () => {
+            // Set up weekly recurrence ending April 5, 2024
+            const apr5 = new Date(2024, 3, 5).valueOf();
+            setDate(new Date(2024, 2, 1).valueOf()); // booking date: March 1
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([5 as any]), // Friday
+                end_type: 'date',
+                end_date: apr5,
+            });
+
+            // Move booking date to April 10 – now AFTER the end_date of April 5
+            const apr10 = new Date(2024, 3, 10).valueOf();
+            setDate(apr10);
+
+            // end_date must be >= new booking date; stale April 5 is invalid
+            expect(spectator.component.value().end_date).toBeGreaterThanOrEqual(
+                apr10,
+            );
+        });
+
+        it('should NOT change end_date when booking date moves forward but stays before end_date', () => {
+            // Set up weekly recurrence ending April 30, 2024
+            const apr30 = new Date(2024, 3, 30).valueOf();
+            setDate(new Date(2024, 2, 1).valueOf()); // booking date: March 1
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([5 as any]), // Friday
+                end_type: 'date',
+                end_date: apr30,
+            });
+
+            // Move booking date to April 10 – still BEFORE the end_date of April 30
+            const apr10 = new Date(2024, 3, 10).valueOf();
+            setDate(apr10);
+
+            // end_date should remain unchanged because it is still in the future
+            expect(spectator.component.value().end_date).toBe(apr30);
         });
     });
 
