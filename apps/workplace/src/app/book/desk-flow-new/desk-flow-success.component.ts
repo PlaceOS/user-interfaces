@@ -103,7 +103,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                     last_event.recurrence_type !== 'none'
                 ) {
                     <div
-                        class="flex items-center space-x-2 rounded-lg bg-base-200 px-4 py-2"
+                        class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
                     >
                         <icon class="text-xl">update</icon>
                         <div class="text-sm">{{ formatted_recurrence }}</div>
@@ -114,7 +114,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                 }
                 @if (is_group && group_bookings().length > 0) {
                     <div
-                        class="mt-4 w-full max-w-[32rem] rounded-lg border border-base-300 bg-base-100 p-4"
+                        class="border-base-300 bg-base-100 mt-4 w-full max-w-[32rem] rounded-lg border p-4"
                     >
                         <h3
                             class="mb-3 flex items-center space-x-2 font-medium"
@@ -130,7 +130,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                                 track booking.id
                             ) {
                                 <div
-                                    class="bg-base-200/50 flex items-center space-x-3 rounded border border-base-200 p-2"
+                                    class="bg-base-200/50 border-base-200 flex items-center space-x-3 rounded border p-2"
                                 >
                                     <a-user-avatar
                                         [user]="
@@ -153,7 +153,7 @@ import { forkJoin, lastValueFrom } from 'rxjs';
                                                 booking.asset_id
                                         }}</span>
                                     </div>
-                                    <icon class="text-2xl text-success"
+                                    <icon class="text-success text-2xl"
                                         >check_circle</icon
                                     >
                                 </div>
