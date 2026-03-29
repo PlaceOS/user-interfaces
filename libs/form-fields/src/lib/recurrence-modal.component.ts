@@ -130,6 +130,7 @@ import { DateFieldComponent } from './date-field.component';
                         }}</mat-radio-button>
                         <a-date-field
                             formControlName="end_date"
+                            [from]="date"
                             [to]="end_date"
                         ></a-date-field>
                     </div>
@@ -230,18 +231,13 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         week: new FormControl(0),
         monthly_type: new FormControl<MonthlyType>('day_of_month'),
         end_type: new FormControl<RecurrEndType>('never'),
-        end_date: new FormControl(addMonths(Date.now(), 3)),
+        end_date: new FormControl(
+            endOfDay(addDays(this.date, this.available_days)),
+        ),
         end_instances: new FormControl(13),
     });
 
-    constructor() {
-        super();
-    }
-
     public ngOnInit() {
-        if (this.form.value.end_date > this.end_date) {
-            this.form.patchValue({ end_date: this.end_date });
-        }
         this.subscription(
             'end_type',
             this.form.controls.end_type.valueChanges.subscribe((type) =>
@@ -257,6 +253,12 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         this.form.patchValue({ ...this._data.value, _custom: true });
         if (!this.form.value.type || this.form.value.type === 'none') {
             this.form.patchValue({ type: 'daily' });
+        }
+        // Clamp end_date to valid range after loading the saved value
+        if (this.form.value.end_date < this.date) {
+            this.form.patchValue({ end_date: this.date });
+        } else if (this.form.value.end_date > this.end_date) {
+            this.form.patchValue({ end_date: this.end_date });
         }
         this._onEndTypeChange(this.form.value.end_type);
         if (this.form.value.type === 'monthly' && this.form.value.week) {
