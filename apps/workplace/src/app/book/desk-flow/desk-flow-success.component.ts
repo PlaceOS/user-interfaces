@@ -204,6 +204,9 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     }
 
     public get group_size() {
+        const group_members = this.last_event?.extension_data?.group_members;
+        if (group_members?.length) return group_members.length;
+        // Fallback for non-desk bookings that use attendees instead
         return (this.last_event?.attendees?.length || 0) + 1;
     }
 

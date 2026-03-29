@@ -955,7 +955,11 @@ export class BookingFormService extends AsyncHandler {
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
                 if (bkn.id && !id) id = bkn.id;
-                if (bkn.user_email === currentUser().email) user_booking = bkn;
+                if (
+                    bkn.user_email?.toLowerCase() ===
+                    currentUser().email?.toLowerCase()
+                )
+                    user_booking = bkn;
             }
             if (unavailable.length) {
                 const unavailable_error = unavailable_errors.length
@@ -972,6 +976,13 @@ export class BookingFormService extends AsyncHandler {
                 await this.rollbackGroupBookings(booking_ids);
             }
             throw this._error_message(error);
+        }
+        if (user_booking) {
+            this.last_success = user_booking;
+            sessionStorage.setItem(
+                'PLACEOS.last_booked_booking',
+                JSON.stringify(user_booking),
+            );
         }
         this.clearForm();
         this.form?.patchValue({ booking_type: type });

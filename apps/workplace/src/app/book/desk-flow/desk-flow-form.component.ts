@@ -105,7 +105,7 @@ export class NewDeskFlowFormComponent implements OnInit {
         this.sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._state.setView('success');
-                this._router.navigate(['/book', 'desks', 'success']);
+                this._router.navigate(['/book', 'desk', 'success']);
             }
         });
     };

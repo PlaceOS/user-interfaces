@@ -596,6 +596,124 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should set last_success to the current user booking after posting a desk group booking', async () => {
+        const desk_list = [
+            {
+                id: 'desk-1',
+                map_id: 'map-1',
+                name: 'Desk 1',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+            {
+                id: 'desk-2',
+                map_id: 'map-2',
+                name: 'Desk 2',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+            {
+                id: 'desk-3',
+                map_id: 'map-3',
+                name: 'Desk 3',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                features: [],
+            },
+        ] as any[];
+        (spectator.service as any).resources = of(desk_list);
+        (spectator.service as any).available_resources = of(desk_list);
+        jest.spyOn(booking_utility_mod, 'findNearbyFeature')
+            .mockResolvedValueOnce('map-2')
+            .mockResolvedValueOnce('map-3');
+        jest.spyOn(
+            spectator.service as any,
+            '_checkResourceAvailable',
+        ).mockResolvedValue(true);
+        const group_members_payload = [
+            {
+                id: '',
+                email: '<empty>@dev.place.tech',
+                name: '<empty>',
+                company: '',
+                phone: '',
+                international: false,
+            },
+            {
+                id: '',
+                email: 'member.one@example.com',
+                name: 'Member One',
+                company: '',
+                phone: '',
+                international: false,
+            },
+            {
+                id: '',
+                email: 'member.two@example.com',
+                name: 'Member Two',
+                company: '',
+                phone: '',
+                international: false,
+            },
+        ];
+        let booking_count = 0;
+        jest.spyOn(spectator.service, 'postForm').mockImplementation(
+            async () => {
+                const value = spectator.service.form.getRawValue();
+                booking_count++;
+                return new Booking({
+                    id: `booking-${booking_count}`,
+                    user_email: value.user_email,
+                    asset_id: value.asset_id,
+                    extension_data: { group_members: group_members_payload },
+                });
+            },
+        );
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                extension_data: { map_id: 'map-1' },
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            map_id: 'map-1',
+        });
+        spectator.service.setOptions({
+            type: 'desk',
+            group: true,
+            members: [
+                {
+                    email: '<empty>@dev.place.tech',
+                    name: '<empty>',
+                } as any,
+                {
+                    email: 'member.one@example.com',
+                    name: 'Member One',
+                } as any,
+                {
+                    email: 'member.two@example.com',
+                    name: 'Member Two',
+                } as any,
+            ],
+        });
+
+        await spectator.service.postFormForGroup();
+
+        // last_success must be the CURRENT USER's booking, not the last
+        // group member's booking. Before the fix, postForm() overwrites
+        // last_success on every iteration so it ends up holding
+        // member.two's booking instead of the current user's booking.
+        expect(spectator.service.last_success).not.toBeNull();
+        expect(spectator.service.last_success.user_email).toBe(
+            '<empty>@dev.place.tech',
+        );
+    });
+
     it('should only clear grouped visitor edit form after all siblings are saved', async () => {
         const clear_form = jest.spyOn(spectator.service, 'clearForm');
         const saved_forms: {
