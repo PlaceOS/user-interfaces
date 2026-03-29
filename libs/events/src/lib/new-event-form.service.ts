@@ -308,6 +308,13 @@ export class EventFormService extends AsyncHandler {
                         },
                         rules[this._org.building?.id] || [],
                     ) as Space[];
+                    list.sort((a, b) => {
+                        const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+                        if (cap_diff !== 0) return cap_diff;
+                        return (a.display_name || a.name).localeCompare(
+                            b.display_name || b.name,
+                        );
+                    });
                     return list;
                 }),
                 catchError(() => of([] as Space[])),
