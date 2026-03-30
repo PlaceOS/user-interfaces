@@ -320,6 +320,11 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
                 end_date: addYears(this.date(), 7).valueOf(),
             });
         }
+        this.recurr_type.set(
+            pattern === 'custom' || pattern === 'custom_display'
+                ? this.recurr_type()
+                : pattern,
+        );
         this.prev_type.set(this.recurr_type());
     }
 
