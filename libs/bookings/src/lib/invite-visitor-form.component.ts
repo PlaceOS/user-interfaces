@@ -44,6 +44,7 @@ import {
 } from 'libs/events/src/lib/calendar-links';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
@@ -162,7 +163,7 @@ import { BookingFormService } from './booking-form.service';
                                     </div>
                                 </div>
                             }
-                            @if (can_book_for_others) {
+                            @if (can_book_for_anyone) {
                                 <div class="flex w-full flex-col">
                                     <label for="host">
                                         {{ 'FORM.HOST' | translate
@@ -173,6 +174,17 @@ import { BookingFormService } from './booking-form.service';
                                         class="mb-4"
                                         formControlName="user"
                                     ></a-user-search-field>
+                                </div>
+                            } @else if (can_book_for_others) {
+                                <div class="flex w-full flex-col">
+                                    <label for="host">
+                                        {{ 'FORM.HOST' | translate
+                                        }}<span>*</span>
+                                    </label>
+                                    <host-select-field
+                                        name="host"
+                                        formControlName="organiser"
+                                    ></host-select-field>
                                 </div>
                             }
                             @if (!multiple) {
@@ -562,6 +574,7 @@ import { BookingFormService } from './booking-form.service';
         MatInputModule,
         MatAutocompleteModule,
         UserSearchFieldComponent,
+        HostSelectFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
         DateFieldComponent,
@@ -634,7 +647,17 @@ export class InviteVisitorFormComponent
     }
 
     public get can_book_for_others() {
-        return this._settings.get('app.bookings.can_book_for_others');
+        return (
+            this._settings.get('app.visitors.can_book_for_others') ??
+            this._settings.get('app.bookings.can_book_for_others')
+        );
+    }
+
+    public get can_book_for_anyone() {
+        return (
+            this._settings.get('app.visitors.can_book_for_anyone') ??
+            this._settings.get('app.bookings.can_book_for_anyone')
+        );
     }
 
     public get show_links() {
