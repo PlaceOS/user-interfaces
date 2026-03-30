@@ -328,7 +328,8 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-        const desk_list = [...this.desks()];
+        const original_desk_list = [...this.desks()];
+        const desk_list = [...original_desk_list];
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
@@ -349,7 +350,16 @@ export class DesksStateService extends AsyncHandler {
             (desk.assigned_to !== new_desk.assigned_to ||
                 desk.id !== new_desk.id)
         ) {
-            await this._clearAssignedBooking(desk);
+            try {
+                await this._clearAssignedBooking(desk);
+            } catch (e) {
+                await this._rollbackMetadata(zone, original_desk_list);
+                notifyError(
+                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
+                );
+                ref.componentInstance.loading.set(false);
+                throw e;
+            }
             recreate = true;
         }
         if (
@@ -393,7 +403,17 @@ export class DesksStateService extends AsyncHandler {
                 }),
             )
                 .toPromise()
-                .catch((e) => {
+                .catch(async (e) => {
+                    await this._rollbackMetadata(zone, original_desk_list);
+                    if (recreate) {
+                        await this._restoreAssignedBooking(desk).catch(
+                            (restore_err) =>
+                                console.error(
+                                    'Failed to restore assigned booking during rollback',
+                                    restore_err,
+                                ),
+                        );
+                    }
                     if (e?.status === 409) {
                         notifyError(
                             i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
@@ -561,6 +581,56 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         this.setFilters({});
         resp.close();
+    }
+
+    private async _rollbackMetadata(zone: string, original_desk_list: any[]) {
+        try {
+            await lastValueFrom(
+                updateMetadata(zone, {
+                    name: 'desks',
+                    details: original_desk_list,
+                    description: 'List of available desks',
+                }),
+            );
+        } catch (rollback_err) {
+            console.error(
+                'Failed to rollback desk metadata after error',
+                rollback_err,
+            );
+        }
+    }
+
+    private async _restoreAssignedBooking(desk: Desk) {
+        if (!desk.assigned_to) return;
+        const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
+        await lastValueFrom(
+            saveBooking(
+                new Booking({
+                    user_id: desk.assigned_to,
+                    user_email: desk.assigned_to,
+                    user_name: desk['assigned_name'],
+                    booking_start: getUnixTime(date),
+                    booking_end: getUnixTime(addHours(date, 22)),
+                    type: 'desk',
+                    booking_type: 'desk',
+                    asset_id: desk.id,
+                    asset_name: desk.name,
+                    recurrence_type: 'daily',
+                    recurrence_days:
+                        RecurrenceDays.MONDAY |
+                        RecurrenceDays.TUESDAY |
+                        RecurrenceDays.WEDNESDAY |
+                        RecurrenceDays.THURSDAY |
+                        RecurrenceDays.FRIDAY |
+                        RecurrenceDays.SATURDAY |
+                        RecurrenceDays.SUNDAY,
+                    extension_data: {
+                        asset_name: desk.name,
+                        is_assigned: true,
+                    },
+                }),
+            ),
+        );
     }
 
     private async _clearAssignedBooking(desk: Desk) {

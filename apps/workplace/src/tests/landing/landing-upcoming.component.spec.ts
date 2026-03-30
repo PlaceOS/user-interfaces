@@ -1,9 +1,9 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { Router } from '@angular/router';
+import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
-import { EventCardComponent } from '@placeos/events';
+import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { LandingStateService } from '../../app/landing/landing-state.service';
@@ -29,6 +29,7 @@ describe('LandingUpcomingComponent', () => {
                 },
             },
             { provide: SettingsService, useValue: { get: jest.fn() } },
+            MockProvider(EventFormService, { newForm: jest.fn() }),
             MockProvider(BookingFormService, {
                 newForm: jest.fn(),
                 form: { patchValue: jest.fn() },
