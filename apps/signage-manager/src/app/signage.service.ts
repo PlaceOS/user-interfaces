@@ -644,21 +644,38 @@ export class SignageService {
             (media.plugin_id
                 ? await this._resolvePlugin(media.plugin_id)
                 : undefined);
+        let file_thumbnail = '';
+        if (file) {
+            file_thumbnail = await this._generateThumbnail(file, 1024, 720);
+        } else if (
+            (media.media_type === 'webpage' || media.media_type === 'plugin') &&
+            media.media_uri &&
+            !media.thumbnail_id
+        ) {
+            file_thumbnail = await this.generateUrlThumbnail(
+                media.media_uri,
+            ).catch(() => '');
+        }
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
                 media,
                 file,
                 file_metadata,
-                file_thumbnail: file
-                    ? await this._generateThumbnail(file, 1024, 720)
-                    : '',
+                file_thumbnail,
                 playlist_id,
                 plugin: resolved_plugin,
                 onAdd: (
                     f: File,
                     m: SignageMedia,
                     file_metadata?: SignageMediaMetadata,
-                ) => this._addMedia(f, m, playlist_id, file_metadata),
+                ) =>
+                    this._addMedia(
+                        f,
+                        m,
+                        playlist_id,
+                        file_metadata,
+                        file_thumbnail,
+                    ),
                 onEdit: (id: string, data: any) => this._editMedia(id, data),
                 preview: (item) => this.previewMedia(item),
             },
@@ -693,12 +710,25 @@ export class SignageService {
         media_item: SignageMedia,
         playlist_id = '',
         file_metadata?: SignageMediaMetadata,
+        url_thumbnail?: string,
     ) {
         let result: SignageMedia;
         if (file) {
             result = await this.addMedia(file, media_item, file_metadata);
         } else {
-            const data = { ...new SignageMedia(media_item) };
+            let thumbnail_id = '';
+            if (url_thumbnail) {
+                const name = `thumb+${(media_item.name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+                thumbnail_id = await this._uploads
+                    .uploadFile(dataURLtoFile(url_thumbnail, name))
+                    .catch(() => '');
+            }
+            const data = {
+                ...new SignageMedia({
+                    ...media_item,
+                    thumbnail_id: thumbnail_id || undefined,
+                }),
+            };
             for (const key in data) {
                 if (!data[key]) delete data[key];
             }
@@ -1115,5 +1145,93 @@ export class SignageService {
         canvas.height = thumbnail_height;
         ctx.drawImage(data, 0, 0, thumbnail_width, thumbnail_height);
         return canvas.toDataURL('image/jpeg');
+    }
+
+    /** Generate a thumbnail by loading a URL in a hidden iframe and capturing its content. */
+    public generateUrlThumbnail(
+        url: string,
+        width = 1280,
+        height = 720,
+        timeout_ms = 8000,
+    ): Promise<string> {
+        return new Promise<string>((resolve) => {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.left = '-10000px';
+            iframe.style.top = '-10000px';
+            iframe.style.width = `${width}px`;
+            iframe.style.height = `${height}px`;
+            iframe.style.border = 'none';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+            let resolved = false;
+            const cleanup = () => {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            };
+            const finish = (result: string) => {
+                if (resolved) return;
+                resolved = true;
+                cleanup();
+                resolve(result);
+            };
+            const timer = setTimeout(() => finish(''), timeout_ms);
+            iframe.addEventListener('load', () => {
+                /* Allow the page content time to render after the load event. */
+                setTimeout(() => {
+                    clearTimeout(timer);
+                    try {
+                        const doc = iframe.contentDocument;
+                        if (!doc) {
+                            finish('');
+                            return;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) {
+                            finish('');
+                            return;
+                        }
+                        /* Fill with a white background to match typical page backgrounds. */
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                        /* Render the foreign object via an SVG wrapper. */
+                        const serializer = new XMLSerializer();
+                        const html = serializer.serializeToString(doc);
+                        const svg_data = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                                <foreignObject width="100%" height="100%">
+                                    ${html}
+                                </foreignObject>
+                            </svg>`;
+                        const svg_blob = new Blob([svg_data], {
+                            type: 'image/svg+xml;charset=utf-8',
+                        });
+                        const svg_url = URL.createObjectURL(svg_blob);
+                        const img = new Image();
+                        img.onload = () => {
+                            ctx.drawImage(img, 0, 0, width, height);
+                            URL.revokeObjectURL(svg_url);
+                            finish(canvas.toDataURL('image/jpeg', 0.85));
+                        };
+                        img.onerror = () => {
+                            URL.revokeObjectURL(svg_url);
+                            finish('');
+                        };
+                        img.src = svg_url;
+                    } catch {
+                        finish('');
+                    }
+                }, 2000);
+            });
+            iframe.addEventListener('error', () => {
+                clearTimeout(timer);
+                finish('');
+            });
+            document.body.appendChild(iframe);
+            iframe.src = url;
+        });
     }
 }

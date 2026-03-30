@@ -63,7 +63,10 @@ import { SignageService } from '../signage.service';
                                     EXPIRED
                                 </div>
                             }
-                            @if (media_item.media_type === 'webpage') {
+                            @if (
+                                media_item.media_type === 'webpage' &&
+                                !media_item.thumbnail_url
+                            ) {
                                 <div
                                     class="flex h-full w-full items-center justify-center"
                                 >
@@ -71,7 +74,10 @@ import { SignageService } from '../signage.service';
                                         >http</icon
                                     >
                                 </div>
-                            } @else if (media_item.media_type === 'plugin') {
+                            } @else if (
+                                media_item.media_type === 'plugin' &&
+                                !media_item.thumbnail_url
+                            ) {
                                 <div
                                     class="flex h-full w-full items-center justify-center"
                                 >
