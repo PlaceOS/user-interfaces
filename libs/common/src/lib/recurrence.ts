@@ -102,7 +102,9 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         _custom: r._pattern == 'custom_display',
         type: r.pattern as RecurrType,
         interval: r.interval || 1,
-        end_type: r.occurrences ? 'instances' : r.end ? 'date' : 'never',
+        end_type:
+            r._end_type ??
+            (r.occurrences ? 'instances' : r.end ? 'date' : 'never'),
     };
 
     if (r.end) recurr.end_date = r.end;
@@ -156,6 +158,7 @@ export function toEventRecurrence(
     }
     const details: RecurrenceDetails = {
         _pattern: r._custom ? 'custom_display' : r.type,
+        _end_type: r.end_type,
         pattern: r.type,
         interval: r.interval,
         days_of_week: [date_obj.getDay()],
