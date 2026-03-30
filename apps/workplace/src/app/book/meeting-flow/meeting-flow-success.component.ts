@@ -119,7 +119,7 @@ export class MeetingFlowSuccessComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _router = inject(Router);
-    private _space_pipe = inject(SpacePipe);
+    private _space_pipe = new SpacePipe();
 
     public readonly loading = signal(false);
     public readonly desk_loading = signal(false);

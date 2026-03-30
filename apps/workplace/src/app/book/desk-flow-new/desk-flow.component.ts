@@ -2,17 +2,21 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingFormService } from '@placeos/bookings';
+import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
 import {
     AsyncHandler,
+    currentUser,
     firstTruthyValueFrom,
     getInvalidFields,
     i18n,
+    nextValueFrom,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SpacePipe } from '@placeos/events';
+import { set } from 'date-fns';
 import { firstValueFrom, map } from 'rxjs';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
 import { DeskFlowDetailsComponent } from './desk-flow-details.component';
@@ -117,6 +121,7 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly view = this._booking_form.view;
     public readonly loading = signal(false);
@@ -157,6 +162,13 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
+                if (params.has('nearby_space')) {
+                    await this._initNearbyDeskBooking(
+                        params.get('nearby_space'),
+                        parseInt(params.get('date'), 10) || Date.now(),
+                    );
+                    return;
+                }
                 if (!params.has('asset_id')) return;
                 const asset_id = params.get('asset_id');
                 const form = this._booking_form.form.getRawValue();
@@ -191,6 +203,42 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
                 });
             }),
         );
+    }
+
+    private async _initNearbyDeskBooking(space_id: string, event_date: number) {
+        const space = await this._space_pipe.transform(space_id);
+        const level = this._org.levelWithID(space?.zones);
+        this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
+        this._booking_form.form.patchValue({
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            user: currentUser(),
+        });
+        const resources = await nextValueFrom(
+            this._booking_form.available_resources,
+        );
+        const bookable_desks = resources
+            .map((_) => _.map_id || _.id)
+            .filter((i) => i);
+        const nearby = await findNearbyFeature(
+            level.map_id,
+            space?.map_id,
+            bookable_desks,
+        );
+        if (!nearby)
+            return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
+        const resource = resources.find((_) => _.map_id === nearby);
+        this._booking_form.form.patchValue({
+            date: set(event_date, { hours: 8, minutes: 0 }).valueOf(),
+            duration: 10 * 60,
+            all_day: true,
+            booking_type: 'desk',
+            asset_id: nearby,
+            asset_name: resource.name,
+            resources: [resource],
+        });
     }
 
     public async confirmBooking() {
