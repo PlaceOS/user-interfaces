@@ -1,11 +1,9 @@
 import { signal } from '@angular/core';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, SpacePipe } from '@placeos/events';
 import { MeetingFlowSuccessComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-flow-success.component';
 import { MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 
 describe('MeetingFlowSuccessComponent', () => {
     let spectator: Spectator<MeetingFlowSuccessComponent>;
@@ -42,11 +40,8 @@ describe('MeetingFlowSuccessComponent', () => {
                 levelWithID: jest.fn(() => null),
                 levelsForBuilding: jest.fn(() => []),
             } as any),
-            MockProvider(BookingFormService, {
-                newForm: jest.fn(),
-                setOptions: jest.fn(),
-                form: { patchValue: jest.fn() },
-                available_resources: new BehaviorSubject([]),
+            MockProvider(SpacePipe, {
+                transform: jest.fn(async () => ({})),
             } as any),
         ],
         declarations: [],

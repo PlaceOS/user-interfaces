@@ -23,6 +23,7 @@ export class RedirectComponent implements OnInit {
         if (!this._settings.get('app.default_route')) return;
         this._router.navigate(
             this._settings.get('app.default_route').split('/'),
+            { replaceUrl: true },
         );
     }
 }
