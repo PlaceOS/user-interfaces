@@ -37,10 +37,10 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
     selector: 'meeting-flow-space-select',
     template: `
         <div
-            class="relative w-full overflow-hidden rounded-lg border border-base-300 bg-base-100"
+            class="border-base-300 bg-base-100 relative w-full overflow-hidden rounded-lg border"
         >
             <div
-                class="gradient relative flex items-center justify-between space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                class="gradient border-base-content relative flex items-center justify-between space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
             >
                 <div class="flex items-center space-x-2">
                     <icon>info</icon>
@@ -250,9 +250,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         <settings-toggle
                             class="mb-4"
                             [ngModel]="(filters | async)?.show_fav"
-                            (ngModelChange)="
-                                setFilters({ show_fav: $event })
-                            "
+                            (ngModelChange)="setFilters({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                             >{{
                                 'COMMON.FAVOURITES_ONLY' | translate
@@ -293,7 +291,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                     <div class="mb-2 flex space-x-2">
                         <div
                             filters
-                            class="flex flex-1 flex-wrap rounded-lg border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 flex flex-1 flex-wrap rounded-lg border p-2"
                         >
                             @let feature_list =
                                 (filters | async)?.features || [];
@@ -308,7 +306,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                     btn
                                     matRipple
                                     name="clear-space-filters"
-                                    class="mb-2 mr-2 min-h-[2rem]"
+                                    class="mr-2 mb-2 min-h-8"
                                     (click)="removeAllFeatures()"
                                 >
                                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
@@ -332,13 +330,17 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                                 }
                             </div>
                             <div filter-item count>
-                                {{
-                                    'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                                        | translate
-                                            : {
-                                                  count: capacity || 2,
-                                              }
-                                }}
+                                @if (capacity < 0) {
+                                    {{ 'COMMON.CAPACITY_ANY' | translate }}
+                                } @else {
+                                    {{
+                                        'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
+                                            | translate
+                                                : {
+                                                      count: capacity || 2,
+                                                  }
+                                    }}
+                                }
                             </div>
                             @for (feat of feature_list; track feat) {
                                 <div filter-item>
@@ -383,7 +385,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         </div>
                     </div>
                     <div
-                        class="relative flex flex-col overflow-hidden rounded-lg border border-base-300 bg-base-200 p-2"
+                        class="border-base-300 bg-base-200 relative flex flex-col overflow-hidden rounded-lg border p-2"
                         [class.flex-1]="view() !== 'map'"
                         [class.h-[600px]]="view() === 'map'"
                         [class.min-h-[600px]]="view() === 'map'"
@@ -404,13 +406,13 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
             </div>
             <!-- Mobile Filters Panel - Bottom Sheet -->
             <div
-                class="filters-panel-mobile fixed bottom-0 left-0 right-0 z-30 w-full border-t border-base-300 bg-base-100 shadow-lg transition-transform duration-300 sm:hidden"
+                class="filters-panel-mobile border-base-300 bg-base-100 fixed right-0 bottom-0 left-0 z-30 w-full border-t shadow-lg transition-transform duration-300 sm:hidden"
                 [class.translate-y-full]="!filters_open()"
                 [class.translate-y-0]="filters_open()"
                 [formGroup]="form()"
             >
                 <div
-                    class="flex w-full items-center justify-between border-b border-base-300 p-2"
+                    class="border-base-300 flex w-full items-center justify-between border-b p-2"
                 >
                     <h3 class="px-2 text-xl font-medium">
                         {{ 'COMMON.FILTERS' | translate }}
@@ -579,8 +581,9 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         (ngModelChange)="setFilters({ show_fav: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         >{{
-                        'COMMON.FAVOURITES_ONLY' | translate
-                    }}</settings-toggle>
+                            'COMMON.FAVOURITES_ONLY' | translate
+                        }}</settings-toggle
+                    >
                     @if ((features | async)?.length) {
                         <h2 class="text-lg font-medium">
                             {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
@@ -610,7 +613,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
         </div>
         <div class="h-4"></div>
         <div
-            class="sticky bottom-0 z-10 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3 sm:z-40"
+            class="border-base-300 bg-base-100 sticky bottom-0 z-10 flex justify-between rounded-t-xl border-x border-t p-3 sm:z-40"
         >
             <a
                 btn

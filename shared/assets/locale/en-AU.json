@@ -127,6 +127,7 @@
         "VIEW_AS_LIST": "View as List",
         "PENDING": "Pending",
         "CAPACITY": "Capacity",
+        "CAPACITY_ANY": "Any Capacity",
         "CAPACITY_EMPTY": "No capacity set",
         "SEARCH": "Search for...",
         "SEARCH_EMPTY": "No matches found.",
