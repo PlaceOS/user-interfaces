@@ -95,8 +95,12 @@ import { SignageService } from '../signage.service';
                                 selected_item()?.id !== item.id
                             "
                             (click)="selectItem(item)"
-                            (keydown.enter)="selectItemWithKeyboard($event, item)"
-                            (keydown.space)="selectItemWithKeyboard($event, item)"
+                            (keydown.enter)="
+                                selectItemWithKeyboard($event, item)
+                            "
+                            (keydown.space)="
+                                selectItemWithKeyboard($event, item)
+                            "
                             [attr.aria-label]="'Select media item ' + item.name"
                         >
                             <icon
@@ -123,7 +127,9 @@ import { SignageService } from '../signage.service';
                                                 ? 'video_library'
                                                 : item.media_type === 'webpage'
                                                   ? 'http'
-                                                  : 'image'
+                                                  : item.media_type === 'plugin'
+                                                    ? 'extension'
+                                                    : 'image'
                                         }}</icon>
                                     </div>
                                 }
@@ -152,6 +158,12 @@ import { SignageService } from '../signage.service';
                                         "
                                         [class.text-success-content]="
                                             item.media_type === 'webpage'
+                                        "
+                                        [class.bg-error]="
+                                            item.media_type === 'plugin'
+                                        "
+                                        [class.text-error-content]="
+                                            item.media_type === 'plugin'
                                         "
                                     >
                                         {{ item.media_type }}
@@ -208,13 +220,17 @@ import { SignageService } from '../signage.service';
                     }
                 </div>
             } @else {
-                <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                >
                     <icon class="text-6xl">queue_music</icon>
                     <p>No items in this playlist.</p>
                 </div>
             }
         } @else {
-            <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
+            <div
+                class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+            >
                 <icon class="text-6xl">playlist_play</icon>
                 <p>Select a playlist to view its items.</p>
             </div>

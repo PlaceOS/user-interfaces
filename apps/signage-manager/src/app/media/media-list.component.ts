@@ -1,3 +1,4 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -10,7 +11,6 @@ import {
     SimpleChanges,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -71,6 +71,14 @@ import { SignageService } from '../signage.service';
                                         >http</icon
                                     >
                                 </div>
+                            } @else if (media_item.media_type === 'plugin') {
+                                <div
+                                    class="flex h-full w-full items-center justify-center"
+                                >
+                                    <icon class="text-8xl opacity-30"
+                                        >extension</icon
+                                    >
+                                </div>
                             } @else if (media_item.thumbnail_url) {
                                 <img
                                     auth
@@ -81,9 +89,7 @@ import { SignageService } from '../signage.service';
                                 <div
                                     class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
                                 >
-                                    <icon class="text-2xl"
-                                        >expand_content</icon
-                                    >
+                                    <icon class="text-2xl">expand_content</icon>
                                 </div>
                             } @else {
                                 <div
@@ -117,13 +123,21 @@ import { SignageService } from '../signage.service';
                                 [class.text-success-content]="
                                     media_item.media_type === 'webpage'
                                 "
+                                [class.bg-error]="
+                                    media_item.media_type === 'plugin'
+                                "
+                                [class.text-error-content]="
+                                    media_item.media_type === 'plugin'
+                                "
                             >
                                 {{
                                     media_item.media_type === 'image'
                                         ? 'Image'
                                         : media_item.media_type === 'webpage'
                                           ? 'Webpage'
-                                          : 'Video'
+                                          : media_item.media_type === 'plugin'
+                                            ? 'Plugin'
+                                            : 'Video'
                                 }}
                             </div>
                             @if (media_item.play_time) {
@@ -170,16 +184,12 @@ import { SignageService } from '../signage.service';
                                     <button
                                         type="button"
                                         mat-menu-item
-                                        (click)="
-                                            addToPlaylist(media_item.id)
-                                        "
+                                        (click)="addToPlaylist(media_item.id)"
                                     >
                                         <div
                                             class="flex items-center space-x-2"
                                         >
-                                            <icon class="text-2xl"
-                                                >add</icon
-                                            >
+                                            <icon class="text-2xl">add</icon>
                                             <div class="pr-2">
                                                 Add to Playlist
                                             </div>
@@ -192,9 +202,7 @@ import { SignageService } from '../signage.service';
                                     (click)="previewItem(media_item)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl"
-                                            >visibility</icon
-                                        >
+                                        <icon class="text-2xl">visibility</icon>
                                         <div class="pr-2">Preview</div>
                                     </div>
                                 </button>
@@ -216,7 +224,9 @@ import { SignageService } from '../signage.service';
                 }
             </div>
         } @else {
-            <div class="mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
+            <div
+                class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+            >
                 <icon class="text-6xl">hide_image</icon>
                 <p>No media items found.</p>
             </div>

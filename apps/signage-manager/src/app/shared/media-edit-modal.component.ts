@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal, ViewChild } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -21,10 +21,15 @@ import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
     SafePipe,
+    SchemaFormComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { MediaAnimation, SignageMedia } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    SignageMedia,
+    SignagePlugin,
+} from '@placeos/ts-client';
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 import {
@@ -39,6 +44,7 @@ export interface MediaEditModalData {
     file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
     playlist_id?: string;
+    plugin?: SignagePlugin;
     onAdd: (
         f: File,
         m: SignageMedia,
@@ -74,7 +80,9 @@ export interface MediaEditModalData {
                         (click)="preview()"
                         aria-label="Preview media"
                     >
-                        @if (media_type === 'webpage') {
+                        @if (
+                            media_type === 'webpage' || media_type === 'plugin'
+                        ) {
                             <iframe
                                 title="Media preview"
                                 class="h-screen w-full object-contain object-center"
@@ -222,6 +230,15 @@ export interface MediaEditModalData {
                             aria-label="Media description"
                         ></textarea>
                     </mat-form-field>
+                    @if (plugin_schema) {
+                        <label>Plugin Parameters</label>
+                        <div class="bg-base-200/60 mb-2 rounded-lg p-4">
+                            <schema-form
+                                [schema]="plugin_schema"
+                                [formControlName]="'plugin_params'"
+                            ></schema-form>
+                        </div>
+                    }
                     <div class="flex space-x-4">
                         <div class="flex-1">
                             <label for="valid-from">{{
@@ -266,6 +283,7 @@ export interface MediaEditModalData {
         MatSliderModule,
         AuthenticatedImageDirective,
         MediaDurationPipe,
+        SchemaFormComponent,
     ],
 })
 export class MediaEditModalComponent implements OnDestroy {
@@ -273,11 +291,15 @@ export class MediaEditModalComponent implements OnDestroy {
     private _dialog_ref =
         inject<MatDialogRef<MediaEditModalComponent>>(MatDialogRef);
 
+    @ViewChild(SchemaFormComponent) public schema_form: SchemaFormComponent;
+
     public readonly loading = signal(false);
     public readonly item = this._data.media;
     public readonly file = this._data.file;
+    public readonly plugin = this._data.plugin;
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
+    public readonly plugin_schema = this._resolvePluginSchema();
 
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
@@ -285,6 +307,7 @@ export class MediaEditModalComponent implements OnDestroy {
         animation: new FormControl<MediaAnimation>(MediaAnimation.Default),
         start_time: new FormControl(0),
         play_time: new FormControl<number | null>(null),
+        plugin_params: new FormControl<Record<string, unknown> | null>(null),
         valid_from: new FormControl(startOfDay(Date.now()).valueOf()),
         valid_until: new FormControl(
             addYears(endOfDay(Date.now()), 10).valueOf(),
@@ -322,6 +345,7 @@ export class MediaEditModalComponent implements OnDestroy {
     constructor() {
         this.form.patchValue({
             ...this._data.media,
+            plugin_params: this._data.media.plugin_params || null,
             valid_from: this._data.media.valid_from
                 ? this._data.media.valid_from * 1000
                 : startOfDay(Date.now()).valueOf(),
@@ -341,6 +365,12 @@ export class MediaEditModalComponent implements OnDestroy {
         }
     }
 
+    private _resolvePluginSchema(): Record<string, unknown> | null {
+        const plugin = this._data.plugin;
+        if (!plugin?.params || !Object.keys(plugin.params).length) return null;
+        return plugin.params;
+    }
+
     public ngOnDestroy() {
         if (this._file_url) URL.revokeObjectURL(this._file_url);
     }
@@ -349,13 +379,22 @@ export class MediaEditModalComponent implements OnDestroy {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (!this.form.valid) return;
+        if (this.schema_form && !this.schema_form.isValid()) return;
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const form_value = this.form.getRawValue();
-        const new_media = {
+        const new_media: any = {
             ...this.item,
             ...form_value,
         };
+        if (this.plugin) {
+            new_media.plugin_id = this.item.plugin_id || this.plugin.id;
+        }
+        if (form_value.plugin_params) {
+            new_media.plugin_params = form_value.plugin_params;
+        } else {
+            delete new_media.plugin_params;
+        }
         if (form_value.valid_from) {
             new_media.valid_from = getUnixTime(
                 startOfDay(form_value.valid_from),

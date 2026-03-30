@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { notifyError } from '@placeos/common';
 import {
@@ -60,6 +61,61 @@ function isValidUrl(url: string): boolean {
                     aria-label="Search media"
                 />
             </mat-form-field>
+            <button
+                icon
+                type="button"
+                matRipple
+                customTooltip
+                [content]="add_plugin_template"
+                class="bg-secondary text-secondary-content h-12 w-12 rounded-lg"
+                matTooltip="Add plugin"
+                matTooltipPosition="left"
+                aria-label="Add plugin media"
+            >
+                <icon>extension</icon>
+            </button>
+            <ng-template #add_plugin_template>
+                <div
+                    class="border-base-300 bg-base-100 my-2 flex w-[20rem] flex-col space-y-4 rounded-lg border p-4 shadow-sm"
+                >
+                    @if (available_plugins().length) {
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript"
+                        >
+                            <mat-select
+                                [(ngModel)]="selected_plugin"
+                                placeholder="Select a plugin"
+                                aria-label="Select plugin"
+                            >
+                                @for (
+                                    plugin of available_plugins();
+                                    track plugin.id
+                                ) {
+                                    <mat-option [value]="plugin">
+                                        {{ plugin.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="w-full"
+                            [disabled]="!selected_plugin()"
+                            (click)="addFromPlugin()"
+                        >
+                            <icon class="mr-2 text-2xl">add</icon>
+                            <div>Add</div>
+                        </button>
+                    } @else {
+                        <p class="text-base-content/60 m-0 text-sm">
+                            No plugins available.
+                        </p>
+                    }
+                </div>
+            </ng-template>
             <button
                 icon
                 type="button"
@@ -125,6 +181,7 @@ function isValidUrl(url: string): boolean {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         MatTooltipModule,
         CustomTooltipComponent,
         IconComponent,
@@ -139,7 +196,12 @@ export class MediaListHeaderComponent {
     private readonly _all_media = toSignal(this._service.media, {
         initialValue: [],
     });
+    private readonly _plugins = toSignal(this._service.plugins, {
+        initialValue: [],
+    });
     public readonly link = signal('');
+    public readonly selected_plugin = signal<any>(null);
+    public readonly available_plugins = computed(() => this._plugins());
     public readonly item_count = computed(() => this._media().length);
     public readonly total_count = computed(() => this._all_media().length);
     public readonly search = this._service.search_term;
@@ -158,5 +220,12 @@ export class MediaListHeaderComponent {
         }
         await this._service.addMediaFromLink(link);
         this.link.set('');
+    }
+
+    public async addFromPlugin() {
+        const plugin = this.selected_plugin();
+        if (!plugin) return;
+        await this._service.addMediaFromPlugin(plugin);
+        this.selected_plugin.set(null);
     }
 }

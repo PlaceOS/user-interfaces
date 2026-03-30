@@ -60,7 +60,10 @@ import { SignageService } from '../signage.service';
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
                         ></video>
-                    } @else if (item.media_type === 'webpage') {
+                    } @else if (
+                        item.media_type === 'webpage' ||
+                        item.media_type === 'plugin'
+                    ) {
                         <iframe
                             [src]="safe_url()"
                             [title]="item.name"
@@ -68,7 +71,7 @@ import { SignageService } from '../signage.service';
                         ></iframe>
                     } @else {
                         <div
-                            class="flex flex-col items-center justify-center space-y-2 text-base-content/70"
+                            class="text-base-content/70 flex flex-col items-center justify-center space-y-2"
                         >
                             <icon class="text-8xl">hide_image</icon>
                             <p>Preview not available</p>
@@ -82,7 +85,7 @@ import { SignageService } from '../signage.service';
                         @if (item.description) {
                             <div>
                                 <div
-                                    class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
                                     Description
                                 </div>
@@ -93,7 +96,7 @@ import { SignageService } from '../signage.service';
                         }
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
                                 Type
                             </div>
@@ -113,6 +116,10 @@ import { SignageService } from '../signage.service';
                                 [class.text-success-content]="
                                     item.media_type === 'webpage'
                                 "
+                                [class.bg-error]="item.media_type === 'plugin'"
+                                [class.text-error-content]="
+                                    item.media_type === 'plugin'
+                                "
                             >
                                 {{ type_label() }}
                             </span>
@@ -120,7 +127,7 @@ import { SignageService } from '../signage.service';
                         @if (item.play_time) {
                             <div>
                                 <div
-                                    class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                 >
                                     Duration
                                 </div>
@@ -131,7 +138,7 @@ import { SignageService } from '../signage.service';
                         }
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
                                 Animation
                             </div>
@@ -141,7 +148,7 @@ import { SignageService } from '../signage.service';
                         </div>
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
                                 Orientation
                             </div>
@@ -151,12 +158,12 @@ import { SignageService } from '../signage.service';
                         </div>
                         <div>
                             <div
-                                class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                             >
                                 Playlists
                             </div>
                             @if (loading_playlists()) {
-                                <div class="text-sm text-base-content/70">
+                                <div class="text-base-content/70 text-sm">
                                     Loading...
                                 </div>
                             } @else if (containing_playlists().length > 0) {
@@ -189,7 +196,7 @@ import { SignageService } from '../signage.service';
                                     }
                                 </div>
                             } @else {
-                                <div class="text-sm text-base-content/70">
+                                <div class="text-base-content/70 text-sm">
                                     Not in any playlists
                                 </div>
                             }
@@ -234,7 +241,10 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public readonly safe_url = computed(() => {
-        if (this.item.media_type === 'webpage') {
+        if (
+            this.item.media_type === 'webpage' ||
+            this.item.media_type === 'plugin'
+        ) {
             return this._sanitizer.bypassSecurityTrustResourceUrl(
                 this.item.media_uri,
             );
@@ -250,6 +260,8 @@ export class MediaPreviewModalComponent implements OnInit {
                 return 'Image';
             case 'webpage':
                 return 'Webpage';
+            case 'plugin':
+                return 'Plugin';
             default:
                 return this.item.media_type;
         }

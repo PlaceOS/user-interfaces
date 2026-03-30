@@ -18,12 +18,14 @@ import {
     mediaThumbnail,
     querySignageMedia,
     querySignagePlaylists,
+    querySignagePlugins,
     querySystems,
     queryZones,
     removeSignageMedia,
     removeSignagePlaylist,
     SignageMedia,
     SignagePlaylist,
+    SignagePlugin,
     updateSignageMedia,
     updateSignagePlaylistMedia,
     updateSystem,
@@ -211,6 +213,28 @@ export class SignageService {
         shareReplay(1),
     );
 
+    public readonly plugins = combineLatest([
+        this._org.active_building,
+        this._change,
+    ]).pipe(
+        filter(([building]) => !!building?.id),
+        debounceTime(300),
+        switchMap(() =>
+            querySignagePlugins({ limit: 500 } as any).pipe(
+                catchError(() => of({ data: [] })),
+            ),
+        ),
+        map((result: any) =>
+            (result.data || [])
+                .filter((p: SignagePlugin) => p.enabled)
+                .sort((a: SignagePlugin, b: SignagePlugin) =>
+                    a.name.localeCompare(b.name),
+                ),
+        ),
+        startWith([]),
+        shareReplay(1),
+    );
+
     public readonly selected_playlist = signal<SignagePlaylist | null>(null);
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly playlist_search_term = signal('');
@@ -243,9 +267,7 @@ export class SignageService {
     public readonly is_admin = computed(() => {
         const groups = currentUser().groups || [];
         const admin_group = this._settings.get('app.admin_group') || 'admin';
-        return (
-            groups.includes(admin_group) || groups.includes('placeos_admin')
-        );
+        return groups.includes(admin_group) || groups.includes('placeos_admin');
     });
 
     public readonly selected_playlist_requires_approval = computed(() => {
@@ -585,11 +607,24 @@ export class SignageService {
         await this.editMedia(media);
     }
 
+    public async addMediaFromPlugin(plugin: SignagePlugin) {
+        const media = new SignageMedia({
+            name: plugin.name,
+            media_uri: plugin.uri,
+            media_type: 'plugin',
+            plugin_id: plugin.id,
+            plugin_params: { ...plugin.defaults },
+            orientation: 'landscape',
+        });
+        await this.editMedia(media, undefined, '', undefined, plugin);
+    }
+
     public async editMedia(
         media: SignageMedia = new SignageMedia({}),
         file?: File,
         playlist_id = '',
         prepared_file_metadata?: SignageMediaMetadata,
+        plugin?: SignagePlugin,
     ) {
         const file_metadata = file
             ? prepared_file_metadata || (await this._getMediaMetadata(file))
@@ -604,6 +639,11 @@ export class SignageService {
         if (!dimensions_validation.valid) {
             notifyWarn(dimensions_validation.error);
         }
+        const resolved_plugin =
+            plugin ||
+            (media.plugin_id
+                ? await this._resolvePlugin(media.plugin_id)
+                : undefined);
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
                 media,
@@ -613,6 +653,7 @@ export class SignageService {
                     ? await this._generateThumbnail(file, 1024, 720)
                     : '',
                 playlist_id,
+                plugin: resolved_plugin,
                 onAdd: (
                     f: File,
                     m: SignageMedia,
@@ -633,6 +674,18 @@ export class SignageService {
     private async _editMedia(id: string, data: any) {
         await lastValueFrom(updateSignageMedia(id, data));
         this.changed();
+    }
+
+    private async _resolvePlugin(
+        plugin_id: string,
+    ): Promise<SignagePlugin | undefined> {
+        if (!plugin_id) return undefined;
+        try {
+            const all_plugins = await lastValueFrom(this.plugins);
+            return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
+        } catch {
+            return undefined;
+        }
     }
 
     private async _addMedia(
