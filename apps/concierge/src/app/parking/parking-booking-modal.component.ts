@@ -10,6 +10,7 @@ import {
     ParkingSpaceListFieldComponent,
 } from '@placeos/bookings';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     Booking,
     BuildingLevel,
@@ -319,7 +320,13 @@ export class ParkingBookingModalComponent
             this.timeout(
                 'init_date',
                 () => {
-                    this.form.patchValue({ date: this._data.date });
+                    this.form.patchValue({
+                        date: alignDateToBookableHours(
+                            this._data.date,
+                            this.bookable_hours,
+                            this.form.getRawValue().date,
+                        ),
+                    });
                 },
                 300,
             );

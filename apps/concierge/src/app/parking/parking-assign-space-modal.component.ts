@@ -30,11 +30,11 @@ import {
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
-import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
-import { PlaceAsset } from '@placeos/ts-client';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 
@@ -54,9 +54,7 @@ import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
         <main
             class="flex h-[75vh] max-h-[75vh] max-w-[calc(100vw-2rem)] min-w-[80vw] space-x-2 overflow-hidden p-2 sm:max-w-5xl"
         >
-            <div
-                class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg"
-            >
+            <div class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg">
                 <interactive-map
                     [src]="map_url | async"
                     [styles]="map_styles | async"
@@ -232,7 +230,10 @@ export class ParkingAssignSpaceModalComponent
                             .map((b) => b.asset_id),
                     );
                     return spaces.filter(
-                        (s) => !booked_ids.has(s.id) && !s.assigned_to,
+                        (s) =>
+                            !booked_ids.has(s.id) &&
+                            !s.assigned_to &&
+                            s.bookable !== false,
                     );
                 }),
             );
@@ -246,7 +247,9 @@ export class ParkingAssignSpaceModalComponent
         this.selected_level.pipe(
             switchMap((level) =>
                 level
-                    ? queryParkingSpaces(level.id).pipe(catchError(() => of([])))
+                    ? queryParkingSpaces(level.id).pipe(
+                          catchError(() => of([])),
+                      )
                     : of([]),
             ),
         ),
@@ -267,6 +270,11 @@ export class ParkingAssignSpaceModalComponent
                         fill: DEFAULT_COLOURS['free'],
                         opacity: 0.6,
                     };
+                } else if (space.bookable === false) {
+                    styles[`#${id}`] = {
+                        fill: DEFAULT_COLOURS['not-bookable'],
+                        opacity: 0.6,
+                    };
                 } else {
                     styles[`#${id}`] = {
                         fill: DEFAULT_COLOURS['busy'],
@@ -284,7 +292,9 @@ export class ParkingAssignSpaceModalComponent
         this.selected_level.pipe(
             switchMap((level) =>
                 level
-                    ? queryParkingSpaces(level.id).pipe(catchError(() => of([])))
+                    ? queryParkingSpaces(level.id).pipe(
+                          catchError(() => of([])),
+                      )
                     : of([]),
             ),
         ),
@@ -308,9 +318,11 @@ export class ParkingAssignSpaceModalComponent
                         plate_number: '',
                         status: is_selected
                             ? 'reserved'
-                            : is_available
-                              ? 'free'
-                              : 'busy',
+                            : space.bookable === false
+                              ? 'not-bookable'
+                              : is_available
+                                ? 'free'
+                                : 'busy',
                     },
                 });
             }
@@ -359,9 +371,7 @@ export class ParkingAssignSpaceModalComponent
                 },
             } as any).toPromise();
             await approveBooking(this._data.booking.id).toPromise();
-            notifySuccess(
-                i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'),
-            );
+            notifySuccess(i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_SUCCESS'));
             this._dialog_ref.close(true);
         } catch (e) {
             notifyError(
@@ -379,12 +389,9 @@ export class ParkingAssignSpaceModalComponent
                 e?.properties?.externalId || e?.properties?.roomId || e?.id;
             if (!id) return;
             const spaces =
-                (await this.available_spaces
-                    .pipe(map((_) => _))
-                    .toPromise()) || [];
-            const space = spaces.find(
-                (s) => s.id === id || s.map_id === id,
-            );
+                (await this.available_spaces.pipe(map((_) => _)).toPromise()) ||
+                [];
+            const space = spaces.find((s) => s.id === id || s.map_id === id);
             if (space) {
                 this.selectSpace(space);
             }

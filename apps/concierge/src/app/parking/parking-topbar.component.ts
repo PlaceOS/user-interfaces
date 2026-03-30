@@ -31,12 +31,15 @@ import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
-import { ParkingStateService } from './parking-state.service';
+import {
+    ParkingRequestFilter,
+    ParkingStateService,
+} from './parking-state.service';
 
 @Component({
     selector: 'parking-topbar',
     template: `
-        <div class="flex w-full items-center space-x-2 px-8 py-4">
+        <div class="flex w-full items-center gap-2 px-8 py-4">
             <h2 class="text-2xl font-medium">
                 {{
                     (section() !== 'events'
@@ -46,19 +49,37 @@ import { ParkingStateService } from './parking-state.service';
                 }}
             </h2>
             <div class="w-px flex-1"></div>
+            @if (
+                section() === 'events' &&
+                view() !== 'map' &&
+                (view() === 'requests' || view() === 'bookings')
+            ) {
+                <mat-form-field appearance="outline" class="no-subscript w-32">
+                    <mat-select
+                        [ngModel]="period | async"
+                        (ngModelChange)="setPeriod($event)"
+                    >
+                        <mat-option value="day">
+                            {{ 'COMMON.DAY' | translate }}
+                        </mat-option>
+                        <mat-option value="week">
+                            {{ 'COMMON.WEEK' | translate }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            }
             <searchbar
-                class="mr-2"
                 [model]="(options | async)?.search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
-            <div
-                [matTooltip]="
-                    (options | async)?.zones?.length
-                        ? ''
-                        : 'Select a level to add a space'
-                "
-            >
-                @if (view() === 'spaces') {
+            @if (view() === 'spaces') {
+                <div
+                    [matTooltip]="
+                        (options | async)?.zones?.length
+                            ? ''
+                            : 'Select a level to add a space'
+                    "
+                >
                     <button
                         btn
                         matRipple
@@ -71,8 +92,8 @@ import { ParkingStateService } from './parking-state.service';
                         </div>
                         <icon>add</icon>
                     </button>
-                }
-            </div>
+                </div>
+            }
             @if (view() === 'users') {
                 <button
                     btn
@@ -114,7 +135,7 @@ import { ParkingStateService } from './parking-state.service';
             }
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
-            @if (section() === 'events') {
+            @if (section() === 'events' && view() === 'bookings') {
                 <div class="mr-2 flex items-center">
                     <a
                         btn
@@ -140,7 +161,27 @@ import { ParkingStateService } from './parking-state.service';
                     </a>
                 </div>
             }
-            @if (!is_requests_view()) {
+            @if (view() === 'requests') {
+                <mat-form-field appearance="outline" class="no-subscript w-40">
+                    <mat-select
+                        [ngModel]="(options | async)?.request_filter"
+                        (ngModelChange)="setRequestFilter($event)"
+                    >
+                        <mat-option value="all">
+                            {{ 'COMMON.ALL' | translate }}
+                        </mat-option>
+                        <mat-option value="waitlist">
+                            {{ 'APP.CONCIERGE.PARKING_WAITLIST' | translate }}
+                        </mat-option>
+                        <mat-option value="pending">
+                            {{
+                                'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                    | translate
+                            }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            } @else {
                 <mat-form-field appearance="outline" class="no-subscript w-56">
                     <mat-select
                         [(ngModel)]="zones"
@@ -246,7 +287,10 @@ import { ParkingStateService } from './parking-state.service';
                 view() === 'bookings' ||
                 view() === 'map'
             ) {
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [step]="(period | async) === 'week' ? 7 : 1"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             }
         </div>
     `,
@@ -298,11 +342,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly bookings = this._state.bookings;
+    public readonly period = this._state.period;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
+    /** Set request filter (all / waitlist / pending) */
+    public readonly setRequestFilter = (f: ParkingRequestFilter) =>
+        this._state.setOptions({ request_filter: f });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('parking')) return;
@@ -313,8 +361,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         });
         this._state.setOptions({ zones: z });
     };
-    public readonly is_requests_view = () =>
-        this.section() === 'events' && this.view() === 'requests';
+
+    public readonly setPeriod = (p: 'day' | 'week') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { period: p },
+            queryParamsHandling: 'merge',
+        });
+        this._state.setPeriod(p);
+    };
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
@@ -337,7 +392,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (this.is_requests_view()) {
+                if (params.has('period')) {
+                    const period =
+                        params.get('period') === 'week' ? 'week' : 'day';
+                    this._state.setPeriod(period);
+                }
+                if (this.section() === 'events' && this.view() === 'requests') {
                     this.clearZones();
                     return;
                 }
@@ -362,7 +422,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             'levels',
             this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
                 if (this.use_region) return;
-                if (this.is_requests_view()) {
+                if (this.section() === 'events' && this.view() === 'requests') {
                     this.clearZones();
                     return;
                 }
@@ -417,7 +477,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         const [section, view] = parts.slice(-2);
         this.section.set(section as any);
         this.view.set(view.split('?')[0] as any);
-        if (this.is_requests_view()) {
+        if (this.section() === 'events' && this.view() === 'requests') {
             this.clearZones();
             return;
         }

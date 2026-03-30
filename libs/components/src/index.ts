@@ -30,8 +30,8 @@ export * from './lib/survey-outlet.component';
 export * from './lib/translate.pipe';
 export * from './lib/unauthorised.component';
 export * from './lib/user-avatar.component';
-export * from './lib/user-controls.component';
 export * from './lib/user-controls-sidebar.component';
+export * from './lib/user-controls.component';
 export * from './lib/virtual-keyboard.component';
 
 export * from './lib/chat/chat.service';
@@ -49,4 +49,5 @@ export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';
 
 export * from './lib/binding.directive';
+export * from './lib/native-domain-overlay.component';
 export * from './lib/viewport-visibility.component';

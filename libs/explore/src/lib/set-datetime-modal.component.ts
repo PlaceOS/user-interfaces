@@ -8,7 +8,12 @@ import {
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService, User } from '@placeos/common';
+import {
+    alignDateToBookableHours,
+    BookableHoursRange,
+    SettingsService,
+    User,
+} from '@placeos/common';
 
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -81,6 +86,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
+                            [range]="bookable_hours"
                             [use_24hr]="use_24hr_time"
                         ></a-time-field>
                     </div>
@@ -93,6 +99,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
+                                [end_time]="bookable_hours?.end"
                                 [use_24hr]="use_24hr_time"
                             >
                             </a-duration-field>
@@ -143,6 +150,7 @@ export class SetDatetimeModalComponent implements OnInit {
         resource: BookingAsset;
         all_day?: boolean;
         allow_all_day?: boolean;
+        bookable_hours?: BookableHoursRange | null;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
@@ -157,12 +165,34 @@ export class SetDatetimeModalComponent implements OnInit {
     public readonly book_until = this._data.until;
     public readonly resource = this._data.resource;
     public readonly allow_all_day = this._data.allow_all_day ?? false;
+    public readonly bookable_hours = this._data.bookable_hours ?? null;
 
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
     }
 
     public ngOnInit(): void {
+        if (this.bookable_hours) {
+            const aligned_date = alignDateToBookableHours(
+                this.form.value.date,
+                this.bookable_hours,
+            );
+            if (aligned_date !== this.form.value.date) {
+                this.form.patchValue({ date: aligned_date });
+            }
+        }
+        this.form.controls.date.valueChanges.subscribe((date) => {
+            if (this.bookable_hours && date) {
+                const aligned = alignDateToBookableHours(
+                    date,
+                    this.bookable_hours,
+                    this._data.date,
+                );
+                if (aligned !== date) {
+                    this.form.patchValue({ date: aligned });
+                }
+            }
+        });
         this.form.controls.all_day.valueChanges.subscribe((all_day) => {
             if (all_day) {
                 this.form.controls.duration.disable();

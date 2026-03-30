@@ -57,6 +57,7 @@ locales.tsv
 
 .nx/cache
 .nx/workspace-data
+.capacitor/
 # Sentry Config File
 .sentryclirc
 .github/instructions/nx.instructions.md

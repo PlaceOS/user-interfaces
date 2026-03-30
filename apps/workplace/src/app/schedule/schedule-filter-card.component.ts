@@ -79,7 +79,7 @@ import { ScheduleStateService } from './schedule-state.service';
                     ></mat-checkbox>
                 </button>
             }
-            @if (hasFeature('parking')) {
+            @if (hasFeature('parking') || hasFeature('parking-requests')) {
                 <button
                     matRipple
                     name="schedule-toggle-parking-filter"

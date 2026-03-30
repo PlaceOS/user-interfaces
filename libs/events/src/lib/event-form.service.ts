@@ -3,18 +3,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
 import {
     AsyncHandler,
+    BookingClash,
     BookingRuleset,
     currentUser,
     filterResourcesFromRules,
     flatten,
+    getFormTimeSyncHandle,
     getInvalidFields,
     i18n,
     notifyError,
+    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
 import { getModule, showMetadata } from '@placeos/ts-client';
-import { differenceInDays, startOfDay } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import {
     BehaviorSubject,
@@ -53,12 +56,10 @@ import {
     queryResourceAvailability,
     saveBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { openRecurringClashModal } from 'libs/bookings/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import {
-    EventClash,
     findEventClashes,
     querySpaceAvailability,
     removeEvent,
@@ -68,6 +69,7 @@ import {
 import { periodInFreeTimeSlot } from './helpers';
 import { generateEventForm, newCalendarEventFromBooking } from './utilities';
 
+import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { EventLinkModalComponent } from './event-link-modal.component';
 
 const BOOKING_URLS = [
@@ -291,7 +293,9 @@ export class OldEventFormService extends AsyncHandler {
             ) as any;
             return (list || [])
                 .filter((_, idx) => {
-                    const start = all_day ? startOfDay(date).valueOf() : date;
+                    const start = all_day
+                        ? startOfDayInTimezone(date, this.timezone)
+                        : date;
                     const end =
                         start +
                         (all_day ? Math.max(24 * 60, duration) : duration) *
@@ -334,7 +338,7 @@ export class OldEventFormService extends AsyncHandler {
                 ) as any;
                 return availability_method(
                     spaces.map(({ id }) => id),
-                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? startOfDayInTimezone(date, this.timezone) : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
                     this?.event?.resources[0]?.id ||
                         this.event?.system?.id ||
@@ -394,10 +398,17 @@ export class OldEventFormService extends AsyncHandler {
         return this._settings.get('app.events.use_bookings') !== true;
     }
 
+    private get timezone() {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
+    }
+
     constructor() {
         super();
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
+        this._space_pipe = space_pipe;
         this.subscription(
             'router.events',
             this._router.events.subscribe((event: Event) => {
@@ -430,6 +441,26 @@ export class OldEventFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
+        this.subscription(
+            'settings_change',
+            this._settings.overrides$
+                .pipe(filter((_) => !!_?.length))
+                .subscribe(() => this._applyDurationSettings()),
+        );
+    }
+
+    /** Push the current building's duration and bookable-hours settings into the time sync. */
+    private _applyDurationSettings() {
+        const handle = getFormTimeSyncHandle(this._form);
+        handle?.updateOptions({
+            min_duration: this._settings.get('app.events.min_duration') ?? 30,
+            max_duration: this._settings.get('app.events.max_duration') ?? 0,
+            default_duration:
+                this._settings.get('app.events.default_duration') ?? 60,
+            bookable_hours:
+                this._settings.get('app.events.bookable_hours') ?? null,
+            timezone: this.timezone,
+        });
     }
 
     public listenForStatusChanges() {
@@ -610,6 +641,7 @@ export class OldEventFormService extends AsyncHandler {
                 assets,
                 recurrence,
             } = value;
+            value.timezone = this.timezone || value.timezone;
             let spaces = form.get('resources')?.value || [];
             if (ignore_space_check.length) {
                 spaces = spaces.filter(
@@ -634,7 +666,7 @@ export class OldEventFormService extends AsyncHandler {
                 changed_times = true;
                 await this.checkSelectedSpacesAreAvailable(
                     spaces,
-                    all_day ? startOfDay(date).valueOf() : date,
+                    all_day ? startOfDayInTimezone(date, value.timezone) : date,
                     all_day ? Math.max(24 * 60, duration) : duration,
                     ical_uid || id || '',
                 ).catch((_) => {
@@ -948,7 +980,7 @@ export class OldEventFormService extends AsyncHandler {
 
         const clashes = (await lastValueFrom(
             findEventClashes(event, { include_clash_time: true }),
-        )) as EventClash[];
+        )) as BookingClash[];
 
         if (!clashes?.length) {
             return true;

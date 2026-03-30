@@ -30,6 +30,7 @@ import {
     Booking,
     csvToJson,
     downloadFile,
+    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
@@ -47,10 +48,13 @@ import { PlaceAsset } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
+    addMinutes,
     endOfDay,
+    endOfWeek,
     getUnixTime,
     set,
     startOfDay,
+    startOfWeek,
     subDays,
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
@@ -69,10 +73,14 @@ import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 
+export type ParkingRequestFilter = 'all' | 'waitlist' | 'pending';
+
 export interface ParkingOptions {
     date: number;
     search: string;
     zones: string[];
+    period: 'day' | 'week';
+    request_filter: ParkingRequestFilter;
 }
 
 export type ParkingSpace = PlaceAsset;
@@ -96,8 +104,19 @@ export class ParkingStateService extends AsyncHandler {
         date: Date.now(),
         search: '',
         zones: [],
+        period: 'day',
+        request_filter: 'all',
     });
     private _loading = new BehaviorSubject<string[]>([]);
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
+
     /** List of available parking levels for the current building */
     public levels = combineLatest([
         this._org.active_region,
@@ -177,9 +196,20 @@ export class ParkingStateService extends AsyncHandler {
         debounceTime(500),
         switchMap(([bld, options, users]) => {
             this._loading.next([...this._loading.getValue(), '[BOOKINGS]']);
+            const week_start = this._settings.get('app.week_start') || 0;
+            const range_start =
+                options.period === 'week'
+                    ? startOfWeek(options.date, { weekStartsOn: week_start })
+                    : startOfDay(options.date);
+            const range_end =
+                options.period === 'week'
+                    ? endOfWeek(options.date, { weekStartsOn: week_start })
+                    : endOfDay(options.date);
+            const period_start = addMinutes(range_start, this.tz_offset * 60);
+            const period_end = addMinutes(range_end, this.tz_offset * 60);
             return queryBookings({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(endOfDay(options.date)),
+                period_start: getUnixTime(period_start),
+                period_end: getUnixTime(period_end),
                 type: 'parking',
                 zones: options.zones?.length
                     ? options.zones.join(',')
@@ -215,6 +245,11 @@ export class ParkingStateService extends AsyncHandler {
 
     public readonly options = this._options.asObservable();
     public readonly loading = this._loading.asObservable();
+    public readonly period = this._options.pipe(map((o) => o.period));
+
+    public get week_start(): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
+        return this._settings.get('app.week_start') || 0;
+    }
 
     constructor() {
         super();
@@ -231,6 +266,10 @@ export class ParkingStateService extends AsyncHandler {
 
     public setOptions(options: Partial<ParkingOptions>) {
         this._options.next({ ...this._options.getValue(), ...options });
+    }
+
+    public setPeriod(period: 'day' | 'week') {
+        this.setOptions({ period });
     }
 
     public startPolling(delay = 2 * 60 * 1000) {
@@ -374,7 +413,7 @@ export class ParkingStateService extends AsyncHandler {
             (space.assigned_to !== asset_data.assigned_to ||
                 space.id !== asset_data.id)
         ) {
-            this._clearAssignedBooking(space);
+            await this._clearAssignedBooking(space);
             recreate = true;
         }
         const saved = await saveParkingSpace(asset_data).toPromise();
@@ -441,7 +480,7 @@ export class ParkingStateService extends AsyncHandler {
         );
         if (state?.reason !== 'done') return;
         state.loading('Removing parking space...');
-        this._clearAssignedBooking(space);
+        await this._clearAssignedBooking(space);
         await deleteParkingSpace(space.id).toPromise();
         this._change.next(Date.now());
         state.close();
@@ -686,15 +725,15 @@ export class ParkingStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

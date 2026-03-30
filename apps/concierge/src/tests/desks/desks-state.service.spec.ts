@@ -1,16 +1,17 @@
+import { EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
 import { OrganisationService } from '@placeos/common';
-import { EventEmitter } from '@angular/core';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
 
-import { SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
-import { DesksStateService } from '../../app/desks/desks-state.service';
 import * as booking_mod from '@placeos/bookings';
 import * as common_mod from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import * as component_mod from '@placeos/components';
 import * as ts_client_mod from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
+import { DesksStateService } from '../../app/desks/desks-state.service';
 
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/common');
@@ -102,6 +103,32 @@ describe('DesksStateService', () => {
         expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(2);
         expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
             expect.objectContaining({ zones: 'bld-2' }),
+        );
+        jest.useRealTimers();
+    });
+
+    it('should apply building timezone to desk booking listing requests', async () => {
+        jest.useFakeTimers();
+        current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        active_building.next(current_building);
+        (spectator.inject(SettingsService).get as any) = jest.fn(
+            (name: string) => {
+                if (name === 'app.use_region') return false;
+                if (name === 'app.bookings.use_building_timezone') return true;
+                return undefined;
+            },
+        );
+        (common_mod as any).getTimezoneDifferenceInHours = jest.fn(() => 2);
+        const date = new Date('2026-06-15T12:00:00').valueOf();
+
+        spectator.service.setFilters({ view: 'events', date });
+        await jest.advanceTimersByTimeAsync(1100);
+
+        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
+                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
+            }),
         );
         jest.useRealTimers();
     });

@@ -18,6 +18,7 @@ import {
 } from 'date-fns';
 import { RecurrenceDetails } from '../formatting';
 import { removeEmptyFields, unique } from '../general';
+import { endOfDayInTimezone, startOfDayInTimezone } from '../timezone-helpers';
 import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { CateringOrder } from './catering.class';
@@ -381,20 +382,21 @@ export class CalendarEvent {
         );
         this.private = !!data.private;
         this.all_day = !!data.all_day;
+        this.timezone =
+            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.date = this.event_start * 1000 || this.date;
         this.date_end = this.event_end * 1000 || this.date_end;
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
-            (this as any).date = startOfDay(this.date).getTime();
+            (this as any).date = startOfDayInTimezone(this.date, this.timezone);
             (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
-            (this as any).date_end = endOfDay(
+            (this as any).date_end = endOfDayInTimezone(
                 addMinutes(this.date, this.duration).valueOf() - 1,
-            ).getTime();
+                this.timezone,
+            );
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
-        this.timezone =
-            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
         this.meeting_id =
             associated_id || data.meeting_id || data.online_meeting_id || '';
@@ -557,9 +559,11 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
-        const date = this.all_day ? startOfDay(this.date) : this.date;
+        const date = this.all_day
+            ? startOfDayInTimezone(this.date, this.timezone)
+            : this.date;
         const end = this.all_day
-            ? endOfDay(this.date_end).valueOf() + 1
+            ? endOfDayInTimezone(this.date_end, this.timezone) + 1
             : this.date_end;
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);

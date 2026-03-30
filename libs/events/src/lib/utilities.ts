@@ -11,6 +11,7 @@ import {
     SettingsService,
     User,
     currentUser,
+    setupFormTimeSync,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
@@ -22,7 +23,6 @@ import {
     formatDuration,
     getTime,
     isSameDay,
-    roundToNearestMinutes,
     setHours,
     setMinutes,
     startOfDay,
@@ -149,64 +149,11 @@ export function generateEventForm(
         }
         if (v.date || v.duration || v.all_day) setCateringTime();
     });
-    form.controls.duration.valueChanges.subscribe((duration) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        setCateringTime();
+    (form as any)._time_sync = setupFormTimeSync(form, {
+        on_time_change: setCateringTime,
     });
-    form.controls.date_end.valueChanges.subscribe((date) => {
-        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
-            form.patchValue(
-                {
-                    date_end: roundToNearestMinutes(
-                        addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' },
-                    ).valueOf(),
-                    duration: 30,
-                },
-                { emitEvent: false },
-            );
-        } else {
-            form.patchValue(
-                {
-                    duration: differenceInMinutes(
-                        date,
-                        form.getRawValue().date,
-                    ),
-                },
-                { emitEvent: false },
-            );
-        }
-        setCateringTime();
-    });
+    // Sync recurrence day-of-week when the date changes
     form.controls.date.valueChanges.subscribe((date) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        if (date < Date.now() && !form.value.id) {
-            form.patchValue(
-                {
-                    date: roundToNearestMinutes(Date.now(), {
-                        nearestTo: 5,
-                        roundingMethod: 'ceil',
-                    }).valueOf(),
-                },
-                { emitEvent: false },
-            );
-        }
         if (
             form.value.recurrence?._pattern !== 'custom_display' &&
             form.value.recurrence?._pattern !== 'none'
@@ -218,7 +165,6 @@ export function generateEventForm(
                 },
             });
         }
-        setCateringTime();
     });
     form.controls.catering.valueChanges.subscribe((_) => {
         const catering = form.getRawValue().catering || [];

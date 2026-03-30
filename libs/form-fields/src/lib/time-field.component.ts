@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
+    computed,
     forwardRef,
     input,
     model,
@@ -15,8 +16,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import {
     AsyncHandler,
+    endOfDayInTimezone,
+    formatTimeInTimezone,
+    getTimeInTimezone,
     getTimezoneOffsetString,
     Identity,
+    markUserDateChange,
+    setTimeInTimezone,
+    startOfDayInTimezone,
 } from '@placeos/common';
 import {
     addMinutes,
@@ -25,14 +32,16 @@ import {
     isAfter,
     isBefore,
     roundToNearestMinutes,
-    set,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
+
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 export interface TimeFieldRange {
+    /** Earliest allowed hour of the day (0–24). For example, `8` means 8:00 AM. */
     start: number;
+    /** Latest allowed hour of the day (0–24). For example, `17` means 5:00 PM. */
     end: number;
 }
 
@@ -53,9 +62,9 @@ export interface TimeFieldRange {
                 <div class="truncate">
                     {{ active_time | date: time_format }}
                 </div>
-                @if (timezone() && tz) {
+                @if (timezone() && tz()) {
                     <div class="truncate text-xs opacity-30">
-                        {{ active_time | date: time_format + ' (z)' : tz }}
+                        {{ active_time | date: time_format + ' (z)' : tz() }}
                     </div>
                 }
             </div>
@@ -74,11 +83,11 @@ export interface TimeFieldRange {
                             <div class="">
                                 {{ force_time() | date: time_format }}
                             </div>
-                            @if (timezone() && tz) {
+                            @if (timezone() && tz()) {
                                 <div class="text-xs opacity-30">
                                     {{
                                         force_time()
-                                            | date: time_format + ' (z)' : tz
+                                            | date: time_format + ' (z)' : tz()
                                     }}
                                 </div>
                             }
@@ -103,11 +112,11 @@ export interface TimeFieldRange {
                                 {{ option.date | date: time_format }}
                                 {{ extra_info_fn()(option.date) }}
                             </div>
-                            @if (timezone() && tz) {
+                            @if (timezone() && tz()) {
                                 <div class="text-xs opacity-30">
                                     {{
                                         option.date
-                                            | date: time_format + ' (z)' : tz
+                                            | date: time_format + ' (z)' : tz()
                                     }}
                                 </div>
                             }
@@ -159,8 +168,13 @@ export class TimeFieldComponent
     );
     /** Prevent times before */
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
-    /** Limit selectable times by minutes since midnight */
+    /** Limit selectable times by hour of the day (0–24) */
     public readonly range = input<TimeFieldRange>(undefined);
+    /** Minimum booking duration in minutes. When set together with `range`,
+     *  the effective end of the selectable window is reduced by this amount
+     *  so that only start times that leave room for at least one minimum-
+     *  length booking are offered. */
+    public readonly min_duration = input(0);
     public readonly timezone = input<string>('');
     /** String representing the currently set time */
     public date: number = new Date().valueOf();
@@ -190,12 +204,12 @@ export class TimeFieldComponent
         Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
 
-    public get tz() {
+    public readonly tz = computed(() => {
         const tz = this.timezone();
         if (!tz) return '';
         const tz_offset = getTimezoneOffsetString(tz);
         return tz_offset === this._local_tz ? '' : tz_offset;
-    }
+    });
 
     public ngOnInit(): void {
         this.show_select = true;
@@ -206,9 +220,11 @@ export class TimeFieldComponent
         );
         this._updateNoOptions();
         this.timeout('hide', () => (this.show_select = false));
+        const tz = this.timezone() || undefined;
         this.active_time =
-            this._time_options.find((_) => _.id === format(this.date, 'HH:mm'))
-                ?.date || this.active_time;
+            this._time_options.find(
+                (_) => _.id === formatTimeInTimezone(this.date, tz),
+            )?.date || this.active_time;
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -216,7 +232,8 @@ export class TimeFieldComponent
             changes.no_past_times ||
             changes.step ||
             changes.from ||
-            changes.range
+            changes.range ||
+            changes.min_duration
         ) {
             this._time_options = this.generateAvailableTimes(
                 this.date,
@@ -250,7 +267,9 @@ export class TimeFieldComponent
             if (!panel) return;
 
             // Find the selected time, or fallback to the nearest time
-            const target_time = this.time || format(new Date(), 'HH:mm');
+            const tz = this.timezone() || undefined;
+            const target_time =
+                this.time || formatTimeInTimezone(new Date(), tz);
             let target_element = panel.querySelector(
                 `[data-time="${target_time}"]`,
             );
@@ -295,18 +314,20 @@ export class TimeFieldComponent
 
     /** Available time blocks for the selected date */
     public get time_options() {
+        const tz = this.timezone() || undefined;
         const time = (this.time || '00:00').split(':');
-        const date = set(this.date, { hours: +time[0], minutes: +time[1] });
+        const date_value = setTimeInTimezone(this.date, +time[0], +time[1], tz);
+        const date = new Date(date_value);
+        const { minutes } = getTimeInTimezone(date_value, tz);
+        const time_str = formatTimeInTimezone(date_value, tz);
         if (
-            date.getMinutes() % this.step() !== 0 &&
-            this._isWithinRange(date) &&
-            !this._time_options.find(
-                (time) => time.id === format(date, 'HH:mm'),
-            )
+            minutes % this.step() !== 0 &&
+            this._isWithinRange(date_value) &&
+            !this._time_options.find((t) => t.id === time_str)
         ) {
             this._time_options.push({
-                date,
-                id: format(date, 'HH:mm'),
+                date: date_value,
+                id: time_str,
             });
             this._time_options.sort((a, b) =>
                 `${a.id}`.localeCompare(`${b.id}`),
@@ -321,20 +342,37 @@ export class TimeFieldComponent
      */
     public setValue(new_value: string): void {
         this.time = new_value;
+        const tz = this.timezone() || undefined;
         if (this._onChange) {
             const time = (this.time || '00:00').split(':');
-            const date = startOfMinute(
-                set(this.date, { hours: +time[0], minutes: +time[1] }),
+            const date_value = setTimeInTimezone(
+                this.date,
+                +time[0],
+                +time[1],
+                tz,
             );
-            this._onChange(date.valueOf());
+            markUserDateChange();
+            this._onChange(date_value);
         }
 
         const time = this.force_time() || this.time;
-        const date = startOfMinute(
-            set(this.date, { hours: +time[0], minutes: +time[1] }),
+        const time_parts = (
+            typeof time === 'string' ? time : formatTimeInTimezone(time, tz)
+        ).split(':');
+        const date_value = setTimeInTimezone(
+            this.date,
+            +time_parts[0],
+            +time_parts[1],
+            tz,
         );
         this.active_time =
-            this._time_options.find((_) => _.id === time)?.date || date;
+            this._time_options.find(
+                (_) =>
+                    _.id ===
+                    (typeof time === 'string'
+                        ? time
+                        : formatTimeInTimezone(time, tz)),
+            )?.date || date_value;
     }
 
     /**
@@ -343,18 +381,20 @@ export class TimeFieldComponent
      */
     public writeValue(value: number) {
         this.date = value || this.date;
+        const tz = this.timezone() || undefined;
         let date = startOfMinute(this.date);
         date = roundToNearestMinutes(date, { nearestTo: 5 });
-        this.time = format(date, 'HH:mm');
+        this.time = formatTimeInTimezone(date, tz);
         this._time_options = this.generateAvailableTimes(
             this.date,
             !this.no_past_times(),
             this.step(),
         );
         this._updateNoOptions();
-        const time = this.force_time() || this.time;
+        const force = this.force_time();
+        const time_id = force ? formatTimeInTimezone(force, tz) : this.time;
         this.active_time =
-            this._time_options.find((_) => _.id === time)?.date || date;
+            this._time_options.find((_) => _.id === time_id)?.date || date;
     }
 
     public setDisabledState(disabled: boolean) {
@@ -404,20 +444,36 @@ export class TimeFieldComponent
         const min_date = show_past
             ? this.from()
             : Math.max(this.from(), Date.now());
-        const selected_day = new Date(datestamp);
         const blocks = [];
         const time_range = this.range();
+        const tz = this.timezone() || undefined;
 
-        const day_start = startOfDay(selected_day).valueOf();
-        const day_end = endOfDay(selected_day).valueOf();
+        // Use timezone-aware day boundaries when a building timezone is set
+        const day_start = tz
+            ? startOfDayInTimezone(datestamp, tz)
+            : startOfDay(datestamp).valueOf();
+        const day_end = tz
+            ? endOfDayInTimezone(datestamp, tz)
+            : endOfDay(datestamp).valueOf();
+        const min_dur = this.min_duration() || 0;
+        const start_minutes = time_range ? time_range.start * 60 : undefined;
+        const end_minutes = time_range ? time_range.end * 60 : undefined;
+        const effective_end =
+            end_minutes != null && min_dur > 0
+                ? end_minutes - min_dur
+                : end_minutes;
         const range_start = Math.max(
             day_start,
             min_date,
-            time_range ? day_start + time_range.start * 60 * 1000 : day_start,
+            start_minutes != null
+                ? day_start + start_minutes * 60 * 1000
+                : day_start,
         );
         const range_end = Math.min(
             day_end,
-            time_range ? day_start + time_range.end * 60 * 1000 : day_end,
+            effective_end != null
+                ? day_start + effective_end * 60 * 1000
+                : day_end,
         );
 
         if (range_start > range_end) {
@@ -429,14 +485,14 @@ export class TimeFieldComponent
         while (!isAfter(date, end)) {
             blocks.push({
                 date: date.valueOf(),
-                id: format(date, 'HH:mm'),
+                id: formatTimeInTimezone(date, tz),
             });
             date = addMinutes(date, step);
         }
         return blocks;
     }
 
-    private _isWithinRange(date: Date): boolean {
+    private _isWithinRange(date: Date | number): boolean {
         if (isBefore(date, this.from())) {
             return false;
         }
@@ -444,8 +500,14 @@ export class TimeFieldComponent
         if (!time_range) {
             return true;
         }
-        const mins = date.getHours() * 60 + date.getMinutes();
-        if (mins < time_range.start || mins > time_range.end) {
+        const start_minutes = time_range.start * 60;
+        const end_minutes = time_range.end * 60;
+        const min_dur = this.min_duration() || 0;
+        const effective_end = min_dur > 0 ? end_minutes - min_dur : end_minutes;
+        const tz = this.timezone() || undefined;
+        const { hours, minutes } = getTimeInTimezone(date, tz);
+        const mins = hours * 60 + minutes;
+        if (mins < start_minutes || mins > effective_end) {
             return false;
         }
         return true;

@@ -26,13 +26,16 @@ import {
 } from 'rxjs/operators';
 
 import {
+    alignDateToBookableHours,
     AsyncHandler,
+    BookableHoursRange,
     Booking,
     BookingRuleset,
     currentUser,
     Desk,
     firstTruthyValueFrom,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifySuccess,
@@ -79,7 +82,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _signs_of_life = new BehaviorSubject<string[]>([]);
     private _statuses: Record<string, WritableSignal<string>> = {};
 
-    private _users: Record<string, string> = {};
+    private _users: Record<string, WritableSignal<string>> = {};
     private _departments: Record<string, string> = {};
     private _desk_bookings = new Map<string, WritableSignal<Booking[]>>();
 
@@ -337,7 +340,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const departments = this._settings.get('app.department_map') || {};
         for (const desk of desks) {
             const d_id = desk.map_id || desk.asset_id;
-            this._users[d_id] = desk.staff_name;
+            if (!this._users[d_id]) {
+                this._users[d_id] = signal('');
+            }
+            this._users[d_id].set(desk.staff_name);
             this._departments[d_id] = departments[desk.department] || '';
         }
         this.processDevices(devices, system_id);
@@ -394,6 +400,19 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             }
             if (!this._desk_bookings[d_id])
                 this._desk_bookings[d_id] = signal([]);
+            if (!this._users[d_id]) {
+                this._users[d_id] = signal('');
+            }
+            if (show_desk_users) {
+                const user_value =
+                    this._users[d_id]() ||
+                    desk.staff_name ||
+                    (desk as any).assigned_name ||
+                    '';
+                this._users[d_id].set(user_value);
+            } else {
+                this._users[d_id].set('');
+            }
             list.push({
                 track_id: `desk:hover:${d_id}`,
                 location: d_id,
@@ -404,11 +423,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     id: d_id,
                     map_id: desk.name,
                     name: desk.name || desk.map_id,
-                    user: show_desk_users
-                        ? this._users[d_id] ||
-                          desk.staff_name ||
-                          (desk as any).assigned_name
-                        : '',
+                    user: this._users[d_id],
                     status: this._statuses[d_id],
                     department: this._departments[d_id] || '',
                     bookings: this._desk_bookings[d_id],
@@ -456,6 +471,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         host = false,
         resource: Desk = null,
         all_day = false,
+        bookable_hours: BookableHoursRange | null = null,
     ) {
         let user = null;
         if (this._settings.get('app.desks.allow_time_changes')) {
@@ -477,6 +493,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     resource,
                     all_day,
                     allow_all_day,
+                    bookable_hours,
                 },
             });
             const details = await lastValueFrom(ref.afterClosed());
@@ -508,12 +525,32 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
         this._bookings.newForm('desk');
         this._bookings.setOptions({ type: 'desk' });
+        const bookable_hours: BookableHoursRange | null =
+            this._settings.get('app.desks.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours') ||
+            null;
+        if (
+            bookable_hours &&
+            !this._settings.get('app.desks.allow_time_changes') &&
+            !isWithinBookableHours(Date.now(), bookable_hours)
+        ) {
+            return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
+        }
         if (options.date) {
             this._bookings.form.patchValue({
-                date: options.date,
+                date: bookable_hours
+                    ? alignDateToBookableHours(options.date, bookable_hours)
+                    : options.date,
             });
             this._bookings.form.patchValue({
                 all_day: !!options.all_day,
+            });
+        } else if (bookable_hours) {
+            this._bookings.form.patchValue({
+                date: alignDateToBookableHours(
+                    this._bookings.form.value.date,
+                    bookable_hours,
+                ),
             });
         }
         let { date, duration, user, all_day } = await this._setBookingTime(
@@ -522,6 +559,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             this._options.getValue()?.custom ?? false,
             desk as any,
             !!options.all_day,
+            bookable_hours,
         );
         user = user || options.host || currentUser();
         const user_email = user?.email;
@@ -572,7 +610,10 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             );
             throw e;
         });
-        this._users[d_id] = (options.host || currentUser())?.name;
+        if (!this._users[d_id]) {
+            this._users[d_id] = signal('');
+        }
+        this._users[d_id].set((options.host || currentUser())?.name);
         notifySuccess(
             i18n('EXPLORE.DESK_BOOKING_SUCCESS', { name: desk.name || 'Desk' }),
         );

@@ -1,13 +1,45 @@
 import { FormGroup } from '@angular/forms';
 import {
     addDays,
+    addMinutes,
+    differenceInMinutes,
     formatDuration as duration,
+    isSameDay,
     roundToNearestMinutes,
+    set,
     startOfDay,
 } from 'date-fns';
-import { first, lastValueFrom, map, Observable, take } from 'rxjs';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import {
+    first,
+    lastValueFrom,
+    map,
+    Observable,
+    Subscription,
+    take,
+} from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
+import { notifyWarn } from './notifications';
 import { HashMap } from './types';
+
+/**
+ * Flag set by date/time field components to indicate the next `date`
+ * value change was triggered by the user (not a programmatic patch).
+ * Read and cleared by {@link setupFormTimeSync} to decide whether to
+ * show the bookable-hours warning.
+ */
+let _user_date_change = false;
+let _user_date_change_timeout: ReturnType<typeof setTimeout>;
+
+/** Mark the next date value change as user-initiated. */
+export function markUserDateChange(): void {
+    _user_date_change = true;
+    if (_user_date_change_timeout) clearTimeout(_user_date_change_timeout);
+    _user_date_change_timeout = setTimeout(
+        () => (_user_date_change = false),
+        300,
+    );
+}
 
 /** Available console output streams. */
 export type ConsoleStream = 'debug' | 'warn' | 'log' | 'error' | 'info';
@@ -634,7 +666,9 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
 }
 
 export interface BookableHoursRange {
+    /** Earliest allowed booking hour (0–24). For example, `8` means 8:00 AM. */
     start: number;
+    /** Latest allowed booking hour (0–24). For example, `17` means 5:00 PM. */
     end: number;
 }
 
@@ -644,23 +678,36 @@ export interface BookableHoursRange {
  * bookable window it is returned unchanged (rounded up to the nearest 5 min).
  * If it falls outside, the start of the next bookable window is returned.
  *
- * @param bookable_hours Range with `start` and `end` in minutes since midnight
- * @param now            Reference timestamp in ms (defaults to Date.now())
+ * @param bookable_hours  The bookable window (hours of the day, 0–24).
+ * @param now             Reference timestamp (ms epoch). Defaults to `Date.now()`.
+ * @param timezone        IANA timezone for wall-clock calculations. Empty = local.
+ * @param min_duration    When > 0, the effective end of the bookable window is
+ *                        shifted earlier by this many minutes so that a booking
+ *                        of at least `min_duration` can still fit. For example
+ *                        with `end = 17` (17:00) and `min_duration = 30`,
+ *                        any time at or after 16:30 is treated as outside the
+ *                        window.
  * @returns ms epoch of the next available booking time, or `undefined` if no
  *          adjustment is needed (bookable_hours is not set)
  */
 export function getNextBookableTime(
     bookable_hours: BookableHoursRange | undefined | null,
     now: number = Date.now(),
+    timezone = '',
+    min_duration = 0,
 ): number | undefined {
     if (!bookable_hours) return undefined;
     const { start, end } = bookable_hours;
     if (start == null || end == null) return undefined;
 
-    const date = new Date(now);
-    const current_minutes = date.getHours() * 60 + date.getMinutes();
+    const start_minutes = start * 60;
+    const end_minutes = end * 60;
+    const effective_end =
+        min_duration > 0 ? end_minutes - min_duration : end_minutes;
+    const time = timezone ? toZonedTime(now, timezone) : new Date(now);
+    const current_minutes = time.getHours() * 60 + time.getMinutes();
 
-    if (current_minutes >= start && current_minutes < end) {
+    if (current_minutes >= start_minutes && current_minutes < effective_end) {
         // Within bookable hours — return now rounded up to nearest 5 min
         return roundToNearestMinutes(now, {
             nearestTo: 5,
@@ -670,10 +717,88 @@ export function getNextBookableTime(
 
     // Outside bookable hours — advance to the start of the next window
     const base_day =
-        current_minutes < start
-            ? startOfDay(date)
-            : addDays(startOfDay(date), 1);
-    return base_day.getTime() + start * 60 * 1000;
+        current_minutes < start_minutes
+            ? startOfDay(time)
+            : addDays(startOfDay(time), 1);
+    // Convert wall-clock result back to UTC epoch when timezone-aware
+    const wall_clock_ms = base_day.getTime() + start_minutes * 60 * 1000;
+    return timezone
+        ? fromZonedTime(wall_clock_ms, timezone).valueOf()
+        : wall_clock_ms;
+}
+
+/**
+ * @param min_duration  When > 0, the effective end of the window is reduced by
+ *                      this many minutes so that a booking of at least
+ *                      `min_duration` can still fit. Passed through to
+ *                      {@link getNextBookableTime} when advancing to the next day.
+ */
+export function alignDateToBookableHours(
+    date: number,
+    bookable_hours: BookableHoursRange | undefined | null,
+    fallback_date?: number,
+    timezone = '',
+    min_duration = 0,
+): number {
+    if (!date || !bookable_hours) return date;
+    const { start, end } = bookable_hours;
+    if (start == null || end == null) return date;
+
+    const start_minutes = start * 60;
+    const end_minutes = end * 60;
+    const effective_end =
+        min_duration > 0 ? end_minutes - min_duration : end_minutes;
+    const base_date = new Date(date);
+    const reference = timezone
+        ? toZonedTime(fallback_date || date, timezone)
+        : new Date(fallback_date || date);
+    let adjusted_date = set(base_date, {
+        hours: reference.getHours(),
+        minutes: reference.getMinutes(),
+        seconds: reference.getSeconds(),
+        milliseconds: reference.getMilliseconds(),
+    }).valueOf();
+    const adjusted_time = timezone
+        ? toZonedTime(adjusted_date, timezone)
+        : new Date(adjusted_date);
+    const adjusted_minutes =
+        adjusted_time.getHours() * 60 + adjusted_time.getMinutes();
+
+    if (adjusted_minutes >= start_minutes && adjusted_minutes < effective_end) {
+        return adjusted_date;
+    }
+
+    if (adjusted_minutes >= effective_end && adjusted_date <= Date.now()) {
+        return (
+            getNextBookableTime(
+                bookable_hours,
+                adjusted_date,
+                timezone,
+                min_duration,
+            ) || adjusted_date
+        );
+    }
+
+    adjusted_date = set(base_date, {
+        hours: start,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+    }).valueOf();
+    return adjusted_date;
+}
+
+export function isWithinBookableHours(
+    date: Date | number,
+    bookable_hours: BookableHoursRange | undefined | null,
+    timezone = '',
+): boolean {
+    if (!bookable_hours) return true;
+    const { start, end } = bookable_hours;
+    if (start == null || end == null) return true;
+    const time = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const minutes = time.getHours() * 60 + time.getMinutes();
+    return minutes >= start * 60 && minutes < end * 60;
 }
 
 export function mapLastValueFrom<T = any>(
@@ -685,4 +810,465 @@ export function mapLastValueFrom<T = any>(
             ? lastValueFrom(obs.pipe(map(map_fn)))
             : lastValueFrom(obs)
         : Promise.resolve(null);
+}
+
+// ---------------------------------------------------------------------------
+// Form time synchronisation
+// ---------------------------------------------------------------------------
+
+/** Configuration for {@link setupFormTimeSync}. */
+export interface FormTimeSyncOptions {
+    /**
+     * Minimum allowed duration in minutes.
+     * When `date_end` is set such that the gap is smaller than this value,
+     * both `date_end` and `duration` are clamped to this minimum.
+     * @default 30
+     */
+    min_duration?: number;
+
+    /**
+     * Maximum allowed duration in minutes. When a duration exceeding this value
+     * is set (directly or via `date_end`), it is clamped down.
+     * Set to `0` or `undefined` to disable the upper bound.
+     * @default 0 (no limit)
+     */
+    max_duration?: number;
+
+    /**
+     * Default duration in minutes applied when `all_day` is toggled OFF.
+     * @default 60
+     */
+    default_duration?: number;
+
+    /**
+     * Granularity in minutes to which computed times are rounded (using ceil).
+     * @default 5
+     */
+    round_to?: number;
+
+    /**
+     * Bookable hours range (hours of the day, 0–24). When set, the `date`
+     * handler will snap new-form dates to the next bookable window via
+     * {@link getNextBookableTime}, and dates set outside the window are
+     * aligned via {@link alignDateToBookableHours}.
+     * Set to `null`/`undefined` to disable bookable-hours enforcement.
+     */
+    bookable_hours?: BookableHoursRange | null;
+
+    /**
+     * IANA timezone identifier used for bookable-hours calculations.
+     * When empty the local timezone is used.
+     * @default ''
+     */
+    timezone?: string;
+
+    /**
+     * Optional callback invoked whenever date, duration, or date_end changes.
+     * Use this for form-specific side effects (e.g. updating catering times).
+     */
+    on_time_change?: () => void;
+}
+
+/** Handle returned by {@link setupFormTimeSync}. */
+export interface FormTimeSyncHandle {
+    /** Active subscriptions – unsubscribe all to tear down the sync. */
+    subscriptions: Subscription[];
+
+    /**
+     * Update the options at runtime (e.g. when settings change or the booking
+     * type switches). Only the provided keys are merged; omitted keys keep
+     * their current value. The current duration is re-clamped to the new
+     * bounds immediately. If `bookable_hours` changes, the current date is
+     * re-aligned to the new window.
+     */
+    updateOptions: (patch: Partial<FormTimeSyncOptions>) => void;
+}
+
+/**
+ * Wire up the bidirectional synchronisation between `date`, `duration`, and
+ * `date_end` form controls. This is the single source of truth for the time
+ * sync rules shared by both the event form and the booking form.
+ *
+ * **Rules enforced:**
+ * 1. When `duration` changes → clamp to [min, max], then `date_end` = ceil₅(date + duration).
+ * 2. When `date_end` changes → if gap < min_duration clamp up; if gap > max_duration clamp down;
+ *    otherwise recalculate `duration`.
+ * 3. When `date` changes → recalculate `date_end` from current duration;
+ *    if date is in the past and the form has no `id`, snap to now (ceil₅).
+ * 4. When `all_day` is toggled ON → no immediate changes (normalization happens at submission).
+ *    When toggled OFF → reset `duration` to `default_duration`.
+ *
+ * @returns A {@link FormTimeSyncHandle} with the active subscriptions and an
+ *          `updateOptions` function for runtime reconfiguration.
+ */
+export function setupFormTimeSync(
+    form: FormGroup,
+    options: FormTimeSyncOptions = {},
+): FormTimeSyncHandle {
+    let min_duration = options.min_duration ?? 30;
+    let max_duration = options.max_duration ?? 0;
+    let default_duration = options.default_duration ?? 60;
+    let bookable_hours: BookableHoursRange | null =
+        options.bookable_hours ?? null;
+    let timezone = options.timezone ?? '';
+    const round_to = options.round_to ?? 5;
+    const on_change = options.on_time_change;
+
+    const roundCeil = (date: number | Date): number =>
+        roundToNearestMinutes(date, {
+            nearestTo: round_to as 5,
+            roundingMethod: 'ceil',
+        }).valueOf();
+
+    /** Clamp a duration value to [min_duration, max_duration]. */
+    const clampDuration = (dur: number): number => {
+        let clamped = Math.max(dur, min_duration);
+        if (max_duration > 0) clamped = Math.min(clamped, max_duration);
+        return clamped;
+    };
+
+    /**
+     * If bookable hours are configured and the form represents a new item
+     * (no `id`), snap `date` into the bookable window. Existing items are
+     * left untouched because they may legitimately fall outside the window.
+     * Returns the (potentially adjusted) date.
+     */
+    const alignToBookableHours = (date: number): number => {
+        if (!bookable_hours || !date || form.value.id) return date;
+        const next = getNextBookableTime(
+            bookable_hours,
+            date,
+            timezone,
+            min_duration,
+        );
+        if (next && next !== date) {
+            if (_user_date_change) {
+                notifyWarn(i18n('COMMON.BOOKABLE_HOURS_ERROR'));
+                _user_date_change = false;
+            }
+            return next;
+        }
+        return alignDateToBookableHours(
+            date,
+            bookable_hours,
+            date,
+            timezone,
+            min_duration,
+        );
+    };
+
+    /** Check whether date and date_end fall on different calendar days. */
+    const isMultiday = (date: number, date_end: number): boolean => {
+        if (!date || !date_end) return false;
+        const d = timezone ? toZonedTime(date, timezone) : new Date(date);
+        const e = timezone
+            ? toZonedTime(date_end, timezone)
+            : new Date(date_end);
+        return !isSameDay(d, e);
+    };
+
+    /**
+     * For multiday bookings, align the end time so it falls within bookable
+     * hours on the end-date's day. Only the wall-clock time is adjusted;
+     * the calendar date is preserved.
+     */
+    const alignEndToBookableHours = (date_end: number): number => {
+        if (!bookable_hours || !date_end || form.value.id) return date_end;
+        const time = timezone
+            ? toZonedTime(date_end, timezone)
+            : new Date(date_end);
+        const end_minutes = time.getHours() * 60 + time.getMinutes();
+        const bh_start_minutes = bookable_hours.start * 60;
+        const bh_end_minutes = bookable_hours.end * 60;
+        if (end_minutes >= bh_start_minutes && end_minutes <= bh_end_minutes) {
+            return date_end;
+        }
+        // Snap to the end of the bookable window on the same day
+        if (end_minutes > bh_end_minutes) {
+            const snapped = set(time, {
+                hours: bookable_hours.end,
+                minutes: 0,
+                seconds: 0,
+                milliseconds: 0,
+            });
+            return timezone
+                ? fromZonedTime(snapped, timezone).valueOf()
+                : snapped.valueOf();
+        }
+        // Before start — snap to the start of the bookable window
+        const snapped = set(time, {
+            hours: bookable_hours.start,
+            minutes: 0,
+            seconds: 0,
+            milliseconds: 0,
+        });
+        return timezone
+            ? fromZonedTime(snapped, timezone).valueOf()
+            : snapped.valueOf();
+    };
+
+    const subscriptions: Subscription[] = [];
+
+    // duration → date_end (with min/max enforcement)
+    subscriptions.push(
+        form.controls.duration.valueChanges.subscribe((dur: number) => {
+            if (form.value.all_day) return;
+            const date = form.getRawValue().date;
+            const new_end = roundCeil(addMinutes(date, dur));
+            const multiday = isMultiday(date, new_end);
+            if (multiday) {
+                // For multiday, skip duration clamping; just align end
+                // time to bookable hours on the end day
+                const aligned_end = alignEndToBookableHours(new_end);
+                const actual_dur = differenceInMinutes(aligned_end, date);
+                const patch: Record<string, any> = { date_end: aligned_end };
+                if (actual_dur !== dur) patch.duration = actual_dur;
+                form.patchValue(patch, { emitEvent: false });
+            } else {
+                const clamped = clampDuration(dur);
+                const clamped_end = roundCeil(addMinutes(date, clamped));
+                const patch: Record<string, any> = { date_end: clamped_end };
+                if (clamped !== dur) patch.duration = clamped;
+                form.patchValue(patch, { emitEvent: false });
+            }
+            on_change?.();
+        }),
+    );
+
+    // date_end → duration (with min/max enforcement)
+    subscriptions.push(
+        form.controls.date_end.valueChanges.subscribe((end: number) => {
+            if (form.value.all_day) return;
+            const date = form.getRawValue().date;
+            const raw = differenceInMinutes(end, date);
+            const multiday = isMultiday(date, end);
+            if (multiday) {
+                // For multiday bookings, align end time to bookable
+                // hours on the end day but don't apply max_duration
+                const aligned_end = alignEndToBookableHours(end);
+                const actual_dur = differenceInMinutes(aligned_end, date);
+                if (aligned_end !== end) {
+                    form.patchValue(
+                        { date_end: aligned_end, duration: actual_dur },
+                        { emitEvent: false },
+                    );
+                } else {
+                    form.patchValue({ duration: raw }, { emitEvent: false });
+                }
+            } else {
+                const clamped = clampDuration(raw);
+                if (clamped !== raw) {
+                    form.patchValue(
+                        {
+                            date_end: roundCeil(addMinutes(date, clamped)),
+                            duration: clamped,
+                        },
+                        { emitEvent: false },
+                    );
+                } else {
+                    form.patchValue({ duration: raw }, { emitEvent: false });
+                }
+            }
+            on_change?.();
+        }),
+    );
+
+    // date → date_end + past-date snap + bookable-hours alignment
+    subscriptions.push(
+        form.controls.date.valueChanges.subscribe((date: number) => {
+            const aligned = alignToBookableHours(date);
+            const effective = aligned !== date ? aligned : date;
+            const expected_end = roundCeil(
+                addMinutes(effective, form.getRawValue().duration),
+            );
+            const multiday = isMultiday(effective, expected_end);
+            if (!form.value.all_day) {
+                if (multiday) {
+                    const current_end = form.getRawValue().date_end;
+                    if (current_end <= effective) {
+                        // End date is now at or before the new start —
+                        // advance it using start + duration
+                        const new_end =
+                            alignEndToBookableHours(expected_end) ||
+                            expected_end;
+                        form.patchValue(
+                            {
+                                date_end: new_end,
+                                duration: differenceInMinutes(
+                                    new_end,
+                                    effective,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    } else {
+                        // Preserve the existing end date/time
+                        // but align its wall-clock time to bookable hours
+                        const aligned_end =
+                            alignEndToBookableHours(current_end);
+                        if (aligned_end !== current_end) {
+                            form.patchValue(
+                                {
+                                    date_end: aligned_end,
+                                    duration: differenceInMinutes(
+                                        aligned_end,
+                                        effective,
+                                    ),
+                                },
+                                { emitEvent: false },
+                            );
+                        } else {
+                            form.patchValue(
+                                {
+                                    duration: differenceInMinutes(
+                                        current_end,
+                                        effective,
+                                    ),
+                                },
+                                { emitEvent: false },
+                            );
+                        }
+                    }
+                } else {
+                    form.patchValue(
+                        { date_end: expected_end },
+                        { emitEvent: false },
+                    );
+                }
+            }
+            if (effective < Date.now() && !form.value.id) {
+                const snapped = roundCeil(Date.now());
+                form.patchValue(
+                    { date: alignToBookableHours(snapped) || snapped },
+                    { emitEvent: false },
+                );
+            } else if (aligned !== date) {
+                form.patchValue({ date: aligned }, { emitEvent: false });
+            }
+            on_change?.();
+        }),
+    );
+
+    // all_day toggle
+    if (form.controls.all_day) {
+        subscriptions.push(
+            form.controls.all_day.valueChanges.subscribe((all_day: boolean) => {
+                if (!all_day) {
+                    const dur = clampDuration(default_duration);
+                    const date = form.getRawValue().date;
+                    form.patchValue(
+                        {
+                            duration: dur,
+                            date_end: roundCeil(addMinutes(date, dur)),
+                        },
+                        { emitEvent: false },
+                    );
+                }
+                on_change?.();
+            }),
+        );
+    }
+
+    const handle: FormTimeSyncHandle = {
+        subscriptions,
+        updateOptions(patch: Partial<FormTimeSyncOptions>) {
+            if (patch.min_duration != null) min_duration = patch.min_duration;
+            if (patch.max_duration != null) max_duration = patch.max_duration;
+            if (patch.default_duration != null)
+                default_duration = patch.default_duration;
+            if (patch.bookable_hours !== undefined)
+                bookable_hours = patch.bookable_hours ?? null;
+            if (patch.timezone != null) timezone = patch.timezone;
+
+            // Re-clamp the current duration to the new bounds
+            if (!form.value.all_day) {
+                const date = form.getRawValue().date;
+                const date_end = form.getRawValue().date_end;
+                const multiday = isMultiday(date, date_end);
+                if (!multiday) {
+                    const current = form.getRawValue().duration;
+                    const clamped = clampDuration(current);
+                    if (clamped !== current) {
+                        form.patchValue(
+                            {
+                                duration: clamped,
+                                date_end: roundCeil(addMinutes(date, clamped)),
+                            },
+                            { emitEvent: false },
+                        );
+                        on_change?.();
+                    }
+                }
+            }
+
+            // Re-align the current date to the (possibly new) bookable window
+            if (bookable_hours && !form.value.all_day) {
+                const date = form.getRawValue().date;
+                const date_end = form.getRawValue().date_end;
+                const multiday = isMultiday(date, date_end);
+                const aligned = alignToBookableHours(date);
+                if (aligned !== date) {
+                    if (multiday) {
+                        // For multiday, align start to bookable hours
+                        // and also align end to bookable hours on its day
+                        const aligned_end = alignEndToBookableHours(date_end);
+                        form.patchValue(
+                            {
+                                date: aligned,
+                                date_end: aligned_end,
+                                duration: differenceInMinutes(
+                                    aligned_end,
+                                    aligned,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    } else {
+                        form.patchValue(
+                            {
+                                date: aligned,
+                                date_end: roundCeil(
+                                    addMinutes(
+                                        aligned,
+                                        form.getRawValue().duration,
+                                    ),
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                    }
+                    on_change?.();
+                } else if (multiday) {
+                    // Start is fine, but also align end to bookable hours
+                    const aligned_end = alignEndToBookableHours(date_end);
+                    if (aligned_end !== date_end) {
+                        form.patchValue(
+                            {
+                                date_end: aligned_end,
+                                duration: differenceInMinutes(
+                                    aligned_end,
+                                    date,
+                                ),
+                            },
+                            { emitEvent: false },
+                        );
+                        on_change?.();
+                    }
+                }
+            }
+        },
+    };
+
+    return handle;
+}
+
+/**
+ * Retrieve the {@link FormTimeSyncHandle} that was attached to a form by
+ * {@link setupFormTimeSync} (when called from `generateEventForm` or
+ * `generateBookingForm`). Returns `undefined` if no handle is attached.
+ */
+export function getFormTimeSyncHandle(
+    form: FormGroup,
+): FormTimeSyncHandle | undefined {
+    return (form as any)?._time_sync;
 }

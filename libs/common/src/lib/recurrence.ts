@@ -6,6 +6,7 @@ import {
     endOfDay,
     endOfMonth,
     endOfWeek,
+    format,
     getUnixTime,
     startOfDay,
 } from 'date-fns';
@@ -81,6 +82,8 @@ export interface BookingRecurrence {
     recurrence_interval?: number;
     /** Unix epoch for the end time of the recurrence in seconds */
     recurrence_end?: number;
+    /** Number of recurrence instances for custom display */
+    recurrence_instances?: number;
 
     recurrence_custom?: boolean;
 }
@@ -99,10 +102,13 @@ export function fromEventRecurrence(r: RecurrenceDetails): Recurrence {
         _custom: r._pattern == 'custom_display',
         type: r.pattern as RecurrType,
         interval: r.interval || 1,
-        end_type: r.end ? 'date' : 'never',
+        end_type:
+            r._end_type ??
+            (r.occurrences ? 'instances' : r.end ? 'date' : 'never'),
     };
 
     if (r.end) recurr.end_date = r.end;
+    if (r.occurrences) recurr.end_instances = r.occurrences;
 
     if (r.pattern === 'weekly' && r.days_of_week?.length) {
         recurr.weekdays = new Set(r.days_of_week as DayIndex[]);
@@ -152,12 +158,16 @@ export function toEventRecurrence(
     }
     const details: RecurrenceDetails = {
         _pattern: r._custom ? 'custom_display' : r.type,
+        _end_type: r.end_type,
         pattern: r.type,
         interval: r.interval,
         days_of_week: [date_obj.getDay()],
         start: date,
         end,
     };
+    if (r.end_type === 'instances' && r.end_instances) {
+        details.occurrences = r.end_instances;
+    }
     if ((r.type === 'weekly' || r.type === 'monthly') && r.weekdays) {
         details.days_of_week = Array.from(r.weekdays);
         if (r.type === 'monthly') details.pattern = 'month_day';
@@ -184,10 +194,17 @@ export function fromBookingRecurrence(r: BookingRecurrence): Recurrence {
         _custom: r.recurrence_custom,
         type: r.recurrence_type,
         interval: r.recurrence_interval || 1,
-        end_type: r.recurrence_end ? 'date' : 'never',
+        end_type: r.recurrence_instances
+            ? 'instances'
+            : r.recurrence_end
+              ? 'date'
+              : 'never',
     };
     if (r.recurrence_end) {
         recurr.end_date = r.recurrence_end * 1000; // Convert from seconds to milliseconds
+    }
+    if (r.recurrence_instances) {
+        recurr.end_instances = r.recurrence_instances;
     }
 
     if (r.recurrence_type === 'daily' && r.recurrence_days) {
@@ -237,13 +254,15 @@ export function toBookingRecurrence(
     if (r.end_type === 'date' && r.end_date) {
         booking.recurrence_end = getUnixTime(r.end_date); // Convert from milliseconds to seconds
     } else if (r.end_type === 'instances') {
+        booking.recurrence_instances = r.end_instances;
+        const end_step = r.interval * Math.max((r.end_instances || 1) - 1, 0);
         booking.recurrence_end = getUnixTime(
             r.type === 'daily'
-                ? endOfDay(addDays(date, r.end_instances))
+                ? endOfDay(addDays(date, end_step))
                 : r.type === 'weekly'
-                  ? endOfWeek(addWeeks(date, r.end_instances))
+                  ? endOfWeek(addWeeks(date, end_step))
                   : r.type === 'monthly'
-                    ? endOfMonth(addMonths(date, r.end_instances))
+                    ? endOfMonth(addMonths(date, end_step))
                     : addYears(date, 1),
         );
     }
@@ -277,7 +296,10 @@ export function toBookingRecurrence(
     return booking;
 }
 
-export function formatRecurrence(recurrence: Recurrence): string {
+export function formatRecurrence(
+    recurrence: Recurrence,
+    selected_date = Date.now(),
+): string {
     const {
         type,
         interval,
@@ -330,17 +352,12 @@ export function formatRecurrence(recurrence: Recurrence): string {
                 return '';
             case 'date':
                 if (!end_date) return '';
-                return ` until ${new Date(end_date).toLocaleDateString(
-                    undefined,
-                    {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                    },
-                )}`;
+                return ` until ${format(end_date, 'dd MMM yyyy')}`;
             case 'instances':
                 if (!end_instances) return '';
-                return ` for ${end_instances} ${plural(end_instances, 'time')}`;
+                return ` ends after ${end_instances} ${plural(end_instances, 'instance')}${
+                    end_date ? ` (${format(end_date, 'dd MMM yyyy')})` : ''
+                }`;
         }
     }
 

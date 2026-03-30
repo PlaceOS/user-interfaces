@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { addDays, format, getUnixTime, startOfDay } from 'date-fns';
+import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import {
     catchError,
@@ -26,6 +26,7 @@ import {
     OrganisationService,
     SettingsService,
     downloadFile,
+    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     nextValueFrom,
@@ -63,6 +64,14 @@ export class VisitorsStateService extends AsyncHandler {
 
     public readonly filters = this._filters.asObservable();
 
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
+
     public readonly bookings = combineLatest([
         this._org.active_building,
         this._filters,
@@ -73,7 +82,7 @@ export class VisitorsStateService extends AsyncHandler {
         switchMap(([bld, filters]) => {
             this._loading.next(true);
             const date = filters.date ? new Date(filters.date) : new Date();
-            const start = startOfDay(date);
+            const start = addMinutes(startOfDay(date), this.tz_offset * 60);
             const end = addDays(start, filters.period || 1);
             return queryBookings({
                 type: 'visitor',

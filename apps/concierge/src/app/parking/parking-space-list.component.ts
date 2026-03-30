@@ -37,6 +37,12 @@ import { ParkingStateService } from './parking-state.service';
                 },
                 { key: 'notes', name: 'FORM.NOTES' | translate },
                 {
+                    key: 'bookable',
+                    name: 'COMMON.BOOKABLE' | translate,
+                    content: bookable_template,
+                    size: '5.5rem',
+                },
+                {
                     key: 'status',
                     name: 'COMMON.STATUS' | translate,
                     content: status_template,
@@ -141,6 +147,19 @@ import { ParkingStateService } from './parking-state.service';
                 >
                     <icon>delete</icon>
                 </button>
+            </div>
+        </ng-template>
+        <ng-template #bookable_template let-row="row">
+            <div
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm"
+                [class.bg-success]="row.bookable"
+                [class.text-success-content]="row.bookable"
+                [class.bg-base-300]="!row.bookable"
+                [class.text-base-content]="!row.bookable"
+            >
+                <icon class="text-2xl">
+                    {{ row.bookable ? 'done' : 'close' }}
+                </icon>
             </div>
         </ng-template>
         <div class="h-20 w-full"></div>

@@ -9,16 +9,19 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    endOfDayInTimezone,
     flatten,
+    getFormTimeSyncHandle,
     getInvalidFields,
-    getNextBookableTime,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifyWarn,
     OrganisationService,
     rulesForResource,
     SettingsService,
+    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
@@ -29,14 +32,7 @@ import {
     showMetadata,
     showUser,
 } from '@placeos/ts-client';
-import {
-    addDays,
-    addMinutes,
-    endOfDay,
-    format,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import {
     BehaviorSubject,
@@ -235,7 +231,7 @@ export class BookingFormService extends AsyncHandler {
         switchMap(([options, resources, restrictions]) => {
             let { all_day, date, duration, user } = this.form.getRawValue();
             if (all_day) {
-                date = startOfDay(date).valueOf();
+                date = startOfDayInTimezone(date, this.timezone);
                 duration = 24 * 60 - 1;
             }
             return bookedResourceList({
@@ -333,14 +329,16 @@ export class BookingFormService extends AsyncHandler {
         return this._resource_use[id];
     }
 
+    private get timezone() {
+        const use_building_timezone = this.setting('use_building_timezone');
+        return use_building_timezone ? this._org.building?.timezone || '' : '';
+    }
+
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
         if (!booking.id) {
-            (booking as any).all_day =
-                this._settings.get(`app.${type}s.all_day_default`) ??
-                this._settings.get(`app.${type}.all_day_default`) ??
-                this._settings.get('app.bookings.all_day_default');
+            (booking as any).all_day = this.setting('all_day_default');
         }
         this.form.reset();
         this.form.patchValue(
@@ -353,28 +351,13 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
-        if (!booking.id) {
-            const bookable_hours =
-                this._settings.get(`app.${type}s.bookable_hours`) ||
-                this._settings.get('app.bookings.bookable_hours');
-            const next_time = getNextBookableTime(bookable_hours);
-            if (next_time) {
-                (booking as any).date = next_time;
-                this.form.patchValue({ date: next_time }, { emitEvent: false });
-            }
-        }
+        this._applyDurationSettings();
         this.subscription(
             'form_change',
             this.form.valueChanges.subscribe(() => {
                 const { date, duration } = this.form.getRawValue();
                 this._assets.setOptions({ date, duration });
                 this.storeForm();
-            }),
-        );
-        this.subscription(
-            'all_day_change',
-            this.form.get('all_day').valueChanges.subscribe((all_day) => {
-                if (!all_day) this.form.patchValue({ duration: 60 });
             }),
         );
         this.timeout('date', async () =>
@@ -416,6 +399,24 @@ export class BookingFormService extends AsyncHandler {
         this._org.initialised
             .pipe(first((_) => _))
             .subscribe(() => this.setOptions({}));
+        this.subscription(
+            'settings_change',
+            this._settings.overrides$
+                .pipe(filter((_) => !!_?.length))
+                .subscribe(() => this._applyDurationSettings()),
+        );
+    }
+
+    /** Push the current building's duration and bookable-hours settings into the time sync. */
+    private _applyDurationSettings() {
+        const handle = getFormTimeSyncHandle(this.form);
+        handle?.updateOptions({
+            min_duration: this.setting('min_duration') ?? 30,
+            max_duration: this.setting('max_duration') ?? 0,
+            default_duration: this.setting('default_duration') ?? 60,
+            bookable_hours: this.setting('bookable_hours') ?? null,
+            timezone: this.timezone,
+        });
     }
 
     public setView(value: BookingFlowView) {
@@ -486,6 +487,11 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
         const booking = new Booking(data);
+        this.setOptions({
+            ...JSON.parse(
+                sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
+            ),
+        });
         this._booking.next(booking);
         const booking_data = cleanObject(
             {
@@ -496,6 +502,7 @@ export class BookingFormService extends AsyncHandler {
             [null, undefined, ''],
         );
         this.form.patchValue(booking_data, { emitEvent: false });
+        this._applyDurationSettings();
         this.timeout('load-date', async () =>
             this.form.patchValue({
                 date: booking.date,
@@ -586,6 +593,16 @@ export class BookingFormService extends AsyncHandler {
         });
         const value = this.form.getRawValue();
         const booking = this._booking.getValue() || new Booking();
+        const bookable_hours = this.setting('bookable_hours');
+        if (
+            !isWithinBookableHours(
+                value.date,
+                bookable_hours,
+                this.timezone || value.timezone,
+            )
+        ) {
+            throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+        }
         if (!ignore_check) {
             const host =
                 value.user?.email || value.user_email || currentUser()?.email;
@@ -637,8 +654,9 @@ export class BookingFormService extends AsyncHandler {
         );
         this._loading.next('Saving booking');
         delete value.booking_asset;
+        value.timezone = this.timezone || value.timezone;
         if (value.all_day) {
-            value.date = startOfDay(value.date).valueOf();
+            value.date = startOfDayInTimezone(value.date, value.timezone);
             value.duration = 24 * 60 - 1;
         }
         const { event_id, parent_id } = value;
@@ -729,6 +747,7 @@ export class BookingFormService extends AsyncHandler {
                                   group_members,
                               }
                             : {}),
+                        recurrence_instances: value.recurrence_instances,
                         department:
                             value.user?.department || currentUser()?.department,
                     },
@@ -742,7 +761,15 @@ export class BookingFormService extends AsyncHandler {
             ),
         ).catch((e) => {
             this._loading.next('');
-            throw e?.error || e;
+            const error = e?.error || e;
+            if (e?.status) {
+                if (typeof error === 'object' && error !== null) {
+                    error.status = e.status;
+                } else {
+                    throw { message: error, status: e.status };
+                }
+            }
+            throw error;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             const requests = await validateAssetRequestsForResource(
@@ -786,8 +813,8 @@ export class BookingFormService extends AsyncHandler {
     public setting(key: string) {
         const { type } = this._options.getValue();
         return (
-            this._settings.get(`app.${type}.${key}`) ||
-            this._settings.get(`app.${type}s.${key}`) ||
+            this._settings.get(`app.${type}.${key}`) ??
+            this._settings.get(`app.${type}s.${key}`) ??
             this._settings.get(`app.bookings.${key}`)
         );
     }
@@ -936,7 +963,11 @@ export class BookingFormService extends AsyncHandler {
                 });
                 if (bkn?.id) booking_ids.push(bkn.id);
                 if (bkn.id && !id) id = bkn.id;
-                if (bkn.user_email === currentUser().email) user_booking = bkn;
+                if (
+                    bkn.user_email?.toLowerCase() ===
+                    currentUser().email?.toLowerCase()
+                )
+                    user_booking = bkn;
             }
             if (unavailable.length) {
                 const unavailable_error = unavailable_errors.length
@@ -953,6 +984,19 @@ export class BookingFormService extends AsyncHandler {
                 await this.rollbackGroupBookings(booking_ids);
             }
             throw this._error_message(error);
+        }
+        if (user_booking) {
+            this.last_success = user_booking;
+            sessionStorage.setItem(
+                'PLACEOS.last_booked_booking',
+                JSON.stringify(user_booking),
+            );
+        }
+        if (booking_ids.length > 1) {
+            localStorage.setItem(
+                'PLACEOS.last_group_booking_ids',
+                JSON.stringify(booking_ids),
+            );
         }
         this.clearForm();
         this.form?.patchValue({ booking_type: type });
@@ -1352,10 +1396,10 @@ export class BookingFormService extends AsyncHandler {
         const bookings = await lastValueFrom(
             queryBookings({
                 period_start: all_day
-                    ? getUnixTime(startOfDay(date))
+                    ? getUnixTime(startOfDayInTimezone(date, this.timezone))
                     : getUnixTime(date),
                 period_end: all_day
-                    ? getUnixTime(endOfDay(date))
+                    ? getUnixTime(endOfDayInTimezone(date, this.timezone))
                     : getUnixTime(date + duration * 60 * 1000),
                 type,
                 email: user_email,

@@ -107,7 +107,7 @@ describe('DurationFieldComponent', () => {
             min: 30,
             max: 240,
             step: 30,
-            end_time: 17 * 60,
+            end_time: 17,
         });
         spectator.detectChanges();
         expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
@@ -122,7 +122,7 @@ describe('DurationFieldComponent', () => {
             max: 240,
             step: 30,
             custom_options: [45, 90],
-            end_time: 17 * 60,
+            end_time: 17,
         });
         spectator.detectChanges();
         expect(spectator.component.duration_options.map((_) => _.id)).toEqual([

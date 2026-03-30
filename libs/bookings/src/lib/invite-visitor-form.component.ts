@@ -23,6 +23,7 @@ import {
     Booking,
     SettingsService,
     User,
+    alignDateToBookableHours,
     currentUser,
     getInvalidFields,
     i18n,
@@ -140,6 +141,8 @@ import { BookingFormService } from './booking-form.service';
                                             }"
                                             [use_24hr]="use_24hr"
                                             [range]="bookable_hours"
+                                            [min_duration]="min_duration"
+                                            [timezone]="timezone"
                                         ></a-time-field>
                                     </div>
                                     <div class="flex w-1/3 flex-1 flex-col">
@@ -154,6 +157,7 @@ import { BookingFormService } from './booking-form.service';
                                             [max]="max_duration"
                                             [use_24hr]="use_24hr"
                                             [end_time]="bookable_hours?.end"
+                                            [timezone]="timezone"
                                         ></a-duration-field>
                                     </div>
                                 </div>
@@ -659,6 +663,21 @@ export class InviteVisitorFormComponent
         return this._settings.get('app.use_24_hour_time');
     }
 
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.visitors.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.visitors.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30
+        );
+    }
+
     public get form_date() {
         return this.form?.getRawValue()?.date;
     }
@@ -728,7 +747,13 @@ export class InviteVisitorFormComponent
     public ngOnChanges(changes: SimpleChanges) {
         const date = this.date();
         if (changes.date && date) {
-            this.form.patchValue({ date: date });
+            this.form.patchValue({
+                date: alignDateToBookableHours(
+                    date,
+                    this.bookable_hours,
+                    this.form.getRawValue().date,
+                ),
+            });
         }
     }
 

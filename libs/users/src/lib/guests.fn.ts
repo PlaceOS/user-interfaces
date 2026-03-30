@@ -2,7 +2,12 @@ import { del, get, patch } from '@placeos/ts-client';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CalendarEvent, GuestUser, toQueryString } from '@placeos/common';
+import {
+    CalendarEvent,
+    CateringItem,
+    GuestUser,
+    toQueryString,
+} from '@placeos/common';
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 
@@ -78,4 +83,51 @@ export function listGuestMeetings(id: string) {
     return get(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}/meetings`).pipe(
         map((list) => list.map((item) => new CalendarEvent(item))),
     );
+}
+
+/**
+ * Get the catering item requested for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to get from
+ */
+export function getGuestCateringItem(email: string, booking_id = '') {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return get(`${path}${query}`).pipe(
+        map((item) => (item ? new CateringItem(item) : null)),
+    );
+}
+
+/**
+ * Set the catering item requested for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to set on
+ */
+export function setGuestCateringItem(
+    email: string,
+    catering_item: CateringItem,
+    booking_id = '',
+) {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return patch(`${path}${query}`, catering_item).pipe(
+        map((item) => (item ? new CateringItem(item) : null)),
+    );
+}
+
+/**
+ * Clears any set catering for the specified guest
+ * @param email Email address of the guest
+ * @param booking_id Optional ID of the related visitor booking to clear
+ */
+export function clearGuestCateringItem(email: string, booking_id = '') {
+    const path = `${GUEST_ENDPOINT}/${encodeURIComponent(email)}/catering`;
+    const query = booking_id
+        ? `?booking_id=${encodeURIComponent(booking_id)}`
+        : '';
+    return del(`${path}${query}`);
 }

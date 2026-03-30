@@ -21,6 +21,7 @@ import {
     BuildingLevel,
     Desk,
     generateQRCode,
+    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -40,6 +41,7 @@ import {
 } from '@placeos/ts-client';
 import {
     addHours,
+    addMinutes,
     endOfDay,
     getUnixTime,
     set,
@@ -101,6 +103,14 @@ export class DesksStateService extends AsyncHandler {
 
     public readonly loading = this._loading.asReadonly();
     public readonly filters = this._filters.asReadonly();
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
 
     private readonly _desks$ = combineLatest([
         toObservable(this._filters),
@@ -166,6 +176,11 @@ export class DesksStateService extends AsyncHandler {
             // Only load bookings when on events view
             if (!loaded || filters.view !== 'events') return;
             const date = filters.date || Date.now();
+            const period_start = addMinutes(
+                startOfDay(date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
             const active_zones = this._getActiveZones(filters.zones);
             const zones = !active_zones.length
                 ? this._settings.get('app.use_region')
@@ -174,8 +189,8 @@ export class DesksStateService extends AsyncHandler {
                 : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
                     type: 'desk',
                     zones: zones.join(','),
                     include_checked_out: true,
@@ -313,7 +328,8 @@ export class DesksStateService extends AsyncHandler {
                 state.metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
-        const desk_list = [...this.desks()];
+        const original_desk_list = [...this.desks()];
+        const desk_list = [...original_desk_list];
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
@@ -334,7 +350,16 @@ export class DesksStateService extends AsyncHandler {
             (desk.assigned_to !== new_desk.assigned_to ||
                 desk.id !== new_desk.id)
         ) {
-            await this._clearAssignedBooking(desk);
+            try {
+                await this._clearAssignedBooking(desk);
+            } catch (e) {
+                await this._rollbackMetadata(zone, original_desk_list);
+                notifyError(
+                    i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', { error: e }),
+                );
+                ref.componentInstance.loading.set(false);
+                throw e;
+            }
             recreate = true;
         }
         if (
@@ -376,7 +401,33 @@ export class DesksStateService extends AsyncHandler {
                         is_assigned: true,
                     },
                 }),
-            ).toPromise();
+            )
+                .toPromise()
+                .catch(async (e) => {
+                    await this._rollbackMetadata(zone, original_desk_list);
+                    if (recreate) {
+                        await this._restoreAssignedBooking(desk).catch(
+                            (restore_err) =>
+                                console.error(
+                                    'Failed to restore assigned booking during rollback',
+                                    restore_err,
+                                ),
+                        );
+                    }
+                    if (e?.status === 409) {
+                        notifyError(
+                            i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
+                        );
+                    } else {
+                        notifyError(
+                            i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
+                                error: e,
+                            }),
+                        );
+                    }
+                    ref.componentInstance.loading.set(false);
+                    throw e;
+                });
         }
         this._change.set(Date.now());
         ref.close();
@@ -532,6 +583,56 @@ export class DesksStateService extends AsyncHandler {
         resp.close();
     }
 
+    private async _rollbackMetadata(zone: string, original_desk_list: any[]) {
+        try {
+            await lastValueFrom(
+                updateMetadata(zone, {
+                    name: 'desks',
+                    details: original_desk_list,
+                    description: 'List of available desks',
+                }),
+            );
+        } catch (rollback_err) {
+            console.error(
+                'Failed to rollback desk metadata after error',
+                rollback_err,
+            );
+        }
+    }
+
+    private async _restoreAssignedBooking(desk: Desk) {
+        if (!desk.assigned_to) return;
+        const date = set(Date.now(), { hours: 1, minutes: 0, seconds: 0 });
+        await lastValueFrom(
+            saveBooking(
+                new Booking({
+                    user_id: desk.assigned_to,
+                    user_email: desk.assigned_to,
+                    user_name: desk['assigned_name'],
+                    booking_start: getUnixTime(date),
+                    booking_end: getUnixTime(addHours(date, 22)),
+                    type: 'desk',
+                    booking_type: 'desk',
+                    asset_id: desk.id,
+                    asset_name: desk.name,
+                    recurrence_type: 'daily',
+                    recurrence_days:
+                        RecurrenceDays.MONDAY |
+                        RecurrenceDays.TUESDAY |
+                        RecurrenceDays.WEDNESDAY |
+                        RecurrenceDays.THURSDAY |
+                        RecurrenceDays.FRIDAY |
+                        RecurrenceDays.SATURDAY |
+                        RecurrenceDays.SUNDAY,
+                    extension_data: {
+                        asset_name: desk.name,
+                        is_assigned: true,
+                    },
+                }),
+            ),
+        );
+    }
+
     private async _clearAssignedBooking(desk: Desk) {
         const today = Date.now();
         const booking_list = await lastValueFrom(
@@ -545,15 +646,15 @@ export class DesksStateService extends AsyncHandler {
         );
         const filtered = booking_list.filter((_) => _.asset_id === desk.id);
         for (const booking of filtered) {
-            const is_recurring =
-                booking.recurrence_type && booking.recurrence_type !== 'none';
-            if (is_recurring && booking.instance) {
-                // Set recurrence_end to end of yesterday to preserve past instances
+            const is_recurring = booking.instance;
+            if (is_recurring) {
                 const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
                 await lastValueFrom(
-                    updateBooking(booking.id, {
-                        recurrence_end: yesterday_end,
-                    }),
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
                 );
             } else {
                 await lastValueFrom(removeBooking(booking.id));

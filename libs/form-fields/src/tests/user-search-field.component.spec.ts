@@ -131,4 +131,65 @@ describe('UserSearchFieldComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.search_term.value).toEqual(user);
     }));
+
+    it('should validate email addresses correctly', () => {
+        expect(spectator.component.isValidEmail('user@example.com')).toBe(true);
+        expect(spectator.component.isValidEmail('test.name@domain.co')).toBe(
+            true,
+        );
+        expect(spectator.component.isValidEmail('not-an-email')).toBe(false);
+        expect(spectator.component.isValidEmail('missing@')).toBe(false);
+        expect(spectator.component.isValidEmail('@domain.com')).toBe(false);
+        expect(spectator.component.isValidEmail('')).toBe(false);
+    });
+
+    it('should allow selecting a user from an email when allow_externals is true', fakeAsync(() => {
+        const spec = createComponent({
+            props: { allow_externals: true },
+        });
+
+        const on_change = jest.fn();
+        spec.component.registerOnChange(on_change);
+
+        spec.component.setValueFromEmail('john.doe@external.com');
+        spec.tick(101);
+
+        expect(on_change).toHaveBeenCalledTimes(1);
+        const set_user = on_change.mock.calls[0][0];
+        expect(set_user).toBeInstanceOf(User);
+        expect(set_user.name).toBe('john.doe');
+        expect(set_user.email).toBe('john.doe@external.com');
+
+        tick(1000);
+    }));
+
+    it('should not create user from email when allow_externals is false', fakeAsync(() => {
+        const spec = createComponent({
+            props: { allow_externals: false },
+        });
+
+        const on_change = jest.fn();
+        spec.component.registerOnChange(on_change);
+
+        // The email is valid, but allow_externals is false so the
+        // setValueFromEmail path should not be triggered by the template.
+        // Verify the guard: isValidEmail returns true but allow_externals is false.
+        expect(spec.component.isValidEmail('user@example.com')).toBe(true);
+        expect(spec.component.allow_externals()).toBe(false);
+
+        // Directly calling setValueFromEmail still works at the method level,
+        // but the template condition (allow_externals() && isValidEmail(term))
+        // prevents the option from appearing. Simulate what the template does:
+        const term = 'user@example.com';
+        const should_show_option =
+            !!term &&
+            spec.component.allow_externals() &&
+            spec.component.isValidEmail(term);
+        expect(should_show_option).toBe(false);
+
+        // Ensure no value was set through the form control
+        expect(on_change).not.toHaveBeenCalled();
+
+        tick(1000);
+    }));
 });

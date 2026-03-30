@@ -6,17 +6,24 @@ import { ExploreSearchService } from '@placeos/explore';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
+import { SettingsService } from '@placeos/common';
 import { GlobalSearchComponent } from '../../app/components/global-search.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('GlobalSearchComponent', () => {
     let spectator: SpectatorRouting<GlobalSearchComponent>;
     const createComponent = createRoutingFactory({
         component: GlobalSearchComponent,
         providers: [
+            MockProvider(SettingsService, { get: jest.fn() }),
             MockProvider(ExploreSearchService, {
                 search_results: new BehaviorSubject([]),
                 loading: new BehaviorSubject(''),
                 setFilter: jest.fn(),
+                setInProgressBookings: jest.fn(),
+            } as any),
+            MockProvider(ScheduleStateService, {
+                bookings: new BehaviorSubject([]),
             } as any),
         ],
         declarations: [MockComponent(IconComponent)],
