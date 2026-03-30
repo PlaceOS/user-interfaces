@@ -1025,6 +1025,7 @@
             "DESKS_NAME": "Nome scrivania",
             "DESKS_SAVING": "Salvataggio dettagli della scrivania...",
             "DESKS_SAVE_ERROR": "Impossibile salvare i dettagli della scrivania. Errore: {{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "Questa scrivania è attualmente prenotata. Si prega di cancellare la prenotazione esistente prima di assegnarla.",
             "DESKS_MAP_ID_PLACEHOLDER": "es. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Visualizza codici QR scrivanie",
             "DESKS_LIST_UPLOAD": "Carica CSV scrivanie",

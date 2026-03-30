@@ -1025,6 +1025,7 @@
             "DESKS_NAME": "اسم المكتب",
             "DESKS_SAVING": "جاري حفظ تفاصيل المكتب...",
             "DESKS_SAVE_ERROR": "فشل حفظ تفاصيل المكتب. خطأ: {{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "هذا المكتب محجوز حاليًا. يرجى إلغاء الحجز الحالي قبل تعيينه.",
             "DESKS_MAP_ID_PLACEHOLDER": "مثال: table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "عرض قائمة رموز QR للمكاتب",
             "DESKS_LIST_UPLOAD": "تحميل CSV للمكاتب",

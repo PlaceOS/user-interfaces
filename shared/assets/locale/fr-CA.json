@@ -1025,6 +1025,7 @@
             "DESKS_NAME": "Nom du bureau",
             "DESKS_SAVING": "Enregistrement des détails du bureau...",
             "DESKS_SAVE_ERROR": "Échec de l'enregistrement des détails du bureau. Erreur : {{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "Ce bureau est actuellement réservé. Veuillez annuler la réservation existante avant de l'attribuer.",
             "DESKS_MAP_ID_PLACEHOLDER": "ex. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Voir la liste des codes QR des bureaux",
             "DESKS_LIST_UPLOAD": "Téléverser le CSV des bureaux",

@@ -391,7 +391,23 @@ export class DesksStateService extends AsyncHandler {
                         is_assigned: true,
                     },
                 }),
-            ).toPromise();
+            )
+                .toPromise()
+                .catch((e) => {
+                    if (e?.status === 409) {
+                        notifyError(
+                            i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'),
+                        );
+                    } else {
+                        notifyError(
+                            i18n('APP.CONCIERGE.DESKS_SAVE_ERROR', {
+                                error: e,
+                            }),
+                        );
+                    }
+                    ref.componentInstance.loading.set(false);
+                    throw e;
+                });
         }
         this._change.set(Date.now());
         ref.close();

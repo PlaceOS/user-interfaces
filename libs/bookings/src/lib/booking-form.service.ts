@@ -847,7 +847,15 @@ export class BookingFormService extends AsyncHandler {
             ),
         ).catch((e) => {
             this._loading.next('');
-            throw e?.error || e;
+            const error = e?.error || e;
+            if (e?.status) {
+                if (typeof error === 'object' && error !== null) {
+                    error.status = e.status;
+                } else {
+                    throw { message: error, status: e.status };
+                }
+            }
+            throw error;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             const requests = await validateAssetRequestsForResource(
