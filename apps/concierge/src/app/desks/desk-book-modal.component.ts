@@ -75,7 +75,11 @@ export class DeskBookModalComponent implements OnInit {
             method = () => this._booking_form.postFormForGroup();
         }
         const event = await method().catch((_) => {
-            notifyError(_);
+            if (_?.status === 409) {
+                notifyError(i18n('APP.CONCIERGE.DESKS_ASSIGN_CONFLICT_ERROR'));
+            } else {
+                notifyError(_);
+            }
             this.loading.set(false);
             throw _;
         });

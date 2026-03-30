@@ -1021,6 +1021,7 @@
             "DESKS_NAME": "Nombre del Escritorio",
             "DESKS_SAVING": "Guardando detalles del escritorio...",
             "DESKS_SAVE_ERROR": "No se pudieron guardar los detalles del escritorio. Error: {{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "Este escritorio está actualmente reservado. Por favor, cancele la reserva existente antes de asignarlo.",
             "DESKS_MAP_ID_PLACEHOLDER": "ej. table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Ver Códigos QR de Escritorio",
             "DESKS_LIST_UPLOAD": "Subir CSV de Escritorios",

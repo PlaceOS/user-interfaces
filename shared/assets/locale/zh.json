@@ -1021,6 +1021,7 @@
             "DESKS_NAME": "工位名称",
             "DESKS_SAVING": "正在保存工位详情...",
             "DESKS_SAVE_ERROR": "保存工位详情失败。错误：{{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "该工位目前已被预订。请先取消现有预订再进行分配。",
             "DESKS_MAP_ID_PLACEHOLDER": "例如：table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "查看工位二维码列表",
             "DESKS_LIST_UPLOAD": "上传工位 CSV",

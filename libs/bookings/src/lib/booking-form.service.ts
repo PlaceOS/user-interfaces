@@ -761,7 +761,15 @@ export class BookingFormService extends AsyncHandler {
             ),
         ).catch((e) => {
             this._loading.next('');
-            throw e?.error || e;
+            const error = e?.error || e;
+            if (e?.status) {
+                if (typeof error === 'object' && error !== null) {
+                    error.status = e.status;
+                } else {
+                    throw { message: error, status: e.status };
+                }
+            }
+            throw error;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             const requests = await validateAssetRequestsForResource(
@@ -982,6 +990,12 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.setItem(
                 'PLACEOS.last_booked_booking',
                 JSON.stringify(user_booking),
+            );
+        }
+        if (booking_ids.length > 1) {
+            localStorage.setItem(
+                'PLACEOS.last_group_booking_ids',
+                JSON.stringify(booking_ids),
             );
         }
         this.clearForm();

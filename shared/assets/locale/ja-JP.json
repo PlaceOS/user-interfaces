@@ -1021,6 +1021,7 @@
             "DESKS_NAME": "デスク名",
             "DESKS_SAVING": "デスク詳細を保存中...",
             "DESKS_SAVE_ERROR": "デスク詳細の保存に失敗しました。エラー: {{ error }}",
+            "DESKS_ASSIGN_CONFLICT_ERROR": "このデスクは現在予約されています。割り当てる前に既存の予約をキャンセルしてください。",
             "DESKS_MAP_ID_PLACEHOLDER": "例：table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "デスクQRコードリストを表示",
             "DESKS_LIST_UPLOAD": "デスクCSVをアップロード",
