@@ -197,7 +197,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         available_days: number;
     }>(MAT_DIALOG_DATA);
 
-    public readonly instance_fn = (v) => `${v} instances`;
+    public readonly instance_fn = (v) => `${v ?? 13} instances`;
     public readonly date = this._data.date || Date.now();
     public readonly week = this._data.iom ?? 1;
     public readonly available_days = this._data.available_days;
@@ -232,7 +232,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         monthly_type: new FormControl<MonthlyType>('day_of_month'),
         end_type: new FormControl<RecurrEndType>('never'),
         end_date: new FormControl(
-            endOfDay(addDays(this.date, this.available_days)),
+            endOfDay(addDays(this.date, this.available_days)).valueOf(),
         ),
         end_instances: new FormControl(13),
     });
@@ -253,6 +253,16 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         this.form.patchValue({ ...this._data.value, _custom: true });
         if (!this.form.value.type || this.form.value.type === 'none') {
             this.form.patchValue({ type: 'daily' });
+        }
+        // Restore defaults when end_date / end_instances are missing
+        const default_end_date = endOfDay(
+            addDays(this.date, this.available_days),
+        ).valueOf();
+        if (!this.form.controls.end_date.value) {
+            this.form.patchValue({ end_date: default_end_date });
+        }
+        if (!this.form.controls.end_instances.value) {
+            this.form.patchValue({ end_instances: 13 });
         }
         // Clamp end_date to valid range after loading the saved value
         if (this.form.value.end_date < this.date) {
