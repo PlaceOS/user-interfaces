@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
@@ -33,16 +40,16 @@ export interface Locatable {
                     {{ item.display_name || item.name }}
                 </h1>
             </header>
-            @if (level) {
+            @if (level()) {
                 <div
                     body
                     class="relative h-[65vh] w-full overflow-hidden sm:max-h-[65vh]"
                 >
                     <interactive-map
                         class="pointer-events-none"
-                        [src]="level?.map_id"
+                        [src]="level()?.map_id"
                         [focus]="item?.map_id"
-                        [features]="features"
+                        [features]="features()"
                         [options]="{
                             disable_pan: true,
                             disable_zoom: true,
@@ -53,7 +60,7 @@ export interface Locatable {
                     <div
                         class="border-base-200 bg-base-100 absolute top-2 right-2 rounded-3xl border px-4 py-2 shadow-sm"
                     >
-                        {{ level?.display_name || level?.name }}
+                        {{ level()?.display_name || level()?.name }}
                     </div>
                 </div>
             }
@@ -93,13 +100,13 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
     /** Space to show the location of on the map */
     public item: Locatable = this._data.item;
     /** Features of the map */
-    public features: ViewerFeature[];
+    public features = signal<ViewerFeature[]>(undefined);
     /** Mapping of elements to CSS styles */
-    public style_map: ViewerStyles = {};
+    public style_map = signal<ViewerStyles>({});
 
-    public get level(): BuildingLevel {
-        return this.item.level || this._org.levelWithID(this.item.zones || []);
-    }
+    public readonly level = computed<BuildingLevel>(
+        () => this.item.level || this._org.levelWithID(this.item.zones || []),
+    );
 
     constructor() {
         super();
@@ -125,7 +132,7 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
             styles[`#zones`] = { display: 'none' };
             styles[`#Zones`] = { display: 'none' };
         }
-        this.style_map = styles;
+        this.style_map.set(styles);
     }
 
     /** Point on map to focus on */
@@ -141,6 +148,6 @@ export class MapLocateModalComponent extends AsyncHandler implements OnInit {
             z_index: 99,
             zoom: 100,
         };
-        this.features = [focus];
+        this.features.set([focus]);
     }
 }

@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
     OnInit,
+    computed,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -16,7 +17,6 @@ import {
     current_user,
     settingSignal,
 } from '@placeos/common';
-import { map } from 'rxjs/operators';
 import { DateFromPipe } from '../date-from.pipe';
 import { IconComponent } from '../icon.component';
 import { SanitizePipe } from '../sanitise.pipe';
@@ -69,14 +69,14 @@ import { ChatService } from './chat.service';
                                     }}
                                 </p>
                             </div>
-                            @if (hint | async) {
+                            @if (hint()) {
                                 <div
                                     class="border-base-300 bg-base-100 m-2 rounded-sm p-4 text-sm shadow-sm"
                                 >
-                                    {{ hint | async }}
+                                    {{ hint() }}
                                 </div>
                             }
-                            @for (message of messages | async; track message) {
+                            @for (message of messages(); track message) {
                                 <div
                                     class="m-2 flex flex-col"
                                     [class.pr-4]="message.user_id !== user().id"
@@ -91,7 +91,7 @@ import { ChatService } from './chat.service';
                                         show_time()[message.id] =
                                             !show_time()[message.id]
                                     "
-                                    [class.waiting-margin]="waiting | async"
+                                    [class.waiting-margin]="waiting()"
                                 >
                                     <div class="flex items-center space-x-2">
                                         @if (message.user_id !== user().id) {
@@ -120,7 +120,7 @@ import { ChatService } from './chat.service';
                                     ></div>
                                 </div>
                             }
-                            @if (progress | async) {
+                            @if (progress()) {
                                 <div class="p-4">
                                     <button
                                         class="border-base-300 bg-info text-info-content block w-full rounded-sm p-2"
@@ -130,16 +130,13 @@ import { ChatService } from './chat.service';
                                             class="flex items-center space-x-2"
                                         >
                                             <icon class="text-2xl">{{
-                                                icons[
-                                                    (progress | async).function
-                                                ] || 'info'
+                                                icons[progress().function] ||
+                                                    'info'
                                             }}</icon>
                                             <p class="text-sm">
                                                 {{
-                                                    (progress | async)
-                                                        .message ||
-                                                        (progress | async)
-                                                            .function
+                                                    progress().message ||
+                                                        progress().function
                                                 }}
                                             </p>
                                         </div>
@@ -153,8 +150,8 @@ import { ChatService } from './chat.service';
                                                 <div
                                                     class="text-mono p-2 text-left text-xs wrap-break-word"
                                                     [innerHTML]="
-                                                        (progress | async)
-                                                            .content | sanitize
+                                                        progress().content
+                                                            | sanitize
                                                     "
                                                 ></div>
                                             }
@@ -163,7 +160,7 @@ import { ChatService } from './chat.service';
                                 </div>
                             }
                         </div>
-                        @if (waiting | async) {
+                        @if (waiting()) {
                             <div
                                 class="border-neutral bg-base-100 absolute right-2 flex items-center justify-center space-x-2 rounded-2xl border p-1"
                                 [style.bottom]="height() + 8 + 'px'"
@@ -227,7 +224,6 @@ import { ChatService } from './chat.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         FormsModule,
@@ -254,15 +250,16 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         call_function: 'settings',
         task_complete: 'check_circle',
     };
-    public readonly hint = this._chat.chat_hint;
-    public readonly messages = this._chat.messages;
-    public readonly progress = this._chat.progress;
-    public readonly waiting = this._chat.messages.pipe(
-        map(
-            (_) =>
-                _.length !== 0 && _[_.length - 1]?.user_id === this.user().id,
-        ),
-    );
+    public readonly hint = toSignal(this._chat.chat_hint);
+    public readonly messages = toSignal(this._chat.messages);
+    public readonly progress = toSignal(this._chat.progress);
+    public readonly waiting = computed(() => {
+        const msgs = this.messages();
+        return (
+            msgs?.length !== 0 &&
+            msgs?.[msgs?.length - 1]?.user_id === this.user().id
+        );
+    });
 
     private readonly _input_el =
         viewChild<ElementRef<HTMLTextAreaElement>>('input');
@@ -281,15 +278,15 @@ export class ChatComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'hint',
-            this.hint.subscribe(() => this.scrollToBottom(500)),
+            this._chat.chat_hint.subscribe(() => this.scrollToBottom(500)),
         );
         this.subscription(
             'messages',
-            this.messages.subscribe(() => this.scrollToBottom()),
+            this._chat.messages.subscribe(() => this.scrollToBottom()),
         );
         this.subscription(
             'progress',
-            this.progress.subscribe((i) =>
+            this._chat.progress.subscribe((i) =>
                 i ? this.scrollToBottom() : this.show_info.set(false),
             ),
         );

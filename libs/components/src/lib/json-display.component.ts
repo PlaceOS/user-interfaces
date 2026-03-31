@@ -1,4 +1,11 @@
-import { Component, SimpleChanges, inject, input } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { CustomTooltipData } from './custom-tooltip.component';
 
 @Component({
@@ -9,7 +16,7 @@ import { CustomTooltipData } from './custom-tooltip.component';
         >
             <pre
                 class="bg-base-200 w-full rounded-sm p-2 font-mono text-sm break-all"
-                >{{ formatted_json }}</pre
+                >{{ formatted_json() }}</pre
             >
         </div>
     `,
@@ -28,22 +35,24 @@ import { CustomTooltipData } from './custom-tooltip.component';
 export class JsonDisplayComponent {
     public readonly json = input<Object>(undefined);
 
-    public formatted_json: string;
+    private readonly _json = signal<any>(undefined);
+
+    public readonly formatted_json = computed(() =>
+        JSON.stringify(this._json(), undefined, 4),
+    );
 
     constructor() {
         const _data = inject(CustomTooltipData, { optional: true });
 
-        this.json = _data?.data || '';
-        this._updateFormatting();
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.json) {
-            this._updateFormatting();
+        if (_data?.data) {
+            this._json.set(_data.data);
         }
-    }
 
-    private _updateFormatting() {
-        this.formatted_json = JSON.stringify(this.json(), undefined, 4);
+        effect(() => {
+            const value = this.json();
+            if (value !== undefined) {
+                this._json.set(value);
+            }
+        });
     }
 }
