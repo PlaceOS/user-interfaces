@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CateringItem, OrganisationService, unique } from '@placeos/common';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
@@ -20,7 +19,7 @@ import { CateringStateService } from './catering-state.service';
     template: `
         <simple-table
             class="block w-full min-w-lg text-sm"
-            [data]="menu"
+            [data]="menu()"
             [columns]="[
                 {
                     key: 'active',
@@ -34,7 +33,7 @@ import { CateringStateService } from './catering-state.service';
                 {
                     key: 'caterer',
                     name: 'CATERING.CATERER' | translate,
-                    show: !filters?.caterer && caterers.length > 1,
+                    show: !filters()?.caterer && caterers.length > 1,
                 },
                 {
                     key: 'unit_price',
@@ -50,8 +49,8 @@ import { CateringStateService } from './catering-state.service';
                     sortable: false,
                 },
             ]"
-            [filter]="filters?.search"
-            [show_children]="show_children"
+            [filter]="filters()?.search"
+            [show_children]="show_children()"
             [child_template]="child_template"
             [sortable]="true"
             [empty_message]="'CATERING.ITEM_LIST_EMPTY' | translate"
@@ -123,17 +122,17 @@ import { CateringStateService } from './catering-state.service';
                     [disabled]="!row.options?.length"
                     [matTooltip]="
                         row.options?.length
-                            ? ((show_children[row.id]
+                            ? ((isExpanded(row.id)
                                   ? 'CATERING.ITEM_OPTION_HIDE'
                                   : 'CATERING.ITEM_OPTION_SHOW'
                               ) | translate)
                             : ''
                     "
-                    (click)="show_children[row.id] = !show_children[row.id]"
+                    (click)="toggleExpanded(row.id)"
                 >
                     <icon>
                         {{
-                            show_children[row.id]
+                            isExpanded(row.id)
                                 ? 'keyboard_arrow_down'
                                 : 'chevron_right'
                         }}
@@ -215,21 +214,23 @@ export class CateringMenuComponent {
         return this._org.currency_code;
     }
 
-    public show_children: Record<string, boolean> = {};
-    /** Observable for the currently active menu */
-    public readonly menu = combineLatest([
-        this._catering.menu,
-        this._orders.order_filters,
-    ]).pipe(
-        map(([menu, filters]) =>
-            menu.filter(
-                (item) =>
-                    !filters?.caterer ||
-                    (filters.caterer === '<empty>' && !item.caterer) ||
-                    item.caterer === filters.caterer,
-            ),
-        ),
-    );
+    public readonly show_children = signal<Record<string, boolean>>({});
+    public readonly filters = toSignal(this._orders.order_filters, {
+        initialValue: this._orders.filters || {},
+    });
+    private readonly _menu = toSignal(this._catering.menu, {
+        initialValue: [],
+    });
+    /** Signal for the currently active menu */
+    public readonly menu = computed(() => {
+        const filters = this.filters();
+        return this._menu().filter(
+            (item) =>
+                !filters?.caterer ||
+                (filters.caterer === '<empty>' && !item.caterer) ||
+                item.caterer === filters.caterer,
+        );
+    });
 
     public readonly addOption = (item) => this._catering.addOption(item);
 
@@ -243,10 +244,6 @@ export class CateringMenuComponent {
 
     public readonly removeItem = (item) => this._catering.deleteItem(item);
 
-    public get filters() {
-        return this._orders.filters;
-    }
-
     public get can_edit() {
         return this._catering.is_editable;
     }
@@ -257,6 +254,14 @@ export class CateringMenuComponent {
 
     public get caterers() {
         return this._catering.caterer_list;
+    }
+
+    public isExpanded(id: string) {
+        return !!this.show_children()[id];
+    }
+
+    public toggleExpanded(id: string) {
+        this.show_children.update((state) => ({ ...state, [id]: !state[id] }));
     }
 
     public isEnabled(item: CateringItem) {

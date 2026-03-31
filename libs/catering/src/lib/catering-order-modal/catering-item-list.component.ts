@@ -1,16 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    inject,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CateringItem } from '@placeos/common';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BehaviorSubject } from 'rxjs';
 import { CateringItemListItemComponent } from './catering-item-list-item.component';
 import { CateringOrderStateService } from './catering-order-state.service';
 
@@ -18,18 +11,18 @@ import { CateringOrderStateService } from './catering-order-state.service';
     selector: 'catering-item-list',
     template: `
         <div class="h-full w-full overflow-auto py-2">
-            @if ((list | async)?.length) {
+            @if (list().length) {
                 <h3 class="px-2 font-bold">
                     {{ 'CATERING.ORDER_SELECTED_HEADER' | translate }}
                 </h3>
                 <p count class="mb-2 px-2 text-sm opacity-60">
                     {{
                         'CATERING.ORDER_SELECTED_COUNT'
-                            | translate: { count: (list | async)?.length || 0 }
+                            | translate: { count: list().length || 0 }
                     }}
                 </p>
                 <ul class="list-style-none space-y-2 p-2">
-                    @for (item of list | async; track item.custom_id) {
+                    @for (item of list(); track item.custom_id) {
                         <catering-item-list-item
                             class="block"
                             [item]="item"
@@ -46,13 +39,13 @@ import { CateringOrderStateService } from './catering-order-state.service';
             <p count class="mb-2 px-2 text-sm opacity-60">
                 {{
                     'COMMON.RESULTS_COUNT'
-                        | translate: { count: (item_list | async)?.length || 0 }
+                        | translate: { count: item_list().length || 0 }
                 }}
             </p>
-            @if (!(loading | async)) {
-                @if ((item_list | async)?.length) {
+            @if (!loading()) {
+                @if (item_list().length) {
                     <ul class="list-style-none space-y-2 p-2">
-                        @for (item of item_list | async; track item.custom_id) {
+                        @for (item of item_list(); track item.custom_id) {
                             <catering-item-list-item
                                 class="block"
                                 [item]="item"
@@ -60,7 +53,7 @@ import { CateringOrderStateService } from './catering-order-state.service';
                                 [show_count]="false"
                                 [favourite]="isFavourite(item.id)"
                                 [code]="code"
-                                (toggleFav)="toggleFav(item.id)"
+                                (toggleFav)="toggleFav.emit(item.id)"
                                 (select)="selectItem(item, true)"
                             ></catering-item-list-item>
                         }
@@ -96,28 +89,26 @@ import { CateringOrderStateService } from './catering-order-state.service';
         CateringItemListItemComponent,
     ],
 })
-export class CateringItemListComponent implements OnChanges {
+export class CateringItemListComponent {
     private _state = inject(CateringOrderStateService);
 
     public readonly active = input('');
     public readonly selected = input<string[]>([]);
     public readonly selected_items = input<CateringItem[]>([]);
     public readonly favorites = input<string[]>([]);
-    public readonly toggleFav = output<CateringItem>();
+    public readonly toggleFav = output<string>();
     public readonly onSelect = output<CateringItem>();
 
-    public readonly list = new BehaviorSubject<CateringItem[]>([]);
-    public readonly loading = this._state.loading;
-    public readonly item_list = this._state.filtered_menu;
+    public readonly list = computed(() => this.selected_items() || []);
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly item_list = toSignal(this._state.filtered_menu, {
+        initialValue: [],
+    });
 
     public get code() {
         return this._state.currency_code;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.selected_items) {
-            this.list.next(this.selected_items() || []);
-        }
     }
 
     public isFavourite(item_id: string) {
