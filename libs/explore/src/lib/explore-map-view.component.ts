@@ -1,21 +1,20 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Point } from '@placeos/svg-viewer';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 
-import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 import {
     AsyncHandler,
     i18n,
     MapsPeopleService,
-    nextValueFrom,
     notifyError,
     notifyWarn,
+    settingSignal,
     SettingsService,
     unique,
     User,
@@ -43,33 +42,40 @@ import { ExploreZonesService } from './explore-zones.service';
 
 const EMPTY = [];
 
+function toOptionalSignal<T>(
+    source: { subscribe?: Function },
+    initial: T,
+): any {
+    return source?.subscribe
+        ? toSignal(source as any, { initialValue: initial })
+        : signal(initial);
+}
+
 @Component({
     selector: 'explore-map-view',
     template: `
         <interactive-map
-            [src]="url | async"
-            [styles]="styles | async"
-            [features]="features | async"
-            [actions]="actions | async"
-            [labels]="labels | async"
-            [focus]="locate"
+            [src]="url()"
+            [styles]="styles()"
+            [features]="features()"
+            [actions]="actions()"
+            [labels]="labels()"
+            [focus]="locate()"
             [options]="{ controls: true }"
-            (mapInfo)="map_info = $event ?? $any({})"
+            (mapInfo)="map_info.set($event ?? $any({}))"
         />
-        @if (!(use_mapsindoors$ | async)) {
+        @if (!use_mapsindoors()) {
             <div
                 controls
                 class="border-base-200 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] space-y-2 overflow-hidden rounded-sm border p-2"
             >
                 <explore-map-controls></explore-map-controls>
-                @if (!hide_zones) {
+                @if (!hide_zones()) {
                     <div class="flex items-center space-x-2">
                         <mat-slide-toggle
                             name="zones"
                             class="ml-2"
-                            [ngModel]="
-                                !(options | async)?.disable?.includes('zones')
-                            "
+                            [ngModel]="!options()?.disable?.includes('zones')"
                             (ngModelChange)="toggleZones($event)"
                         ></mat-slide-toggle>
                         <label for="zones" class="mb-0">{{
@@ -79,7 +85,7 @@ const EMPTY = [];
                 }
             </div>
         }
-        @if (show_legend && legend.length) {
+        @if (show_legend() && legend().length) {
             <div
                 legend
                 class="border-base-200 bg-base-100 absolute bottom-2 left-2 rounded-sm border p-2"
@@ -87,7 +93,7 @@ const EMPTY = [];
                 <h3 class="mb-2 font-medium">
                     {{ 'EXPLORE.LEGEND' | translate }}
                 </h3>
-                @for (pair of legend; track pair) {
+                @for (pair of legend(); track pair) {
                     <div class="flex items-center space-x-2">
                         <div
                             class="border-base-200 h-3 w-3 rounded-full border"
@@ -98,7 +104,7 @@ const EMPTY = [];
                 }
             </div>
         }
-        @if (locate) {
+        @if (locate()) {
             <button
                 class="border-base-300 bg-base-100 absolute top-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
                 matRipple
@@ -130,7 +136,6 @@ const EMPTY = [];
         SpacePipe,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         InteractiveMapComponent,
         MatSlideToggle,
@@ -156,29 +161,36 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     private _maps = inject(MapsPeopleService);
 
     /** Observable for the active map */
-    public readonly url = this._state.map_url;
+    public readonly url = toOptionalSignal(this._state.map_url, '');
     /** Observable for the active map */
-    public readonly styles = this._state.map_styles;
+    public readonly styles = toOptionalSignal(this._state.map_styles, {
+        text: { display: 'none' },
+    });
     /** Observable for the active map */
-    public readonly positions = this._state.map_positions;
+    public readonly positions = toOptionalSignal(this._state.map_positions, {
+        initialValue: this._state.positions,
+    } as any);
     /** Observable for the active map */
-    public readonly features = this._state.map_features;
+    public readonly features = toOptionalSignal(this._state.map_features, []);
     /** Observable for the active map */
-    public readonly actions = this._state.map_actions;
+    public readonly actions = toOptionalSignal(this._state.map_actions, []);
     /** Observable for the labels map */
-    public readonly labels = this._state.map_labels;
+    public readonly labels = toOptionalSignal(this._state.map_labels, []);
     /** Observable for the active map */
-    public readonly options = this._state.options;
+    public readonly options = toOptionalSignal(this._state.options, {
+        is_public: false,
+        disable: ['zones', 'devices'],
+    });
     /** Observable for user messages */
-    public readonly message = this._state.message;
+    public readonly message = toOptionalSignal(this._state.message, '');
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
-    public locate = '';
-    public map_info: Record<string, any> = {};
+    public readonly locate = signal('');
+    public readonly map_info = signal<Record<string, any>>({});
 
     public async toggleZones(enabled: boolean) {
-        const options = await nextValueFrom(this.options);
+        const options = this.options();
         const disable = !enabled
             ? unique([...(options?.disable || []), 'zones', 'devices'])
             : options?.disable?.filter(
@@ -187,20 +199,19 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this.setOptions({ disable });
     }
 
-    public get show_legend() {
-        return !!this._settings.get('app.explore.show_legend');
-    }
+    public readonly show_legend = settingSignal('explore.show_legend', false);
 
-    public get hide_zones() {
-        return !!this._settings.get('app.explore.hide_zones');
-    }
+    public readonly hide_zones = settingSignal('explore.hide_zones', false);
 
-    public get legend(): [string, string][] {
-        return this._settings.get('app.explore.legend') || EMPTY;
-    }
+    public readonly legend = settingSignal<[string, string][]>(
+        'explore.legend',
+        EMPTY,
+    );
 
-    public readonly use_mapsindoors$: Observable<boolean> =
-        this._maps.available$;
+    public readonly use_mapsindoors = toOptionalSignal(
+        this._maps.available$ || (this._maps as any).use_mapspeople$,
+        false,
+    );
 
     constructor() {
         super();
@@ -210,7 +221,10 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         this._state.reset();
         await this._spaces.initialised.pipe(first((_) => _)).toPromise();
         this.toggleZones(false);
-        this.subscription('parking_poll', this._parking.startPolling());
+        this.subscription(
+            'parking_poll',
+            this._parking.startPolling?.() || { unsubscribe: () => null },
+        );
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
@@ -267,7 +281,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
     }
 
     public clearLocate() {
-        this.locate = '';
+        this.locate.set('');
         this._state.setFeatures('_located', []);
         this._router.navigate([], {
             relativeTo: this._route,
@@ -294,7 +308,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             data: { message: name },
         };
         this.timeout('update_location', () => {
-            this.locate = id;
+            this.locate.set(id);
             this._state.setFeatures('_located', [feature]);
         });
     }
@@ -314,7 +328,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             },
         };
         this.timeout('update_location', () => {
-            this.locate = id;
+            this.locate.set(id);
             this._state.setFeatures('_located', [feature]);
         });
     }
@@ -338,7 +352,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         if (!locations?.length) throw i18n('EXPLORE.LOCATE_USER_NOT_FOUND');
         let loc = locations.find(
             ({ position }) =>
-                typeof position !== 'string' || position in this.map_info,
+                typeof position !== 'string' || position in this.map_info(),
         );
         if (!loc) loc = locations[0];
         if (typeof loc.position !== 'string') {
@@ -372,7 +386,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
             },
         };
         this.timeout('update_location', () => {
-            this.locate = user.id || user.email;
+            this.locate.set(user.id || user.email);
             this._state.setFeatures('_located', [feature]);
         });
     }

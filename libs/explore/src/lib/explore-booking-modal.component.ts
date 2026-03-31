@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_DIALOG_DATA,
@@ -11,6 +11,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    settingSignal,
     SettingsService,
     Space,
 } from '@placeos/common';
@@ -68,7 +69,7 @@ export interface ExploreBookingModalData {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
-                    @if (can_book_for_others) {
+                    @if (can_book_for_others()) {
                         <div class="flex flex-col">
                             <label for="host"
                                 >{{ 'FORM.HOST' | translate
@@ -128,7 +129,8 @@ export interface ExploreBookingModalData {
                                     @if (!form.value.all_day) {
                                         at
                                         {{
-                                            form.value.date | date: time_format
+                                            form.value.date
+                                                | date: time_format()
                                         }}
                                     }
                                 </div>
@@ -142,15 +144,15 @@ export interface ExploreBookingModalData {
                                 <a-duration-field
                                     formControlName="duration"
                                     [time]="form.value.date"
-                                    [max]="max_duration"
-                                    [end_time]="bookable_hours?.end"
+                                    [max]="max_duration()"
+                                    [end_time]="bookable_hours()?.end"
                                     class="w-full"
-                                    [use_24hr]="use_24hr_time"
+                                    [use_24hr]="use_24hr_time()"
                                 ></a-duration-field>
                             </div>
                         }
                     </div>
-                    @if (allow_all_day) {
+                    @if (allow_all_day()) {
                         <div class="-mt-2 mb-2 flex justify-end">
                             <mat-checkbox formControlName="all_day">
                                 {{ 'COMMON.ALL_DAY' | translate }}
@@ -213,29 +215,28 @@ export class ExploreBookingModalComponent implements OnInit {
         return this._event_form.form;
     }
 
-    public get max_duration() {
-        return this._settings.get('app.events.max_duration') || 4 * 60;
-    }
+    public readonly max_duration = settingSignal('events.max_duration', 4 * 60);
 
-    public get bookable_hours(): BookableHoursRange | null {
-        return this._settings.get('app.events.bookable_hours') ?? null;
-    }
+    public readonly bookable_hours = settingSignal<BookableHoursRange | null>(
+        'events.bookable_hours',
+        null,
+    );
 
-    public get can_book_for_others() {
-        return this._settings.get('app.events.can_book_for_others');
-    }
+    public readonly can_book_for_others = settingSignal(
+        'events.can_book_for_others',
+        false,
+    );
 
-    public get use_24hr_time() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr_time = settingSignal('use_24_hour_time', false);
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    public readonly time_format = computed(() =>
+        this.use_24hr_time() ? 'HH:mm' : 'h:mm a',
+    );
 
-    public get allow_all_day() {
-        return this._settings.get('app.events.allow_all_day');
-    }
+    public readonly allow_all_day = settingSignal(
+        'events.allow_all_day',
+        false,
+    );
 
     public ngOnInit() {
         this._event_form.newForm();

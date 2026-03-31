@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -14,7 +15,7 @@ import { ExploreStateService } from './explore-state.service';
     selector: 'explore-map-controls',
     template: `
         <div class="flex w-full space-x-2">
-            @if ((buildings | async)?.length > 1) {
+            @if (buildings().length > 1) {
                 <mat-form-field
                     overlay
                     buildings
@@ -24,10 +25,10 @@ import { ExploreStateService } from './explore-state.service';
                 >
                     <mat-select
                         placeholder="Select Building..."
-                        [ngModel]="building | async"
+                        [ngModel]="building()"
                         (ngModelChange)="setBuilding($event)"
                     >
-                        @for (bld of buildings | async; track bld.id) {
+                        @for (bld of buildings(); track bld.id) {
                             <mat-option [value]="bld">
                                 {{ bld.display_name || bld.name }}
                             </mat-option>
@@ -35,20 +36,20 @@ import { ExploreStateService } from './explore-state.service';
                     </mat-select>
                 </mat-form-field>
             }
-            @if ((levels | async)?.length) {
+            @if (levels().length) {
                 <mat-form-field
                     overlay
                     levels
                     class="no-subscript min-w-41 flex-1"
-                    [attr.has-bld]="(buildings | async)?.length > 1"
+                    [attr.has-bld]="buildings().length > 1"
                     appearance="outline"
                 >
                     <mat-select
                         placeholder="Select Level..."
-                        [ngModel]="level | async"
+                        [ngModel]="level()"
                         (ngModelChange)="setLevel($event)"
                     >
-                        @for (lvl of levels | async; track lvl.id) {
+                        @for (lvl of levels(); track lvl.id) {
                             <mat-option [value]="lvl">
                                 {{ lvl.display_name || lvl.name }}
                             </mat-option>
@@ -78,13 +79,19 @@ export class ExploreMapControlComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
 
     /** List of available buildings */
-    public readonly buildings = this._org.active_buildings;
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
     /** Currently active building */
-    public readonly building = this._org.active_building;
+    public readonly building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
     /** List of availabel levels */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
     /** Currently active level */
-    public readonly level = this._state.level;
+    public readonly level = toSignal(this._state.level, { initialValue: null });
     /** Set the currently active level */
     public readonly setLevel = (lvl) => {
         this._state.setFeatures('_located', []);
