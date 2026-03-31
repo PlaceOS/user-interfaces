@@ -1,4 +1,12 @@
-import { Component, inject, OnDestroy, signal, ViewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    signal,
+    ViewChild,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -8,6 +16,7 @@ import {
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import {
@@ -20,6 +29,8 @@ import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
     MediaDurationPipe,
+    PluginConfigPayload,
+    PluginEmbedComponent,
     SafePipe,
     SchemaFormComponent,
     TranslatePipe,
@@ -30,7 +41,7 @@ import {
     SignageMedia,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 import {
     getVideoContainer,
@@ -45,6 +56,7 @@ export interface MediaEditModalData {
     file_thumbnail?: string;
     playlist_id?: string;
     plugin?: SignagePlugin;
+    loadPlugin?: () => Promise<SignagePlugin | undefined>;
     onAdd: (
         f: File,
         m: SignageMedia,
@@ -76,13 +88,25 @@ export interface MediaEditModalData {
                     <button
                         type="button"
                         matRipple
-                        class="bg-base-300 border-base-300 pointer-events-none relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
+                        class="bg-base-300 border-base-300 relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
                         (click)="preview()"
                         aria-label="Preview media"
                     >
-                        @if (
-                            media_type === 'webpage' || media_type === 'plugin'
-                        ) {
+                        @if (media_type === 'plugin' && plugin_loading()) {
+                            <div
+                                class="text-base-content/70 flex h-full w-full flex-col items-center justify-center gap-3"
+                            >
+                                <mat-spinner diameter="32" />
+                                <p class="text-sm">Loading plugin preview...</p>
+                            </div>
+                        } @else if (media_type === 'plugin' && plugin()) {
+                            <plugin-embed
+                                class="h-full w-full"
+                                [plugin]="plugin()"
+                                [config]="plugin_preview_config()"
+                                [auto_play]="true"
+                            ></plugin-embed>
+                        } @else if (media_type === 'webpage') {
                             <iframe
                                 title="Media preview"
                                 class="h-screen w-full object-contain object-center"
@@ -230,11 +254,20 @@ export interface MediaEditModalData {
                             aria-label="Media description"
                         ></textarea>
                     </mat-form-field>
-                    @if (plugin_schema) {
+                    @if (media_type === 'plugin' && plugin_loading()) {
+                        <div
+                            class="bg-base-200/60 mb-2 flex items-center gap-3 rounded-lg p-4"
+                        >
+                            <mat-spinner diameter="24" />
+                            <p class="m-0 text-sm opacity-70">
+                                Loading plugin details...
+                            </p>
+                        </div>
+                    } @else if (plugin_schema()) {
                         <label>Plugin Parameters</label>
                         <div class="bg-base-200/60 mb-2 rounded-lg p-4">
                             <schema-form
-                                [schema]="plugin_schema"
+                                [schema]="plugin_schema()"
                                 [formControlName]="'plugin_params'"
                             ></schema-form>
                         </div>
@@ -247,6 +280,7 @@ export interface MediaEditModalData {
                             <a-date-field
                                 name="valid-from"
                                 formControlName="valid_from"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                         <div class="flex-1">
@@ -257,6 +291,7 @@ export interface MediaEditModalData {
                                 name="valid-until"
                                 [from]="form.value.valid_from"
                                 formControlName="valid_until"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                     </div>
@@ -279,11 +314,13 @@ export interface MediaEditModalData {
         SafePipe,
         MatFormFieldModule,
         MatInputModule,
+        MatProgressSpinnerModule,
         MatSelectModule,
         MatSliderModule,
         AuthenticatedImageDirective,
         MediaDurationPipe,
         SchemaFormComponent,
+        PluginEmbedComponent,
     ],
 })
 export class MediaEditModalComponent implements OnDestroy {
@@ -296,10 +333,17 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly loading = signal(false);
     public readonly item = this._data.media;
     public readonly file = this._data.file;
-    public readonly plugin = this._data.plugin;
+    public readonly plugin = signal<SignagePlugin | undefined>(
+        this._data.plugin,
+    );
+    public readonly plugin_loading = signal(
+        this.media_type === 'plugin' &&
+            !!this._data.loadPlugin &&
+            !this._data.plugin,
+    );
     public readonly thumbnail =
         this._data.file_thumbnail || this._data.media.thumbnail_url;
-    public readonly plugin_schema = this._resolvePluginSchema();
+    public readonly plugin_schema = computed(() => this._resolvePluginSchema());
 
     public readonly form = new FormGroup({
         name: new FormControl('', [Validators.required]),
@@ -308,20 +352,36 @@ export class MediaEditModalComponent implements OnDestroy {
         start_time: new FormControl(0),
         play_time: new FormControl<number | null>(null),
         plugin_params: new FormControl<Record<string, unknown> | null>(null),
-        valid_from: new FormControl(startOfDay(Date.now()).valueOf()),
-        valid_until: new FormControl(
-            addYears(endOfDay(Date.now()), 10).valueOf(),
-        ),
+        valid_from: new FormControl<number | null>(null),
+        valid_until: new FormControl<number | null>(null),
+    });
+    public readonly form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
     });
 
     private _file_url: string;
 
     public readonly preview = () =>
         this._data.preview({
-            media_url: this.url,
+            media_uri: this.url,
             media_type: this.media_type,
             name: this.form.value.name,
+            plugin_id: this.item.plugin_id || this.plugin()?.id,
+            plugin_params: this.plugin_config(),
         });
+
+    public readonly plugin_config = computed(() => ({
+        ...(this.plugin()?.defaults || {}),
+        ...(this.form_value()?.plugin_params || {}),
+    }));
+
+    public readonly plugin_preview_config = computed<PluginConfigPayload>(
+        () => ({
+            instance_id: this.item.id || 'signage-manager-preview',
+            config: this.plugin_config(),
+            timing: { scheduled_duration_ms: 15000 },
+        }),
+    );
 
     public get media_type() {
         if (!this.file) return this.item.media_type;
@@ -348,10 +408,10 @@ export class MediaEditModalComponent implements OnDestroy {
             plugin_params: this._data.media.plugin_params || null,
             valid_from: this._data.media.valid_from
                 ? this._data.media.valid_from * 1000
-                : startOfDay(Date.now()).valueOf(),
+                : null,
             valid_until: this._data.media.valid_until
                 ? this._data.media.valid_until * 1000
-                : addYears(endOfDay(Date.now()), 10).valueOf(),
+                : null,
         });
         if (this._data.file) {
             this.form.patchValue({
@@ -363,12 +423,21 @@ export class MediaEditModalComponent implements OnDestroy {
                 this._data.file_metadata.duration * 1000,
             );
         }
+        if (this.plugin_loading()) {
+            this._loadPluginDetails();
+        }
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
-        const plugin = this._data.plugin;
+        const plugin = this.plugin();
         if (!plugin?.params || !Object.keys(plugin.params).length) return null;
         return plugin.params;
+    }
+
+    private async _loadPluginDetails() {
+        const plugin = await this._data.loadPlugin?.().catch(() => undefined);
+        if (plugin) this.plugin.set(plugin);
+        this.plugin_loading.set(false);
     }
 
     public ngOnDestroy() {
@@ -387,8 +456,8 @@ export class MediaEditModalComponent implements OnDestroy {
             ...this.item,
             ...form_value,
         };
-        if (this.plugin) {
-            new_media.plugin_id = this.item.plugin_id || this.plugin.id;
+        if (this.plugin()) {
+            new_media.plugin_id = this.item.plugin_id || this.plugin().id;
         }
         if (form_value.plugin_params) {
             new_media.plugin_params = form_value.plugin_params;
@@ -399,12 +468,16 @@ export class MediaEditModalComponent implements OnDestroy {
             new_media.valid_from = getUnixTime(
                 startOfDay(form_value.valid_from),
             );
-        } else delete new_media.valid_from;
+        } else {
+            new_media.valid_from = null;
+        }
         if (form_value.valid_until) {
             new_media.valid_until = getUnixTime(
                 endOfDay(form_value.valid_until),
             );
-        } else delete new_media.valid_until;
+        } else {
+            new_media.valid_until = null;
+        }
         const onError = (e) => {
             this._dialog_ref.disableClose = false;
             this.loading.set(false);

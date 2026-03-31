@@ -208,6 +208,7 @@ import { lastValueFrom } from 'rxjs';
                             <a-date-field
                                 name="valid-from"
                                 formControlName="valid_from"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                         <div class="flex-1">
@@ -218,6 +219,7 @@ import { lastValueFrom } from 'rxjs';
                                 name="valid-until"
                                 [from]="form.value.valid_from"
                                 formControlName="valid_until"
+                                [clear]="true"
                             ></a-date-field>
                         </div>
                     </div>

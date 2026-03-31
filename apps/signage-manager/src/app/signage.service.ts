@@ -561,9 +561,13 @@ export class SignageService {
         persistPlaylistMetaSessionCache(next_state);
     }
 
-    public previewMedia(item: SignageMedia) {
+    public async previewMedia(item: SignageMedia) {
+        const plugin =
+            item.media_type === 'plugin' && item.plugin_id
+                ? await this._resolvePlugin(item.plugin_id)
+                : undefined;
         this._dialog.open(MediaPreviewModalComponent, {
-            data: item,
+            data: { media: item, plugin },
             panelClass: 'fullscreen-dialog',
         });
     }
@@ -609,7 +613,7 @@ export class SignageService {
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
         const media = new SignageMedia({
-            name: plugin.name,
+            name: '',
             media_uri: plugin.uri,
             media_type: 'plugin',
             plugin_id: plugin.id,
@@ -639,16 +643,14 @@ export class SignageService {
         if (!dimensions_validation.valid) {
             notifyWarn(dimensions_validation.error);
         }
-        const resolved_plugin =
-            plugin ||
-            (media.plugin_id
-                ? await this._resolvePlugin(media.plugin_id)
-                : undefined);
+        const load_plugin = media.plugin_id
+            ? () => this._resolvePlugin(media.plugin_id)
+            : undefined;
         let file_thumbnail = '';
         if (file) {
             file_thumbnail = await this._generateThumbnail(file, 1024, 720);
         } else if (
-            (media.media_type === 'webpage' || media.media_type === 'plugin') &&
+            media.media_type === 'webpage' &&
             media.media_uri &&
             !media.thumbnail_id
         ) {
@@ -663,7 +665,8 @@ export class SignageService {
                 file_metadata,
                 file_thumbnail,
                 playlist_id,
-                plugin: resolved_plugin,
+                plugin,
+                loadPlugin: load_plugin,
                 onAdd: (
                     f: File,
                     m: SignageMedia,
@@ -698,7 +701,12 @@ export class SignageService {
     ): Promise<SignagePlugin | undefined> {
         if (!plugin_id) return undefined;
         try {
-            const all_plugins = await lastValueFrom(this.plugins);
+            const result = await lastValueFrom(
+                querySignagePlugins({ limit: 500 } as any).pipe(
+                    catchError(() => of({ data: [] })),
+                ),
+            );
+            const all_plugins = result.data || [];
             return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
         } catch {
             return undefined;

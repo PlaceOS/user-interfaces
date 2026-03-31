@@ -20,6 +20,7 @@ export * from './lib/map-pin.component';
 export * from './lib/map-radius.component';
 export * from './lib/maps-indoors.component';
 export * from './lib/misconfigured.component';
+export * from './lib/plugin-embed.component';
 export * from './lib/popout-menu.component';
 export * from './lib/printable.component';
 export * from './lib/redirect.component';

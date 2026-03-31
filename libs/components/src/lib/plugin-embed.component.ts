@@ -11,8 +11,8 @@ import {
     viewChild,
 } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
-import { SafePipe } from '@placeos/components';
 import { SignagePlugin } from '@placeos/ts-client';
+import { SafePipe } from './safe.pipe';
 
 const API_VERSION = 'signage-plugin/v1';
 
@@ -81,6 +81,8 @@ export type PluginErrorPayload = {
         `
             :host {
                 display: block;
+                width: 100%;
+                height: 100%;
             }
             iframe {
                 width: 100%;
@@ -98,6 +100,8 @@ export class PluginEmbedComponent
     public readonly plugin = input<SignagePlugin>(null);
     public readonly config = input<PluginConfigPayload>(null);
     public readonly play = input<number>(0);
+    public readonly auto_play = input(false);
+    public readonly play_delay = input(100);
     public readonly details = model<PluginLoadedPayload>(null);
     public readonly schema = model<Record<string, any>>({});
     public readonly status = model<SignagePluginMessageType | 'unknown'>(
@@ -118,6 +122,8 @@ export class PluginEmbedComponent
     });
 
     private _handle_messages = (e) => this._handleMessage(e);
+    private _play_timer: ReturnType<typeof setTimeout> | null = null;
+    private _pending_auto_config = false;
 
     public ngOnInit() {
         this._setupChannels();
@@ -126,10 +132,17 @@ export class PluginEmbedComponent
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.plugin) {
             this.status.set('unknown');
+            this._clearPlayTimer();
+            this._pending_auto_config = this.auto_play() && !!this.config();
             this._setupChannels();
         }
+        if (changes.config && this.auto_play()) {
+            this._pending_auto_config = !!this.config();
+        }
         if (changes.play && this.play()) this.send('play');
-        if (changes.config && this.config()) this.send('config', this.config());
+        if (changes.config && this.config() && !this.auto_play()) {
+            this.send('config', this.config());
+        }
     }
 
     public send(
@@ -164,10 +177,33 @@ export class PluginEmbedComponent
             case 'loaded':
                 this.details.set(msg.payload);
                 this.schema.set(msg.payload?.config_schema);
+                this._autoConfigure();
+                break;
+            case 'ready':
+                this._autoConfigure();
                 break;
             case 'error':
                 this.plugin_error.emit(msg.payload);
                 break;
         }
+    }
+
+    private _autoConfigure() {
+        if (!this.auto_play() || !this.config() || !this._pending_auto_config) {
+            return;
+        }
+        this._pending_auto_config = false;
+        this.send('config', this.config());
+        this._clearPlayTimer();
+        this._play_timer = setTimeout(
+            () => this.send('play'),
+            this.play_delay(),
+        );
+    }
+
+    private _clearPlayTimer() {
+        if (!this._play_timer) return;
+        clearTimeout(this._play_timer);
+        this._play_timer = null;
     }
 }

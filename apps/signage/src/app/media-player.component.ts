@@ -12,17 +12,17 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AsyncHandler, log, shuffleArrayWithFirstItem } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
-import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
-import { MediaControlsComponent } from './media-controls.component';
-import { validateMedia } from './media-helpers';
-import { PlaylistDisplayComponent } from './playlist-display.component';
 import {
+    IconComponent,
     PluginConfigPayload,
     PluginEmbedComponent,
     PluginErrorPayload,
     SignagePluginMessageType,
-} from './plugin-embed.component';
+} from '@placeos/components';
+import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { MediaControlsComponent } from './media-controls.component';
+import { validateMedia } from './media-helpers';
+import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';

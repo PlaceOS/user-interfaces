@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -9,15 +8,23 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
+    PluginConfigPayload,
+    PluginEmbedComponent,
 } from '@placeos/components';
 import {
     listSignagePlaylistMedia,
     MediaAnimation,
     SignageMedia,
     SignagePlaylist,
+    SignagePlugin,
 } from '@placeos/ts-client';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { SignageService } from '../signage.service';
+
+interface MediaPreviewModalData {
+    media: SignageMedia;
+    plugin?: SignagePlugin;
+}
 
 @Component({
     selector: 'media-preview-modal',
@@ -60,15 +67,19 @@ import { SignageService } from '../signage.service';
                             [attr.aria-label]="item.name"
                             class="h-full max-h-full w-full max-w-full object-contain"
                         ></video>
-                    } @else if (
-                        item.media_type === 'webpage' ||
-                        item.media_type === 'plugin'
-                    ) {
+                    } @else if (item.media_type === 'webpage') {
                         <iframe
                             [src]="safe_url()"
                             [title]="item.name"
                             class="h-full w-full border-0 bg-white"
                         ></iframe>
+                    } @else if (item.media_type === 'plugin' && plugin) {
+                        <plugin-embed
+                            class="h-full w-full"
+                            [plugin]="plugin"
+                            [config]="plugin_preview_config()"
+                            [auto_play]="true"
+                        ></plugin-embed>
                     } @else {
                         <div
                             class="text-base-content/70 flex flex-col items-center justify-center space-y-2"
@@ -79,7 +90,7 @@ import { SignageService } from '../signage.service';
                     }
                 </section>
                 <aside
-                    class="border-base-300 bg-base-100 border-base-200 w-96 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
+                    class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
                     <div class="space-y-5 p-5">
                         @if (item.description) {
@@ -223,34 +234,42 @@ import { SignageService } from '../signage.service';
         IconComponent,
         AuthenticatedImageDirective,
         MediaDurationPipe,
+        PluginEmbedComponent,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
-    private readonly _data: SignageMedia = inject(MAT_DIALOG_DATA);
+    private readonly _data: MediaPreviewModalData = inject(MAT_DIALOG_DATA);
     private readonly _service = inject(SignageService);
     private readonly _sanitizer = inject(DomSanitizer);
 
-    public readonly item = this._data;
+    public readonly item = this._data.media;
+    public readonly plugin = this._data.plugin;
     public readonly media_url = this.item.media_url || this.item.media_uri;
 
     public readonly containing_playlists = signal<SignagePlaylist[]>([]);
     public readonly loading_playlists = signal(true);
 
-    private readonly _playlists = toSignal(this._service.playlists, {
-        initialValue: [],
-    });
-
     public readonly safe_url = computed(() => {
-        if (
-            this.item.media_type === 'webpage' ||
-            this.item.media_type === 'plugin'
-        ) {
+        if (this.item.media_type === 'webpage') {
             return this._sanitizer.bypassSecurityTrustResourceUrl(
-                this.item.media_uri,
+                this.media_url,
             );
         }
         return null;
     });
+
+    public readonly plugin_config = computed(() => ({
+        ...(this.plugin?.defaults || {}),
+        ...(this.item.plugin_params || {}),
+    }));
+
+    public readonly plugin_preview_config = computed<PluginConfigPayload>(
+        () => ({
+            instance_id: this.item.id || 'signage-manager-preview',
+            config: this.plugin_config(),
+            timing: { scheduled_duration_ms: 15000 },
+        }),
+    );
 
     public readonly type_label = computed(() => {
         switch (this.item.media_type) {
