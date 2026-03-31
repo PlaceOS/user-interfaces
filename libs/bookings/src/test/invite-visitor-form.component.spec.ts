@@ -37,6 +37,10 @@ describe('InviteVisitorFormComponent', () => {
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 building_list: new BehaviorSubject([]),
+                active_buildings: new BehaviorSubject([
+                    { id: 'bld-1', name: 'Building One' },
+                    { id: 'bld-2', name: 'Building Two' },
+                ]),
                 buildings: [
                     { id: 'bld-1', name: 'Building One' },
                     { id: 'bld-2', name: 'Building Two' },
@@ -108,7 +112,7 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should show sent invite state', () => {
         expect('[sent]').not.toExist();
-        spectator.component.sent = true;
+        spectator.component.sent.set(true);
         spectator.detectChanges();
         expect('[sent]').toExist();
     });

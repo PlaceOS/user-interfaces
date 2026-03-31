@@ -1,5 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -43,7 +44,7 @@ import { BookingFormService } from '../booking-form.service';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            @for (feat of (options | async)?.features || []; track feat) {
+            @for (feat of options()?.features || []; track feat) {
                 <div filter-item features>
                     <p>{{ feat }}</p>
                     <button
@@ -57,7 +58,7 @@ import { BookingFormService } from '../booking-form.service';
                     </button>
                 </div>
             }
-            @if ((options | async)?.show_fav) {
+            @if (options()?.show_fav) {
                 <div filter-item>
                     <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                     <button
@@ -71,7 +72,7 @@ import { BookingFormService } from '../booking-form.service';
                     </button>
                 </div>
             }
-            @if ((options | async)?.show_accessible) {
+            @if (options()?.show_accessible) {
                 <div filter-item>
                     <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
                     <button
@@ -89,13 +90,15 @@ import { BookingFormService } from '../booking-form.service';
     `,
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
-export class NewLockerFiltersDisplayComponent extends AsyncHandler {
+export class NewLockerFiltersDisplayComponent {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._state.options;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
@@ -111,9 +114,5 @@ export class NewLockerFiltersDisplayComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    constructor() {
-        super();
     }
 }

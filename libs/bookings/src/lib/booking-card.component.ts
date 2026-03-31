@@ -1,29 +1,22 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, input } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     Booking,
-    SettingsService,
     currentUser,
     formatDuration,
     formatRecurrence,
     fromBookingRecurrence,
     i18n,
+    SettingsService,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay } from 'date-fns';
 import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -37,7 +30,7 @@ import { ParkingService } from './parking.service';
         @if (booking()) {
             <h4 class="mb-2 flex items-center">
                 @if (show_day()) {
-                    <span day>{{ day }},&nbsp;</span>
+                    <span day>{{ day() }},&nbsp;</span>
                 }
                 {{ booking()?.date | date: time_format }}
                 <span class="px-2 text-xs"
@@ -58,8 +51,8 @@ import { ParkingService } from './parking.service';
                 >
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
-                        <status-pill [status]="status">{{
-                            period
+                        <status-pill [status]="status()">{{
+                            period()
                         }}</status-pill>
                         @if (booking().instance) {
                             <icon class="text-2xl" [matTooltip]="recurr_tooltip"
@@ -71,7 +64,7 @@ import { ParkingService } from './parking.service';
                         class="divide-base-200-500 flex flex-col flex-wrap space-y-2 py-2 sm:flex-row sm:space-y-0 sm:divide-x"
                     >
                         <div class="flex max-w-[33%] items-center px-4">
-                            @switch (type) {
+                            @switch (type()) {
                                 @case ('desk') {
                                     <icon
                                         [matTooltip]="
@@ -113,13 +106,15 @@ import { ParkingService } from './parking.service';
                                 }
                             }
                             <div class="mx-2 w-1/2 flex-1 truncate">
-                                {{ resource_label }}
+                                {{ resource_label() }}
                             </div>
                         </div>
-                        @if (location) {
+                        @if (location()) {
                             <div class="flex items-center px-4">
                                 <icon>place</icon>
-                                <div class="mx-2 truncate">{{ location }}</div>
+                                <div class="mx-2 truncate">
+                                    {{ location() }}
+                                </div>
                             </div>
                         }
                     </div>
@@ -129,7 +124,7 @@ import { ParkingService } from './parking.service';
                         chevron_right
                     </icon>
                     @if (
-                        !for_current_user &&
+                        !for_current_user() &&
                         booking()?.booking_type !== 'group-event'
                     ) {
                         <div
@@ -145,7 +140,7 @@ import { ParkingService } from './parking.service';
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
-                    @if (is_reserved_parking_space | async) {
+                    @if (is_reserved_parking_space()) {
                         <div
                             class="bg-warning/50 absolute top-2 right-2 rounded-xl px-2 py-1 text-xs"
                         >
@@ -179,10 +174,7 @@ import { ParkingService } from './parking.service';
         MatTooltipModule,
     ],
 })
-export class BookingCardComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class BookingCardComponent {
     private _dialog = inject(MatDialog);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
@@ -195,30 +187,33 @@ export class BookingCardComponent
     public readonly remove_fn = input((i, s?) => null);
     public readonly end_fn = input((i) => null);
 
-    public raw_description = '';
+    public readonly raw_description = computed(() =>
+        this.removeHtmlTags(this.booking()?.description),
+    );
 
-    public readonly is_reserved_parking_space =
+    public readonly is_reserved_parking_space = toSignal(
         this._parking.assigned_space.pipe(
             map(
                 (space) =>
-                    this.booking().booking_type === 'parking' &&
-                    space &&
-                    this.booking().asset_id === space.id,
+                    this.booking()?.booking_type === 'parking' &&
+                    !!space &&
+                    this.booking()?.asset_id === space.id,
             ),
-        );
+        ),
+        { initialValue: false },
+    );
 
-    public get for_current_user() {
-        return (
-            this.booking()?.user_email.toLowerCase() ===
-            currentUser()?.email.toLowerCase()
-        );
-    }
+    public readonly for_current_user = computed(
+        () =>
+            this.booking()?.user_email?.toLowerCase() ===
+            currentUser()?.email?.toLowerCase(),
+    );
 
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get status() {
+    public readonly status = computed(() => {
         const booking = this.booking();
         if (booking?.is_done) return 'neutral';
         if (booking?.status === 'approved') return 'success';
@@ -226,7 +221,7 @@ export class BookingCardComponent
         if (booking?.status === 'cancelled') return 'error';
         if (booking?.status === 'tentative') return 'warning';
         return 'warning';
-    }
+    });
 
     public get recurr_tooltip() {
         return (
@@ -235,46 +230,20 @@ export class BookingCardComponent
         );
     }
 
-    constructor() {
-        super();
-    }
+    public readonly type = computed(() => this.booking()?.type);
 
-    public ngOnInit() {
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) =>
-                params.has('booking') &&
-                this.booking()?.id === params.get('event')
-                    ? this.viewDetails()
-                    : '',
-            ),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.booking) {
-            this.raw_description = this.removeHtmlTags(
-                this.booking()?.description,
-            );
-        }
-    }
-
-    public get type() {
-        return this.booking().type;
-    }
-
-    public get day() {
+    public readonly day = computed(() => {
         const date = this.booking()?.date || Date.now();
         const is_today = isSameDay(Date.now(), date);
         return `${is_today ? i18n('COMMON.TODAY') : format(date, 'EEEE')}`;
-    }
+    });
 
-    public get location() {
+    public readonly location = computed(() => {
         const level = this._org.levelWithID(this.booking()?.zones || []);
         return `${level?.display_name || level?.name || ''}`;
-    }
+    });
 
-    public get period() {
+    public readonly period = computed(() => {
         const booking = this.booking();
         if (booking?.is_all_day) return i18n('COMMON.ALL_DAY');
         const start = booking?.date || Date.now();
@@ -290,15 +259,32 @@ export class BookingCardComponent
             end,
             this.time_format,
         )} (${dur})`;
-    }
+    });
 
-    public get resource_label() {
+    public readonly resource_label = computed(() => {
         const booking = this.booking();
         if (!booking) return '';
         if (booking.booking_type !== 'visitor') {
-            return this.raw_description || booking.asset_name || booking.asset_id;
+            return (
+                this.raw_description() || booking.asset_name || booking.asset_id
+            );
         }
         return this._visitorDisplayNameFor(booking);
+    });
+
+    private _open_timer: ReturnType<typeof setTimeout>;
+
+    constructor() {
+        const destroy_ref = inject(DestroyRef);
+        destroy_ref.onDestroy(() => clearTimeout(this._open_timer));
+        this._route.queryParamMap
+            .pipe(takeUntilDestroyed())
+            .subscribe((params) =>
+                params.has('booking') &&
+                this.booking()?.id === params.get('event')
+                    ? this.viewDetails()
+                    : '',
+            );
     }
 
     public removeHtmlTags(html: string) {
@@ -308,7 +294,8 @@ export class BookingCardComponent
 
     public viewDetails() {
         if (!this.booking()) return;
-        this.timeout('open', () => {
+        clearTimeout(this._open_timer);
+        this._open_timer = setTimeout(() => {
             this._dialog.closeAll();
             const view_component: any =
                 this.booking().booking_type === 'group-event'
@@ -325,7 +312,7 @@ export class BookingCardComponent
                 end_fn: this.end_fn(),
             };
             this._dialog.open(view_component, { data });
-        });
+        }, 300);
     }
 
     private _visitorDisplayNameFor(booking: Booking) {
@@ -334,7 +321,8 @@ export class BookingCardComponent
         if (group_member_name) return group_member_name;
         const attendee_name = this._visitorAttendeeName(booking);
         if (attendee_name) return attendee_name;
-        const asset_name = `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
+        const asset_name =
+            `${booking?.extension_data?.visitor_name || booking?.asset_name || ''}`.trim();
         const reason_values = [
             `${booking?.title || ''}`.trim().toLowerCase(),
             `${booking?.description || ''}`.trim().toLowerCase(),
@@ -359,8 +347,9 @@ export class BookingCardComponent
 
     private _visitorAttendeeName(booking: Booking) {
         const attendee =
-            (booking.attendees || []).find((item) => item?.email === booking.asset_id) ||
-            booking.attendees?.[0];
+            (booking.attendees || []).find(
+                (item) => item?.email === booking.asset_id,
+            ) || booking.attendees?.[0];
         const name = `${attendee?.name || ''}`.trim();
         return name || '';
     }

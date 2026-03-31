@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -29,7 +29,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
     template: `
         <div
             class="bg-base-100 mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden p-2 sm:m-0 sm:h-auto sm:w-auto"
-            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
+            [style.height]="is_safari() ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
@@ -103,8 +103,8 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     @if (view() === 'list') {
                         <new-desk-list
                             [active]="displayed()?.id"
-                            [selected]="selected_ids"
-                            [favorites]="favorites"
+                            [selected]="selected_ids()"
+                            [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed.set($event)"
                         ></new-desk-list>
@@ -137,7 +137,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     }
                     <new-desk-details
                         [desk]="displayed()"
-                        [active]="selected_ids.includes(displayed()?.id)"
+                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
                         (activeChange)="
                             setSelected(
@@ -147,7 +147,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         "
                         [fav]="
                             displayed() &&
-                            this.favorites.includes(displayed()?.id)
+                            this.favorites().includes(displayed()?.id)
                         "
                         (toggleFav)="toggleFavourite(displayed())"
                         (close)="displayed.set(null)"
@@ -176,7 +176,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         btn
                         matRipple
                         name="desk-return"
-                        [mat-dialog-close]="selected"
+                        [mat-dialog-close]="selected()"
                         class="inverse bg-base-100 text-secondary"
                     >
                         <div class="flex items-center space-x-2">
@@ -252,22 +252,19 @@ export class NewDeskSelectModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
 
-    public selected: BookingAsset[] = [];
+    public readonly selected = signal<BookingAsset[]>([]);
     public readonly view = signal<'list' | 'map'>('list');
     public readonly displayed = signal<BookingAsset | null>(null);
     public readonly show_filters = signal(false);
-
-    public get is_safari() {
-        return isMobileSafari();
-    }
-
-    public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
-    }
-
-    public get favorites() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
-    }
+    public readonly is_safari = signal(isMobileSafari());
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .map((_) => _.id)
+            .join(','),
+    );
+    public readonly favorites = signal<string[]>(
+        this._settings.get<string[]>(FAV_DESK_KEY) || [],
+    );
 
     public get allow_multiple() {
         return !!this._data.options?.group;
@@ -278,7 +275,7 @@ export class NewDeskSelectModalComponent {
             typeof this._data?.items === 'function'
                 ? this._data.items()
                 : this._data?.items || [];
-        this.selected = [...selected_desks];
+        this.selected.set([...selected_desks]);
         this._event_form.setOptions(this._data?.options || {});
         this.view.set(
             this._settings.get('app.desks.default_select_as_map')
@@ -288,13 +285,13 @@ export class NewDeskSelectModalComponent {
     }
 
     public isSelected(id: string) {
-        return !!id && this.selected.some((item) => item.id === id);
+        return !!id && this.selected().some((item) => item.id === id);
     }
 
     public setSelected(item: BookingAsset, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== item.id);
+        const list = this.selected().filter((_) => _.id !== item.id);
         if (state) list.push(item);
-        this.selected = list;
+        this.selected.set(list);
         if (!this._data.options.group && state) {
             this.displayed.set(null);
             setTimeout(() => this._dialog_ref.close([item]), 50);
@@ -310,18 +307,12 @@ export class NewDeskSelectModalComponent {
     }
 
     public toggleFavourite(item: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const next_favs = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+        this._settings.saveUserSetting(FAV_DESK_KEY, next_favs);
+        this.favorites.set(next_favs);
     }
 }

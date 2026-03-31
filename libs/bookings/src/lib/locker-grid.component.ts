@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService } from '@placeos/common';
@@ -10,8 +10,8 @@ import { Locker, LockerBank } from './locker.class';
     template: `
         <div
             class="grid flex-1 gap-2 p-2"
-            [style.width]="columns * 2.5 + 'rem'"
-            [style.grid-template-columns]="'repeat(' + columns + ', 5rem)'"
+            [style.width]="columns() * 2.5 + 'rem'"
+            [style.grid-template-columns]="'repeat(' + columns() + ', 5rem)'"
             [style.grid-template-rows]="'repeat(' + bank()?.height + ', 5rem)'"
         >
             @for (locker of bank()?.lockers || []; track locker) {
@@ -86,14 +86,14 @@ export class LockerGridComponent {
     public readonly selected = input('');
     public readonly clicked = output<Locker>();
 
-    public get columns() {
+    public readonly columns = computed(() => {
         let columns = 1;
         for (const locker of this.bank()?.lockers || []) {
             const x = locker.position[0] + locker.size[0];
             if (x > columns) columns = x;
         }
         return columns;
-    }
+    });
 
     public color(status: string) {
         const colours = this._settings.get('app.explore.colors') || {};

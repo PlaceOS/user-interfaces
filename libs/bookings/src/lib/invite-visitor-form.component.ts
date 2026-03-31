@@ -1,12 +1,13 @@
 import {
     Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+    DestroyRef,
+    effect,
     inject,
     input,
     output,
+    signal,
 } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 
@@ -19,7 +20,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
-    AsyncHandler,
     Booking,
     SettingsService,
     User,
@@ -53,8 +53,8 @@ import { BookingFormService } from './booking-form.service';
 @Component({
     selector: `invite-visitor-form`,
     template: `
-        @if (!sent) {
-            @if (!(loading | async) && !loading_many) {
+        @if (!sent()) {
+            @if (!loading() && !loading_many()) {
                 <div
                     class="bg-base-100 relative flex max-h-full flex-col overflow-auto"
                 >
@@ -72,7 +72,7 @@ import { BookingFormService } from './booking-form.service';
                     </div>
                     @if (form) {
                         <form [formGroup]="form" class="px-4 py-4 sm:px-16">
-                            @if ((buildings | async)?.length > 1) {
+                            @if (buildings()?.length > 1) {
                                 <div class="flex flex-col">
                                     <label for="building">
                                         {{ 'RESOURCE.BUILDING' | translate
@@ -91,7 +91,7 @@ import { BookingFormService } from './booking-form.service';
                                             placeholder="Select building"
                                         >
                                             @for (
-                                                bld of buildings | async;
+                                                bld of buildings();
                                                 track bld
                                             ) {
                                                 <mat-option [value]="bld.id">
@@ -216,7 +216,7 @@ import { BookingFormService } from './booking-form.service';
                                         #name_auto="matAutocomplete"
                                     >
                                         @for (
-                                            item of filtered_visitors;
+                                            item of filtered_visitors();
                                             track item
                                         ) {
                                             <mat-option
@@ -278,7 +278,7 @@ import { BookingFormService } from './booking-form.service';
                                         #email_auto="matAutocomplete"
                                     >
                                         @for (
-                                            item of filtered_visitors;
+                                            item of filtered_visitors();
                                             track item
                                         ) {
                                             <mat-option
@@ -496,7 +496,7 @@ import { BookingFormService } from './booking-form.service';
                                 matRipple
                                 name="desk-outlook-link"
                                 class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                                [href]="outlook_link | sanitize: 'url'"
+                                [href]="outlook_link() | sanitize: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
                             >
@@ -513,7 +513,7 @@ import { BookingFormService } from './booking-form.service';
                                 matRipple
                                 name="desk-google-link"
                                 class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                                [href]="google_link | sanitize: 'url'"
+                                [href]="google_link() | sanitize: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
                             >
@@ -527,7 +527,7 @@ import { BookingFormService } from './booking-form.service';
                                 matRipple
                                 name="desk-ical-link"
                                 class="inverse flex w-64 items-center space-x-2 rounded-sm p-2 pr-4"
-                                [href]="ical_link | safe: 'url'"
+                                [href]="ical_link() | safe: 'url'"
                                 target="_blank"
                                 rel="noopener noreferer"
                             >
@@ -552,7 +552,7 @@ import { BookingFormService } from './booking-form.service';
                             btn
                             matRipple
                             class="flex-1"
-                            (click)="sent = false"
+                            (click)="sent.set(false)"
                         >
                             {{ 'BOOKINGS.VISITOR_BOOK_ANOTHER' | translate }}
                         </button>
@@ -585,31 +585,33 @@ import { BookingFormService } from './booking-form.service';
         SafePipe,
     ],
 })
-export class InviteVisitorFormComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class InviteVisitorFormComponent {
     private _service = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _destroyRef = inject(DestroyRef);
     private _existing_siblings: Booking[] = [];
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
 
-    public outlook_link = '';
-    public google_link = '';
-    public ical_link = '';
+    public readonly outlook_link = signal('');
+    public readonly google_link = signal('');
+    public readonly ical_link = signal('');
 
-    public sent = false;
+    public readonly sent = signal(false);
     public booking?: Booking;
-    public readonly loading = this._service.loading;
-    public loading_many = false;
-    public readonly buildings = this._org.active_buildings;
+    public readonly loading = toSignal(this._service.loading, {
+        initialValue: '',
+    });
+    public readonly loading_many = signal(false);
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [] as any[],
+    });
     public last_success = this._service.last_success;
     public last_count = 0;
     public visitors = [];
-    public filtered_visitors = [];
+    public readonly filtered_visitors = signal<any[]>([]);
     public visitor_international: Record<string, boolean> = {};
 
     public get bookable_hours() {
@@ -718,12 +720,21 @@ export class InviteVisitorFormComponent
         );
     }
 
-    constructor() {
-        super();
-    }
+    private _dateEffect = effect(() => {
+        const date = this.date();
+        if (date) {
+            this.form.patchValue({
+                date: alignDateToBookableHours(
+                    date,
+                    this.bookable_hours,
+                    this.form.getRawValue().date,
+                ),
+            });
+        }
+    });
 
     public async ngOnInit() {
-        this.sent = false;
+        this.sent.set(false);
         this._service.clearOldState();
         await this.initFormZone();
         this.form
@@ -741,43 +752,22 @@ export class InviteVisitorFormComponent
             });
         }
         this.filterVisitors('');
-        this.subscription(
-            'email',
-            this.form
-                .get('asset_id')
-                .valueChanges.subscribe((_) => this.filterVisitors(_)),
-        );
-        this.subscription(
-            'name',
-            this.form
-                .get('asset_name')
-                .valueChanges.subscribe((_) => this.filterVisitors(_)),
-        );
+        this.form
+            .get('asset_id')
+            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((_) => this.filterVisitors(_));
+        this.form
+            .get('asset_name')
+            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((_) => this.filterVisitors(_));
         this.syncVisitorInternational(this.form.value.assets || []);
-        this.subscription(
-            'assets',
-            this.form
-                .get('assets')
-                .valueChanges.subscribe((_) =>
-                    this.syncVisitorInternational(_ || []),
-                ),
-        );
+        this.form
+            .get('assets')
+            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((_) => this.syncVisitorInternational(_ || []));
         if (this.multiple && !this.form.value.id)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        const date = this.date();
-        if (changes.date && date) {
-            this.form.patchValue({
-                date: alignDateToBookableHours(
-                    date,
-                    this.bookable_hours,
-                    this.form.getRawValue().date,
-                ),
-            });
-        }
     }
 
     public setVisitor(item) {
@@ -820,11 +810,13 @@ export class InviteVisitorFormComponent
 
     public filterVisitors(filter: string) {
         const s = (filter || '').toLowerCase();
-        this.filtered_visitors = this.visitors.filter(
-            ({ email, name, company }) =>
-                email.toLowerCase().includes(s) ||
-                name.toLowerCase().includes(s) ||
-                `${company || ''}`.toLowerCase().includes(s),
+        this.filtered_visitors.set(
+            this.visitors.filter(
+                ({ email, name, company }) =>
+                    email.toLowerCase().includes(s) ||
+                    name.toLowerCase().includes(s) ||
+                    `${company || ''}`.toLowerCase().includes(s),
+            ),
         );
     }
 
@@ -832,7 +824,7 @@ export class InviteVisitorFormComponent
         // TODO: The 'emit' function requires a mandatory void argument
         // TODO: The 'emit' function requires a mandatory void argument
         this.done.emit();
-        this.sent = false;
+        this.sent.set(false);
     }
 
     public async sendInvite() {
@@ -890,7 +882,7 @@ export class InviteVisitorFormComponent
         this.last_success = this._service.last_success;
         if (this.last_success) this._generateLinks();
         await this.initFormZone();
-        this.sent = true;
+        this.sent.set(true);
     }
 
     private async initFormZone() {
@@ -1025,7 +1017,7 @@ export class InviteVisitorFormComponent
     }
 
     private async _bookForMany() {
-        this.loading_many = true;
+        this.loading_many.set(true);
         const assets: User[] = this.form.getRawValue().assets || [];
         this.last_count = assets.length;
         const visitor_members = assets
@@ -1062,17 +1054,17 @@ export class InviteVisitorFormComponent
                 .editFormForGroup(existing_siblings)
                 .catch((e) => {
                     notifyError(e);
-                    this.loading_many = false;
+                    this.loading_many.set(false);
                     throw e;
                 });
         } else {
             await this._service.postFormForVisitorGroup().catch((e) => {
                 notifyError(e);
-                this.loading_many = false;
+                this.loading_many.set(false);
                 throw e;
             });
         }
-        this.loading_many = false;
+        this.loading_many.set(false);
     }
 
     private syncVisitorInternational(assets: User[] = []) {
@@ -1111,8 +1103,8 @@ export class InviteVisitorFormComponent
                 this._org.building.display_name || this._org.building.name,
         };
         event.attendees.push(this.last_success.asset_id);
-        this.outlook_link = generateMicrosoftCalendarLink(event);
-        this.google_link = generateGoogleCalendarLink(event);
-        this.ical_link = generateCalendarFileLink(event);
+        this.outlook_link.set(generateMicrosoftCalendarLink(event));
+        this.google_link.set(generateGoogleCalendarLink(event));
+        this.ical_link.set(generateCalendarFileLink(event));
     }
 }
