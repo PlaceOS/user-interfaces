@@ -1,4 +1,11 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    OnInit,
+    Output,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -79,19 +86,19 @@ export async function openBookingModal(
                     <h2 class="px-2 text-xl font-medium">
                         {{ 'APP.BOOKING_PANEL.BOOKING_NEW' | translate }}
                     </h2>
-                    @if (!loading) {
+                    @if (!loading()) {
                         <button icon matRipple mat-dialog-close>
                             <icon>close</icon>
                         </button>
                     }
                 </header>
-                @if (form && !loading) {
+                @if (form && !loading()) {
                     <div
                         form
                         [formGroup]="form"
                         class="max-h-[calc(100vh-12rem)] w-full overflow-auto px-4"
                     >
-                        @if (!hide_host && form.controls.organiser) {
+                        @if (!hide_host() && form.controls.organiser) {
                             <div class="field">
                                 <label for="host"
                                     >{{
@@ -166,7 +173,7 @@ export async function openBookingModal(
                         </p>
                     </div>
                 }
-                @if (!loading) {
+                @if (!loading()) {
                     <footer
                         class="bg-base-200 sticky bottom-0 z-10 m-2 flex w-[calc(100%-1rem)] justify-end rounded-sm border-none p-2"
                     >
@@ -203,12 +210,10 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     private _data: BookingModalData = inject(MAT_DIALOG_DATA);
     /** Emitter for user action on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
-    /** Whether modal is closing */
-    public closing: boolean;
     /** Whether the modal is processing a booking request */
-    public loading: boolean;
+    public loading = signal<boolean>(false);
 
-    public hide_host = false;
+    public hide_host = signal<boolean>(false);
     public future = this._data.future;
     public min_duration = this._data.min_duration || 15;
     public max_duration = this._data.max_duration || 480;
@@ -224,7 +229,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         if (this._data.disable_book_now_host || this._data.user) {
             this.form.controls.organiser.setValidators([]);
-            this.hide_host = true;
+            this.hide_host.set(true);
         } else {
             this.form.controls.organiser.setValidators([Validators.required]);
             this.form.patchValue({ organiser: this._data.user });
@@ -259,7 +264,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
             );
         }
         if (!this.future) this.form.patchValue({ date: new Date().valueOf() });
-        this.loading = true;
+        this.loading.set(true);
         this.event.emit({
             reason: 'done',
             metadata: {
