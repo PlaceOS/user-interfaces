@@ -1,10 +1,12 @@
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
+    computed,
+    effect,
     inject,
     input,
     output,
+    signal,
+    untracked,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
@@ -93,16 +95,16 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     <div class="flex items-center space-x-2">
                         <icon>meeting_room</icon>
                         <p>
-                            {{ level?.display_name || level?.name }}
+                            {{ level()?.display_name || level()?.name }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>place</icon>
                         <p>
                             {{
-                                building?.address ||
-                                    building?.display_name ||
-                                    building?.name
+                                building()?.address ||
+                                    building()?.display_name ||
+                                    building()?.name
                             }}
                         </p>
                     </div>
@@ -128,9 +130,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     >
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="map_url"
+                            [src]="map_url()"
                             [focus]="space().map_id"
-                            [features]="features"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -148,11 +150,17 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     name="toggle-space-details"
                     [class.inverse]="!single_select() && active()"
                     class="w-full"
-                    (click)="activeChange.emit(single_select() ? true : !active())"
+                    (click)="
+                        activeChange.emit(single_select() ? true : !active())
+                    "
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            single_select() ? 'done' : active() ? 'remove' : 'add'
+                            single_select()
+                                ? 'done'
+                                : active()
+                                  ? 'remove'
+                                  : 'add'
                         }}</icon>
                         <p>
                             {{
@@ -199,7 +207,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
         IconComponent,
     ],
 })
-export class SpaceDetailsComponent implements OnChanges {
+export class SpaceDetailsComponent {
     private _org = inject(OrganisationService);
 
     public readonly space = input<Space>(undefined);
@@ -213,33 +221,33 @@ export class SpaceDetailsComponent implements OnChanges {
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
 
-    public map_url = '';
-    public features: ViewerFeature[] = [];
+    public map_url = signal('');
+    public features = signal<ViewerFeature[]>([]);
 
-    public get level() {
+    public level = computed(() => {
         const space = this.space();
         return this._org.levelWithID(space?.zones) || space?.level;
-    }
+    });
 
-    public get building() {
+    public building = computed(() => {
         return this._org.buildings.find((_) =>
             this.space()?.zones.includes(_.id),
         );
-    }
+    });
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.space && this.space()) {
-            this._updateFeature();
+    private _spaceEffect = effect(() => {
+        const space = this.space();
+        const level = this.level();
+        if (space) {
+            untracked(() => {
+                this.map_url.set(level?.map_id);
+                this.features.set([
+                    {
+                        location: space?.map_id,
+                        content: MapPinComponent,
+                    },
+                ]);
+            });
         }
-    }
-
-    private _updateFeature() {
-        this.map_url = this.level?.map_id;
-        this.features = [
-            {
-                location: this.space()?.map_id,
-                content: MapPinComponent,
-            },
-        ];
-    }
+    });
 }

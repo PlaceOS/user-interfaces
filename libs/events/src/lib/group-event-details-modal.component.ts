@@ -23,7 +23,7 @@ import {
     GuestUser,
     notifyInfo,
     OrganisationService,
-    SettingsService,
+    settingSignal,
     Space,
     unique,
 } from '@placeos/common';
@@ -277,10 +277,10 @@ import {
                             </div>
                             <div class="text-sm opacity-30">
                                 {{ event().date | date: 'EEEE, d MMMM, yyyy' }}
-                                . {{ event().date | date: time_format }} -
+                                . {{ event().date | date: time_format() }} -
                                 {{
                                     event().date + event().duration * 60 * 1000
-                                        | date: time_format
+                                        | date: time_format()
                                 }}
                             </div>
                         </div>
@@ -476,7 +476,6 @@ export class GroupEventDetailsModalComponent implements OnInit {
         concierge: boolean;
     }>(MAT_DIALOG_DATA, { optional: true });
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
     private _dialog_ref = inject<MatDialogRef<GroupEventDetailsModalComponent>>(
         MatDialogRef,
@@ -540,7 +539,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly attendees = computed(
         () =>
             this.event().attendees?.filter(
-                (user) => user.email !== this.group_event_calendar,
+                (user) => user.email !== this.group_event_calendar(),
             )?.length || 0,
     );
 
@@ -552,25 +551,30 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly is_going = computed(() => this.guest_details()?.checked_in);
     public readonly system_id = computed(() => this.space().id);
 
-    public get group_event_calendar() {
-        return this._settings.get<string>('app.group_events_calendar') || '';
-    }
+    public readonly group_event_calendar = settingSignal<string>(
+        'group_events_calendar',
+        '',
+    );
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     public async ngOnInit() {
         const space_pipe = new SpacePipe();
         space_pipe.org = this._org;
         const resource = this.event().resources.find(
-            (_) => _.email !== this.group_event_calendar,
+            (_) => _.email !== this.group_event_calendar(),
         );
         this.space.set(
             await space_pipe.transform(resource?.id || resource?.email),
         );
         this.calendar_space.set(
-            await space_pipe.transform(this.group_event_calendar),
+            await space_pipe.transform(this.group_event_calendar()),
         );
         const map_id = (this.event().extension_data as any)?.map_id;
         const id = this.space()?.map_id || map_id;
@@ -619,7 +623,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
             await lastValueFrom(
                 removeEventGuest(this.event().id, _user, {
                     system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             this.event.update((e) => {
@@ -632,7 +636,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
             user = await lastValueFrom(
                 addEventGuest(this.event().id, _user, {
                     system_id: this.calendar_space().id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             this.event.update((e) => {
@@ -652,7 +656,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
             user = await lastValueFrom(
                 addEventGuest(this.event().id, _user, {
                     system_id: this.event().system?.id,
-                    calendar: this.group_event_calendar,
+                    calendar: this.group_event_calendar(),
                 }),
             );
             (this.event as any).attendees = unique(

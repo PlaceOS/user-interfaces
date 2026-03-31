@@ -245,7 +245,7 @@ export class SpaceListFieldComponent
             },
         });
         this._dialog_ref.afterClosed().subscribe(() => {
-            this.setValue(this._dialog_ref?.componentInstance?.selected);
+            this.setValue(this._dialog_ref?.componentInstance?.selected());
             this._dialog_ref = undefined;
         });
     }

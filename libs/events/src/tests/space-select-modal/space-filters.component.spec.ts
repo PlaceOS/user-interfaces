@@ -48,6 +48,10 @@ describe('SpaceFiltersComponent', () => {
             MockProvider(EventFormService, {
                 available_spaces: new BehaviorSubject([]),
                 options$: new BehaviorSubject({}),
+                filters$: new BehaviorSubject({}),
+                filters: { features: [] },
+                setOptions: jest.fn(),
+                setFilters: jest.fn(),
                 form: new FormGroup({
                     date: new FormControl(),
                     duration: new FormControl(),
