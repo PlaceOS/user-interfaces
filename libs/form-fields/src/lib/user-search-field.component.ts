@@ -9,6 +9,7 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -22,7 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AsyncHandler, settingSignal, User } from '@placeos/common';
 import { authority, queryUsers, showUser } from '@placeos/ts-client';
 import { searchGuests, searchStaff } from '@placeos/users';
-import { BehaviorSubject, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
+import { forkJoin, lastValueFrom, Observable, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -53,8 +54,8 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                 >
                 <input
                     matInput
-                    [ngModel]="search_term.getValue()"
-                    (ngModelChange)="search_term.next($event)"
+                    [ngModel]="search_term()"
+                    (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
                     [matAutocomplete]="auto"
                     [placeholder]="placeholder() | translate"
@@ -69,7 +70,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     (optionSelected)="setValue($event.option.value)"
                 >
                     @let user_list = search_results | async;
-                    @let term = search_term.getValue();
+                    @let term = search_term();
                     @for (user of user_list; track $index) {
                         <mat-option [value]="user">
                             <div class="flex items-center space-x-2">
@@ -124,10 +125,7 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                             </div>
                         </mat-option>
                     }
-                    @if (
-                        !user_list?.length &&
-                        (search_term.getValue() || error())
-                    ) {
+                    @if (!user_list?.length && (search_term() || error())) {
                         <mat-option
                             [disabled]="!empty_fn()"
                             (click)="empty_fn()()"
@@ -188,7 +186,7 @@ export class UserSearchFieldComponent
 {
     private use_basic_search = settingSignal('basic_user_search', true);
 
-    public readonly search_term = new BehaviorSubject<string>('');
+    public readonly search_term = signal<string>('');
     public readonly loading = signal(false);
     public readonly user = signal<User | null>(null);
 
@@ -227,13 +225,13 @@ export class UserSearchFieldComponent
               : searchStaff(q).pipe(catchError(() => of([]))),
     );
 
-    public readonly search_results = this.search_term.pipe(
+    public readonly search_results = toObservable(this.search_term).pipe(
         debounceTime(300),
         switchMap((term) => {
             if (term && typeof term !== 'string') return of([term]);
             if (term === this.user()?.name) return of([this.user()]);
             this.loading.set(true);
-            const s = (term || '').toLowerCase();
+            const s = `${term || ''}`.toLowerCase();
             return this.options()?.length
                 ? of(
                       this.options().filter(
@@ -272,7 +270,6 @@ export class UserSearchFieldComponent
         this._onChange ? this._onChange(value) : null;
         this._onTouch ? this._onTouch(value) : null;
         this.user.set(value);
-        console.log('Set User:', value);
         if (
             typeof new_value !== 'string' &&
             !this.use_basic_search() &&
@@ -334,8 +331,8 @@ export class UserSearchFieldComponent
     }
 
     public resetTerm() {
-        this.search_term.next(this.user() as any);
+        this.search_term.set(this.user() as any);
         const input = this._input_el()?.nativeElement;
-        if (input) input.value = this.search_term.getValue();
+        if (input) input.value = this.displayFn(this.user());
     }
 }

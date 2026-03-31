@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit } from '@angular/core';
+import { Component, forwardRef, OnInit, signal } from '@angular/core';
 import {
     ControlValueAccessor,
     FormControl,
@@ -89,7 +89,7 @@ function listPattern(fieldPattern) {
     imports: [ReactiveFormsModule],
 })
 export class CronInputFieldComponent implements ControlValueAccessor, OnInit {
-    public cron_string: string;
+    public readonly cron_string = signal('');
     public readonly form = new FormGroup({
         minute: new FormControl('*', [
             Validators.pattern(
@@ -146,13 +146,13 @@ export class CronInputFieldComponent implements ControlValueAccessor, OnInit {
     }
 
     public setValue(value: string): void {
-        this.cron_string = value;
+        this.cron_string.set(value);
         if (this._onChange) this._onChange(value);
     }
 
     public writeValue(value: string): void {
         if (!value) return;
-        this.cron_string = value;
+        this.cron_string.set(value);
         const parts = value.split(' ');
         this.form.setValue({
             minute: parts[0] || '*',

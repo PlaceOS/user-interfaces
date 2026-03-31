@@ -8,6 +8,7 @@ import {
     model,
     OnChanges,
     OnInit,
+    signal,
     SimpleChanges,
     viewChild,
 } from '@angular/core';
@@ -20,7 +21,6 @@ import {
     formatTimeInTimezone,
     getTimeInTimezone,
     getTimezoneOffsetString,
-    Identity,
     markUserDateChange,
     setTimeInTimezone,
     startOfDayInTimezone,
@@ -52,19 +52,21 @@ export interface TimeFieldRange {
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled() || no_options"
-            [class.opacity-30]="disabled() || no_options"
+            [disabled]="disabled() || no_options()"
+            [class.opacity-30]="disabled() || no_options()"
             [matMenuTriggerFor]="menu"
         >
             <div
                 class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
             >
                 <div class="truncate">
-                    {{ active_time | date: time_format }}
+                    {{ active_time() | date: time_format() }}
                 </div>
                 @if (timezone() && tz()) {
                     <div class="truncate text-xs opacity-30">
-                        {{ active_time | date: time_format + ' (z)' : tz() }}
+                        {{
+                            active_time() | date: time_format() + ' (z)' : tz()
+                        }}
                     </div>
                 }
             </div>
@@ -81,24 +83,26 @@ export interface TimeFieldRange {
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col leading-tight">
                             <div class="">
-                                {{ force_time() | date: time_format }}
+                                {{ force_time() | date: time_format() }}
                             </div>
                             @if (timezone() && tz()) {
                                 <div class="text-xs opacity-30">
                                     {{
                                         force_time()
-                                            | date: time_format + ' (z)' : tz()
+                                            | date
+                                                : time_format() + ' (z)'
+                                                : tz()
                                     }}
                                 </div>
                             }
                         </div>
-                        @if (active_time === force_time()) {
+                        @if (active_time() === force_time()) {
                             <icon class="ml-2 text-2xl"> done </icon>
                         }
                     </div>
                 </button>
             }
-            @for (option of time_options; track option.id) {
+            @for (option of time_options(); track option.id) {
                 <button
                     mat-menu-item
                     [attr.data-time]="option.id"
@@ -109,19 +113,21 @@ export interface TimeFieldRange {
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col leading-tight">
                             <div class="">
-                                {{ option.date | date: time_format }}
+                                {{ option.date | date: time_format() }}
                                 {{ extra_info_fn()(option.date) }}
                             </div>
                             @if (timezone() && tz()) {
                                 <div class="text-xs opacity-30">
                                     {{
                                         option.date
-                                            | date: time_format + ' (z)' : tz()
+                                            | date
+                                                : time_format() + ' (z)'
+                                                : tz()
                                     }}
                                 </div>
                             }
                         </div>
-                        @if (active_time === option.date) {
+                        @if (active_time() === option.date) {
                             <icon class="ml-2 text-2xl"> done </icon>
                         }
                     </div>
@@ -177,17 +183,17 @@ export class TimeFieldComponent
     public readonly min_duration = input(0);
     public readonly timezone = input<string>('');
     /** String representing the currently set time */
-    public date: number = new Date().valueOf();
+    public readonly date = signal(new Date().valueOf());
     /** String representing the currently set time */
-    public time: string = format(new Date(), 'HH:mm');
+    public readonly time = signal(format(new Date(), 'HH:mm'));
     /** Available time blocks for the selected date */
-    public _time_options: any[];
+    public readonly _time_options = signal<{ date: number; id: string }[]>([]);
     /** Whether select field should be shown */
-    public show_select: boolean;
+    public readonly show_select = signal(false);
 
-    public active_time: number = Date.now();
+    public readonly active_time = signal(Date.now());
     /** Whether there are no available time options */
-    public no_options = false;
+    public readonly no_options = signal(false);
     /** Form control on change handler */
     private _onChange: (_: number) => void;
     /** Form control on touch handler */
@@ -196,9 +202,9 @@ export class TimeFieldComponent
     /** Menu trigger for the time selection dropdown */
     private readonly _menu_trigger = viewChild(MatMenuTrigger);
 
-    public get time_format() {
-        return this.use_24hr() ? 'HH : mm' : 'h : mm a';
-    }
+    public readonly time_format = computed(() =>
+        this.use_24hr() ? 'HH : mm' : 'h : mm a',
+    );
 
     private _local_tz = getTimezoneOffsetString(
         Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -212,19 +218,22 @@ export class TimeFieldComponent
     });
 
     public ngOnInit(): void {
-        this.show_select = true;
-        this._time_options = this.generateAvailableTimes(
-            this.date,
-            !this.no_past_times(),
-            this.step(),
+        this.show_select.set(true);
+        this._time_options.set(
+            this.generateAvailableTimes(
+                this.date(),
+                !this.no_past_times(),
+                this.step(),
+            ),
         );
         this._updateNoOptions();
-        this.timeout('hide', () => (this.show_select = false));
+        this.timeout('hide', () => this.show_select.set(false));
         const tz = this.timezone() || undefined;
-        this.active_time =
-            this._time_options.find(
-                (_) => _.id === formatTimeInTimezone(this.date, tz),
-            )?.date || this.active_time;
+        this.active_time.set(
+            this._time_options().find(
+                (_) => _.id === formatTimeInTimezone(this.date(), tz),
+            )?.date || this.active_time(),
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -235,10 +244,12 @@ export class TimeFieldComponent
             changes.range ||
             changes.min_duration
         ) {
-            this._time_options = this.generateAvailableTimes(
-                this.date,
-                !this.no_past_times(),
-                this.step(),
+            this._time_options.set(
+                this.generateAvailableTimes(
+                    this.date(),
+                    !this.no_past_times(),
+                    this.step(),
+                ),
             );
             this._updateNoOptions();
         }
@@ -269,18 +280,18 @@ export class TimeFieldComponent
             // Find the selected time, or fallback to the nearest time
             const tz = this.timezone() || undefined;
             const target_time =
-                this.time || formatTimeInTimezone(new Date(), tz);
+                this.time() || formatTimeInTimezone(new Date(), tz);
             let target_element = panel.querySelector(
                 `[data-time="${target_time}"]`,
             );
 
             // If exact time not found, find the nearest option
-            if (!target_element && this._time_options?.length) {
+            if (!target_element && this._time_options().length) {
                 const current_minutes = this._timeToMinutes(target_time);
-                let closest_option = this._time_options[0];
+                let closest_option = this._time_options()[0];
                 let closest_diff = Infinity;
 
-                for (const option of this._time_options) {
+                for (const option of this._time_options()) {
                     const option_minutes = this._timeToMinutes(option.id);
                     const diff = Math.abs(option_minutes - current_minutes);
                     if (diff < closest_diff) {
@@ -313,27 +324,30 @@ export class TimeFieldComponent
     }
 
     /** Available time blocks for the selected date */
-    public get time_options() {
+    public time_options() {
         const tz = this.timezone() || undefined;
-        const time = (this.time || '00:00').split(':');
-        const date_value = setTimeInTimezone(this.date, +time[0], +time[1], tz);
-        const date = new Date(date_value);
+        const time = (this.time() || '00:00').split(':');
+        const date_value = setTimeInTimezone(
+            this.date(),
+            +time[0],
+            +time[1],
+            tz,
+        );
         const { minutes } = getTimeInTimezone(date_value, tz);
         const time_str = formatTimeInTimezone(date_value, tz);
+        const time_options = [...this._time_options()];
         if (
             minutes % this.step() !== 0 &&
             this._isWithinRange(date_value) &&
-            !this._time_options.find((t) => t.id === time_str)
+            !time_options.find((t) => t.id === time_str)
         ) {
-            this._time_options.push({
+            time_options.push({
                 date: date_value,
                 id: time_str,
             });
-            this._time_options.sort((a, b) =>
-                `${a.id}`.localeCompare(`${b.id}`),
-            );
+            time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
         }
-        return this._time_options;
+        return time_options;
     }
 
     /**
@@ -341,12 +355,12 @@ export class TimeFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: string): void {
-        this.time = new_value;
+        this.time.set(new_value);
         const tz = this.timezone() || undefined;
         if (this._onChange) {
-            const time = (this.time || '00:00').split(':');
+            const time = (this.time() || '00:00').split(':');
             const date_value = setTimeInTimezone(
-                this.date,
+                this.date(),
                 +time[0],
                 +time[1],
                 tz,
@@ -355,24 +369,25 @@ export class TimeFieldComponent
             this._onChange(date_value);
         }
 
-        const time = this.force_time() || this.time;
+        const time = this.force_time() || this.time();
         const time_parts = (
             typeof time === 'string' ? time : formatTimeInTimezone(time, tz)
         ).split(':');
         const date_value = setTimeInTimezone(
-            this.date,
+            this.date(),
             +time_parts[0],
             +time_parts[1],
             tz,
         );
-        this.active_time =
-            this._time_options.find(
+        this.active_time.set(
+            this._time_options().find(
                 (_) =>
                     _.id ===
                     (typeof time === 'string'
                         ? time
                         : formatTimeInTimezone(time, tz)),
-            )?.date || date_value;
+            )?.date || date_value,
+        );
     }
 
     /**
@@ -380,29 +395,35 @@ export class TimeFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.date = value || this.date;
+        this.date.set(value || this.date());
         const tz = this.timezone() || undefined;
-        let date = startOfMinute(this.date);
+        let date = startOfMinute(this.date());
         date = roundToNearestMinutes(date, { nearestTo: 5 });
-        this.time = formatTimeInTimezone(date, tz);
-        this._time_options = this.generateAvailableTimes(
-            this.date,
-            !this.no_past_times(),
-            this.step(),
+        this.time.set(formatTimeInTimezone(date, tz));
+        this._time_options.set(
+            this.generateAvailableTimes(
+                this.date(),
+                !this.no_past_times(),
+                this.step(),
+            ),
         );
         this._updateNoOptions();
         const force = this.force_time();
-        const time_id = force ? formatTimeInTimezone(force, tz) : this.time;
-        this.active_time =
-            this._time_options.find((_) => _.id === time_id)?.date || date;
+        const time_id = force ? formatTimeInTimezone(force, tz) : this.time();
+        this.active_time.set(
+            this._time_options().find((_) => _.id === time_id)?.date ||
+                date.valueOf(),
+        );
     }
 
     public setDisabledState(disabled: boolean) {
         this.disabled.set(disabled);
-        this._time_options = this.generateAvailableTimes(
-            this.date,
-            !this.no_past_times() || disabled,
-            this.step(),
+        this._time_options.set(
+            this.generateAvailableTimes(
+                this.date(),
+                !this.no_past_times() || disabled,
+                this.step(),
+            ),
         );
         this._updateNoOptions();
     }
@@ -425,10 +446,11 @@ export class TimeFieldComponent
 
     /** Update whether the field should show as disabled due to no options */
     private _updateNoOptions(): void {
-        this.no_options =
+        this.no_options.set(
             !this.disabled() &&
-            (!this._time_options || this._time_options.length === 0) &&
-            !this.force_time();
+                (!this._time_options() || this._time_options().length === 0) &&
+                !this.force_time(),
+        );
     }
 
     /**
@@ -440,7 +462,7 @@ export class TimeFieldComponent
         datestamp: number,
         show_past: boolean,
         step: number = 15,
-    ): Identity[] {
+    ): { date: number; id: string }[] {
         const min_date = show_past
             ? this.from()
             : Math.max(this.from(), Date.now());

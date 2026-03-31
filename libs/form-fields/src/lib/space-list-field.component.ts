@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, forwardRef, inject, input } from '@angular/core';
+import {
+    Component,
+    OnDestroy,
+    forwardRef,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -12,9 +19,6 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -39,7 +43,8 @@ const EMPTY_FAVS: string[] = [];
                                 'CALENDAR_EVENT.SPACE_SELECT_SIZE' | translate
                             "
                             class="space-x-4"
-                            [(ngModel)]="room_size"
+                            [ngModel]="room_size()"
+                            (ngModelChange)="room_size.set($event)"
                             [ngModelOptions]="{ standalone: true }"
                         >
                             <mat-radio-button [value]="1">
@@ -66,7 +71,7 @@ const EMPTY_FAVS: string[] = [];
             </div>
         </div>
         <div list class="space-y-2">
-            @for (space of space_list | async; track space) {
+            @for (space of space_list(); track space) {
                 <div
                     space
                     class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
@@ -208,10 +213,10 @@ export class SpaceListFieldComponent
     private _dialog = inject(MatDialog);
 
     readonly multiday = input(false);
-    public room_size = 4;
-    public spaces = new BehaviorSubject<Space[]>([]);
-    public space_list = this.spaces.pipe(debounceTime(300));
-    public disabled = false;
+    public readonly room_size = signal(4);
+    public readonly spaces = signal<Space[]>([]);
+    public readonly space_list = this.spaces.asReadonly();
+    public readonly disabled = signal(false);
     public _dialog_ref?: MatDialogRef<NewSpaceSelectModalComponent>;
 
     private _onChange: (_: Space[]) => void;
@@ -234,8 +239,8 @@ export class SpaceListFieldComponent
         this._dialog_ref = this._dialog.open(NewSpaceSelectModalComponent, {
             // this._dialog_ref = this._dialog.open(SpaceSelectModalComponent, {
             data: {
-                spaces: this.spaces.getValue(),
-                options: { capacity: this.room_size },
+                spaces: this.spaces(),
+                options: { capacity: this.room_size() },
                 multiday: this.multiday(),
             },
         });
@@ -247,7 +252,7 @@ export class SpaceListFieldComponent
 
     /** Remove the selected space from the list */
     public removeSpace(space: Space) {
-        this.setValue(this.spaces.getValue().filter((_) => _.id !== space.id));
+        this.setValue(this.spaces().filter((_) => _.id !== space.id));
     }
 
     /**
@@ -255,8 +260,9 @@ export class SpaceListFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: Space[]) {
-        this.spaces.next(new_value || []);
-        if (this._onChange) this._onChange(new_value || []);
+        const value = new_value || [];
+        this.spaces.set(value);
+        if (this._onChange) this._onChange(value);
     }
 
     /* istanbul ignore next */
@@ -265,7 +271,7 @@ export class SpaceListFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value?: Space[]) {
-        this.spaces.next(value || []);
+        this.spaces.set(value || []);
     }
 
     /* istanbul ignore next */
@@ -274,7 +280,7 @@ export class SpaceListFieldComponent
     /* istanbul ignore next */
     public readonly registerOnTouched = (fn: (_: Space[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: Space) {
         if (!space?.id) return;

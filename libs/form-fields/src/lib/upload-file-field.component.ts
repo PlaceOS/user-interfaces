@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
     Attachment,
@@ -24,33 +24,33 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 class="absolute inset-0 z-10 max-w-full opacity-0"
                 (change)="onFileEvent($event)"
             />
-            @if (item) {
+            @if (item()) {
                 <div
                     item
                     class="border-base-200 bg-base-100 hover:bg-base-200 relative z-50 flex w-full items-center rounded-sm border"
-                    [class.bg-error!]="item.progress < 1"
-                    [class.!bg-opacity-20]="item.progress < 1"
+                    [class.bg-error!]="item().progress < 1"
+                    [class.!bg-opacity-20]="item().progress < 1"
                 >
                     <div class="w-px flex-1 truncate px-2 font-mono text-sm">
-                        {{ item.name }}
+                        {{ item().name }}
                     </div>
-                    @if (item.progress >= 0 && item.progress < 100) {
+                    @if (item().progress >= 0 && item().progress < 100) {
                         <div class="relative mx-1">
                             <mat-progress-spinner
                                 [diameter]="32"
                                 mode="determinate"
-                                [value]="item.progress"
+                                [value]="item().progress"
                             ></mat-progress-spinner>
                             <div
                                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-bold"
                             >
-                                {{ item.progress }}
+                                {{ item().progress }}
                             </div>
                         </div>
                     }
-                    @if (item.progress >= 100) {
+                    @if (item().progress >= 100) {
                         <a
-                            [href]="item.url"
+                            [href]="item().url"
                             icon
                             matRipple
                             target="_blank"
@@ -59,7 +59,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                             <icon>link</icon>
                         </a>
                     }
-                    <button icon (click)="writeValue(null)">
+                    <button icon (click)="setValue(null)">
                         <icon>close</icon>
                     </button>
                 </div>
@@ -87,7 +87,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     imports: [MatProgressSpinnerModule, IconComponent],
 })
 export class UploadFileFieldComponent implements ControlValueAccessor {
-    public item: Attachment;
+    public readonly item = signal<Attachment | null>(null);
     /** Form control on change handler */
     private _onChange: (_: Attachment) => void;
     /** Form control on touch handler */
@@ -101,8 +101,8 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: Attachment): void {
-        this.item = new_value;
-        if (this._onChange) this._onChange(this.item);
+        this.item.set(new_value);
+        if (this._onChange) this._onChange(new_value);
     }
 
     /**
@@ -110,7 +110,7 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: Attachment) {
-        this.item = value;
+        this.item.set(value);
     }
 
     public onFileEvent(event) {
@@ -118,11 +118,7 @@ export class UploadFileFieldComponent implements ControlValueAccessor {
         /* istanbul ignore else */
         if (!element?.files?.length) return;
         const files: FileList = element.files;
-        const on_change = (item) => {
-            this.item = item;
-            this.setValue(this.item);
-        };
-        this._uploadFile(files[0], on_change);
+        this._uploadFile(files[0], (item) => this.setValue(item));
     }
 
     private _uploadFile(file: File, on_change: (item: Attachment) => void) {

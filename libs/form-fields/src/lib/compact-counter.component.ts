@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, model } from '@angular/core';
+import { Component, forwardRef, input, model, signal } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -12,29 +12,33 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         <div
             counter
             class="flex items-center gap-1 text-base"
-            (window:keydown.shift)="shift_key = true"
-            (window:keydown.control)="ctrl_key = true"
-            (window:keydown.meta)="ctrl_key = true"
-            (window:keyup.shift)="shift_key = false"
-            (window:keyup.control)="ctrl_key = false"
-            (window:keyup.meta)="ctrl_key = false"
+            (window:keydown.shift)="shift_key.set(true)"
+            (window:keydown.control)="ctrl_key.set(true)"
+            (window:keydown.meta)="ctrl_key.set(true)"
+            (window:keyup.shift)="shift_key.set(false)"
+            (window:keyup.control)="ctrl_key.set(false)"
+            (window:keyup.meta)="ctrl_key.set(false)"
             [class.disabled]="disabled()"
         >
             <div
                 value
                 class="border-secondary relative z-0 -mx-px flex h-12 min-w-16 flex-1 items-center justify-center rounded-sm border p-1 focus-within:z-20"
             >
-                @if (!focused) {
+                @if (!focused()) {
                     <span class="px-3">
-                        {{ (render_fn() ? render_fn()(value) : value) || '0' }}
+                        {{
+                            (render_fn() ? render_fn()(value()) : value()) ||
+                                '0'
+                        }}
                     </span>
                 }
                 <input
                     type="text"
                     class="absolute inset-0 rounded-none p-2 opacity-0 focus:opacity-100"
-                    [(ngModel)]="value"
-                    (focus)="focused = true"
-                    (blur)="setValue(+value); focused = false"
+                    [ngModel]="value()"
+                    (ngModelChange)="value.set($event)"
+                    (focus)="focused.set(true)"
+                    (blur)="setValue(+value()); focused.set(false)"
                     limitInput
                 />
             </div>
@@ -45,7 +49,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     matRipple
                     type="button"
                     class="border-secondary text-secondary z-10 h-5.5 w-5.5 min-w-0 rounded-sm border text-sm"
-                    [disabled]="value === max()"
+                    [disabled]="value() === max()"
                     (click)="add()"
                 >
                     <icon>add</icon>
@@ -56,7 +60,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     matRipple
                     type="button"
                     class="border-secondary text-secondary z-10 h-5.5 w-5.5 min-w-0 rounded-sm border text-sm"
-                    [disabled]="!value || value === min()"
+                    [disabled]="!value() || value() === min()"
                     (click)="remove()"
                 >
                     <icon>remove</icon>
@@ -93,12 +97,12 @@ export class CompactCounterComponent implements ControlValueAccessor {
     /** Whether form control is disabled */
     public readonly disabled = model<boolean>(undefined);
     /** Current value of the counter */
-    public value: number;
+    public readonly value = signal<number | undefined>(undefined);
     /** Whether shift key is being held by the user */
-    public shift_key: boolean;
+    public readonly shift_key = signal(false);
     /** Whether control key is being held by the user */
-    public ctrl_key: boolean;
-    public focused = false;
+    public readonly ctrl_key = signal(false);
+    public readonly focused = signal(false);
 
     /** Form control on change handler */
     private _onChange: (_: number) => void;
@@ -109,36 +113,38 @@ export class CompactCounterComponent implements ControlValueAccessor {
      * Add the `step` to the current value
      */
     public add() {
-        if (!this.value) {
-            this.value = this.min() || 0;
+        let value = this.value();
+        if (!value) {
+            value = this.min() || 0;
         }
-        const step = this.ctrl_key
+        const step = this.ctrl_key()
             ? 100 * this.step()
-            : this.shift_key
+            : this.shift_key()
               ? 10 * this.step()
               : this.step() || 1;
-        this.value += step;
-        if (this.value > this.max()) {
-            this.value = this.max() || 10;
+        value += step;
+        if (value > this.max()) {
+            value = this.max() || 10;
         }
-        this.setValue(this.value);
+        this.setValue(value);
     }
 
     /** Remove the `step` from the current value */
     public remove() {
-        if (!this.value) {
-            this.value = this.min() || 0;
+        let value = this.value();
+        if (!value) {
+            value = this.min() || 0;
         }
-        const step = this.ctrl_key
+        const step = this.ctrl_key()
             ? 100 * this.step()
-            : this.shift_key
+            : this.shift_key()
               ? 10 * this.step()
               : this.step() || 1;
-        this.value -= step;
-        if (this.value < this.min()) {
-            this.value = this.min() || 0;
+        value -= step;
+        if (value < this.min()) {
+            value = this.min() || 0;
         }
-        this.setValue(this.value);
+        this.setValue(value);
     }
 
     /**
@@ -152,7 +158,7 @@ export class CompactCounterComponent implements ControlValueAccessor {
             new_value =
                 Math.round(new_value * (1 / this.step())) / (1 / this.step());
         }
-        this.value = new_value;
+        this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) {
             this._onChange(new_value);
@@ -164,7 +170,7 @@ export class CompactCounterComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: number) {
-        this.value = value;
+        this.value.set(value);
     }
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
