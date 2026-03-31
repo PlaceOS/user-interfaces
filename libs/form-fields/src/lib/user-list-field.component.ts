@@ -11,7 +11,7 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { outputToObservable, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -548,7 +548,7 @@ export class UserListFieldComponent
                 data: { user },
             },
         );
-        ref.componentInstance?.event
+        outputToObservable(ref.componentInstance?.event)
             .pipe(first((_) => _.reason === 'done'))
             .subscribe((event) => {
                 this.addUser(event.metadata);

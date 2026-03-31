@@ -1,11 +1,4 @@
-import {
-    Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
-    input,
-    output,
-} from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { AssetGroup } from '@placeos/common';
@@ -115,7 +108,7 @@ import { CounterComponent } from 'libs/form-fields/src/lib/counter.component';
         FormsModule,
     ],
 })
-export class NewAssetDetailsComponent implements OnInit, OnChanges {
+export class NewAssetDetailsComponent {
     public readonly item = input<AssetGroup>(undefined);
     public readonly active = input(false);
     public readonly fav = input(false);
@@ -125,15 +118,10 @@ export class NewAssetDetailsComponent implements OnInit, OnChanges {
     public readonly countChange = output<number>();
     public readonly close = output<void>();
 
-    public ngOnInit() {
-        const item = this.item();
-        if (item && !item.quantity) item.quantity = 1;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        const item = this.item();
-        if (changes.item && item) {
-            if (!item.quantity) item.quantity = 1;
-        }
+    constructor() {
+        effect(() => {
+            const item = this.item();
+            if (item && !item.quantity) item.quantity = 1;
+        });
     }
 }
