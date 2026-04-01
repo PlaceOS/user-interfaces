@@ -165,7 +165,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [range]="bookable_hours"
-                                    [min_duration]="min_duration"
+                                    [min_duration]="effective_min_duration"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
                                 ></a-time-field>
@@ -182,6 +182,7 @@ const MINUTES_IN_DAY = 24 * 60;
                                     [max]="max_duration"
                                     [min]="60"
                                     [step]="60"
+                                    [custom_options]="custom_duration_options"
                                     [end_time]="bookable_hours?.end"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
@@ -465,6 +466,18 @@ export class NewDeskFormDetailsComponent
             this._settings.get('app.bookings.min_duration') ||
             60
         );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.desks.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public ngOnChanges(changes: SimpleChanges) {

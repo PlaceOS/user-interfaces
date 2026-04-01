@@ -129,8 +129,8 @@ import { first } from 'rxjs/operators';
                                         [max]="max_duration"
                                         [min]="60"
                                         [step]="60"
-                                        [use_24hr]="use_24hr"
                                         [custom_options]="custom_durations"
+                                        [use_24hr]="use_24hr"
                                         [timezone]="timezone"
                                     >
                                     </a-duration-field>

@@ -868,6 +868,12 @@ export interface FormTimeSyncOptions {
     default_duration?: number;
 
     /**
+     * Explicit duration values in minutes that are allowed even when they fall
+     * outside the configured min/max bounds.
+     */
+    custom_duration_options?: number[];
+
+    /**
      * Granularity in minutes to which computed times are rounded (using ceil).
      * @default 5
      */
@@ -941,6 +947,13 @@ export function setupFormTimeSync(
     let min_duration = options.min_duration ?? 30;
     let max_duration = options.max_duration ?? 0;
     let default_duration = options.default_duration ?? 60;
+    let custom_duration_options = [
+        ...new Set(
+            (options.custom_duration_options || [])
+                .map((_) => Math.round(+_ || 0))
+                .filter((_) => _ > 0),
+        ),
+    ].sort((a, b) => a - b);
     let bookable_hours: BookableHoursRange | null =
         options.bookable_hours ?? null;
     let timezone = options.timezone ?? '';
@@ -948,6 +961,12 @@ export function setupFormTimeSync(
     let all_day_end = options.all_day_end;
     const round_to = options.round_to ?? 5;
     const on_change = options.on_time_change;
+
+    const effective_min_duration = () =>
+        Math.min(min_duration, ...custom_duration_options);
+
+    const is_custom_duration = (dur: number) =>
+        custom_duration_options.includes(Math.round(+dur || 0));
 
     const roundCeil = (date: number | Date): number =>
         roundToNearestMinutes(date, {
@@ -957,6 +976,7 @@ export function setupFormTimeSync(
 
     /** Clamp a duration value to [min_duration, max_duration]. */
     const clampDuration = (dur: number): number => {
+        if (is_custom_duration(dur)) return dur;
         let clamped = Math.max(dur, min_duration);
         if (max_duration > 0) clamped = Math.min(clamped, max_duration);
         return clamped;
@@ -974,7 +994,7 @@ export function setupFormTimeSync(
             bookable_hours,
             date,
             timezone,
-            min_duration,
+            effective_min_duration(),
         );
         if (next && next !== date) {
             if (_user_date_change) {
@@ -988,7 +1008,7 @@ export function setupFormTimeSync(
             bookable_hours,
             date,
             timezone,
-            min_duration,
+            effective_min_duration(),
         );
     };
 
@@ -1223,6 +1243,15 @@ export function setupFormTimeSync(
             if (patch.max_duration != null) max_duration = patch.max_duration;
             if (patch.default_duration != null)
                 default_duration = patch.default_duration;
+            if (patch.custom_duration_options != null) {
+                custom_duration_options = [
+                    ...new Set(
+                        (patch.custom_duration_options || [])
+                            .map((_) => Math.round(+_ || 0))
+                            .filter((_) => _ > 0),
+                    ),
+                ].sort((a, b) => a - b);
+            }
             if (patch.bookable_hours !== undefined)
                 bookable_hours = patch.bookable_hours ?? null;
             if (patch.timezone != null) timezone = patch.timezone;

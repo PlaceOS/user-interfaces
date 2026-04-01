@@ -264,9 +264,18 @@ export class DurationFieldComponent
         const timeValue = this.time();
         const date = timeValue ? timeValue : null;
         const effective_max = this._effectiveMax(max, timeValue);
+        const latest_end_max = this._effectiveMax(
+            Number.POSITIVE_INFINITY,
+            timeValue,
+        );
+        const custom_option_ids = new Set(
+            this.custom_options()
+                .map((_) => Math.round(+_ || 0))
+                .filter((_) => _ > 0),
+        );
 
         // Add special cases
-        for (const option of this.custom_options()) {
+        for (const option of custom_option_ids) {
             blocks.push({
                 id: option,
                 date: date ? addMinutes(date, option).valueOf() : undefined,
@@ -304,8 +313,10 @@ export class DurationFieldComponent
         return blocks.filter(
             (option, index, options) =>
                 (index === 0 || options[index - 1].id !== option.id) &&
-                option.id >= min &&
-                option.id <= effective_max,
+                option.id > 0 &&
+                (custom_option_ids.has(option.id)
+                    ? option.id <= latest_end_max
+                    : option.id >= min && option.id <= effective_max),
         );
     }
 

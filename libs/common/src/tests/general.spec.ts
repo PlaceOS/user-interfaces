@@ -120,6 +120,13 @@ describe('General Methods', () => {
             );
         });
 
+        it('should honour a shorter custom duration near bookable-hours end', () => {
+            const date = new Date(2028, 5, 10, 16, 35).valueOf();
+            expect(
+                getNextBookableTime({ start: 8, end: 17 }, date, '', 15),
+            ).toBe(new Date(2028, 5, 10, 16, 35).valueOf());
+        });
+
         it('should snap to start of today when before the bookable window', () => {
             const date = new Date(2028, 5, 10, 6, 0).valueOf();
             expect(getNextBookableTime({ start: 8, end: 17 }, date)).toBe(
@@ -335,6 +342,21 @@ describe('General Methods', () => {
             expect(form.getRawValue().duration).toBe(45);
         });
 
+        it('should allow configured custom durations below min_duration', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, {
+                min_duration: 45,
+                custom_duration_options: [30],
+            });
+
+            form.controls.duration.setValue(30);
+
+            expect(form.getRawValue().duration).toBe(30);
+            expect(form.getRawValue().date_end).toBe(
+                addMinutes(BASE, 30).valueOf(),
+            );
+        });
+
         it('should respect a custom round_to value', () => {
             const form = createForm({ date: BASE, duration: 60 });
             setupFormTimeSync(form, { round_to: 15 });
@@ -400,6 +422,21 @@ describe('General Methods', () => {
             form.controls.date_end.setValue(addMinutes(BASE, 180).valueOf());
 
             expect(form.getRawValue().duration).toBe(90);
+        });
+
+        it('should allow configured custom durations above max_duration', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, {
+                max_duration: 90,
+                custom_duration_options: [120],
+            });
+
+            form.controls.duration.setValue(120);
+
+            expect(form.getRawValue().duration).toBe(120);
+            expect(form.getRawValue().date_end).toBe(
+                addMinutes(BASE, 120).valueOf(),
+            );
         });
 
         it('should allow any duration when max_duration is 0 (disabled)', () => {

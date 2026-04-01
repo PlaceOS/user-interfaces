@@ -413,6 +413,8 @@ export class BookingFormService extends AsyncHandler {
             min_duration: this.setting('min_duration') ?? 30,
             max_duration: this.setting('max_duration') ?? 0,
             default_duration: this.setting('default_duration') ?? 60,
+            custom_duration_options:
+                this.setting('custom_duration_options') ?? [],
             bookable_hours: this.setting('bookable_hours') ?? null,
             timezone: this.timezone,
             all_day_start: period?.start,

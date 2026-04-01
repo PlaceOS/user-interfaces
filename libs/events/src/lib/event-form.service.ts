@@ -471,6 +471,8 @@ export class OldEventFormService extends AsyncHandler {
             max_duration: this._settings.get('app.events.max_duration') ?? 0,
             default_duration:
                 this._settings.get('app.events.default_duration') ?? 60,
+            custom_duration_options:
+                this._settings.get('app.events.custom_duration_options') ?? [],
             bookable_hours:
                 this._settings.get('app.events.bookable_hours') ?? null,
             timezone: this.timezone,

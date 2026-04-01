@@ -122,6 +122,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [disabled]="form.controls.date.disabled"
                                 [use_24hr]="use_24hr"
                                 [range]="bookable_hours"
+                                [min_duration]="effective_min_duration"
                             ></a-time-field>
                         </div>
                         <div class="relative w-1/3 flex-1">
@@ -134,6 +135,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 formControlName="duration"
                                 [time]="form?.getRawValue()?.date"
                                 [max]="max_duration"
+                                [custom_options]="custom_duration_options"
                                 [use_24hr]="use_24hr"
                                 [end_time]="bookable_hours?.end"
                             >
@@ -251,6 +253,26 @@ export class ParkingBookingModalComponent
             this._settings.get('app.parking.bookable_hours') ||
             this._settings.get('app.bookings.bookable_hours')
         );
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.parking.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30
+        );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.parking.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public ngOnInit() {

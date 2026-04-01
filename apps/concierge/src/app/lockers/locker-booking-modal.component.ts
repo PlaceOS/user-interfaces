@@ -132,6 +132,7 @@ import { combineLatest } from 'rxjs';
                                 "
                                 [use_24hr]="use_24hr"
                                 [range]="bookable_hours"
+                                [min_duration]="effective_min_duration"
                             ></a-time-field>
                         </div>
                         @if (!hide_end) {
@@ -145,6 +146,7 @@ import { combineLatest } from 'rxjs';
                                     formControlName="duration"
                                     [time]="form?.getRawValue()?.date"
                                     [max]="max_duration"
+                                    [custom_options]="custom_duration_options"
                                     [use_24hr]="use_24hr"
                                     [end_time]="bookable_hours?.end"
                                 >
@@ -259,6 +261,26 @@ export class LockerBookingModalComponent
             this._settings.get('app.lockers.bookable_hours') ||
             this._settings.get('app.bookings.bookable_hours')
         );
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.lockers.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30
+        );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.lockers.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public ngOnInit() {

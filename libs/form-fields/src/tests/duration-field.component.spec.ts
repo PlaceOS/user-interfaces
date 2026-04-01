@@ -101,6 +101,19 @@ describe('DurationFieldComponent', () => {
         );
     });
 
+    it('should include custom durations outside min and max bounds', () => {
+        spectator.setInput({
+            min: 30,
+            max: 90,
+            step: 30,
+            custom_options: [15, 120],
+        });
+        spectator.detectChanges();
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [15, 30, 60, 90, 120],
+        );
+    });
+
     it('should limit durations by the latest end time', () => {
         spectator.setInput({
             time: new Date(2026, 0, 1, 16, 0).valueOf(),

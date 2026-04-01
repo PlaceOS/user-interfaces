@@ -144,6 +144,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                             form.patchValue({ date: $event })
                                         "
                                         [ngModelOptions]="{ standalone: true }"
+                                        [range]="bookable_hours"
+                                        [min_duration]="effective_min_duration"
                                     ></a-time-field>
                                 </div>
                                 <div class="w-full sm:flex-1">
@@ -155,6 +157,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                         formControlName="duration"
                                         [time]="form?.value?.date"
                                         [max]="max_duration"
+                                        [custom_options]="
+                                            custom_duration_options
+                                        "
+                                        [end_time]="bookable_hours?.end"
                                     >
                                     </a-duration-field>
                                 </div>
@@ -399,6 +405,22 @@ export class MeetingBookingFormComponent extends AsyncHandler {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get min_duration() {
+        return this._settings.get('app.events.min_duration') || 30;
+    }
+
+    public get bookable_hours() {
+        return this._settings.get('app.events.bookable_hours');
+    }
+
+    public get custom_duration_options() {
+        return this._settings.get('app.events.custom_duration_options') || [];
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public get can_book_for_others() {
