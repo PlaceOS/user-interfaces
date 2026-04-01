@@ -116,6 +116,60 @@ export const BLOCK_END_OPTIONS: SelectOption<number>[] = [
     { value: 24, label: '12AM (Midnight)' },
 ];
 
+export const BOOKABLE_HOUR_START_OPTIONS: SelectOption<number>[] = [
+    { value: 0, label: '12AM (Midnight)' },
+    { value: 1, label: '1AM' },
+    { value: 2, label: '2AM' },
+    { value: 3, label: '3AM' },
+    { value: 4, label: '4AM' },
+    { value: 5, label: '5AM' },
+    { value: 6, label: '6AM' },
+    { value: 7, label: '7AM' },
+    { value: 8, label: '8AM' },
+    { value: 9, label: '9AM' },
+    { value: 10, label: '10AM' },
+    { value: 11, label: '11AM' },
+    { value: 12, label: '12PM (Midday)' },
+    { value: 13, label: '1PM' },
+    { value: 14, label: '2PM' },
+    { value: 15, label: '3PM' },
+    { value: 16, label: '4PM' },
+    { value: 17, label: '5PM' },
+    { value: 18, label: '6PM' },
+    { value: 19, label: '7PM' },
+    { value: 20, label: '8PM' },
+    { value: 21, label: '9PM' },
+    { value: 22, label: '10PM' },
+    { value: 23, label: '11PM' },
+];
+
+export const BOOKABLE_HOUR_END_OPTIONS: SelectOption<number>[] = [
+    { value: 1, label: '1AM' },
+    { value: 2, label: '2AM' },
+    { value: 3, label: '3AM' },
+    { value: 4, label: '4AM' },
+    { value: 5, label: '5AM' },
+    { value: 6, label: '6AM' },
+    { value: 7, label: '7AM' },
+    { value: 8, label: '8AM' },
+    { value: 9, label: '9AM' },
+    { value: 10, label: '10AM' },
+    { value: 11, label: '11AM' },
+    { value: 12, label: '12PM (Midday)' },
+    { value: 13, label: '1PM' },
+    { value: 14, label: '2PM' },
+    { value: 15, label: '3PM' },
+    { value: 16, label: '4PM' },
+    { value: 17, label: '5PM' },
+    { value: 18, label: '6PM' },
+    { value: 19, label: '7PM' },
+    { value: 20, label: '8PM' },
+    { value: 21, label: '9PM' },
+    { value: 22, label: '10PM' },
+    { value: 23, label: '11PM' },
+    { value: 24, label: '12AM (Midnight)' },
+];
+
 // ── Block Height (rem units for day timeline) ──
 
 export const BLOCK_HEIGHT_OPTIONS: SelectOption<number>[] = [
