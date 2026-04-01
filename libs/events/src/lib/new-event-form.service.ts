@@ -11,6 +11,7 @@ import {
     filterResourcesFromRules,
     firstTruthyValueFrom,
     flatten,
+    getAllDayTimeRange,
     getFormTimeSyncHandle,
     getInvalidFields,
     i18n,
@@ -20,7 +21,6 @@ import {
     setDefaultCreator,
     SettingsService,
     Space,
-    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
@@ -264,20 +264,27 @@ export class EventFormService extends AsyncHandler {
         debounceTime(300),
         switchMap(([spaces, rules, event, { date, duration, all_day }]) => {
             this.addLoadingTag(Tags.Availability);
+            const period = all_day
+                ? this._allDayTimeRange(date)
+                : { date, duration };
             const method = this.book_internal
                 ? queryResourceAvailability
                 : querySpaceAvailability;
             spaces = filterResourcesFromRules(
                 spaces,
-                { date, duration, resource: null, host: currentUser() },
+                {
+                    date: period.date,
+                    duration: period.duration,
+                    resource: null,
+                    host: currentUser(),
+                },
                 rules[this._org.building?.id] || [],
             ) as Space[];
 
             return method(
                 spaces.map(({ id }) => id),
-                (all_day ? startOfDayInTimezone(date, this.timezone) : date) ||
-                    60,
-                (all_day ? Math.max(24 * 60, duration) : duration) || 60,
+                period.date || 60,
+                period.duration || 60,
                 event?.resources[0]?.id || event?.system?.id || event?.id,
                 undefined,
                 [event?.date, event?.duration],
@@ -287,8 +294,8 @@ export class EventFormService extends AsyncHandler {
                     list = filterResourcesFromRules(
                         list,
                         {
-                            date,
-                            duration,
+                            date: period.date,
+                            duration: period.duration,
                             resource: null,
                             host: currentUser(),
                         },
@@ -410,6 +417,9 @@ export class EventFormService extends AsyncHandler {
     /** Push the current building's duration and bookable-hours settings into the time sync. */
     private _applyDurationSettings() {
         const handle = getFormTimeSyncHandle(this._form);
+        const period = this._settings.get<{ start?: number; end?: number }>(
+            'app.events.all_day_period',
+        );
         handle?.updateOptions({
             min_duration: this._settings.get('app.events.min_duration') ?? 30,
             max_duration: this._settings.get('app.events.max_duration') ?? 0,
@@ -418,7 +428,21 @@ export class EventFormService extends AsyncHandler {
             bookable_hours:
                 this._settings.get('app.events.bookable_hours') ?? null,
             timezone: this.timezone,
+            all_day_start: period?.start,
+            all_day_end: period?.end,
         });
+    }
+
+    private _allDayTimeRange(date: number) {
+        const period = this._settings.get<{ start?: number; end?: number }>(
+            'app.events.all_day_period',
+        );
+        return getAllDayTimeRange(
+            date,
+            this.timezone,
+            period?.start,
+            period?.end,
+        );
     }
 
     public setView(value: EventFlowView) {
@@ -532,6 +556,13 @@ export class EventFormService extends AsyncHandler {
             const changed_spaces = spaces.filter(
                 (_) => !event.resources.find((s) => s.id === _.id),
             );
+            const all_day_period = this.form.value.all_day
+                ? this._allDayTimeRange(this.form.value.date)
+                : {
+                      date: this.form.value.date,
+                      duration: this.form.value.duration,
+                      date_end: this.form.value.date_end,
+                  };
             const has_time_changed =
                 !event.id ||
                 event.date !== this.form.value.date ||
@@ -573,13 +604,10 @@ export class EventFormService extends AsyncHandler {
                     ),
                 );
                 const date = this.form.value.all_day
-                    ? startOfDayInTimezone(
-                          this.form.value.date,
-                          this.form.value.timezone,
-                      )
+                    ? all_day_period.date
                     : this.form.value.date;
                 const duration = this.form.value.all_day
-                    ? Math.max(24 * 60, this.form.value.duration)
+                    ? all_day_period.duration
                     : this.form.value.duration;
                 await this._checkResourcesAvailable(
                     space_list,
@@ -602,6 +630,9 @@ export class EventFormService extends AsyncHandler {
                 await this._checkRecurringClashes(
                     new CalendarEvent({
                         ...this.form.getRawValue(),
+                        date: all_day_period.date,
+                        duration: all_day_period.duration,
+                        date_end: all_day_period.date_end,
                         resources: spaces,
                     }),
                 ).catch(on_error);
@@ -679,6 +710,9 @@ export class EventFormService extends AsyncHandler {
             const created_event = await this._performBooking(
                 new CalendarEvent({
                     ...this.form.getRawValue(),
+                    date: all_day_period.date,
+                    duration: all_day_period.duration,
+                    date_end: all_day_period.date_end,
                     old_system: event?.system,
                     host,
                     title: this.form.value.title || 'Space Booking',
@@ -738,8 +772,8 @@ export class EventFormService extends AsyncHandler {
                 const requests = await validateAssetRequestsForResource(
                     created_event,
                     {
-                        date: value.date,
-                        duration: value.duration,
+                        date: all_day_period.date,
+                        duration: all_day_period.duration,
                         host: value.host,
                         all_day: value.all_day,
                         location_name:

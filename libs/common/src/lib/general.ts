@@ -1,6 +1,7 @@
 import { FormGroup } from '@angular/forms';
 import {
     addDays,
+    addHours,
     addMinutes,
     differenceInMinutes,
     formatDuration as duration,
@@ -20,6 +21,7 @@ import {
 } from 'rxjs';
 import { i18n, i18nAvailable } from './locale.service';
 import { notifyWarn } from './notifications';
+import { endOfDayInTimezone, startOfDayInTimezone } from './timezone-helpers';
 import { HashMap } from './types';
 
 /**
@@ -672,6 +674,31 @@ export interface BookableHoursRange {
     end: number;
 }
 
+export function getAllDayTimeRange(
+    date: number,
+    timezone = '',
+    start?: number | null,
+    end?: number | null,
+) {
+    const day_start = startOfDayInTimezone(date, timezone);
+    if (start == null || end == null) {
+        return {
+            date: day_start,
+            duration: 24 * 60 - 1,
+            date_end: endOfDayInTimezone(day_start, timezone),
+        };
+    }
+    const range_start = Math.max(0, Math.min(23, start));
+    const range_end = Math.max(range_start + 1, Math.min(24, end));
+    const period_start = addHours(day_start, range_start).valueOf();
+    const period_end = addHours(day_start, range_end).valueOf();
+    return {
+        date: period_start,
+        duration: differenceInMinutes(period_end, period_start),
+        date_end: period_end,
+    };
+}
+
 /**
  * Given the current time and a bookable_hours range, returns the next available
  * booking start time (as ms epoch). If the current time falls within the
@@ -862,6 +889,12 @@ export interface FormTimeSyncOptions {
      */
     timezone?: string;
 
+    /** Optional start hour to use when `all_day` is enabled. */
+    all_day_start?: number | null;
+
+    /** Optional end hour to use when `all_day` is enabled. */
+    all_day_end?: number | null;
+
     /**
      * Optional callback invoked whenever date, duration, or date_end changes.
      * Use this for form-specific side effects (e.g. updating catering times).
@@ -895,7 +928,7 @@ export interface FormTimeSyncHandle {
  *    otherwise recalculate `duration`.
  * 3. When `date` changes → recalculate `date_end` from current duration;
  *    if date is in the past and the form has no `id`, snap to now (ceil₅).
- * 4. When `all_day` is toggled ON → no immediate changes (normalization happens at submission).
+ * 4. When `all_day` is toggled ON → apply the configured all-day period if one exists.
  *    When toggled OFF → reset `duration` to `default_duration`.
  *
  * @returns A {@link FormTimeSyncHandle} with the active subscriptions and an
@@ -911,6 +944,8 @@ export function setupFormTimeSync(
     let bookable_hours: BookableHoursRange | null =
         options.bookable_hours ?? null;
     let timezone = options.timezone ?? '';
+    let all_day_start = options.all_day_start;
+    let all_day_end = options.all_day_end;
     const round_to = options.round_to ?? 5;
     const on_change = options.on_time_change;
 
@@ -1153,7 +1188,19 @@ export function setupFormTimeSync(
     if (form.controls.all_day) {
         subscriptions.push(
             form.controls.all_day.valueChanges.subscribe((all_day: boolean) => {
-                if (!all_day) {
+                if (all_day) {
+                    if (all_day_start != null && all_day_end != null) {
+                        form.patchValue(
+                            getAllDayTimeRange(
+                                form.getRawValue().date,
+                                timezone,
+                                all_day_start,
+                                all_day_end,
+                            ),
+                            { emitEvent: false },
+                        );
+                    }
+                } else {
                     const dur = clampDuration(default_duration);
                     const date = form.getRawValue().date;
                     form.patchValue(
@@ -1179,6 +1226,28 @@ export function setupFormTimeSync(
             if (patch.bookable_hours !== undefined)
                 bookable_hours = patch.bookable_hours ?? null;
             if (patch.timezone != null) timezone = patch.timezone;
+            if (patch.all_day_start !== undefined)
+                all_day_start = patch.all_day_start;
+            if (patch.all_day_end !== undefined)
+                all_day_end = patch.all_day_end;
+
+            if (
+                form.value.all_day &&
+                all_day_start != null &&
+                all_day_end != null
+            ) {
+                form.patchValue(
+                    getAllDayTimeRange(
+                        form.getRawValue().date,
+                        timezone,
+                        all_day_start,
+                        all_day_end,
+                    ),
+                    { emitEvent: false },
+                );
+                on_change?.();
+                return;
+            }
 
             // Re-clamp the current duration to the new bounds
             if (!form.value.all_day) {

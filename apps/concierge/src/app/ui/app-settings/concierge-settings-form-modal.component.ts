@@ -723,6 +723,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_edit"
                                     ></settings-toggle>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="events-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="events-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -928,6 +985,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         name="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="bookings-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="bookings-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1237,6 +1351,10 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         admin_group: new FormControl(''),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             all_day_default: new FormControl(false),
             allow_setup_breakdown: new FormControl(false),
             has_assets: new FormControl(false),
@@ -1267,6 +1385,10 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         bookings: new FormGroup({
             allow_all_day: new FormControl(true),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             has_assets: new FormControl(false),
             use_building_timezone: new FormControl(false),
             available_period: new FormControl(14),

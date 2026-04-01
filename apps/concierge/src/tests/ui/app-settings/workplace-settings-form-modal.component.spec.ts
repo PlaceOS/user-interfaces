@@ -107,6 +107,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const events = spectator.component.form.get('events');
         expect(events).toBeTruthy();
         expect(events.get('allow_all_day')).toBeTruthy();
+        expect(events.get('all_day_period')).toBeTruthy();
         expect(events.get('can_book_for_others')).toBeTruthy();
         expect(events.get('has_assets')).toBeTruthy();
         expect(events.get('allow_externals')).toBeTruthy();
@@ -132,6 +133,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const bookings = spectator.component.form.get('bookings');
         expect(bookings).toBeTruthy();
         expect(bookings.get('allow_all_day')).toBeTruthy();
+        expect(bookings.get('all_day_period')).toBeTruthy();
         expect(bookings.get('can_book_for_others')).toBeTruthy();
     });
 

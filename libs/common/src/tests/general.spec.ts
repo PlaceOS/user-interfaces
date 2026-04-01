@@ -495,6 +495,43 @@ describe('General Methods', () => {
             expect(callback).toHaveBeenCalledTimes(2);
         });
 
+        it('should apply the configured all-day period when all_day is toggled on', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, { all_day_start: 9, all_day_end: 17 });
+
+            form.controls.all_day.setValue(true);
+
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            );
+            expect(form.getRawValue().duration).toBe(8 * 60);
+            expect(form.getRawValue().date_end).toBe(
+                new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            );
+        });
+
+        it('should apply updated all-day period settings while all_day is enabled', () => {
+            const form = createForm({
+                date: BASE,
+                duration: 60,
+                all_day: true,
+            });
+            const handle = setupFormTimeSync(form, {
+                all_day_start: 9,
+                all_day_end: 17,
+            });
+
+            handle.updateOptions({ all_day_start: 8, all_day_end: 16 });
+
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+            );
+            expect(form.getRawValue().duration).toBe(8 * 60);
+            expect(form.getRawValue().date_end).toBe(
+                new Date(2028, 5, 15, 16, 0, 0, 0).valueOf(),
+            );
+        });
+
         // --- updateOptions ---
 
         it('should re-clamp duration when updateOptions changes max', () => {

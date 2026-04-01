@@ -41,6 +41,8 @@ import { lastValueFrom } from 'rxjs';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     BANNER_TYPE_OPTIONS,
+    BLOCK_END_OPTIONS,
+    BLOCK_START_OPTIONS,
     CACHE_DURATION_OPTIONS,
     EXPLORE_FEATURE_OPTIONS,
     MAX_DURATION_FULL_OPTIONS,
@@ -786,6 +788,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="hide_end_time"
                                     ></settings-toggle>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="events-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="events-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -1052,6 +1111,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                             }"
                                         ></settings-toggle>
                                     </ng-container>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="bookings-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="bookings-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1598,6 +1714,8 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
 
     public readonly AVAILABLE_PERIOD_EXTENDED =
         AVAILABLE_PERIOD_EXTENDED_OPTIONS;
+    public readonly BLOCK_START = BLOCK_START_OPTIONS;
+    public readonly BLOCK_END = BLOCK_END_OPTIONS;
     public readonly MAX_DURATION_FULL = MAX_DURATION_FULL_OPTIONS;
     public readonly MAX_DURATION_SHORT = MAX_DURATION_SHORT_OPTIONS;
     public readonly WEEK_START = WEEK_START_OPTIONS;
@@ -1639,6 +1757,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         hide_global_search_items: new FormControl([]),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             booking_unavailable: new FormControl(false),
             can_book_for_others: new FormControl(false),
             can_book_for_anyone: new FormControl(false),
@@ -1670,6 +1792,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         }),
         bookings: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             all_day_default: new FormControl(false),
             use_building_timezone: new FormControl(false),
             allow_assets: new FormControl(false),

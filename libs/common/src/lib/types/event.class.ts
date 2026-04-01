@@ -346,6 +346,7 @@ export class CalendarEvent {
             );
         this.event_end =
             data.event_end ||
+            getUnixTime(data.date_end || 0) ||
             getUnixTime(
                 addMinutes(this.event_start * 1000, data.duration || 30),
             );
@@ -388,12 +389,23 @@ export class CalendarEvent {
         this.date_end = this.event_end * 1000 || this.date_end;
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
-            (this as any).date = startOfDayInTimezone(this.date, this.timezone);
-            (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
-            (this as any).date_end = endOfDayInTimezone(
-                addMinutes(this.date, this.duration).valueOf() - 1,
-                this.timezone,
-            );
+            if (!data.duration && !data.date_end && !data.event_end) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = 24 * 60 - 1;
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            } else if (this.duration % (24 * 60) === 0) {
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = addMinutes(
+                    this.date,
+                    this.duration,
+                ).valueOf();
+            }
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
@@ -559,10 +571,14 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
-        const date = this.all_day
+        const is_full_day_period =
+            this.all_day &&
+            this.date === startOfDayInTimezone(this.date, this.timezone) &&
+            this.date_end === endOfDayInTimezone(this.date_end, this.timezone);
+        const date = is_full_day_period
             ? startOfDayInTimezone(this.date, this.timezone)
             : this.date;
-        const end = this.all_day
+        const end = is_full_day_period
             ? endOfDayInTimezone(this.date_end, this.timezone) + 1
             : this.date_end;
         obj.event_start = getUnixTime(date);

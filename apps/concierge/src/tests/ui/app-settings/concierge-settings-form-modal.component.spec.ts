@@ -104,6 +104,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const events = spectator.component.form.get('events');
         expect(events).toBeTruthy();
         expect(events.get('allow_all_day')).toBeTruthy();
+        expect(events.get('all_day_period')).toBeTruthy();
         expect(events.get('day_timeline_view')).toBeTruthy();
         expect(events.get('block_start')).toBeTruthy();
         expect(events.get('block_end')).toBeTruthy();
@@ -124,6 +125,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const bookings = spectator.component.form.get('bookings');
         expect(bookings).toBeTruthy();
         expect(bookings.get('allow_all_day')).toBeTruthy();
+        expect(bookings.get('all_day_period')).toBeTruthy();
         expect(bookings.get('available_period')).toBeTruthy();
         expect(bookings.get('max_duration')).toBeTruthy();
     });

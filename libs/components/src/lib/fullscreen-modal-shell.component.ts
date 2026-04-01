@@ -24,17 +24,19 @@ import { TranslatePipe } from './translate.pipe';
                 <h2 class="text-xl font-medium capitalize">
                     {{ heading() }}
                 </h2>
-                @if (!close()?.length) {
-                    @if (!loading()) {
-                        <button icon matRipple mat-dialog-close>
-                            <icon>close</icon>
-                        </button>
-                    }
-                } @else {
-                    @if (!loading()) {
-                        <a icon matRipple [routerLink]="close()">
-                            <icon>close</icon>
-                        </a>
+                @if (!hide_close()) {
+                    @if (!close()?.length) {
+                        @if (!loading()) {
+                            <button icon matRipple mat-dialog-close>
+                                <icon>close</icon>
+                            </button>
+                        }
+                    } @else {
+                        @if (!loading()) {
+                            <a icon matRipple [routerLink]="close()">
+                                <icon>close</icon>
+                            </a>
+                        }
                     }
                 }
             </header>
@@ -93,6 +95,7 @@ export class FullscreenModalShellComponent {
     public readonly confirm_text = input('');
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);
+    public readonly hide_close = input(false);
     public readonly full_width = input(false);
     public readonly confirm = output();
     public readonly closed = output();
