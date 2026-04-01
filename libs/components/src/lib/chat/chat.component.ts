@@ -146,7 +146,7 @@ import { ChatService } from './chat.service';
                                             <div
                                                 class="bg-base-100 absolute inset-0 opacity-10"
                                             ></div>
-                                            @if (show_info) {
+                                            @if (show_info()) {
                                                 <div
                                                     class="text-mono p-2 text-left text-xs wrap-break-word"
                                                     [innerHTML]="

@@ -288,7 +288,9 @@ import { DesksStateService } from './desks-state.service';
                         @if (row.instance) {
                             <button mat-menu-item (click)="cancelSeries(row)">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-error text-2xl">delete</icon>
+                                    <icon class="text-error text-2xl"
+                                        >delete</icon
+                                    >
                                     <div>
                                         {{
                                             'BOOKINGS.ACTION_DELETE_SERIES'

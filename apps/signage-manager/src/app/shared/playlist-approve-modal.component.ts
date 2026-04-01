@@ -68,7 +68,9 @@ interface PlaylistApproveModalData {
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Version to approve</h3>
-                                <div class="font-mono text-xs text-base-content/70">
+                                <div
+                                    class="text-base-content/70 font-mono text-xs"
+                                >
                                     {{
                                         current_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -119,7 +121,7 @@ interface PlaylistApproveModalData {
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 text-base-content/70"
+                                        class="text-base-content/70 flex flex-col items-center justify-center p-8"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">No items</p>
@@ -136,7 +138,9 @@ interface PlaylistApproveModalData {
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Previous version</h3>
-                                <div class="font-mono text-xs text-base-content/70">
+                                <div
+                                    class="text-base-content/70 font-mono text-xs"
+                                >
                                     {{
                                         previous_version?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
@@ -180,7 +184,7 @@ interface PlaylistApproveModalData {
                                     </div>
                                 } @empty {
                                     <div
-                                        class="flex flex-col items-center justify-center p-8 text-base-content/70"
+                                        class="text-base-content/70 flex flex-col items-center justify-center p-8"
                                     >
                                         <icon class="text-4xl">hide_image</icon>
                                         <p class="text-sm">No items</p>

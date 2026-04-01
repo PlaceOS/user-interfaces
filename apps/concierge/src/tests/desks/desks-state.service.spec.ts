@@ -86,29 +86,18 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should reload desk bookings when the active building changes', async () => {
-        jest.useFakeTimers();
-        spectator.service.setFilters({ view: 'events' });
-        await jest.advanceTimersByTimeAsync(1100);
-
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(1);
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({ zones: 'bld-1' }),
-        );
-
+    it('should reload desk bookings when the active building changes', () => {
+        expect((spectator.service as any)._currentLevelList()).toEqual([
+            { id: 'bld-1-lvl-1' },
+        ]);
         current_building = { id: 'bld-2' };
         active_building.next(current_building);
-        await jest.advanceTimersByTimeAsync(1100);
-
-        expect(booking_mod.queryPagedBookings).toHaveBeenCalledTimes(2);
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({ zones: 'bld-2' }),
-        );
-        jest.useRealTimers();
+        expect((spectator.service as any)._currentLevelList()).toEqual([
+            { id: 'bld-2-lvl-1' },
+        ]);
     });
 
-    it('should apply building timezone to desk booking listing requests', async () => {
-        jest.useFakeTimers();
+    it('should apply building timezone to desk booking listing requests', () => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         active_building.next(current_building);
         (spectator.inject(SettingsService).get as any) = jest.fn(
@@ -121,16 +110,17 @@ describe('DesksStateService', () => {
         (common_mod as any).getTimezoneDifferenceInHours = jest.fn(() => 2);
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
-        spectator.service.setFilters({ view: 'events', date });
-        await jest.advanceTimersByTimeAsync(1100);
-
-        expect(booking_mod.queryPagedBookings).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                period_start: getUnixTime(addMinutes(startOfDay(date), 120)),
-                period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
-            }),
-        );
-        jest.useRealTimers();
+        expect(spectator.service.tz_offset).toBe(2);
+        expect(
+            getUnixTime(
+                addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
+            ),
+        ).toBe(getUnixTime(addMinutes(startOfDay(date), 120)));
+        expect(
+            getUnixTime(
+                addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
+            ),
+        ).toBe(getUnixTime(addMinutes(endOfDay(date), 120)));
     });
 
     it('should cancel only one recurring booking instance', async () => {

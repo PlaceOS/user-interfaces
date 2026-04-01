@@ -97,10 +97,10 @@ describe('BookingFormService', () => {
         const form = spectator.service.form;
         expect(spectator.service.form).toBeInstanceOf(FormGroup);
         const spy = jest.spyOn(spectator.service, 'storeForm');
-        expect(spectator.service.storeForm).not.toBeCalled();
+        expect(spectator.service.storeForm).not.toHaveBeenCalled();
         const date = endOfYear(Date.now()).valueOf();
         spectator.service.form.patchValue({ date });
-        expect(spectator.service.storeForm).toBeCalled();
+        expect(spectator.service.storeForm).toHaveBeenCalled();
         expect(spectator.service.form.value.date).toBe(date);
         spectator.service.resetForm();
         expect(form).toBe(spectator.service.form);
@@ -154,16 +154,16 @@ describe('BookingFormService', () => {
 
     it('should clear form on navigation away from form', () => {
         const spy = jest.spyOn(spectator.service, 'clearForm');
-        expect(spectator.service.clearForm).not.toBeCalled();
+        expect(spectator.service.clearForm).not.toHaveBeenCalled();
         const router = spectator.inject(Router);
         (router.events as any).next(
             new NavigationEnd(1, '/book/desks/form', '/book/desks/form'),
         );
-        expect(spectator.service.clearForm).not.toBeCalled();
+        expect(spectator.service.clearForm).not.toHaveBeenCalled();
         (router.events as any).next(
             new NavigationEnd(1, '/schedule', '/schedule'),
         );
-        expect(spectator.service.clearForm).toBeCalled();
+        expect(spectator.service.clearForm).toHaveBeenCalled();
         spy.mockRestore();
     });
 

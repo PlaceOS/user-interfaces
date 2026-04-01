@@ -1,5 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import {
     Component,
     computed,
@@ -240,7 +240,6 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,

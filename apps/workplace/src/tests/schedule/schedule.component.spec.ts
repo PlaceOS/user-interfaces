@@ -1,13 +1,13 @@
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Router } from '@angular/router';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { Router } from '@angular/router';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { ScheduleFiltersComponent } from '../../app/schedule/schedule-filters.component';

@@ -22,10 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import {
-    CustomTooltipComponent,
-    IconComponent,
-} from '@placeos/components';
+import { CustomTooltipComponent, IconComponent } from '@placeos/components';
 import { SpacePipe, SpacesService } from '@placeos/events';
 import { AccessibilityControlsComponent } from '../app/accessibility-controls.component';
 import { ExploreLevelSelectComponent } from '../app/explore-level-select.component';

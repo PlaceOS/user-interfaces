@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
@@ -129,7 +128,6 @@ import { SurveyService } from './survey.service';
     ],
     imports: [
         AuthenticatedImageDirective,
-        CommonModule,
         TranslatePipe,
         RouterModule,
         IconComponent,

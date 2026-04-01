@@ -245,7 +245,7 @@ test.describe('Camera Control - Responsive', () => {
 
         // Mobile should have menu button
         const menuButton = page.locator(
-            'topbar-header button icon:has-text("more_vert")'
+            'topbar-header button icon:has-text("more_vert")',
         );
 
         if (await menuButton.isVisible().catch(() => false)) {

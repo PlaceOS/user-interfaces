@@ -64,3 +64,6 @@ locales.tsv
 test-results
 
 refs
+
+.claude/worktrees
+.claude/settings.local.json

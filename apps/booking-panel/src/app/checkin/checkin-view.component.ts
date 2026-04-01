@@ -5,7 +5,6 @@ import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getNextFreeTimeSlot } from '@placeos/events';
@@ -87,7 +86,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                                     }}
                                 }
                             } @else {
-                                @if (es?.current[1]) {
+                                @if (event_state()?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
@@ -99,7 +98,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                                                   }
                                     }}
                                 }
-                                @if (!es?.current[1]) {
+                                @if (!event_state()?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
@@ -124,7 +123,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         }
                     </div>
                 </div>
-                @if (s === 'pending') {
+                @if (state() === 'pending') {
                     <button
                         btn
                         matRipple
@@ -134,7 +133,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                     </button>
                 }
-                @if (s === 'free') {
+                @if (state() === 'free') {
                     <button btn matRipple class="w-24" (click)="newBooking()">
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -249,7 +248,6 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
     ],
     providers: [PanelStateService],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,

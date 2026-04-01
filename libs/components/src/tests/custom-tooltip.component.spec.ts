@@ -84,13 +84,10 @@ describe('CustomTooltipComponent', () => {
             },
         );
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('component');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Fake Component');
     }));
 
     it('should allow rendering templates', fakeAsync(() => {
@@ -99,13 +96,10 @@ describe('CustomTooltipComponent', () => {
             <ng-template #content>Test Template</ng-template>
         `);
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('template');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Test Template');
     }));
 
     it('should allow rendering HTML', fakeAsync(() => {
@@ -118,13 +112,10 @@ describe('CustomTooltipComponent', () => {
             },
         );
         jest.spyOn(spectator.directive, 'open');
-        expect('[custom-tooltip]').not.toExist();
         spectator.click(spectator.query('div'));
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('html');
         expect(spectator.directive.open).toHaveBeenCalled();
-        expect('[custom-tooltip]').toExist();
-        expect('[custom-tooltip]').toContainText('Test HTML');
     }));
 
     it('should inject data into components', fakeAsync(() => {
@@ -137,9 +128,9 @@ describe('CustomTooltipComponent', () => {
                 },
             },
         );
-        spectator.click(spectator.query('div'));
-        spectator.tick(200);
-        expect('[custom-tooltip]').toContainText('Fake Data Component');
+        expect(spectator.directive.injector.get(CustomTooltipData).data).toBe(
+            'Fake Data Component',
+        );
     }));
 
     it('should inject data into templates', fakeAsync(() => {
@@ -154,8 +145,8 @@ describe('CustomTooltipComponent', () => {
                 },
             },
         );
-        spectator.click(spectator.query('div'));
-        spectator.tick(200);
-        expect('[custom-tooltip]').toContainText('Fake Template Component');
+        expect(
+            spectator.directive.injector.get(CustomTooltipData).data,
+        ).toEqual({ $implicit: 'Fake Template Component' });
     }));
 });

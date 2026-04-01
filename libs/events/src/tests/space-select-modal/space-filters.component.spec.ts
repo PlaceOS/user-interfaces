@@ -101,6 +101,6 @@ describe('SpaceFiltersComponent', () => {
     it('should allow closing', () => {
         expect('button[name="close-space-filters"]').toExist();
         spectator.click('button[name="close-space-filters"]');
-        expect(spectator.inject(MatBottomSheetRef).dismiss).toBeCalled();
+        expect(spectator.inject(MatBottomSheetRef).dismiss).toHaveBeenCalled();
     });
 });

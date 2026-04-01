@@ -397,13 +397,14 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
 
     public async newBooking(type: BookingType, item: any) {
         if (!item) return;
-        const booking_path = type === 'desk'
-            ? this._settings.get('app.new_features')
-                ? 'desk'
-                : 'desks'
-            : type === 'locker'
-              ? 'locker'
-              : 'parking';
+        const booking_path =
+            type === 'desk'
+                ? this._settings.get('app.new_features')
+                    ? 'desk'
+                    : 'desks'
+                : type === 'locker'
+                  ? 'locker'
+                  : 'parking';
         const query_params = type === 'desk' ? { asset_id: item.id } : {};
         this._router.navigate(['/book', booking_path], {
             queryParams: query_params,

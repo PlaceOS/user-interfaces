@@ -1,14 +1,14 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    CHECKIN_URL,
-    CHECKIN_SCAN_URL,
     CHECKIN_DETAILS_URL,
+    CHECKIN_INDUCTION_URL,
     CHECKIN_PHOTO_URL,
     CHECKIN_PREFERENCES_URL,
     CHECKIN_RESULTS_URL,
-    CHECKIN_INDUCTION_URL,
+    CHECKIN_SCAN_URL,
+    CHECKIN_URL,
+    LOAD_TIMEOUT,
     MOCK_GUEST_EMAIL,
     navigateWithConfig,
 } from './test-utils';
@@ -21,7 +21,9 @@ import {
 test.describe('US-CHECKIN-001: Scan QR Code to Check In', () => {
     test('should display QR scan component', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
 
         await expect(page.locator('[checkin-qr-scan]')).toBeAttached();
     });
@@ -30,7 +32,9 @@ test.describe('US-CHECKIN-001: Scan QR Code to Check In', () => {
 test.describe('US-CHECKIN-002: View Camera Preview for Scanning', () => {
     test('should have video element for camera feed', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const videoElement = page.locator('video#qr-stream');
@@ -41,7 +45,9 @@ test.describe('US-CHECKIN-002: View Camera Preview for Scanning', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
 
         // Camera unavailable fallback icon should be in the DOM
         const cameraOffIcon = page.locator('icon:has-text("videocam_off")');
@@ -52,7 +58,9 @@ test.describe('US-CHECKIN-002: View Camera Preview for Scanning', () => {
 test.describe('US-CHECKIN-003: Handle Invalid QR Code', () => {
     test('should have close button to return to welcome', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const closeButton = page.locator('a[href*="welcome"]');
@@ -63,7 +71,9 @@ test.describe('US-CHECKIN-003: Handle Invalid QR Code', () => {
 test.describe('US-CHECKIN-004: Enter Email to Check In', () => {
     test('should display email input field', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const emailInput = page.locator('input[type="email"]');
@@ -72,7 +82,9 @@ test.describe('US-CHECKIN-004: Enter Email to Check In', () => {
 
     test('should display find details button', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const findButton = page.locator('button[btn]');
@@ -81,7 +93,9 @@ test.describe('US-CHECKIN-004: Enter Email to Check In', () => {
 
     test('should be able to type email in input field', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const emailInput = page.locator('input[type="email"]');
@@ -96,7 +110,9 @@ test.describe('US-CHECKIN-005: Validate Email Format', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         // Trigger validation by entering invalid email
@@ -117,11 +133,17 @@ test.describe('US-CHECKIN-006: Handle No Booking Found', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         // Check if email input is available
         const emailInput = page.locator('input[type="email"]');
@@ -140,10 +162,15 @@ test.describe('US-CHECKIN-006: Handle No Booking Found', () => {
             // Should either navigate to error, show notification, or remain on page
             const url = page.url();
             const isErrorPage = url.includes('error');
-            const isStillOnScan = url.includes('scan') || url.includes('checkin');
+            const isStillOnScan =
+                url.includes('scan') || url.includes('checkin');
             const errorNotification = page.locator('.cdk-overlay-pane');
 
-            expect(isErrorPage || isStillOnScan || (await errorNotification.count()) > 0).toBeTruthy();
+            expect(
+                isErrorPage ||
+                    isStillOnScan ||
+                    (await errorNotification.count()) > 0,
+            ).toBeTruthy();
         } else {
             // Email input not visible - page may have redirected
             const url = page.url();
@@ -171,9 +198,7 @@ test.describe('US-CHECKIN-008: Accept Induction Terms', () => {
         await page.waitForTimeout(2000);
 
         // Look for checkbox or mat-checkbox
-        const checkbox = page.locator(
-            'mat-checkbox, input[type="checkbox"]'
-        );
+        const checkbox = page.locator('mat-checkbox, input[type="checkbox"]');
         const count = await checkbox.count();
         // Checkbox visibility depends on induction being enabled
         expect(count).toBeGreaterThanOrEqual(0);
@@ -187,7 +212,7 @@ test.describe('US-CHECKIN-009: Decline Induction', () => {
 
         // Look for decline button
         const declineButton = page.locator(
-            'button:has-text("Decline"), button:has-text("decline")'
+            'button:has-text("Decline"), button:has-text("decline")',
         );
         const count = await declineButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -271,7 +296,7 @@ test.describe('US-CHECKIN-015: Take Visitor Photo', () => {
         await page.waitForTimeout(2000);
 
         const takePhotoButton = page.locator(
-            'button:has-text("Take Photo"), button:has-text("photo")'
+            'button:has-text("Take Photo"), button:has-text("photo")',
         );
         const count = await takePhotoButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -284,7 +309,7 @@ test.describe('US-CHECKIN-016: Retake Photo', () => {
         await page.waitForTimeout(2000);
 
         const cancelButton = page.locator(
-            'button:has-text("Cancel"), button:has-text("Retake")'
+            'button:has-text("Cancel"), button:has-text("Retake")',
         );
         const count = await cancelButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -331,7 +356,7 @@ test.describe('US-CHECKIN-020: Skip Beverage Selection', () => {
         await page.waitForTimeout(2000);
 
         const skipButton = page.locator(
-            'button:has-text("Skip"), button:has-text("No thanks")'
+            'button:has-text("Skip"), button:has-text("No thanks")',
         );
         const count = await skipButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -366,7 +391,7 @@ test.describe('US-CHECKIN-023: Print Visitor Label', () => {
         await page.waitForTimeout(2000);
 
         const printButton = page.locator(
-            'button:has-text("Print"), button:has-text("Label")'
+            'button:has-text("Print"), button:has-text("Label")',
         );
         const count = await printButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -379,7 +404,7 @@ test.describe('US-CHECKIN-024: Return to Welcome Screen', () => {
         await page.waitForTimeout(2000);
 
         const confirmButton = page.locator(
-            'button:has-text("Confirm"), button:has-text("Done"), a[href*="welcome"]'
+            'button:has-text("Confirm"), button:has-text("Done"), a[href*="welcome"]',
         );
         const count = await confirmButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -390,10 +415,13 @@ test.describe('US-CHECKIN-024: Return to Welcome Screen', () => {
         await page.waitForTimeout(2000);
 
         // Wait for loader to be hidden
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         const confirmButton = page.locator(
-            'button:has-text("Confirm"), a[href*="welcome"]'
+            'button:has-text("Confirm"), a[href*="welcome"]',
         );
         const count = await confirmButton.count();
 
@@ -414,7 +442,10 @@ test.describe('Check-In Flow - Navigation', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         const closeButton = page.locator('a[href*="welcome"]');
@@ -426,11 +457,17 @@ test.describe('Check-In Flow - Navigation', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         const closeButton = page.locator('a[href*="welcome"]');
         const isVisible = await closeButton.isVisible().catch(() => false);
@@ -454,7 +491,10 @@ test.describe('Check-In Flow - Layout', () => {
         await page.waitForTimeout(2000);
 
         // Wait for loader to be hidden
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         // The checkin component or router-outlet should be in the DOM
         const checkinComponent = page.locator('app-checkin, router-outlet');

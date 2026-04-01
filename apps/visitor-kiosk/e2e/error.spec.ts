@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     CHECKIN_ERROR_URL,
     CHECKIN_SCAN_URL,
+    LOAD_TIMEOUT,
     navigateWithConfig,
 } from './test-utils';
 
@@ -36,7 +36,7 @@ test.describe('US-ERROR-001: View Error Message', () => {
 
         // Look for text suggesting to contact reception
         const helpText = page.locator(
-            ':has-text("reception"), :has-text("Reception"), :has-text("assistance"), :has-text("help")'
+            ':has-text("reception"), :has-text("Reception"), :has-text("assistance"), :has-text("help")',
         );
         const count = await helpText.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -63,7 +63,7 @@ test.describe('US-ERROR-003: Return to Welcome After Error', () => {
 
         // Look for back to welcome or try again button
         const returnButton = page.locator(
-            'a[routerLink*="welcome"], button:has-text("Back"), button:has-text("Try Again"), button:has-text("OK")'
+            'a[routerLink*="welcome"], button:has-text("Back"), button:has-text("Try Again"), button:has-text("OK")',
         );
         const count = await returnButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -76,9 +76,12 @@ test.describe('US-ERROR-003: Return to Welcome After Error', () => {
         await page.waitForTimeout(2000);
 
         const returnButton = page.locator(
-            'a[routerLink*="welcome"], button:has-text("Back")'
+            'a[routerLink*="welcome"], button:has-text("Back")',
         );
-        const isVisible = await returnButton.first().isVisible().catch(() => false);
+        const isVisible = await returnButton
+            .first()
+            .isVisible()
+            .catch(() => false);
 
         if (isVisible) {
             await returnButton.first().click();
@@ -92,11 +95,17 @@ test.describe('US-ERROR-003: Return to Welcome After Error', () => {
 test.describe('Error Handling - Invalid Email Check-In', () => {
     test('should show error when email has no booking', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         // Check if email input is available
         const emailInput = page.locator('input[type="email"]');
@@ -116,7 +125,10 @@ test.describe('Error Handling - Invalid Email Check-In', () => {
             const url = page.url();
             const errorNotification = page.locator('.cdk-overlay-pane');
             const isErrorOrScan =
-                url.includes('error') || url.includes('scan') || url.includes('checkin') || (await errorNotification.count()) > 0;
+                url.includes('error') ||
+                url.includes('scan') ||
+                url.includes('checkin') ||
+                (await errorNotification.count()) > 0;
 
             expect(isErrorOrScan).toBeTruthy();
         } else {
@@ -190,7 +202,7 @@ test.describe('Error - Accessibility', () => {
 
         // Look for error icon
         const errorIcon = page.locator(
-            'icon:has-text("error"), icon:has-text("warning"), mat-icon'
+            'icon:has-text("error"), icon:has-text("warning"), mat-icon',
         );
         const count = await errorIcon.count();
         expect(count).toBeGreaterThanOrEqual(0);

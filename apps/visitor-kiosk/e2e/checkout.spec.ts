@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
-    CHECKOUT_URL,
     CHECKIN_SCAN_URL,
+    CHECKOUT_URL,
     navigateWithConfig,
 } from './test-utils';
 
@@ -51,7 +50,7 @@ test.describe('US-CHECKOUT-002: View Checkout Confirmation', () => {
 
         // Look for checkout-related text
         const checkoutText = page.locator(
-            ':has-text("checkout"), :has-text("Checkout"), :has-text("Check out")'
+            ':has-text("checkout"), :has-text("Checkout"), :has-text("Check out")',
         );
         const count = await checkoutText.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -64,7 +63,7 @@ test.describe('US-CHECKOUT-003: Confirm Checkout', () => {
         await page.waitForTimeout(2000);
 
         const confirmButton = page.locator(
-            'button:has-text("Confirm"), button:has-text("Check Out"), button:has-text("Checkout")'
+            'button:has-text("Confirm"), button:has-text("Check Out"), button:has-text("Checkout")',
         );
         const count = await confirmButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -75,9 +74,12 @@ test.describe('US-CHECKOUT-003: Confirm Checkout', () => {
         await page.waitForTimeout(2000);
 
         const confirmButton = page.locator(
-            'button:has-text("Confirm"), button:has-text("Check Out")'
+            'button:has-text("Confirm"), button:has-text("Check Out")',
         );
-        const isVisible = await confirmButton.first().isVisible().catch(() => false);
+        const isVisible = await confirmButton
+            .first()
+            .isVisible()
+            .catch(() => false);
 
         if (isVisible) {
             await confirmButton.first().click();
@@ -92,7 +94,7 @@ test.describe('US-CHECKOUT-004: Cancel Checkout', () => {
         await page.waitForTimeout(2000);
 
         const cancelButton = page.locator(
-            'button:has-text("Cancel"), a[routerLink*="welcome"], a:has(icon:has-text("close"))'
+            'button:has-text("Cancel"), a[routerLink*="welcome"], a:has(icon:has-text("close"))',
         );
         const count = await cancelButton.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -103,9 +105,12 @@ test.describe('US-CHECKOUT-004: Cancel Checkout', () => {
         await page.waitForTimeout(2000);
 
         const cancelButton = page.locator(
-            'button:has-text("Cancel"), a[routerLink*="welcome"]'
+            'button:has-text("Cancel"), a[routerLink*="welcome"]',
         );
-        const isVisible = await cancelButton.first().isVisible().catch(() => false);
+        const isVisible = await cancelButton
+            .first()
+            .isVisible()
+            .catch(() => false);
 
         if (isVisible) {
             await cancelButton.first().click();

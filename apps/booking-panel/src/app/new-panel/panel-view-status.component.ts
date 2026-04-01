@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
@@ -172,7 +171,7 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, SafePipe, IconComponent],
+    imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent {
     private _state = inject(PanelStateService);

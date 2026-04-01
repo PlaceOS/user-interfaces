@@ -7,7 +7,12 @@ import {
 function createContext(
     state = new Map<string, string>(),
 ): LazyRouteReloadContext & {
-    location: { hash: string; pathname: string; reload: jest.Mock; search: string };
+    location: {
+        hash: string;
+        pathname: string;
+        reload: jest.Mock;
+        search: string;
+    };
 } {
     return {
         storage: {
@@ -28,7 +33,9 @@ function createContext(
 }
 
 describe('lazy route reload', () => {
-    beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => null));
+    beforeEach(() =>
+        jest.spyOn(console, 'warn').mockImplementation(() => null),
+    );
 
     afterEach(() => jest.restoreAllMocks());
 

@@ -24,7 +24,7 @@ import { SignageService } from '../signage.service';
                             <div class="space-y-4 p-4">
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Name
                                     </div>
@@ -35,7 +35,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().description) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             Description
                                         </div>
@@ -46,7 +46,7 @@ import { SignageService } from '../signage.service';
                                 }
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Status
                                     </div>
@@ -66,7 +66,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Playback
                                     </div>
@@ -80,7 +80,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Default Duration
                                     </div>
@@ -93,7 +93,7 @@ import { SignageService } from '../signage.service';
                                 </div>
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Default Animation
                                     </div>
@@ -104,7 +104,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().orientation) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             Orientation
                                         </div>
@@ -118,7 +118,7 @@ import { SignageService } from '../signage.service';
                                 }
                                 <div>
                                     <div
-                                        class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                        class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                     >
                                         Items
                                     </div>
@@ -129,7 +129,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().valid_from) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             Valid From
                                         </div>
@@ -141,7 +141,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().valid_until) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             Valid Until
                                         </div>
@@ -153,7 +153,7 @@ import { SignageService } from '../signage.service';
                                 @if (playlist().play_count) {
                                     <div>
                                         <div
-                                            class="mb-1 text-xs font-medium tracking-wider uppercase text-base-content/70"
+                                            class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
                                         >
                                             Play Count
                                         </div>
@@ -200,7 +200,7 @@ import { SignageService } from '../signage.service';
                                             </div>
                                             @if (display.description) {
                                                 <div
-                                                    class="truncate text-xs text-base-content/70"
+                                                    class="text-base-content/70 truncate text-xs"
                                                 >
                                                     {{ display.description }}
                                                 </div>
@@ -210,7 +210,7 @@ import { SignageService } from '../signage.service';
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-8 text-base-content/70"
+                                    class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
                                 >
                                     <icon class="text-4xl">tv_off</icon>
                                     <p class="text-sm">
@@ -251,7 +251,7 @@ import { SignageService } from '../signage.service';
                                             </div>
                                             @if (zone.description) {
                                                 <div
-                                                    class="truncate text-xs text-base-content/70"
+                                                    class="text-base-content/70 truncate text-xs"
                                                 >
                                                     {{ zone.description }}
                                                 </div>
@@ -261,7 +261,7 @@ import { SignageService } from '../signage.service';
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center space-y-2 p-8 text-base-content/70"
+                                    class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
                                 >
                                     <icon class="text-4xl">location_off</icon>
                                     <p class="text-sm">
@@ -275,7 +275,7 @@ import { SignageService } from '../signage.service';
             </div>
         } @else {
             <div
-                class="border-base-300 flex min-w-60 flex-1 flex-col items-center justify-center space-y-2 border-l p-8 text-base-content/70"
+                class="border-base-300 text-base-content/70 flex min-w-60 flex-1 flex-col items-center justify-center space-y-2 border-l p-8"
             >
                 <icon class="text-6xl">info</icon>
                 <p>Select a playlist to view details.</p>

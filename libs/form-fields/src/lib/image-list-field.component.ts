@@ -16,7 +16,6 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
 
-import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -232,7 +231,6 @@ export interface UploadDetails {
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
-        CommonModule,
         TranslatePipe,
         AuthenticatedImageDirective,
     ],

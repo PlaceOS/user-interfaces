@@ -59,7 +59,7 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                     </h4>
                                     @if (selected_zone().description) {
                                         <div
-                                            class="truncate text-sm text-base-content/80"
+                                            class="text-base-content/80 truncate text-sm"
                                         >
                                             {{ selected_zone().description }}
                                         </div>

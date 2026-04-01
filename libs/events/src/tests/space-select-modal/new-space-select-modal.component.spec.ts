@@ -82,7 +82,7 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -90,7 +90,7 @@ describe('NewSpaceSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
     });
 });
 
@@ -138,6 +138,6 @@ describe('NewSpaceSelectModalComponent (with favourites)', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', []);
+        ).toHaveBeenCalledWith('favourite_spaces', []);
     });
 });

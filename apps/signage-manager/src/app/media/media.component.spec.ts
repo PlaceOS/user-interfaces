@@ -59,9 +59,7 @@ describe('MediaSectionComponent', () => {
         preview_files.mockReset();
         await TestBed.configureTestingModule({
             imports: [MediaSectionComponent],
-            providers: [
-                { provide: SignageService, useValue: service_stub },
-            ],
+            providers: [{ provide: SignageService, useValue: service_stub }],
         })
             .overrideComponent(MediaSectionComponent, {
                 set: {

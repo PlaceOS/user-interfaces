@@ -111,37 +111,38 @@ import { NewSurveyService } from './new-survey.service';
             </div>
         </div>
         @let question_pages = paged_responses$ | async;
-        <div
-            class="border-base-300 bg-base-200 h-1/2 flex-1 overflow-auto border-t"
-            *ngIf="question_pages?.length > 0; else empty_template"
-        >
-            <ng-container *ngFor="let p of question_pages; let i = index">
-                <div
-                    class="flex w-full px-8 pt-2 text-xl font-medium"
-                    *ngIf="question_pages.length > 1"
-                >
-                    {{
-                        (p.title
-                            ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
-                            : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
-                        )
-                            | translate
-                                : {
-                                      id: i + 1,
-                                      title: p.title,
-                                  }
-                    }}
-                </div>
-                <div
-                    class="grid w-full grid-cols-2 gap-4 px-6 py-2 xl:grid-cols-3"
-                >
-                    @for (r of p.responses; track r) {
-                        <new-survey-widget [response]="r"></new-survey-widget>
+        @if (question_pages?.length > 0) {
+            <div
+                class="border-base-300 bg-base-200 h-1/2 flex-1 overflow-auto border-t"
+            >
+                @for (p of question_pages; track p; let i = $index) {
+                    @if (question_pages.length > 1) {
+                        <div class="flex w-full px-8 pt-2 text-xl font-medium">
+                            {{
+                                (p.title
+                                    ? 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE_WITH_TITLE'
+                                    : 'APP.CONCIERGE.SURVEY_ANSWERS_PAGE'
+                                )
+                                    | translate
+                                        : {
+                                              id: i + 1,
+                                              title: p.title,
+                                          }
+                            }}
+                        </div>
                     }
-                </div>
-            </ng-container>
-        </div>
-        <ng-template #empty_template>
+                    <div
+                        class="grid w-full grid-cols-2 gap-4 px-6 py-2 xl:grid-cols-3"
+                    >
+                        @for (r of p.responses; track r) {
+                            <new-survey-widget
+                                [response]="r"
+                            ></new-survey-widget>
+                        }
+                    </div>
+                }
+            </div>
+        } @else {
             <div
                 class="flex min-h-40 w-full flex-col items-center justify-center"
             >
@@ -149,16 +150,17 @@ import { NewSurveyService } from './new-survey.service';
                     'APP.CONCIERGE.SURVEY_ANSWERS_EMPTY' | translate
                 }}</span>
             </div>
-        </ng-template>
-        <div
-            *ngIf="loading$ | async"
-            class="bg-base-100 absolute inset-0 z-10 flex opacity-60"
-        >
-            <div class="m-auto flex flex-col items-center space-y-4">
-                <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}</p>
+        }
+        @if (loading$ | async) {
+            <div class="bg-base-100 absolute inset-0 z-10 flex opacity-60">
+                <div class="m-auto flex flex-col items-center space-y-4">
+                    <mat-spinner [diameter]="32"></mat-spinner>
+                    <p>
+                        {{ 'APP.CONCIERGE.SURVEY_ANSWERS_LOADING' | translate }}
+                    </p>
+                </div>
             </div>
-        </div>
+        }
     `,
     imports: [
         MatProgressSpinnerModule,

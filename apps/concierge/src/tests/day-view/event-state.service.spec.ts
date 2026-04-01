@@ -124,7 +124,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise();
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfDay(Date.now())),
@@ -141,7 +141,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfDay(Date.now())),
@@ -158,7 +158,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfWeek(Date.now())),
@@ -175,7 +175,7 @@ describe('EventsStateService', () => {
         await timer(5).toPromise();
         spectator.service.stopPolling();
         await timer(650).toPromise(); // Increased wait time for spaces + event_list debounce
-        expect(events_mod.queryEvents).toBeCalledWith({
+        expect(events_mod.queryEvents).toHaveBeenCalledWith({
             zone_ids: 'bld-123',
             strict: 'limit',
             period_start: getUnixTime(startOfMonth(Date.now())),

@@ -548,7 +548,9 @@ export class UserListFieldComponent
                 data: { user },
             },
         );
-        outputToObservable(ref.componentInstance?.event)
+        const event = ref.componentInstance?.event;
+        if (!event) return;
+        outputToObservable(event)
             .pipe(first((_) => _.reason === 'done'))
             .subscribe((event) => {
                 this.addUser(event.metadata);

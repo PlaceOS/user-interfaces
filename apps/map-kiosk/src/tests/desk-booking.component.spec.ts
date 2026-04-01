@@ -1,3 +1,4 @@
+import { fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
@@ -39,15 +40,13 @@ describe('DeskBookingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should reset to map after time', () => {
-        jest.useFakeTimers();
+    it('should reset to map after time', fakeAsync(() => {
         const router = spectator.inject(Router);
         const settings = spectator.inject(SettingsService);
         (settings.get as any).mockImplementation(() => 5);
         spectator.component.resetCountdown();
         expect(router.navigate).not.toHaveBeenCalled();
-        jest.runOnlyPendingTimers();
+        tick(5);
         expect(router.navigate).toHaveBeenCalledWith(['/explore']);
-        jest.useRealTimers();
-    });
+    }));
 });

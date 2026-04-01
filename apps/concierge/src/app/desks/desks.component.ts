@@ -24,7 +24,6 @@ import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { DeskView } from './desks-state.service';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -310,7 +309,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         MatRippleModule,
-        CommonModule,
         FormsModule,
         IconComponent,
         MatRippleModule,
@@ -517,7 +515,10 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         this.updateZones(next_zones);
     }
 
-    private _sameZones(current_zones: string[] = [], next_zones: string[] = []) {
+    private _sameZones(
+        current_zones: string[] = [],
+        next_zones: string[] = [],
+    ) {
         return (
             current_zones.length === next_zones.length &&
             current_zones.every((zone, index) => zone === next_zones[index])

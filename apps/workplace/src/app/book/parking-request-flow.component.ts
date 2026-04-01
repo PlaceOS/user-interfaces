@@ -14,10 +14,7 @@ import { ParkingRequestSuccessComponent } from './parking-request-flow/parking-r
             <div
                 class="bg-base-100 z-50 flex h-full w-full flex-col items-center justify-center space-y-4"
             >
-                <img
-                    src="assets/icons/permission-none.svg"
-                    class="h-64 w-64"
-                />
+                <img src="assets/icons/permission-none.svg" class="h-64 w-64" />
                 <p>
                     {{
                         'APP.WORKPLACE.PARKING_HOME_LOCATION_RESTRICTED'

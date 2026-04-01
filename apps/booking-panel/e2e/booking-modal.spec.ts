@@ -38,7 +38,7 @@ test.describe('Booking Modal - Opening', () => {
 
         // Check for any dialog container
         const dialog = page.locator(
-            'mat-dialog-container, booking-modal, .cdk-overlay-pane'
+            'mat-dialog-container, booking-modal, .cdk-overlay-pane',
         );
         const dialogCount = await dialog.count();
         // Dialog may or may not appear based on room status
@@ -55,7 +55,9 @@ test.describe('Booking Modal - Form Fields', () => {
 
         // If booking modal opened, check for duration field
         const durationField = page.locator('a-duration-field');
-        if (await durationField.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (
+            await durationField.isVisible({ timeout: 3000 }).catch(() => false)
+        ) {
             await expect(durationField).toBeVisible();
         }
     });
@@ -120,7 +122,7 @@ test.describe('Booking Modal - Actions', () => {
         await page.waitForTimeout(2000);
 
         const closeButton = page.locator(
-            '[mat-dialog-close], button:has(icon:has-text("close"))'
+            '[mat-dialog-close], button:has(icon:has-text("close"))',
         );
         if (await closeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
             await expect(closeButton.first()).toBeVisible();
@@ -154,7 +156,12 @@ test.describe('Booking Modal - From Checkin View', () => {
     test('should open booking modal from Book button', async ({ page }) => {
         const bookButton = page.locator('button:has-text("Book")');
 
-        if (await bookButton.first().isVisible({ timeout: 5000 }).catch(() => false)) {
+        if (
+            await bookButton
+                .first()
+                .isVisible({ timeout: 5000 })
+                .catch(() => false)
+        ) {
             await bookButton.first().click();
             await page.waitForTimeout(2000);
 
@@ -201,7 +208,9 @@ test.describe('Booking Modal - Confirmation Dialog', () => {
         // Check if room is in pending state
         const pendingStatus = page.locator('panel-view-status .bg-warning');
 
-        if (await pendingStatus.isVisible({ timeout: 5000 }).catch(() => false)) {
+        if (
+            await pendingStatus.isVisible({ timeout: 5000 }).catch(() => false)
+        ) {
             // Click to check in
             await page.locator('panel-view > button').click();
             await page.waitForTimeout(2000);
@@ -266,7 +275,9 @@ test.describe('Booking Modal - Duration Constraints', () => {
         await page.waitForTimeout(2000);
 
         const durationField = page.locator('a-duration-field');
-        if (await durationField.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (
+            await durationField.isVisible({ timeout: 3000 }).catch(() => false)
+        ) {
             // Duration field respects min_duration setting (default 15 min)
             await expect(durationField).toBeVisible();
         }
@@ -280,7 +291,9 @@ test.describe('Booking Modal - Duration Constraints', () => {
         await page.waitForTimeout(2000);
 
         const durationField = page.locator('a-duration-field');
-        if (await durationField.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (
+            await durationField.isVisible({ timeout: 3000 }).catch(() => false)
+        ) {
             // Duration field respects max_duration setting (default 480 min)
             await expect(durationField).toBeVisible();
         }

@@ -120,7 +120,7 @@ test.describe('US-BOOTSTRAP-004: Set Map Orientation', () => {
 
         // Orientation selector visibility depends on building configuration
         const orientationLabel = page.locator(
-            'label:has-text("orientation"), label:has-text("Orientation")'
+            'label:has-text("orientation"), label:has-text("Orientation")',
         );
         const count = await orientationLabel.count();
         expect(count).toBeGreaterThanOrEqual(0);
@@ -138,7 +138,7 @@ test.describe('US-BOOTSTRAP-005: Save Kiosk Configuration', () => {
         await page.locator('[bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
 
         const finishButton = page.locator(
-            'button:has-text("Finish Setup"), button:has-text("Finish")'
+            'button:has-text("Finish Setup"), button:has-text("Finish")',
         );
         await expect(finishButton).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -150,7 +150,7 @@ test.describe('US-BOOTSTRAP-005: Save Kiosk Configuration', () => {
         await page.locator('[bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
 
         const finishButton = page.locator(
-            'button:has-text("Finish Setup"), button:has-text("Finish")'
+            'button:has-text("Finish Setup"), button:has-text("Finish")',
         );
         await expect(finishButton).toBeDisabled();
     });
@@ -166,7 +166,7 @@ test.describe('US-BOOTSTRAP-005: Save Kiosk Configuration', () => {
 
         // The button state depends on selections
         const finishButton = page.locator(
-            'button:has-text("Finish Setup"), button:has-text("Finish")'
+            'button:has-text("Finish Setup"), button:has-text("Finish")',
         );
         await expect(finishButton).toBeVisible();
     });

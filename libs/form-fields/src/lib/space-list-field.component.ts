@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     OnDestroy,
@@ -195,7 +194,6 @@ const EMPTY_FAVS: string[] = [];
         },
     ],
     imports: [
-        CommonModule,
         MatRadioModule,
         FormsModule,
         IconComponent,

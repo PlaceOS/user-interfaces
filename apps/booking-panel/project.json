@@ -158,7 +158,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/booking-panel"],
             "options": {
-                "jestConfig": "apps/booking-panel/jest.config.ts"
+                "jestConfig": "apps/booking-panel/jest.config.ts",
+                "tsConfig": "apps/booking-panel/tsconfig.spec.json"
             }
         },
         "mobile:sync:android": {

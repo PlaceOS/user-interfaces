@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -57,12 +56,7 @@ import { IconComponent } from './icon.component';
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        MatRippleModule,
-        MatProgressSpinnerModule,
-        IconComponent,
-    ],
+    imports: [MatRippleModule, MatProgressSpinnerModule, IconComponent],
 })
 export class ActionIconComponent {
     /** Icon to display */

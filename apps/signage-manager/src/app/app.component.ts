@@ -12,7 +12,11 @@ import { mocksInit } from '@placeos/mocks';
     template: `
         <a class="skip-link" href="#main-content">Skip to main content</a>
         <global-banner />
-        <main id="main-content" tabindex="-1" class="relative h-1/2 w-full flex-1">
+        <main
+            id="main-content"
+            tabindex="-1"
+            class="relative h-1/2 w-full flex-1"
+        >
             <router-outlet></router-outlet>
         </main>
         <global-loading />

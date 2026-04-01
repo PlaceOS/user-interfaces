@@ -67,320 +67,336 @@ import {
                 >
                     {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
                 </div>
-                <ng-container [ngSwitch]="view">
-                    <booking-rules-form
-                        [ruleset]="selected"
-                        [save]="activate_save"
-                        (rulesetChange)="save($event)"
-                        *ngSwitchCase="'form'"
-                    />
-                    <div
-                        class="-mx-2 w-[calc(100%+1rem)] overflow-auto"
-                        *ngSwitchCase="'list'"
-                    >
-                        <div
-                            class="border-base-300 grid min-w-3xl border text-sm"
-                            [style.grid-template-columns]="TABLE_COLUMNS"
-                        >
+                @switch (view) {
+                    @case ('form') {
+                        <booking-rules-form
+                            [ruleset]="selected"
+                            [save]="activate_save"
+                            (rulesetChange)="save($event)"
+                        />
+                    }
+                    @case ('list') {
+                        <div class="-mx-2 w-[calc(100%+1rem)] overflow-auto">
                             <div
-                                class="bg-base-300 border-base-200 border-b px-4 py-2 font-medium"
-                            ></div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                class="border-base-300 grid min-w-3xl border text-sm"
+                                [style.grid-template-columns]="TABLE_COLUMNS"
                             >
-                                {{ 'RESOURCE.ZONE' | translate }}
-                            </div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
-                            >
-                                {{ 'FORM.NAME' | translate }}
-                            </div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
-                            >
-                                {{
-                                    'APP.CONCIERGE.BOOKING_RULES_AUTO_APPROVE'
-                                        | translate
-                                }}
-                            </div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
-                            >
-                                {{
-                                    'APP.CONCIERGE.BOOKING_RULES_HIDE_MATCHES'
-                                        | translate
-                                }}
-                            </div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
-                            >
-                                {{
-                                    'APP.CONCIERGE.BOOKING_RULES_CONDITIONS'
-                                        | translate
-                                }}
-                            </div>
-                            <div
-                                class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
-                            ></div>
-                        </div>
-                        <div
-                            cdkDropList
-                            (cdkDropListDropped)="drop($event)"
-                            class="min-w-3xl"
-                        >
-                            @for (
-                                row of booking_rules | async;
-                                track row.id;
-                                let i = $index
-                            ) {
                                 <div
-                                    cdkDrag
-                                    cdkDragLockAxis="y"
-                                    class="border-base-300 border-x border-b"
+                                    class="bg-base-300 border-base-200 border-b px-4 py-2 font-medium"
+                                ></div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
                                 >
+                                    {{ 'RESOURCE.ZONE' | translate }}
+                                </div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                >
+                                    {{ 'FORM.NAME' | translate }}
+                                </div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.BOOKING_RULES_AUTO_APPROVE'
+                                            | translate
+                                    }}
+                                </div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.BOOKING_RULES_HIDE_MATCHES'
+                                            | translate
+                                    }}
+                                </div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                >
+                                    {{
+                                        'APP.CONCIERGE.BOOKING_RULES_CONDITIONS'
+                                            | translate
+                                    }}
+                                </div>
+                                <div
+                                    class="bg-base-300 border-base-200 flex h-full items-center border-b border-l px-4 py-2 font-medium"
+                                ></div>
+                            </div>
+                            <div
+                                cdkDropList
+                                (cdkDropListDropped)="drop($event)"
+                                class="min-w-3xl"
+                            >
+                                @for (
+                                    row of booking_rules | async;
+                                    track row.id;
+                                    let i = $index
+                                ) {
                                     <div
-                                        class="border-base-content bg-base-300 h-14 rounded-sm border-2 border-dashed opacity-50"
-                                        *cdkDragPlaceholder
-                                    ></div>
-                                    <div
-                                        class="bg-base-100 grid text-sm"
-                                        [style.grid-template-columns]="
-                                            TABLE_COLUMNS
-                                        "
+                                        cdkDrag
+                                        cdkDragLockAxis="y"
+                                        class="border-base-300 border-x border-b"
                                     >
                                         <div
-                                            class="border-base-200 flex items-center justify-center border-r"
-                                        >
-                                            <button
-                                                icon
-                                                matRipple
-                                                cdkDragHandle
-                                                class="cursor-grab rounded-sm"
-                                                [matTooltip]="
-                                                    'APP.CONCIERGE.BOOKING_RULESET_REORDER'
-                                                        | translate
-                                                "
-                                            >
-                                                <icon>drag_indicator</icon>
-                                            </button>
-                                        </div>
+                                            class="border-base-content bg-base-300 h-14 rounded-sm border-2 border-dashed opacity-50"
+                                            *cdkDragPlaceholder
+                                        ></div>
                                         <div
-                                            class="border-base-200 flex items-center border-r"
+                                            class="bg-base-100 grid text-sm"
+                                            [style.grid-template-columns]="
+                                                TABLE_COLUMNS
+                                            "
                                         >
-                                            @if ((row.zone | level)?.id) {
-                                                <div class="px-4 py-2">
-                                                    <div>
+                                            <div
+                                                class="border-base-200 flex items-center justify-center border-r"
+                                            >
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    cdkDragHandle
+                                                    class="cursor-grab rounded-sm"
+                                                    [matTooltip]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REORDER'
+                                                            | translate
+                                                    "
+                                                >
+                                                    <icon>drag_indicator</icon>
+                                                </button>
+                                            </div>
+                                            <div
+                                                class="border-base-200 flex items-center border-r"
+                                            >
+                                                @if ((row.zone | level)?.id) {
+                                                    <div class="px-4 py-2">
+                                                        <div>
+                                                            {{
+                                                                (
+                                                                    row.zone
+                                                                    | level
+                                                                )
+                                                                    ?.display_name ||
+                                                                    row.zone
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="font-mono text-[0.625rem] opacity-30"
+                                                        >
+                                                            {{ row.zone }}
+                                                        </div>
+                                                    </div>
+                                                } @else {
+                                                    <div
+                                                        class="px-4 py-2 font-mono italic"
+                                                    >
                                                         {{
-                                                            (row.zone | level)
-                                                                ?.display_name ||
-                                                                row.zone
+                                                            row.zone === '*'
+                                                                ? ('RESOURCE.ZONE_ALL'
+                                                                  | translate)
+                                                                : row.zone
                                                         }}
                                                     </div>
-                                                    <div
-                                                        class="font-mono text-[0.625rem] opacity-30"
+                                                }
+                                            </div>
+                                            <div
+                                                class="border-base-200 border-r p-4"
+                                            >
+                                                {{ row.name }}
+                                            </div>
+                                            <div
+                                                class="border-base-200 flex items-center justify-center border-r"
+                                            >
+                                                <div
+                                                    [class.bg-error]="
+                                                        !row.rules?.auto_approve
+                                                    "
+                                                    [class.bg-success]="
+                                                        row.rules?.auto_approve
+                                                    "
+                                                    class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
+                                                >
+                                                    <icon>{{
+                                                        row.rules?.auto_approve
+                                                            ? 'done'
+                                                            : 'close'
+                                                    }}</icon>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="border-base-200 flex items-center justify-center border-r"
+                                            >
+                                                <div
+                                                    [class.bg-error]="
+                                                        !row.rules?.hidden
+                                                    "
+                                                    [class.bg-success]="
+                                                        row.rules?.hidden
+                                                    "
+                                                    class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
+                                                >
+                                                    <icon>{{
+                                                        row.rules?.hidden
+                                                            ? 'done'
+                                                            : 'close'
+                                                    }}</icon>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="border-base-200 flex cursor-pointer items-center border-r p-4 select-none"
+                                                (click)="toggleExpanded(row.id)"
+                                            >
+                                                <icon class="mr-1 text-2xl">{{
+                                                    isExpanded(row.id)
+                                                        ? 'keyboard_arrow_down'
+                                                        : 'chevron_right'
+                                                }}</icon>
+                                                {{
+                                                    'APP.CONCIERGE.BOOKING_RULES_CONDITIONS_COUNT'
+                                                        | translate
+                                                            : {
+                                                                  count: keyCount(
+                                                                      row.conditions
+                                                                  ),
+                                                              }
+                                                }}
+                                            </div>
+                                            <div
+                                                class="flex items-center justify-center gap-1 p-1"
+                                            >
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="rounded-sm"
+                                                    (click)="editRuleset(row)"
+                                                    [matTooltip]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_EDIT'
+                                                            | translate
+                                                    "
+                                                >
+                                                    <icon>edit</icon>
+                                                </button>
+                                                <button
+                                                    icon
+                                                    matRipple
+                                                    class="rounded-sm"
+                                                    (click)="removeRuleset(row)"
+                                                    [matTooltip]="
+                                                        'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
+                                                            | translate
+                                                    "
+                                                >
+                                                    <icon class="text-error"
+                                                        >delete</icon
                                                     >
-                                                        {{ row.zone }}
-                                                    </div>
-                                                </div>
-                                            } @else {
-                                                <div
-                                                    class="px-4 py-2 font-mono italic"
-                                                >
-                                                    {{
-                                                        row.zone === '*'
-                                                            ? ('RESOURCE.ZONE_ALL'
-                                                              | translate)
-                                                            : row.zone
-                                                    }}
-                                                </div>
-                                            }
-                                        </div>
-                                        <div
-                                            class="border-base-200 border-r p-4"
-                                        >
-                                            {{ row.name }}
-                                        </div>
-                                        <div
-                                            class="border-base-200 flex items-center justify-center border-r"
-                                        >
-                                            <div
-                                                [class.bg-error]="
-                                                    !row.rules?.auto_approve
-                                                "
-                                                [class.bg-success]="
-                                                    row.rules?.auto_approve
-                                                "
-                                                class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
-                                            >
-                                                <icon>{{
-                                                    row.rules?.auto_approve
-                                                        ? 'done'
-                                                        : 'close'
-                                                }}</icon>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div
-                                            class="border-base-200 flex items-center justify-center border-r"
-                                        >
+                                        @if (isExpanded(row.id)) {
                                             <div
-                                                [class.bg-error]="
-                                                    !row.rules?.hidden
-                                                "
-                                                [class.bg-success]="
-                                                    row.rules?.hidden
-                                                "
-                                                class="flex h-8 w-8 items-center justify-center rounded-sm text-2xl text-white"
+                                                class="bg-base-200 border-base-300 border-t px-6 py-3"
                                             >
-                                                <icon>{{
-                                                    row.rules?.hidden
-                                                        ? 'done'
-                                                        : 'close'
-                                                }}</icon>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="border-base-200 flex cursor-pointer items-center border-r p-4 select-none"
-                                            (click)="toggleExpanded(row.id)"
-                                        >
-                                            <icon class="mr-1 text-2xl">{{
-                                                isExpanded(row.id)
-                                                    ? 'keyboard_arrow_down'
-                                                    : 'chevron_right'
-                                            }}</icon>
-                                            {{
-                                                'APP.CONCIERGE.BOOKING_RULES_CONDITIONS_COUNT'
-                                                    | translate
-                                                        : {
-                                                              count: keyCount(
-                                                                  row.conditions
-                                                              ),
-                                                          }
-                                            }}
-                                        </div>
-                                        <div
-                                            class="flex items-center justify-center gap-1 p-1"
-                                        >
-                                            <button
-                                                icon
-                                                matRipple
-                                                class="rounded-sm"
-                                                (click)="editRuleset(row)"
-                                                [matTooltip]="
-                                                    'APP.CONCIERGE.BOOKING_RULESET_EDIT'
-                                                        | translate
-                                                "
-                                            >
-                                                <icon>edit</icon>
-                                            </button>
-                                            <button
-                                                icon
-                                                matRipple
-                                                class="rounded-sm"
-                                                (click)="removeRuleset(row)"
-                                                [matTooltip]="
-                                                    'APP.CONCIERGE.BOOKING_RULESET_REMOVE'
-                                                        | translate
-                                                "
-                                            >
-                                                <icon class="text-error"
-                                                    >delete</icon
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @if (isExpanded(row.id)) {
-                                        <div
-                                            class="bg-base-200 border-base-300 border-t px-6 py-3"
-                                        >
-                                            @if (
-                                                conditionKeys(row.conditions)
-                                                    .length
-                                            ) {
-                                                <div
-                                                    class="flex flex-wrap gap-x-8 gap-y-2 text-xs"
-                                                >
-                                                    @for (
-                                                        key of conditionKeys(
-                                                            row.conditions
-                                                        );
-                                                        track key
-                                                    ) {
-                                                        <div
-                                                            class="flex items-baseline gap-2"
-                                                        >
-                                                            <span
-                                                                class="font-medium opacity-60"
+                                                @if (
+                                                    conditionKeys(
+                                                        row.conditions
+                                                    ).length
+                                                ) {
+                                                    <div
+                                                        class="flex flex-wrap gap-x-8 gap-y-2 text-xs"
+                                                    >
+                                                        @for (
+                                                            key of conditionKeys(
+                                                                row.conditions
+                                                            );
+                                                            track key
+                                                        ) {
+                                                            <div
+                                                                class="flex items-baseline gap-2"
                                                             >
-                                                                {{
-                                                                    CONDITION_LABELS[
-                                                                        key
-                                                                    ]
-                                                                        | translate
-                                                                }}:
-                                                            </span>
-                                                            <span>{{
-                                                                formatConditionValue(
-                                                                    key,
-                                                                    row
-                                                                        .conditions[
-                                                                        key
-                                                                    ]
-                                                                )
-                                                            }}</span>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            } @else {
-                                                <div class="text-xs opacity-30">
-                                                    No conditions configured
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            } @empty {
-                                <div
-                                    class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-30"
-                                >
-                                    No rulesets configured
-                                </div>
-                            }
+                                                                <span
+                                                                    class="font-medium opacity-60"
+                                                                >
+                                                                    {{
+                                                                        CONDITION_LABELS[
+                                                                            key
+                                                                        ]
+                                                                            | translate
+                                                                    }}:
+                                                                </span>
+                                                                <span>{{
+                                                                    formatConditionValue(
+                                                                        key,
+                                                                        row
+                                                                            .conditions[
+                                                                            key
+                                                                        ]
+                                                                    )
+                                                                }}</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                } @else {
+                                                    <div
+                                                        class="text-xs opacity-30"
+                                                    >
+                                                        No conditions configured
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                } @empty {
+                                    <div
+                                        class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-30"
+                                    >
+                                        No rulesets configured
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div>
-                </ng-container>
-                <footer
-                    class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none px-4 py-2"
-                    [class.max-w-156]="view === 'form'"
-                    *ngIf="!loading"
-                >
-                    <button
-                        btn
-                        matRipple
-                        class="inverse w-36"
-                        *ngIf="view === 'form'"
-                        (click)="selected = null; view = 'list'"
+                    }
+                }
+                @if (!loading) {
+                    <footer
+                        class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none px-4 py-2"
+                        [class.max-w-156]="view === 'form'"
                     >
-                        {{ 'COMMON.BACK' | translate }}
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="w-36"
-                        *ngIf="view !== 'form'"
-                        (click)="editRuleset()"
-                    >
-                        {{ 'APP.CONCIERGE.BOOKING_RULESET_ADD' | translate }}
-                    </button>
-                    <button
-                        btn
-                        matRipple
-                        class="w-36"
-                        *ngIf="view === 'form'"
-                        (click)="activate_save = !activate_save"
-                    >
-                        {{ 'APP.CONCIERGE.BOOKING_RULESET_SAVE' | translate }}
-                    </button>
-                </footer>
+                        @if (view === 'form') {
+                            <button
+                                btn
+                                matRipple
+                                class="inverse w-36"
+                                (click)="selected = null; view = 'list'"
+                            >
+                                {{ 'COMMON.BACK' | translate }}
+                            </button>
+                        }
+                        @if (view !== 'form') {
+                            <button
+                                btn
+                                matRipple
+                                class="w-36"
+                                (click)="editRuleset()"
+                            >
+                                {{
+                                    'APP.CONCIERGE.BOOKING_RULESET_ADD'
+                                        | translate
+                                }}
+                            </button>
+                        }
+                        @if (view === 'form') {
+                            <button
+                                btn
+                                matRipple
+                                class="w-36"
+                                (click)="activate_save = !activate_save"
+                            >
+                                {{
+                                    'APP.CONCIERGE.BOOKING_RULESET_SAVE'
+                                        | translate
+                                }}
+                            </button>
+                        }
+                    </footer>
+                }
             </div>
         </fullscreen-modal-shell>
     `,

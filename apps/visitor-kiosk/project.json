@@ -124,7 +124,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/visitor-kiosk"],
             "options": {
-                "jestConfig": "apps/visitor-kiosk/jest.config.ts"
+                "jestConfig": "apps/visitor-kiosk/jest.config.ts",
+                "tsConfig": "apps/visitor-kiosk/tsconfig.spec.json"
             }
         }
     }

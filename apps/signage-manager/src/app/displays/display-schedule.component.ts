@@ -6,13 +6,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@placeos/components';
 import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
-import { SignageService } from '../signage.service';
 import {
     DAY_COUNT,
     DAY_NAMES,
     ScheduleBlock,
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
+import { SignageService } from '../signage.service';
 
 @Component({
     selector: 'display-schedule',
@@ -58,7 +58,7 @@ import {
 
             @if (display_playlists().length === 0) {
                 <div
-                    class="flex flex-1 flex-col items-center justify-center gap-3 text-base-content/40"
+                    class="text-base-content/40 flex flex-1 flex-col items-center justify-center gap-3"
                 >
                     <icon class="text-4xl">event_busy</icon>
                     <p class="text-sm">
@@ -78,7 +78,7 @@ import {
                                 [class.today-column]="isToday(day)"
                             >
                                 <div
-                                    class="text-[10px] font-medium uppercase tracking-wide text-base-content/45"
+                                    class="text-base-content/45 text-[10px] font-medium tracking-wide uppercase"
                                     [class.text-info]="isToday(day)"
                                 >
                                     {{ dayNames[$index] }}
@@ -92,7 +92,7 @@ import {
                                 </div>
                                 @if ($index !== 0) {
                                     <div
-                                        class="absolute top-0 -left-px h-2 w-px bg-base-content/10"
+                                        class="bg-base-content/10 absolute top-0 -left-px h-2 w-px"
                                     ></div>
                                 }
                             </div>
@@ -109,7 +109,7 @@ import {
                             let day_index = $index
                         ) {
                             <div
-                                class="min-w-48 flex-1 border-r border-base-content/[0.06] p-2 last:border-none"
+                                class="border-base-content/[0.06] min-w-48 flex-1 border-r p-2 last:border-none"
                                 [class.today-column]="isToday(day)"
                             >
                                 @if (day_blocks()[day_index].all_day.length) {
@@ -126,7 +126,7 @@ import {
                                                     '/playlists',
                                                     block.playlist.id,
                                                 ]"
-                                                class="flex w-full items-center gap-2 rounded-md border border-base-content/10 px-2 py-1.5 text-left no-underline transition-colors hover:border-info/40"
+                                                class="border-base-content/10 hover:border-info/40 flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left no-underline transition-colors"
                                                 [matTooltip]="
                                                     block_tooltip(block)
                                                 "
@@ -139,14 +139,14 @@ import {
                                                 ></div>
                                                 <div class="min-w-0 flex-1">
                                                     <div
-                                                        class="truncate text-[13px] font-medium leading-tight"
+                                                        class="truncate text-[13px] leading-tight font-medium"
                                                     >
                                                         {{
                                                             block.playlist.name
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-[11px] text-base-content/45"
+                                                        class="text-base-content/45 text-[11px]"
                                                     >
                                                         All day
                                                     </div>
@@ -171,7 +171,7 @@ import {
                                                     '/playlists',
                                                     block.playlist.id,
                                                 ]"
-                                                class="flex w-full gap-2 rounded-md px-2 py-1.5 text-left no-underline transition-colors hover:bg-base-content/[0.04]"
+                                                class="hover:bg-base-content/[0.04] flex w-full gap-2 rounded-md px-2 py-1.5 text-left no-underline transition-colors"
                                                 [matTooltip]="
                                                     block_tooltip(block)
                                                 "
@@ -191,7 +191,7 @@ import {
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-[11px] tabular-nums text-base-content/45"
+                                                        class="text-base-content/45 text-[11px] tabular-nums"
                                                     >
                                                         {{ block.label }}
                                                     </div>
@@ -205,7 +205,7 @@ import {
                                     !day_blocks()[day_index].timed.length
                                 ) {
                                     <div
-                                        class="flex min-h-20 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-base-content/10 text-base-content/25"
+                                        class="border-base-content/10 text-base-content/25 flex min-h-20 flex-col items-center justify-center gap-1 rounded-md border border-dashed"
                                     >
                                         <icon class="text-base"
                                             >event_busy</icon

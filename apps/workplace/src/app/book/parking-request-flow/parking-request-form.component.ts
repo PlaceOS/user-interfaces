@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -16,7 +15,11 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent, SanitizePipe, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SanitizePipe,
+    TranslatePipe,
+} from '@placeos/components';
 import { roundToNearestMinutes, startOfDay } from 'date-fns';
 import { ParkingRequestFormDetailsComponent } from './parking-request-form-details.component';
 
@@ -64,9 +67,13 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
                     class="bg-base-200 border-base-300 mt-4 space-y-4 rounded-lg border p-2"
                 >
                     @if (submission_notes_html()) {
-                        <div class="bg-base-100 border-base-300 rounded-lg border p-4">
+                        <div
+                            class="bg-base-100 border-base-300 rounded-lg border p-4"
+                        >
                             <h3 class="mb-3 text-lg font-semibold">
-                                {{ 'BOOKINGS.PARKING_SUMMARY_TITLE' | translate }}
+                                {{
+                                    'BOOKINGS.PARKING_SUMMARY_TITLE' | translate
+                                }}
                             </h3>
                             <div
                                 class="prose prose-sm max-w-none"
@@ -109,7 +116,6 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         ReactiveFormsModule,
         TranslatePipe,

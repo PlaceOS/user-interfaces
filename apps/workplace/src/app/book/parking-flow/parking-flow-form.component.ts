@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -143,7 +142,6 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         MatRippleModule,
         ReactiveFormsModule,
         TranslatePipe,

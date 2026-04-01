@@ -50,8 +50,7 @@ export interface PlaylistEditModalData {
         >
             <form [formGroup]="form">
                 <label for="name"
-                    >{{ 'FORM.NAME' | translate
-                    }}<span required>*</span></label
+                    >{{ 'FORM.NAME' | translate }}<span required>*</span></label
                 >
                 <mat-form-field appearance="outline" class="w-full">
                     <input
@@ -103,9 +102,7 @@ export interface PlaylistEditModalData {
                                     formControlName="default_duration"
                                 />
                             </mat-slider>
-                            <div
-                                class="w-16 px-2 text-right font-mono text-xs"
-                            >
+                            <div class="w-16 px-2 text-right font-mono text-xs">
                                 {{
                                     form.value.default_duration / 1000
                                         | mediaDuration

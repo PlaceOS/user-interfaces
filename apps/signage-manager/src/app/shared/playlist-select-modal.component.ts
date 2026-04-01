@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -79,7 +78,6 @@ import { SignageService } from '../signage.service';
         </main>
     `,
     imports: [
-        CommonModule,
         FormsModule,
         MatRippleModule,
         MatDialogModule,

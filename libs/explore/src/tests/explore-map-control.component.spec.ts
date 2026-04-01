@@ -90,7 +90,7 @@ describe('ExploreMapControlComponent', () => {
         spectator.click(document.querySelector('mat-option'));
         expect(spy).toHaveBeenCalledWith({ id: 'lvl-1', name: 'Level 1' });
         spectator.tick(240);
-        expect(spectator.inject(Router).navigate).toBeCalledWith([], {
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([], {
             relativeTo: spectator.inject(ActivatedRoute),
             queryParams: { zone: 'lvl-1' },
         });

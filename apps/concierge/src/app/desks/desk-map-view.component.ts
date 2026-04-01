@@ -6,7 +6,6 @@ import {
     ExploreZoomControlComponent,
 } from '@placeos/explore';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
@@ -62,7 +61,6 @@ import { DesksStateService } from './desks-state.service';
     ],
     providers: [ExploreDesksService],
     imports: [
-        CommonModule,
         InteractiveMapComponent,
         ExploreZoomControlComponent,
         UserSearchFieldComponent,

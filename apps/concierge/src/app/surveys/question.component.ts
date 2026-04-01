@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -86,15 +85,14 @@ import { QuestionType, QuestionTypeOptions } from './types';
                             type="text"
                             [(ngModel)]="question().title"
                         />
-                        <mat-error
-                            class="input-error"
-                            *ngIf="!question()?.title"
-                        >
-                            {{
-                                'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
-                                    | translate
-                            }}
-                        </mat-error>
+                        @if (!question()?.title) {
+                            <mat-error class="input-error">
+                                {{
+                                    'APP.CONCIERGE.SURVEY_QUESTION_ENTER_ERROR'
+                                        | translate
+                                }}
+                            </mat-error>
+                        }
                     </mat-form-field>
                 } @else {
                     <span class="mb-4 w-full text-xl">{{
@@ -107,76 +105,82 @@ import { QuestionType, QuestionTypeOptions } from './types';
                     }
                 }
                 @if (question().type === QuestionType.Comment_Box) {
-                    <div class="flex w-full flex-col" *ngIf="preview()">
-                        <mat-form-field appearance="outline">
-                            <textarea
-                                matInput
-                                cols="30"
-                                rows="5"
-                                placeholder="Enter option text"
-                            ></textarea>
-                            <mat-hint>{{
-                                'APP.CONCIERGE.SURVEY_QUESTION_HINT_MULTILINE'
-                                    | translate
-                            }}</mat-hint>
-                        </mat-form-field>
-                    </div>
+                    @if (preview()) {
+                        <div class="flex w-full flex-col">
+                            <mat-form-field appearance="outline">
+                                <textarea
+                                    matInput
+                                    cols="30"
+                                    rows="5"
+                                    placeholder="Enter option text"
+                                ></textarea>
+                                <mat-hint>{{
+                                    'APP.CONCIERGE.SURVEY_QUESTION_HINT_MULTILINE'
+                                        | translate
+                                }}</mat-hint>
+                            </mat-form-field>
+                        </div>
+                    }
                 } @else if (question().type === QuestionType.Single_Line_Text) {
-                    <div class="flex w-full flex-col" *ngIf="preview()">
-                        <mat-form-field appearance="outline">
-                            <input
-                                matInput
-                                type="text"
-                                placeholder="Enter option text"
-                            />
-                            <mat-hint>{{
-                                'APP.CONCIERGE.SURVEY_QUESTION_HINT_LINE'
-                                    | translate
-                            }}</mat-hint>
-                        </mat-form-field>
-                    </div>
+                    @if (preview()) {
+                        <div class="flex w-full flex-col">
+                            <mat-form-field appearance="outline">
+                                <input
+                                    matInput
+                                    type="text"
+                                    placeholder="Enter option text"
+                                />
+                                <mat-hint>{{
+                                    'APP.CONCIERGE.SURVEY_QUESTION_HINT_LINE'
+                                        | translate
+                                }}</mat-hint>
+                            </mat-form-field>
+                        </div>
+                    }
                 } @else if (
                     question().type === QuestionType.Check_Box ||
                     question().type === QuestionType.Radio_Group ||
                     question().type === QuestionType.Drop_Down
                 ) {
-                    @if (question) {
+                    @if (question()) {
                         <div class="flex w-full flex-col">
                             @if (!preview()) {
                                 <div
                                     class="mb-4 flex w-full flex-col space-y-2 pl-2"
                                 >
-                                    <div
-                                        *ngFor="
-                                            let item of question().choices;
-                                            let i = index
-                                        "
-                                        class="flex w-full flex-row items-center space-x-2"
-                                    >
-                                        <span class="p-2 font-mono"
-                                            >{{ i + 1 }}.
-                                        </span>
-                                        <mat-form-field
-                                            class="no-subscript w-full"
-                                            appearance="outline"
+                                    @for (
+                                        item of question().choices;
+                                        track item;
+                                        let i = $index
+                                    ) {
+                                        <div
+                                            class="flex w-full flex-row items-center space-x-2"
                                         >
-                                            <input
-                                                matInput
-                                                type="text"
-                                                [(ngModel)]="item.text"
-                                                placeholder="Enter option text"
-                                                name="item{{ i }}"
-                                            />
-                                        </mat-form-field>
-                                        <button
-                                            icon
-                                            matRipple
-                                            class="border-error text-error h-12 min-w-12 rounded-sm border"
-                                            (click)="deleteOption(i)"
-                                        >
-                                            <icon> delete_outline</icon>
-                                        </button>
-                                    </div>
+                                            <span class="p-2 font-mono"
+                                                >{{ i + 1 }}.
+                                            </span>
+                                            <mat-form-field
+                                                class="no-subscript w-full"
+                                                appearance="outline"
+                                            >
+                                                <input
+                                                    matInput
+                                                    type="text"
+                                                    [(ngModel)]="item.text"
+                                                    placeholder="Enter option text"
+                                                    name="item{{ i }}"
+                                                />
+                                            </mat-form-field>
+                                            <button
+                                                icon
+                                                matRipple
+                                                class="border-error text-error h-12 min-w-12 rounded-sm border"
+                                                (click)="deleteOption(i)"
+                                            >
+                                                <icon> delete_outline</icon>
+                                            </button>
+                                        </div>
+                                    }
                                 </div>
                                 <button
                                     btn
@@ -197,14 +201,15 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                         <mat-select
                                             placeholder="Select an option"
                                         >
-                                            <mat-option
-                                                *ngFor="
-                                                    let item of question()
-                                                        .choices
-                                                "
-                                                [value]="item.value"
-                                                >{{ item.text }}</mat-option
-                                            >
+                                            @for (
+                                                item of question().choices;
+                                                track item
+                                            ) {
+                                                <mat-option
+                                                    [value]="item.value"
+                                                    >{{ item.text }}</mat-option
+                                                >
+                                            }
                                         </mat-select>
                                     </mat-form-field>
                                 } @else if (is_checkbox) {
@@ -257,24 +262,25 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                 </button>
                             }
                         </div>
-                        <div class="flex flex-col" *ngIf="!preview()">
-                            <a-counter
-                                [max]="10"
-                                [min]="3"
-                                [(ngModel)]="question().max_rating"
-                                (ngModelChange)="
-                                    rating_options = generateArray($event)
-                                "
-                                class="mb-1 w-40"
-                            ></a-counter>
-                        </div>
+                        @if (!preview()) {
+                            <div class="flex flex-col">
+                                <a-counter
+                                    [max]="10"
+                                    [min]="3"
+                                    [(ngModel)]="question().max_rating"
+                                    (ngModelChange)="
+                                        rating_options = generateArray($event)
+                                    "
+                                    class="mb-1 w-40"
+                                ></a-counter>
+                            </div>
+                        }
                     </div>
                 }
             </div>
         </div>
     `,
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatSelectModule,
         MatInputModule,

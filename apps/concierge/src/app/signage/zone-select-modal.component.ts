@@ -47,26 +47,29 @@ import {
             </mat-form-field>
             @let zone_list = zones | async;
             @if (zone_list.length > 0) {
-                <button
-                    matRipple
-                    class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border p-2 text-left"
-                    *ngFor="let zone of zone_list"
-                    [mat-dialog-close]="zone.id"
-                >
-                    <div class="flex-1">
-                        <div class="">{{ zone.display_name || zone.name }}</div>
-                        <div class="text-xs opacity-30">
-                            {{ zone.id }}
+                @for (zone of zone_list; track zone) {
+                    <button
+                        matRipple
+                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border p-2 text-left"
+                        [mat-dialog-close]="zone.id"
+                    >
+                        <div class="flex-1">
+                            <div class="">
+                                {{ zone.display_name || zone.name }}
+                            </div>
+                            <div class="text-xs opacity-30">
+                                {{ zone.id }}
+                            </div>
                         </div>
-                    </div>
-                    @for (tag of zone.tags | slice: 0 : 3; track $index) {
-                        <div
-                            class="bg-info text-info-content rounded-lg px-2 py-1 font-mono text-[0.625rem]"
-                        >
-                            {{ tag }}
-                        </div>
-                    }
-                </button>
+                        @for (tag of zone.tags | slice: 0 : 3; track $index) {
+                            <div
+                                class="bg-info text-info-content rounded-lg px-2 py-1 font-mono text-[0.625rem]"
+                            >
+                                {{ tag }}
+                            </div>
+                        }
+                    </button>
+                }
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"

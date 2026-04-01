@@ -15,7 +15,9 @@ import { DisplayListComponent } from './display-list.component';
 
 const TAB_QUERY_PARAM = 'tab';
 
-function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zones' {
+function parseDisplayTab(
+    value: string | null,
+): 'schedule' | 'playlists' | 'zones' {
     if (value === 'playlists' || value === 'zones') {
         return value;
     }
@@ -64,7 +66,7 @@ function parseDisplayTab(value: string | null): 'schedule' | 'playlists' | 'zone
                                     </h4>
                                     @if (selected_display().description) {
                                         <div
-                                            class="truncate text-sm text-base-content/80"
+                                            class="text-base-content/80 truncate text-sm"
                                         >
                                             {{ selected_display().description }}
                                         </div>

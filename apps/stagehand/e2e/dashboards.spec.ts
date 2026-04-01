@@ -1,15 +1,15 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    DASHBOARDS_URL,
     DASHBOARDS_LIST_URL,
     DASHBOARDS_MANAGE_URL,
-    navigateWithMock,
-    waitForDashboardsPage,
-    waitForDashboardList,
-    isTableVisible,
+    DASHBOARDS_URL,
     getTableRowCount,
+    isTableVisible,
+    LOAD_TIMEOUT,
+    navigateWithMock,
+    waitForDashboardList,
+    waitForDashboardsPage,
 } from './test-utils';
 
 /**
@@ -55,7 +55,9 @@ test.describe('US-SM-007: View All Dashboards', () => {
         await navigateWithMock(page, DASHBOARDS_LIST_URL);
         await waitForDashboardList(page);
 
-        const header = page.locator('simple-table [header]:has-text("Description")');
+        const header = page.locator(
+            'simple-table [header]:has-text("Description")',
+        );
         await expect(header.first()).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -63,7 +65,9 @@ test.describe('US-SM-007: View All Dashboards', () => {
         await navigateWithMock(page, DASHBOARDS_LIST_URL);
         await waitForDashboardList(page);
 
-        const header = page.locator('simple-table [header]:has-text("Enabled")');
+        const header = page.locator(
+            'simple-table [header]:has-text("Enabled")',
+        );
         await expect(header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
@@ -74,7 +78,9 @@ test.describe('US-SM-007: View All Dashboards', () => {
         await waitForDashboardList(page);
 
         // Check if the empty message or table rows are displayed
-        const empty_message = page.locator('text=No dashboards have been created');
+        const empty_message = page.locator(
+            'text=No dashboards have been created',
+        );
         const row_count = await getTableRowCount(page);
 
         // Either we have rows or we see the empty message
@@ -111,11 +117,15 @@ test.describe('US-SM-008: Create New Dashboard', () => {
         await expect(save_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
-    test('should have add button in dashboard list header', async ({ page }) => {
+    test('should have add button in dashboard list header', async ({
+        page,
+    }) => {
         await navigateWithMock(page, DASHBOARDS_LIST_URL);
         await waitForDashboardList(page);
 
-        const add_button = page.locator('stagehand-dashboards header a:has-text("Add Dashboard")');
+        const add_button = page.locator(
+            'stagehand-dashboards header a:has-text("Add Dashboard")',
+        );
         await expect(add_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
@@ -149,9 +159,11 @@ test.describe('US-SM-009: Edit Dashboard', () => {
 
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
-            const edit_link = page.locator(
-                'simple-table a[routerLink*="manage"]:has(icon:has-text("edit"))'
-            ).first();
+            const edit_link = page
+                .locator(
+                    'simple-table a[routerLink*="manage"]:has(icon:has-text("edit"))',
+                )
+                .first();
             await edit_link.click();
             await page.waitForTimeout(500);
 
@@ -171,7 +183,9 @@ test.describe('US-SM-010: Delete Dashboard', () => {
 
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
-            const delete_icon = page.locator('simple-table icon:has-text("delete")');
+            const delete_icon = page.locator(
+                'simple-table icon:has-text("delete")',
+            );
             await expect(delete_icon.first()).toBeVisible({
                 timeout: ACTION_TIMEOUT,
             });
@@ -180,25 +194,31 @@ test.describe('US-SM-010: Delete Dashboard', () => {
 });
 
 test.describe('US-SM-011: Enable/Disable Dashboard', () => {
-    test('should display enabled status in dashboard list', async ({ page }) => {
+    test('should display enabled status in dashboard list', async ({
+        page,
+    }) => {
         await navigateWithMock(page, DASHBOARDS_LIST_URL);
         await waitForDashboardList(page);
 
         // Check for the enabled column header
         const enabled_header = page.locator(
-            'simple-table [header]:has-text("Enabled")'
+            'simple-table [header]:has-text("Enabled")',
         );
         await expect(enabled_header).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
-    test('should display checkmark for enabled dashboards', async ({ page }) => {
+    test('should display checkmark for enabled dashboards', async ({
+        page,
+    }) => {
         await navigateWithMock(page, DASHBOARDS_LIST_URL);
         await waitForDashboardList(page);
 
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
             // Check for done icon (checkmark) indicating enabled status
-            const check_icon = page.locator('simple-table icon:has-text("done")');
+            const check_icon = page.locator(
+                'simple-table icon:has-text("done")',
+            );
             const check_count = await check_icon.count();
             // There may or may not be enabled dashboards
             expect(check_count >= 0).toBeTruthy();
@@ -216,7 +236,7 @@ test.describe('US-SM-012: Create Alert Condition', () => {
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
             const add_alert_icon = page.locator(
-                'simple-table icon:has-text("add_alert")'
+                'simple-table icon:has-text("add_alert")',
             );
             await expect(add_alert_icon.first()).toBeVisible({
                 timeout: ACTION_TIMEOUT,
@@ -232,9 +252,9 @@ test.describe('US-SM-012: Create Alert Condition', () => {
 
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
-            const add_alert_link = page.locator(
-                'simple-table a:has(icon:has-text("add_alert"))'
-            ).first();
+            const add_alert_link = page
+                .locator('simple-table a:has(icon:has-text("add_alert"))')
+                .first();
             await add_alert_link.click();
             await page.waitForTimeout(500);
 
@@ -255,7 +275,7 @@ test.describe('US-SM-017: Edit Alert Condition', () => {
         const row_count = await getTableRowCount(page);
         if (row_count > 0) {
             const expand_icon = page.locator(
-                'simple-table icon:has-text("keyboard_arrow_down")'
+                'simple-table icon:has-text("keyboard_arrow_down")',
             );
             await expect(expand_icon.first()).toBeVisible({
                 timeout: ACTION_TIMEOUT,
@@ -292,7 +312,9 @@ test.describe('Dashboard Navigation', () => {
         await page.waitForTimeout(1000);
 
         // Manage page should show the add dashboard button
-        const add_button = page.locator('stagehand-dashboards header a:has-text("Add Dashboard")');
+        const add_button = page.locator(
+            'stagehand-dashboards header a:has-text("Add Dashboard")',
+        );
         await expect(add_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 

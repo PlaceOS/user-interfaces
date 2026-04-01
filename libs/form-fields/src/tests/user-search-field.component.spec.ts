@@ -67,8 +67,10 @@ describe('UserSearchFieldComponent', () => {
             result_count = results.length;
         });
 
-        spec.component.search_term.next(user_list[0].name);
+        spec.component.search_term.set(user_list[0].name as any);
+        spec.detectChanges();
         spec.tick(401);
+        spec.detectChanges();
 
         expect(result_count).toBeGreaterThan(0);
         tick(1000);
@@ -105,8 +107,10 @@ describe('UserSearchFieldComponent', () => {
             result_count = results.length;
         });
 
-        spec.component.search_term.next('test');
+        spec.component.search_term.set('test' as any);
+        spec.detectChanges();
         spec.tick(401);
+        spec.detectChanges();
 
         expect(result_count).toBeGreaterThan(0);
 
@@ -122,14 +126,14 @@ describe('UserSearchFieldComponent', () => {
         spectator.component.writeValue(user);
         spectator.tick(111);
         spectator.detectChanges();
-        expect(spectator.component.search_term.value).toEqual(user);
-        spectator.component.search_term.next('Test' as any);
+        expect(spectator.component.search_term()).toEqual(user);
+        spectator.component.search_term.set('Test' as any);
         spectator.detectChanges();
-        expect(spectator.component.search_term.value).toBe('Test');
+        expect(spectator.component.search_term()).toBe('Test');
         spectator.dispatchFakeEvent('input', 'blur');
         spectator.tick(111);
         spectator.detectChanges();
-        expect(spectator.component.search_term.value).toEqual(user);
+        expect(spectator.component.search_term()).toEqual(user);
     }));
 
     it('should validate email addresses correctly', () => {

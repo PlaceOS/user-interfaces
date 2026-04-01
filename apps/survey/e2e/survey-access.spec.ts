@@ -3,12 +3,12 @@ import {
     LOAD_TIMEOUT,
     SURVEY_ID_EMPLOYEE,
     SURVEY_ID_INVALID,
-    navigateToSurvey,
-    navigateToSurveyShort,
-    waitForSurveyLoaded,
     getSurveyTitle,
     isLogoVisible,
     isNotFoundVisible,
+    navigateToSurvey,
+    navigateToSurveyShort,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-1: Access Survey by ID', () => {

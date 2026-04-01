@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
@@ -176,7 +175,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         ReactiveFormsModule,
         FormsModule,
         TranslatePipe,

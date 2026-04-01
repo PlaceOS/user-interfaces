@@ -2,7 +2,6 @@ import { Component, ViewEncapsulation, computed, inject } from '@angular/core';
 import { SettingsService } from '@placeos/common';
 import { DesksStateService } from './desks-state.service';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { generateQRCode } from '@placeos/common';
@@ -22,7 +21,9 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
                     <icon>close</icon>
                 </button>
             </div>
-            <div class="desk-qr-list flex h-[calc(100vh-5rem)] flex-wrap overflow-auto">
+            <div
+                class="desk-qr-list flex h-[calc(100vh-5rem)] flex-wrap overflow-auto"
+            >
                 @for (desk of desks(); track desk) {
                     <a
                         [href]="desk.qr_link | safe: 'url'"
@@ -92,7 +93,6 @@ import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
     ],
     encapsulation: ViewEncapsulation.None,
     imports: [
-        CommonModule,
         MatDialogModule,
         MatRippleModule,
         TranslatePipe,

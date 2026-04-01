@@ -303,11 +303,15 @@ export class Booking {
                     this.timezone,
                 );
             } else if (this.duration % (24 * 60) === 0) {
-                (this as any).duration = Math.max(1, this.duration - 1);
-                (this as any).date_end = addMinutes(
+                (this as any).date = startOfDayInTimezone(
                     this.date,
-                    this.duration,
-                ).valueOf();
+                    this.timezone,
+                );
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
             }
         }
         this.checked_out_at = data.checked_out_at;

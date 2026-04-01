@@ -192,7 +192,9 @@ don't detect presence in room after a period of time"
                                 formControlName="control_ui"
                                 placeholder="https://control.example.com/..."
                             />
-                            <mat-error>Control UI must be a valid URL</mat-error>
+                            <mat-error
+                                >Control UI must be a valid URL</mat-error
+                            >
                         </mat-form-field>
                     </div>
                     <div class="flex-1">

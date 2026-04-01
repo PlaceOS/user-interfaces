@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Router } from '@angular/router';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
@@ -48,10 +48,9 @@ describe('LandingFavouritesComponent', () => {
         spectator.component.newBooking('desk', { id: 'desk-123' } as any);
         jest.runAllTimers();
 
-        expect(router.navigate).toHaveBeenCalledWith(
-            ['/book', 'desks'],
-            { queryParams: { asset_id: 'desk-123' } },
-        );
+        expect(router.navigate).toHaveBeenCalledWith(['/book', 'desks'], {
+            queryParams: { asset_id: 'desk-123' },
+        });
         expect(booking_form.newForm).not.toHaveBeenCalled();
         expect(booking_form.setOptions).not.toHaveBeenCalled();
         expect(booking_form.form.patchValue).not.toHaveBeenCalled();
@@ -69,10 +68,9 @@ describe('LandingFavouritesComponent', () => {
         spectator.component.newBooking('parking', item);
         jest.runAllTimers();
 
-        expect(router.navigate).toHaveBeenCalledWith(
-            ['/book', 'parking'],
-            { queryParams: {} },
-        );
+        expect(router.navigate).toHaveBeenCalledWith(['/book', 'parking'], {
+            queryParams: {},
+        });
         expect(booking_form.newForm).toHaveBeenCalledWith('parking');
         expect(booking_form.setOptions).toHaveBeenCalledWith({
             type: 'parking',

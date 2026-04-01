@@ -3,15 +3,15 @@ import {
     LOAD_TIMEOUT,
     SURVEY_ID_COMPREHENSIVE,
     SURVEY_ID_FACILITY,
-    navigateToSurvey,
-    waitForSurveyLoaded,
     clickNext,
     clickSubmit,
-    selectRating,
     enterText,
+    isSuccessMessageVisible,
+    navigateToSurvey,
     selectDropdownOption,
     selectRadioOption,
-    isSuccessMessageVisible,
+    selectRating,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-13: Submit Completed Survey', () => {
@@ -77,7 +77,9 @@ test.describe('US-13: Submit Completed Survey', () => {
         await waitForSurveyLoaded(page);
 
         // Fill the required rating
-        const ratingButton = page.locator('div[btn-grp] button:has-text("5")').first();
+        const ratingButton = page
+            .locator('div[btn-grp] button:has-text("5")')
+            .first();
         await ratingButton.click();
 
         // Submit directly (no Next needed)
@@ -172,7 +174,9 @@ test.describe('US-14: View Submission Confirmation', () => {
         await waitForSurveyLoaded(page);
 
         // Fill the required rating
-        const ratingButton = page.locator('div[btn-grp] button:has-text("5")').first();
+        const ratingButton = page
+            .locator('div[btn-grp] button:has-text("5")')
+            .first();
         await ratingButton.click();
 
         // Submit

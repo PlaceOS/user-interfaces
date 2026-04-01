@@ -1,15 +1,14 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
+    clickPlayPause,
+    getCurrentMediaType,
+    isMediaPlaying,
+    LOAD_TIMEOUT,
     MOCK_SYSTEM_ID,
     navigateWithConfig,
-    waitForSignagePage,
     waitForMediaPlayer,
-    enableDebugMode,
-    getCurrentMediaType,
-    clickPlayPause,
-    isMediaPlaying,
+    waitForSignagePage,
 } from './test-utils';
 
 /**
@@ -47,11 +46,13 @@ test.describe('US-SIG-004: Display Images', () => {
         // In mock mode, we verify the media player is ready to display content
         // Actual media visibility depends on mock playlist configuration
         const media_player = page.locator('media-player');
-        const player_visible = await media_player.isVisible().catch(() => false);
+        const player_visible = await media_player
+            .isVisible()
+            .catch(() => false);
 
         // Either media is visible OR the player container is ready
         expect(
-            image_visible || video_visible || iframe_visible || player_visible
+            image_visible || video_visible || iframe_visible || player_visible,
         ).toBeTruthy();
     });
 
@@ -131,7 +132,9 @@ test.describe('US-SIG-006: Display Web Content', () => {
 });
 
 test.describe('US-SIG-007: Animate Media Transitions', () => {
-    test('should have animation container for transitions', async ({ page }) => {
+    test('should have animation container for transitions', async ({
+        page,
+    }) => {
         await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}`);
         await waitForMediaPlayer(page);
 
@@ -161,7 +164,7 @@ test.describe('US-SIG-007: Animate Media Transitions', () => {
 
         // Get initial state
         const skip_next = page.locator(
-            'media-controls button:has(icon:has-text("skip_next"))'
+            'media-controls button:has(icon:has-text("skip_next"))',
         );
         const is_visible = await skip_next.isVisible().catch(() => false);
 
@@ -187,9 +190,7 @@ test.describe('US-SIG-007: Animate Media Transitions', () => {
 
         // Check for transition/animation CSS properties
         const has_transition_support = await page.evaluate(() => {
-            const elements = document.querySelectorAll(
-                'media-player *'
-            );
+            const elements = document.querySelectorAll('media-player *');
             for (const el of elements) {
                 const style = window.getComputedStyle(el);
                 if (
@@ -258,10 +259,10 @@ test.describe('Media Playback Controls', () => {
         if (controls_visible) {
             // Look for progress bar or duration display
             const progress = page.locator(
-                'media-controls mat-progress-bar, media-controls [progress], media-controls .progress'
+                'media-controls mat-progress-bar, media-controls [progress], media-controls .progress',
             );
             const duration = page.locator(
-                'media-controls [duration], media-controls .duration'
+                'media-controls [duration], media-controls .duration',
             );
 
             const has_progress = await progress.isVisible().catch(() => false);

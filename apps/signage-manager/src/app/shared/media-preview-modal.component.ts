@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -227,7 +226,6 @@ interface MediaPreviewModalData {
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatDialogModule,
         RouterLink,

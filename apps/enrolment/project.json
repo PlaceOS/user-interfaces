@@ -123,7 +123,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
             "options": {
-                "jestConfig": "apps/enrolment/jest.config.ts"
+                "jestConfig": "apps/enrolment/jest.config.ts",
+                "tsConfig": "apps/enrolment/tsconfig.spec.json"
             }
         }
     }

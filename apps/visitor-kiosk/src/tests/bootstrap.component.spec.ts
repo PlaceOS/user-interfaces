@@ -149,12 +149,12 @@ describe('BootstrapComponent', () => {
 
         spectator.component.bootstrapKiosk();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-            '/checkin',
-            'preferences',
-        ], {
-            queryParams: { action: 'preferences', token: 'abc.123' },
-        });
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
     });
 
     it('should bypass bootstrap when action is preferences on load', async () => {
@@ -163,12 +163,12 @@ describe('BootstrapComponent', () => {
         spectator.setRouteQueryParam('token', 'abc.123');
         await spectator.component.ngOnInit();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-            '/checkin',
-            'preferences',
-        ], {
-            queryParams: { action: 'preferences', token: 'abc.123' },
-        });
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
     });
 
     it('should re-direct if already bootstrapped', fakeAsync(async () => {

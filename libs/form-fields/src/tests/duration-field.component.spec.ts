@@ -32,10 +32,10 @@ describe('DurationFieldComponent', () => {
     it('should allow changing the min duration', () => {
         spectator.setInput({ min: 60 });
         spectator.detectChanges();
-        expect(spectator.component.duration_options[0].id).toBe(60);
+        expect(spectator.component.duration_options()[0].id).toBe(60);
         spectator.setInput({ min: Math.floor(Math.random() * 10 + 2) * 15 });
         spectator.detectChanges();
-        expect(spectator.component.duration_options[0].id).toBe(
+        expect(spectator.component.duration_options()[0].id).toBe(
             spectator.component.min(),
         );
     });
@@ -43,11 +43,11 @@ describe('DurationFieldComponent', () => {
     it('should allow changing the max duration', () => {
         spectator.setInput({ max: 240 });
         spectator.detectChanges();
-        let options = spectator.component.duration_options;
+        let options = spectator.component.duration_options();
         expect(options[options.length - 1].id).toBe(240);
         spectator.setInput({ max: Math.floor(Math.random() * 10 + 10) * 15 });
         spectator.detectChanges();
-        options = spectator.component.duration_options;
+        options = spectator.component.duration_options();
         expect(options[options.length - 1].id).toBe(spectator.component.max());
     });
 
@@ -55,27 +55,27 @@ describe('DurationFieldComponent', () => {
         spectator.setInput({ step: 10 });
         spectator.detectChanges();
         let diff =
-            +spectator.component.duration_options[1].id -
-            +spectator.component.duration_options[0].id;
+            +spectator.component.duration_options()[1].id -
+            +spectator.component.duration_options()[0].id;
         expect(diff).toBe(10);
         spectator.setInput({ step: Math.floor(Math.random() * 10 + 1) * 5 });
         spectator.detectChanges();
         diff =
-            +spectator.component.duration_options[1].id -
-            +spectator.component.duration_options[0].id;
+            +spectator.component.duration_options()[1].id -
+            +spectator.component.duration_options()[0].id;
         expect(diff).toBe(spectator.component.step());
     });
 
     it('should allow changing the reference time', () => {
         spectator.setInput({ time: 1 });
         spectator.detectChanges();
-        let options = spectator.component.duration_options;
+        let options = spectator.component.duration_options();
         expect(options[0].date).toBeGreaterThanOrEqual(1);
         spectator.setInput({
             time: addHours(1, 12).valueOf(),
         });
         spectator.detectChanges();
-        options = spectator.component.duration_options;
+        options = spectator.component.duration_options();
         expect(options[0].date).toBeGreaterThanOrEqual(1 + 12 * 60 * 60 * 1000);
     });
 
@@ -96,9 +96,9 @@ describe('DurationFieldComponent', () => {
             custom_options: [30, 45, 90, 90],
         });
         spectator.detectChanges();
-        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
-            30, 45, 60, 90,
-        ]);
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [30, 45, 60, 90],
+        );
     });
 
     it('should limit durations by the latest end time', () => {
@@ -110,9 +110,9 @@ describe('DurationFieldComponent', () => {
             end_time: 17,
         });
         spectator.detectChanges();
-        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
-            30, 60,
-        ]);
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [30, 60],
+        );
     });
 
     it('should filter custom durations outside the latest end time', () => {
@@ -125,8 +125,8 @@ describe('DurationFieldComponent', () => {
             end_time: 17,
         });
         spectator.detectChanges();
-        expect(spectator.component.duration_options.map((_) => _.id)).toEqual([
-            30, 45, 60,
-        ]);
+        expect(spectator.component.duration_options().map((_) => _.id)).toEqual(
+            [30, 45, 60],
+        );
     });
 });

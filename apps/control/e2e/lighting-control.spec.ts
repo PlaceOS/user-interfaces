@@ -45,7 +45,7 @@ test.describe('US-013: Select Lighting Scene', () => {
     }) => {
         // Lighting scenes button has type="lighting_scenes"
         const lightingScenesButton = page.locator(
-            'button[type="lighting_scenes"]'
+            'button[type="lighting_scenes"]',
         );
 
         // May or may not be visible depending on configuration
@@ -64,7 +64,7 @@ test.describe('US-013: Select Lighting Scene', () => {
         page,
     }) => {
         const lightingScenesButton = page.locator(
-            'button[type="lighting_scenes"]'
+            'button[type="lighting_scenes"]',
         );
 
         if (await lightingScenesButton.isVisible().catch(() => false)) {
@@ -78,7 +78,7 @@ test.describe('US-013: Select Lighting Scene', () => {
 
     test('should display available lighting scenes', async ({ page }) => {
         const lightingScenesButton = page.locator(
-            'button[type="lighting_scenes"]'
+            'button[type="lighting_scenes"]',
         );
 
         if (await lightingScenesButton.isVisible().catch(() => false)) {
@@ -148,7 +148,7 @@ test.describe('US-015: Adjust Lighting Levels', () => {
     }) => {
         // Lighting levels button has type="lighting_levels"
         const lightingLevelsButton = page.locator(
-            'button[type="lighting_levels"]'
+            'button[type="lighting_levels"]',
         );
 
         const isVisible = await lightingLevelsButton
@@ -166,7 +166,7 @@ test.describe('US-015: Adjust Lighting Levels', () => {
         page,
     }) => {
         const lightingLevelsButton = page.locator(
-            'button[type="lighting_levels"]'
+            'button[type="lighting_levels"]',
         );
 
         if (await lightingLevelsButton.isVisible().catch(() => false)) {
@@ -179,7 +179,7 @@ test.describe('US-015: Adjust Lighting Levels', () => {
 
     test('should display brightness sliders in tooltip', async ({ page }) => {
         const lightingLevelsButton = page.locator(
-            'button[type="lighting_levels"]'
+            'button[type="lighting_levels"]',
         );
 
         if (await lightingLevelsButton.isVisible().catch(() => false)) {
@@ -201,11 +201,11 @@ test.describe('Lighting Control - Environment Sources', () => {
     }) => {
         // Check for any lighting-related button
         const lightingScenesButton = page.locator(
-            'button[type="lighting_scenes"]'
+            'button[type="lighting_scenes"]',
         );
         const lightingButton = page.locator('button[type="lighting"]');
         const lightingLevelsButton = page.locator(
-            'button[type="lighting_levels"]'
+            'button[type="lighting_levels"]',
         );
 
         const scenesVisible = await lightingScenesButton
@@ -220,7 +220,9 @@ test.describe('Lighting Control - Environment Sources', () => {
 
         // At least one should be visible if lights are configured
         if (scenesVisible || lightingVisible || levelsVisible) {
-            expect(scenesVisible || lightingVisible || levelsVisible).toBeTruthy();
+            expect(
+                scenesVisible || lightingVisible || levelsVisible,
+            ).toBeTruthy();
         }
     });
 });
@@ -244,7 +246,7 @@ test.describe('Lighting Control - Responsive', () => {
 
         // Mobile should have menu button
         const menuButton = page.locator(
-            'topbar-header button icon:has-text("more_vert")'
+            'topbar-header button icon:has-text("more_vert")',
         );
 
         if (await menuButton.isVisible().catch(() => false)) {
@@ -267,7 +269,7 @@ test.describe('Lighting Control - State Management', () => {
         page,
     }) => {
         const lightingScenesButton = page.locator(
-            'button[type="lighting_scenes"]'
+            'button[type="lighting_scenes"]',
         );
 
         if (await lightingScenesButton.isVisible().catch(() => false)) {

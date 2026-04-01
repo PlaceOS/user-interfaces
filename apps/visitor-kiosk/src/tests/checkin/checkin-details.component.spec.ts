@@ -46,8 +46,8 @@ describe('CheckinDetailsComponent', () => {
 
     it('should allow updating guest details', fakeAsync(async () => {
         const service = spectator.inject(CheckinStateService);
-        expect(service.updateGuest).not.toBeCalled();
-        expect(service.checkinGuest).not.toBeCalled();
+        expect(service.updateGuest).not.toHaveBeenCalled();
+        expect(service.checkinGuest).not.toHaveBeenCalled();
         spectator.click('button[next]');
         spectator.tick(2000);
         await spectator.fixture.whenStable();

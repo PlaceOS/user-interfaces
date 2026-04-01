@@ -43,7 +43,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                             >
                                 <h5
-                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">playlist_play</icon>
                                     Playlists ({{ display_playlists().length }})
@@ -174,9 +174,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                                     Pending
                                                                 </span>
                                                             }
-                                                            @case (
-                                                                'awaiting_approval'
-                                                            ) {
+                                                            @case ('awaiting_approval') {
                                                                 <span
                                                                     class="bg-secondary text-secondary-content shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
                                                                 >
@@ -186,11 +184,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                             }
                                                         }
                                                     </div>
-                                                    @if (
-                                                        playlist.description
-                                                    ) {
+                                                    @if (playlist.description) {
                                                         <div
-                                                            class="mt-0.5 truncate text-xs text-base-content/70"
+                                                            class="text-base-content/70 mt-0.5 truncate text-xs"
                                                         >
                                                             {{
                                                                 playlist.description
@@ -225,7 +221,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     }
                                 } @else {
                                     <div
-                                        class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
                                     >
                                         <icon class="text-4xl"
                                             >playlist_remove</icon
@@ -252,7 +248,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
                             >
                                 <h5
-                                    class="flex flex-1 items-center gap-2 font-medium tracking-wider uppercase text-base-content/80"
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
                                 >
                                     <icon class="text-lg">layers</icon>
                                     Zones ({{ display_zones().length }})
@@ -288,7 +284,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                 </div>
                                                 @if (zone.description) {
                                                     <div
-                                                        class="truncate text-xs text-base-content/70"
+                                                        class="text-base-content/70 truncate text-xs"
                                                     >
                                                         {{ zone.description }}
                                                     </div>
@@ -298,7 +294,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                     }
                                 } @else {
                                     <div
-                                        class="flex flex-col items-center justify-center space-y-2 p-6 text-base-content/70"
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-6"
                                     >
                                         <icon class="text-4xl"
                                             >layers_clear</icon
@@ -314,7 +310,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 </div>
             </div>
         } @else {
-            <div class="flex flex-1 flex-col items-center justify-center space-y-2 p-8 text-base-content/70">
+            <div
+                class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+            >
                 <icon class="text-6xl">tv</icon>
                 <p>Select a display to view its details.</p>
             </div>

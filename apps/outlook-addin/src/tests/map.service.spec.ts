@@ -137,7 +137,7 @@ describe('MapService', () => {
         );
 
         await spectator.service.openRoomTile(mockSpace);
-        expect(room_confirm_service_spy).toBeCalled();
+        expect(room_confirm_service_spy).toHaveBeenCalled();
         expect(mat_bottom_sheet.open).toHaveBeenCalled();
     });
 

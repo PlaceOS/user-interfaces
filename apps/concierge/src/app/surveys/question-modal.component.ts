@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -54,7 +53,6 @@ import { QuestionComponent } from './question.component';
         </footer>
     `,
     imports: [
-        CommonModule,
         QuestionComponent,
         TranslatePipe,
         MatRippleModule,

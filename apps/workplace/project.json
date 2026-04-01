@@ -163,7 +163,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/workplace"],
             "options": {
-                "jestConfig": "apps/workplace/jest.config.ts"
+                "jestConfig": "apps/workplace/jest.config.ts",
+                "tsConfig": "apps/workplace/tsconfig.spec.json"
             }
         },
         "mobile:sync:android": {

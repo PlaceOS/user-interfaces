@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent } from '@placeos/components';
-import { SignageService } from '../signage.service';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { SignageService } from '../signage.service';
 import { MediaListHeaderComponent } from './media-list-header.component';
 import { MediaListComponent } from './media-list.component';
 import { PlaylistSidebarComponent } from './playlist-sidebar.component';

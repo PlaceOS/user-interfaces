@@ -240,9 +240,12 @@ export class PlaylistsSectionComponent {
         this._route.queryParamMap.pipe(map((p) => p.get(ITEM_QUERY_PARAM))),
         { initialValue: null as string | null },
     );
-    private readonly _playlist_items = toSignal(this._service.playlist_media_items$, {
-        initialValue: [] as SignageMedia[],
-    });
+    private readonly _playlist_items = toSignal(
+        this._service.playlist_media_items$,
+        {
+            initialValue: [] as SignageMedia[],
+        },
+    );
 
     private _route_resolved = false;
 

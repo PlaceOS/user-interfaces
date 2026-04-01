@@ -86,7 +86,9 @@ describe('BookingDetailsModalComponent', () => {
                 description: 'Vendor Interview',
                 asset_name: 'Vendor Interview',
                 asset_id: 'visitor.one@example.com',
-                attendees: [{ name: 'Visitor One', email: 'visitor.one@example.com' }],
+                attendees: [
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                ],
             } as any),
         );
 

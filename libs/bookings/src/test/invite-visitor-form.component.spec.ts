@@ -93,14 +93,14 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should allow sending visitor invite', () => {
         const service = spectator.inject(BookingFormService);
-        expect(service.postForm).not.toBeCalled();
+        expect(service.postForm).not.toHaveBeenCalled();
         spectator.click('button[send]');
-        expect(service.postForm).not.toBeCalled();
+        expect(service.postForm).not.toHaveBeenCalled();
         service.form.patchValue({
             asset_id: 'test@mail.com',
         });
         spectator.click('button[send]');
-        expect(service.postForm).toBeCalled();
+        expect(service.postForm).toHaveBeenCalled();
     });
 
     it('should show loading state', () => {
