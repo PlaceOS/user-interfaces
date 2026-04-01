@@ -132,14 +132,36 @@ describe('NewCateringSelectModalComponent', () => {
         expect(spectator.component.selected).toHaveLength(0);
     });
 
+    it('should bind delivery settings into the filter component', () => {
+        spectator.component.exact_time = true;
+        spectator.component.offset = 45;
+        spectator.component.offset_day = 1;
+        spectator.detectChanges();
+
+        const filters = spectator.query(
+            NewCateringItemFiltersComponent as any,
+        ) as any;
+        expect(filters.at_time).toBe(true);
+        expect(filters.offset).toBe(45);
+        expect(filters.offset_day).toBe(1);
+    });
+
     it('should keep an ordered item in place when updating its quantity', () => {
-        const first = new CateringItem({ id: '1', quantity: 1, in_order: true });
+        const first = new CateringItem({
+            id: '1',
+            quantity: 1,
+            in_order: true,
+        });
         const second = new CateringItem({
             id: '2',
             quantity: 2,
             in_order: true,
         });
-        const third = new CateringItem({ id: '3', quantity: 1, in_order: true });
+        const third = new CateringItem({
+            id: '3',
+            quantity: 1,
+            in_order: true,
+        });
         spectator.component.selected = [first, second, third];
         spectator.component.displayed = second;
 

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
-    computed,
     Component,
+    computed,
     forwardRef,
     inject,
     input,
@@ -51,10 +51,10 @@ const EMPTY_FAVS = [];
                                             | translate
                                                 : {
                                                       date:
-                                                          order.deliver_at_time
+                                                          order.deliver_at
                                                           | date: 'mediumDate',
                                                       time:
-                                                          order.deliver_at_time
+                                                          order.deliver_at
                                                           | date: time_format,
                                                   }
                                     }}

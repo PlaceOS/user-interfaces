@@ -1,4 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { addMinutes } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -113,5 +114,31 @@ describe('CateringListFieldComponent', () => {
 
         expect(spectator.component.orders()).toHaveLength(1);
         expect(spectator.component.orders()[0].items).toEqual([new_item]);
+    });
+
+    it('should recalculate delivery time from the current booking details', () => {
+        const event_date = new Date('2026-04-01T09:00:00').valueOf();
+        const updated_date = new Date('2026-04-01T10:00:00').valueOf();
+        const order = new CateringOrder({
+            id: 'order-1',
+            caterer: 'Cafe',
+            items: [
+                new CateringItem({
+                    id: 'coffee',
+                    name: 'Coffee',
+                    caterer: 'Cafe',
+                    quantity: 1,
+                }),
+            ],
+            event: { date: event_date } as any,
+            deliver_offset: 30,
+        });
+
+        spectator.setInput('options', { date: updated_date, duration: 60 });
+        spectator.component.writeValue([order]);
+
+        expect(spectator.component.orders()[0].deliver_at).toBe(
+            addMinutes(updated_date, 30).valueOf(),
+        );
     });
 });
