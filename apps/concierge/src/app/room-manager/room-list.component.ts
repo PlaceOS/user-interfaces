@@ -17,7 +17,7 @@ import { RoomManagementService } from './room-management.service';
     template: `
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
-                class="block min-w-4xl text-sm"
+                class="block min-w-6xl text-sm"
                 [data]="rooms"
                 empty_message="No rooms for selected level or building"
                 [columns]="[
@@ -41,6 +41,12 @@ import { RoomManagementService } from './room-management.service';
                         key: 'type',
                         name: 'APP.CONCIERGE.ROOMS_TYPE' | translate,
                         size: '8rem',
+                    },
+                    {
+                        key: 'features',
+                        name: 'COMMON.FEATURES' | translate,
+                        content: feature_list_template,
+                        size: '16rem',
                     },
                     {
                         key: 'approval',
@@ -88,6 +94,17 @@ import { RoomManagementService } from './room-management.service';
         <ng-template #level_template let-data="data">
             <div class="p-4">
                 {{ (data | level)?.display_name || (data | level)?.name }}
+            </div>
+        </ng-template>
+        <ng-template #feature_list_template let-data="data">
+            <div class="flex flex-wrap p-2">
+                @for (feature of data || []; track feature) {
+                    <span
+                        class="bg-info text-info-content m-1 rounded-2xl px-2 py-1 font-mono text-xs"
+                    >
+                        {{ feature }}
+                    </span>
+                }
             </div>
         </ng-template>
         <ng-template #bool_template let-data="data">
