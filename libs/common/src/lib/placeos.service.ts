@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
+    authority,
     clientId,
     convertPairStringToMap,
     invalidateToken,
@@ -32,10 +33,18 @@ import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
-import { clearNativeDomain, getNativeDomain, isNativeApp } from './native-app';
+import {
+    bindNativeAuthRedirects,
+    clearNativeDomain,
+    closeNativeBrowser,
+    consumeNativeAuthRedirect,
+    getNativeDomain,
+    isNativeApp,
+    openNativeBrowser,
+} from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
-import { setupPlace } from './placeos';
+import { createNativeAuthUrl, setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
 import { current_user, currentUser } from './user-state';
@@ -123,6 +132,16 @@ export class PlaceOS_Service extends AsyncHandler {
     private _initial_token = '';
     private _domain_resolve: (() => void) | null = null;
 
+    private async _handleNativeAuthRedirect(url: string): Promise<void> {
+        const callback_url = new URL(url);
+        localStorage.setItem('TESTING.callback_url', callback_url.toString());
+        const search = callback_url.searchParams.toString();
+        if (!search) return;
+        await closeNativeBrowser();
+        location.replace(`${location.origin}${location.pathname}?${search}`);
+        setTimeout(() => console.log('NATIVE CALLBACK URL', url), 10 * 1000);
+    }
+
     public get debug() {
         return (
             window.debug && this._settings.get('app.allow_debugging') === true
@@ -153,6 +172,16 @@ export class PlaceOS_Service extends AsyncHandler {
     }
 
     public async init() {
+        if (isNativeApp()) {
+            await bindNativeAuthRedirects((url) => {
+                void this._handleNativeAuthRedirect(url);
+            });
+            const launch_url = await consumeNativeAuthRedirect();
+            if (launch_url) {
+                await this._handleNativeAuthRedirect(launch_url);
+                return;
+            }
+        }
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
             setLoadingMessage('Initializing mocks...');
@@ -216,6 +245,9 @@ export class PlaceOS_Service extends AsyncHandler {
         await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
+        settings.app_name =
+            this._settings.get('app.name') ||
+            this._settings.get('app.short_name');
         settings.mock =
             !!this._settings.get('mock') ||
             (_mocks && location.origin.includes('demo.place.tech'));
@@ -247,8 +279,15 @@ export class PlaceOS_Service extends AsyncHandler {
             log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
             clearNativeDomain();
             DOMAIN_ERROR.set(
-                'Unable to connect to this server. Check the domain and try again.',
+                'Unable to connect to your server. Check the email address and try again.',
             );
+        }
+        if (isNativeApp() && !token(false) && authority()) {
+            setLoadingMessage('Opening sign in...');
+            await openNativeBrowser(
+                await createNativeAuthUrl(settings, clientId()),
+            );
+            return;
         }
         if (!isNativeApp()) {
             setLoadingMessage('Authenticating...');
