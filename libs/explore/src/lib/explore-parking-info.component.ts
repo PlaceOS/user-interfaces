@@ -87,7 +87,7 @@ export class ExploreParkingInfoComponent {
             : this._data.status,
     );
     public readonly user = signal(this._data.user);
-    public readonly name = signal(this._data.name);
+    public readonly name = signal(this._data.name || this._data.identifier);
     public readonly map_id = signal(this._data.map_id);
     public readonly plate_number = signal(this._data.plate_number);
     public readonly show_parking_users = settingSignal(
