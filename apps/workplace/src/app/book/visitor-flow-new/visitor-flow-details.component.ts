@@ -182,15 +182,26 @@ type VisitorFormType = 'single' | 'group';
                         </div>
                     </div>
                 }
-                @if (can_book_for_others()) {
+                @if (can_book_for_anyone()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
                         </label>
                         <a-user-search-field
                             name="host"
+                            class="mb-4"
                             formControlName="user"
                         ></a-user-search-field>
+                    </div>
+                } @else if (can_book_for_others()) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            name="host"
+                            formControlName="organiser"
+                        ></host-select-field>
                     </div>
                 }
                 <div class="flex flex-col">
@@ -301,10 +312,20 @@ export class VisitorFlowDetailsComponent implements OnInit {
         'visitors.allow_all_day',
         false,
     );
-    public readonly can_book_for_others = settingSignal(
-        'bookings.can_book_for_others',
-        false,
-    );
+
+    public readonly can_book_for_others = computed(() => {
+        return (
+            settingSignal('visitors.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')()
+        );
+    });
+
+    public readonly can_book_for_anyone = computed(() => {
+        return (
+            settingSignal('visitors.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')()
+        );
+    });
 
     public readonly use_24hr = settingSignal('use_24_hour_time', false);
     public readonly buildings = this._org.active_buildings;
