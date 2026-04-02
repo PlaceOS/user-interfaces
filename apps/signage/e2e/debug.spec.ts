@@ -1,22 +1,17 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    MOCK_SYSTEM_ID,
-    navigateWithConfig,
-    waitForSignagePage,
-    waitForMediaPlayer,
-    waitForDebugControls,
-    enableDebugMode,
-    isPlaylistVisible,
+    clickMuteToggle,
     clickPlayPause,
     clickSkipNext,
     clickSkipPrevious,
-    clickMuteToggle,
-    clickLoopToggle,
-    clickShuffleToggle,
+    isPlaylistVisible,
+    LOAD_TIMEOUT,
+    MOCK_SYSTEM_ID,
+    navigateWithConfig,
     openTimeControls,
-    isTimeOverrideActive,
+    waitForDebugControls,
+    waitForMediaPlayer,
 } from './test-utils';
 
 /**
@@ -80,7 +75,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const play_pause = page.locator(
-            'media-controls button:has(icon:has-text("play_arrow")), media-controls button:has(icon:has-text("pause"))'
+            'media-controls button:has(icon:has-text("play_arrow")), media-controls button:has(icon:has-text("pause"))',
         );
         await expect(play_pause).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -101,7 +96,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const skip_next = page.locator(
-            'media-controls button:has(icon:has-text("skip_next"))'
+            'media-controls button:has(icon:has-text("skip_next"))',
         );
         await expect(skip_next).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -124,7 +119,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const skip_prev = page.locator(
-            'media-controls button:has(icon:has-text("skip_previous"))'
+            'media-controls button:has(icon:has-text("skip_previous"))',
         );
         await expect(skip_prev).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -150,7 +145,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const mute_button = page.locator(
-            'media-controls button:has(icon:has-text("volume_up")), media-controls button:has(icon:has-text("volume_off"))'
+            'media-controls button:has(icon:has-text("volume_up")), media-controls button:has(icon:has-text("volume_off"))',
         );
         await expect(mute_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -173,7 +168,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const loop_button = page.locator(
-            'media-controls button:has(icon:has-text("repeat"))'
+            'media-controls button:has(icon:has-text("repeat"))',
         );
         await expect(loop_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -183,7 +178,7 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         const shuffle_button = page.locator(
-            'media-controls button:has(icon:has-text("shuffle"))'
+            'media-controls button:has(icon:has-text("shuffle"))',
         );
         await expect(shuffle_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -193,12 +188,8 @@ test.describe('US-SIG-019: Manual Playback Controls', () => {
         await waitForDebugControls(page);
 
         // Look for progress bar or duration text
-        const progress_bar = page.locator(
-            'media-controls mat-progress-bar'
-        );
-        const duration_text = page.locator(
-            'media-controls span:has-text(":")'
-        );
+        const progress_bar = page.locator('media-controls mat-progress-bar');
+        const duration_text = page.locator('media-controls span:has-text(":")');
 
         const has_progress = await progress_bar.isVisible().catch(() => false);
         const has_duration = await duration_text.isVisible().catch(() => false);
@@ -232,7 +223,7 @@ test.describe('US-SIG-020: Override System Time', () => {
         if (is_visible) {
             // Should display time in some format
             const time_display = page.locator(
-                'time-controls span:has-text(":")'
+                'time-controls span:has-text(":")',
             );
             const has_time = await time_display.isVisible().catch(() => false);
 
@@ -251,7 +242,7 @@ test.describe('US-SIG-020: Override System Time', () => {
 
         if (is_visible) {
             const schedule_button = page.locator(
-                'time-controls button:has(icon:has-text("schedule"))'
+                'time-controls button:has(icon:has-text("schedule"))',
             );
             const has_button = await schedule_button
                 .isVisible()
@@ -262,7 +253,7 @@ test.describe('US-SIG-020: Override System Time', () => {
 
                 // Modal or picker should open
                 const modal = page.locator(
-                    'mat-dialog-container, [time-picker], .time-picker'
+                    'mat-dialog-container, [time-picker], .time-picker',
                 );
                 const modal_visible = await modal
                     .isVisible()
@@ -285,7 +276,7 @@ test.describe('US-SIG-020: Override System Time', () => {
         if (is_visible) {
             // Check for static/progressive mode toggle
             const mode_toggle = page.locator(
-                'time-controls [static], time-controls [progressive], time-controls mat-checkbox'
+                'time-controls [static], time-controls [progressive], time-controls mat-checkbox',
             );
             const has_toggle = await mode_toggle.isVisible().catch(() => false);
 
@@ -305,7 +296,7 @@ test.describe('US-SIG-020: Override System Time', () => {
         if (is_visible) {
             // Check for clear button
             const clear_button = page.locator(
-                'time-controls button:has(icon:has-text("clear")), time-controls button:has-text("Clear")'
+                'time-controls button:has(icon:has-text("clear")), time-controls button:has-text("Clear")',
             );
             const has_clear = await clear_button.isVisible().catch(() => false);
 
@@ -335,9 +326,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         const playlist_visible = await isPlaylistVisible(page);
 
         if (playlist_visible) {
-            const items = page.locator(
-                'playlist-display [playlist-item]'
-            );
+            const items = page.locator('playlist-display [playlist-item]');
             const count = await items.count();
 
             // Should have at least one item
@@ -356,7 +345,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         if (playlist_visible) {
             // Look for active/playing state indicators
             const current_item = page.locator(
-                'playlist-display [playlist-item].active, playlist-display [playlist-item].playing, playlist-display [playlist-item].current, playlist-display [playlist-item][active], playlist-display [playlist-item][playing]'
+                'playlist-display [playlist-item].active, playlist-display [playlist-item].playing, playlist-display [playlist-item].current, playlist-display [playlist-item][active], playlist-display [playlist-item][playing]',
             );
             const has_current = await current_item
                 .first()
@@ -379,7 +368,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         if (playlist_visible) {
             // Look for duration display in playlist items
             const duration_elements = page.locator(
-                'playlist-display [playlist-item] [duration], playlist-display [playlist-item] .duration, playlist-display [playlist-item] span:has-text("s")'
+                'playlist-display [playlist-item] [duration], playlist-display [playlist-item] .duration, playlist-display [playlist-item] span:has-text("s")',
             );
             const has_durations = await duration_elements
                 .first()
@@ -399,9 +388,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         const playlist_visible = await isPlaylistVisible(page);
 
         if (playlist_visible) {
-            const items = page.locator(
-                'playlist-display [playlist-item]'
-            );
+            const items = page.locator('playlist-display [playlist-item]');
             const count = await items.count();
 
             if (count > 1) {
@@ -431,7 +418,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         if (playlist_visible) {
             // Look for error indicators or tooltips
             const error_indicators = page.locator(
-                'playlist-display icon:has-text("error"), playlist-display icon:has-text("warning"), playlist-display [error], playlist-display [invalid]'
+                'playlist-display icon:has-text("error"), playlist-display icon:has-text("warning"), playlist-display [error], playlist-display [invalid]',
             );
             const error_count = await error_indicators.count();
 
@@ -451,7 +438,7 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         if (playlist_visible) {
             // Look for count display
             const count_display = page.locator(
-                'playlist-display [count], playlist-display .count, playlist-display h2, playlist-display h3'
+                'playlist-display [count], playlist-display .count, playlist-display h2, playlist-display h3',
             );
             const has_count = await count_display
                 .first()
@@ -471,15 +458,13 @@ test.describe('US-SIG-021: View Playlist Contents', () => {
         const playlist_visible = await isPlaylistVisible(page);
 
         if (playlist_visible) {
-            const items = page.locator(
-                'playlist-display [playlist-item]'
-            );
+            const items = page.locator('playlist-display [playlist-item]');
             const count = await items.count();
 
             if (count === 0) {
                 // Check for empty state message
                 const empty_state = page.locator(
-                    'playlist-display [empty], playlist-display .empty, playlist-display p'
+                    'playlist-display [empty], playlist-display .empty, playlist-display p',
                 );
                 const has_empty = await empty_state
                     .isVisible()

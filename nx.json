@@ -155,5 +155,6 @@
             "exclude": ["apps/*-e2e/**"]
         }
     ],
-    "defaultBase": "develop"
+    "defaultBase": "develop",
+    "analytics": false
 }

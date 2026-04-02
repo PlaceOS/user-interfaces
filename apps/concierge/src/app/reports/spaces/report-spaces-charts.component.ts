@@ -19,16 +19,16 @@ import {
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import {
+    ArcElement,
+    CategoryScale,
     Chart,
+    Legend,
+    LinearScale,
     LineController,
     LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
     PieController,
-    ArcElement,
+    PointElement,
     Tooltip,
-    Legend,
 } from 'chart.js';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';

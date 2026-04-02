@@ -22,7 +22,6 @@ export function parseTokenFromUrl(url: string): string {
         /* Ignore invalid URLs and continue to regex fallback */
     }
 
-    const token_match =
-        /(?:[?#&])(access_token|jwt|token)=([^&#]+)/.exec(url);
+    const token_match = /(?:[?#&])(access_token|jwt|token)=([^&#]+)/.exec(url);
     return token_match?.[2] ? decodeURIComponent(token_match[2]) : '';
 }

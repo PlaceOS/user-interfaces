@@ -30,23 +30,29 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
     await page.goto('/');
     // Wait for page to be stable before evaluating
     await page.waitForLoadState('domcontentloaded');
-    await page.evaluate(() => {
-        localStorage.setItem('mock', 'true');
-    }).catch(() => {
-        // Retry if context was destroyed due to navigation
-    });
+    await page
+        .evaluate(() => {
+            localStorage.setItem('mock', 'true');
+        })
+        .catch(() => {
+            // Retry if context was destroyed due to navigation
+        });
 
     // Navigate to the app with mock mode in URL as backup
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
     // Ensure localStorage is set (retry)
-    await page.evaluate(() => {
-        localStorage.setItem('mock', 'true');
-    }).catch(() => {});
+    await page
+        .evaluate(() => {
+            localStorage.setItem('mock', 'true');
+        })
+        .catch(() => {});
     await page.waitForTimeout(1000);
 
     // Wait for app to initialize
-    await page.locator('app-root').waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    await page
+        .locator('app-root')
+        .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 }
 
 /**
@@ -55,7 +61,7 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
  */
 export async function navigateToSurvey(
     page: Page,
-    surveyId: string
+    surveyId: string,
 ): Promise<void> {
     // First initialize the app with mock mode
     await initializeAppWithMock(page);
@@ -70,7 +76,7 @@ export async function navigateToSurvey(
  */
 export async function navigateToSurveyShort(
     page: Page,
-    surveyId: string
+    surveyId: string,
 ): Promise<void> {
     // First initialize the app with mock mode
     await initializeAppWithMock(page);
@@ -100,7 +106,9 @@ export async function waitForSurveyLoaded(page: Page): Promise<void> {
  * Waits for the app root to be visible
  */
 export async function waitForAppReady(page: Page): Promise<void> {
-    await page.locator('app-root').waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+    await page
+        .locator('app-root')
+        .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
     await page.waitForLoadState('networkidle');
 }
 
@@ -152,10 +160,12 @@ export async function clickSubmit(page: Page): Promise<void> {
 export async function selectRating(
     page: Page,
     questionId: number,
-    rating: number
+    rating: number,
 ): Promise<void> {
     // Find the question container by looking for the title, then the button group
-    const buttonGroup = page.locator(`div[btn-grp] button:has-text("${rating}")`).first();
+    const buttonGroup = page
+        .locator(`div[btn-grp] button:has-text("${rating}")`)
+        .first();
     await buttonGroup.click();
 }
 
@@ -165,7 +175,7 @@ export async function selectRating(
 export async function enterText(
     page: Page,
     placeholder: string,
-    text: string
+    text: string,
 ): Promise<void> {
     const input = page.locator(`input[placeholder*="${placeholder}"]`);
     await input.fill(text);
@@ -177,7 +187,7 @@ export async function enterText(
 export async function enterComment(
     page: Page,
     placeholder: string,
-    text: string
+    text: string,
 ): Promise<void> {
     const textarea = page.locator(`textarea[placeholder*="${placeholder}"]`);
     await textarea.fill(text);
@@ -188,7 +198,7 @@ export async function enterComment(
  */
 export async function selectDropdownOption(
     page: Page,
-    optionText: string
+    optionText: string,
 ): Promise<void> {
     // Click the mat-select to open it
     const select = page.locator('mat-select').first();
@@ -205,7 +215,7 @@ export async function selectDropdownOption(
  */
 export async function selectRadioOption(
     page: Page,
-    optionText: string
+    optionText: string,
 ): Promise<void> {
     const radio = page.locator(`mat-radio-button:has-text("${optionText}")`);
     await radio.click();
@@ -216,10 +226,12 @@ export async function selectRadioOption(
  */
 export async function toggleCheckbox(
     page: Page,
-    optionText: string
+    optionText: string,
 ): Promise<void> {
     // Click on the label inside the mat-checkbox for more reliable toggle
-    const checkbox = page.locator(`mat-checkbox:has-text("${optionText}") label`);
+    const checkbox = page.locator(
+        `mat-checkbox:has-text("${optionText}") label`,
+    );
     await checkbox.click();
     // Wait for Angular to process the change
     await page.waitForTimeout(300);

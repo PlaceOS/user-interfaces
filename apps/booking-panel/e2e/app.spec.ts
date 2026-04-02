@@ -40,7 +40,9 @@ test.describe('Booking Panel - Application Initialization', () => {
     test('US-019: should configure panel via URL parameter', async ({
         page,
     }) => {
-        await page.goto(`${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`);
+        await page.goto(
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
+        );
         await expect(page.locator('panel-view')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
@@ -70,7 +72,7 @@ test.describe('Booking Panel - Application Initialization', () => {
         });
         // Check that the main container is rendered (not the QR overlay)
         await expect(
-            page.locator('event-panel > div.bg-base-100.absolute.inset-0')
+            page.locator('event-panel > div.bg-base-100.absolute.inset-0'),
         ).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 });
@@ -90,9 +92,11 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Should have one of the status colors (bg-success, bg-error, or bg-warning)
         const statusDiv = statusPanel.locator(
-            'div.bg-success, div.bg-error, div.bg-warning'
+            'div.bg-success, div.bg-error, div.bg-warning',
         );
-        await expect(statusDiv.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(statusDiv.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 
     test('US-001: should show green background when room is free', async ({
@@ -107,7 +111,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
         await expect(
             statusPanel.locator('h3:has-text("NOW"), h3:has-text("now")', {
                 hasText: /now/i,
-            })
+            }),
         ).toBeVisible();
     });
 
@@ -119,7 +123,7 @@ test.describe('Room Status Display (US-001 to US-005)', () => {
 
         // Should show NEXT section
         await expect(
-            statusPanel.locator('h3', { hasText: /next/i })
+            statusPanel.locator('h3', { hasText: /next/i }),
         ).toBeVisible();
     });
 
@@ -162,7 +166,7 @@ test.describe('Booking a Room (US-006 to US-010)', () => {
         // Wait for either booking modal or confirm modal to appear
         // This depends on current room status
         const modal = page.locator(
-            'booking-modal, mat-dialog-container, [mat-dialog-container]'
+            'booking-modal, mat-dialog-container, [mat-dialog-container]',
         );
         // Modal may or may not appear depending on room status
         // If room is free, should show booking interface
@@ -306,7 +310,7 @@ test.describe('Panel Configuration (US-018 to US-020)', () => {
             timeout: LOAD_TIMEOUT,
         });
         await expect(
-            page.locator('event-panel > div.bg-base-100.absolute.inset-0')
+            page.locator('event-panel > div.bg-base-100.absolute.inset-0'),
         ).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 });
@@ -421,7 +425,9 @@ test.describe('Real-Time Updates (US-028 to US-029)', () => {
 
         // Should show upcoming section with status indicators
         await expect(
-            page.locator('h3:has-text("Upcoming"), h3', { hasText: /upcoming/i })
+            page.locator('h3:has-text("Upcoming"), h3', {
+                hasText: /upcoming/i,
+            }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 });
@@ -433,6 +439,8 @@ test.describe('Version and Metadata Display', () => {
 
         // Version info should be in the bottom right
         const versionText = page.locator('div.opacity-40');
-        await expect(versionText.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(versionText.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 });

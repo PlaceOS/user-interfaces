@@ -39,11 +39,11 @@ describe('HostSelectFieldComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should handle external value changes', () => {
-        expect(spectator.component.item).toBeUndefined();
+        expect(spectator.component.item()).toBeNull();
         const user = new StaffUser({ email: 'test@t.com' });
         spectator.component.writeValue(user);
         spectator.detectChanges();
-        expect(spectator.component.item).toBe(user);
+        expect(spectator.component.item()).toBe(user);
     });
 
     // it('should handle internal value changes', async () => {
@@ -57,8 +57,8 @@ describe('HostSelectFieldComponent', () => {
     // });
 
     it('should handle disable being toggled', () => {
-        expect(spectator.component.disabled).toBeFalsy();
+        expect(spectator.component.disabled()).toBeFalsy();
         spectator.component.setDisabledState(true);
-        expect(spectator.component.disabled).toBeTruthy();
+        expect(spectator.component.disabled()).toBeTruthy();
     });
 });

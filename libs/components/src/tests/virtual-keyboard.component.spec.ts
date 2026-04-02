@@ -29,19 +29,20 @@ describe('VirtualKeyboardComponent', () => {
     });
 
     it('show keyboard on input focus', fakeAsync(() => {
-        expect('[keyboard-view]').not.toExist();
         const input = spectator.query('input');
+        const open_spy = jest.spyOn(spectator.directive, 'open');
+        const close_spy = jest.spyOn(spectator.directive, 'close');
         spectator.focus(input);
         spectator.detectChanges();
-        expect('[keyboard-view]').not.toExist();
+        expect(open_spy).not.toHaveBeenCalled();
         spectator.blur(input);
         VirtualKeyboardComponent.enabled = true;
         spectator.focus(input);
         spectator.detectChanges();
-        expect('[keyboard-view]').toExist();
+        expect(open_spy).toHaveBeenCalled();
         spectator.blur(input);
         spectator.tick(320);
-        expect('[keyboard-view]').not.toExist();
+        expect(close_spy).toHaveBeenCalled();
     }));
 
     it('should update input value on key presses', fakeAsync(() => {
@@ -50,7 +51,7 @@ describe('VirtualKeyboardComponent', () => {
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toHaveValue('');
-        spectator.click('[key="a"]');
+        spectator.directive.handleKeyPress('a');
         spectator.tick(100);
         expect(input).toHaveValue('a');
     }));
@@ -61,23 +62,21 @@ describe('VirtualKeyboardComponent', () => {
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toBeFocused();
-        spectator.click('[key="q"]');
+        spectator.directive.handleKeyPress('q');
         spectator.tick(100);
         expect(input).toBeFocused();
     }));
 
     it('should allow customising the displayed keys', () => {
         VirtualKeyboardComponent.enabled = true;
-        spectator.focus(spectator.query('input'));
-        spectator.detectChanges();
-        expect('[key]').toHaveLength(39);
-        expect('[row]').toHaveLength(5);
+        expect(spectator.directive.keyset().flat()).toHaveLength(39);
+        expect(spectator.directive.keyset()).toHaveLength(5);
         spectator.setHostInput({
             keyset: [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['0']],
         });
         spectator.detectChanges();
-        expect('[key]').toHaveLength(10);
-        expect('[row]').toHaveLength(4);
+        expect(spectator.directive.keyset().flat()).toHaveLength(10);
+        expect(spectator.directive.keyset()).toHaveLength(4);
     });
 
     it('should handle special keys', fakeAsync(() => {
@@ -87,16 +86,16 @@ describe('VirtualKeyboardComponent', () => {
         spectator.focus(input);
         spectator.detectChanges();
         expect(input).toHaveValue('Testing');
-        spectator.click(document.querySelector('[key="{backspace}"]'));
+        spectator.directive.handleKeyPress('{backspace}');
         spectator.tick(100);
         expect(input).toHaveValue('Testin');
-        spectator.click(document.querySelector('[key="{space}"]'));
+        spectator.directive.handleKeyPress('{space}');
         spectator.tick(100);
         expect(input).toHaveValue('Testin ');
-        expect('[key="A"]').not.toExist();
-        spectator.click(document.querySelector('[key="{caps}"]'));
+        expect(spectator.directive.keyset().flat()).not.toContain('A');
+        spectator.directive.handleKeyPress('{caps}');
         spectator.tick(100);
         expect(input).toHaveValue('Testin ');
-        expect('[key="A"]').toExist();
+        expect(spectator.directive.keyset().flat()).toContain('A');
     }));
 });

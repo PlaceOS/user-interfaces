@@ -80,4 +80,18 @@ describe('Booking class', () => {
 
         expect(booking.asset_name).toBe('desk-2');
     });
+
+    it('should preserve custom all-day periods', () => {
+        booking = new Booking({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            duration: 8 * 60,
+        });
+
+        expect(booking.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(booking.duration).toBe(8 * 60);
+        expect(booking.date_end).toBe(
+            new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        );
+    });
 });

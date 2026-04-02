@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -34,9 +34,9 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 />
             </div>
             <div class="flex h-48 w-1/2 flex-1 flex-col items-center">
-                @if (list?.length) {
+                @if (list().length) {
                     <div list class="h-full w-full space-y-2 overflow-auto">
-                        @for (item of list; track item) {
+                        @for (item of list(); track item) {
                             <div
                                 item
                                 class="border-base-200 bg-base-100 hover:bg-base-200 flex w-full items-center rounded-sm border"
@@ -106,7 +106,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
     imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
 })
 export class UploadListFieldComponent implements ControlValueAccessor {
-    public list: Attachment[] = [];
+    public readonly list = signal<Attachment[]>([]);
     /** Form control on change handler */
     private _onChange: (_: Attachment[]) => void;
     /** Form control on touch handler */
@@ -120,8 +120,11 @@ export class UploadListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: Attachment[]): void {
-        this.list = new_value.filter((_) => _.url && _.progress >= 100);
-        if (this._onChange) this._onChange(this.list);
+        const list = (new_value || []).filter(
+            (_) => _.url && _.progress >= 100,
+        );
+        this.list.set(list);
+        if (this._onChange) this._onChange(list);
     }
 
     /**
@@ -129,14 +132,16 @@ export class UploadListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: Attachment[]) {
-        this.list = value.map((_) => ({
-            id: `file-${randomInt(999_999_999)}`,
-            ..._,
-        }));
+        this.list.set(
+            (value || []).map((_) => ({
+                id: `file-${randomInt(999_999_999)}`,
+                ..._,
+            })),
+        );
     }
 
     public removeFile(item: Attachment) {
-        this.list = this.list.filter((_) => _.id !== item.id);
+        this.setValue(this.list().filter((_) => _.id !== item.id));
     }
 
     public onFileEvent(event) {
@@ -145,10 +150,12 @@ export class UploadListFieldComponent implements ControlValueAccessor {
         if (!element?.files?.length) return;
         const files: FileList = element.files;
         const on_change = (item) => {
-            this.list = [
-                ...(this.list || []).filter((_) => _.id !== item.id),
+            const list = [
+                ...this.list().filter((_) => _.id !== item.id),
+                item,
             ].sort((a, b) => a.created_at - b.created_at);
-            this.setValue(this.list);
+            this.list.set(list);
+            this.setValue(list);
         };
         for (let i = 0; i < files.length; i++) {
             this._uploadFile(files[i], on_change);

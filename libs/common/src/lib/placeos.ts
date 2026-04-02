@@ -1,5 +1,5 @@
 import { PlaceAuthOptions, setup } from '@placeos/ts-client';
-import { isNativeApp } from './native-app';
+import { getNativeRedirectUri, isNativeApp } from './native-app';
 import { notifyInfo } from './notifications';
 
 export interface PlaceSettings {
@@ -19,6 +19,60 @@ export interface PlaceSettings {
     mock: boolean;
 
     storage?: 'session' | 'local';
+    app_name?: string;
+}
+
+function randomString(length = 43): string {
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (value) => chars[value % chars.length]).join('');
+}
+
+async function sha256Base64Url(value: string): Promise<string> {
+    const buffer = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(value),
+    );
+    const bytes = Array.from(new Uint8Array(buffer), (byte) =>
+        String.fromCharCode(byte),
+    ).join('');
+    return btoa(bytes)
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+}
+
+export async function createNativeAuthUrl(
+    settings: PlaceSettings,
+    client_id: string,
+): Promise<string> {
+    const protocol = settings.protocol || location.protocol;
+    const host = settings.domain || location.hostname;
+    const port = settings.port || location.port;
+    const host_with_port = `${host}${port ? ':' + port : ''}`;
+    const url = settings.use_domain
+        ? `${protocol}//${host_with_port}`
+        : location.origin;
+    const redirect_uri = await getNativeRedirectUri(
+        settings.app_name,
+        settings.domain,
+    );
+    const nonce = randomString(16);
+    const challenge = randomString();
+    const verify = await sha256Base64Url(challenge);
+    localStorage.setItem(`${client_id}_nonce`, nonce);
+    sessionStorage.setItem(`${client_id}_challenge`, challenge);
+    return (
+        `${url}/auth/oauth/authorize?response_type=code` +
+        `&client_id=${encodeURIComponent(client_id)}` +
+        `&state=${encodeURIComponent(nonce)}` +
+        `&redirect_uri=${encodeURIComponent(redirect_uri)}` +
+        `&scope=${encodeURIComponent('public')}` +
+        '&code_challenge_method=S256' +
+        `&code_challenge=${encodeURIComponent(verify)}`
+    );
 }
 
 /**
@@ -47,9 +101,9 @@ export async function setupPlace(settings: PlaceSettings): Promise<void> {
         auth_uri: `${url}/auth/oauth/authorize`,
         token_uri: `${url}/auth/oauth/token`,
         redirect_uri: native
-            ? `${url}${settings.route || '/'}`
+            ? await getNativeRedirectUri(settings.app_name, settings.domain)
             : `${location.origin}${route}oauth-resp.html`,
-        handle_login: !settings.local_login,
+        handle_login: native ? false : !settings.local_login,
         use_iframe: !native,
         mock,
         delay: 300,

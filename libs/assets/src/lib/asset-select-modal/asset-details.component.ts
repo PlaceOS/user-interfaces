@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, input, model, output } from '@angular/core';
+import { Component, effect, input, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { AssetGroup } from '@placeos/common';
 
@@ -140,15 +140,10 @@ export class AssetDetailsComponent {
     public readonly countChange = output<number>();
     public readonly close = output<void>();
 
-    public ngOnInit() {
-        const item = this.item();
-        if (item && !item.quantity) item.quantity = 1;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        const item = this.item();
-        if (changes.item && item) {
-            if (!item.quantity) item.quantity = 1;
-        }
+    constructor() {
+        effect(() => {
+            const item = this.item();
+            if (item && !item.quantity) item.quantity = 1;
+        });
     }
 }

@@ -1,6 +1,7 @@
 import { Component, inject, model, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -82,7 +83,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            @for (feat of (options | async)?.features || []; track feat) {
+            @for (feat of options()?.features || []; track feat) {
                 <div filter-item features>
                     <p>{{ feat }}</p>
                     <button
@@ -96,7 +97,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     </button>
                 </div>
             }
-            @if ((options | async)?.show_fav) {
+            @if (options()?.show_fav) {
                 <div filter-item>
                     <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                     <button
@@ -110,7 +111,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     </button>
                 </div>
             }
-            @if ((options | async)?.show_accessible) {
+            @if (options()?.show_accessible) {
                 <div filter-item>
                     <span>{{ 'COMMON.ACCESSIBLE_ONLY' | translate }}</span>
                     <button
@@ -128,14 +129,16 @@ import { LockerFiltersComponent } from './locker-filters.component';
     `,
     imports: [CommonModule, TranslatePipe, IconComponent, MatRippleModule],
 })
-export class LockerFiltersDisplayComponent extends AsyncHandler {
+export class LockerFiltersDisplayComponent {
     private _bsheet = inject(MatBottomSheet);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
     public readonly view = model<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._state.options;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
@@ -154,9 +157,5 @@ export class LockerFiltersDisplayComponent extends AsyncHandler {
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    constructor() {
-        super();
     }
 }

@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import {
     BuildingPipe,
@@ -159,7 +158,6 @@ import { SurveyService } from './survey.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatMenuModule,
         RouterModule,
         SimpleTableComponent,

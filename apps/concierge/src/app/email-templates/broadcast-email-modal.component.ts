@@ -1,5 +1,5 @@
 import { COMMA, ENTER, SEMICOLON, SPACE } from '@angular/cdk/keycodes';
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import {
     FormControl,
@@ -138,7 +138,6 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     `,
     styles: [``],
     imports: [
-        CommonModule,
         ReactiveFormsModule,
         MatDialogModule,
         MatFormFieldModule,

@@ -43,6 +43,8 @@ import {
     BLOCK_END_OPTIONS,
     BLOCK_HEIGHT_OPTIONS,
     BLOCK_START_OPTIONS,
+    BOOKABLE_HOUR_END_OPTIONS,
+    BOOKABLE_HOUR_START_OPTIONS,
     DAY_TIMELINE_VIEW_OPTIONS,
     MAX_DURATION_FULL_OPTIONS,
     WEEK_START_OPTIONS,
@@ -53,10 +55,7 @@ import { UploadButtonComponent } from './upload-button.component';
     selector: 'concierge-settings-form-modal',
     template: `
         <fullscreen-modal-shell
-            [heading]="
-                'Concierge Settings - ' +
-                (zone.display_name || zone.name || 'Organisation')
-            "
+            [heading]="heading()"
             [loading]="loading()"
             (confirm)="save()"
         >
@@ -483,37 +482,35 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'spaces'"
                         >
                             <div class="content px-4 pt-4 pb-2">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1">
-                                        <label for="day-timeline-view">
-                                            Day Timeline Default View
-                                        </label>
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="w-full"
+                                <div class="flex-1">
+                                    <label for="day-timeline-view">
+                                        Day Timeline Default View
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            name="day-timeline-view"
+                                            formControlName="day_timeline_view"
                                         >
-                                            <mat-select
-                                                name="day-timeline-view"
-                                                formControlName="day_timeline_view"
-                                            >
-                                                @for (
-                                                    opt of DAY_TIMELINE_VIEW;
-                                                    track opt.value
-                                                ) {
-                                                    <mat-option
-                                                        [value]="opt.value"
-                                                        >{{
-                                                            opt.label
-                                                        }}</mat-option
-                                                    >
-                                                }
-                                            </mat-select>
-                                            <mat-hint>
-                                                Default day timeline layout for
-                                                room bookings
-                                            </mat-hint>
-                                        </mat-form-field>
-                                    </div>
+                                            @for (
+                                                opt of DAY_TIMELINE_VIEW;
+                                                track opt.value
+                                            ) {
+                                                <mat-option
+                                                    [value]="opt.value"
+                                                    >{{ opt.label }}</mat-option
+                                                >
+                                            }
+                                        </mat-select>
+                                        <mat-hint>
+                                            Default day timeline layout for room
+                                            bookings
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="flex items-center space-x-4">
                                     <div class="flex-1">
                                         <label for="block-start"
                                             >Block Start Time</label
@@ -665,6 +662,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="bookable_hours"
+                                >
+                                    <div>
+                                        <label for="events-bookable-start">
+                                            Bookable Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-bookable-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="events-bookable-end">
+                                            Bookable End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-bookable-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Allow all day bookings"
@@ -723,6 +777,65 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="allow_edit"
                                     ></settings-toggle>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="events-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-start"
+                                                formControlName="start"
+                                                placeholder="None"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="events-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="events-all-day-end"
+                                                formControlName="end"
+                                                placeholder="None"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -756,6 +869,65 @@ import { UploadButtonComponent } from './upload-button.component';
                             [class.open]="shown_group() === 'visitors'"
                         >
                             <div class="content px-4 pt-4 pb-2">
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="bookable_hours"
+                                >
+                                    <div>
+                                        <label for="visitors-bookable-start">
+                                            Bookable Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="visitors-bookable-start"
+                                                formControlName="start"
+                                                placeholder="None"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="visitors-bookable-end">
+                                            Bookable End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="visitors-bookable-end"
+                                                formControlName="end"
+                                                placeholder="None"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                                 <label for="hide-fields"
                                     >Hide Guest List fields</label
                                 >
@@ -915,6 +1087,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="bookable_hours"
+                                >
+                                    <div>
+                                        <label for="bookings-bookable-start">
+                                            Bookable Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-bookable-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="bookings-bookable-end">
+                                            Bookable End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-bookable-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Allow all day bookings"
@@ -928,6 +1157,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         name="Allow booking with assets"
                                         formControlName="has_assets"
                                     ></settings-toggle>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="all_day_period"
+                                >
+                                    <div>
+                                        <label for="bookings-all-day-start">
+                                            All Day Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="bookings-all-day-end">
+                                            All Day End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="bookings-all-day-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BLOCK_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1019,6 +1305,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                             Max duration for single day bookings
                                         </mat-hint>
                                     </mat-form-field>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="bookable_hours"
+                                >
+                                    <div>
+                                        <label for="parking-bookable-start">
+                                            Bookable Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="parking-bookable-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="parking-bookable-end">
+                                            Bookable End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="parking-bookable-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
@@ -1123,6 +1466,63 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
+                                <div
+                                    class="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    formGroupName="bookable_hours"
+                                >
+                                    <div>
+                                        <label for="lockers-bookable-start">
+                                            Bookable Start
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="lockers-bookable-start"
+                                                formControlName="start"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_START;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div>
+                                        <label for="lockers-bookable-end">
+                                            Bookable End
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                name="lockers-bookable-end"
+                                                formControlName="end"
+                                            >
+                                                @for (
+                                                    opt of BOOKABLE_HOUR_END;
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            opt.label
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         name="Allow all day bookings"
@@ -1198,9 +1598,12 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public readonly WEEK_START = WEEK_START_OPTIONS;
     public readonly BLOCK_START = BLOCK_START_OPTIONS;
     public readonly BLOCK_END = BLOCK_END_OPTIONS;
+    public readonly BOOKABLE_HOUR_START = BOOKABLE_HOUR_START_OPTIONS;
+    public readonly BOOKABLE_HOUR_END = BOOKABLE_HOUR_END_OPTIONS;
     public readonly BLOCK_HEIGHT = BLOCK_HEIGHT_OPTIONS;
     public readonly DAY_TIMELINE_VIEW = DAY_TIMELINE_VIEW_OPTIONS;
     public readonly BANNER_TYPE = BANNER_TYPE_OPTIONS;
+    public readonly heading = signal('');
     public readonly loading = signal('');
     public readonly shown_group = signal('');
     public readonly currency_filter = signal('');
@@ -1237,6 +1640,14 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         admin_group: new FormControl(''),
         events: new FormGroup({
             allow_all_day: new FormControl(false),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
+            bookable_hours: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             all_day_default: new FormControl(false),
             allow_setup_breakdown: new FormControl(false),
             has_assets: new FormControl(false),
@@ -1258,6 +1669,10 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             allow_edit: new FormControl(true),
         }),
         visitors: new FormGroup({
+            bookable_hours: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             has_parking: new FormControl(false),
             allow_pass_number: new FormControl(false),
             allow_printing_label: new FormControl(false),
@@ -1267,6 +1682,14 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         bookings: new FormGroup({
             allow_all_day: new FormControl(true),
+            all_day_period: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
+            bookable_hours: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             has_assets: new FormControl(false),
             use_building_timezone: new FormControl(false),
             available_period: new FormControl(14),
@@ -1274,6 +1697,10 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         parking: new FormGroup({
             allow_all_day: new FormControl(true),
+            bookable_hours: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             show_users: new FormControl(false),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
@@ -1282,6 +1709,10 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
         }),
         lockers: new FormGroup({
             allow_all_day: new FormControl(true),
+            bookable_hours: new FormGroup({
+                start: new FormControl<number | null>(null),
+                end: new FormControl<number | null>(null),
+            }),
             all_day_default: new FormControl(false),
             show_calendar_links: new FormControl(false),
             available_period: new FormControl(14),
@@ -1299,6 +1730,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
     public async ngOnInit() {
         const zone = this._data.zone;
         this.loading.set('Loading existing settings...');
+        this.heading.set(
+            `Concierge Settings <div class="font-mono text-xs px-2 py-1 rounded bg-base-300 ml-2">${this.zone.display_name || this.zone.name || 'Organisation'}</div>`,
+        );
         this.form.patchValue(DEFAULT_SETTINGS.app);
         const org_id = this._org.organisation.id;
         const org_metadata = await this._getMetadata(org_id);

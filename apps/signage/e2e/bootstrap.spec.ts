@@ -1,16 +1,16 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
     BOOTSTRAP_URL,
+    clearLocalStorage,
+    clickBootstrapButton,
+    LOAD_TIMEOUT,
     MOCK_BUILDING_ID,
     MOCK_SYSTEM_ID,
-    STORE_DISPLAY_KEY,
-    STORE_BUILDING_KEY,
-    waitForBootstrapPage,
     selectDisplay,
-    clickBootstrapButton,
-    clearLocalStorage,
+    STORE_BUILDING_KEY,
+    STORE_DISPLAY_KEY,
+    waitForBootstrapPage,
 } from './test-utils';
 
 /**
@@ -32,12 +32,15 @@ async function navigateToBootstrapClean(page: any) {
             localStorage.removeItem(building_key);
             // Also clear any other potential cached values
             Object.keys(localStorage).forEach((key) => {
-                if (key.includes('SIGNAGE') || key.includes('PlaceOS.SIGNAGE')) {
+                if (
+                    key.includes('SIGNAGE') ||
+                    key.includes('PlaceOS.SIGNAGE')
+                ) {
                     localStorage.removeItem(key);
                 }
             });
         },
-        { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+        { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY },
     );
 
     // Navigate to bootstrap with clear param to ensure no cached values are used
@@ -61,7 +64,7 @@ test.describe('US-SIG-001: Select Display from List', () => {
 
         // The form content or button should become visible after loading
         const form_content = page.locator(
-            '[bootstrap] mat-form-field, [bootstrap] button[btn]'
+            '[bootstrap] mat-form-field, [bootstrap] button[btn]',
         );
         await expect(form_content.first()).toBeVisible({
             timeout: LOAD_TIMEOUT,
@@ -146,11 +149,13 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
 
         const building_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_BUILDING_KEY }
+            { key: STORE_BUILDING_KEY },
         );
 
         // Building ID should be set (or null if no valid selection in mock mode)
-        expect(building_id === null || typeof building_id === 'string').toBeTruthy();
+        expect(
+            building_id === null || typeof building_id === 'string',
+        ).toBeTruthy();
     });
 
     test('should save display ID to localStorage after selection', async ({
@@ -166,11 +171,13 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
 
         const display_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_DISPLAY_KEY }
+            { key: STORE_DISPLAY_KEY },
         );
 
         // Display ID should be set (or null if no valid selection in mock mode)
-        expect(display_id === null || typeof display_id === 'string').toBeTruthy();
+        expect(
+            display_id === null || typeof display_id === 'string',
+        ).toBeTruthy();
     });
 
     test('should auto-load previously selected display on restart', async ({
@@ -191,7 +198,7 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
                 system_id: MOCK_SYSTEM_ID,
                 display_key: STORE_DISPLAY_KEY,
                 building_key: STORE_BUILDING_KEY,
-            }
+            },
         );
 
         // Navigate to bootstrap - should auto-redirect or pre-fill
@@ -219,7 +226,10 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
                 localStorage.setItem(building_key, 'test-building');
                 localStorage.setItem(display_key, 'test-display');
             },
-            { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+            {
+                display_key: STORE_DISPLAY_KEY,
+                building_key: STORE_BUILDING_KEY,
+            },
         );
 
         // Clear configuration
@@ -227,11 +237,11 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
 
         const building_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_BUILDING_KEY }
+            { key: STORE_BUILDING_KEY },
         );
         const display_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_DISPLAY_KEY }
+            { key: STORE_DISPLAY_KEY },
         );
 
         expect(building_id).toBeNull();
@@ -241,7 +251,9 @@ test.describe('US-SIG-002: Persist Display Configuration', () => {
 
 test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
     test('should accept building query parameter', async ({ page }) => {
-        await page.goto(`${BOOTSTRAP_URL}?building=${MOCK_BUILDING_ID}&mock=true`);
+        await page.goto(
+            `${BOOTSTRAP_URL}?building=${MOCK_BUILDING_ID}&mock=true`,
+        );
         await page.waitForLoadState('domcontentloaded');
 
         // Page should load without errors
@@ -264,7 +276,7 @@ test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
         page,
     }) => {
         await page.goto(
-            `${BOOTSTRAP_URL}?building=${MOCK_BUILDING_ID}&display=${MOCK_SYSTEM_ID}&mock=true`
+            `${BOOTSTRAP_URL}?building=${MOCK_BUILDING_ID}&display=${MOCK_SYSTEM_ID}&mock=true`,
         );
         await page.waitForLoadState('domcontentloaded');
 
@@ -285,13 +297,16 @@ test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
                 localStorage.setItem(building_key, 'cached-building');
                 localStorage.setItem(display_key, 'cached-display');
             },
-            { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+            {
+                display_key: STORE_DISPLAY_KEY,
+                building_key: STORE_BUILDING_KEY,
+            },
         );
 
         // Verify data was set
         const initial_building = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_BUILDING_KEY }
+            { key: STORE_BUILDING_KEY },
         );
         expect(initial_building).toBe('cached-building');
 
@@ -312,11 +327,11 @@ test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
         // Note: The clear happens asynchronously after org service initializes
         const building_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_BUILDING_KEY }
+            { key: STORE_BUILDING_KEY },
         );
         const display_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_DISPLAY_KEY }
+            { key: STORE_DISPLAY_KEY },
         );
 
         // If clear worked, both should be null. If not, at least verify the page loaded correctly.
@@ -345,7 +360,7 @@ test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
                 system_id: MOCK_SYSTEM_ID,
                 display_key: STORE_DISPLAY_KEY,
                 building_key: STORE_BUILDING_KEY,
-            }
+            },
         );
 
         // Navigate to signage directly with system ID

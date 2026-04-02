@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
@@ -10,13 +10,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { BehaviorSubject } from 'rxjs';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { DesksTopbarComponent } from '../../app/desks/desks-topbar.component';
 import { DesksComponent } from '../../app/desks/desks.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
-import { BehaviorSubject } from 'rxjs';
 
 describe('DesksComponent', () => {
     let spectator: SpectatorRouting<DesksComponent>;
@@ -30,7 +30,9 @@ describe('DesksComponent', () => {
             { id: 'bld-2', parent_id: 'region-1' },
         ],
         levelsForBuilding: jest.fn((building) =>
-            building?.id === 'bld-2' ? [{ id: 'level-b' }] : [{ id: 'level-a' }],
+            building?.id === 'bld-2'
+                ? [{ id: 'level-b' }]
+                : [{ id: 'level-a' }],
         ),
         levelsForRegion: jest.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
         levelWithID: jest.fn(),

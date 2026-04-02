@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -41,14 +41,14 @@ import { BookingFormService } from '../booking-form.service';
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
                         !hide_levels() &&
-                        !(use_region && (regions | async)?.length) &&
-                        !(!use_region && (buildings | async)?.length > 1)
+                        !(use_region && regions()?.length) &&
+                        !(!use_region && buildings()?.length > 1)
                     ) {
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
                     }
-                    @if (use_region && (regions | async)?.length) {
+                    @if (use_region && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
@@ -57,7 +57,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
-                                @for (reg of regions | async; track reg) {
+                                @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
                                         {{ reg.display_name || reg.name }}
                                     </mat-option>
@@ -65,7 +65,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region && (buildings | async)?.length > 1) {
+                    @if (!use_region && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
@@ -76,7 +76,7 @@ import { BookingFormService } from '../booking-form.service';
                                     building?.display_name || building?.name
                                 "
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -88,14 +88,14 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
-                                [ngModel]="(options | async)?.zone_id"
+                                [ngModel]="options()?.zone_id"
                                 (ngModelChange)="
                                     setOptions({ zone_id: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             >
-                                @for (lvl of levels | async; track lvl) {
+                                @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
                                             @if (use_region) {
@@ -189,27 +189,25 @@ import { BookingFormService } from '../booking-form.service';
                         <settings-toggle
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                            [ngModel]="(options | async)?.show_fav"
+                            [ngModel]="options()?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
                     </div>
                 </section>
             }
-            @if ((features | async)?.length && !hide_levels()) {
+            @if (features()?.length && !hide_levels()) {
                 <section class="space-y-2" features>
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.TYPE' | translate }}
                     </h2>
-                    @for (feat of features | async; track feat) {
+                    @for (feat of features(); track feat) {
                         <div class="flex flex-wrap items-center space-x-2">
                             <settings-toggle
                                 class="w-full capitalize"
                                 [name]="feat"
                                 [ngModel]="
-                                    (
-                                        (options | async)?.features || []
-                                    ).includes(feat)
+                                    (options()?.features || []).includes(feat)
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -221,7 +219,6 @@ import { BookingFormService } from '../booking-form.service';
         </form>
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         SettingsToggleComponent,
@@ -244,29 +241,42 @@ export class NewDeskFiltersComponent {
     public readonly hide_levels = input<boolean>(undefined);
 
     public can_close = false;
-    public readonly options = this._state.options;
-    public readonly features = this._state.features;
-    public readonly buildings = this._org.active_buildings;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
+    public readonly features = toSignal(this._state.features, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
     public readonly form = this._state.form;
-    public readonly regions = this._org.region_list;
+    public readonly regions = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, bld]) => {
-            const level_list = this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
-            );
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+        ]).pipe(
+            map(([region, bld]) => {
+                const level_list = this.use_region
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld);
+                const viewable_levels = level_list.filter(
+                    (lvl) => !lvl.tags.includes('parking'),
+                );
+                return viewable_levels.sort(
+                    (a, b) =>
+                        a.parent_id.localeCompare(b.parent_id) ||
+                        (a.display_name || '').localeCompare(
+                            b.display_name || '',
+                        ),
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public get building() {

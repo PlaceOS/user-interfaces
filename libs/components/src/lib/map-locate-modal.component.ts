@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
 
@@ -27,7 +27,7 @@ export interface Locatable {
     template: `
         <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
             <header
-                class="sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none p-2"
             >
                 <icon class="text-2xl">place</icon>
                 <h2 class="text-xl font-medium">
@@ -42,7 +42,7 @@ export interface Locatable {
                 @if (level()) {
                     <div
                         body
-                        class="relative h-[65vh] w-full overflow-hidden rounded-lg border border-base-300 sm:max-h-[65vh]"
+                        class="border-base-300 relative h-[65vh] w-full overflow-hidden rounded-lg border sm:max-h-[65vh]"
                     >
                         <interactive-map
                             class="pointer-events-none"
@@ -57,7 +57,7 @@ export interface Locatable {
                             <mat-spinner diameter="64"></mat-spinner
                         ></interactive-map>
                         <div
-                            class="absolute right-2 top-2 rounded-xl border border-base-300 bg-base-200 px-4 py-2 font-medium"
+                            class="border-base-300 bg-base-200 absolute top-2 right-2 rounded-xl border px-4 py-2 font-medium"
                         >
                             {{ level().display_name || level().name }}
                         </div>

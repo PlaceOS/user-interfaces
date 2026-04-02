@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { Observable } from 'rxjs';
 
@@ -27,36 +27,28 @@ export interface MapPolygonData {
         <div
             polygon
             class="absolute -top-1 -left-1 h-full w-full -translate-x-1/2 -translate-y-1/2 transform"
-            [style.transform]="'scale(' + scale * zoom + ')'"
+            [style.transform]="'scale(' + scale() * zoom_value() + ')'"
         >
             <div
                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-                [style.width]="width + '%'"
-                [style.height]="height + '%'"
+                [style.width]="width() + '%'"
+                [style.height]="height() + '%'"
             >
                 <svg
                     [attr.viewBox]="
                         '0 0 ' +
-                        (this.width / 20 || 1) +
+                        (width() / 20 || 1) +
                         ' ' +
-                        (this.height / 20 || 1)
+                        (height() / 20 || 1)
                     "
                     preserveAspectRatio="none"
                     class="relative h-full w-full"
                 >
                     <polygon
-                        [attr.points]="points"
-                        [style.fill]="fill"
-                        [style.stroke]="stroke"
+                        [attr.points]="points()"
+                        [style.fill]="fill()"
+                        [style.stroke]="stroke()"
                     />
-                    <!-- <circle
-                        *ngFor="let point of point_list"
-                        [attr.cx]="point[0] || 0"
-                        [attr.cy]="point[1] || 0"
-                        [attr.r]="4"
-                        [style.stroke]="'#000'"
-                        [style.fill]="'#fffd'"
-                    /> -->
                 </svg>
             </div>
         </div>
@@ -64,7 +56,7 @@ export interface MapPolygonData {
             text
             class="text-shadow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-center text-xl whitespace-pre-line text-white"
         >
-            {{ name }}
+            {{ name() }}
         </div>
     `,
     styles: [
@@ -89,31 +81,24 @@ export interface MapPolygonData {
 })
 export class MapPolygonComponent extends AsyncHandler implements OnInit {
     private _details = inject<MapPolygonData>(MAP_FEATURE_DATA);
-    private _cdr = inject(ChangeDetectorRef);
 
     /** Message to display above the pin */
-    public name = this._details.name;
+    public readonly name = signal(this._details.name);
     /** Fill colour for the pin SVG */
-    public fill = `${this._details.color || '#e53935'}88`;
+    public readonly fill = signal(`${this._details.color || '#e53935'}88`);
     /** Stroke colour for the pin SVG */
-    public stroke = this._details.color || '#e53935';
-    public padding = 32;
-    public width = 1;
-    public height = 1;
+    public readonly stroke = signal(this._details.color || '#e53935');
+    public readonly width = signal(1);
+    public readonly height = signal(1);
     public readonly svg_scale = 20;
 
-    public get scale() {
-        return this._details.svg_ratio || 1;
-    }
-
-    public get zoom() {
-        return this._details.zoom_value || 1;
-    }
+    public readonly scale = signal(this._details.svg_ratio || 1);
+    public readonly zoom_value = signal(this._details.zoom_value || 1);
 
     /** List of points for drawing the polygon */
-    public points = `0,0 0,${this.height} ${this.width},${this.height} ${this.width},0`;
+    public readonly points = signal('0,0 0,1 1,1 1,0');
 
-    public point_list: [number, number][] = [];
+    public readonly point_list = signal<[number, number][]>([]);
 
     constructor() {
         super();
@@ -124,9 +109,9 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
             this.subscription(
                 'data',
                 this._details.data$.subscribe((_) => {
-                    this.name = _.name;
-                    this.fill = `${_.color || '#e53935'}88`;
-                    this.stroke = _.color || '#e53935';
+                    this.name.set(_.name);
+                    this.fill.set(`${_.color || '#e53935'}88`);
+                    this.stroke.set(_.color || '#e53935');
                     this.processPoints(_.points);
                 }),
             );
@@ -140,15 +125,11 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'zoom',
-            this._details.zoom$?.subscribe(
-                (_) => (this._details.zoom_value = _),
-            ),
+            this._details.zoom$?.subscribe((_) => this.zoom_value.set(_)),
         );
         this.subscription(
             'svg_ratio',
-            this._details.svg_ratio$?.subscribe(
-                (_) => (this._details.svg_ratio = _),
-            ),
+            this._details.svg_ratio$?.subscribe((_) => this.scale.set(_)),
         );
         this.processPoints(this._details.points);
     }
@@ -173,23 +154,28 @@ export class MapPolygonComponent extends AsyncHandler implements OnInit {
             y: diff.y_max - diff.y_min,
         };
         const { ratio } = this._details;
-        this.width = range.x * 100;
-        this.height = range.y * 100 * (ratio || 1);
-        this.width = Math.floor(this.width * 100);
-        this.height = Math.floor(this.height * 100);
-        this.points = points
-            .reduce(
-                (s, [x, y]) =>
-                    `${s}${s ? ' ' : ''}${
-                        (((x - diff.x_min) / range.x) * this.width) / 20
-                    },${(((y - diff.y_min) / range.y) * this.height) / 20}`,
-                '',
-            )
-            .replace(/NaN/g, '0');
-        this.point_list = points.map(([x, y]) => [
-            (((x - diff.x_min) / range.x) * this.width) / 20,
-            (((y - diff.y_min) / range.y) * this.height) / 20,
-        ]);
-        this._cdr.detectChanges();
+        let w = range.x * 100;
+        let h = range.y * 100 * (ratio || 1);
+        w = Math.floor(w * 100);
+        h = Math.floor(h * 100);
+        this.width.set(w);
+        this.height.set(h);
+        this.points.set(
+            points
+                .reduce(
+                    (s, [x, y]) =>
+                        `${s}${s ? ' ' : ''}${
+                            (((x - diff.x_min) / range.x) * w) / 20
+                        },${(((y - diff.y_min) / range.y) * h) / 20}`,
+                    '',
+                )
+                .replace(/NaN/g, '0'),
+        );
+        this.point_list.set(
+            points.map(([x, y]) => [
+                (((x - diff.x_min) / range.x) * w) / 20,
+                (((y - diff.y_min) / range.y) * h) / 20,
+            ]),
+        );
     }
 }

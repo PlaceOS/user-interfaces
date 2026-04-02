@@ -251,7 +251,7 @@ test.describe('Video Conferencing - Call Page', () => {
 
         // Video call view component should be visible
         const callView = page.locator(
-            'video-call-page, app-control-video-call-view'
+            'video-call-page, app-control-video-call-view',
         );
         const isVisible = await callView.isVisible().catch(() => false);
 

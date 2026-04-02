@@ -42,9 +42,10 @@ export class SupportService {
         this.space_list.subscribe();
     }
 
-    private _camera_snapshot_urls(
-        space: { camera_snapshot_url?: string; camera_snapshot_urls?: string[] },
-    ): string[] {
+    private _camera_snapshot_urls(space: {
+        camera_snapshot_url?: string;
+        camera_snapshot_urls?: string[];
+    }): string[] {
         return space.camera_snapshot_urls?.filter((url) => !!url) || [];
     }
 }

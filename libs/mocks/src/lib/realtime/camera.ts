@@ -27,7 +27,13 @@ class CameraModule {
     moving: boolean = false;
 
     constructor(_) {
-        this.presets = ['Preset One', 'Preset 2', 'Preset Three', 'Wide Shot', 'Close Up'];
+        this.presets = [
+            'Preset One',
+            'Preset 2',
+            'Preset Three',
+            'Wide Shot',
+            'Close Up',
+        ];
     }
 
     $pan(dir: CameraPan) {

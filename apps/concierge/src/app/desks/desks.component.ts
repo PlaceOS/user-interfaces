@@ -24,7 +24,6 @@ import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { DeskView } from './desks-state.service';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -310,7 +309,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         MatRippleModule,
-        CommonModule,
         FormsModule,
         IconComponent,
         MatRippleModule,

@@ -1,17 +1,16 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     SURVEY_ID_COMPREHENSIVE,
-    navigateToSurvey,
-    waitForSurveyLoaded,
     clickNext,
     clickSubmit,
-    selectRating,
     enterText,
-    selectDropdownOption,
-    selectRadioOption,
     getRequiredFieldCount,
     isSuccessMessageVisible,
+    navigateToSurvey,
+    selectDropdownOption,
+    selectRadioOption,
+    selectRating,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-11: Validate Required Fields', () => {
@@ -48,7 +47,9 @@ test.describe('US-11: Validate Required Fields', () => {
         await clickSubmit(page);
 
         // Should not show success message - form validation should block
-        const successMessage = page.locator('main[loading]:has-text("complete")');
+        const successMessage = page.locator(
+            'main[loading]:has-text("complete")',
+        );
         await expect(successMessage).not.toBeVisible();
     });
 
@@ -69,7 +70,9 @@ test.describe('US-11: Validate Required Fields', () => {
         await clickSubmit(page);
 
         // Should not show success message
-        const successMessage = page.locator('main[loading]:has-text("complete")');
+        const successMessage = page.locator(
+            'main[loading]:has-text("complete")',
+        );
         await expect(successMessage).not.toBeVisible();
     });
 
@@ -109,12 +112,12 @@ test.describe('US-12: Allow Optional Fields', () => {
 
         // The comment field (question 21: "Additional comments") should be optional
         // Look for the specific question heading that doesn't have Required badge
-        const commentQuestion = page.locator(
-            'div.py-2:has(textarea)',
-        );
+        const commentQuestion = page.locator('div.py-2:has(textarea)');
         await expect(commentQuestion).toBeVisible();
         // Verify this question doesn't have a Required badge
-        const requiredBadge = commentQuestion.locator('span:has-text("Required")');
+        const requiredBadge = commentQuestion.locator(
+            'span:has-text("Required")',
+        );
         await expect(requiredBadge).not.toBeVisible();
     });
 
@@ -168,11 +171,11 @@ test.describe('US-12: Allow Optional Fields', () => {
 
         // Toggle some checkboxes
         const checkbox1 = page.locator(
-            'mat-checkbox:has-text("Workplace improvements")'
+            'mat-checkbox:has-text("Workplace improvements")',
         );
         await checkbox1.click();
         const checkbox2 = page.locator(
-            'mat-checkbox:has-text("Training opportunities")'
+            'mat-checkbox:has-text("Training opportunities")',
         );
         await checkbox2.click();
 

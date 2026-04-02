@@ -126,15 +126,17 @@ import { EventsStateService } from './events-state.service';
                         [class.bg-error]="row.type === 'cancelled'"
                         [class.text-error-content]="row.type === 'cancelled'"
                         [class.bg-warning]="row.status === 'tentative'"
-                        [class.text-warning-content]="row.status === 'tentative'"
+                        [class.text-warning-content]="
+                            row.status === 'tentative'
+                        "
                     >
                         {{
-                            ((row.type === 'cancelled'
+                            (row.type === 'cancelled'
                                 ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
                                 : row.status === 'tentative'
                                   ? 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                   : 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                            ) | translate)
+                            ) | translate
                         }}
                     </div>
                 </div>
@@ -229,7 +231,8 @@ export class RoomBookingsListComponent {
             (item) =>
                 event.resources?.some(
                     (resource) =>
-                        resource.id === item.id || resource.email === item.email,
+                        resource.id === item.id ||
+                        resource.email === item.email,
                 ) ||
                 event.system?.id === item.id ||
                 event.system?.email === item.email,

@@ -10,8 +10,8 @@ import {
     BookingType,
     currentUser,
     Desk,
-    endOfDayInTimezone,
     flatten,
+    getAllDayTimeRange,
     getFormTimeSyncHandle,
     getInvalidFields,
     i18n,
@@ -24,7 +24,6 @@ import {
     SETTING_KEYS,
     settingSignal,
     SettingsService,
-    startOfDayInTimezone,
     unique,
     User,
 } from '@placeos/common';
@@ -293,8 +292,7 @@ export class BookingFormService extends AsyncHandler {
             switchMap(([options, resources, restrictions]) => {
                 let { all_day, date, duration, user } = this.form.getRawValue();
                 if (all_day) {
-                    date = startOfDayInTimezone(date, this.timezone);
-                    duration = 24 * 60 - 1;
+                    ({ date, duration } = this._allDayTimeRange(date));
                 }
                 const favourites = this._favourites[options.type]?.() || [];
                 const default_zone =
@@ -488,13 +486,28 @@ export class BookingFormService extends AsyncHandler {
     /** Push the current building's duration and bookable-hours settings into the time sync. */
     private _applyDurationSettings() {
         const handle = getFormTimeSyncHandle(this.form);
+        const period = this.setting('all_day_period');
         handle?.updateOptions({
             min_duration: this.setting('min_duration') ?? 30,
             max_duration: this.setting('max_duration') ?? 0,
             default_duration: this.setting('default_duration') ?? 60,
+            custom_duration_options:
+                this.setting('custom_duration_options') ?? [],
             bookable_hours: this.setting('bookable_hours') ?? null,
             timezone: this.timezone,
+            all_day_start: period?.start,
+            all_day_end: period?.end,
         });
+    }
+
+    private _allDayTimeRange(date: number) {
+        const period = this.setting('all_day_period');
+        return getAllDayTimeRange(
+            date,
+            this.timezone,
+            period?.start,
+            period?.end,
+        );
     }
 
     public setView(value: BookingFlowView) {
@@ -686,6 +699,13 @@ export class BookingFormService extends AsyncHandler {
         localStorage.removeItem('PLACEOS.last_group_booking_ids');
         const value = this.form.getRawValue();
         const booking = this._booking.getValue() || new Booking();
+        const all_day_period = value.all_day
+            ? this._allDayTimeRange(value.date)
+            : {
+                  date: value.date,
+                  duration: value.duration,
+                  date_end: value.date_end,
+              };
         const bookable_hours = this.setting('bookable_hours');
         if (
             !isWithinBookableHours(
@@ -714,14 +734,17 @@ export class BookingFormService extends AsyncHandler {
             }
             await this._checkResourceRules(
                 value.resources,
-                value.date,
-                value.duration,
+                all_day_period.date,
+                all_day_period.duration,
                 host,
             );
             await this._checkRecurringClashes(
                 {
                     ...booking,
                     ...value,
+                    date: all_day_period.date,
+                    duration: all_day_period.duration,
+                    date_end: all_day_period.date_end,
                     user_email: host,
                 },
                 this._options.getValue().type,
@@ -745,8 +768,9 @@ export class BookingFormService extends AsyncHandler {
         delete value.booking_asset;
         value.timezone = this.timezone || value.timezone;
         if (value.all_day) {
-            value.date = startOfDayInTimezone(value.date, value.timezone);
-            value.duration = 24 * 60 - 1;
+            value.date = all_day_period.date;
+            value.duration = all_day_period.duration;
+            value.date_end = all_day_period.date_end;
         }
         const { event_id, parent_id } = value;
         delete value.event_id;
@@ -1484,14 +1508,13 @@ export class BookingFormService extends AsyncHandler {
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
+        const period = all_day
+            ? this._allDayTimeRange(date)
+            : { date, date_end: date + duration * 60 * 1000 };
         const bookings = await lastValueFrom(
             queryBookings({
-                period_start: all_day
-                    ? getUnixTime(startOfDayInTimezone(date, this.timezone))
-                    : getUnixTime(date),
-                period_end: all_day
-                    ? getUnixTime(endOfDayInTimezone(date, this.timezone))
-                    : getUnixTime(date + duration * 60 * 1000),
+                period_start: getUnixTime(period.date),
+                period_end: getUnixTime(period.date_end),
                 type,
                 email: user_email,
                 limit: 1000,

@@ -1,6 +1,12 @@
-import { Component, OnInit, inject, model } from '@angular/core';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { first } from 'rxjs/operators';
 
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -46,11 +52,11 @@ const URL_STARTS = [
                     class="border-base-300 bg-base-100 flex items-center justify-between border-b"
                 >
                     <div class="p-2">{{ 'COMMON.CONSOLE' | translate }}</div>
-                    <button icon matRipple (click)="show = false()">
+                    <button icon matRipple (click)="show.set(false)">
                         <icon>close</icon>
                     </button>
                 </div>
-                @if ((filtered_logs | async)?.length) {
+                @if (filtered_logs()?.length) {
                     <cdk-virtual-scroll-viewport
                         itemSize="32"
                         class="h-120 max-h-full w-full flex-1"
@@ -58,7 +64,7 @@ const URL_STARTS = [
                         <div
                             class="hover:bg-base-100 flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm"
                             *cdkVirtualFor="
-                                let log of filtered_logs | async;
+                                let log of filtered_logs();
                                 trackBy: trackByFn
                             "
                         >
@@ -127,7 +133,7 @@ const URL_STARTS = [
                         class="flex h-120 w-full flex-1 flex-col items-center justify-center"
                     >
                         <div class="text-2xl opacity-30">
-                            No {{ filter.getValue() ? 'matching' : '' }} logs
+                            No {{ filter() ? 'matching' : '' }} logs
                         </div>
                     </div>
                 }
@@ -143,20 +149,20 @@ const URL_STARTS = [
                     <input
                         #search_input
                         name="log-filter"
-                        [ngModel]="filter | async"
-                        (ngModelChange)="filter.next($event)"
+                        [ngModel]="filter()"
+                        (ngModelChange)="filter.set($event)"
                         placeholder="Filter logs..."
                         class="text-base-100 relative flex-1 rounded-sm border-none px-2 py-1 font-mono text-sm"
                     />
                     <div
                         class="text-base-100 relative px-2 text-center font-mono text-xs"
                     >
-                        @if ((filter | async)?.length) {
+                        @if (filter()?.length) {
                             <span class="font-mono">
-                                {{ (filtered_logs | async)?.length || '0' }} of
+                                {{ filtered_logs()?.length || '0' }} of
                             </span>
                         }
-                        {{ (logs | async)?.length }}
+                        {{ logs()?.length }}
                     </div>
                 </div>
             </div>
@@ -184,21 +190,18 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     public readonly show = model(false);
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
-    public readonly filter = new BehaviorSubject<string>('');
-    public readonly logs = new BehaviorSubject<ClientEvent[]>([]);
-    public readonly filtered_logs = combineLatest([
-        this.filter,
-        this.logs,
-    ]).pipe(
-        map(([s, logs]) =>
-            logs.filter(
-                (_) =>
-                    _.type.toLowerCase().includes(s.toLowerCase()) ||
-                    _.subtype.toLowerCase().includes(s.toLowerCase()) ||
-                    `${_.data}`.toLowerCase().includes(s.toLowerCase()),
-            ),
-        ),
-    );
+    public readonly filter = signal<string>('');
+    public readonly logs = signal<ClientEvent[]>([]);
+    public readonly filtered_logs = computed(() => {
+        const s = this.filter();
+        const all_logs = this.logs();
+        return all_logs.filter(
+            (_) =>
+                _.type.toLowerCase().includes(s.toLowerCase()) ||
+                _.subtype.toLowerCase().includes(s.toLowerCase()) ||
+                `${_.data}`.toLowerCase().includes(s.toLowerCase()),
+        );
+    });
 
     public readonly onStart = () =>
         this.timeout('show', () => this.show.set(true), 5000);
@@ -226,13 +229,13 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'logs',
             this._logs.history.subscribe((event) => {
-                const logs = this.logs.getValue();
-                if (
-                    logs.length >
+                const current_logs = this.logs();
+                const trimmed =
+                    current_logs.length >
                     (this._settings.get('app.log_limits') || 20000)
-                )
-                    logs.splice(0, 1);
-                this.logs.next([...logs, event]);
+                        ? current_logs.slice(1)
+                        : current_logs;
+                this.logs.set([...trimmed, event]);
             }),
         );
         this.subscription(

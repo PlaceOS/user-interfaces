@@ -4,7 +4,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import {
     Component,
     computed,
@@ -363,7 +363,6 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatMenuModule,

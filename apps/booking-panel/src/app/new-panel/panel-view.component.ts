@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
 import { SafePipe, TranslatePipe } from '@placeos/components';
@@ -29,8 +30,8 @@ import { PanelViewStatusComponent } from './panel-view-status.component';
                     >
                         {{
                             name ||
-                                (system | async)?.display_name ||
-                                (system | async)?.name ||
+                                system()?.display_name ||
+                                system()?.name ||
                                 '&lt;Unknown Space&gt;'
                         }}
                     </div>
@@ -73,11 +74,8 @@ export class PanelViewComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _logger = inject(RemoteLoggingService);
 
-    public readonly system = this._state.space;
-
-    public get version() {
-        return VERSION;
-    }
+    public readonly system = toSignal(this._state.space);
+    public readonly version = VERSION;
 
     public get name() {
         return this._state.setting('room_name');

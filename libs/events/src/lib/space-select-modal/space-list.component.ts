@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -16,20 +16,19 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
     template: `
         <h3 class="font-bold">{{ 'COMMON.RESULTS' | translate }}</h3>
         <p count class="mb-4 text-sm opacity-60">
-            {{ (available_spaces | async)?.length || 0 }} result(s) found
+            {{ available_spaces()?.length || 0 }} result(s) found
         </p>
-        @if (!(loading | async)) {
-            @if ((available_spaces | async)?.length) {
+        @if (!loading()) {
+            @if (available_spaces()?.length) {
                 <ul class="list-style-none space-y-2">
-                    @for (space of available_spaces | async; track space) {
+                    @for (space of available_spaces(); track space) {
                         <li
                             space
                             [class.border-info!]="active() === space.id"
                             class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
                             [class.bg-error-light!]="
-                                (room_alerts | async)[space.id]
-                                    ? (room_alerts | async)[space.id][0] ===
-                                      'closed'
+                                room_alerts()[space.id]
+                                    ? room_alerts()[space.id][0] === 'closed'
                                     : false
                             "
                         >
@@ -39,8 +38,8 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                 class="flex h-full w-full items-center rounded-sm"
                                 (click)="selectSpace(space)"
                                 [class.pointer-events-none]="
-                                    (room_alerts | async)[space.id]
-                                        ? (room_alerts | async)[space.id][0] ===
+                                    room_alerts()[space.id]
+                                        ? room_alerts()[space.id][0] ===
                                           'closed'
                                         : false
                                 "
@@ -67,52 +66,43 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                                             src="assets/icons/room-placeholder.svg"
                                         />
                                     }
-                                    @if ((room_alerts | async)[space.id]) {
+                                    @if (room_alerts()[space.id]) {
                                         <div
                                             class="pointer-events-auto absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][1]
+                                                room_alerts()[space.id][1]
                                             "
                                             [class.bg-error]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'closed'
+                                                room_alerts()[space.id][0] ===
+                                                'closed'
                                             "
                                             [class.bg-info]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'info'
+                                                room_alerts()[space.id][0] ===
+                                                'info'
                                             "
                                             [class.bg-warning]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'warn'
+                                                room_alerts()[space.id][0] ===
+                                                'warn'
                                             "
                                             [class.text-error-content]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'closed'
+                                                room_alerts()[space.id][0] ===
+                                                'closed'
                                             "
                                             [class.text-info-content]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'info'
+                                                room_alerts()[space.id][0] ===
+                                                'info'
                                             "
                                             [class.text-warning-content]="
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'warn'
+                                                room_alerts()[space.id][0] ===
+                                                'warn'
                                             "
                                             (click)="$event.stopPropagation()"
                                         >
                                             <icon>{{
-                                                (room_alerts | async)[
-                                                    space.id
-                                                ][0] === 'warn'
+                                                room_alerts()[space.id][0] ===
+                                                'warn'
                                                     ? 'warning'
-                                                    : (room_alerts | async)[
+                                                    : room_alerts()[
                                                             space.id
                                                         ][0] === 'info'
                                                       ? 'info'
@@ -205,8 +195,6 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                 <mat-spinner [diameter]="32"></mat-spinner>
                 <p class="opacity-30">
                     {{ 'CALENDAR_EVENT.SPACE_SELECT_LOADING' | translate }}
-                    <!-- <br />
-              {{ loading | async | json }} -->
                 </p>
             </div>
         }
@@ -222,7 +210,6 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         TranslatePipe,
         IconComponent,
@@ -240,10 +227,16 @@ export class SpaceListComponent {
     public readonly favorites = input<string[]>([]);
     public readonly onSelect = output<Space>();
     public readonly toggleFav = output<Space>();
-    public readonly loading = this._event_form.loading$;
-
-    public readonly available_spaces = this._event_form.available_spaces;
-    public readonly room_alerts = this._event_form.room_alerts;
+    public readonly loading = toSignal(this._event_form.loading$, {
+        initialValue: '',
+    });
+    public readonly available_spaces = toSignal(
+        this._event_form.available_spaces,
+        { initialValue: [] as Space[] },
+    );
+    public readonly room_alerts = toSignal(this._event_form.room_alerts, {
+        initialValue: {} as Record<string, [string, string]>,
+    });
 
     public level(zones: string[]) {
         return this._org.levelWithID(zones);

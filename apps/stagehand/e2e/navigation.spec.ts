@@ -1,17 +1,17 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
     ALERTS_URL,
+    LOAD_TIMEOUT,
     REMOTE_SUPPORT_URL,
+    clickSidebarLink,
+    closeDialog,
+    isDialogVisible,
     navigateWithMock,
-    waitForSidebar,
+    openNotificationSettings,
     waitForAlertsPage,
     waitForRemoteSupportPage,
-    clickSidebarLink,
-    openNotificationSettings,
-    isDialogVisible,
-    closeDialog,
+    waitForSidebar,
 } from './test-utils';
 
 /**
@@ -104,9 +104,11 @@ test.describe('US-SM-033: Navigate Using Sidebar', () => {
         await waitForSidebar(page);
 
         const active_link = page.locator(
-            '[sidebar] a[routerLinkActive="bg-secondary-focus"]'
+            '[sidebar] a[routerLinkActive="bg-secondary-focus"]',
         );
-        await expect(active_link.first()).toBeVisible({ timeout: ACTION_TIMEOUT });
+        await expect(active_link.first()).toBeVisible({
+            timeout: ACTION_TIMEOUT,
+        });
     });
 });
 
@@ -116,7 +118,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
         await waitForSidebar(page);
 
         const toggle_button = page.locator(
-            '[sidebar] button:has(icon:has-text("close")), [sidebar] button:has(icon:has-text("menu"))'
+            '[sidebar] button:has(icon:has-text("close")), [sidebar] button:has(icon:has-text("menu"))',
         );
         await expect(toggle_button.first()).toBeVisible({
             timeout: ACTION_TIMEOUT,
@@ -129,7 +131,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
 
         // Find the close/menu toggle
         const close_button = page.locator(
-            '[sidebar] button:has(icon:has-text("close"))'
+            '[sidebar] button:has(icon:has-text("close"))',
         );
         const is_expanded = await close_button.isVisible().catch(() => false);
 
@@ -139,7 +141,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
 
             // After collapse, should show menu icon
             const menu_icon = page.locator(
-                '[sidebar] button icon:has-text("menu")'
+                '[sidebar] button icon:has-text("menu")',
             );
             await expect(menu_icon).toBeVisible({ timeout: ACTION_TIMEOUT });
         }
@@ -153,7 +155,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
 
         // First collapse
         const close_button = page.locator(
-            '[sidebar] button:has(icon:has-text("close"))'
+            '[sidebar] button:has(icon:has-text("close"))',
         );
         const is_expanded = await close_button.isVisible().catch(() => false);
 
@@ -163,7 +165,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
 
             // Now expand
             const menu_button = page.locator(
-                '[sidebar] button:has(icon:has-text("menu"))'
+                '[sidebar] button:has(icon:has-text("menu"))',
             );
             await menu_button.click();
             await page.waitForTimeout(300);
@@ -179,7 +181,7 @@ test.describe('US-SM-034: Collapse/Expand Sidebar', () => {
 
         // Collapse sidebar
         const close_button = page.locator(
-            '[sidebar] button:has(icon:has-text("close"))'
+            '[sidebar] button:has(icon:has-text("close"))',
         );
         const is_expanded = await close_button.isVisible().catch(() => false);
 
@@ -204,7 +206,7 @@ test.describe('US-SM-035: Access PlaceOS Backoffice', () => {
         await waitForSidebar(page);
 
         const backoffice_button = page.locator(
-            '[sidebar] a:has-text("Launch PlaceOS Backoffice"), [sidebar] a:has(icon:has-text("open_in_new"))'
+            '[sidebar] a:has-text("Launch PlaceOS Backoffice"), [sidebar] a:has(icon:has-text("open_in_new"))',
         );
         await expect(backoffice_button.first()).toBeVisible({
             timeout: ACTION_TIMEOUT,
@@ -215,9 +217,9 @@ test.describe('US-SM-035: Access PlaceOS Backoffice', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForSidebar(page);
 
-        const backoffice_link = page.locator(
-            '[sidebar] a[href*="backoffice"]'
-        ).first();
+        const backoffice_link = page
+            .locator('[sidebar] a[href*="backoffice"]')
+            .first();
         const href = await backoffice_link.getAttribute('href');
         expect(href).toContain('backoffice');
     });
@@ -226,9 +228,9 @@ test.describe('US-SM-035: Access PlaceOS Backoffice', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForSidebar(page);
 
-        const backoffice_link = page.locator(
-            '[sidebar] a[href*="backoffice"]'
-        ).first();
+        const backoffice_link = page
+            .locator('[sidebar] a[href*="backoffice"]')
+            .first();
         const target = await backoffice_link.getAttribute('target');
         expect(target).toBe('_blank');
     });
@@ -250,7 +252,9 @@ test.describe('US-SM-036: Filter by URL Parameters', () => {
         await navigateWithMock(page, `${ALERTS_URL}?region=all&building=all`);
         await waitForAlertsPage(page);
 
-        await expect(page).toHaveURL(/building=all/, { timeout: ACTION_TIMEOUT });
+        await expect(page).toHaveURL(/building=all/, {
+            timeout: ACTION_TIMEOUT,
+        });
     });
 
     test('should support search URL parameter on remote support page', async ({
@@ -272,7 +276,7 @@ test.describe('US-SM-026 & US-SM-027: Push Notification Settings', () => {
         await waitForSidebar(page);
 
         const notifications_button = page.locator(
-            '[sidebar] button:has(icon:has-text("notifications"))'
+            '[sidebar] button:has(icon:has-text("notifications"))',
         );
         await expect(notifications_button).toBeVisible({
             timeout: ACTION_TIMEOUT,
@@ -363,7 +367,7 @@ test.describe('Analytics Navigation', () => {
 
         // Analytics link visibility depends on settings
         const analytics_link = page.locator(
-            '[sidebar] a[routerLink*="analytics"]'
+            '[sidebar] a[routerLink*="analytics"]',
         );
         const is_visible = await analytics_link.isVisible().catch(() => false);
         // May or may not be visible depending on configuration
@@ -380,7 +384,7 @@ test.describe('Recorder Grid Navigation', () => {
 
         // Recorder link visibility depends on settings
         const recorder_link = page.locator(
-            '[sidebar] a[routerLink*="recorder-grid"]'
+            '[sidebar] a[routerLink*="recorder-grid"]',
         );
         const is_visible = await recorder_link.isVisible().catch(() => false);
         // May or may not be visible depending on configuration

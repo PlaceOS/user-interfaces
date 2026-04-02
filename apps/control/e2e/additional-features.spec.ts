@@ -114,7 +114,9 @@ test.describe('US-041: Control Blinds/Screens', () => {
     }) => {
         // Accessories button has type="blinds"
         const accessoriesButton = page.locator('button[type="blinds"]');
-        const isVisible = await accessoriesButton.isVisible().catch(() => false);
+        const isVisible = await accessoriesButton
+            .isVisible()
+            .catch(() => false);
 
         if (isVisible) {
             await expect(accessoriesButton).toBeVisible();
@@ -422,7 +424,9 @@ test.describe('Interface Layout', () => {
     test('should use proper color theming', async ({ page }) => {
         // Base-100, base-200, base-content color classes are used
         const container = page.locator('.bg-base-100');
-        await expect(container.first()).toBeVisible({ timeout: ACTION_TIMEOUT });
+        await expect(container.first()).toBeVisible({
+            timeout: ACTION_TIMEOUT,
+        });
     });
 });
 

@@ -67,30 +67,82 @@ function ensurePlatform(app_name, platform) {
     if (!existsSync(platform_root)) {
         runCapacitor(app_name, ['add', platform]);
     }
+    if (platform === 'android') {
+        patchAndroidManifest(app_root, getAppConfig(app_name).bundle_id);
+    }
     if (platform === 'ios') {
-        patchIosPlist(app_root);
+        patchIosPlist(app_root, getAppConfig(app_name).bundle_id);
     }
 }
 
-function patchIosPlist(app_root) {
+function patchAndroidManifest(app_root, bundle_id) {
+    const manifest_path = path.join(
+        app_root,
+        'android',
+        'app',
+        'src',
+        'main',
+        'AndroidManifest.xml',
+    );
+    if (!existsSync(manifest_path)) return;
+    let manifest = readFileSync(manifest_path, 'utf8');
+    if (manifest.includes('android.intent.action.VIEW')) return;
+    const intent_filter = [
+        '            <intent-filter>',
+        '                <action android:name="android.intent.action.VIEW" />',
+        '                <category android:name="android.intent.category.DEFAULT" />',
+        '                <category android:name="android.intent.category.BROWSABLE" />',
+        `                <data android:scheme="${bundle_id}" />`,
+        '            </intent-filter>',
+    ].join('\n');
+    manifest = manifest.replace(
+        '</activity>',
+        `${intent_filter}\n        </activity>`,
+    );
+    writeFileSync(manifest_path, manifest);
+    console.log('Patched AndroidManifest.xml with auth callback scheme');
+}
+
+function patchIosPlist(app_root, bundle_id) {
     const plist_path = path.join(app_root, 'ios', 'App', 'App', 'Info.plist');
     if (!existsSync(plist_path)) return;
     let plist = readFileSync(plist_path, 'utf8');
-    if (plist.includes('NSAppTransportSecurity')) return;
-    // Insert ATS exception before the closing </dict></plist>
-    const ats_entry = [
-        '\t<key>NSAppTransportSecurity</key>',
-        '\t<dict>',
-        '\t\t<key>NSAllowsArbitraryLoads</key>',
-        '\t\t<true/>',
-        '\t</dict>',
-    ].join('\n');
+    const entries = [];
+    if (!plist.includes('CFBundleURLTypes')) {
+        entries.push(
+            [
+                '\t<key>CFBundleURLTypes</key>',
+                '\t<array>',
+                '\t\t<dict>',
+                '\t\t\t<key>CFBundleURLName</key>',
+                `\t\t\t<string>${bundle_id}</string>`,
+                '\t\t\t<key>CFBundleURLSchemes</key>',
+                '\t\t\t<array>',
+                `\t\t\t\t<string>${bundle_id}</string>`,
+                '\t\t\t</array>',
+                '\t\t</dict>',
+                '\t</array>',
+            ].join('\n'),
+        );
+    }
+    if (!plist.includes('NSAppTransportSecurity')) {
+        entries.push(
+            [
+                '\t<key>NSAppTransportSecurity</key>',
+                '\t<dict>',
+                '\t\t<key>NSAllowsArbitraryLoads</key>',
+                '\t\t<true/>',
+                '\t</dict>',
+            ].join('\n'),
+        );
+    }
+    if (!entries.length) return;
     plist = plist.replace(
         '</dict>\n</plist>',
-        `${ats_entry}\n</dict>\n</plist>`,
+        `${entries.join('\n')}\n</dict>\n</plist>`,
     );
     writeFileSync(plist_path, plist);
-    console.log('Patched Info.plist with NSAppTransportSecurity exception');
+    console.log('Patched Info.plist with mobile auth settings');
 }
 
 function syncPlatform(app_name, platform) {

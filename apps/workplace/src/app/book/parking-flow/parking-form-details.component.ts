@@ -100,7 +100,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr"
                                 [range]="bookable_hours"
-                                [min_duration]="min_duration"
+                                [min_duration]="effective_min_duration"
                                 [disabled]="form().controls.date.disabled"
                                 [timezone]="timezone"
                             ></a-time-field>
@@ -114,6 +114,7 @@ import { addDays, endOfDay } from 'date-fns';
                                 formControlName="duration"
                                 [time]="form()?.getRawValue()?.date"
                                 [max]="max_duration"
+                                [custom_options]="custom_duration_options"
                                 [use_24hr]="use_24hr"
                                 [timezone]="timezone"
                                 [end_time]="bookable_hours?.end"
@@ -239,6 +240,18 @@ export class ParkingFormDetailsComponent extends AsyncHandler {
             this._settings.get('app.bookings.min_duration') ||
             30
         );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.parking.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);

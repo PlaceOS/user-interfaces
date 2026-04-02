@@ -298,15 +298,27 @@ export class Booking {
         this.all_day = data.all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
         if (this.all_day) {
-            (this as any).date = startOfDayInTimezone(this.date, this.timezone);
-            (this as any).duration = Math.max(
-                24 * 60 - 1,
-                this.duration - ((this.duration % 24) * 60 === 0 ? 1 : 0),
-            );
-            (this as any).date_end = endOfDayInTimezone(
-                addMinutes(this.date, this.duration - 1).valueOf(),
-                this.timezone,
-            );
+            if (!data.duration && !data.date_end && !data.booking_end) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = 24 * 60 - 1;
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            } else if (this.duration % (24 * 60) === 0) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            }
         }
         this.checked_out_at = data.checked_out_at;
         this.checked_in_at = data.checked_in_at;

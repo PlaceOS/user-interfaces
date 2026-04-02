@@ -263,9 +263,8 @@ test.describe('Power Control - Responsive', () => {
 
         // Mobile should show more_vert menu button
         const menuButton = page.locator(
-            'topbar-header button icon:has-text("more_vert")'
+            'topbar-header button icon:has-text("more_vert")',
         );
         await expect(menuButton).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
-

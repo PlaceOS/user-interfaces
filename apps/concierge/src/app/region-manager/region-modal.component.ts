@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
@@ -85,7 +84,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         MatAutocompleteModule,
         MatFormFieldModule,

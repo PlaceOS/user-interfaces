@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -7,6 +7,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { CalendarEvent, notifyError, notifySuccess } from '@placeos/common';
+import { firstValueFrom } from 'rxjs';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -20,13 +21,13 @@ import { saveEvent, updateEventMetadata } from './events.fn';
     template: `
         <header class="min-h-16 space-x-4">
             <h2>{{ 'CALENDAR_EVENT.SETUP_BREAKDOWN_HEADER' | translate }}</h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button btn icon mat-dialog-close matRipple>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main class="w-full min-w-[20rem] p-4" [formGroup]="form">
                 <div class="flex flex-col space-y-2">
                     <label for="setup">{{
@@ -61,7 +62,7 @@ import { saveEvent, updateEventMetadata } from './events.fn';
                 </p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer class="border-base-200 flex justify-end border-t px-4 py-2">
                 <button btn matRipple (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -85,50 +86,50 @@ export class SetupBreakdownModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<SetupBreakdownModalComponent>>(MatDialogRef);
 
-    public loading = false;
+    public loading = signal(false);
     public readonly form = new FormGroup({
         setup: new FormControl(this._event.setup_time || 0),
         breakdown: new FormControl(this._event.breakdown_time || 0),
     });
 
     public async save() {
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         const { host, creator } = this._event;
         const query: any = {
             system_id: this._event?.resources[0]?.id || this._event?.system?.id,
             ical_uid: this._event?.ical_uid,
         };
-        let event = await saveEvent(
-            new CalendarEvent({
-                ...this._event,
-                setup_time: this.form.value.setup,
-                breakdown_time: this.form.value.breakdown,
-            }).toJSON(),
-            query,
-        )
-            .toPromise()
-            .catch((_) => null);
+        let event = await firstValueFrom(
+            saveEvent(
+                new CalendarEvent({
+                    ...this._event,
+                    setup_time: this.form.value.setup,
+                    breakdown_time: this.form.value.breakdown,
+                }).toJSON(),
+                query,
+            ),
+        ).catch((_) => null);
         if (!event) {
-            event = await updateEventMetadata(this._event.id, query.system_id, {
-                ...this._event.extension_data,
-                setup_time: this.form.value.setup,
-                breakdown_time: this.form.value.breakdown,
-                setup: this.form.value.setup,
-                breakdown: this.form.value.breakdown,
-            } as any)
-                .toPromise()
-                .catch((_) => null);
+            event = await firstValueFrom(
+                updateEventMetadata(this._event.id, query.system_id, {
+                    ...this._event.extension_data,
+                    setup_time: this.form.value.setup,
+                    breakdown_time: this.form.value.breakdown,
+                    setup: this.form.value.setup,
+                    breakdown: this.form.value.breakdown,
+                } as any),
+            ).catch((_) => null);
         }
         if (!event) {
-            this.loading = false;
+            this.loading.set(false);
             this._dialog_ref.disableClose = false;
             notifyError(`Error updating setup and breakdown.`);
             return;
         }
         notifySuccess('Succesfully updated setup and breakdown period.');
         this._dialog_ref.disableClose = false;
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.close(event);
     }
 }

@@ -231,9 +231,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
         week: new FormControl(0),
         monthly_type: new FormControl<MonthlyType>('day_of_month'),
         end_type: new FormControl<RecurrEndType>('never'),
-        end_date: new FormControl(
-            endOfDay(addDays(this.date, this.available_days)).valueOf(),
-        ),
+        end_date: new FormControl(this._defaultEndDate()),
         end_instances: new FormControl(13),
     });
 
@@ -255,9 +253,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             this.form.patchValue({ type: 'daily' });
         }
         // Restore defaults when end_date / end_instances are missing
-        const default_end_date = endOfDay(
-            addDays(this.date, this.available_days),
-        ).valueOf();
+        const default_end_date = this._defaultEndDate();
         if (!this.form.controls.end_date.value) {
             this.form.patchValue({ end_date: default_end_date });
         }
@@ -294,6 +290,7 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
 
     public confirmValue(): Recurrence {
         const value = this.form.getRawValue() as Recurrence;
+        value.end_date = value.end_date || this._defaultEndDate();
 
         if (value.end_type === 'instances' && value.end_instances) {
             const end_step =
@@ -336,5 +333,9 @@ export class RecurrenceModalComponent extends AsyncHandler implements OnInit {
             set.add(new Date(this.date).getDay() as any);
             this.form.patchValue({ week: this.week, weekdays: set });
         }
+    }
+
+    private _defaultEndDate() {
+        return endOfDay(addDays(this.date, this.available_days)).valueOf();
     }
 }

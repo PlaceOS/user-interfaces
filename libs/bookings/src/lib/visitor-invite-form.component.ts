@@ -34,6 +34,7 @@ import {
 import { TranslatePipe } from '@placeos/components';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { HostSelectFieldComponent } from 'libs/form-fields/src/lib/host-select-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
@@ -125,7 +126,7 @@ import { BookingFormService } from './booking-form.service';
                         </div>
                     </div>
                 }
-                @if (can_book_for_others()) {
+                @if (can_book_for_anyone()) {
                     <div class="flex w-full flex-col">
                         <label for="host">
                             {{ 'FORM.HOST' | translate }}<span>*</span>
@@ -135,6 +136,16 @@ import { BookingFormService } from './booking-form.service';
                             class="mb-4"
                             formControlName="user"
                         ></a-user-search-field>
+                    </div>
+                } @else if (can_book_for_others()) {
+                    <div class="flex w-full flex-col">
+                        <label for="host">
+                            {{ 'FORM.HOST' | translate }}<span>*</span>
+                        </label>
+                        <host-select-field
+                            name="host"
+                            formControlName="organiser"
+                        ></host-select-field>
                     </div>
                 }
                 @if (!multiple()) {
@@ -353,6 +364,7 @@ import { BookingFormService } from './booking-form.service';
         UserListFieldComponent,
         MatAutocompleteModule,
         UserSearchFieldComponent,
+        HostSelectFieldComponent,
         DateFieldComponent,
         DurationFieldComponent,
         TimeFieldComponent,
@@ -393,9 +405,15 @@ export class VisitorInviteFormComponent
         'visitors.allow_international',
         false,
     );
-    public readonly can_book_for_others = settingSignal(
-        'bookings.can_book_for_others',
-        false,
+    public readonly can_book_for_others = computed(
+        () =>
+            settingSignal('visitors.can_book_for_others')() ??
+            settingSignal('bookings.can_book_for_others')(),
+    );
+    public readonly can_book_for_anyone = computed(
+        () =>
+            settingSignal('visitors.can_book_for_anyone')() ??
+            settingSignal('bookings.can_book_for_anyone')(),
     );
     public readonly bookable_hours = computed(
         () =>
@@ -570,7 +588,7 @@ export class VisitorInviteFormComponent
                 }]`,
             );
         }
-        if (!this.form.value.user_email || !this.can_book_for_others) {
+        if (!this.form.value.user_email || !this.can_book_for_others()) {
             this.form.patchValue({ user: currentUser() });
         }
         const visitor_reason =

@@ -196,11 +196,13 @@ export class CheckinQRScanComponent
             return;
         }
         if (!/^\d+$/.test(event_id)) event_id = undefined;
-        await this._checkin.loadGuestAndEvent(visitor_email, event_id).catch((err) => {
-            this.handleError(err.message || err);
-            this.checking_code.set(false);
-            throw err;
-        });
+        await this._checkin
+            .loadGuestAndEvent(visitor_email, event_id)
+            .catch((err) => {
+                this.handleError(err.message || err);
+                this.checking_code.set(false);
+                throw err;
+            });
         const event = await nextValueFrom(this._checkin.event);
         if (event.rejected) {
             this.handleError('Your meeting has been rejected.');
@@ -284,7 +286,8 @@ export class CheckinQRScanComponent
                 })
                 .then((stream) => {
                     _video_el.srcObject = stream;
-                    _video_el.onloadedmetadata = () => this.scanner_ready.set(true);
+                    _video_el.onloadedmetadata = () =>
+                        this.scanner_ready.set(true);
                     this.subscription(
                         'scan_for_qr_code',
                         scanForQRCode(_video_el).subscribe({

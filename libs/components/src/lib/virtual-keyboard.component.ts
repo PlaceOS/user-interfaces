@@ -4,11 +4,11 @@ import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 import {
     Component,
     ElementRef,
-    HostListener,
     OnDestroy,
-    SimpleChanges,
+    effect,
     inject,
     model,
+    signal,
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -59,7 +59,7 @@ const DEFAULT_KEYS = [
                                     <div
                                         dot
                                         class="bg-base-200 absolute top-2 right-2 h-2 w-2 rounded-full"
-                                        [class.bg-success]="state === 'shift'"
+                                        [class.bg-success]="state() === 'shift'"
                                     ></div>
                                 }
                             </button>
@@ -102,6 +102,10 @@ const DEFAULT_KEYS = [
         `,
     ],
     imports: [MatRippleModule, PortalModule],
+    host: {
+        '(focus)': 'onFocus()',
+        '(blur)': 'onBlur()',
+    },
 })
 export class VirtualKeyboardComponent
     extends AsyncHandler
@@ -116,28 +120,29 @@ export class VirtualKeyboardComponent
     /** List of rows of keys to display on the keyboard */
     public readonly keyset = model(DEFAULT_KEYS);
     /** Current state of the displayed keyset */
-    public state: 'normal' | 'caps' | 'shift' = 'normal';
+    public readonly state = signal<'normal' | 'caps' | 'shift'>('normal');
     /** References to the overlay containing the keyboard */
     private _overlay_ref: OverlayRef = null;
     /** Portal with the keyboard contents */
     private readonly _portal = viewChild(CdkPortal);
 
-    @HostListener('focus') public onFocus = () => {
+    public onFocus() {
         if (!VirtualKeyboardComponent.enabled) return;
         this.open();
         this.clearTimeout('blur-sm');
-    };
-    @HostListener('blur') public onBlur = () =>
+    }
+
+    public onBlur() {
         this.timeout('blur-sm', () => this.close());
+    }
 
     constructor() {
         super();
-    }
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.keyset) {
-            if (!this.keyset()) this.keyset.set(DEFAULT_KEYS);
-        }
+        effect(() => {
+            const keys = this.keyset();
+            if (!keys) this.keyset.set(DEFAULT_KEYS);
+        });
     }
 
     public ngOnDestroy() {
@@ -177,7 +182,7 @@ export class VirtualKeyboardComponent
         switch (key.toLowerCase()) {
             case '{caps}':
             case '{shift}':
-                this.state = 'shift';
+                this.state.set('shift');
                 break;
             case '{backspace}':
                 this._element.nativeElement.value = `${str.substr(
@@ -194,7 +199,7 @@ export class VirtualKeyboardComponent
                 cursor_pos += 1;
                 break;
             default:
-                if (this.state === 'shift') this.state = 'normal';
+                if (this.state() === 'shift') this.state.set('normal');
                 this._element.nativeElement.value = `${str.substr(
                     0,
                     cursor_pos,
@@ -221,7 +226,7 @@ export class VirtualKeyboardComponent
                     k.length > 1
                         ? k
                         : k[
-                              this.state !== 'normal'
+                              this.state() !== 'normal'
                                   ? 'toUpperCase'
                                   : 'toLowerCase'
                           ](),

@@ -2,16 +2,15 @@ import { expect, test } from '@playwright/test';
 import {
     LOAD_TIMEOUT,
     SURVEY_ID_COMPREHENSIVE,
-    SURVEY_ID_FACILITY,
-    navigateToSurvey,
-    waitForSurveyLoaded,
-    selectRating,
-    enterText,
+    clickNext,
     enterComment,
+    enterText,
+    navigateToSurvey,
     selectDropdownOption,
     selectRadioOption,
+    selectRating,
     toggleCheckbox,
-    clickNext,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-5: Answer Rating Questions', () => {
@@ -50,9 +49,9 @@ test.describe('US-5: Answer Rating Questions', () => {
         await selectRating(page, 19, 4);
 
         // The selected button should have the bg-secondary class
-        const selectedButton = page.locator(
-            'div[btn-grp] button:has-text("4")'
-        ).first();
+        const selectedButton = page
+            .locator('div[btn-grp] button:has-text("4")')
+            .first();
         await expect(selectedButton).toHaveClass(/bg-secondary/);
     });
 
@@ -62,20 +61,22 @@ test.describe('US-5: Answer Rating Questions', () => {
 
         // Select rating 3
         await selectRating(page, 19, 3);
-        let selectedButton = page.locator(
-            'div[btn-grp] button:has-text("3")'
-        ).first();
+        let selectedButton = page
+            .locator('div[btn-grp] button:has-text("3")')
+            .first();
         await expect(selectedButton).toHaveClass(/bg-secondary/);
 
         // Select rating 5 - should deselect 3
         await selectRating(page, 19, 5);
-        selectedButton = page.locator('div[btn-grp] button:has-text("5")').first();
+        selectedButton = page
+            .locator('div[btn-grp] button:has-text("5")')
+            .first();
         await expect(selectedButton).toHaveClass(/bg-secondary/);
 
         // Rating 3 should no longer be selected
-        const previousButton = page.locator(
-            'div[btn-grp] button:has-text("3")'
-        ).first();
+        const previousButton = page
+            .locator('div[btn-grp] button:has-text("3")')
+            .first();
         await expect(previousButton).not.toHaveClass(/bg-secondary/);
     });
 });
@@ -197,7 +198,7 @@ test.describe('US-9: Answer Radio Button Questions', () => {
         await selectRadioOption(page, 'Morning');
 
         const selectedRadio = page.locator(
-            'mat-radio-button:has-text("Morning")'
+            'mat-radio-button:has-text("Morning")',
         );
         await expect(selectedRadio).toHaveClass(/mat-mdc-radio-checked/);
     });
@@ -212,12 +213,12 @@ test.describe('US-9: Answer Radio Button Questions', () => {
 
         // Only Afternoon should be selected
         const afternoonRadio = page.locator(
-            'mat-radio-button:has-text("Afternoon")'
+            'mat-radio-button:has-text("Afternoon")',
         );
         await expect(afternoonRadio).toHaveClass(/mat-mdc-radio-checked/);
 
         const morningRadio = page.locator(
-            'mat-radio-button:has-text("Morning")'
+            'mat-radio-button:has-text("Morning")',
         );
         await expect(morningRadio).not.toHaveClass(/mat-mdc-radio-checked/);
     });
@@ -242,7 +243,7 @@ test.describe('US-10: Answer Checkbox Questions', () => {
         await toggleCheckbox(page, 'Workplace improvements');
 
         const checkbox = page.locator(
-            'mat-checkbox:has-text("Workplace improvements")'
+            'mat-checkbox:has-text("Workplace improvements")',
         );
         await expect(checkbox).toHaveClass(/mat-mdc-checkbox-checked/);
     });
@@ -256,7 +257,7 @@ test.describe('US-10: Answer Checkbox Questions', () => {
         await toggleCheckbox(page, 'Team events');
 
         const checkbox1 = page.locator(
-            'mat-checkbox:has-text("Workplace improvements")'
+            'mat-checkbox:has-text("Workplace improvements")',
         );
         const checkbox2 = page.locator('mat-checkbox:has-text("Team events")');
 
@@ -273,7 +274,7 @@ test.describe('US-10: Answer Checkbox Questions', () => {
         await toggleCheckbox(page, 'Workplace improvements');
 
         const checkbox = page.locator(
-            'mat-checkbox:has-text("Workplace improvements")'
+            'mat-checkbox:has-text("Workplace improvements")',
         );
         await expect(checkbox).not.toHaveClass(/mat-mdc-checkbox-checked/);
     });

@@ -35,18 +35,18 @@ describe('CheckinCovidComponent', () => {
     it('should allow confirming questions', () => {
         (common_mod.notifyError as any) = jest.fn();
         spectator.component.confirm();
-        expect(common_mod.notifyError).toBeCalledWith(
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Please select yes or no for each question',
         );
         spectator.component.contact = 'true';
         spectator.component.symptoms = 'false';
         spectator.component.confirm();
-        expect(spectator.inject(CheckinStateService).setError).toBeCalledTimes(
-            1,
-        );
+        expect(
+            spectator.inject(CheckinStateService).setError,
+        ).toHaveBeenCalledTimes(1);
         spectator.component.contact = 'false';
         spectator.component.confirm();
-        expect(spectator.inject(Router).navigate).toBeCalledWith([
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'results',
         ]);

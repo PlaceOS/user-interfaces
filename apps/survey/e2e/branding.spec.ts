@@ -3,10 +3,10 @@ import {
     LOAD_TIMEOUT,
     SURVEY_ID_EMPLOYEE,
     SURVEY_ID_FACILITY,
-    navigateToSurvey,
-    waitForSurveyLoaded,
     getSurveyTitle,
     isLogoVisible,
+    navigateToSurvey,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-19: View Organization Branding', () => {

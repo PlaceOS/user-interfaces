@@ -98,7 +98,8 @@ function cleanPlaylistPayload(playlist: Partial<SignagePlaylist>) {
     // Temporary workaround until the backend ignores blank playlist fields.
     return Object.fromEntries(
         Object.entries(playlist).filter(
-            ([, value]) => value !== '' && value !== null && value !== undefined,
+            ([, value]) =>
+                value !== '' && value !== null && value !== undefined,
         ),
     ) as Partial<SignagePlaylist>;
 }

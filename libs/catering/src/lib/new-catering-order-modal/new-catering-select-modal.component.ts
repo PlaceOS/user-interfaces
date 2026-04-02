@@ -41,7 +41,11 @@ const EMPTY_FAVS: string[] = [];
                     class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
-                    <new-catering-item-filters></new-catering-item-filters>
+                    <new-catering-item-filters
+                        [(at_time)]="exact_time"
+                        [(offset)]="offset"
+                        [(offset_day)]="offset_day"
+                    ></new-catering-item-filters>
                 </div>
                 <div
                     class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"

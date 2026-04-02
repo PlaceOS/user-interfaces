@@ -1,15 +1,9 @@
 import { signal } from '@angular/core';
 import { showUser } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    combineLatest,
-    lastValueFrom,
-    of,
-    timer,
-} from 'rxjs';
+import { BehaviorSubject, combineLatest, lastValueFrom, of, timer } from 'rxjs';
 import { catchError, map, retry, tap } from 'rxjs/operators';
-import { StaffUser } from './types/user.class';
 import { isPublicMode } from './public-mode';
+import { StaffUser } from './types/user.class';
 
 const EMPTY_USER = {
     name: '<empty>',
@@ -63,10 +57,7 @@ setTimeout(() => {
             retry({
                 count: 10,
                 delay: (error, count) => {
-                    const delay_ms = Math.min(
-                        1000 * Math.pow(2, count),
-                        30000,
-                    );
+                    const delay_ms = Math.min(1000 * Math.pow(2, count), 30000);
                     console.warn(
                         `User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`,
                         error,

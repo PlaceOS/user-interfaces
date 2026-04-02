@@ -1,21 +1,30 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+    computed,
+    DestroyRef,
+    effect,
     inject,
     input,
+    OnInit,
     output,
+    signal,
 } from '@angular/core';
+import {
+    takeUntilDestroyed,
+    toObservable,
+    toSignal,
+} from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { AsyncHandler, BuildingLevel, SettingsService } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import {
+    BuildingLevel,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -28,7 +37,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
     selector: 'new-locker-map',
     template: `
         <div class="border-base-200 bg-base-100 w-full border-b p-2">
-            @if ((levels | async)?.length) {
+            @if (levels()?.length) {
                 <mat-form-field
                     levels
                     appearance="outline"
@@ -41,7 +50,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                         [ngModelOptions]="{ standalone: true }"
                         [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
-                        @for (lvl of levels | async; track lvl) {
+                        @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
@@ -65,12 +74,12 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         </div>
         <div class="relative w-full flex-1">
             <interactive-map
-                [src]="map_url"
+                [src]="map_url()"
                 [(zoom)]="zoom"
                 [(center)]="center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
@@ -86,7 +95,6 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         `,
     ],
     imports: [
-        CommonModule,
         InteractiveMapComponent,
         MatFormFieldModule,
         MatSelectModule,
@@ -95,13 +103,11 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
         BuildingPipe,
     ],
 })
-export class NewLockerMapComponent
-    extends AsyncHandler
-    implements OnInit, OnChanges
-{
+export class NewLockerMapComponent implements OnInit {
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _destroyRef = inject(DestroyRef);
 
     public readonly is_displayed = input(false);
     public readonly active = input('');
@@ -120,7 +126,7 @@ export class NewLockerMapComponent
         () => this._settings.get('app.use_region'),
     );
 
-    public readonly locker_banks = combineLatest([
+    private readonly _locker_banks$ = combineLatest([
         this._state.options,
         this._state.available_resources,
         this.lockers_banks$,
@@ -152,98 +158,112 @@ export class NewLockerMapComponent
 
     public zoom = 1;
     public center = { x: 0.5, y: 0.5 };
-    public level?: BuildingLevel;
-    public coordinates = undefined;
+    public readonly level = signal<BuildingLevel | undefined>(undefined);
+    public readonly coordinates = signal<any>(undefined);
 
-    private _change = new BehaviorSubject(0);
+    private readonly _change = signal(0);
+    private readonly _change$ = toObservable(this._change);
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, bld]) => {
-            const level_list = this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter(
-                (lvl) => !lvl.tags.includes('parking'),
-            );
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+        ]).pipe(
+            map(([region, bld]) => {
+                const level_list = this.use_region
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld);
+                const viewable_levels = level_list.filter(
+                    (lvl) => !lvl.tags.includes('parking'),
+                );
+                return viewable_levels.sort(
+                    (a, b) =>
+                        a.parent_id.localeCompare(b.parent_id) ||
+                        (a.display_name || '').localeCompare(
+                            b.display_name || '',
+                        ),
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public readonly setOptions = (o) => this._state.setOptions(o);
 
-    public get map_url() {
-        return this.level?.map_id || '';
-    }
+    public readonly map_url = computed(() => this.level()?.map_id || '');
 
-    public readonly actions = this.locker_banks.pipe(
-        map((banks) =>
-            banks.map((locker) => ({
-                id: locker.map_id || locker.id,
-                action: ['touchend', 'mouseup'],
-                callback: () => this.selectLocker(locker as any),
-            })),
+    public readonly actions = toSignal(
+        this._locker_banks$.pipe(
+            map((banks) =>
+                banks.map((locker) => ({
+                    id: locker.map_id || locker.id,
+                    action: ['touchend', 'mouseup'],
+                    callback: () => this.selectLocker(locker as any),
+                })),
+            ),
         ),
+        { initialValue: [] },
     );
 
-    public readonly features = combineLatest([
-        this.locker_banks,
-        this._state.available_resources,
-    ]).pipe(
-        map(([lockers]) => {
-            return this._settings.get('app.lockers.hide_user')
-                ? []
-                : lockers.map((locker) => ({
-                      location: locker.id,
-                      content: ExploreDeskInfoComponent,
-                      full_size: true,
-                      no_scale: true,
-                      data: {
-                          id: locker.map_id || locker.id,
-                          map_id: locker.name,
-                          name: locker.name || locker.map_id,
-                          user: this._state.resourceUserName(locker.id),
-                      },
-                      z_index: 20,
-                  }));
-        }),
+    public readonly features = toSignal(
+        combineLatest([
+            this._locker_banks$,
+            this._state.available_resources,
+        ]).pipe(
+            map(([lockers]) => {
+                return this._settings.get('app.lockers.hide_user')
+                    ? []
+                    : lockers.map((locker) => ({
+                          location: locker.id,
+                          content: ExploreDeskInfoComponent,
+                          full_size: true,
+                          no_scale: true,
+                          data: {
+                              id: locker.map_id || locker.id,
+                              map_id: locker.name,
+                              name: locker.name || locker.map_id,
+                              user: this._state.resourceUserName(locker.id),
+                          },
+                          z_index: 20,
+                      }));
+            }),
+        ),
+        { initialValue: [] },
     );
 
-    public readonly styles = combineLatest([
-        this.locker_banks,
-        this._state.available_resources,
-        this._change,
-    ]).pipe(
-        map(([banks, free_lockers]) =>
-            banks.reduce((styles, bank) => {
-                const colours = this._settings.get('app.explore.colors') || {};
-                const status =
-                    this.active() === bank.id
-                        ? 'active'
-                        : free_lockers.find((_) =>
-                                bank.lockers.find((lkr) => lkr.id === _.id),
-                            )
-                          ? 'free'
-                          : this._state.resourceUserName(bank.id)
-                            ? 'busy'
-                            : 'not-bookable';
-                styles[`#${bank.map_id || bank.id}`] = {
-                    fill:
-                        status === 'active'
-                            ? '#512DA8'
-                            : colours[`locker-${status}`] ||
-                              colours[`${status}`] ||
-                              DEFAULT_COLOURS[`${status}`],
-                };
-                return styles;
-            }, {}),
+    public readonly styles = toSignal(
+        combineLatest([
+            this._locker_banks$,
+            this._state.available_resources,
+            this._change$,
+        ]).pipe(
+            map(([banks, free_lockers]) =>
+                banks.reduce((styles, bank) => {
+                    const colours =
+                        this._settings.get('app.explore.colors') || {};
+                    const status =
+                        this.active() === bank.id
+                            ? 'active'
+                            : free_lockers.find((_) =>
+                                    bank.lockers.find((lkr) => lkr.id === _.id),
+                                )
+                              ? 'free'
+                              : this._state.resourceUserName(bank.id)
+                                ? 'busy'
+                                : 'not-bookable';
+                    styles[`#${bank.map_id || bank.id}`] = {
+                        fill:
+                            status === 'active'
+                                ? '#512DA8'
+                                : colours[`locker-${status}`] ||
+                                  colours[`${status}`] ||
+                                  DEFAULT_COLOURS[`${status}`],
+                    };
+                    return styles;
+                }, {}),
+            ),
         ),
+        { initialValue: {} },
     );
 
     public get use_region() {
@@ -251,21 +271,19 @@ export class NewLockerMapComponent
     }
 
     constructor() {
-        super();
+        effect(() => {
+            this.active();
+            this._change.set(Date.now());
+        });
     }
 
     public ngOnInit(): void {
-        this.subscription(
-            'levels_update',
-            this._state.options.subscribe(({ zone_id }) => {
+        this._state.options
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(({ zone_id }) => {
                 const level = this._org.levelWithID([zone_id]);
-                if (level) this.level = level;
-            }),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.active) this._change.next(Date.now());
+                if (level) this.level.set(level);
+            });
     }
 
     public selectLocker(locker: BookingAsset) {
@@ -279,9 +297,9 @@ export class NewLockerMapComponent
             const [latitude, longitude] = bld.location
                 .split(',')
                 .map((_) => parseFloat(_));
-            this.coordinates = { latitude, longitude };
+            this.coordinates.set({ latitude, longitude });
         }
-        this.level = level;
+        this.level.set(level);
     }
 
     public setZoom(new_zoom: number) {

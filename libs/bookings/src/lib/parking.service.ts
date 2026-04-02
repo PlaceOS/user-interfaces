@@ -1,11 +1,12 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { queryParkingSpacesForZones, queryParkingUsers } from '@placeos/assets';
 import {
     AsyncHandler,
+    currentUser,
     Desk,
     flatten,
     OrganisationService,
     SettingsService,
-    currentUser,
 } from '@placeos/common';
 import { listChildMetadata, PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -19,7 +20,6 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
-import { queryParkingSpacesForZones, queryParkingUsers } from '@placeos/assets';
 
 export type ParkingSpace = PlaceAsset;
 export type { ParkingUser } from '@placeos/assets';
@@ -176,9 +176,7 @@ export class ParkingService extends AsyncHandler {
             const email = currentUser()?.email?.toLowerCase();
             if (!email) return null;
             const match = results.find((r) =>
-                r.desks.some(
-                    (d) => d.assigned_to?.toLowerCase() === email,
-                ),
+                r.desks.some((d) => d.assigned_to?.toLowerCase() === email),
             );
             return match?.building_id || null;
         }),

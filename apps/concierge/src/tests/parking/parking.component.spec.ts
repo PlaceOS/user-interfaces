@@ -1,12 +1,12 @@
-import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/jest';
 import { SettingsService, currentUser } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { ParkingComponent } from '../../app/parking/parking.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { ParkingTopbarComponent } from '../../app/parking/parking-topbar.component';
+import { ParkingComponent } from '../../app/parking/parking.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 

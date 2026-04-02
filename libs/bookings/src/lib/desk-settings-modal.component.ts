@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -21,7 +21,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 @Component({
     selector: 'desk-settings-modal',
     template: `
-        @if (!edit_presets) {
+        @if (!edit_presets()) {
             <div
                 class="bg-base-100 relative w-[20rem] rounded-sm p-4 shadow-sm"
             >
@@ -38,7 +38,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         >
                             <mat-select
                                 placeholder="No selected preset"
-                                [(ngModel)]="preset"
+                                [ngModel]="preset()"
                                 (ngModelChange)="setPreset($event)"
                             >
                                 <mat-option value="">None</mat-option>
@@ -51,7 +51,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         <button
                             icon
                             matRipple
-                            (click)="edit_presets = true"
+                            (click)="edit_presets.set(true)"
                             class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
                         >
                             <icon>edit</icon>
@@ -69,12 +69,12 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                         >
                             <input
                                 matSliderThumb
-                                [(ngModel)]="height"
-                                (ngModelChange)="updatePreset(height)"
+                                [ngModel]="height()"
+                                (ngModelChange)="updateHeight($event)"
                             />
                         </mat-slider>
                         <div class="w-12 text-right text-sm">
-                            {{ height.toFixed(1) }}cm
+                            {{ height().toFixed(1) }}cm
                         </div>
                     </div>
                 </div>
@@ -93,7 +93,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
         } @else {
             <desk-height-presets
                 [show_close]="true"
-                (close)="edit_presets = false"
+                (close)="edit_presets.set(false)"
             />
         }
     `,
@@ -119,25 +119,25 @@ export class DeskSettingsModalComponent {
         inject<MatDialogRef<DeskSettingsModalComponent>>(MatDialogRef);
 
     public readonly desk_id = this._data.id;
-    public edit_presets = false;
-    public preset: string;
-    public height = 71;
+    public readonly edit_presets = signal(false);
+    public readonly preset = signal<string | null>(null);
+    public readonly height = signal(71);
 
     public ngOnInit() {
         const sitting_height = this._settings.get('desk_sitting_height');
         const standing_height = this._settings.get('desk_standing_height');
         if (!sitting_height && !standing_height) {
-            this.edit_presets = true;
+            this.edit_presets.set(true);
         }
         const last_height = parseInt(
             localStorage.getItem('PLACEOS.last_desk_height'),
             10,
         );
-        this.height = last_height || sitting_height || 71;
-        if (this.height === sitting_height) {
-            this.preset = 'sitting';
-        } else if (this.height === standing_height) {
-            this.preset = 'standing';
+        this.height.set(last_height || sitting_height || 71);
+        if (this.height() === sitting_height) {
+            this.preset.set('sitting');
+        } else if (this.height() === standing_height) {
+            this.preset.set('standing');
         }
     }
 
@@ -146,34 +146,44 @@ export class DeskSettingsModalComponent {
         const standing_height =
             this._settings.get('desk_standing_height') || 102;
         if (new_height === sitting_height) {
-            this.preset = 'sitting';
+            this.preset.set('sitting');
         } else if (new_height === standing_height) {
-            this.preset = 'standing';
+            this.preset.set('standing');
         } else {
-            this.preset = null;
+            this.preset.set(null);
         }
     }
 
+    public updateHeight(new_height: number) {
+        this.height.set(new_height);
+        this.updatePreset(new_height);
+    }
+
     public setPreset(value: string) {
+        this.preset.set(value || null);
         switch (value) {
             case 'standing':
-                this.height = this._settings.get('desk_standing_height') || 102;
+                this.height.set(
+                    this._settings.get('desk_standing_height') || 102,
+                );
                 break;
             case 'sitting':
-                this.height = this._settings.get('desk_sitting_height') || 71;
+                this.height.set(
+                    this._settings.get('desk_sitting_height') || 71,
+                );
                 break;
             default:
-                this.height = 70;
+                this.height.set(70);
                 break;
         }
     }
 
     public async setDeskHeight() {
         const mod = this._org.module('desks', 'DeskControl');
-        localStorage.setItem('PLACEOS.last_desk_height', `${this.height}`);
+        localStorage.setItem('PLACEOS.last_desk_height', `${this.height()}`);
         if (!mod) return this._dialog_ref.close();
         await mod
-            .execute('set_desk_height', [this.desk_id, this.height])
+            .execute('set_desk_height', [this.desk_id, this.height()])
             .catch((_) => {
                 notifyError('Error setting desk height.' + _);
                 throw _;

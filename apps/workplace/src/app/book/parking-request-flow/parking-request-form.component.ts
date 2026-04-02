@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -218,7 +217,6 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         ReactiveFormsModule,
         TranslatePipe,

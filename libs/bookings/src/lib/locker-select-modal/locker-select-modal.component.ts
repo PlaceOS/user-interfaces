@@ -1,11 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { AsyncHandler, SETTING_KEYS, SettingsService } from '@placeos/common';
+import { SETTING_KEYS, SettingsService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import {
@@ -59,7 +60,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
             >
                 <locker-filters
                     class="hidden h-full max-w-[20rem] sm:flex sm:h-[65vh] sm:max-h-full"
-                    [hide_levels]="view !== 'list'"
+                    [hide_levels]="view() !== 'list'"
                 ></locker-filters>
                 <div
                     class="flex h-full w-1/2 flex-1 flex-col items-center sm:h-[65vh]"
@@ -68,14 +69,14 @@ import { LockerFiltersComponent } from './locker-filters.component';
                         class="border-base-200 w-full border-b"
                         [(view)]="view"
                     ></locker-filters-display>
-                    @if (!bank) {
-                        @if (view === 'list') {
+                    @if (!bank()) {
+                        @if (view() === 'list') {
                             <locker-bank-list
-                                [active]="displayed?.id"
-                                [selected]="selected_ids"
-                                [favorites]="favorites"
+                                [active]="displayed()?.id || ''"
+                                [selected]="selected_ids()"
+                                [favorites]="favorites()"
                                 (toggleFav)="toggleFavourite($event)"
-                                (onSelect)="bank = $any($event)"
+                                (onSelect)="bank.set($any($event))"
                                 class="bg-base-200 h-1/2 flex-1"
                             ></locker-bank-list>
                         }
@@ -86,13 +87,13 @@ import { LockerFiltersComponent } from './locker-filters.component';
                             <div
                                 class="sticky left-0 w-full px-2 py-2 font-medium"
                             >
-                                {{ bank.name }}
+                                {{ bank()?.name }}
                             </div>
                             <locker-grid
                                 class="h-1/2 w-full flex-1"
-                                [bank]="bank"
-                                [selected]="displayed?.id"
-                                (clicked)="displayed = $event"
+                                [bank]="bank()"
+                                [selected]="displayed()?.id || ''"
+                                (clicked)="displayed.set($event)"
                             >
                             </locker-grid>
                         </div>
@@ -102,13 +103,13 @@ import { LockerFiltersComponent } from './locker-filters.component';
             <footer
                 class="border-base-200 flex w-full flex-col-reverse items-center justify-end border-t px-2 pt-2 pb-22 sm:hidden"
             >
-                @if (displayed) {
+                @if (displayed()) {
                     <button
                         btn
                         matRipple
                         name="locker-return"
                         class="inverse w-full sm:hidden"
-                        (click)="displayed = null"
+                        (click)="displayed.set(null)"
                     >
                         {{ 'COMMON.BACK' | translate }}
                     </button>
@@ -117,8 +118,8 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     btn
                     matRipple
                     name="save-lockers"
-                    [mat-dialog-close]="selected"
-                    [class.mb-2]="displayed"
+                    [mat-dialog-close]="selected()"
+                    [class.mb-2]="displayed()"
                     class="w-full sm:mb-0 sm:w-32"
                 >
                     {{ 'COMMON.VIEW_LIST' | translate }}
@@ -131,7 +132,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
                     btn
                     matRipple
                     name="locker-return"
-                    [mat-dialog-close]="selected"
+                    [mat-dialog-close]="selected()"
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
@@ -144,17 +145,17 @@ import { LockerFiltersComponent } from './locker-filters.component';
                 <p class="text-center text-sm opacity-60">
                     {{
                         'BOOKINGS.LOCKER_ADDED_COUNT'
-                            | translate: { count: selected.length }
+                            | translate: { count: selected().length }
                     }}
                 </p>
                 <div class="flex items-center">
-                    @if (bank) {
+                    @if (bank()) {
                         <button
                             btn
                             matRipple
                             name="clear-bank"
                             class="inverse mr-2 w-32"
-                            (click)="bank = null; displayed = null"
+                            (click)="bank.set(null); displayed.set(null)"
                         >
                             {{ 'COMMON.RETURN' | translate }}
                         </button>
@@ -163,19 +164,22 @@ import { LockerFiltersComponent } from './locker-filters.component';
                         btn
                         matRipple
                         name="toggle-locker"
-                        [disabled]="!displayed"
-                        [class.inverse]="isSelected(displayed?.id)"
+                        [disabled]="!displayed()"
+                        [class.inverse]="isSelected(displayed()?.id)"
                         (click)="
-                            setSelected(displayed, !isSelected(displayed?.id))
+                            setSelected(
+                                displayed(),
+                                !isSelected(displayed()?.id)
+                            )
                         "
                     >
                         <div class="flex items-center">
                             <icon class="text-xl">{{
-                                isSelected(displayed?.id) ? 'remove' : 'add'
+                                isSelected(displayed()?.id) ? 'remove' : 'add'
                             }}</icon>
                             <div class="mr-1">
                                 {{
-                                    (isSelected(displayed?.id)
+                                    (isSelected(displayed()?.id)
                                         ? 'COMMON.REMOVE_FROM'
                                         : 'COMMON.ADD_TO'
                                     ) | translate
@@ -198,7 +202,7 @@ import { LockerFiltersComponent } from './locker-filters.component';
         LockerFiltersDisplayComponent,
     ],
 })
-export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
+export class LockerSelectModalComponent {
     private _dialog_ref =
         inject<MatDialogRef<LockerSelectModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
@@ -208,60 +212,58 @@ export class LockerSelectModalComponent extends AsyncHandler implements OnInit {
         options: Partial<BookingFlowOptions>;
     }>(MAT_DIALOG_DATA);
 
-    public displayed?: BookingAsset;
-    public selected: BookingAsset[] = [];
-    public view: 'map' | 'list' = 'list';
-    public bank?: LockerBank = null;
+    private readonly _options = toSignal(this._event_form.options, {
+        initialValue: null,
+    });
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
-    }
-
-    public get favorites() {
-        return (
-            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) || []
-        );
-    }
+    public readonly displayed = signal<BookingAsset | null>(null);
+    public readonly selected = signal<BookingAsset[]>([]);
+    public readonly view = signal<'map' | 'list'>('list');
+    public readonly bank = signal<LockerBank | null>(null);
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .map((_) => _.id)
+            .join(','),
+    );
+    public readonly favorites = signal<string[]>(
+        this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) || [],
+    );
 
     constructor() {
-        super();
         const _data = this._data;
 
-        this.selected = [...(_data.items || [])];
+        this.selected.set([...(_data.items || [])]);
         this._event_form.setOptions(_data.options);
-    }
-
-    public ngOnInit() {
-        this._event_form.options.subscribe(() => {
-            this.displayed = null;
-            this.bank = null;
+        effect(() => {
+            this._options();
+            this.displayed.set(null);
+            this.bank.set(null);
         });
     }
 
-    public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+    public isSelected(id?: string | null) {
+        return !!id && this.selected().some((item) => item.id === id);
     }
 
-    public setSelected(item: BookingAsset, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== item.id);
+    public setSelected(item: BookingAsset | null, state: boolean) {
+        if (!item) return;
+        const list = this.selected().filter((_) => _.id !== item.id);
         if (state) list.push(item);
-        this.selected = list;
+        this.selected.set(list);
         if (!this._data.options.group && state) this._dialog_ref.close([item]);
     }
 
-    public toggleFavourite(item: BookingAsset) {
-        const fav_list = this.favorites;
+    public toggleFavourite(item: BookingAsset | null) {
+        if (!item?.id) return;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_LOCKERS, [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                SETTING_KEYS.FAVORITE_LOCKERS,
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const next_favs = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+        this.favorites.set(next_favs);
+        this._settings.saveUserSetting(
+            SETTING_KEYS.FAVORITE_LOCKERS,
+            next_favs,
+        );
     }
 }

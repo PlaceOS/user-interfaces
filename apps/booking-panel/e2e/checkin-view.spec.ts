@@ -29,15 +29,15 @@ test.describe('Checkin View - Core Layout', () => {
     });
 
     test('should display Upcoming section heading', async ({ page }) => {
-        await expect(
-            page.locator('h3', { hasText: /upcoming/i })
-        ).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(page.locator('h3', { hasText: /upcoming/i })).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 
     test('should display Schedule section heading', async ({ page }) => {
-        await expect(
-            page.locator('h3', { hasText: /schedule/i })
-        ).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(page.locator('h3', { hasText: /schedule/i })).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 });
 
@@ -60,9 +60,11 @@ test.describe('Checkin View - Status Cards', () => {
     test('should show status color indicator on NOW card', async ({ page }) => {
         // Status indicator is a small colored div (h-full min-h-12 w-2)
         const statusIndicator = page.locator(
-            'checkin-view .bg-success.min-h-12, checkin-view .bg-error.min-h-12, checkin-view .bg-warning.min-h-12'
+            'checkin-view .bg-success.min-h-12, checkin-view .bg-error.min-h-12, checkin-view .bg-warning.min-h-12',
         );
-        await expect(statusIndicator.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(statusIndicator.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 });
 
@@ -114,15 +116,21 @@ test.describe('Checkin View - Timetable Component', () => {
         await expect(timetable).toBeVisible({ timeout: STATUS_TIMEOUT });
 
         // Should have time labels (AM/PM)
-        const timeLabels = timetable.locator('div:has-text("AM"), div:has-text("PM")');
-        await expect(timeLabels.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        const timeLabels = timetable.locator(
+            'div:has-text("AM"), div:has-text("PM")',
+        );
+        await expect(timeLabels.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 
     test('should be horizontally scrollable', async ({ page }) => {
         const scrollContainer = page.locator(
-            'checkin-view .overflow-auto, checkin-view .overflow-x-auto'
+            'checkin-view .overflow-auto, checkin-view .overflow-x-auto',
         );
-        await expect(scrollContainer.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(scrollContainer.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 });
 
@@ -140,7 +148,7 @@ test.describe('Checkin View - Room Image', () => {
 
         // Header should have bg-black and overlay
         await expect(
-            page.locator('checkin-view > div.h-32.bg-black')
+            page.locator('checkin-view > div.h-32.bg-black'),
         ).toBeVisible();
     });
 });

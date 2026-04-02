@@ -89,13 +89,13 @@ describe('NewCateringOrderModalComponent', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as any).mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith(
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
             'favourite_menu_items',
             ['1'],
         );
         (settings.get as any).mockImplementation(() => ['1']);
         spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith(
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
             'favourite_menu_items',
             [],
         );
@@ -145,13 +145,21 @@ describe('NewCateringOrderModalComponent', () => {
     });
 
     it('should keep an ordered item in place when updating its quantity', () => {
-        const first = new CateringItem({ id: '1', quantity: 1, in_order: true });
+        const first = new CateringItem({
+            id: '1',
+            quantity: 1,
+            in_order: true,
+        });
         const second = new CateringItem({
             id: '2',
             quantity: 2,
             in_order: true,
         });
-        const third = new CateringItem({ id: '3', quantity: 1, in_order: true });
+        const third = new CateringItem({
+            id: '3',
+            quantity: 1,
+            in_order: true,
+        });
         spectator.component.selected = [first, second, third];
         spectator.component.displayed = second;
 

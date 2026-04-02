@@ -81,6 +81,7 @@
         "AVAILABLE_COUNT": "{{ count }} of {{ total }} available",
         "ITEM_COUNT": "{{ count }} items",
         "ITEM_COUNT_1": "{{ count }} item",
+        "ITEM_COUNT_N": "{{ count }} items",
         "NO_ITEMS": "No items",
         "VIEW_LIST": "View List",
         "TIME": "Time",
@@ -2122,7 +2123,7 @@
             "BOOKING_RULES_EDIT": "Edit {{ type }} Booking Ruleset",
             "BOOKING_RULES_NOTE": "Note that the order of the rulesets are important. The first ruleset that matches the resource will be used.",
             "BOOKING_RULES_AUTO_APPROVE": "Auto-approve",
-            "BOOKING_RULES_HIDE_MATCHES": "Hide Matches",
+            "BOOKING_RULES_HIDE_MATCHES": "Prevent Booking",
             "BOOKING_RULES_CONDITIONS": "Conditions",
             "BOOKING_RULES_CONDITIONS_COUNT": "{{ count }} condition(s)",
             "BOOKING_RULESET_ADD": "Add Ruleset",
@@ -2133,7 +2134,8 @@
             "BOOKING_RULESET_ERROR": "Failed to save booking rules. Error: {{ error }}",
             "BOOKING_RULESET_SUCCESS": "Successfully saved booking rules.",
             "BOOKING_RULESET_PRIORITY_UP": "Increase Ruleset Priority",
-            "BOOKING_RULESET_PRIORITY_DOWN": "Decrease Ruleset Priority"
+            "BOOKING_RULESET_PRIORITY_DOWN": "Decrease Ruleset Priority",
+            "BOOKING_RULESET_REORDER": "Reorder Ruleset"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",

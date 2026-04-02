@@ -13,6 +13,7 @@ import {
     showSignage,
     SignageMedia,
     SignagePlaylist,
+    SignagePlugin,
 } from '@placeos/ts-client';
 import { addSeconds, differenceInSeconds } from 'date-fns';
 import {
@@ -128,6 +129,8 @@ export class SignageService extends AsyncHandler {
             log('Signage', 'Display updated.');
             value.playlist_media =
                 value.playlist_media?.map((_) => new SignageMedia(_)) || [];
+            value.plugins =
+                value.plugins?.map((_) => new SignagePlugin(_)) || [];
             return value;
         }),
         shareReplay(1),
@@ -215,7 +218,11 @@ export class SignageService extends AsyncHandler {
             const available_media = this._media_cache.availableFiles();
             const media = _.playlist_media
                 .filter(
-                    (_) => _.type !== 'webpage' && _.media_type !== 'webpage',
+                    (_) =>
+                        _.type !== 'webpage' &&
+                        _.media_type !== 'webpage' &&
+                        _.type !== 'plugin' &&
+                        _.media_type !== 'plugin',
                 )
                 .map((_) => _.media_url);
             const extra_media = available_media.filter(
@@ -348,6 +355,7 @@ export class SignageService extends AsyncHandler {
         playlists: string[],
         filter_fn: (item: SignagePlaylist) => boolean = () => true,
     ): MediaPlayerItem[] {
+        const plugins: SignagePlugin[] = display.plugins || [];
         const playlist_media = playlists
             .map((id) => {
                 const [playlist, media_list] = display.playlist_config[id] as [
@@ -372,6 +380,10 @@ export class SignageService extends AsyncHandler {
                 if (!media_ref) return null;
                 const playlist: SignagePlaylist | undefined =
                     display.playlist_config[playlist_id][0];
+                const is_plugin = media_ref.media_type === 'plugin';
+                const plugin = is_plugin
+                    ? plugins.find((_) => _.id === media_ref.plugin_id)
+                    : undefined;
                 return {
                     id,
                     url: media_ref.media_url,
@@ -396,10 +408,17 @@ export class SignageService extends AsyncHandler {
                             ? Math.min(valid_until, media_ref.valid_until)
                             : media_ref.valid_until || valid_until,
                     play_hours,
+                    plugin,
+                    plugin_params: is_plugin
+                        ? {
+                              ...(plugin?.defaults || {}),
+                              ...(media_ref.plugin_params || {}),
+                          }
+                        : undefined,
                     getURL: async () =>
                         media_ref
-                            ? media_ref.media_type === 'webpage'
-                                ? media_ref.media_url
+                            ? media_ref.media_type === 'webpage' || is_plugin
+                                ? media_ref.media_url || plugin?.uri
                                 : await this._media_cache
                                       .getFile(media_ref.media_url)
                                       .catch((_) => null)

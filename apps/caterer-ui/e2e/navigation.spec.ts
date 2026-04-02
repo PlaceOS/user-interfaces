@@ -111,7 +111,9 @@ test.describe('US-NAV-002: Navigate to Orders View', () => {
 test.describe('US-NAV-003: Select Active Building/Zone', () => {
     test('should display level filter on menu view', async ({ page }) => {
         await page.goto('/#/menu?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show level select dropdown
         const level_select = page.locator('mat-select').first();
@@ -120,7 +122,9 @@ test.describe('US-NAV-003: Select Active Building/Zone', () => {
 
     test('should display level filter on orders view', async ({ page }) => {
         await page.goto('/#/orders?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show level select dropdown
         const level_select = page.locator('mat-select').first();
@@ -129,7 +133,9 @@ test.describe('US-NAV-003: Select Active Building/Zone', () => {
 
     test('should open level dropdown when clicked', async ({ page }) => {
         await page.goto('/#/orders?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for data to load
         await page.waitForTimeout(2000);
@@ -142,7 +148,9 @@ test.describe('US-NAV-003: Select Active Building/Zone', () => {
         await page.waitForTimeout(1000);
 
         // Should show dropdown panel
-        const dropdown_panel = page.locator('.cdk-overlay-pane mat-option, .mat-mdc-select-panel mat-option');
+        const dropdown_panel = page.locator(
+            '.cdk-overlay-pane mat-option, .mat-mdc-select-panel mat-option',
+        );
         const count = await dropdown_panel.count();
         expect(count).toBeGreaterThanOrEqual(0);
     });
@@ -203,10 +211,14 @@ test.describe('US-AUTH-002: View Unauthorized Message', () => {
 test.describe('Navigation - Back Button', () => {
     test('should navigate back to home from menu view', async ({ page }) => {
         await page.goto('/#/menu?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Click back button (has arrow_back icon)
-        const back_button = page.locator('a').filter({ has: page.locator('icon:has-text("arrow_back")') });
+        const back_button = page
+            .locator('a')
+            .filter({ has: page.locator('icon:has-text("arrow_back")') });
         await back_button.click();
 
         // Should navigate to home (no view parameter)
@@ -217,10 +229,14 @@ test.describe('Navigation - Back Button', () => {
 
     test('should navigate back to home from orders view', async ({ page }) => {
         await page.goto('/#/orders?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Click back button (has arrow_back icon)
-        const back_button = page.locator('a').filter({ has: page.locator('icon:has-text("arrow_back")') });
+        const back_button = page
+            .locator('a')
+            .filter({ has: page.locator('icon:has-text("arrow_back")') });
         await back_button.click();
 
         // Should navigate to home (no view parameter)
@@ -233,7 +249,9 @@ test.describe('Navigation - Back Button', () => {
 test.describe('Navigation - Search Functionality', () => {
     test('should display search input on menu view', async ({ page }) => {
         await page.goto('/#/menu?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show search input
         const search_input = page.locator('input[matInput]');
@@ -242,7 +260,9 @@ test.describe('Navigation - Search Functionality', () => {
 
     test('should display search input on orders view', async ({ page }) => {
         await page.goto('/#/orders?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show search input
         const search_input = page.locator('input[matInput]');
@@ -251,7 +271,9 @@ test.describe('Navigation - Search Functionality', () => {
 
     test('should be able to type in search input', async ({ page }) => {
         await page.goto('/#/menu?mock=true');
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Type in search input
         const search_input = page.locator('input[matInput]');

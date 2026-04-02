@@ -73,7 +73,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith(SETTING_KEYS.FAVORITE_DESKS, ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_DESKS, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -83,7 +83,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith(SETTING_KEYS.FAVORITE_DESKS, []);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_DESKS, []);
     });
 
     it('should show desk map view', () => {

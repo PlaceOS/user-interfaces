@@ -105,7 +105,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                             </div>
                         </status-pill>
                         @if (event().recurring_event_id) {
-                            <icon class="text-2xl" [matTooltip]="recurr_tooltip"
+                            <icon
+                                class="text-2xl"
+                                [matTooltip]="recurr_tooltip()"
                                 >event_repeat</icon
                             >
                         }
@@ -154,7 +156,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                     </div>
                                 </button>
                             }
-                            @if (allow_edit) {
+                            @if (allow_edit()) {
                                 <button
                                     icon
                                     matRipple
@@ -377,7 +379,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                                                       order.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -566,7 +568,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                                                       request.deliver_at
                                                                       | date
                                                                           : 'MMM d, ' +
-                                                                                time_format,
+                                                                                time_format(),
                                                               }
                                                 }}
                                             </div>
@@ -888,9 +890,13 @@ export class EventDetailsModalComponent implements OnInit {
         EMPTY_ACTIONS,
     );
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     public get currency_code() {
         return this._org.currency_code;
@@ -932,9 +938,9 @@ export class EventDetailsModalComponent implements OnInit {
         const all_day = this.event().all_day;
         const tz_format = this._date.transform(date, 'zzzz', tz);
         const start_date = this._date.transform(date, 'MMM d', tz);
-        const start_time = this._date.transform(date, this.time_format, tz);
+        const start_time = this._date.transform(date, this.time_format(), tz);
         const end_date = this._date.transform(date_end, 'MMM d', tz);
-        const end_time = this._date.transform(date_end, this.time_format, tz);
+        const end_time = this._date.transform(date_end, this.time_format(), tz);
         const is_multiday = this.event()?.duration > 24 * 60;
 
         if (is_multiday) {
@@ -949,12 +955,11 @@ export class EventDetailsModalComponent implements OnInit {
         return item.option_list?.map((_) => _.name).join('\n');
     }
 
-    public get recurr_tooltip() {
-        return (
+    public readonly recurr_tooltip = computed(
+        () =>
             formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
-            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
-        );
-    }
+            i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
+    );
 
     public async checkin() {
         const mod = getModule(this.space()?.id, 'Bookings');

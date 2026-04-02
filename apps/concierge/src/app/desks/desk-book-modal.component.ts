@@ -14,7 +14,6 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-import { CommonModule } from '@angular/common';
 import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-flow/desk-form-details.component';
 
 @Component({
@@ -39,7 +38,6 @@ import { NewDeskFormDetailsComponent } from 'apps/workplace/src/app/book/desk-fl
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         NewDeskFormDetailsComponent,
         TranslatePipe,

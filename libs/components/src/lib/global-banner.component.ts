@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
     firstTruthyValueFrom,
@@ -46,7 +45,7 @@ export interface BannerDetails {
             }
         `,
     ],
-    imports: [CommonModule, IconComponent],
+    imports: [IconComponent],
 })
 export class GlobalBannerComponent implements OnInit {
     private _org = inject(OrganisationService);

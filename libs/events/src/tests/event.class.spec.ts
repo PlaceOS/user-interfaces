@@ -158,6 +158,20 @@ describe('CalendarEvent', () => {
         expect(event.is_today).toBeFalsy();
     });
 
+    it('should preserve custom all-day periods', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+        expect(event.date_end).toBe(
+            new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        );
+    });
+
     it('should expose list of guests for event', () => {
         setInternalUserDomain('work.com');
         expect(event.guests).toEqual([]);

@@ -45,9 +45,10 @@ describe('DateFieldComponent', () => {
     });
 
     it('should handler external changes to the date selected', fakeAsync(() => {
-        expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
-            format(new Date(), 'MMMM d, yyyy'),
-        );
+        spectator.component.writeValue(Date.now());
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).not.toBeNull();
         const new_date = addDays(new Date(), randomInt(12, 2));
         spectator.component.writeValue(new_date.valueOf());
         spectator.detectChanges();
@@ -56,4 +57,23 @@ describe('DateFieldComponent', () => {
             format(new_date, 'MMMM d, yyyy'),
         );
     }));
+
+    it('should allow clearing the selected date', () => {
+        spectator.component.writeValue(Date.now());
+        spectator.detectChanges();
+
+        spectator.component.clearValue();
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).toBeNull();
+        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+    });
+
+    it('should keep empty values empty when written externally', () => {
+        spectator.component.writeValue(null);
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).toBeNull();
+        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+    });
 });

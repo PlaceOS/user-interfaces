@@ -30,7 +30,9 @@ test.describe('Bootstrap - Initial Setup', () => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
 
         // Wait for bootstrap component first
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         // Then check for the header with bg-error class
         const header = page.locator('[app-bootstrap] h2.bg-error');
         await expect(header).toBeVisible({ timeout: LOAD_TIMEOUT });
@@ -56,7 +58,9 @@ test.describe('Bootstrap - Room Search', () => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
     });
 
     test('should have autocomplete component', async ({ page }) => {
@@ -93,7 +97,9 @@ test.describe('Bootstrap - URL Parameters', () => {
     test('should auto-bootstrap when system_id parameter provided', async ({
         page,
     }) => {
-        await page.goto(`${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`);
+        await page.goto(
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
+        );
 
         // Should redirect to panel view
         await expect(page.locator('panel-view')).toBeVisible({
@@ -131,7 +137,7 @@ test.describe('Bootstrap - URL Parameters', () => {
         page,
     }) => {
         await page.goto(
-            `${BOOTSTRAP_URL}?mock=true&event=true&system_id=${MOCK_SYSTEM_ID}`
+            `${BOOTSTRAP_URL}?mock=true&event=true&system_id=${MOCK_SYSTEM_ID}`,
         );
 
         // Should redirect to events view instead of panel
@@ -141,7 +147,7 @@ test.describe('Bootstrap - URL Parameters', () => {
             timeout: LOAD_TIMEOUT,
         });
         await expect(
-            page.locator('event-panel > div.bg-base-100.absolute.inset-0')
+            page.locator('event-panel > div.bg-base-100.absolute.inset-0'),
         ).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 });
@@ -151,7 +157,9 @@ test.describe('Bootstrap - Form Validation', () => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true&clear=true`);
         await page.waitForTimeout(1000);
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
     });
 
     test('should disable submit button when no system selected', async ({
@@ -188,7 +196,9 @@ test.describe('Bootstrap - Navigation', () => {
     test('should persist system selection in localStorage', async ({
         page,
     }) => {
-        await page.goto(`${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`);
+        await page.goto(
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
+        );
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Reload the page
@@ -210,7 +220,7 @@ test.describe('Bootstrap - Loading States', () => {
         page,
     }) => {
         await page.goto(
-            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
         );
 
         // Loading spinner may appear briefly during configuration

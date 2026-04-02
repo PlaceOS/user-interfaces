@@ -1,5 +1,6 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { queryParkingSpaces } from '@placeos/assets';
 import {
     Booking,
     downloadFile,
@@ -8,7 +9,6 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { queryParkingSpaces } from '@placeos/assets';
 import { format, isSameDay } from 'date-fns';
 import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
@@ -87,10 +87,7 @@ export class ParkingReportService {
                 zones.map((z) =>
                     queryParkingSpaces(z).pipe(
                         catchError(() => of([])),
-                        map(
-                            (spaces) =>
-                                [z, spaces.length] as [string, number],
-                        ),
+                        map((spaces) => [z, spaces.length] as [string, number]),
                     ),
                 ),
             );

@@ -104,6 +104,8 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const events = spectator.component.form.get('events');
         expect(events).toBeTruthy();
         expect(events.get('allow_all_day')).toBeTruthy();
+        expect(events.get('all_day_period')).toBeTruthy();
+        expect(events.get('bookable_hours')).toBeTruthy();
         expect(events.get('day_timeline_view')).toBeTruthy();
         expect(events.get('block_start')).toBeTruthy();
         expect(events.get('block_end')).toBeTruthy();
@@ -115,6 +117,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
     it('should have visitors form group', () => {
         const visitors = spectator.component.form.get('visitors');
         expect(visitors).toBeTruthy();
+        expect(visitors.get('bookable_hours')).toBeTruthy();
         expect(visitors.get('has_parking')).toBeTruthy();
         expect(visitors.get('allow_pass_number')).toBeTruthy();
         expect(visitors.get('allow_printing_label')).toBeTruthy();
@@ -124,6 +127,8 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const bookings = spectator.component.form.get('bookings');
         expect(bookings).toBeTruthy();
         expect(bookings.get('allow_all_day')).toBeTruthy();
+        expect(bookings.get('all_day_period')).toBeTruthy();
+        expect(bookings.get('bookable_hours')).toBeTruthy();
         expect(bookings.get('available_period')).toBeTruthy();
         expect(bookings.get('max_duration')).toBeTruthy();
     });
@@ -132,6 +137,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const parking = spectator.component.form.get('parking');
         expect(parking).toBeTruthy();
         expect(parking.get('allow_all_day')).toBeTruthy();
+        expect(parking.get('bookable_hours')).toBeTruthy();
         expect(parking.get('show_users')).toBeTruthy();
         expect(parking.get('disable_bookings')).toBeTruthy();
     });
@@ -140,6 +146,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         const lockers = spectator.component.form.get('lockers');
         expect(lockers).toBeTruthy();
         expect(lockers.get('allow_all_day')).toBeTruthy();
+        expect(lockers.get('bookable_hours')).toBeTruthy();
         expect(lockers.get('all_day_default')).toBeTruthy();
         expect(lockers.get('show_calendar_links')).toBeTruthy();
     });

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -170,7 +169,6 @@ interface QR_Codes {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         SimpleTableComponent,
         MatMenuModule,
         TranslatePipe,

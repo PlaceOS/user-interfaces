@@ -71,6 +71,6 @@ describe('BookingCardComponent', () => {
         });
         spectator.detectChanges();
 
-        expect(spectator.component.resource_label).toBe('Visitor One');
+        expect(spectator.component.resource_label()).toBe('Visitor One');
     });
 });

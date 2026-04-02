@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -176,7 +176,6 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatInputModule,
         IconComponent,

@@ -27,7 +27,9 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
         .evaluate(() => {
             localStorage.setItem('mock', 'true');
         })
-        .catch(() => { /* Ignore context errors during navigation */ });
+        .catch(() => {
+            /* Ignore context errors during navigation */
+        });
 
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
@@ -35,7 +37,9 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
         .evaluate(() => {
             localStorage.setItem('mock', 'true');
         })
-        .catch(() => { /* Ignore context errors during navigation */ });
+        .catch(() => {
+            /* Ignore context errors during navigation */
+        });
 
     await page
         .locator('app-root')
@@ -44,9 +48,13 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
     // Wait for loading overlay to disappear (with shorter timeout, since mock should load fast)
     // Use Promise.race to ensure we don't block forever if loader doesn't appear or hide
     await Promise.race([
-        page.locator('[loader]').waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
+        page
+            .locator('[loader]')
+            .waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(5000), // Fallback timeout if loader doesn't exist
-    ]).catch(() => { /* Loader may not exist or already hidden */ });
+    ]).catch(() => {
+        /* Loader may not exist or already hidden */
+    });
 }
 
 /**
@@ -54,14 +62,20 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
  */
 export async function navigateWithMock(page: Page, url: string): Promise<void> {
     await initializeAppWithMock(page);
-    const full_url = url.includes('?') ? `${url}&mock=true` : `${url}?mock=true`;
+    const full_url = url.includes('?')
+        ? `${url}&mock=true`
+        : `${url}?mock=true`;
     await page.goto(full_url);
 
     // Wait for loading overlay to disappear after navigation
     await Promise.race([
-        page.locator('[loader]').waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
+        page
+            .locator('[loader]')
+            .waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(5000), // Fallback timeout if loader doesn't exist
-    ]).catch(() => { /* Loader may not exist or already hidden */ });
+    ]).catch(() => {
+        /* Loader may not exist or already hidden */
+    });
 }
 
 /**
@@ -70,9 +84,13 @@ export async function navigateWithMock(page: Page, url: string): Promise<void> {
 export async function waitForLoadingComplete(page: Page): Promise<void> {
     // Wait for the loader element to be detached or timeout after 5 seconds
     await Promise.race([
-        page.locator('[loader]').waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
+        page
+            .locator('[loader]')
+            .waitFor({ state: 'detached', timeout: LOAD_TIMEOUT }),
         page.waitForTimeout(5000), // Fallback timeout
-    ]).catch(() => { /* Loader may not exist */ });
+    ]).catch(() => {
+        /* Loader may not exist */
+    });
 }
 
 /**
@@ -115,7 +133,9 @@ export async function waitForRemoteSupportPage(page: Page): Promise<void> {
     await waitForLoadingComplete(page);
     // Wait for content inside the remote support page to be visible
     await page
-        .locator('stagehand-remote-support h1:has-text("AV Systems Remote Support")')
+        .locator(
+            'stagehand-remote-support h1:has-text("AV Systems Remote Support")',
+        )
         .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 }
 
@@ -156,7 +176,7 @@ export async function waitForAnalyticsPage(page: Page): Promise<void> {
  */
 export async function clickSidebarLink(
     page: Page,
-    route: string
+    route: string,
 ): Promise<void> {
     const link = page.locator(`[sidebar] a[href*="${route}"]`);
     await link.click();
@@ -167,12 +187,16 @@ export async function clickSidebarLink(
  * Toggles the sidebar compact mode.
  */
 export async function toggleSidebarCompact(page: Page): Promise<void> {
-    const toggle_button = page.locator('[sidebar] button icon:has-text("menu")');
+    const toggle_button = page.locator(
+        '[sidebar] button icon:has-text("menu")',
+    );
     const is_compact = await toggle_button.isVisible().catch(() => false);
     if (is_compact) {
         await toggle_button.click();
     } else {
-        const close_button = page.locator('[sidebar] button icon:has-text("close")');
+        const close_button = page.locator(
+            '[sidebar] button icon:has-text("close")',
+        );
         await close_button.click();
     }
     await page.waitForTimeout(300);
@@ -183,7 +207,7 @@ export async function toggleSidebarCompact(page: Page): Promise<void> {
  */
 export async function openNotificationSettings(page: Page): Promise<void> {
     const button = page.locator(
-        '[sidebar] button:has(icon:has-text("notifications"))'
+        '[sidebar] button:has(icon:has-text("notifications"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -194,7 +218,7 @@ export async function openNotificationSettings(page: Page): Promise<void> {
  */
 export async function getAlertCount(
     page: Page,
-    type: 'critical' | 'warnings' | 'open'
+    type: 'critical' | 'warnings' | 'open',
 ): Promise<string> {
     const card_text =
         type === 'critical'
@@ -203,7 +227,11 @@ export async function getAlertCount(
               ? 'Warnings'
               : 'Open';
     // Use more specific selector - the card is in stagehand-alerts and has specific structure
-    const card = page.locator(`stagehand-alerts div:has(> div > h3:has-text("${card_text}"))`).first();
+    const card = page
+        .locator(
+            `stagehand-alerts div:has(> div > h3:has-text("${card_text}"))`,
+        )
+        .first();
     const count = card.locator('.text-4xl').first();
     return (await count.textContent()) || '0';
 }
@@ -211,10 +239,7 @@ export async function getAlertCount(
 /**
  * Enters a search term in the search input.
  */
-export async function enterSearchTerm(
-    page: Page,
-    term: string
-): Promise<void> {
+export async function enterSearchTerm(page: Page, term: string): Promise<void> {
     const input = page.locator('input[placeholder*="Search"]');
     await input.fill(term);
     await page.waitForTimeout(300);
@@ -225,10 +250,13 @@ export async function enterSearchTerm(
  */
 export async function selectSeverityFilter(
     page: Page,
-    severity: string
+    severity: string,
 ): Promise<void> {
     // Find the severity filter select by its placeholder or current text
-    const select = page.locator('stagehand-alerts mat-select').filter({ hasText: /All Severities|Critical|Warning|Info/ }).first();
+    const select = page
+        .locator('stagehand-alerts mat-select')
+        .filter({ hasText: /All Severities|Critical|Warning|Info/ })
+        .first();
     await select.click();
     await page.waitForTimeout(300);
     const option = page.locator(`mat-option:has-text("${severity}")`);
@@ -241,10 +269,15 @@ export async function selectSeverityFilter(
  */
 export async function selectDeviceTypeFilter(
     page: Page,
-    device_type: string
+    device_type: string,
 ): Promise<void> {
     // Find the device type filter select by its placeholder or current text
-    const select = page.locator('stagehand-alerts mat-select').filter({ hasText: /All Devices|Display|Audio|Video|Network|Control System/ }).first();
+    const select = page
+        .locator('stagehand-alerts mat-select')
+        .filter({
+            hasText: /All Devices|Display|Audio|Video|Network|Control System/,
+        })
+        .first();
     await select.click();
     await page.waitForTimeout(300);
     const option = page.locator(`mat-option:has-text("${device_type}")`);
@@ -257,10 +290,13 @@ export async function selectDeviceTypeFilter(
  */
 export async function selectRoomStateFilter(
     page: Page,
-    state: string
+    state: string,
 ): Promise<void> {
     // Find the room state filter select by its placeholder or current text
-    const select = page.locator('stagehand-remote-support mat-select').filter({ hasText: /All Rooms|In Use|Available|Has Issues/ }).first();
+    const select = page
+        .locator('stagehand-remote-support mat-select')
+        .filter({ hasText: /All Rooms|In Use|Available|Has Issues/ })
+        .first();
     await select.click();
     await page.waitForTimeout(300);
     const option = page.locator(`mat-option:has-text("${state}")`);
@@ -306,7 +342,9 @@ export async function getTableRowCount(page: Page): Promise<number> {
  * Clicks the add button in the dashboards header.
  */
 export async function clickAddDashboardButton(page: Page): Promise<void> {
-    const button = page.locator('stagehand-dashboards header button icon:has-text("add")');
+    const button = page.locator(
+        'stagehand-dashboards header button icon:has-text("add")',
+    );
     await button.click();
     await page.waitForTimeout(300);
 }
@@ -317,14 +355,14 @@ export async function clickAddDashboardButton(page: Page): Promise<void> {
 export async function fillDashboardForm(
     page: Page,
     name: string,
-    description?: string
+    description?: string,
 ): Promise<void> {
     const name_input = page.locator('input[placeholder*="name" i]');
     await name_input.fill(name);
 
     if (description) {
         const desc_input = page.locator(
-            'input[placeholder*="description" i], textarea[placeholder*="description" i]'
+            'input[placeholder*="description" i], textarea[placeholder*="description" i]',
         );
         await desc_input.fill(description);
     }
@@ -361,7 +399,7 @@ export async function isDialogVisible(page: Page): Promise<boolean> {
  */
 export async function closeDialog(page: Page): Promise<void> {
     const close_button = page.locator(
-        'mat-dialog-container button:has(icon:has-text("close"))'
+        'mat-dialog-container button:has(icon:has-text("close"))',
     );
     const is_visible = await close_button.isVisible().catch(() => false);
     if (is_visible) {

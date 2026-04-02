@@ -85,7 +85,9 @@ export class AccessibilityControlsComponent extends AsyncHandler {
 
     public setIsometric(state: boolean) {
         localStorage.setItem('KIOSK.isometric', String(state));
-        window.dispatchEvent(new CustomEvent('isometric-change', { detail: state }));
+        window.dispatchEvent(
+            new CustomEvent('isometric-change', { detail: state }),
+        );
     }
 
     public get accessible() {

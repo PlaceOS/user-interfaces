@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
-    computed,
     Component,
+    computed,
     forwardRef,
     inject,
     input,
@@ -191,7 +191,9 @@ const EMPTY_FAVS = [];
                                             matRipple
                                             matTooltip="Remove Order Item"
                                             class="text-error"
-                                            (click)="removeOrderItem(order, item)"
+                                            (click)="
+                                                removeOrderItem(order, item)
+                                            "
                                         >
                                             <icon>delete</icon>
                                         </button>
@@ -244,7 +246,7 @@ const EMPTY_FAVS = [];
         } @else {
             @if (disabled()) {
                 <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
                 >
                     <icon class="text-6xl opacity-30">hand_meal</icon>
                     <p class="opacity-30">
@@ -254,7 +256,7 @@ const EMPTY_FAVS = [];
                 </div>
             } @else {
                 <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
                 >
                     <p>No catering orders for this booking</p>
                     <button

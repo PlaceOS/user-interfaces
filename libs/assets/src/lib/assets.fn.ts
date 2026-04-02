@@ -286,12 +286,8 @@ export async function validateAssetRequestsForResource(
     force_create = false,
 ): Promise<() => Promise<void>> {
     const requests = await queryBookings({
-        period_start: getUnixTime(all_day ? startOfDay(date) : date),
-        period_end: getUnixTime(
-            all_day
-                ? endOfDay(addMinutes(date, duration))
-                : addMinutes(date, duration),
-        ),
+        period_start: getUnixTime(date),
+        period_end: getUnixTime(addMinutes(date, duration)),
         type: 'asset-request',
         zones: zones.join(','),
     }).toPromise();
@@ -348,12 +344,8 @@ export async function validateAssetRequestsForResource(
     }
     const available_groups = await queryGroupAvailability(
         {
-            period_start: getUnixTime(all_day ? startOfDay(date) : date),
-            period_end: getUnixTime(
-                all_day
-                    ? endOfDay(addMinutes(date, duration))
-                    : addMinutes(date, duration),
-            ),
+            period_start: getUnixTime(date),
+            period_end: getUnixTime(addMinutes(date, duration)),
             type: 'asset-request',
         },
         bookings.map((_) => _.id),

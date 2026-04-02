@@ -23,7 +23,6 @@ import {
     startWith,
     switchMap,
     takeUntil,
-    tap,
 } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';

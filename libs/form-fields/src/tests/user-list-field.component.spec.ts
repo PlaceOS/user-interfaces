@@ -115,7 +115,7 @@ describe('UserListFieldComponent', () => {
             },
         });
         expect(spectator.component.addUser).toHaveBeenCalledTimes(2);
-        expect(spectator.component.active_list.length).toBeGreaterThan(0);
+        expect(spectator.component.active_list().length).toBeGreaterThan(0);
     });
 
     it('should allow user to remove selected users', () => {
@@ -124,7 +124,7 @@ describe('UserListFieldComponent', () => {
         expect('[user]').toHaveLength(1);
         expect('[user] [remove]').toExist();
         spectator.click('[user] [remove]');
-        expect(spectator.component.active_list.length).toBe(0);
+        expect(spectator.component.active_list().length).toBe(0);
     });
 
     it('should be able to hide user actions', () => {

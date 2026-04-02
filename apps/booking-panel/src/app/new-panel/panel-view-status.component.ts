@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { IconComponent, SafePipe, TranslatePipe } from '@placeos/components';
 import { combineLatest, interval } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -9,21 +9,23 @@ import { currentPeriod, nextPeriod } from './helpers';
 @Component({
     selector: 'panel-view-status',
     template: `
+        @let s = state();
+        @let es = event_state();
         <div class="flex h-full w-full items-center justify-center">
             <div
                 class="relative flex h-full flex-1 flex-col items-center justify-center text-white"
-                [class.bg-error]="(state | async) === 'busy'"
-                [class.bg-success]="(state | async) === 'free'"
-                [class.bg-warning]="(state | async) === 'pending'"
-                [class.text-error-content]="(state | async) === 'busy'"
-                [class.text-success-content]="(state | async) === 'free'"
-                [class.text-warning-content]="(state | async) === 'pending'"
+                [class.bg-error]="s === 'busy'"
+                [class.bg-success]="s === 'free'"
+                [class.bg-warning]="s === 'pending'"
+                [class.text-error-content]="s === 'busy'"
+                [class.text-success-content]="s === 'free'"
+                [class.text-warning-content]="s === 'pending'"
             >
                 <div
                     [innerHTML]="
-                        ((state | async) === 'busy'
+                        (s === 'busy'
                             ? in_use_svg
-                            : (state | async) === 'pending'
+                            : s === 'pending'
                               ? pending_svg
                               : free_svg
                         ) | safe
@@ -33,81 +35,64 @@ import { currentPeriod, nextPeriod } from './helpers';
                     {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                 </h3>
                 <p class="mt-4 text-2xl font-light">
-                    @if ((event_state | async)?.current?.length) {
-                        @if ((event_state | async)?.current[0]) {
-                            @if ((event_state | async)?.current[1] > 0) {
+                    @if (es?.current?.length) {
+                        @if (es?.current[0]) {
+                            @if (es?.current[1] > 0) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                         | translate
                                             : {
-                                                  hour: (event_state | async)
-                                                      ?.current[1],
-                                                  minute: (event_state | async)
-                                                      ?.current[2],
+                                                  hour: es?.current[1],
+                                                  minute: es?.current[2],
                                               }
                                 }}
                             }
-                            @if (
-                                (event_state | async)?.current[1] <= 0 &&
-                                (event_state | async)?.current[2] > 1
-                            ) {
+                            @if (es?.current[1] <= 0 && es?.current[2] > 1) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                         | translate
                                             : {
-                                                  minute: (event_state | async)
-                                                      ?.current[2],
+                                                  minute: es?.current[2],
                                               }
                                 }}
                             }
-                            @if (
-                                (event_state | async)?.current[1] <= 0 &&
-                                (event_state | async)?.current[2] <= 1
-                            ) {
+                            @if (es?.current[1] <= 0 && es?.current[2] <= 1) {
                                 {{
                                     'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                         | translate
                                 }}
                             }
                         } @else {
-                            @if ((state | async) === 'busy') {
+                            @if (s === 'busy') {
                                 {{
                                     'APP.BOOKING_PANEL.EARLY_CHECKIN'
                                         | translate
                                 }}
                             }
-                            @if ((state | async) !== 'busy') {
-                                @if ((event_state | async)?.current[1] > 0) {
+                            @if (s !== 'busy') {
+                                @if (es?.current[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: (
-                                                          event_state | async
-                                                      )?.current[1],
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      hour: es?.current[1],
+                                                      minute: es?.current[2],
                                                   }
                                     }}
                                 }
                                 @if (
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] > 1
+                                    es?.current[1] <= 0 && es?.current[2] > 1
                                 ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
                                                 : {
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      minute: es?.current[2],
                                                   }
                                     }}
                                 }
                                 @if (
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] <= 1
+                                    es?.current[1] <= 0 && es?.current[2] <= 1
                                 ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
@@ -120,7 +105,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                         {{ 'APP.BOOKING_PANEL.NO_CURRENT' | translate }}
                     }
                 </p>
-                @if ((state | async) === 'pending' && can_book) {
+                @if (s === 'pending' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     >
@@ -135,7 +120,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                         <icon>arrow_forward</icon>
                     </div>
                 }
-                @if ((state | async) === 'free' && can_book) {
+                @if (s === 'free' && can_book) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     >
@@ -150,7 +135,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                         <icon>arrow_forward</icon>
                     </div>
                 }
-                @if ((state | async) === 'busy' && can_end) {
+                @if (s === 'busy' && can_end) {
                     <div
                         class="absolute inset-x-0 top-0 flex items-center justify-center space-x-4 bg-[#0008] p-4 text-2xl"
                     >
@@ -165,17 +150,14 @@ import { currentPeriod, nextPeriod } from './helpers';
                 class="bg-base-100 text-base-content flex h-full flex-1 flex-col items-center justify-center space-y-4"
             >
                 <div
-                    [innerHTML]="
-                        (!(event_state | async)?.next ? free_svg : in_use_svg)
-                            | safe
-                    "
+                    [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
                 <h3 class="text-4xl font-medium uppercase">
                     {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                 </h3>
                 <p class="text-2xl font-light">
                     {{
-                        (event_state | async)?.next ||
+                        es?.next ||
                             ('APP.BOOKING_PANEL.NO_UPCOMING' | translate)
                     }}
                 </p>
@@ -189,15 +171,14 @@ import { currentPeriod, nextPeriod } from './helpers';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, SafePipe, IconComponent],
+    imports: [TranslatePipe, SafePipe, IconComponent],
 })
 export class PanelViewStatusComponent {
     private _state = inject(PanelStateService);
 
-    public readonly state = this._state.status;
-    public readonly current = this._state.current;
-    public readonly next = this._state.next;
-    public readonly bookings = this._state.bookings;
+    public readonly state = toSignal(this._state.status, {
+        initialValue: 'free',
+    });
 
     public get can_book() {
         return this._state.setting('disable_book_now') !== true;
@@ -211,17 +192,20 @@ export class PanelViewStatusComponent {
         return this._state.setting('enable_end_meeting_button') === true;
     }
 
-    public readonly event_state = combineLatest([
-        this.current,
-        this.next,
-        this.bookings,
-        interval(5000),
-    ]).pipe(
-        map(([c, n, l]) => ({
-            current: currentPeriod(l, c, n),
-            next: nextPeriod(n),
-        })),
-        shareReplay(1),
+    public readonly event_state = toSignal(
+        combineLatest([
+            this._state.current,
+            this._state.next,
+            this._state.bookings,
+            interval(5000),
+        ]).pipe(
+            map(([c, n, l]) => ({
+                current: currentPeriod(l, c, n),
+                next: nextPeriod(n),
+            })),
+            shareReplay(1),
+        ),
+        { initialValue: { current: [] as any, next: '' } },
     );
 
     public readonly free_svg = `

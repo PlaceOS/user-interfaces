@@ -16,7 +16,7 @@ describe('CounterComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-        spectator.component.value = 0;
+        spectator.component.value.set(0);
         spectator.component.registerOnChange((_) => null);
         spectator.detectChanges();
     });
@@ -30,47 +30,47 @@ describe('CounterComponent', () => {
         expect('[value]').toExist();
         expect('[value]').toHaveExactText(' 0 ');
         spectator.click('button[increase]');
-        expect(spectator.component.value).toBe(1);
+        expect(spectator.component.value()).toBe(1);
         spectator.detectChanges();
         expect('[value]').toHaveExactText(' 1 ');
     });
 
     it('should allow removing from count', () => {
-        spectator.component.value = 10;
+        spectator.component.value.set(10);
         spectator.detectChanges();
         expect('[value]').toExist();
         expect('[value]').toHaveExactText(' 10 ');
         spectator.click('button[decrease]');
-        expect(spectator.component.value).toBe(9);
+        expect(spectator.component.value()).toBe(9);
         spectator.detectChanges();
         expect('[value]').toHaveExactText(' 9 ');
     });
 
     it('should not allow value to go out of range', () => {
         spectator.component.remove();
-        expect(spectator.component.value).toBe(0);
-        spectator.component.value = spectator.component.max();
+        expect(spectator.component.value()).toBe(0);
+        spectator.component.value.set(spectator.component.max());
         spectator.component.add();
-        expect(spectator.component.value).toBe(spectator.component.max());
+        expect(spectator.component.value()).toBe(spectator.component.max());
     });
 
     it('should allow qualifiers to multiple added/removed value', () => {
         spectator.setInput({ max: 1000 });
-        spectator.component.value = 5;
-        spectator.component.shift_key = true;
+        spectator.component.value.set(5);
+        spectator.component.shift_key.set(true);
         spectator.component.add();
-        expect(spectator.component.value).toBe(15);
-        spectator.component.ctrl_key = true;
+        expect(spectator.component.value()).toBe(15);
+        spectator.component.ctrl_key.set(true);
         spectator.component.add();
-        expect(spectator.component.value).toBe(115);
+        expect(spectator.component.value()).toBe(115);
         spectator.component.remove();
-        expect(spectator.component.value).toBe(15);
-        spectator.component.ctrl_key = false;
+        expect(spectator.component.value()).toBe(15);
+        spectator.component.ctrl_key.set(false);
         spectator.component.remove();
-        expect(spectator.component.value).toBe(5);
-        spectator.component.shift_key = false;
+        expect(spectator.component.value()).toBe(5);
+        spectator.component.shift_key.set(false);
         spectator.component.remove();
-        expect(spectator.component.value).toBe(4);
+        expect(spectator.component.value()).toBe(4);
     });
 
     it('should allow writing to count', () => {

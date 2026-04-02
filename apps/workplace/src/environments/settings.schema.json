@@ -106,6 +106,9 @@
                 "allowed_daily_desk_count": {
                     "type": "number",
                     "description": "Number of allowed desk bookings for a single day. `0` for unlimited. Defaults to `1`"
+                },
+                "all_day_period": {
+                    "$ref": "#/$defs/bookable_hours"
                 }
             }
         },
@@ -119,6 +122,9 @@
                 "hide_nearby_desks": {
                     "type": "boolean",
                     "description": "Whether to hide the book nearby desks action on the meeting success view"
+                },
+                "all_day_period": {
+                    "$ref": "#/$defs/bookable_hours"
                 }
             }
         },

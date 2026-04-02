@@ -40,10 +40,10 @@ describe('SpaceFiltersDisplayComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should allow user to open edit filters', () => {
-        expect(spectator.inject(MatBottomSheet).open).not.toBeCalled();
+        expect(spectator.inject(MatBottomSheet).open).not.toHaveBeenCalled();
         expect('button[name="edit-space-filters"]').toExist();
         spectator.click('button[name="edit-space-filters"]');
-        expect(spectator.inject(MatBottomSheet).open).toBeCalled();
+        expect(spectator.inject(MatBottomSheet).open).toHaveBeenCalled();
     });
 
     it('should allow toggling results view', () => {
@@ -64,7 +64,9 @@ describe('SpaceFiltersDisplayComponent', () => {
         spectator.click('[filter-item] button');
         spectator.detectChanges();
         await spectator.fixture.whenStable();
-        expect(spectator.inject(EventFormService).setFilters).toBeCalledWith({
+        expect(
+            spectator.inject(EventFormService).setFilters,
+        ).toHaveBeenCalledWith({
             features: [],
         });
     });

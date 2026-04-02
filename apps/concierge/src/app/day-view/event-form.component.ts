@@ -84,7 +84,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr_time"
                                 [range]="bookable_hours"
-                                [min_duration]="min_duration"
+                                [min_duration]="effective_min_duration"
                             ></a-time-field>
                         </div>
                         <div class="flex flex-1 flex-col">
@@ -98,6 +98,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 formControlName="duration"
                                 [use_24hr]="use_24hr_time"
                                 [max]="max_duration"
+                                [custom_options]="custom_duration_options"
                                 [end_time]="bookable_hours?.end"
                             ></a-duration-field>
                         </div>
@@ -369,6 +370,14 @@ export class EventFormComponent extends AsyncHandler {
 
     public get min_duration() {
         return this._settings.get('app.events.min_duration') || 30;
+    }
+
+    public get custom_duration_options() {
+        return this._settings.get('app.events.custom_duration_options') || [];
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public get max_duration() {

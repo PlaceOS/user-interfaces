@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { settingSignal, SettingsService } from '@placeos/common';
 import { UserPipe } from '@placeos/users';
 import { ParkingSpace } from 'libs/bookings/src/lib/parking.service';
@@ -17,33 +17,33 @@ interface ParkingSpaceExtended extends ParkingSpace {
     template: `
         <div
             class="bg-base-300 absolute top-1/2 left-1/2 rounded-lg rounded-tl-none! p-2 text-left shadow-sm"
-            [class.bg-error!]="status === 'busy'"
-            [class.text-error-content!]="status === 'busy'"
-            [class.bg-warning!]="status === 'reserved'"
-            [class.text-warning-content!]="status === 'reserved'"
-            [class.bg-success!]="status === 'free'"
-            [class.text-success-content!]="status === 'free'"
-            [class.bg-neutral!]="status === 'not-bookable'"
-            [class.text-neutral-content!]="status === 'not-bookable'"
+            [class.bg-error!]="status() === 'busy'"
+            [class.text-error-content!]="status() === 'busy'"
+            [class.bg-warning!]="status() === 'reserved'"
+            [class.text-warning-content!]="status() === 'reserved'"
+            [class.bg-success!]="status() === 'free'"
+            [class.text-success-content!]="status() === 'free'"
+            [class.bg-neutral!]="status() === 'not-bookable'"
+            [class.text-neutral-content!]="status() === 'not-bookable'"
         >
             <div class="triangle absolute top-0.5 left-0.5"></div>
             <div class="flex space-x-2">
                 <div class="flex min-w-24 flex-col pl-1 leading-tight">
-                    <div class="whitespace-nowrap">{{ name }}</div>
+                    <div class="whitespace-nowrap">{{ name() }}</div>
                     <div class="text-sm font-medium capitalize">
                         {{
-                            status === 'not-bookable'
+                            status() === 'not-bookable'
                                 ? ('COMMON.STATUS_NOT_BOOKABLE' | translate)
-                                : status
+                                : status()
                         }}
                     </div>
-                    @if (show_parking_users() && user) {
+                    @if (show_parking_users() && user()) {
                         <div class="text-sm">
-                            {{ (user | user | async)?.name || user }}
+                            {{ (user() | user | async)?.name || user() }}
                         </div>
                     }
                 </div>
-                @if (is_concierge && plate_number) {
+                @if (is_concierge() && plate_number()) {
                     <div
                         class="bg-base-100 text-base-content relative flex h-full flex-col rounded-sm px-2 leading-tight shadow-sm"
                     >
@@ -55,7 +55,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
                         <div
                             class="w-full pb-1 text-center font-mono uppercase"
                         >
-                            {{ plate_number || 'PLATE NO 1' }}
+                            {{ plate_number() || 'PLATE NO 1' }}
                         </div>
                     </div>
                 }
@@ -81,20 +81,21 @@ export class ExploreParkingInfoComponent {
     private _element = inject<ElementRef<HTMLDivElement>>(ElementRef);
     private _settings = inject(SettingsService);
 
-    public readonly status =
+    public readonly status = computed(() =>
         this._data.assigned_to === this._data.user && this._data.user
             ? 'reserved'
-            : this._data.status;
-    public readonly user = this._data.user;
-    public readonly name = this._data.name;
-    public readonly map_id = this._data.map_id;
-    public readonly plate_number = this._data.plate_number;
+            : this._data.status,
+    );
+    public readonly user = signal(this._data.user);
+    public readonly name = signal(this._data.name || this._data.identifier);
+    public readonly map_id = signal(this._data.map_id);
+    public readonly plate_number = signal(this._data.plate_number);
     public readonly show_parking_users = settingSignal(
         'parking.show_users',
         false,
     );
 
-    public get is_concierge() {
-        return this._settings.app_name.toLowerCase().includes('concierge');
-    }
+    public readonly is_concierge = computed(() =>
+        this._settings.app_name.toLowerCase().includes('concierge'),
+    );
 }

@@ -68,10 +68,10 @@ describe('CheckinStateService', () => {
             () => new FormGroup({}),
         );
         await spectator.service.loadGuestAndEvent('a@b.com');
-        expect(users_mod.showGuest).toBeCalledWith('a@b.com');
-        expect(booking_mod.showBooking).not.toBeCalled();
+        expect(users_mod.showGuest).toHaveBeenCalledWith('a@b.com');
+        expect(booking_mod.showBooking).not.toHaveBeenCalled();
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
-        expect(booking_mod.showBooking).toBeCalledWith('event-1234');
+        expect(booking_mod.showBooking).toHaveBeenCalledWith('event-1234');
     });
 
     it('should allow updating guests', async () => {

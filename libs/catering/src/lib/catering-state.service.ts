@@ -413,7 +413,7 @@ export class CateringStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false),
+            () => ref.componentInstance.loading.set(false),
         );
     }
 

@@ -1,6 +1,6 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from './icon.component';
@@ -54,7 +54,6 @@ import { UserControlsComponent } from './user-controls.component';
         </ng-template>
     `,
     imports: [
-        CommonModule,
         PortalModule,
         MatRippleModule,
         IconComponent,

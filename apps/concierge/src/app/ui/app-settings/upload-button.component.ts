@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,12 +32,7 @@ import { IconComponent } from '@placeos/components';
             }
         </button>
     `,
-    imports: [
-        CommonModule,
-        MatProgressSpinnerModule,
-        IconComponent,
-        MatRippleModule,
-    ],
+    imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

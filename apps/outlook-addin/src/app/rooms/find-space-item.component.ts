@@ -1,14 +1,12 @@
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Space } from '@placeos/common';
-import { BuildingPipe, IconComponent, LevelPipe } from '@placeos/components';
+import { IconComponent, LevelPipe } from '@placeos/components';
 
 @Component({
     selector: 'find-space-item',
     template: `
         @let level = space()?.zones | level;
-        @let bld = space()?.zones | building;
-
         <button
             mat-ripple
             class="border-base-300 bg-base-100 hover:border-info mx-auto flex w-full flex-col space-y-2 rounded-lg border p-4"
@@ -35,7 +33,7 @@ import { BuildingPipe, IconComponent, LevelPipe } from '@placeos/components';
             }
         `,
     ],
-    imports: [MatRippleModule, IconComponent, LevelPipe, BuildingPipe],
+    imports: [MatRippleModule, IconComponent, LevelPipe],
 })
 export class FindSpaceItemComponent {
     public readonly space = input<Space>(undefined);

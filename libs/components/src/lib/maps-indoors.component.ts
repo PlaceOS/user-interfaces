@@ -7,6 +7,7 @@ import {
     input,
     model,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -48,7 +49,7 @@ const RESOURCE_MAP: Record<string, any> = {};
     selector: 'maps-indoors',
     template: `
         <div #map_container class="absolute inset-0 z-0"></div>
-        @if (focus() && !show_directions && options()?.controls) {
+        @if (focus() && !show_directions() && options()?.controls) {
             <button
                 btn
                 matRipple
@@ -57,9 +58,9 @@ const RESOURCE_MAP: Record<string, any> = {};
             >
                 <icon>place</icon>
                 <div class="pr-2">
-                    {{ viewing_directions ? 'Hide' : 'Show' }} Directions
+                    {{ viewing_directions() ? 'Hide' : 'Show' }} Directions
                 </div>
-                @if (loading_directions) {
+                @if (loading_directions()) {
                     <mat-spinner diameter="24"></mat-spinner>
                 }
             </button>
@@ -82,10 +83,10 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
     public readonly zoneChange = output<BuildingLevel>();
 
     public id: string;
-    public show_directions = false;
-    public viewing_directions = false;
-    public loading_directions = false;
-    public ignore_zoom = false;
+    public show_directions = signal(false);
+    public viewing_directions = signal(false);
+    public loading_directions = signal(false);
+    public ignore_zoom = signal(false);
 
     private _services: MapsIndoorServices;
     private _floor_list: any[] = [];
@@ -126,7 +127,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             this._updateMapStyling();
         }
         const zoom = this.zoom();
-        if (changes.zoom && zoom && !this.ignore_zoom) {
+        if (changes.zoom && zoom && !this.ignore_zoom()) {
             this._services?.map?.setZoom(zoom);
         }
         if (changes.reset) {
@@ -231,13 +232,13 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
 
     public clearDirections() {
         this._services.directions_renderer.setRoute(null);
-        this.viewing_directions = false;
+        this.viewing_directions.set(false);
     }
 
     private _last_position: GeolocationPosition;
 
     public async toggleDirections() {
-        if (this.viewing_directions) {
+        if (this.viewing_directions()) {
             this.clearDirections();
             this._focusOnLocation();
             return;
@@ -249,7 +250,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             notifyError(i18n('EXPLORE.LOCATE_FAILED', { name: focus }));
             return;
         }
-        this.loading_directions = true;
+        this.loading_directions.set(true);
         const item = items[0];
         const bld = this._org.buildings.find(
             (bld) => bld.id === this.zone().parent_id,
@@ -307,7 +308,7 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
                 );
                 const origin_error =
                     e instanceof TypeError && e.message?.includes('origin');
-                this.loading_directions = false;
+                this.loading_directions.set(false);
                 if (!origin_error) return;
                 notifyError(
                     i18n('EXPLORE.LOCATE_ROUTE_FAILED', {
@@ -317,20 +318,20 @@ export class MapsIndoorsComponent extends AsyncHandler implements OnInit {
             });
         if (!result) return;
         this._services.directions_renderer.setRoute(result);
-        this.viewing_directions = true;
-        this.loading_directions = false;
+        this.viewing_directions.set(true);
+        this.loading_directions.set(false);
     }
 
     private _handleZoomChange(level: number) {
         this.timeout(
             'zoom_change',
             () => {
-                this.ignore_zoom = true;
+                this.ignore_zoom.set(true);
                 this.zoom.set(level);
                 this.zoomChange.emit(level);
                 this.timeout(
                     'reset_ignore_zoom',
-                    () => (this.ignore_zoom = false),
+                    () => this.ignore_zoom.set(false),
                     50,
                 );
             },

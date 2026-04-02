@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    SimpleChanges,
-    forwardRef,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, effect, forwardRef, inject, input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -287,16 +281,17 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         return this._settings.time_format || 'shortTime';
     }
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.options) {
+    constructor() {
+        effect(() => {
+            const options = this.options();
             this.asset_requests = (this.asset_requests || []).map(
-                (_) => new AssetRequest({ ..._, event: this.options() as any }),
+                (_) => new AssetRequest({ ..._, event: options as any }),
             );
             this._state.setOptions({
-                date: this.options().date,
-                duration: this.options().duration,
+                date: options.date,
+                duration: options.duration,
             });
-        }
+        });
     }
 
     /**

@@ -120,6 +120,13 @@ describe('General Methods', () => {
             );
         });
 
+        it('should honour a shorter custom duration near bookable-hours end', () => {
+            const date = new Date(2028, 5, 10, 16, 35).valueOf();
+            expect(
+                getNextBookableTime({ start: 8, end: 17 }, date, '', 15),
+            ).toBe(new Date(2028, 5, 10, 16, 35).valueOf());
+        });
+
         it('should snap to start of today when before the bookable window', () => {
             const date = new Date(2028, 5, 10, 6, 0).valueOf();
             expect(getNextBookableTime({ start: 8, end: 17 }, date)).toBe(
@@ -335,6 +342,21 @@ describe('General Methods', () => {
             expect(form.getRawValue().duration).toBe(45);
         });
 
+        it('should allow configured custom durations below min_duration', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, {
+                min_duration: 45,
+                custom_duration_options: [30],
+            });
+
+            form.controls.duration.setValue(30);
+
+            expect(form.getRawValue().duration).toBe(30);
+            expect(form.getRawValue().date_end).toBe(
+                addMinutes(BASE, 30).valueOf(),
+            );
+        });
+
         it('should respect a custom round_to value', () => {
             const form = createForm({ date: BASE, duration: 60 });
             setupFormTimeSync(form, { round_to: 15 });
@@ -400,6 +422,21 @@ describe('General Methods', () => {
             form.controls.date_end.setValue(addMinutes(BASE, 180).valueOf());
 
             expect(form.getRawValue().duration).toBe(90);
+        });
+
+        it('should allow configured custom durations above max_duration', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, {
+                max_duration: 90,
+                custom_duration_options: [120],
+            });
+
+            form.controls.duration.setValue(120);
+
+            expect(form.getRawValue().duration).toBe(120);
+            expect(form.getRawValue().date_end).toBe(
+                addMinutes(BASE, 120).valueOf(),
+            );
         });
 
         it('should allow any duration when max_duration is 0 (disabled)', () => {
@@ -493,6 +530,43 @@ describe('General Methods', () => {
 
             form.controls.all_day.setValue(false);
             expect(callback).toHaveBeenCalledTimes(2);
+        });
+
+        it('should apply the configured all-day period when all_day is toggled on', () => {
+            const form = createForm({ date: BASE, duration: 60 });
+            setupFormTimeSync(form, { all_day_start: 9, all_day_end: 17 });
+
+            form.controls.all_day.setValue(true);
+
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            );
+            expect(form.getRawValue().duration).toBe(8 * 60);
+            expect(form.getRawValue().date_end).toBe(
+                new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            );
+        });
+
+        it('should apply updated all-day period settings while all_day is enabled', () => {
+            const form = createForm({
+                date: BASE,
+                duration: 60,
+                all_day: true,
+            });
+            const handle = setupFormTimeSync(form, {
+                all_day_start: 9,
+                all_day_end: 17,
+            });
+
+            handle.updateOptions({ all_day_start: 8, all_day_end: 16 });
+
+            expect(form.getRawValue().date).toBe(
+                new Date(2028, 5, 15, 8, 0, 0, 0).valueOf(),
+            );
+            expect(form.getRawValue().duration).toBe(8 * 60);
+            expect(form.getRawValue().date_end).toBe(
+                new Date(2028, 5, 15, 16, 0, 0, 0).valueOf(),
+            );
         });
 
         // --- updateOptions ---

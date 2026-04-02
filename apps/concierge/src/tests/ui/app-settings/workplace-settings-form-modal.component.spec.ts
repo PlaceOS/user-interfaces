@@ -107,6 +107,8 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const events = spectator.component.form.get('events');
         expect(events).toBeTruthy();
         expect(events.get('allow_all_day')).toBeTruthy();
+        expect(events.get('all_day_period')).toBeTruthy();
+        expect(events.get('bookable_hours')).toBeTruthy();
         expect(events.get('can_book_for_others')).toBeTruthy();
         expect(events.get('has_assets')).toBeTruthy();
         expect(events.get('allow_externals')).toBeTruthy();
@@ -122,6 +124,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const desks = spectator.component.form.get('desks');
         expect(desks).toBeTruthy();
         expect(desks.get('allow_all_day')).toBeTruthy();
+        expect(desks.get('bookable_hours')).toBeTruthy();
         expect(desks.get('allow_groups')).toBeTruthy();
         expect(desks.get('auto_allocation')).toBeTruthy();
         expect(desks.get('max_duration')).toBeTruthy();
@@ -132,6 +135,8 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const bookings = spectator.component.form.get('bookings');
         expect(bookings).toBeTruthy();
         expect(bookings.get('allow_all_day')).toBeTruthy();
+        expect(bookings.get('all_day_period')).toBeTruthy();
+        expect(bookings.get('bookable_hours')).toBeTruthy();
         expect(bookings.get('can_book_for_others')).toBeTruthy();
     });
 
@@ -139,6 +144,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const parking = spectator.component.form.get('parking');
         expect(parking).toBeTruthy();
         expect(parking.get('allow_all_day')).toBeTruthy();
+        expect(parking.get('bookable_hours')).toBeTruthy();
         expect(parking.get('show_users')).toBeTruthy();
         expect(parking.get('auto_allocation')).toBeTruthy();
     });
@@ -147,6 +153,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         const lockers = spectator.component.form.get('lockers');
         expect(lockers).toBeTruthy();
         expect(lockers.get('allow_all_day')).toBeTruthy();
+        expect(lockers.get('bookable_hours')).toBeTruthy();
         expect(lockers.get('show_calendar_links')).toBeTruthy();
     });
 

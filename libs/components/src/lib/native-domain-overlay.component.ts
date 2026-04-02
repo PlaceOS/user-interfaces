@@ -3,7 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { getNativeDomain, setNativeDomain } from '@placeos/common';
+import {
+    getNativeEmail,
+    lookupNativeDomainByEmail,
+    setNativeDomain,
+    setNativeEmail,
+} from '@placeos/common';
 
 import { IconComponent } from './icon.component';
 
@@ -22,8 +27,8 @@ import { IconComponent } from './icon.component';
                 </header>
                 <main class="flex flex-col space-y-4 p-4">
                     <p class="text-sm opacity-60">
-                        Enter the domain of your PlaceOS server to connect this
-                        app.
+                        Enter your work email to find your PlaceOS server and
+                        connect this app.
                     </p>
                     @if (error()) {
                         <p
@@ -33,18 +38,20 @@ import { IconComponent } from './icon.component';
                         </p>
                     }
                     <div class="flex w-full flex-col">
-                        <label for="domain">Server Domain</label>
+                        <label for="email">Work Email</label>
                         <mat-form-field appearance="outline" class="w-full">
-                            <icon matPrefix>dns</icon>
+                            <icon matPrefix>mail</icon>
                             <input
                                 matInput
-                                name="domain"
-                                [(ngModel)]="domain"
-                                placeholder="e.g. my-org.placeos.run"
+                                name="email"
+                                [(ngModel)]="email"
+                                placeholder="name@company.com"
+                                type="email"
                                 autocapitalize="off"
-                                autocomplete="url"
+                                autocomplete="email"
                                 spellcheck="false"
                                 required
+                                [disabled]="loading()"
                             />
                         </mat-form-field>
                     </div>
@@ -52,8 +59,14 @@ import { IconComponent } from './icon.component';
                 <footer
                     class="bg-base-200 m-2 flex items-center justify-center space-x-2 rounded-sm border-none p-2"
                 >
-                    <button btn matRipple type="submit" class="flex-1">
-                        Connect
+                    <button
+                        btn
+                        matRipple
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="loading()"
+                    >
+                        {{ loading() ? 'Looking up...' : 'Connect' }}
                     </button>
                 </footer>
             </form>
@@ -70,8 +83,9 @@ import { IconComponent } from './icon.component';
 export class NativeDomainOverlayComponent {
     public readonly serverError = input('');
     public readonly domainSet = output<string>();
-    public readonly domain = signal(getNativeDomain() ?? '');
+    public readonly email = signal(getNativeEmail() ?? '');
     public readonly error = signal('');
+    public readonly loading = signal(false);
 
     constructor() {
         effect(() => {
@@ -80,14 +94,24 @@ export class NativeDomainOverlayComponent {
         });
     }
 
-    public submit() {
-        const raw = this.domain().trim();
+    public async submit() {
+        if (this.loading()) return;
+        const raw = this.email().trim();
         if (!raw) {
-            this.error.set('A server domain is required.');
+            this.error.set('A work email is required.');
             return;
         }
-        const domain = raw.replace(/^https?:\/\//, '').replace(/\/+$/, '');
-        setNativeDomain(domain);
-        this.domainSet.emit(domain);
+        this.loading.set(true);
+        this.error.set('');
+        try {
+            const domain = await lookupNativeDomainByEmail(raw);
+            setNativeEmail(raw);
+            setNativeDomain(domain);
+            this.domainSet.emit(domain);
+        } catch {
+            this.error.set('Unable to find a server for this email address.');
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

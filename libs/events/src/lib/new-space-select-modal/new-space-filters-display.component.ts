@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, input, output } from '@angular/core';
-import { MatRippleModule } from '@angular/material/core';
 import {
-    AsyncHandler,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatRippleModule } from '@angular/material/core';
+import { OrganisationService, settingSignal } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
@@ -17,7 +22,7 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
             filters
             class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
-            @if ((filters | async)?.features?.length > 1) {
+            @if (filters()?.features?.length > 1) {
                 <button
                     btn
                     matRipple
@@ -28,30 +33,30 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
                     {{ 'COMMON.FILTERS_CLEAR' | translate }}
                 </button>
             }
-            @if (location) {
+            @if (location()) {
                 <div filter-item zone>
-                    {{ location }}
+                    {{ location() }}
                 </div>
             }
             <div filter-item date>
-                {{ start | date: 'mediumDate' }}
+                {{ start() | date: 'mediumDate' }}
             </div>
             <div filter-item time>
-                @if (!all_day) {
-                    {{ start | date: time_format }} &mdash;
-                    {{ end | date: time_format }}
+                @if (!all_day()) {
+                    {{ start() | date: time_format() }} &mdash;
+                    {{ end() | date: time_format() }}
                 }
-                @if (all_day) {
+                @if (all_day()) {
                     {{ 'COMMON.ALL_DAY' | translate }}
                 }
             </div>
             <div filter-item count>
                 {{
                     'CALENDAR_EVENT.SPACE_SELECT_SIZE_X'
-                        | translate: { count: (filters | async)?.capacity || 2 }
+                        | translate: { count: filters()?.capacity || 2 }
                 }}
             </div>
-            @for (feat of (filters | async)?.features; track feat) {
+            @for (feat of filters()?.features; track feat) {
                 <div filter-item>
                     <p class="truncate">{{ feat }}</p>
                     <button
@@ -93,46 +98,39 @@ import { EventFormService } from 'libs/events/src/lib/new-event-form.service';
     ],
     imports: [CommonModule, MatRippleModule, TranslatePipe, IconComponent],
 })
-export class NewSpaceFiltersDisplayComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class NewSpaceFiltersDisplayComponent {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
-
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._event_form.options$;
-    public readonly filters = this._event_form.filters$;
-    public location = '';
+    public readonly options = toSignal(this._event_form.options$);
+    public readonly filters = toSignal(this._event_form.filters$);
+    public readonly location = signal('');
 
-    public get all_day() {
-        return this._event_form.form.value.all_day;
-    }
+    public readonly all_day = computed(
+        () => this._event_form.form.value.all_day,
+    );
 
-    public get start() {
-        return this._event_form.form.value.date;
-    }
+    public readonly start = computed(() => this._event_form.form.value.date);
 
-    public get end() {
+    public readonly end = computed(() => {
         const { date, duration } = this._event_form.form.value;
         return date + duration * 60 * 1000;
-    }
+    });
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    private readonly _use_24_hour = settingSignal<boolean>(
+        'use_24_hour_time',
+        false,
+    );
+    public readonly time_format = computed(() =>
+        this._use_24_hour() ? 'HH:mm' : 'h:mm a',
+    );
 
     constructor() {
-        super();
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'opts',
-            this.options.subscribe(({ zones }) => this._updateLocation(zones)),
-        );
+        effect(() => {
+            const zones = this.options()?.zones;
+            this._updateLocation(zones);
+        });
     }
 
     public async removeFeature(feat: string) {
@@ -149,6 +147,6 @@ export class NewSpaceFiltersDisplayComponent
     private _updateLocation(zone_ids: string[] = []) {
         const level = this._org.levelWithID(zone_ids);
         const item = level || this._org.building;
-        this.location = item?.display_name || item?.name || '';
+        this.location.set(item?.display_name || item?.name || '');
     }
 }

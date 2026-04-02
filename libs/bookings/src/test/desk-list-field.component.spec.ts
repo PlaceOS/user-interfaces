@@ -37,7 +37,7 @@ describe('DeskListFieldComponent', () => {
     it('should allow adding desks', () => {
         expect(spectator.query('button[name="add-desk"]')).toExist();
         spectator.click('button[name="add-desk"]');
-        expect(spectator.inject(MatDialog).open).toBeCalledTimes(1);
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
     });
 
     it('should allow removing desks', () => {

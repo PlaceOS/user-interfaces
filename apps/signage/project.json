@@ -124,7 +124,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/signage"],
             "options": {
-                "jestConfig": "apps/signage/jest.config.ts"
+                "jestConfig": "apps/signage/jest.config.ts",
+                "tsConfig": "apps/signage/tsconfig.spec.json"
             }
         }
     }

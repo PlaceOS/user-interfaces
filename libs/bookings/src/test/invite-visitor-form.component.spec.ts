@@ -7,7 +7,7 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { MockModule, MockProvider } from 'ng-mocks';
-import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 
@@ -132,7 +132,7 @@ describe('InviteVisitorFormComponent', () => {
     });
 
     it('should list all buildings when editing a booking outside the active building context', async () => {
-        const buildings = await firstValueFrom(spectator.component.buildings);
+        const buildings = spectator.component.buildings() || [];
 
         expect(buildings.map((building) => building.id)).toEqual([
             'bld-1',
@@ -189,14 +189,14 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should allow sending visitor invite', () => {
         const service = spectator.inject(BookingFormService);
-        expect(service.postForm).not.toBeCalled();
+        expect(service.postForm).not.toHaveBeenCalled();
         spectator.click('button[send]');
-        expect(service.postForm).not.toBeCalled();
+        expect(service.postForm).not.toHaveBeenCalled();
         service.form.patchValue({
             asset_id: 'test@mail.com',
         });
         spectator.click('button[send]');
-        expect(service.postForm).toBeCalled();
+        expect(service.postForm).toHaveBeenCalled();
     });
 
     it('should show loading state', () => {
@@ -208,7 +208,7 @@ describe('InviteVisitorFormComponent', () => {
 
     it('should show sent invite state', () => {
         expect('[sent]').not.toExist();
-        spectator.component.sent = true;
+        spectator.component.sent.set(true);
         spectator.detectChanges();
         expect('[sent]').toExist();
     });

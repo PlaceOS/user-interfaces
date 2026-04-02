@@ -1892,7 +1892,8 @@
             "BOOKING_RULESET_ERROR": "保存预订规则失败。错误：{{ error }}",
             "BOOKING_RULESET_SUCCESS": "成功保存预订规则。",
             "BOOKING_RULESET_PRIORITY_UP": "提高规则集优先级",
-            "BOOKING_RULESET_PRIORITY_DOWN": "降低规则集优先级"
+            "BOOKING_RULESET_PRIORITY_DOWN": "降低规则集优先级",
+            "BOOKING_RULESET_REORDER": "重新排序规则集"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "房间容量",

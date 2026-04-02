@@ -1,4 +1,11 @@
-import { Component, inject, model, output } from '@angular/core';
+import {
+    Component,
+    inject,
+    model,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -15,7 +22,7 @@ import { TranslatePipe } from './translate.pipe';
             <div class="mb-4 text-xs opacity-60">
                 {{ 'COMMON.DESK_HEIGHT_MSG' | translate }}
             </div>
-            @if (not_set && show_close()) {
+            @if (not_set() && show_close()) {
                 <div
                     class="bg-warning text-warning-content -mx-2 mb-4 rounded-sm p-2 text-xs"
                 >
@@ -38,14 +45,15 @@ import { TranslatePipe } from './translate.pipe';
                     >
                         <input
                             matSliderThumb
-                            [(ngModel)]="desk_sitting_height"
+                            [ngModel]="desk_sitting_height()"
                             (ngModelChange)="
+                                desk_sitting_height.set($event);
                                 saveSetting('desk_sitting_height', $event)
                             "
                         />
                     </mat-slider>
                     <div class="w-12 text-right text-sm">
-                        {{ desk_sitting_height.toFixed(1) }}cm
+                        {{ desk_sitting_height().toFixed(1) }}cm
                     </div>
                 </div>
                 <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}t</label>
@@ -60,14 +68,15 @@ import { TranslatePipe } from './translate.pipe';
                     >
                         <input
                             matSliderThumb
-                            [(ngModel)]="desk_standing_height"
+                            [ngModel]="desk_standing_height()"
                             (ngModelChange)="
+                                desk_standing_height.set($event);
                                 saveSetting('desk_standing_height', $event)
                             "
                         />
                     </mat-slider>
                     <div class="mr-2 w-12 text-right text-sm">
-                        {{ desk_standing_height.toFixed(1) }}cm
+                        {{ desk_standing_height().toFixed(1) }}cm
                     </div>
                 </div>
             </div>
@@ -81,28 +90,31 @@ import { TranslatePipe } from './translate.pipe';
     styles: [``],
     imports: [TranslatePipe, MatRippleModule, MatSliderModule, FormsModule],
 })
-export class DeskHeightPresetsComponent {
+export class DeskHeightPresetsComponent implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly show_close = model(false);
     public readonly close = output<void>();
-    public not_set = false;
-    public desk_sitting_height = 71;
-    public desk_standing_height = 101;
+    public not_set = signal(false);
+    public desk_sitting_height = signal(71);
+    public desk_standing_height = signal(101);
 
     public ngOnInit() {
-        this.not_set =
+        this.not_set.set(
             !this._settings.get('desk_sitting_height') &&
-            !this._settings.get('desk_standing_height');
-        this.desk_sitting_height =
-            this._settings.get('desk_sitting_height') || 71;
-        this.desk_standing_height =
-            this._settings.get('desk_standing_height') || 101;
+                !this._settings.get('desk_standing_height'),
+        );
+        this.desk_sitting_height.set(
+            this._settings.get('desk_sitting_height') || 71,
+        );
+        this.desk_standing_height.set(
+            this._settings.get('desk_standing_height') || 101,
+        );
     }
 
     public onClose() {
-        this.saveSetting('desk_sitting_height', this.desk_sitting_height);
-        this.saveSetting('desk_standing_height', this.desk_standing_height);
+        this.saveSetting('desk_sitting_height', this.desk_sitting_height());
+        this.saveSetting('desk_standing_height', this.desk_standing_height());
         // TODO: The 'emit' function requires a mandatory void argument
         // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
