@@ -58,7 +58,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 <mat-select-trigger>
                     @if (value()?._custom) {
                         <div class="flex w-full">
-                            <div class="trunctate w-1/2 flex-1">
+                            <div class="w-1/2 flex-1 truncate">
                                 {{ formatted_value() }}
                             </div>
                             <div
@@ -121,7 +121,7 @@ import { RecurrenceModalComponent } from './recurrence-modal.component';
                 @if (value()?._custom) {
                     <mat-option value="custom_display">
                         <div class="flex w-full">
-                            <div class="trunctate w-1/2 flex-1">
+                            <div class="w-1/2 flex-1 truncate">
                                 {{ formatted_value() }}
                             </div>
                             <div
@@ -247,9 +247,19 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
 
     /** Update local value when form control value is changed externally. */
     public writeValue(value: RecurrenceDetails | BookingRecurrence) {
-        if (!value) return this.value.set(NO_RECURR);
+        if (!value) {
+            this.value.set(NO_RECURR);
+            this._custom_cache.set(undefined);
+            this.recurr_type.set('none');
+            this.prev_type.set('none');
+            return;
+        }
         const next_value = this.fromRaw(value || ({} as any));
-        this.value.set(this._restoreCustomEnd(next_value));
+        const restored_value = this._restoreCustomEnd(next_value);
+        this.value.set(restored_value);
+        this._custom_cache.set(
+            restored_value?._custom ? { ...restored_value } : undefined,
+        );
         this.recurr_type.set(
             this.value()._custom ? 'custom_display' : this.value().type,
         );
@@ -418,6 +428,7 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
         const custom_value = this._custom_cache() || this.value();
         if (
             !next_value?._custom ||
+            next_value.end_instances ||
             !custom_value?._custom ||
             custom_value.end_type !== 'instances' ||
             !this._samePattern(next_value, custom_value)
