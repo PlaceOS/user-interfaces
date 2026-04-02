@@ -115,9 +115,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
             <div class="space-y-4" [formGroup]="form()">
                 <!-- HOST SELECTION -->
                 @if (can_book_for_anyone()) {
-                    <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
-                    >
+                    <div class="space-y-3 rounded-lg p-4">
                         <h3
                             class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
                         >
@@ -876,18 +874,18 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 }
 
                 <!-- SPACE RESTRICTIONS -->
-                <div
-                    class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
-                >
-                    <icon>tune</icon>
-                    <div>
-                        {{
-                            'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
-                                | translate
-                        }}
-                    </div>
-                </div>
                 @if (space_restriction_options().length) {
+                    <div
+                        class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
+                    >
+                        <icon>tune</icon>
+                        <div>
+                            {{
+                                'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
+                                    | translate
+                            }}
+                        </div>
+                    </div>
                     <div class="space-y-3 p-4">
                         <p class="text-sm opacity-60">
                             {{
