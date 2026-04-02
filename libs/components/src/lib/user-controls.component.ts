@@ -467,7 +467,7 @@ export class UserControlsComponent implements OnInit {
     }
 
     public get groups() {
-        return this.user.groups.join('\n');
+        return this.user?.groups?.join('\n') || '';
     }
 
     public get version() {
@@ -513,8 +513,8 @@ export class UserControlsComponent implements OnInit {
 
     public ngOnInit() {
         const user = currentUser();
-        this.work_prefs.set(user.work_preferences);
-        this.overrides.set(user.work_overrides);
+        this.work_prefs.set(user?.work_preferences || []);
+        this.overrides.set(user?.work_overrides || {});
         this.pref_locations.set([
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },

@@ -1,7 +1,4 @@
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal, PortalModule } from '@angular/cdk/portal';
-
-import { Component, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent } from './icon.component';
 import { UserControlsComponent } from './user-controls.component';
@@ -13,6 +10,7 @@ import { UserControlsComponent } from './user-controls.component';
             icon
             matRipple
             avatar
+            type="button"
             name="user-controls"
             class="bg-base-200 flex h-10 w-10 items-center justify-center rounded-full"
             (click)="open()"
@@ -21,28 +19,27 @@ import { UserControlsComponent } from './user-controls.component';
                 <icon class="text-2xl">person</icon>
             </ng-content>
         </button>
-        <ng-template cdk-portal>
+        @if (is_rendered()) {
             <div class="fixed inset-0 z-9999 overflow-hidden">
-                <!-- Backdrop -->
-                <div
+                <button
+                    type="button"
+                    aria-label="Close user controls"
                     class="absolute inset-0 bg-black transition-opacity duration-200"
                     [class.opacity-50]="is_open()"
                     [class.opacity-0]="!is_open()"
                     (click)="close()"
-                ></div>
-                <!-- Sidebar panel -->
+                ></button>
                 <div class="absolute inset-y-0 right-0 flex max-w-full">
                     <div
-                        class="bg-base-100 relative w-80 shadow-xl transition-transform duration-200 ease-in-out"
+                        class="bg-base-100 relative h-full w-80 max-w-[100vw] overflow-auto pt-4 shadow-xl transition-transform duration-200 ease-out"
                         [class.translate-x-0]="is_open()"
                         [class.translate-x-full]="!is_open()"
                     >
-                        <div class="h-full overflow-auto pt-4">
-                            <user-controls [sidebar]="true"></user-controls>
-                        </div>
+                        <user-controls [sidebar]="true"></user-controls>
                         <button
                             icon
                             matRipple
+                            type="button"
                             class="hover:bg-base-200 absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full"
                             (click)="close()"
                         >
@@ -51,57 +48,35 @@ import { UserControlsComponent } from './user-controls.component';
                     </div>
                 </div>
             </div>
-        </ng-template>
+        }
     `,
-    imports: [
-        PortalModule,
-        MatRippleModule,
-        IconComponent,
-        UserControlsComponent,
-    ],
+    imports: [MatRippleModule, IconComponent, UserControlsComponent],
 })
-export class UserControlsSidebarComponent implements OnDestroy {
-    private _overlay = inject(Overlay);
-    private _overlay_ref: OverlayRef = null;
-    private readonly _portal = viewChild(CdkPortal);
+export class UserControlsSidebarComponent {
+    private _close_timeout: ReturnType<typeof setTimeout> | null = null;
 
     public readonly is_open = signal(false);
-
-    public ngOnDestroy(): void {
-        this._close_immediately();
-    }
+    public readonly is_rendered = signal(false);
 
     public open(): void {
-        if (this._overlay_ref) return;
-        const portal = this._portal();
-        if (!portal) return;
-
-        this._overlay_ref = this._overlay.create({
-            hasBackdrop: false,
-            positionStrategy: this._overlay.position().global(),
-            scrollStrategy: this._overlay.scrollStrategies.block(),
-        });
-
-        this._overlay_ref.attach(portal);
-
-        // Trigger animation on next frame
-        requestAnimationFrame(() => {
-            this.is_open.set(true);
-        });
+        if (this._close_timeout) {
+            clearTimeout(this._close_timeout);
+            this._close_timeout = null;
+        }
+        this.is_rendered.set(true);
+        requestAnimationFrame(() => this.is_open.set(true));
     }
 
     public close(): void {
         this.is_open.set(false);
-        // Wait for animation to complete before disposing
-        setTimeout(() => {
-            this._close_immediately();
+        this._close_timeout = setTimeout(() => {
+            this.is_rendered.set(false);
+            this._close_timeout = null;
         }, 200);
     }
 
-    private _close_immediately(): void {
-        if (this._overlay_ref) {
-            this._overlay_ref.dispose();
-            this._overlay_ref = null;
-        }
+    @HostListener('document:keydown.escape')
+    public onEscape(): void {
+        if (this.is_open()) this.close();
     }
 }
