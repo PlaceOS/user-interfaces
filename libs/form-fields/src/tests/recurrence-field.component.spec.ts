@@ -552,5 +552,63 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 '5 instances',
             );
         });
+
+        it('writeValue(null) resets the displayed recurrence type', () => {
+            spectator.setInput('type', 'event');
+            const jan8 = new Date(2024, 0, 8).valueOf();
+            setDate(jan8);
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([1 as any]),
+                end_type: 'instances',
+                end_instances: 4,
+                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+            });
+            spectator.component.recurr_type.set('custom_display');
+            spectator.component.prev_type.set('custom_display');
+
+            spectator.component.writeValue(null as any);
+
+            expect(spectator.component.value().type).toBe('none');
+            expect(spectator.component.recurr_type()).toBe('none');
+            expect(spectator.component.prev_type()).toBe('none');
+        });
+
+        it('writeValue refreshes the custom cache for a new external value', () => {
+            const jan8 = new Date(2024, 0, 8).valueOf();
+            setDate(jan8);
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([1 as any]),
+                end_type: 'instances',
+                end_instances: 5,
+                end_date: endOfWeek(addWeeks(jan8, 4)).valueOf(),
+            });
+
+            spectator.component.writeValue({
+                recurrence_custom: true,
+                recurrence_type: 'daily',
+                recurrence_days: 1 << 1,
+                recurrence_interval: 1,
+                recurrence_instances: 2,
+                recurrence_end: getUnixTime(endOfWeek(addWeeks(jan8, 1))),
+            });
+
+            spectator.component.writeValue(
+                spectator.component.toRaw(spectator.component.value()),
+            );
+
+            expect(spectator.component.value().end_type).toBe('instances');
+            expect(spectator.component.value().end_instances).toBe(2);
+            expect(spectator.component.formatted_value()).toContain(
+                '2 instances',
+            );
+        });
     });
 });
