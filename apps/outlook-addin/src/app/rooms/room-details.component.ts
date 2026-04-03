@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -16,14 +16,17 @@ import {
         <div
             class="z-0 flex min-h-[800px] w-full flex-1 flex-col overflow-hidden"
         >
-            @if (space?.images?.length > 0) {
+            @if (space()?.images?.length > 0) {
                 <section
                     class="bg-base-200 flex min-h-[300px] items-center justify-center text-gray-500"
                 >
                     <img
                         auth
-                        [source]="space.images[0]"
-                        [alt]="'Image of ' + (space.display_name || space.name)"
+                        [source]="space()?.images?.[0]"
+                        [alt]="
+                            'Image of ' +
+                            (space()?.display_name || space()?.name)
+                        "
                         width="100%"
                         height="100%"
                         class="z-20 flex rounded-lg"
@@ -33,10 +36,10 @@ import {
             <section
                 class="border-base-200 mx-auto flex w-[calc(100%-2rem)] flex-col border-b"
             >
-                <span class="mt-3 text-lg font-bold"> {{ space?.name }}</span>
+                <span class="mt-3 text-lg font-bold"> {{ space()?.name }}</span>
 
                 <div (click)="selectRoom()" class="w-max-[375px]">
-                    @if (room_added == false) {
+                    @if (!room_added()) {
                         <button
                             btn
                             matRipple
@@ -46,7 +49,7 @@ import {
                         </button>
                     }
 
-                    @if (room_added == true) {
+                    @if (room_added()) {
                         <button
                             btn
                             matRipple
@@ -64,21 +67,21 @@ import {
                 <div class="mt-3 flex flex-row items-center text-sm">
                     <icon class="text-info">people</icon>
                     <span class="text-sm text-gray-500">
-                        {{ space?.capacity }} People</span
+                        {{ space()?.capacity }} People</span
                     >
                 </div>
                 <div class="mt-1 flex flex-row items-center text-sm">
                     <icon class="text-info">room</icon>
                     <span class="text-gray-500">
-                        {{ space?.level?.name }},
-                        {{ space?.level?.parent_id }}</span
+                        {{ space()?.level?.name }},
+                        {{ space()?.level?.parent_id }}</span
                     >
                 </div>
             </section>
-            @if (space?.feature_list.length > 0) {
+            @if (space()?.feature_list.length > 0) {
                 <section class="mx-auto flex w-[calc(100%-2rem)] flex-col py-3">
                     <span class="mb-3 text-base font-bold">Room Features</span>
-                    @for (facility of space?.feature_list; track facility) {
+                    @for (facility of space()?.feature_list; track facility) {
                         <div class="mb-1 flex w-full flex-row">
                             <div>
                                 @switch (facility) {
@@ -134,7 +137,7 @@ import {
             <div
                 class="top-box-shadow border-base-200 bg-base-100 flex flex-col border-t p-3"
             >
-                @if (!room_added) {
+                @if (!room_added()) {
                     <button
                         btn
                         matRipple
@@ -144,7 +147,7 @@ import {
                         <span class="text-secondary">Back</span>
                     </button>
                 }
-                @if (room_added) {
+                @if (room_added()) {
                     <button
                         btn
                         matRipple
@@ -160,25 +163,21 @@ import {
     styles: [``],
     imports: [MatRippleModule, IconComponent, AuthenticatedImageDirective],
 })
-export class RoomDetailsComponent implements OnInit {
+export class RoomDetailsComponent {
     data = inject(MAT_BOTTOM_SHEET_DATA);
     private _bottomSheetRef =
         inject<MatBottomSheetRef<RoomDetailsComponent>>(MatBottomSheetRef);
 
-    space: Space | any;
-    room_added: Boolean = false;
-
-    ngOnInit() {
-        this.space = this.data;
-    }
+    public readonly space = signal<Space | any>(this.data);
+    public readonly room_added = signal(false);
 
     selectRoom() {
-        this.room_added = !this.room_added;
+        this.room_added.update((room_added) => !room_added);
     }
 
     back() {
-        if (this.room_added) {
-            this._bottomSheetRef.dismiss(this.space);
+        if (this.room_added()) {
+            this._bottomSheetRef.dismiss(this.space());
         } else {
             this._bottomSheetRef.dismiss(null);
         }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     MAT_BOTTOM_SHEET_DATA,
     MatBottomSheetRef,
@@ -8,6 +9,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { CalendarEvent, Space, User } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import { startWith } from 'rxjs';
 import { RoomConfirmService } from './room-confirm.service';
 
 @Component({
@@ -42,19 +44,19 @@ import { RoomConfirmService } from './room-confirm.service';
                 </div>
                 <div class="flex flex-col">
                     <span class="flex text-base font-bold text-gray-700"
-                        >{{ title }}
+                        >{{ title() }}
                     </span>
 
                     <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">calendar_today</icon>
                         <span class="flex">
-                            {{ unix_time | date: 'dd MMMM yyyy' }}
+                            {{ unix_time() | date: 'dd MMMM yyyy' }}
                         </span>
                     </div>
                     <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">schedule</icon>
                         <span class="flex"
-                            >{{ start_time }} -{{ end_time }}</span
+                            >{{ start_time() }} -{{ end_time() }}</span
                         >
                     </div>
                 </div>
@@ -74,7 +76,7 @@ import { RoomConfirmService } from './room-confirm.service';
                         >Attendees
                     </span>
 
-                    @for (attendee of attendees; track attendee) {
+                    @for (attendee of attendees(); track attendee) {
                         <div
                             class="mt-2 flex flex-row items-center text-sm text-gray-700"
                         >
@@ -96,7 +98,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             <icon class="flex items-center">people</icon>
                         </div>
                         <div class="flex flex-col">
-                            <span>{{ form?.controls?.creator?.value }}</span>
+                            <span>{{ creator() }}</span>
                         </div>
                     </div>
                 </div>
@@ -116,12 +118,12 @@ import { RoomConfirmService } from './room-confirm.service';
                     <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">meeting_room</icon>
                         <span class="flex">
-                            {{ space?.name }}
+                            {{ space().name }}
                         </span>
                     </div>
                     <div class="mt-2 flex items-center text-sm text-gray-700">
                         <icon class="flex items-center">room</icon>
-                        <span class="flex"> {{ space?.level?.name }}</span>
+                        <span class="flex"> {{ space().level?.name }}</span>
                     </div>
                 </div>
             </section>
@@ -132,7 +134,7 @@ import { RoomConfirmService } from './room-confirm.service';
                 <button
                     matRipple
                     (click)="confirmBooking()"
-                    [disabled]="!show_submit_button"
+                    [disabled]="!show_submit_button()"
                     class="border-secondary bg-secondary mx-4 ml-2 w-[300px]"
                 >
                     <span class="">Confirm</span>
@@ -143,51 +145,58 @@ import { RoomConfirmService } from './room-confirm.service';
     styles: [``],
     imports: [CommonModule, MatRippleModule, IconComponent],
 })
-export class RoomConfirmComponent implements OnInit {
+export class RoomConfirmComponent {
     data = inject(MAT_BOTTOM_SHEET_DATA);
     private _bottomSheetRef =
         inject<MatBottomSheetRef<RoomConfirmComponent>>(MatBottomSheetRef);
     private _state = inject(EventFormService);
     private _roomConfirmService = inject(RoomConfirmService);
 
-    unix_time: number;
-    start_time: string;
-    end_time: string;
-    attendees: User[];
-    space: Space;
-    title: CalendarEvent['title'];
-    show_submit_button: boolean = true;
-
-    public get form() {
-        return this._state.form;
-    }
+    public readonly form = this._state.form;
     public loading = this._state.loading$;
+    public readonly show_submit_button = signal(true);
+    public readonly space = signal<Space>(this.data as Space);
 
-    async ngOnInit() {
-        this.unix_time = this.form?.controls?.date.value;
-        this.start_time = new Date(this.unix_time).toLocaleTimeString('en-US', {
+    private readonly _form_value = toSignal(
+        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
+        { initialValue: this.form.getRawValue() },
+    );
+
+    public readonly unix_time = computed(
+        () => this._form_value()?.date as number,
+    );
+    public readonly start_time = computed(() =>
+        new Date(this.unix_time()).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+        }),
+    );
+    public readonly end_time = computed(() => {
+        const duration_minutes = this._form_value()?.duration as number;
+        const end_time = this.unix_time() + duration_minutes * 60 * 1000;
+        return new Date(end_time).toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,
         });
-        const durationMinutes: number = this.form?.controls?.duration.value;
-        const end = this.unix_time + durationMinutes * 60 * 1000;
-        this.end_time = new Date(end).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true,
-        });
-        this.attendees = this.form?.controls?.attendees.value as User[];
-        this.space = this.data;
-        this.title = this.form?.controls?.title.value;
-    }
+    });
+    public readonly attendees = computed(
+        () => (this._form_value()?.attendees as User[]) || [],
+    );
+    public readonly creator = computed(
+        () => (this._form_value()?.creator as string) || '',
+    );
+    public readonly title = computed(
+        () => this._form_value()?.title as CalendarEvent['title'],
+    );
 
     closeModal() {
         this._bottomSheetRef.dismiss('cancel');
     }
 
     confirmBooking() {
-        this.show_submit_button = false;
-        this._roomConfirmService.bookRoom(this.space);
+        this.show_submit_button.set(false);
+        this._roomConfirmService.bookRoom(this.space());
     }
 }

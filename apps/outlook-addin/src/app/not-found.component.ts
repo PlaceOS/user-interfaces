@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
     selector: 'placeos-not-found',
@@ -28,7 +30,7 @@ import { Router } from '@angular/router';
                 <div class="mx-3 flex flex-row">
                     <span class="flex flex-row">
                         The page
-                        <span class="mx-1 font-bold"> {{ router.url }} </span>
+                        <span class="mx-1 font-bold"> {{ url() }} </span>
                         was not found.
                     </span>
                 </div>
@@ -41,7 +43,11 @@ import { Router } from '@angular/router';
 export class NotFoundComponent {
     private _router = inject(Router);
 
-    public get router(): Router {
-        return this._router;
-    }
+    public readonly url = toSignal(
+        this._router.events.pipe(
+            filter((event) => event instanceof NavigationEnd),
+            map(() => this._router.url),
+        ),
+        { initialValue: this._router.url },
+    );
 }

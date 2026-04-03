@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     MatBottomSheet,
     MatBottomSheetRef,
@@ -54,13 +54,10 @@ export class MeetingBookingComponent {
     private _router = inject(Router);
     private _bottom_sheet = inject(MatBottomSheet);
 
-    public sheet_ref: MatBottomSheetRef;
+    public readonly form = this._service.form;
+    public readonly sheet_ref = signal<MatBottomSheetRef<unknown> | null>(null);
 
     public readonly clearForm = () => this._service.clearForm();
-
-    public get form() {
-        return this._service.form;
-    }
 
     public makeBooking() {
         if (!this.form.value.host)
@@ -71,9 +68,10 @@ export class MeetingBookingComponent {
                     ', ',
                 )}]`,
             );
-        this.sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
-        this.sheet_ref.instance.show_close.set(true);
-        this.sheet_ref.afterDismissed().subscribe((value) => {
+        const sheet_ref = this._bottom_sheet.open(MeetingFlowConfirmComponent);
+        this.sheet_ref.set(sheet_ref);
+        sheet_ref.instance.show_close.set(true);
+        sheet_ref.afterDismissed().subscribe((value) => {
             if (value) {
                 this._router.navigate(['/book', 'meeting', 'success']);
                 this._service.setView('success');
