@@ -38,13 +38,13 @@ describe('CheckinCovidComponent', () => {
         expect(common_mod.notifyError).toHaveBeenCalledWith(
             'Please select yes or no for each question',
         );
-        spectator.component.contact = 'true';
-        spectator.component.symptoms = 'false';
+        spectator.component.contact.set('true');
+        spectator.component.symptoms.set('false');
         spectator.component.confirm();
         expect(
             spectator.inject(CheckinStateService).setError,
         ).toHaveBeenCalledTimes(1);
-        spectator.component.contact = 'false';
+        spectator.component.contact.set('false');
         spectator.component.confirm();
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',

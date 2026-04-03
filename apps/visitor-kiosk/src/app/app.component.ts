@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { PlaceOS_Service, setMocks } from '@placeos/common';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
 import { parseTokenFromUrl } from './checkin/token-from-url';
 
@@ -10,7 +10,7 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat) {
+        @if (has_chat()) {
             <global-chat />
         }
         <global-loading />
@@ -30,10 +30,9 @@ import { parseTokenFromUrl } from './checkin/token-from-url';
 })
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
+    private _has_chat = settingSignal<boolean>('chat.enabled', false);
 
-    public get has_chat(): boolean {
-        return this._placeos.has_chat;
-    }
+    public readonly has_chat = computed(() => !!this._has_chat());
 
     public ngOnInit(): void {
         const on_public = window.location.href.includes('public=true');
