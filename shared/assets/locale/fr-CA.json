@@ -1403,6 +1403,7 @@
             "PARKING_TAB_MAP": "Carte",
             "PARKING_TAB_REQUESTS": "Demandes",
             "PARKING_TAB_BOOKINGS": "Réservations",
+            "PARKING_FILTER_MANUAL": "Manual",
             "PARKING_BAY": "Baie de stationnement",
             "PARKING_BAY_NUMBER": "Numéro de baie",
             "PARKING_RESERVED_FOR": "Réservé pour",

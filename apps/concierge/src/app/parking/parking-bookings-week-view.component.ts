@@ -47,8 +47,13 @@ import { ParkingStateService } from './parking-state.service';
                                 [class.border-success]="
                                     booking.status === 'approved'
                                 "
+                                [class.border-info]="
+                                    booking.status === 'tentative' &&
+                                    isWaitlisted(booking)
+                                "
                                 [class.border-warning]="
-                                    booking.status === 'tentative'
+                                    booking.status === 'tentative' &&
+                                    !isWaitlisted(booking)
                                 "
                                 [class.border-error]="
                                     booking.status === 'declined'
@@ -101,7 +106,7 @@ import { ParkingStateService } from './parking-state.service';
                                 </div>
                                 @let bay_name =
                                     booking.asset_id | parkingSpace | async;
-                                @if (bay_name) {
+                                @if (bay_name && !isRequest(booking)) {
                                     <div class="mt-0.5 opacity-40">
                                         {{
                                             bay_name?.identifier ||
@@ -136,10 +141,20 @@ import { ParkingStateService } from './parking-state.service';
                                             booking.status === 'declined'
                                         "
                                         [class.text-warning-content]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
                                         "
                                         [class.bg-warning]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
+                                        "
+                                        [class.text-info-content]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
+                                        "
+                                        [class.bg-info]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
                                         "
                                         [class.text-neutral-content]="
                                             booking.status === 'ended'
@@ -158,7 +173,9 @@ import { ParkingStateService } from './parking-state.service';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                                    : isWaitlisted(booking)
+                                                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                                                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                             ) | translate
                                         }}
                                     </button>
@@ -200,6 +217,28 @@ import { ParkingStateService } from './parking-state.service';
                                             </div>
                                         </button>
                                     </mat-menu>
+                                    @if (isRequest(booking)) {
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="h-6 w-6"
+                                            [disabled]="
+                                                booking.checked_in ||
+                                                booking.state ===
+                                                    'in_progress' ||
+                                                booking.status === 'ended'
+                                            "
+                                            [matTooltip]="
+                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                    | translate
+                                            "
+                                            (click)="assignSpace(booking)"
+                                        >
+                                            <icon class="text-base"
+                                                >add_location</icon
+                                            >
+                                        </button>
+                                    }
                                     <button
                                         icon
                                         matRipple
@@ -224,8 +263,12 @@ import { ParkingStateService } from './parking-state.service';
                         @if (!(grouped_bookings | async)?.[day]?.length) {
                             <div class="p-4 text-center text-xs opacity-30">
                                 {{
-                                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
-                                        | translate
+                                    (isRequestFilter(
+                                        (options | async)?.request_filter
+                                    )
+                                        ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
+                                        : 'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
+                                    ) | translate
                                 }}
                             </div>
                         }
@@ -283,24 +326,12 @@ export class ParkingBookingsWeekViewComponent
         this.days,
         this.options,
     ]).pipe(
-        map(([bookings, days, { search }]) => {
-            const show_requests = !!this._settings.get(
-                'app.parking.show_requests',
+        map(([bookings, days, { search, request_filter }]) => {
+            const filtered = this._state.filterEventList(
+                bookings,
+                request_filter,
             );
-            let list = show_requests
-                ? bookings.filter((b) => !b.asset_id?.startsWith('unallocated'))
-                : bookings;
-            const s = search?.toLowerCase();
-            if (s) {
-                list = list.filter(
-                    (b) =>
-                        b.user_name?.toLowerCase().includes(s) ||
-                        b.user_email?.toLowerCase().includes(s) ||
-                        b.booked_by_name?.toLowerCase().includes(s) ||
-                        b.booked_by_email?.toLowerCase().includes(s) ||
-                        b.asset_name?.toLowerCase().includes(s),
-                );
-            }
+            const list = this._state.filterEventSearch(filtered, search);
             const grouped: Record<number, Booking[]> = {};
             for (const day of days) {
                 grouped[day] = list
@@ -327,9 +358,18 @@ export class ParkingBookingsWeekViewComponent
     public readonly approve = (e: Booking) => this._state.approveBooking(e);
     public readonly editReservation = (e: Booking) =>
         this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly isRequest = (e: Booking) => this._state.isRequest(e);
+    public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public isRequestFilter(filter_type?: string) {
+        return ['manual', 'pending', 'requests', 'waitlist'].includes(
+            filter_type || '',
+        );
     }
 
     public isToday(date: number) {

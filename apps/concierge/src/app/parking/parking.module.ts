@@ -4,7 +4,6 @@ import { Route, RouterModule } from '@angular/router';
 import { ParkingBookingsListComponent } from './parking-bookings-list.component';
 import { ParkingFleetListComponent } from './parking-fleet-list.component';
 import { ParkingMapComponent } from './parking-map.component';
-import { ParkingRequestsListComponent } from './parking-requests-list.component';
 import { ParkingSpaceListComponent } from './parking-space-list.component';
 import { ParkingUsersListComponent } from './parking-users-list.component';
 import { ParkingComponent } from './parking.component';
@@ -17,17 +16,18 @@ const ROUTES: Route[] = [
             {
                 path: 'events',
                 children: [
+                    { path: '', pathMatch: 'full', redirectTo: 'list' },
                     { path: 'map', component: ParkingMapComponent },
+                    { path: 'list', component: ParkingBookingsListComponent },
                     {
                         path: 'requests',
-                        component: ParkingRequestsListComponent,
+                        component: ParkingBookingsListComponent,
                     },
                     {
                         path: 'bookings',
                         component: ParkingBookingsListComponent,
                     },
-                    { path: 'list', redirectTo: 'bookings' },
-                    { path: '**', redirectTo: 'bookings' },
+                    { path: '**', redirectTo: 'list' },
                 ],
             },
             {
@@ -52,7 +52,6 @@ const ROUTES: Route[] = [
         ParkingComponent,
         ParkingBookingsListComponent,
         ParkingFleetListComponent,
-        ParkingRequestsListComponent,
         ParkingSpaceListComponent,
         ParkingUsersListComponent,
         ParkingMapComponent,

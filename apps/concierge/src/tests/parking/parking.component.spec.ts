@@ -28,6 +28,7 @@ describe('ParkingComponent', () => {
             MockProvider(ParkingStateService, {
                 levels: of([]),
                 startPolling: jest.fn(),
+                setOptions: jest.fn(),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) => settings_map[name]),
@@ -77,6 +78,7 @@ describe('ParkingComponent', () => {
 
     it('should redirect blocked users from the requests route', () => {
         const router = spectator.inject(Router);
+        const state = spectator.inject(ParkingStateService);
         jest.spyOn(router, 'navigate').mockResolvedValue(true);
         Object.defineProperty(router, 'url', {
             value: '/book/parking/events/requests',
@@ -85,9 +87,12 @@ describe('ParkingComponent', () => {
 
         (spectator.component as any)._updatePath();
 
-        expect(spectator.component.view()).toBe('bookings');
+        expect(state.setOptions).toHaveBeenCalledWith({
+            request_filter: 'bookings',
+        });
+        expect(spectator.component.view()).toBe('list');
         expect(router.navigate).toHaveBeenCalledWith(
-            ['/book', 'parking', 'events', 'bookings'],
+            ['/book', 'parking', 'events', 'list'],
             { replaceUrl: true },
         );
     });

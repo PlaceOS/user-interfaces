@@ -17,51 +17,6 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
             <app-sidebar></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <parking-topbar></parking-topbar>
-                @if (
-                    show_requests && section() === 'events' && view() !== 'map'
-                ) {
-                    <div class="px-8 pb-2">
-                        <nav
-                            mat-tab-nav-bar
-                            class="bg-base-200 overflow-hidden rounded-sm"
-                            [tabPanel]="eventsTabPanel"
-                        >
-                            @if (can_view_requests) {
-                                <a
-                                    mat-tab-link
-                                    [routerLink]="[
-                                        '/book',
-                                        'parking',
-                                        'events',
-                                        'requests',
-                                    ]"
-                                    [active]="view() === 'requests'"
-                                >
-                                    {{
-                                        'APP.CONCIERGE.PARKING_TAB_REQUESTS'
-                                            | translate
-                                    }}
-                                </a>
-                            }
-                            <a
-                                mat-tab-link
-                                [routerLink]="[
-                                    '/book',
-                                    'parking',
-                                    'events',
-                                    'bookings',
-                                ]"
-                                [active]="view() === 'bookings'"
-                            >
-                                {{
-                                    'APP.CONCIERGE.PARKING_TAB_BOOKINGS'
-                                        | translate
-                                }}
-                            </a>
-                        </nav>
-                        <mat-tab-nav-panel #eventsTabPanel></mat-tab-nav-panel>
-                    </div>
-                }
                 @if (section() === 'manage') {
                     <div class="px-8 pb-2">
                         <nav
@@ -198,7 +153,7 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
         'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
-    >('bookings');
+    >('list');
 
     public get show_requests() {
         return !!this._settings.get('app.parking.show_requests');
@@ -239,19 +194,37 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
 
     private _updatePath() {
         const parts = this._router.url?.split('/') || [''];
-        const [section = 'events', view = 'bookings'] = parts.slice(-2);
+        const [section = 'events', view = 'list'] = parts.slice(-2);
         const current_view = view.split('?')[0] as any;
         this.section.set(section as any);
         if (section === 'events' && current_view === 'requests') {
             if (!this.can_view_requests) {
-                this.view.set('bookings');
+                this._state.setOptions({ request_filter: 'bookings' });
+                this.view.set('list');
                 void this._router.navigate(
-                    ['/book', 'parking', 'events', 'bookings'],
+                    ['/book', 'parking', 'events', 'list'],
                     { replaceUrl: true },
                 );
                 return;
             }
+            this._state.setOptions({ request_filter: 'requests' });
+            this.view.set('list');
+            void this._router.navigate(['/book', 'parking', 'events', 'list'], {
+                replaceUrl: true,
+            });
+            return;
         }
-        this.view.set(current_view);
+        if (section === 'events' && current_view === 'bookings') {
+            this._state.setOptions({ request_filter: 'bookings' });
+            this.view.set('list');
+            void this._router.navigate(['/book', 'parking', 'events', 'list'], {
+                replaceUrl: true,
+            });
+            return;
+        }
+        if (section === 'events' && !this.can_view_requests) {
+            this._state.setOptions({ request_filter: 'bookings' });
+        }
+        this.view.set(current_view === 'list' ? 'list' : current_view);
     }
 }

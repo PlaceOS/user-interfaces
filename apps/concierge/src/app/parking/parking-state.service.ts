@@ -29,6 +29,7 @@ import {
     AsyncHandler,
     Booking,
     csvToJson,
+    currentUser,
     downloadFile,
     getTimezoneDifferenceInHours,
     i18n,
@@ -73,7 +74,13 @@ import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
 import { ParkingSpaceModalComponent } from './parking-space-modal.component';
 import { ParkingUserModalComponent } from './parking-user-modal.component';
 
-export type ParkingRequestFilter = 'all' | 'waitlist' | 'pending';
+export type ParkingRequestFilter =
+    | 'all'
+    | 'bookings'
+    | 'manual'
+    | 'pending'
+    | 'requests'
+    | 'waitlist';
 
 export interface ParkingOptions {
     date: number;
@@ -270,6 +277,94 @@ export class ParkingStateService extends AsyncHandler {
 
     public setPeriod(period: 'day' | 'week') {
         this.setOptions({ period });
+    }
+
+    public isRequest(booking: Booking) {
+        return !!booking.asset_id?.startsWith('unallocated');
+    }
+
+    public canViewRequest(
+        booking: Booking,
+        user_groups = currentUser()?.groups || [],
+    ) {
+        if (!this.isRequest(booking)) return true;
+        const approver_group = booking.extension_data?.approver_group;
+        return !approver_group || user_groups.includes(approver_group);
+    }
+
+    public isManualRequest(booking: Booking) {
+        return (
+            this.isRequest(booking) && !!booking.extension_data?.approver_group
+        );
+    }
+
+    public isWaitlisted(booking: Booking) {
+        if (!this.isRequest(booking) || booking.status !== 'tentative') {
+            return false;
+        }
+        const now = Date.now();
+        const current_week_start = startOfWeek(now, {
+            weekStartsOn: this.week_start,
+        }).valueOf();
+        const current_week_end = endOfWeek(now, {
+            weekStartsOn: this.week_start,
+        }).valueOf();
+        return (
+            booking.date >= current_week_start &&
+            booking.date <= current_week_end
+        );
+    }
+
+    public filterEventList(list: Booking[], filter_type: ParkingRequestFilter) {
+        const show_requests = !!this._settings.get('app.parking.show_requests');
+        const user_groups = currentUser()?.groups || [];
+        const visible_list = show_requests
+            ? list.filter(
+                  (booking) =>
+                      !this.isRequest(booking) ||
+                      this.canViewRequest(booking, user_groups),
+              )
+            : list.filter((booking) => !this.isRequest(booking));
+        if (filter_type === 'bookings') {
+            return visible_list.filter((booking) => !this.isRequest(booking));
+        }
+        if (filter_type === 'requests') {
+            return visible_list.filter((booking) => this.isRequest(booking));
+        }
+        if (filter_type === 'manual') {
+            return visible_list.filter((booking) =>
+                this.isManualRequest(booking),
+            );
+        }
+        if (filter_type === 'waitlist') {
+            return visible_list.filter((booking) => this.isWaitlisted(booking));
+        }
+        if (filter_type === 'pending') {
+            return visible_list.filter(
+                (booking) =>
+                    this.isRequest(booking) &&
+                    booking.status === 'tentative' &&
+                    !this.isWaitlisted(booking),
+            );
+        }
+        return visible_list;
+    }
+
+    public filterEventSearch(list: Booking[], search = '') {
+        const search_term = search.toLowerCase();
+        if (!search_term) return list;
+        return list.filter(
+            (booking) =>
+                booking.user_name?.toLowerCase().includes(search_term) ||
+                booking.user_email?.toLowerCase().includes(search_term) ||
+                booking.booked_by_name?.toLowerCase().includes(search_term) ||
+                booking.booked_by_email?.toLowerCase().includes(search_term) ||
+                booking.asset_name?.toLowerCase().includes(search_term),
+        );
+    }
+
+    public activeBookings(list: Booking[]) {
+        return list.filter((booking) => !this.isRequest(booking));
     }
 
     public startPolling(delay = 2 * 60 * 1000) {

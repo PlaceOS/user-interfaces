@@ -1403,6 +1403,7 @@
             "PARKING_TAB_MAP": "Mapa",
             "PARKING_TAB_REQUESTS": "Solicitudes",
             "PARKING_TAB_BOOKINGS": "Reservas",
+            "PARKING_FILTER_MANUAL": "Manual",
             "PARKING_BAY": "Plaza de Aparcamiento",
             "PARKING_BAY_NUMBER": "Número de Plaza",
             "PARKING_RESERVED_FOR": "Reservado Para",

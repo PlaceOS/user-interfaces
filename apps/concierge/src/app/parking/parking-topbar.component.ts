@@ -5,10 +5,11 @@ import {
     Router,
     RouterModule,
 } from '@angular/router';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    currentUser,
     firstTruthyValueFrom,
     nextValueFrom,
     OrganisationService,
@@ -49,11 +50,7 @@ import {
                 }}
             </h2>
             <div class="w-px flex-1"></div>
-            @if (
-                section() === 'events' &&
-                view() !== 'map' &&
-                (view() === 'requests' || view() === 'bookings')
-            ) {
+            @if (section() === 'events' && view() !== 'map') {
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
                         [ngModel]="period | async"
@@ -135,7 +132,7 @@ import {
             }
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
-            @if (section() === 'events' && view() === 'bookings') {
+            @if (section() === 'events') {
                 <div class="mr-2 flex items-center">
                     <a
                         btn
@@ -143,7 +140,7 @@ import {
                         name="deals-list"
                         class="rounded-l rounded-r-none px-2"
                         [class.inverse]="view() === 'map'"
-                        [routerLink]="['events', 'bookings']"
+                        [routerLink]="['events', 'list']"
                         [matTooltip]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
@@ -161,55 +158,33 @@ import {
                     </a>
                 </div>
             }
-            @if (view() === 'requests') {
-                <mat-form-field appearance="outline" class="no-subscript w-40">
-                    <mat-select
-                        [ngModel]="(options | async)?.request_filter"
-                        (ngModelChange)="setRequestFilter($event)"
-                    >
-                        <mat-option value="all">
-                            {{ 'COMMON.ALL' | translate }}
-                        </mat-option>
-                        <mat-option value="waitlist">
-                            {{ 'APP.CONCIERGE.PARKING_WAITLIST' | translate }}
-                        </mat-option>
-                        <mat-option value="pending">
-                            {{
-                                'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    | translate
-                            }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            } @else {
-                <mat-form-field appearance="outline" class="no-subscript w-56">
-                    <mat-select
-                        [(ngModel)]="zones"
-                        (ngModelChange)="updateZones($event)"
-                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                        multiple
-                    >
-                        @for (level of levels | async; track level) {
-                            <mat-option [value]="level.id">
-                                <div class="flex flex-col-reverse">
-                                    @if (use_region) {
-                                        <div class="text-xs opacity-30">
-                                            {{
-                                                (level.parent_id | building)
-                                                    ?.display_name
-                                            }}
-                                            <span class="opacity-0"> - </span>
-                                        </div>
-                                    }
-                                    <div>
-                                        {{ level.display_name || level.name }}
+            <mat-form-field appearance="outline" class="no-subscript w-56">
+                <mat-select
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                    multiple
+                >
+                    @for (level of levels | async; track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
                                     </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
                                 </div>
-                            </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            }
+                            </div>
+                        </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
                 <div class="flex gap-2">
@@ -262,12 +237,11 @@ import {
                     class="border-base-300 mr-2 flex items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
                     matTooltip="Parking Spaces Occupied"
                 >
-                    {{ (bookings | async)?.length || 0 }} of
+                    @let occupied = (occupied_bookings | async)?.length || 0;
+                    {{ occupied }} of
                     {{ (spaces | async)?.length || '' }}
                     <icon class="ml-1! text-lg">car_lock</icon>
-                    @let percent =
-                        ((bookings | async)?.length || 0) /
-                        ((spaces | async)?.length || 0);
+                    @let percent = occupied / ((spaces | async)?.length || 0);
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
                         [class.bg-error]="percent === 100"
@@ -282,17 +256,32 @@ import {
                     >
                 </div>
             }
-            @if (
-                view() === 'requests' ||
-                view() === 'bookings' ||
-                view() === 'map'
-            ) {
+            @if (view() === 'list' || view() === 'map') {
                 <date-options
                     [step]="(period | async) === 'week' ? 7 : 1"
                     (dateChange)="setDate($event)"
                 ></date-options>
             }
         </div>
+        @if (section() === 'events' && view() === 'list' && can_view_requests) {
+            <div
+                class="border-base-300 mx-8 mb-2 inline-flex w-full max-w-[calc(100%-4rem)] items-center gap-1 rounded-xl border p-1"
+            >
+                @for (filter of filter_options; track filter.value) {
+                    <button
+                        btn
+                        matRipple
+                        class="h-8 min-w-24 flex-1 rounded-lg px-3"
+                        [class.inverse]="
+                            (options | async)?.request_filter !== filter.value
+                        "
+                        (click)="setRequestFilter(filter.value)"
+                    >
+                        {{ filter.label | translate }}
+                    </button>
+                }
+            </div>
+        }
     `,
     styles: [
         `
@@ -333,7 +322,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
         'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
-    >('requests');
+    >('list');
     /** List of selected levels */
     public zones: string[] = [];
     /** List of levels for the active building */
@@ -342,13 +331,24 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly options = this._state.options;
     public readonly spaces = this._state.spaces;
     public readonly bookings = this._state.bookings;
+    public readonly occupied_bookings = this._state.bookings.pipe(
+        debounceTime(50),
+        map((bookings) => this._state.activeBookings(bookings)),
+    );
     public readonly period = this._state.period;
+    public readonly filter_options = [
+        { label: 'COMMON.ALL', value: 'all' },
+        { label: 'APP.CONCIERGE.PARKING_TAB_REQUESTS', value: 'requests' },
+        { label: 'APP.CONCIERGE.PARKING_FILTER_MANUAL', value: 'manual' },
+        { label: 'APP.CONCIERGE.PARKING_WAITLIST', value: 'waitlist' },
+        { label: 'APP.CONCIERGE.PARKING_TAB_BOOKINGS', value: 'bookings' },
+    ] as const;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
-    /** Set request filter (all / waitlist / pending) */
+    /** Set list filter for event list */
     public readonly setRequestFilter = (f: ParkingRequestFilter) =>
         this._state.setOptions({ request_filter: f });
     /** List of levels for the active building */
@@ -379,6 +379,21 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.parking.disable_bookings');
     }
 
+    public get can_view_requests() {
+        if (!this._settings.get('app.parking.show_requests')) return false;
+        const feature_groups = this._settings.get('app.feature_groups') || {};
+        const request_groups = feature_groups['parking-requests'] || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        const groups = currentUser()?.groups || [];
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support') ||
+            !request_groups.length ||
+            groups.some((grp) => request_groups.includes(grp))
+        );
+    }
+
     public manageRestrictions() {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'parking' },
@@ -396,10 +411,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                     const period =
                         params.get('period') === 'week' ? 'week' : 'day';
                     this._state.setPeriod(period);
-                }
-                if (this.section() === 'events' && this.view() === 'requests') {
-                    this.clearZones();
-                    return;
                 }
                 if (
                     params.has('zone_ids') &&
@@ -422,10 +433,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             'levels',
             this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
                 if (this.use_region) return;
-                if (this.section() === 'events' && this.view() === 'requests') {
-                    this.clearZones();
-                    return;
-                }
                 this.zones = this.zones.filter((zone) =>
                     levels.find((lvl) => lvl.id === zone),
                 );
@@ -475,24 +482,26 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _updatePath() {
         const parts = this._router.url?.split('/') || [''];
         const [section, view] = parts.slice(-2);
+        const current_view = view.split('?')[0];
         this.section.set(section as any);
-        this.view.set(view.split('?')[0] as any);
-        if (this.section() === 'events' && this.view() === 'requests') {
-            this.clearZones();
-            return;
+        this.view.set(
+            current_view === 'bookings' || current_view === 'requests'
+                ? 'list'
+                : (current_view as any),
+        );
+        if (current_view === 'bookings') {
+            this.setRequestFilter('bookings');
+        } else if (current_view === 'requests' && this.can_view_requests) {
+            this.setRequestFilter('requests');
+        }
+        if (
+            this.section() === 'events' &&
+            (!this.can_view_requests ||
+                !this._settings.get('app.parking.show_requests'))
+        ) {
+            this.setRequestFilter('bookings');
         }
         this.selectDefaultZoneForManage();
-    }
-
-    private clearZones() {
-        const has_query_param =
-            this._route.snapshot.queryParamMap.has('zone_ids');
-        if (!this.zones.length && !has_query_param) {
-            this._state.setOptions({ zones: [] });
-            return;
-        }
-        this.zones = [];
-        this.updateZones([]);
     }
 
     private async selectDefaultZoneForManage() {
