@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
@@ -6,7 +7,6 @@ import {
     CateringMenuComponent,
     CateringOrderListComponent,
 } from '@placeos/catering';
-import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { CateringTopbarComponent } from './catering-topbar.component';
 
@@ -14,10 +14,10 @@ import { CateringTopbarComponent } from './catering-topbar.component';
     selector: 'app-catering',
     template: `
         <main class="bg-base-100 relative flex w-full flex-col">
-            @if (page) {
+            @if (page()) {
                 <catering-topbar class="relative z-10"></catering-topbar>
             }
-            @if (page === 'menu') {
+            @if (page() === 'menu') {
                 <div
                     class="bg-info mx-8 mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
                 >
@@ -25,7 +25,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                 </div>
             }
             <div class="flex h-1/2 flex-1 flex-col overflow-auto px-8">
-                @switch (page) {
+                @switch (page()) {
                     @case ('orders') {
                         <catering-order-list
                             class="flex-1"
@@ -113,19 +113,12 @@ import { CateringTopbarComponent } from './catering-topbar.component';
         CateringTopbarComponent,
     ],
 })
-export class CateringComponent extends AsyncHandler implements OnInit {
+export class CateringComponent {
     private _route = inject(ActivatedRoute);
 
     /** Page being displayed */
-    public page: string;
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(
-                (params) =>
-                    (this.page = params.has('view') ? params.get('view') : ''),
-            ),
-        );
-    }
+    private _param_map = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    public page = computed(() => this._param_map().get('view') || '');
 }
