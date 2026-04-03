@@ -1,16 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, nextValueFrom } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 import { ICON_MAP } from '../ui/output-display.component';
 
@@ -25,7 +18,7 @@ const STATUS = {};
                 [class.border-base-200]="!active()"
                 [class.border-primary]="active()"
             >
-                @let source = input | async;
+                @let source = input();
                 <button
                     matRipple
                     class="bg-info relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm"
@@ -72,10 +65,7 @@ const STATUS = {};
     ],
     imports: [CommonModule, TranslatePipe, MatRippleModule, IconComponent],
 })
-export class DeviceOutputListItemComponent
-    extends AsyncHandler
-    implements OnChanges
-{
+export class DeviceOutputListItemComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
 
     public readonly item = input<RoomOutput>(undefined);
@@ -87,13 +77,20 @@ export class DeviceOutputListItemComponent
     public last_input: string;
 
     public readonly icons = ICON_MAP;
-    /** ID of the input associated with the displayed output */
-    private _input = new BehaviorSubject('');
-    /** Details of the associated input */
-    public readonly input = combineLatest([
-        this._input,
+    private readonly _available_inputs = toSignal(
         this._state.available_inputs,
-    ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
+        {
+            initialValue: [],
+        },
+    );
+    private readonly _system = toSignal(this._state.system);
+    /** Details of the associated input */
+    public readonly input = computed(() => {
+        const id = this.item()?.source || '';
+        return this._available_inputs().find(
+            (_) => _.id === id || _.ref === id,
+        );
+    });
 
     public readonly setVolume = (v) =>
         this.timeout('volume', () => this._state.setVolume(v, this.item()?.id));
@@ -101,20 +98,13 @@ export class DeviceOutputListItemComponent
         this._state.setRoute(s ? 'mute' : this.last_input, this.item()?.id);
         this.last_input = i;
     };
-    public readonly setActiveOutput = async () => {
-        const { selected_input } =
-            (await nextValueFrom(this._state.system)) || {};
-        const input = await nextValueFrom(this.input);
+    public readonly setActiveOutput = () => {
+        const { selected_input } = this._system() || {};
+        const input = this.input();
         const item = this.item();
         console.log('Input:', selected_input, item, input);
         input?.id === selected_input
             ? this._state.unroute(item.id)
             : this._state.setOutput(item?.id);
     };
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item) {
-            this._input.next(this.item()?.source || '');
-        }
-    }
 }
