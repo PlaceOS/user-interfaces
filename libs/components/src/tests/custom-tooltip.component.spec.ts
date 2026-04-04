@@ -1,4 +1,4 @@
-import { OverlayModule } from '@angular/cdk/overlay';
+import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { PortalModule } from '@angular/cdk/portal';
 import { Component, inject } from '@angular/core';
 import {
@@ -24,6 +24,7 @@ export class FakeDataComponent {
 
 describe('CustomTooltipComponent', () => {
     let spectator: SpectatorDirective<CustomTooltipComponent>;
+    let overlay_container: OverlayContainer;
     const createDirective = createDirectiveFactory({
         directive: CustomTooltipComponent,
         declarations: [SanitizePipe],
@@ -100,6 +101,21 @@ describe('CustomTooltipComponent', () => {
         spectator.tick(200);
         expect(spectator.directive.type()).toBe('template');
         expect(spectator.directive.open).toHaveBeenCalled();
+    }));
+
+    it('should attach template content to the overlay', fakeAsync(() => {
+        spectator = createDirective(`
+            <div customTooltip [content]="content"></div>
+            <ng-template #content>Rendered Template</ng-template>
+        `);
+        overlay_container = spectator.inject(OverlayContainer);
+
+        spectator.click(spectator.query('div'));
+        spectator.tick(200);
+
+        expect(overlay_container.getContainerElement().textContent).toContain(
+            'Rendered Template',
+        );
     }));
 
     it('should allow rendering HTML', fakeAsync(() => {
