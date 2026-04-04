@@ -5,6 +5,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -31,7 +32,7 @@ import {
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -45,21 +46,21 @@ import {
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (view !== 'form'
+                (view() !== 'form'
                     ? 'APP.CONCIERGE.BOOKING_RULES_HEADER'
-                    : selected?.id
+                    : selected()?.id
                       ? 'APP.CONCIERGE.BOOKING_RULES_EDIT'
                       : 'APP.CONCIERGE.BOOKING_RULES_NEW'
                 ) | translate: { type: type }
             "
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.BOOKING_RULESET_SAVING' | translate)
                     : ''
             "
-            [hide_close]="view === 'form'"
+            [hide_close]="view() === 'form'"
             [hide_confirm]="true"
-            [full_width]="view !== 'form'"
+            [full_width]="view() !== 'form'"
         >
             <div>
                 <div
@@ -67,11 +68,11 @@ import {
                 >
                     {{ 'APP.CONCIERGE.BOOKING_RULES_NOTE' | translate }}
                 </div>
-                @switch (view) {
+                @switch (view()) {
                     @case ('form') {
                         <booking-rules-form
-                            [ruleset]="selected"
-                            [save]="activate_save"
+                            [ruleset]="selected()"
+                            [save]="activate_save()"
                             (rulesetChange)="save($event)"
                         />
                     }
@@ -128,7 +129,7 @@ import {
                                 class="min-w-3xl"
                             >
                                 @for (
-                                    row of booking_rules | async;
+                                    row of booking_rules();
                                     track row.id;
                                     let i = $index
                                 ) {
@@ -354,22 +355,22 @@ import {
                         </div>
                     }
                 }
-                @if (!loading) {
+                @if (!loading()) {
                     <footer
                         class="bg-base-200 fixed bottom-0 left-1/2 z-10 mx-auto my-2 flex w-[calc(100%-1rem)] -translate-x-1/2 items-center justify-end space-x-4 rounded-sm border-none px-4 py-2"
-                        [class.max-w-156]="view === 'form'"
+                        [class.max-w-156]="view() === 'form'"
                     >
-                        @if (view === 'form') {
+                        @if (view() === 'form') {
                             <button
                                 btn
                                 matRipple
                                 class="inverse w-36"
-                                (click)="selected = null; view = 'list'"
+                                (click)="selected.set(null); view.set('list')"
                             >
                                 {{ 'COMMON.BACK' | translate }}
                             </button>
                         }
-                        @if (view !== 'form') {
+                        @if (view() !== 'form') {
                             <button
                                 btn
                                 matRipple
@@ -382,12 +383,12 @@ import {
                                 }}
                             </button>
                         }
-                        @if (view === 'form') {
+                        @if (view() === 'form') {
                             <button
                                 btn
                                 matRipple
                                 class="w-36"
-                                (click)="activate_save = !activate_save"
+                                (click)="activate_save.update((state) => !state)"
                             >
                                 {{
                                     'APP.CONCIERGE.BOOKING_RULESET_SAVE'
@@ -421,15 +422,16 @@ export class BookingRulesModalComponent {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    public loading = false;
-    public view = 'list';
-    public activate_save = false;
-    public selected?: BookingRuleset;
-    public readonly change = new BehaviorSubject(0);
+    public readonly loading = signal(false);
+    public readonly view = signal<'list' | 'form'>('list');
+    public readonly activate_save = signal(false);
+    public readonly selected = signal<BookingRuleset | null>(null);
+    public readonly change = signal(0);
     public readonly show_children = signal<Record<string, boolean>>({});
-    public readonly booking_rules: Observable<BookingRuleset[]> = combineLatest(
-        [this._org.active_building, this.change],
-    ).pipe(
+    private readonly _booking_rules = combineLatest([
+        this._org.active_building,
+        toObservable(this.change),
+    ]).pipe(
         filter(([_]) => !!_),
         switchMap(([bld]) => {
             return showMetadata(
@@ -440,6 +442,9 @@ export class BookingRulesModalComponent {
         map(({ details }) => (details instanceof Array ? details : [])),
         shareReplay(1),
     );
+    public readonly booking_rules = toSignal(this._booking_rules, {
+        initialValue: [] as BookingRuleset[],
+    });
 
     public readonly type = this._data.type;
     public readonly TABLE_COLUMNS = '3.5rem 1fr 1fr 5.5rem 5.5rem 1fr 5.5rem';
@@ -500,8 +505,8 @@ export class BookingRulesModalComponent {
     }
 
     public editRuleset(ruleset?: BookingRuleset) {
-        this.view = 'form';
-        this.selected = ruleset;
+        this.view.set('form');
+        this.selected.set(ruleset || null);
     }
 
     public async removeRuleset(ruleset: BookingRuleset) {
@@ -517,7 +522,7 @@ export class BookingRulesModalComponent {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing Ruleset...');
-        const rules = await nextValueFrom(this.booking_rules);
+        const rules = await nextValueFrom(this._booking_rules);
         const index = rules.findIndex((_) => _.id === ruleset.id);
         if (index >= 0) {
             rules.splice(index, 1);
@@ -531,7 +536,7 @@ export class BookingRulesModalComponent {
                     notifyError('Error removing booking rules.');
                     throw _;
                 });
-            this.change.next(Date.now());
+            this.change.set(Date.now());
         }
         notifySuccess('Successfully removed booking rules.');
         result.close();
@@ -539,7 +544,7 @@ export class BookingRulesModalComponent {
 
     public async drop(event: CdkDragDrop<BookingRuleset[]>) {
         if (event.previousIndex === event.currentIndex) return;
-        const rules = await nextValueFrom(this.booking_rules);
+        const rules = await nextValueFrom(this._booking_rules);
         moveItemInArray(rules, event.previousIndex, event.currentIndex);
         await updateMetadata(this._org.building.id, {
             name: `${this.type}_booking_rules`,
@@ -552,12 +557,12 @@ export class BookingRulesModalComponent {
                 throw _;
             });
         notifySuccess('Successfully updated booking rules order.');
-        this.change.next(Date.now());
+        this.change.set(Date.now());
     }
 
     public async save(new_ruleset?: BookingRuleset) {
-        this.loading = true;
-        const rules = await nextValueFrom(this.booking_rules);
+        this.loading.set(true);
+        const rules = await nextValueFrom(this._booking_rules);
         if (new_ruleset) {
             const index = rules.findIndex((_) => _.id === new_ruleset?.id);
             if (index >= 0) {
@@ -581,8 +586,8 @@ export class BookingRulesModalComponent {
                 );
                 throw _;
             });
-        this.loading = false;
-        this.view = 'list';
+        this.loading.set(false);
+        this.view.set('list');
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_RULESET_SUCCESS'));
     }
 }

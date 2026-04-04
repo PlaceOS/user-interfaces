@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -16,9 +17,9 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { endOfWeek, startOfWeek } from 'date-fns';
-import { combineLatest, map } from 'rxjs';
 import { ParkingRequestsWeekViewComponent } from './parking-requests-week-view.component';
 import {
+    ParkingOptions,
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
@@ -26,16 +27,16 @@ import {
 @Component({
     selector: 'parking-requests-list',
     template: `
-        @if ((period | async) === 'week') {
+        @if (period() === 'week') {
             <parking-requests-week-view />
         } @else {
             <mat-progress-bar
-                [class.opacity-0]="!(loading | async)?.includes('bookings')"
+                [class.opacity-0]="!loading().includes('[BOOKINGS]')"
                 class="sticky left-0 w-full"
             />
             <simple-table
                 class="block min-w-304 text-sm"
-                [data]="filtered_events"
+                [data]="filtered_events()"
                 [columns]="[
                     {
                         key: 'state',
@@ -80,7 +81,7 @@ import {
                         sortable: false,
                     },
                 ]"
-                [filter]="(options | async)?.search"
+                [filter]="options().search"
                 [sortable]="true"
                 [empty_message]="
                     'APP.CONCIERGE.PARKING_REQUESTS_EMPTY' | translate
@@ -295,37 +296,50 @@ export class ParkingRequestsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
-    public readonly period = this._state.period;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly filtered_events = combineLatest([
-        this._state.bookings,
-        this.options,
-    ]).pipe(
-        map(([booking_list, { search, request_filter }]) => {
-            const user_groups = currentUser()?.groups || [];
-            let unallocated = booking_list.filter((b) => {
-                if (!b.asset_id?.startsWith('unallocated')) return false;
-                const approver_group = b.extension_data?.approver_group;
-                if (approver_group && !user_groups.includes(approver_group))
-                    return false;
-                return true;
-            });
-            unallocated = this._applyRequestFilter(unallocated, request_filter);
-            const s = search.toLowerCase();
-            return !s
-                ? unallocated
-                : unallocated.filter(
-                      (b) =>
-                          b.user_name.toLowerCase().includes(s) ||
-                          b.user_email.toLowerCase().includes(s) ||
-                          b.booked_by_name.toLowerCase().includes(s) ||
-                          b.booked_by_email.toLowerCase().includes(s) ||
-                          b.asset_name.toLowerCase().includes(s),
-                  );
-        }),
-    );
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day',
+    });
+
+    public readonly filtered_events = computed(() => {
+        const { search, request_filter } = this.options();
+        const user_groups = currentUser()?.groups || [];
+        let unallocated = this.bookings().filter((b) => {
+            if (!b.asset_id?.startsWith('unallocated')) return false;
+            const approver_group = b.extension_data?.approver_group;
+            if (approver_group && !user_groups.includes(approver_group))
+                return false;
+            return true;
+        });
+        unallocated = this._applyRequestFilter(unallocated, request_filter);
+        const s = search.toLowerCase();
+        return !s
+            ? unallocated
+            : unallocated.filter(
+                  (b) =>
+                      b.user_name.toLowerCase().includes(s) ||
+                      b.user_email.toLowerCase().includes(s) ||
+                      b.booked_by_name.toLowerCase().includes(s) ||
+                      b.booked_by_email.toLowerCase().includes(s) ||
+                      b.asset_name.toLowerCase().includes(s),
+              );
+    });
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);

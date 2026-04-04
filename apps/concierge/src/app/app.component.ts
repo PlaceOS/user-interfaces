@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import { mocksInit } from '@placeos/mocks';
 
@@ -9,7 +9,7 @@ import { mocksInit } from '@placeos/mocks';
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        @if (has_chat) {
+        @if (has_chat()) {
             <global-chat />
         }
         <global-loading />
@@ -30,14 +30,12 @@ import { mocksInit } from '@placeos/mocks';
 export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
-
-    public get has_chat(): boolean {
-        return this._placeos.has_chat;
-    }
+    public readonly has_chat = signal(this._placeos.has_chat);
 
     public async ngOnInit() {
         setMocks(mocksInit);
         await this._placeos.init();
+        this.has_chat.set(this._placeos.has_chat);
         if (this._placeos.has_uploads) this._uploads.init();
     }
 }

@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, input } from '@angular/core';
-import { AsyncHandler, CalendarEvent, Space } from '@placeos/common';
-import { map } from 'rxjs/operators';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Space } from '@placeos/common';
 
 import { EventsStateService } from './events-state.service';
 
@@ -8,7 +8,7 @@ import { EventsStateService } from './events-state.service';
     selector: 'dayview-space',
     template: `
         @if (space()) {
-            @for (event of events | async; track event) {
+            @for (event of events(); track event) {
                 <dayview-event [event]="event" />
             }
         }
@@ -22,25 +22,24 @@ import { EventsStateService } from './events-state.service';
     ],
     standalone: false,
 })
-export class DayviewSpaceComponent extends AsyncHandler implements OnInit {
+export class DayviewSpaceComponent {
     private _state = inject(EventsStateService);
 
     /** Space to display events for */
     public readonly space = input<Space>(undefined);
 
-    public shown_event: CalendarEvent;
     /** List of events for the selected space */
-    public readonly events = this._state.filtered.pipe(
-        map((bookings) => {
-            return bookings.filter((bkn) =>
-                bkn.resources.find(
-                    (space) => this.space().email === space.email,
-                ),
-            );
-        }),
-    );
+    private readonly _filtered = toSignal(this._state.filtered, {
+        initialValue: [],
+    });
 
-    public ngOnInit(): void {
-        this.subscription('events', this._state.filtered.subscribe());
-    }
+    public readonly events = computed(() => {
+        const space = this.space();
+        if (!space) return [];
+        return this._filtered().filter((booking) =>
+            booking.resources.find(
+                (resource) => space.email === resource.email,
+            ),
+        );
+    });
 }

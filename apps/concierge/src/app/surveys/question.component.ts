@@ -1,6 +1,7 @@
 import {
     AfterViewInit,
     Component,
+    computed,
     ElementRef,
     input,
     model,
@@ -37,8 +38,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                     class="flex w-full flex-row items-center justify-end space-x-4 pb-2"
                 >
                     <settings-toggle
-                        [ngModel]="preview()"
-                        (ngModelChange)="preview.set($event)"
+                        [(ngModel)]="preview"
                         [name]="'COMMON.PREVIEW' | translate"
                     ></settings-toggle>
                     <div class="flex-1"></div>
@@ -196,7 +196,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                     </div>
                                 </button>
                             } @else {
-                                @if (is_dropdown) {
+                                @if (is_dropdown()) {
                                     <mat-form-field appearance="outline">
                                         <mat-select
                                             placeholder="Select an option"
@@ -212,7 +212,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                             }
                                         </mat-select>
                                     </mat-form-field>
-                                } @else if (is_checkbox) {
+                                } @else if (is_checkbox()) {
                                     <div
                                         class="grid grid-cols-1 sm:grid-cols-2"
                                     >
@@ -253,7 +253,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                 } @else if (question().type === QuestionType.Rating) {
                     <div class="flex w-full flex-col">
                         <div btn-grp class="divide-secondary divide-x">
-                            @for (idx of rating_options; track idx) {
+                            @for (idx of rating_options(); track idx) {
                                 <button
                                     matRipple
                                     class="border-secondary h-12 w-12 border-y first:rounded-l first:border-l last:rounded-r last:border-r!"
@@ -268,9 +268,6 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                     [max]="10"
                                     [min]="3"
                                     [(ngModel)]="question().max_rating"
-                                    (ngModelChange)="
-                                        rating_options = generateArray($event)
-                                    "
                                     class="mb-1 w-40"
                                 ></a-counter>
                             </div>
@@ -303,12 +300,14 @@ export class QuestionComponent implements AfterViewInit, OnInit {
 
     public QuestionType = QuestionType;
     public type_options = QuestionTypeOptions;
-    public rating_options: number[] = [1, 2, 3];
+    public readonly rating_options = computed(() =>
+        this.generateArray(this.question()?.max_rating || 3),
+    );
 
     private readonly _container_el =
         viewChild<ElementRef<HTMLDivElement>>('container_el');
 
-    public get valid() {
+    public readonly valid = computed(() => {
         const q = this.question();
         if (!q?.title) return false;
         let is_valid = true;
@@ -327,21 +326,20 @@ export class QuestionComponent implements AfterViewInit, OnInit {
         }
 
         return is_valid;
-    }
+    });
 
-    public get is_dropdown() {
-        return this.question()?.type === QuestionType.Drop_Down;
-    }
+    public readonly is_dropdown = computed(
+        () => this.question()?.type === QuestionType.Drop_Down,
+    );
 
-    public get is_checkbox() {
-        return this.question()?.type === QuestionType.Check_Box;
-    }
+    public readonly is_checkbox = computed(
+        () => this.question()?.type === QuestionType.Check_Box,
+    );
 
     public ngOnInit() {
         const q = this.question();
         if (!q?.choices) q.choices = [];
         if (!q.max_rating) q.max_rating = 3;
-        this.rating_options = this.generateArray(q.max_rating);
     }
 
     public ngAfterViewInit() {

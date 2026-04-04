@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { filter, map, startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { PointsStateService } from './points-state.service';
@@ -17,7 +19,7 @@ import { PointsTopbarComponent } from './points-topbar.component';
             <app-sidebar></app-sidebar>
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <points-topbar class="relative z-10">
-                    @if (page === 'assets') {
+                    @if (page() === 'assets') {
                         <button btn matRipple class="w-40" (click)="newAsset()">
                             {{ 'APP.CONCIERGE.POINTS_ASSETS_ADD' | translate }}
                         </button>
@@ -32,7 +34,7 @@ import { PointsTopbarComponent } from './points-topbar.component';
                                     '/points-management',
                                     'overview',
                                 ]"
-                                [active]="page === 'overview'"
+                                [active]="page() === 'overview'"
                             >
                                 {{
                                     'APP.CONCIERGE.POINTS_TAB_OVERVIEW'
@@ -42,7 +44,7 @@ import { PointsTopbarComponent } from './points-topbar.component';
                             <a
                                 mat-tab-link
                                 [routerLink]="['/points-management', 'assets']"
-                                [active]="page === 'assets'"
+                                [active]="page() === 'assets'"
                             >
                                 {{
                                     'APP.CONCIERGE.POINTS_TAB_ASSETS'
@@ -82,24 +84,22 @@ import { PointsTopbarComponent } from './points-topbar.component';
         TranslatePipe,
     ],
 })
-export class PointsComponent extends AsyncHandler implements OnInit {
+export class PointsComponent extends AsyncHandler {
     private _state = inject(PointsStateService);
     private _router = inject(Router);
 
     /** Page being displayed */
-    public page: string;
+    public readonly page = toSignal(
+        this._router.events.pipe(
+            filter((event) => event instanceof NavigationEnd),
+            startWith(null),
+            map(() => {
+                const url_parts = this._router.url?.split('/') || [''];
+                return url_parts[url_parts.length - 1];
+            }),
+        ),
+        { initialValue: this._router.url?.split('/').pop() || '' },
+    );
 
     public readonly newAsset = () => this._state.newAsset();
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._router.events.subscribe(() => {
-                const url_parts = this._router.url?.split('/') || [''];
-                this.page = url_parts[url_parts.length - 1];
-            }),
-        );
-        const parts = this._router.url?.split('/') || [''];
-        this.page = parts[parts.length - 1];
-    }
 }

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -26,7 +27,7 @@ import { Observable } from 'rxjs';
             </button>
         </header>
         <main class="h-128 max-h-[65vh] min-w-md">
-            @for (category of list | async; track category) {
+            @for (category of list(); track category) {
                 @if (category.id) {
                     <div
                         class="hover:bg-base-200:bg-base-300 border-base-200 m-2 flex items-center space-x-2 rounded-sm border p-2"
@@ -94,7 +95,7 @@ export class AssetCategoryManagementModalComponent {
         );
 
     public readonly changed = new EventEmitter();
-    public readonly list = this._data.list;
+    public readonly list = toSignal(this._data.list, { initialValue: [] });
     public readonly edit = this._data.edit;
 
     public readonly remove = async (category: AssetCategory) => {

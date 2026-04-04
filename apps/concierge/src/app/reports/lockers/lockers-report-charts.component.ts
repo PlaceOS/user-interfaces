@@ -1,19 +1,18 @@
 import {
     Component,
+    computed,
+    effect,
     ElementRef,
     inject,
     input,
-    OnChanges,
     OnDestroy,
-    OnInit,
-    SimpleChanges,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
     AsyncHandler,
     flatten,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
     unique,
@@ -32,8 +31,6 @@ import {
     Tooltip,
 } from 'chart.js';
 import { format, parse } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
 Chart.register(
@@ -93,59 +90,59 @@ Chart.register(
 })
 export class LockersReportChartsComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, OnDestroy
+    implements OnDestroy
 {
     private _state = inject(LockersReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
+        initialValue: {},
+    });
+    private readonly _counts = toSignal(this._state.counts$, {
+        initialValue: {},
+    });
+    private readonly _bookings = toSignal(this._state.bookings$, {
+        initialValue: [],
+    });
 
     public readonly print = input(false);
-    public readonly day_list = combineLatest([
-        this._state.daily_stats$,
-        this._state.counts$,
-    ]).pipe(
-        map(([days, counts]) => {
-            const list = [];
-            const total_spaces = Object.values(counts).reduce(
-                (c, v) => c + (v || 0),
-                0,
-            );
-            for (const date in days) {
-                list.push({
-                    date,
-                    booking_count: unique(days[date].bookings, 'asset_id')
-                        .length,
-                    host_count: unique(days[date].bookings, 'user_email')
-                        .length,
-                    booked_count: days[date].bookings.length,
-                    utilisation:
-                        days[date].bookings.reduce(
-                            (c, v) => c + v.duration,
-                            0,
-                        ) /
-                        (total_spaces || 1) /
-                        (8 * 60),
-                });
-            }
-            return list.sort((a, b) => a.date.localeCompare(b.date));
-        }),
-    );
+    public readonly day_list = computed(() => {
+        const days = this._daily_stats();
+        const counts = this._counts();
+        const list = [];
+        const total_spaces = Object.values(counts).reduce(
+            (c, v) => c + (v || 0),
+            0,
+        );
+        for (const date in days) {
+            list.push({
+                date,
+                booking_count: unique(days[date].bookings, 'asset_id').length,
+                host_count: unique(days[date].bookings, 'user_email').length,
+                booked_count: days[date].bookings.length,
+                utilisation:
+                    days[date].bookings.reduce((c, v) => c + v.duration, 0) /
+                    (total_spaces || 1) /
+                    (8 * 60),
+            });
+        }
+        return list.sort((a, b) => a.date.localeCompare(b.date));
+    });
 
-    public readonly stats = combineLatest([this._state.bookings$]).pipe(
-        map(([bookings]) => {
-            const mapping = unique(
-                flatten(bookings.map((_) => _.zones)),
-            ).filter((id) => this._org.levels.find((_) => _.id === id));
-            return [
-                mapping,
-                mapping.reduce((counts, id) => {
-                    const list = bookings.filter((_) => _.zones.includes(id));
-                    counts[id] = list.length || 0;
-                    return counts;
-                }, {}),
-            ];
-        }),
-    );
+    public readonly stats = computed(() => {
+        const bookings = this._bookings();
+        const mapping = unique(flatten(bookings.map((_) => _.zones))).filter(
+            (id) => this._org.levels.find((_) => _.id === id),
+        );
+        return [
+            mapping,
+            mapping.reduce((counts, id) => {
+                const list = bookings.filter((_) => _.zones.includes(id));
+                counts[id] = list.length || 0;
+                return counts;
+            }, {}),
+        ];
+    });
 
     private _daily_chart_el =
         viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');
@@ -154,22 +151,16 @@ export class LockersReportChartsComponent
     private _day_chart: Chart | null = null;
     private _level_chart: Chart | null = null;
 
-    public ngOnInit() {
-        this.subscription(
-            'charts',
-            combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts(),
-            ),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (
-            changes.print &&
-            changes.print.currentValue !== changes.print.previousValue
-        ) {
+    constructor() {
+        super();
+        effect(() => {
+            this.day_list();
+            this.stats();
+            this.print();
+            this._daily_chart_el();
+            this._level_chart_el();
             this.updateCharts();
-        }
+        });
     }
 
     public override ngOnDestroy() {
@@ -181,10 +172,10 @@ export class LockersReportChartsComponent
     public updateCharts() {
         this.timeout(
             'update_charts',
-            async () => {
-                const day_list = await nextValueFrom(this.day_list);
+            () => {
+                const day_list = this.day_list();
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await nextValueFrom(this.stats);
+                const [mappings, counts] = this.stats();
                 this.updateLevelChart({ zones: mappings }, counts);
             },
             50,

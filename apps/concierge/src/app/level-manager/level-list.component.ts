@@ -1,5 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { i18n, notifySuccess } from '@placeos/common';
@@ -17,7 +18,7 @@ import { LevelManagementService } from './level-management.service';
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
                 class="block min-w-3xl text-sm"
-                [data]="levels"
+                [data]="levels()"
                 [empty_message]="'APP.CONCIERGE.LEVELS_EMPTY' | translate"
                 [columns]="[
                     {
@@ -135,7 +136,9 @@ export class LevelListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly levels = this._manager.filtered_levels;
+    public readonly levels = toSignal(this._manager.filtered_levels, {
+        initialValue: [],
+    });
 
     public readonly editLevel = (level) => this._manager.editLevel(level);
     public readonly removeLevel = (level) => this._manager.removeLevel(level);

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService, currentUser } from '@placeos/common';
@@ -92,7 +93,7 @@ import { ParkingTopbarComponent } from './parking-topbar.component';
                         <router-outlet></router-outlet>
                     </div>
                 </div>
-                @if (!(levels | async)?.length) {
+                @if (!levels().length) {
                     <div
                         class="absolute inset-0 z-50 flex flex-col items-center justify-center"
                     >
@@ -148,7 +149,7 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of levels for the active building */
-    public readonly levels = this._state.levels;
+    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
 
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<

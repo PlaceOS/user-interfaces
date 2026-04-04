@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -69,7 +76,7 @@ import { DesksStateService } from './desks-state.service';
                         [model]="filters().search"
                         (modelChange)="setFilters({ search: $event })"
                     ></searchbar>
-                    @if (path !== 'manage') {
+                    @if (path() !== 'manage') {
                         <button
                             btn
                             matRipple
@@ -82,7 +89,7 @@ import { DesksStateService } from './desks-state.service';
                             <icon class="text-2xl">add</icon>
                         </button>
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
                             btn
                             matRipple
@@ -97,7 +104,7 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
                 <div class="mb-4 flex w-full items-center gap-2 px-8">
-                    @if (!manage) {
+                    @if (!manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -136,7 +143,7 @@ import { DesksStateService } from './desks-state.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (manage) {
+                    @if (manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -179,7 +186,7 @@ import { DesksStateService } from './desks-state.service';
                         </mat-form-field>
                     }
                     <div class="w-px flex-1"></div>
-                    @if (path === 'events') {
+                    @if (path() === 'events') {
                         <date-options
                             (dateChange)="setDate($event)"
                         ></date-options>
@@ -225,7 +232,7 @@ import { DesksStateService } from './desks-state.service';
                             }
                         </button>
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
                             btn
                             icon
@@ -283,7 +290,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
-                @if (loading() && path === 'events') {
+                @if (loading() && path() === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -334,8 +341,8 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     public readonly loading = this._state.loading;
     public readonly downloading = signal(false);
-    public path: string;
-    public manage = false;
+    public readonly path = signal('');
+    public readonly manage = computed(() => this.path() === 'manage');
     /** Signal for filters */
     public readonly filters = this._state.filters;
     private readonly _levels$ = combineLatest([
@@ -376,7 +383,9 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[url_parts.length - 1].split('?')[0];
+                    this.path.set(
+                        url_parts[url_parts.length - 1].split('?')[0],
+                    );
                     this._updateView();
                 }
             }),
@@ -401,7 +410,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             this._levels$.subscribe((levels) => this._syncZones(levels)),
         );
         const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
     }
 
@@ -490,14 +499,13 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     private _getViewFromPath(): DeskView {
-        if (this.path.includes('manage')) return 'manage';
-        if (this.path.includes('map')) return 'map';
+        if (this.path().includes('manage')) return 'manage';
+        if (this.path().includes('map')) return 'map';
         return 'events';
     }
 
     private _updateView() {
         const view = this._getViewFromPath();
-        this.manage = view === 'manage';
         this._state.setFilters({ view });
         this._syncZones(this.levels());
     }
@@ -507,7 +515,9 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        const next_zones = this.manage ? valid_zones.slice(0, 1) : valid_zones;
+        const next_zones = this.manage()
+            ? valid_zones.slice(0, 1)
+            : valid_zones;
         if (!next_zones.length && levels.length) {
             next_zones.push(levels[0].id);
         }

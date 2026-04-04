@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import {
@@ -23,7 +24,7 @@ import { UrlManagementService } from './url-management.service';
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
                 class="block min-w-5xl text-sm"
-                [data]="features"
+                [data]="features()"
                 empty_message="No Points of Interest found."
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
@@ -164,7 +165,9 @@ export class UrlListComponent extends AsyncHandler implements OnInit {
     private _manager = inject(UrlManagementService);
     private _settings = inject(SettingsService);
 
-    public readonly features = this._manager.url_list;
+    public readonly features = toSignal(this._manager.url_list, {
+        initialValue: [] as ShortURL[],
+    });
 
     public readonly edit = (region) => this._manager.editURL(region);
     public readonly remove = (region) => this._manager.removeURL(region);
@@ -178,7 +181,7 @@ export class UrlListComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription(
             'url_list',
-            this.features.subscribe(async (l) => {
+            this._manager.url_list.subscribe(async (l) => {
                 for (const item of l) {
                     await this.loadQrCode(item);
                 }
@@ -187,12 +190,12 @@ export class UrlListComponent extends AsyncHandler implements OnInit {
     }
 
     public async loadQrCode(item: ShortURL) {
-        if (this.qr_codes[item.id]) return;
+        if (this.qr_codes()[item.id]) return;
         const code = await getShortUrlQRCode(item.id);
-        this.qr_codes.update((codes) => {
-            codes[item.id] = code;
-            return codes;
-        });
+        this.qr_codes.update((codes) => ({
+            ...codes,
+            [item.id]: code,
+        }));
     }
 
     public print() {

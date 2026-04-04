@@ -1,19 +1,17 @@
 import {
     Component,
+    effect,
     ElementRef,
     inject,
     input,
-    OnChanges,
     OnDestroy,
-    OnInit,
-    SimpleChanges,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReportsStateService } from '../reports-state.service';
 
 import {
     AsyncHandler,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -90,18 +88,22 @@ Chart.register(
 })
 export class ReportDesksChartsComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, OnDestroy
+    implements OnDestroy
 {
     private _state = inject(ReportsStateService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
-    public readonly day_list = this._state.day_list;
-    public readonly stats = combineLatest([
-        this._state.options,
-        this._state.counts,
-    ]);
+    public readonly day_list = toSignal(this._state.day_list, {
+        initialValue: [],
+    });
+    public readonly stats = toSignal(
+        combineLatest([this._state.options, this._state.counts]),
+        {
+            initialValue: [{ zones: [] }, {}] as [any, Record<string, number>],
+        },
+    );
 
     private _daily_chart_el =
         viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');
@@ -110,22 +112,16 @@ export class ReportDesksChartsComponent
     private _day_chart: Chart | null = null;
     private _level_chart: Chart | null = null;
 
-    public ngOnInit() {
-        this.subscription(
-            'charts',
-            combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts(),
-            ),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (
-            changes.print &&
-            changes.print.currentValue !== changes.print.previousValue
-        ) {
+    constructor() {
+        super();
+        effect(() => {
+            this.day_list();
+            this.stats();
+            this.print();
+            this._daily_chart_el();
+            this._level_chart_el();
             this.updateCharts();
-        }
+        });
     }
 
     public override ngOnDestroy() {
@@ -137,10 +133,10 @@ export class ReportDesksChartsComponent
     public updateCharts() {
         this.timeout(
             'update_charts',
-            async () => {
-                const day_list = await nextValueFrom(this.day_list);
+            () => {
+                const day_list = this.day_list();
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await nextValueFrom(this.stats);
+                const [mappings, counts] = this.stats();
                 this.updateLevelChart(mappings, counts);
             },
             50,

@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterModule } from '@angular/router';
+import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { ReportsMenuComponent } from './reports-menu.component';
@@ -12,7 +14,7 @@ import { ReportsMenuComponent } from './reports-menu.component';
             <app-sidebar class="screen-only"></app-sidebar>
             <main class="relative flex h-full w-1/2 flex-1 flex-col">
                 <router-outlet></router-outlet>
-                @if (path === 'reports') {
+                @if (path() === 'reports') {
                     <div
                         reports-menu
                         class="screen-only absolute inset-0"
@@ -49,8 +51,16 @@ import { ReportsMenuComponent } from './reports-menu.component';
 export class ReportsComponent {
     private _router = inject(Router);
 
-    public get path() {
+    private readonly _url = toSignal(
+        this._router.events.pipe(startWith(null)),
+        {
+            initialValue: null,
+        },
+    );
+
+    public readonly path = computed(() => {
+        this._url();
         const parts = this._router.url.split('/');
         return parts[parts.length - 1];
-    }
+    });
 }

@@ -351,7 +351,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 >
                                 <input
                                     matInput
-                                    [(ngModel)]="search_text"
+                                    [ngModel]="search_text()"
                                     (ngModelChange)="onSearchChange($event)"
                                     placeholder="Search..."
                                 />
@@ -365,7 +365,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                         'APP.CONCIERGE.SURVEY_QUESTION_TYPES_ALL'
                                             | translate
                                     "
-                                    [ngModel]="selected_type"
+                                    [ngModel]="selected_type()"
                                     (ngModelChange)="onTypeChange($event)"
                                 >
                                     <mat-option value="">

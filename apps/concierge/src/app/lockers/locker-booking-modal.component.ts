@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
@@ -50,7 +50,9 @@ import { combineLatest } from 'rxjs';
                 ) | translate
             "
             [loading]="
-                loading ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate) : ''
+                loading()
+                    ? ('APP.CONCIERGE.LOCKERS_BOOK_SAVING' | translate)
+                    : ''
             "
             (confirm)="postForm()"
         >
@@ -202,7 +204,7 @@ export class LockerBookingModalComponent
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly user = this._data.user;
     public readonly date = this._data.date;
     public readonly allow_time_changes = this._data.allow_time_changes ?? true;
@@ -371,10 +373,10 @@ export class LockerBookingModalComponent
                 }),
             );
         }
-        this.loading = true;
+        this.loading.set(true);
         this.form.patchValue({ user_id: undefined, booking_type: 'locker' });
         const result = await this._booking_form.postForm().catch((e) => {
-            this.loading = false;
+            this.loading.set(false);
             notifyError(i18n('APP.CONCIERGE.LOCKERS_BOOK_ERROR', { error: e }));
             throw e;
         });

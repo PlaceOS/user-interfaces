@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -38,7 +39,7 @@ import { AssetsReportService } from './assets-report.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="expired_items"
+                [data]="expired_items()"
                 [columns]="[
                     {
                         key: 'purchase_order_number',
@@ -98,10 +99,14 @@ export class AssetReportExpiredItemsComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
-    public readonly expired_items = this._state.expired_items$;
+    public readonly expired_items = toSignal(this._state.expired_items$, {
+        initialValue: [],
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.expired_items);
-        downloadFile('report-assets-expired-items.csv', jsonToCsv(data));
+        downloadFile(
+            'report-assets-expired-items.csv',
+            jsonToCsv(this.expired_items()),
+        );
     };
 }

@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -12,9 +13,8 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, endOfWeek, isSameDay, startOfWeek } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay, startWith } from 'rxjs/operators';
 import {
+    ParkingOptions,
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
@@ -23,11 +23,11 @@ import {
     selector: 'parking-requests-week-view',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+            [class.opacity-0]="!loading().includes('[BOOKINGS]')"
             class="sticky left-0 w-full"
         />
         <div class="flex h-full min-h-0 flex-1">
-            @for (day of days | async; track day) {
+            @for (day of days(); track day) {
                 <div
                     class="border-base-200 flex min-w-36 flex-1 flex-col border-r last:border-r-0"
                 >
@@ -46,7 +46,7 @@ import {
                     </div>
                     <div class="flex flex-1 flex-col gap-1 overflow-auto p-2">
                         @for (
-                            booking of (grouped_requests | async)?.[day] || [];
+                            booking of grouped_requests()[day] || [];
                             track booking.id
                         ) {
                             <div
@@ -254,7 +254,7 @@ import {
                                 </div>
                             </div>
                         }
-                        @if (!(grouped_requests | async)?.[day]?.length) {
+                        @if (!grouped_requests()[day]?.length) {
                             <div class="p-4 text-center text-xs opacity-30">
                                 {{
                                     'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
@@ -295,45 +295,58 @@ export class ParkingRequestsWeekViewComponent
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
 
-    public readonly loading = this._state.loading;
-    public readonly options = this._state.options;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly days = this._state.options.pipe(
-        map((options) => {
-            const week_start = this._state.week_start;
-            const start = startOfWeek(options.date, {
-                weekStartsOn: week_start,
-            });
-            return Array.from({ length: 7 }, (_, i) =>
-                addDays(start, i).valueOf(),
-            );
-        }),
-    );
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
 
-    public readonly grouped_requests = combineLatest([
-        this._state.bookings,
-        this.days,
-        this.options,
-    ]).pipe(
-        map(([bookings, days, { search, request_filter }]) => {
+    public readonly days = computed(() => {
+        const options = this.options();
+        const week_start = this._state.week_start;
+        const start = startOfWeek(options.date, {
+            weekStartsOn: week_start,
+        });
+        return Array.from({ length: 7 }, (_, i) => addDays(start, i).valueOf());
+    });
+
+    public readonly grouped_requests = computed<Record<number, Booking[]>>(
+        () => {
+            const days = this.days();
+            const { search, request_filter } = this.options();
             const user_groups = currentUser()?.groups || [];
-            let list = bookings.filter((b) => {
+            let list = this.bookings().filter((b) => {
                 if (!b.asset_id?.startsWith('unallocated')) return false;
                 const approver_group = b.extension_data?.approver_group;
-                if (approver_group && !user_groups.includes(approver_group))
+                if (approver_group && !user_groups.includes(approver_group)) {
                     return false;
+                }
                 return true;
             });
             list = this._applyRequestFilter(list, request_filter);
-            const s = search?.toLowerCase();
-            if (s) {
+            const search_term = search?.toLowerCase();
+            if (search_term) {
                 list = list.filter(
                     (b) =>
-                        b.user_name?.toLowerCase().includes(s) ||
-                        b.user_email?.toLowerCase().includes(s) ||
-                        b.booked_by_name?.toLowerCase().includes(s) ||
-                        b.booked_by_email?.toLowerCase().includes(s) ||
-                        b.asset_name?.toLowerCase().includes(s),
+                        b.user_name?.toLowerCase().includes(search_term) ||
+                        b.user_email?.toLowerCase().includes(search_term) ||
+                        b.booked_by_name?.toLowerCase().includes(search_term) ||
+                        b.booked_by_email
+                            ?.toLowerCase()
+                            .includes(search_term) ||
+                        b.asset_name?.toLowerCase().includes(search_term),
                 );
             }
             const grouped: Record<number, Booking[]> = {};
@@ -353,9 +366,7 @@ export class ParkingRequestsWeekViewComponent
                     .sort((a, b) => a.date - b.date);
             }
             return grouped;
-        }),
-        startWith({}),
-        shareReplay(1),
+        },
     );
 
     public readonly reject = (e: Booking) => this._state.rejectBooking(e);

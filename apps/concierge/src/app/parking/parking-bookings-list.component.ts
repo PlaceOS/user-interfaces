@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -11,23 +12,22 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest, map } from 'rxjs';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        @if ((period | async) === 'week') {
+        @if (period() === 'week') {
             <parking-bookings-week-view />
         } @else {
             <mat-progress-bar
-                [class.opacity-0]="!(loading | async)?.includes('bookings')"
+                [class.opacity-0]="!loading().includes('[BOOKINGS]')"
                 class="sticky left-0 w-full"
             />
             <simple-table
                 class="block min-w-304 text-sm"
-                [data]="filtered_events"
+                [data]="filtered_events()"
                 [columns]="[
                     {
                         key: 'state',
@@ -77,10 +77,10 @@ import { ParkingStateService } from './parking-state.service';
                         sortable: false,
                     },
                 ]"
-                [filter]="(options | async)?.search"
+                [filter]="options().search"
                 [sortable]="true"
                 [empty_message]="
-                    (isRequestFilter((options | async)?.request_filter)
+                    (isRequestFilter(options().request_filter)
                         ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
                         : 'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
                     ) | translate
@@ -309,23 +309,35 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly events = this._state.bookings;
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
-    public readonly period = this._state.period;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly filtered_events = combineLatest([
-        this._state.bookings,
-        this.options,
-    ]).pipe(
-        map(([booking_list, { search, request_filter }]) => {
-            const list = this._state.filterEventList(
-                booking_list,
-                request_filter,
-            );
-            return this._state.filterEventSearch(list, search);
-        }),
-    );
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day',
+    });
+
+    public readonly filtered_events = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state.filterEventSearch(list, search);
+    });
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);

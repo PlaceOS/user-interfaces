@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { i18n, notifyError, StaffUser } from '@placeos/common';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -36,7 +36,7 @@ import { StaffStateService } from './staff-state.service';
                             (onsite() ? 'COMMON.CHECK_IN' : 'COMMON.CHECK_OUT')
                                 | translate
                         "
-                        [loading]="loading"
+                        [loading]="loading()"
                         [content]="onsite() ? 'event_busy' : 'event_available'"
                         (click)="onsite() ? checkout() : checkin()"
                     >
@@ -82,10 +82,10 @@ export class StaffDetailsComponent {
     public readonly user = input<StaffUser>(undefined);
     public readonly onsite = input<boolean>(undefined);
 
-    public loading: boolean;
+    public readonly loading = signal(false);
 
     public readonly checkin = async () => {
-        this.loading = true;
+        this.loading.set(true);
         await this._state
             .checkin(this.user())
             .catch((e) =>
@@ -93,15 +93,15 @@ export class StaffDetailsComponent {
                     i18n('APP.CONCIERGE.DIRECTORY_CHECKIN_ERROR', { error: e }),
                 ),
             );
-        this.loading = false;
+        this.loading.set(false);
     };
     public readonly checkout = async () => {
-        this.loading = true;
+        this.loading.set(true);
         await this._state
             .checkout(this.user())
             .catch((e) =>
                 i18n('APP.CONCIERGE.DIRECTORY_CHECKOUT_ERROR', { error: e }),
             );
-        this.loading = false;
+        this.loading.set(false);
     };
 }

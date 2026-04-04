@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -28,7 +29,7 @@ interface QR_Codes {
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
                 class="block min-w-3xl text-sm"
-                [data]="features"
+                [data]="features()"
                 empty_message="No Points of Interest found."
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
@@ -181,11 +182,13 @@ interface QR_Codes {
         SafePipe,
     ],
 })
-export class POIListComponent extends AsyncHandler implements OnInit {
+export class POIListComponent extends AsyncHandler {
     private _manager = inject(POIManagementService);
     private _settings = inject(SettingsService);
 
-    public readonly features = this._manager.filtered_features;
+    public readonly features = toSignal(this._manager.filtered_features, {
+        initialValue: [],
+    });
     public readonly qr_codes = signal<Record<string, QR_Codes>>({});
 
     public readonly edit = (region) =>
@@ -200,24 +203,25 @@ export class POIListComponent extends AsyncHandler implements OnInit {
         return `${window.location.origin}${path}`;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'featrues',
-            this.features.subscribe(async (l) => {
-                for (const item of l) {
-                    if (this.qr_codes()[item.id]) continue;
-                    const qr_private = await this.loadQrCode(item);
-                    const qr_public = await this.loadPublicQrCode(item);
-                    this.qr_codes.update((m) => {
-                        m[item.id] = {
-                            private: qr_private,
-                            public: qr_public,
-                        };
-                        return m;
-                    });
-                }
-            }),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            for (const item of this.features()) {
+                const existing_codes = untracked(
+                    () => this.qr_codes()[item.id],
+                );
+                if (existing_codes) continue;
+                const qr_private = this.loadQrCode(item);
+                const qr_public = this.loadPublicQrCode(item);
+                this.qr_codes.update((mapping) => ({
+                    ...mapping,
+                    [item.id]: {
+                        private: qr_private,
+                        public: qr_public,
+                    },
+                }));
+            }
+        });
     }
 
     public loadQrCode(item: PointOfInterest) {

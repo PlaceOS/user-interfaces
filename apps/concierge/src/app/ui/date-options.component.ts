@@ -4,6 +4,7 @@ import {
     OnChanges,
     OnInit,
     SimpleChanges,
+    computed,
     inject,
     input,
     model,
@@ -68,14 +69,14 @@ import {
             (dblclick)="setDate()"
             class="display hover:bg-base-200 relative mx-4 flex h-12 w-28 items-center justify-center rounded-sm leading-none"
         >
-            @if (is_today) {
+            @if (is_today()) {
                 <div
                     class="text-info absolute top-1 left-1/2 -translate-x-1/2 text-xs"
                 >
                     {{ 'COMMON.TODAY' | translate }}
                 </div>
             }
-            <div class="relative" [class.top-2]="is_today">
+            <div class="relative" [class.top-2]="is_today()">
                 {{ date() | date: 'mediumDate' }}
             </div>
         </button>
@@ -160,9 +161,9 @@ export class DateOptionsComponent
     public readonly nextDay = () =>
         this.setDate(addDays(this.date(), this.step()).valueOf());
 
-    public get is_today() {
-        return isSameDay(this.date(), Date.now()) && !this.hide_today();
-    }
+    public readonly is_today = computed(
+        () => isSameDay(this.date(), Date.now()) && !this.hide_today(),
+    );
 
     public ngOnInit() {
         this.subscription(

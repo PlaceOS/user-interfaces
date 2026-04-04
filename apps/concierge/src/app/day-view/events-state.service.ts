@@ -36,7 +36,6 @@ import {
     debounceTime,
     distinctUntilKeyChanged,
     filter,
-    first,
     map,
     shareReplay,
     switchMap,
@@ -360,9 +359,15 @@ export class EventsStateService extends AsyncHandler {
             data: { event },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            new Promise((resolve) => {
+                const subscription = ref.componentInstance.event.subscribe(
+                    (details) => {
+                        if (details?.reason !== 'done') return;
+                        subscription.unsubscribe();
+                        resolve(details);
+                    },
+                );
+            }),
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;

@@ -6,10 +6,8 @@ import {
     effect,
     inject,
     input,
-    OnChanges,
     output,
     signal,
-    SimpleChanges,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -250,7 +248,7 @@ const PLAYLIST_ITEM_COUNTS = signal<Record<string, PlaylistCount>>({});
         AuthenticatedImageDirective,
     ],
 })
-export class SignageItemPlaylistsComponent implements OnChanges {
+export class SignageItemPlaylistsComponent {
     private _state = inject(SignageStateService);
 
     public readonly item = input<any>(undefined);
@@ -261,7 +259,6 @@ export class SignageItemPlaylistsComponent implements OnChanges {
     public readonly remove = output<SignagePlaylist>();
     public readonly ondrop = output<any>();
 
-    private _playlist_ids = signal<string[]>([]);
     private _playlists = toSignal(this._state.playlists, {
         initialValue: [],
     });
@@ -294,7 +291,7 @@ export class SignageItemPlaylistsComponent implements OnChanges {
 
     public readonly active_playlists = computed(() => {
         const playlists = this._playlists();
-        const ids = this._playlist_ids();
+        const ids = this.item()?.playlists || [];
         // Trigger re-computation when state changes
         this._has_changed();
         return ids
@@ -323,11 +320,5 @@ export class SignageItemPlaylistsComponent implements OnChanges {
 
     public playlistCount(id: string) {
         return PLAYLIST_ITEM_COUNTS()[id]?.count || 0;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item) {
-            this._playlist_ids.set(this.item()?.playlists || []);
-        }
     }
 }

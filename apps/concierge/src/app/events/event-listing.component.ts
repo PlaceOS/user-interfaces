@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -23,12 +24,12 @@ import { EventStateService } from './event-state.service';
     template: `
         <mat-progress-bar
             class="w-full"
-            [class.opacity-0]="!(loading | async)"
+            [class.opacity-0]="!loading()"
             mode="indeterminate"
         />
         <simple-table
             class="block w-full min-w-6xl text-sm"
-            [data]="event_list"
+            [data]="event_list()"
             empty_message="No group events for selected period"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
@@ -324,8 +325,13 @@ export class EventListingComponent {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
 
-    public readonly loading = this._state.loading;
-    public readonly event_list = this._state.event_list;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly event_list = toSignal(this._state.event_list, {
+        initialValue: [],
+    });
+    public readonly time_format = this._settings.time_format;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>
@@ -335,9 +341,6 @@ export class EventListingComponent {
         return item.resources.find((_) => _.email !== this._state.calendar);
     }
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
     public attendeeCount(attendees: User[]) {
         if (!attendees?.length) return 0;
         return attendees.filter(

@@ -1,6 +1,6 @@
 import { COMMA, ENTER, SEMICOLON, SPACE } from '@angular/cdk/keycodes';
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -28,7 +28,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     template: `
         <fullscreen-modal-shell
             heading="Broadcast Email"
-            [loading]="loading"
+            [loading]="loading()"
             confirm_text="Send Email"
             (confirm)="sendEmail()"
         >
@@ -71,7 +71,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
                         aria-label="Recipients"
                         formControlName="recipients"
                     >
-                        @for (email of recipients; track email) {
+                        @for (email of recipients(); track email) {
                             <mat-chip-row (removed)="removeRecipient(email)">
                                 <span
                                     class="max-w-md truncate"
@@ -152,8 +152,8 @@ export class BroadcastEmailModalComponent {
         inject<MatDialogRef<BroadcastEmailModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
-    public loading = '';
-    public recipients: string[] = [];
+    public readonly loading = signal('');
+    public readonly recipients = signal<string[]>([]);
     public readonly separators = [ENTER, COMMA, SEMICOLON, SPACE];
 
     public readonly form = new FormGroup({
@@ -173,17 +173,19 @@ export class BroadcastEmailModalComponent {
                 .split(/[\n,;]+/)
                 .map((e) => e.trim())
                 .filter((e) => !!e);
-            this.recipients.push(...emails);
-            this.form.controls.recipients.setValue(this.recipients);
+            this.recipients.update((recipients) => [...recipients, ...emails]);
+            this.form.controls.recipients.setValue(this.recipients());
         }
         event.chipInput.clear();
     }
 
     public removeRecipient(email: string): void {
-        const idx = this.recipients.indexOf(email);
+        const idx = this.recipients().indexOf(email);
         if (idx >= 0) {
-            this.recipients.splice(idx, 1);
-            this.form.controls.recipients.setValue([...this.recipients]);
+            this.recipients.update((recipients) =>
+                recipients.filter((recipient) => recipient !== email),
+            );
+            this.form.controls.recipients.setValue(this.recipients());
         }
     }
 
@@ -198,14 +200,14 @@ export class BroadcastEmailModalComponent {
             );
         }
         const { subject, message_plaintext } = this.form.getRawValue();
-        const recipient_list = this.recipients.filter((e) => !!e);
+        const recipient_list = this.recipients().filter((e) => !!e);
         if (!recipient_list.length) {
             this.form.controls.recipients.setErrors({ required: true });
             return;
         }
         const to =
             recipient_list.length === 1 ? recipient_list[0] : recipient_list;
-        this.loading = 'Sending email...';
+        this.loading.set('Sending email...');
         try {
             await mod.execute('send_mail', [to, subject, message_plaintext]);
             notifySuccess('Broadcast email sent.');
@@ -213,7 +215,7 @@ export class BroadcastEmailModalComponent {
         } catch (error) {
             notifyError(`Failed to send broadcast email. Error: ${error}`);
         } finally {
-            this.loading = '';
+            this.loading.set('');
         }
     }
 
