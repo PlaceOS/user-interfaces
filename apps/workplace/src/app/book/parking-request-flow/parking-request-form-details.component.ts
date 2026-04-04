@@ -45,6 +45,8 @@ interface VehicleTypeOption {
     name: string;
 }
 
+type ParkingRequestBookAs = 'internals' | 'externals' | 'both';
+
 interface ParkingRequestType {
     id: string;
     name: string;
@@ -52,6 +54,7 @@ interface ParkingRequestType {
     badge?: string;
     groups?: string[];
     approver_groups?: string[];
+    book_as?: ParkingRequestBookAs;
 }
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
@@ -88,24 +91,6 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
     template: `
         @if (form()) {
             <div class="space-y-4" [formGroup]="form()">
-                <!-- HOST SELECTION -->
-                @if (can_book_for_anyone()) {
-                    <div
-                        class="border-base-300 space-y-3 rounded-lg border p-4"
-                    >
-                        <h3
-                            class="text-info flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
-                        >
-                            <icon class="text-lg">person</icon>
-                            {{ 'FORM.HOST' | translate }}
-                        </h3>
-                        <a-user-search-field
-                            formControlName="user"
-                            [allow_externals]="allow_externals()"
-                        ></a-user-search-field>
-                    </div>
-                }
-
                 <!-- BOOKING FREQUENCY -->
                 <div class="border-base-300 space-y-3 rounded-lg border p-4">
                     <h3
@@ -393,6 +378,24 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             </div>
                         }
                     </div>
+                    @if (show_host_select()) {
+                        <div class="border-base-300 space-y-3 border-t pt-3">
+                            <h4 class="text-sm font-medium">
+                                {{ 'FORM.HOST' | translate }}
+                            </h4>
+                            <a-user-search-field
+                                formControlName="user"
+                                [guests]="host_book_as() !== 'internals'"
+                                [guests_only]="host_book_as() === 'externals'"
+                                [disable_search]="
+                                    host_book_as() === 'externals'
+                                "
+                                [allow_externals]="
+                                    host_book_as() !== 'internals'
+                                "
+                            ></a-user-search-field>
+                        </div>
+                    }
                 </div>
 
                 <!-- SHIFT SELECTION -->
@@ -842,23 +845,12 @@ export class ParkingRequestFormDetailsComponent
         'parking.auto_approved_groups',
         [],
     );
-    public readonly allow_externals_groups_setting = settingSignal<string[]>(
-        'parking.allow_externals_groups',
-        [],
-    );
 
     public readonly is_auto_approved = computed(() => {
         const auto_groups = this.auto_approved_groups_setting();
         if (!auto_groups?.length) return false;
         const user_groups = currentUser()?.groups || [];
         return auto_groups.some((g) => user_groups.includes(g));
-    });
-
-    public readonly allow_externals = computed(() => {
-        const allowed_groups = this.allow_externals_groups_setting();
-        if (!allowed_groups?.length) return false;
-        const user_groups = currentUser()?.groups || [];
-        return allowed_groups.some((g) => user_groups.includes(g));
     });
 
     public readonly end_date = computed(() =>
@@ -899,16 +891,28 @@ export class ParkingRequestFormDetailsComponent
         this._normaliseOptions(this.space_restriction_options_setting()),
     );
     public readonly selected_request_type_id = signal<string>('standard');
+    public readonly selected_request_type = computed(() =>
+        this.request_types().find(
+            (_) => _.id === this.selected_request_type_id(),
+        ),
+    );
+    public readonly host_book_as = computed<ParkingRequestBookAs | null>(() => {
+        const book_as = this.selected_request_type()?.book_as;
+        return book_as === 'internals' ||
+            book_as === 'externals' ||
+            book_as === 'both'
+            ? book_as
+            : null;
+    });
+    public readonly show_host_select = computed(
+        () => this.can_book_for_anyone() && !!this.host_book_as(),
+    );
     public readonly approver_group_options = computed(() =>
         this._normaliseOptions(this.approver_groups_setting()),
     );
     public readonly filtered_approver_group_options = computed(() => {
         const all_options = this.approver_group_options();
-        const request_type_id = this.selected_request_type_id();
-        const request_type = this.request_types().find(
-            (_) => _.id === request_type_id,
-        );
-        const allowed_ids = request_type?.approver_groups;
+        const allowed_ids = this.selected_request_type()?.approver_groups;
         if (!allowed_ids?.length) return all_options;
         return all_options.filter((_) => allowed_ids.includes(_.id));
     });
@@ -928,6 +932,7 @@ export class ParkingRequestFormDetailsComponent
             id: 'standard',
             name: 'BOOKINGS.PARKING_REQUEST_STANDARD_TITLE',
             description: 'BOOKINGS.PARKING_REQUEST_STANDARD_DESC',
+            book_as: 'internals',
         },
         {
             id: 'special',
@@ -940,6 +945,7 @@ export class ParkingRequestFormDetailsComponent
             name: 'BOOKINGS.PARKING_REQUEST_AFTER_HOURS_TITLE',
             description: 'BOOKINGS.PARKING_REQUEST_AFTER_HOURS_DESC',
             badge: 'BOOKINGS.PARKING_REQUIRES_APPROVAL',
+            book_as: 'externals',
         },
     ];
 
@@ -1040,6 +1046,7 @@ export class ParkingRequestFormDetailsComponent
         if (form.value.request_type) {
             this.selected_request_type_id.set(form.value.request_type);
         }
+        this._syncRequestTypeUser(form);
         if (
             this.filtered_approver_group_options().length &&
             !this.is_auto_approved()
@@ -1128,6 +1135,7 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         form.patchValue({ request_type: type_id });
+        this._syncRequestTypeUser(form);
         const options = this.filtered_approver_group_options();
         if (options.length && !this.is_auto_approved()) {
             const current = form.value.approver_group;
@@ -1344,5 +1352,26 @@ export class ParkingRequestFormDetailsComponent
                 id: option.id,
                 name: option.name || option.id,
             }));
+    }
+
+    private _syncRequestTypeUser(form: FormGroup) {
+        const current_user = currentUser();
+        const selected_user = form.getRawValue().user;
+        if (!this.can_book_for_anyone() || !this.host_book_as()) {
+            if (current_user && selected_user?.email !== current_user.email) {
+                form.patchValue({ user: current_user });
+            }
+            return;
+        }
+        if (
+            this.host_book_as() === 'externals' &&
+            !selected_user?.is_external
+        ) {
+            form.patchValue({ user: null });
+            return;
+        }
+        if (this.host_book_as() === 'internals' && selected_user?.is_external) {
+            form.patchValue({ user: current_user || null });
+        }
     }
 }
