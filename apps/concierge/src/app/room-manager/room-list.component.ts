@@ -168,11 +168,11 @@ import { RoomManagementService } from './room-management.service';
                         }}</span>
                     </div>
                 </button>
-                @if (row.support_url || control_path) {
+                @if (row.support_url || control_path()) {
                     <a
                         mat-menu-item
                         [href]="
-                            row.support_url || control_path + row.id
+                            row.support_url || control_path() + row.id
                                 | sanitize: 'url'
                         "
                         target="_blank"
@@ -210,6 +210,11 @@ export class RoomListComponent {
     private _settings = inject(SettingsService);
 
     public readonly rooms = this._manager.filtered_rooms;
+    public readonly control_path = this._settings.signal(
+        'app.control_path',
+        '',
+        true,
+    );
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
     public readonly setRoomAlert = (room) => this._manager.setRoomAlert(room);
@@ -218,8 +223,4 @@ export class RoomListComponent {
         const success = this._clipboard.copy(id);
         if (success) notifySuccess(i18n('APP.CONCIERGE.ROOMS_COPIED_ID'));
     };
-
-    public get control_path() {
-        return this._settings.get('app.control_path') || '';
-    }
 }

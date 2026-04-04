@@ -36,6 +36,7 @@ export enum TimezoneDiffRange {
     template: `
         <div class="flex items-center gap-1">
             <button
+                type="button"
                 class="border-neutral flex h-12 w-full flex-1 items-center justify-between rounded-sm border"
                 customTooltip
                 [content]="calendar_picker"

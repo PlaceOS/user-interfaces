@@ -104,7 +104,7 @@ export class TakePhotoComponent
     implements OnInit, OnDestroy
 {
     public readonly back_text = input('');
-    public readonly captured = output();
+    public readonly captured = output<string | null>();
     public readonly back = output();
     public has_photo = signal(false);
     public loading = signal(false);
@@ -114,14 +114,14 @@ export class TakePhotoComponent
     private readonly _canvas_el =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
-    private constraints = {
+    private readonly constraints = {
         audio: false,
         video: {
             aspectRatio: { ideal: 1, exact: 1 },
         },
     };
 
-    public image_url = null;
+    public image_url = signal<string | null>(null);
 
     public ngOnInit() {
         this.loading.set(true);
@@ -133,7 +133,7 @@ export class TakePhotoComponent
     }
 
     private async startCapture() {
-        this.image_url = null;
+        this.image_url.set(null);
         const stream = await navigator.mediaDevices?.getUserMedia(
             this.constraints,
         );
@@ -184,8 +184,8 @@ export class TakePhotoComponent
     public acceptPhoto() {
         const canvas = this._canvas_el().nativeElement;
         try {
-            this.image_url = canvas.toDataURL('image/jpeg', 0.75);
-            this.captured.emit(this.image_url);
+            this.image_url.set(canvas.toDataURL('image/jpeg', 0.75));
+            this.captured.emit(this.image_url());
         } catch (err) {
             console.error(
                 'Failed to convert canvas blob into JPEG image. Error: ',

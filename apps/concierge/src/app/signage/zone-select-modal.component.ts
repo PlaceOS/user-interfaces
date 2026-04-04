@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -7,16 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { queryZones } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    catchError,
-    debounceTime,
-    map,
-    of,
-    shareReplay,
-    startWith,
-    switchMap,
-} from 'rxjs';
+import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-zone-select-modal',
@@ -40,12 +32,11 @@ import {
             >
                 <input
                     matInput
-                    [ngModel]="search_term.getValue()"
-                    (ngModelChange)="search_term.next($event)"
+                    [(ngModel)]="search_term"
                     placeholder="Search zones"
                 />
             </mat-form-field>
-            @let zone_list = zones | async;
+            @let zone_list = zones();
             @if (zone_list.length > 0) {
                 @for (zone of zone_list; track zone) {
                     <button
@@ -98,17 +89,21 @@ export class ZoneSelectModalComponent {
 
     public readonly query = this._data.query || {};
     public readonly ignore = this._data.ignore || [];
-    public readonly search_term = new BehaviorSubject<string>('');
-    public readonly zones = this.search_term.pipe(
-        debounceTime(300),
-        switchMap((term) =>
-            queryZones({ ...this.query, q: term, limit: 100 }).pipe(
-                map((_) => _.data),
-                catchError(() => of([])),
+    public readonly search_term = signal('');
+    private readonly _zones = toSignal(
+        toObservable(this.search_term).pipe(
+            debounceTime(300),
+            switchMap((term) =>
+                queryZones({ ...this.query, q: term, limit: 100 }).pipe(
+                    map((_) => _.data),
+                    catchError(() => of([])),
+                ),
             ),
+            startWith([]),
         ),
-        map((zones) => zones.filter((zone) => !this.ignore.includes(zone.id))),
-        startWith([]),
-        shareReplay(1),
+        { initialValue: [] },
+    );
+    public readonly zones = computed(() =>
+        this._zones().filter((zone) => !this.ignore.includes(zone.id)),
     );
 }

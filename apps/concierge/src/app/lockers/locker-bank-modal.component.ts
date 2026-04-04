@@ -1,6 +1,7 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -53,13 +54,13 @@ import { map } from 'rxjs/operators';
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
@@ -73,7 +74,7 @@ import { map } from 'rxjs/operators';
                             "
                             [ngModelOptions]="{ standalone: true }"
                         >
-                            @for (level of levels | async; track level) {
+                            @for (level of levels(); track level) {
                                 <mat-option [value]="level.id">
                                     <div class="flex flex-col-reverse">
                                         @if (use_region) {
@@ -223,7 +224,7 @@ export class LockerBankModalComponent {
     private _settings = inject(SettingsService);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean;
+    public readonly loading = signal(false);
 
     public get use_region() {
         return !!this._settings.get('app.use_region');
@@ -232,25 +233,33 @@ export class LockerBankModalComponent {
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
     /** List of available locker levels for the current building */
-    public levels = this._org.level_list.pipe(
-        map((_) => {
-            if (!this._settings.get('app.use_region')) {
-                const blds = this._org.buildingsForRegion();
-                const bld_ids = blds.map((bld) => bld.id);
-                const list = _.filter((lvl) => bld_ids.includes(lvl.parent_id));
-                list.map((lvl) => ({
-                    ...lvl,
-                    display_name: `${
-                        blds.find((_) => _.id === lvl.parent_id)?.display_name
-                    } - ${lvl.display_name}`,
-                }));
-                if (!this.form.value.zones?.length) {
-                    this.form.patchValue({ zones: [list[0].id] });
+    public readonly levels = toSignal(
+        this._org.level_list.pipe(
+            map((_) => {
+                if (!this._settings.get('app.use_region')) {
+                    const blds = this._org.buildingsForRegion();
+                    const bld_ids = blds.map((bld) => bld.id);
+                    const list = _.filter((lvl) =>
+                        bld_ids.includes(lvl.parent_id),
+                    );
+                    list.map((lvl) => ({
+                        ...lvl,
+                        display_name: `${
+                            blds.find((_) => _.id === lvl.parent_id)
+                                ?.display_name
+                        } - ${lvl.display_name}`,
+                    }));
+                    if (!this.form.value.zones?.length && list.length) {
+                        this.form.patchValue({ zones: [list[0].id] });
+                    }
+                    return list;
                 }
-                return list;
-            }
-            return _.filter((lvl) => lvl.parent_id === this._org.building.id);
-        }),
+                return _.filter(
+                    (lvl) => lvl.parent_id === this._org.building.id,
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public readonly addTag = (e) =>
@@ -284,7 +293,7 @@ export class LockerBankModalComponent {
 
     public postForm() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = { ...this.form.getRawValue() };
         const level = this._org.levelWithID(value.zones);
         value.zones = unique(

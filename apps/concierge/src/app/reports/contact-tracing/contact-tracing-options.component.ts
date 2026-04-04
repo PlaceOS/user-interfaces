@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, output } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,14 +21,14 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             <date-range-field [week_start]="week_start">
                 <input
                     #startDate
-                    [ngModel]="(options | async)?.start"
+                    [ngModel]="options()?.start"
                     (ngModelChange)="
                         $event ? setOptions({ start: $event, user: null }) : ''
                     "
                 />
                 <input
                     #endDate
-                    [ngModel]="(options | async)?.end"
+                    [ngModel]="options()?.end"
                     (ngModelChange)="
                         $event ? setOptions({ end: $event, user: null }) : ''
                     "
@@ -36,7 +37,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
             <a-user-search-field
                 class="w-64"
                 placeholder="Search for user to trace..."
-                [ngModel]="(options | async)?.user"
+                [ngModel]="options()?.user"
                 (ngModelChange)="setOptions({ user: $event })"
             ></a-user-search-field>
             <div class="flex-1"></div>
@@ -45,7 +46,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 matRipple
                 matTooltip="Download Report"
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                [disabled]="!(options | async)?.user"
+                [disabled]="!can_download()"
                 (click)="download.emit()"
             >
                 <icon>download</icon>
@@ -54,7 +55,7 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
                 icon
                 matRipple
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                [disabled]="!(options | async)?.user"
+                [disabled]="!can_download()"
                 matTooltip="Print Report"
                 (click)="print()"
             >
@@ -90,7 +91,10 @@ export class ContactTracingOptionsComponent {
     public readonly printing = output<boolean>();
     public readonly download = output<void>();
 
-    public readonly options = this._state.options;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
+    public readonly can_download = computed(() => !!this.options()?.user);
     public readonly setOptions = (_) => this._state.setOptions(_);
     public readonly generate = () => this._state.generateReport();
 

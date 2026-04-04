@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject } from '@angular/core';
+import {
+    Component,
+    computed,
+    HostListener,
+    inject,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { OrganisationService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
@@ -14,22 +21,22 @@ import {
     template: `
         <div
             class="bg-base-200 absolute inset-0 overflow-hidden"
-            [class.hide-levels]="$any(options | async)?.show_levels"
-            [class.isometric]="isometric"
+            [class.hide-levels]="$any(options())?.show_levels"
+            [class.isometric]="isometric()"
         >
-            @for (lvl of levels | async; track lvl; let i = $index) {
+            @for (lvl of levels(); track lvl; let i = $index) {
                 <interactive-map
                     class="absolute inset-0"
                     [src]="lvl?.map_id"
-                    [class.active]="i === active_index"
-                    [style.top]="-50 * (i - active_index) + '%'"
-                    [style.bottom]="50 * (i - active_index) + '%'"
-                    [zoom]="(positions | async).zoom"
-                    [center]="(positions | async).center"
-                    [styles]="i === active_index ? (styles | async) : {}"
-                    [features]="i === active_index ? (features | async) : []"
-                    [actions]="i === active_index ? (actions | async) : []"
-                    [labels]="i === active_index ? (labels | async) : []"
+                    [class.active]="i === active_index()"
+                    [style.top]="-50 * (i - active_index()) + '%'"
+                    [style.bottom]="50 * (i - active_index()) + '%'"
+                    [zoom]="positions().zoom"
+                    [center]="positions().center"
+                    [styles]="i === active_index() ? styles() : {}"
+                    [features]="i === active_index() ? features() : []"
+                    [actions]="i === active_index() ? actions() : []"
+                    [labels]="i === active_index() ? labels() : []"
                 >
                 </interactive-map>
             }
@@ -75,33 +82,50 @@ export class ExploreMapStackComponent {
     private _desks = inject(ExploreDesksService);
     private _zones = inject(ExploreZonesService);
 
-    public isometric = localStorage.getItem('KIOSK.isometric') === 'true';
+    public readonly isometric = signal(
+        localStorage.getItem('KIOSK.isometric') === 'true',
+    );
 
     @HostListener('window:isometric-change', ['$event'])
     public onIsometricChange(event: Event) {
-        this.isometric = (event as CustomEvent).detail;
+        this.isometric.set((event as CustomEvent).detail);
     }
 
-    public readonly levels = this._orgs.active_levels;
-    /** Observable for the active map */
-    public readonly styles = this._state.map_styles;
-    /** Observable for the active map */
-    public readonly positions = this._state.map_positions;
-    /** Observable for the active map */
-    public readonly features = this._state.map_features;
-    /** Observable for the active map */
-    public readonly actions = this._state.map_actions;
-    /** Observable for the labels map */
-    public readonly labels = this._state.map_labels;
-    /** Observable for the active map */
-    public readonly options = this._state.options;
+    public readonly levels = toSignal(this._orgs.active_levels, {
+        initialValue: [],
+    });
+    public readonly level = toSignal(this._state.level, {
+        initialValue: undefined,
+    });
+    /** Active map styles */
+    public readonly styles = toSignal(this._state.map_styles, {
+        initialValue: { text: { display: 'none' } },
+    });
+    /** Active map position */
+    public readonly positions = toSignal(this._state.map_positions, {
+        initialValue: { zoom: 1, center: { x: 0.5, y: 0.5 } },
+    });
+    /** Active map features */
+    public readonly features = toSignal(this._state.map_features, {
+        initialValue: [],
+    });
+    /** Active map actions */
+    public readonly actions = toSignal(this._state.map_actions, {
+        initialValue: [],
+    });
+    /** Active map labels */
+    public readonly labels = toSignal(this._state.map_labels, {
+        initialValue: [],
+    });
+    /** Active map options */
+    public readonly options = toSignal(this._state.options, {
+        initialValue: undefined,
+    });
 
-    public get active_index(): number {
-        const index = this._orgs
-            .levelsForBuilding(this._orgs.building)
-            .findIndex(
-                (lvl) => this._state.active_level?.map_id === lvl.map_id,
-            );
+    public readonly active_index = computed(() => {
+        const index = this.levels().findIndex(
+            (lvl) => this.level()?.map_id === lvl.map_id,
+        );
         return Math.max(0, index);
-    }
+    });
 }

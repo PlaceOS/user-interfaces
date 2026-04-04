@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import {
@@ -45,7 +46,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                 </header>
                 @if (!loading()) {
                     <div class="flex flex-col space-y-2 px-4">
-                        @if ((regions | async)?.length > 1) {
+                        @if (regions().length > 1) {
                             <label>
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_REGION_MSG'
@@ -84,10 +85,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             </div>
                                         </div>
                                     </mat-select-trigger>
-                                    @for (
-                                        option of regions | async;
-                                        track option
-                                    ) {
+                                    @for (option of regions(); track option) {
                                         <mat-option [value]="option">
                                             <div class="leading-tight">
                                                 <div>
@@ -112,7 +110,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if ((buildings | async)?.length) {
+                        @if (buildings().length) {
                             <label>
                                 {{
                                     'APP.VISITOR_KIOSK.SELECT_BUILDING_MSG'
@@ -151,10 +149,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             </div>
                                         </div>
                                     </mat-select-trigger>
-                                    @for (
-                                        option of buildings | async;
-                                        track option
-                                    ) {
+                                    @for (option of buildings(); track option) {
                                         <mat-option [value]="option">
                                             <div class="leading-tight">
                                                 <div>
@@ -179,7 +174,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if ((levels | async)?.length && active_building()) {
+                        @if (levels().length && active_building()) {
                             <div></div>
                             <label>
                                 {{
@@ -218,10 +213,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                             </div>
                                         </div>
                                     </mat-select-trigger>
-                                    @for (
-                                        option of levels | async;
-                                        track option
-                                    ) {
+                                    @for (option of levels(); track option) {
                                         <mat-option [value]="option">
                                             <div class="leading-tight">
                                                 <div>
@@ -246,7 +238,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (rotations && rotations.length) {
+                        @if (rotations().length) {
                             <div></div>
                             <label>
                                 {{
@@ -262,13 +254,13 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                             >
                                 <mat-select
                                     #select
-                                    [(value)]="active_rotation"
+                                    [(ngModel)]="active_rotation"
                                     [placeholder]="
                                         'APP.VISITOR_KIOSK.SELECT_ORIENTATION'
                                             | translate
                                     "
                                 >
-                                    @for (option of rotations; track option) {
+                                    @for (option of rotations(); track option) {
                                         <mat-option [value]="option">
                                             <div class="leading-tight">
                                                 <div>
@@ -293,7 +285,7 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (locations && locations.length) {
+                        @if (locations().length) {
                             <div></div>
                             <label>
                                 {{
@@ -309,13 +301,13 @@ import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
                             >
                                 <mat-select
                                     #select
-                                    [(value)]="active_location"
+                                    [(ngModel)]="active_location"
                                     [placeholder]="
                                         'APP.VISITOR_KIOSK.SELECT_LOCATION'
                                             | translate
                                     "
                                 >
-                                    @for (option of locations; track option) {
+                                    @for (option of locations(); track option) {
                                         <mat-option [value]="option">
                                             <div class="leading-tight">
                                                 <div>
@@ -425,44 +417,54 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
     /** Actively selected building */
-    public readonly active_region = signal<Region>(undefined);
+    public readonly active_region = signal<Region | null>(null);
     /** Actively selected building */
-    public readonly active_building = signal<Building>(undefined);
+    public readonly active_building = signal<Building | null>(null);
     /** Actively selected level */
-    public readonly active_level = signal<BuildingLevel>(undefined);
+    public readonly active_level = signal<BuildingLevel | null>(null);
     /** Actively selected level */
-    public active_rotation: Identity;
+    public readonly active_rotation = signal<Identity | null>(null);
     /** Actively selected location */
-    public active_location: Identity;
+    public readonly active_location = signal<Identity | null>(null);
 
-    public rotations: Identity[] = [];
+    public readonly rotations = signal<Identity[]>([]);
 
-    public readonly regions = this._org.region_list;
-    public readonly buildings = this._org.active_buildings;
-    public readonly levels = this._org.active_levels;
+    public readonly regions = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
     public readonly is_public_mode = isPublicMode;
 
     public setRegion(region: Region) {
         this._org.region = region;
-        this.active_building.set(undefined);
-        this.active_level.set(undefined);
+        this.active_region.set(region);
+        this.active_building.set(null);
+        this.active_level.set(null);
+        this.active_location.set(null);
         this.updateRotations();
     }
 
     public setBuilding(building: Building) {
         this._org.building = building;
-        console.log('Set Building:', building, this.active_building());
-        this.active_level.set(undefined);
+        this.active_building.set(building);
+        this.active_level.set(null);
+        this.active_location.set(null);
         this.updateRotations();
     }
 
     /** List of available locations */
-    public get locations(): readonly Identity[] {
-        if (!this.active_level()) {
+    public readonly locations = computed((): readonly Identity[] => {
+        const active_level = this.active_level();
+        if (!active_level) {
             return [];
         }
-        return this.active_level().locations || [];
-    }
+        return active_level.locations || [];
+    });
 
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
@@ -497,9 +499,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public updateRotations() {
-        this.rotations = [];
-        if (!this.active_building()) return;
-        const orientations = this.active_building().orientations;
+        this.rotations.set([]);
+        const active_building = this.active_building();
+        if (!active_building) {
+            this.active_rotation.set(null);
+            return;
+        }
+        const orientations = active_building.orientations;
         const rotations: Identity[] = [];
         for (const key in orientations) {
             if (orientations[key]) {
@@ -512,8 +518,8 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 });
             }
         }
-        this.rotations = rotations;
-        this.active_rotation = this.rotations[0];
+        this.rotations.set(rotations);
+        this.active_rotation.set(rotations[0] || null);
     }
 
     /**
@@ -521,23 +527,27 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     public bootstrapKiosk() {
         this.loading.set('Bootstrapping application...');
-        if (this.active_level()) {
+        const active_level = this.active_level();
+        const active_building = this.active_building();
+        const active_rotation = this.active_rotation();
+        const active_location = this.active_location();
+        if (active_level) {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',
-                    this.active_building()?.id || this.active_level().parent_id,
+                    active_building?.id || active_level.parent_id,
                 );
-                localStorage.setItem('KIOSK.level', this.active_level().id);
-                if (this.active_rotation) {
+                localStorage.setItem('KIOSK.level', active_level.id);
+                if (active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
-                        `${this.active_rotation.id}`,
+                        `${active_rotation.id}`,
                     );
                 }
-                if (this.active_location) {
+                if (active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
-                        `${this.active_location.id}`,
+                        `${active_location.id}`,
                     );
                 }
             }

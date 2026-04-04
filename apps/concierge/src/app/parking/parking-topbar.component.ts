@@ -1,16 +1,17 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     ActivatedRoute,
     NavigationEnd,
     Router,
     RouterModule,
 } from '@angular/router';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, filter, map, startWith } from 'rxjs/operators';
 
 import {
     AsyncHandler,
+    currentUser,
     firstTruthyValueFrom,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -32,6 +33,7 @@ import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component'
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
+    ParkingOptions,
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
@@ -49,13 +51,10 @@ import {
                 }}
             </h2>
             <div class="w-px flex-1"></div>
-            @if (
-                section() === 'events' &&
-                (view() === 'requests' || view() === 'bookings')
-            ) {
+            @if (section() === 'events' && view() !== 'map') {
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
-                        [ngModel]="period | async"
+                        [ngModel]="period()"
                         (ngModelChange)="setPeriod($event)"
                     >
                         <mat-option value="day">
@@ -68,13 +67,13 @@ import {
                 </mat-form-field>
             }
             <searchbar
-                [model]="(options | async)?.search"
+                [model]="options().search"
                 (modelChange)="setSearch($event)"
             ></searchbar>
             @if (view() === 'spaces') {
                 <div
                     [matTooltip]="
-                        (options | async)?.zones?.length
+                        options().zones?.length
                             ? ''
                             : 'Select a level to add a space'
                     "
@@ -84,7 +83,7 @@ import {
                         matRipple
                         class="w-40 space-x-2"
                         (click)="newParkingSpace()"
-                        [disabled]="!(options | async)?.zones?.length"
+                        [disabled]="!options().zones?.length"
                     >
                         <div class="pl-2">
                             {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
@@ -134,7 +133,7 @@ import {
             }
         </div>
         <div class="bg-base-100 mb-2 flex h-14 items-center px-8">
-            @if (section() === 'events' && view() === 'bookings') {
+            @if (section() === 'events') {
                 <div class="mr-2 flex items-center">
                     <a
                         btn
@@ -142,7 +141,7 @@ import {
                         name="deals-list"
                         class="rounded-l rounded-r-none px-2"
                         [class.inverse]="view() === 'map'"
-                        [routerLink]="['events', 'bookings']"
+                        [routerLink]="['events', 'list']"
                         [matTooltip]="'COMMON.LIST' | translate"
                     >
                         <icon class="text-2xl">list</icon>
@@ -160,55 +159,33 @@ import {
                     </a>
                 </div>
             }
-            @if (view() === 'requests') {
-                <mat-form-field appearance="outline" class="no-subscript w-40">
-                    <mat-select
-                        [ngModel]="(options | async)?.request_filter"
-                        (ngModelChange)="setRequestFilter($event)"
-                    >
-                        <mat-option value="all">
-                            {{ 'COMMON.ALL' | translate }}
-                        </mat-option>
-                        <mat-option value="waitlist">
-                            {{ 'APP.CONCIERGE.PARKING_WAITLIST' | translate }}
-                        </mat-option>
-                        <mat-option value="pending">
-                            {{
-                                'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                    | translate
-                            }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            } @else {
-                <mat-form-field appearance="outline" class="no-subscript w-56">
-                    <mat-select
-                        [(ngModel)]="zones"
-                        (ngModelChange)="updateZones($event)"
-                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
-                        multiple
-                    >
-                        @for (level of levels | async; track level) {
-                            <mat-option [value]="level.id">
-                                <div class="flex flex-col-reverse">
-                                    @if (use_region) {
-                                        <div class="text-xs opacity-30">
-                                            {{
-                                                (level.parent_id | building)
-                                                    ?.display_name
-                                            }}
-                                            <span class="opacity-0"> - </span>
-                                        </div>
-                                    }
-                                    <div>
-                                        {{ level.display_name || level.name }}
+            <mat-form-field appearance="outline" class="no-subscript w-56">
+                <mat-select
+                    [(ngModel)]="zones"
+                    (ngModelChange)="updateZones($event)"
+                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                    multiple
+                >
+                    @for (level of levels(); track level) {
+                        <mat-option [value]="level.id">
+                            <div class="flex flex-col-reverse">
+                                @if (use_region) {
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            (level.parent_id | building)
+                                                ?.display_name
+                                        }}
+                                        <span class="opacity-0"> - </span>
                                     </div>
+                                }
+                                <div>
+                                    {{ level.display_name || level.name }}
                                 </div>
-                            </mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-            }
+                            </div>
+                        </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
                 <div class="flex gap-2">
@@ -220,14 +197,14 @@ import {
                             [matTooltip]="
                                 'APP.CONCIERGE.PARKING_CSV_UPLOAD' | translate
                             "
-                            [disabled]="!(options | async)?.zones?.length"
+                            [disabled]="!options().zones?.length"
                         >
                             <icon>upload</icon>
                             <input
                                 type="file"
                                 accept=".csv"
                                 class="absolute inset-0 opacity-0"
-                                [disabled]="!(options | async)?.zones?.length"
+                                [disabled]="!options().zones?.length"
                                 (change)="uploadSpacesCSV($any($event))"
                             />
                         </button>
@@ -261,12 +238,11 @@ import {
                     class="border-base-300 mr-2 flex items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
                     matTooltip="Parking Spaces Occupied"
                 >
-                    {{ (bookings | async)?.length || 0 }} of
-                    {{ (spaces | async)?.length || '' }}
+                    @let occupied = occupied_bookings().length || 0;
+                    {{ occupied }} of
+                    {{ spaces().length || '' }}
                     <icon class="ml-1! text-lg">car_lock</icon>
-                    @let percent =
-                        ((bookings | async)?.length || 0) /
-                        ((spaces | async)?.length || 0);
+                    @let percent = occupied / (spaces().length || 0);
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
                         [class.bg-error]="percent === 100"
@@ -281,17 +257,32 @@ import {
                     >
                 </div>
             }
-            @if (
-                view() === 'requests' ||
-                view() === 'bookings' ||
-                view() === 'map'
-            ) {
+            @if (view() === 'list' || view() === 'map') {
                 <date-options
-                    [step]="(period | async) === 'week' ? 7 : 1"
+                    [step]="period() === 'week' ? 7 : 1"
                     (dateChange)="setDate($event)"
                 ></date-options>
             }
         </div>
+        @if (section() === 'events' && view() === 'list' && can_view_requests) {
+            <div
+                class="border-base-300 mx-8 mb-2 inline-flex w-full max-w-[calc(100%-4rem)] items-center gap-1 rounded-xl border p-1"
+            >
+                @for (filter of filter_options; track filter.value) {
+                    <button
+                        btn
+                        matRipple
+                        class="h-8 min-w-24 flex-1 rounded-lg px-3"
+                        [class.inverse]="
+                            options().request_filter !== filter.value
+                        "
+                        (click)="setRequestFilter(filter.value)"
+                    >
+                        {{ filter.label | translate }}
+                    </button>
+                }
+            </div>
+        }
     `,
     styles: [
         `
@@ -329,19 +320,56 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
+    private readonly _ready = signal(false);
+    private readonly _query_params = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+    private readonly _route_change = toSignal(
+        this._router.events.pipe(
+            filter((event) => event instanceof NavigationEnd),
+            map(() => this._router.url),
+            startWith(this._router.url),
+        ),
+        { initialValue: this._router.url },
+    );
+
     public readonly section = signal<'events' | 'manage'>('events');
     public readonly view = signal<
         'bookings' | 'fleet' | 'list' | 'map' | 'requests' | 'spaces' | 'users'
-    >('requests');
+    >('list');
     /** List of selected levels */
-    public zones: string[] = [];
+    public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = this._state.levels;
+    public readonly levels = toSignal(this._state.levels, { initialValue: [] });
     /** Options set for week view */
-    public readonly options = this._state.options;
-    public readonly spaces = this._state.spaces;
-    public readonly bookings = this._state.bookings;
-    public readonly period = this._state.period;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly spaces = toSignal(this._state.spaces, { initialValue: [] });
+    public readonly occupied_bookings = toSignal(
+        this._state.bookings.pipe(
+            debounceTime(50),
+            map((bookings) => this._state.activeBookings(bookings)),
+        ),
+        { initialValue: [] },
+    );
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day',
+    });
+    public readonly filter_options = [
+        { label: 'COMMON.ALL', value: 'all' },
+        { label: 'APP.CONCIERGE.PARKING_TAB_REQUESTS', value: 'requests' },
+        { label: 'APP.CONCIERGE.PARKING_FILTER_MANUAL', value: 'manual' },
+        { label: 'APP.CONCIERGE.PARKING_WAITLIST', value: 'waitlist' },
+        { label: 'APP.CONCIERGE.PARKING_TAB_BOOKINGS', value: 'bookings' },
+    ] as const;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set selected period */
@@ -356,18 +384,20 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     /** Set filter string */
     public readonly setSearch = (str) =>
         this._state.setOptions({ search: str });
-    /** Set request filter (all / waitlist / pending) */
+    /** Set list filter for event list */
     public readonly setRequestFilter = (f: ParkingRequestFilter) =>
         this._state.setOptions({ request_filter: f });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
+        const zones = [...z];
         if (!this._router.url.includes('parking')) return;
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.length ? z.join(',') : null },
+            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
             queryParamsHandling: 'merge',
         });
-        this._state.setOptions({ zones: z });
+        this.zones.set(zones);
+        this._state.setOptions({ zones });
     };
 
     public get use_region() {
@@ -378,9 +408,66 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return !!this._settings.get('app.parking.disable_bookings');
     }
 
+    public get can_view_requests() {
+        if (!this._settings.get('app.parking.show_requests')) return false;
+        const feature_groups = this._settings.get('app.feature_groups') || {};
+        const request_groups = feature_groups['parking-requests'] || [];
+        const admin_group = this._settings.get('app.admin_group') || 'admin';
+        const groups = currentUser()?.groups || [];
+        return (
+            groups.includes(admin_group) ||
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support') ||
+            !request_groups.length ||
+            groups.some((grp) => request_groups.includes(grp))
+        );
+    }
+
     public manageRestrictions() {
         this._dialog.open(BookingRulesModalComponent, {
             data: { type: 'parking' },
+        });
+    }
+
+    constructor() {
+        super();
+        effect(() => {
+            this._route_change();
+            this._updatePath();
+        });
+        effect(() => {
+            if (!this._ready() || !this._router.url.includes('parking')) return;
+            const params = this._query_params();
+            if (params.has('period')) {
+                this._state.setPeriod(
+                    params.get('period') === 'week' ? 'week' : 'day',
+                );
+            }
+            if (!params.has('zone_ids')) return;
+            const zones = (params.get('zone_ids') || '')
+                .split(',')
+                .filter(Boolean);
+            this.zones.set(zones);
+            if (!zones.length) return;
+            const level = this._org.levelWithID(zones);
+            if (!level) return;
+            this._org.building = this._org.buildings.find(
+                (bld) => bld.id === level.parent_id,
+            );
+            this._state.setOptions({ zones });
+        });
+        effect(() => {
+            if (!this._ready() || this.use_region) return;
+            const levels = this.levels();
+            if (!levels.length) return;
+            const zones = this.zones().filter((zone) =>
+                levels.find((lvl) => lvl.id === zone),
+            );
+            if (!zones.length) {
+                zones.push(levels[0].id);
+            }
+            if (this._sameZones(zones, this.zones())) return;
+            this.updateZones(zones);
         });
     }
 
@@ -388,58 +475,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._updatePath();
         await firstTruthyValueFrom(this._org.initialised);
         await lastValueFrom(timer(1000));
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('period')) {
-                    const period =
-                        params.get('period') === 'week' ? 'week' : 'day';
-                    this._state.setPeriod(period);
-                }
-                if (this.section() === 'events' && this.view() === 'requests') {
-                    this.clearZones();
-                    return;
-                }
-                if (
-                    params.has('zone_ids') &&
-                    this._router.url.includes('parking')
-                ) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (zones.length) {
-                        const level = this._org.levelWithID(zones);
-                        this.zones = zones;
-                        if (!level) return;
-                        this._org.building = this._org.buildings.find(
-                            (bld) => bld.id === level.parent_id,
-                        );
-                        this._state.setOptions({ zones: zones });
-                    }
-                }
-            }),
-        );
-        this.subscription(
-            'levels',
-            this._state.levels.pipe(debounceTime(100)).subscribe((levels) => {
-                if (this.use_region) return;
-                if (this.section() === 'events' && this.view() === 'requests') {
-                    this.clearZones();
-                    return;
-                }
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
-                );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
-                }
-                this.updateZones(this.zones);
-            }),
-        );
-        this.subscription(
-            'router.events',
-            this._router.events.subscribe((e) => {
-                if (e instanceof NavigationEnd) this._updatePath();
-            }),
-        );
+        this._ready.set(true);
         this._updatePath();
     }
 
@@ -464,7 +500,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async newReservation() {
-        const { date } = await nextValueFrom(this.options);
+        const { date } = this.options();
         this._state.editReservation(undefined, {
             date: date || Date.now(),
             allow_time_changes: true,
@@ -474,38 +510,46 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _updatePath() {
         const parts = this._router.url?.split('/') || [''];
         const [section, view] = parts.slice(-2);
+        const current_view = view.split('?')[0];
         this.section.set(section as any);
-        this.view.set(view.split('?')[0] as any);
-        if (this.section() === 'events' && this.view() === 'requests') {
-            this.clearZones();
-            return;
+        this.view.set(
+            current_view === 'bookings' || current_view === 'requests'
+                ? 'list'
+                : (current_view as any),
+        );
+        if (current_view === 'bookings') {
+            this.setRequestFilter('bookings');
+        } else if (current_view === 'requests' && this.can_view_requests) {
+            this.setRequestFilter('requests');
+        }
+        if (
+            this.section() === 'events' &&
+            (!this.can_view_requests ||
+                !this._settings.get('app.parking.show_requests'))
+        ) {
+            this.setRequestFilter('bookings');
         }
         this.selectDefaultZoneForManage();
-    }
-
-    private clearZones() {
-        const has_query_param =
-            this._route.snapshot.queryParamMap.has('zone_ids');
-        if (!this.zones.length && !has_query_param) {
-            this._state.setOptions({ zones: [] });
-            return;
-        }
-        this.zones = [];
-        this.updateZones([]);
     }
 
     private async selectDefaultZoneForManage() {
         if (
             this.section() !== 'manage' ||
             this.use_region ||
-            this.zones.length
+            this.zones().length
         ) {
             return;
         }
-        const levels = await nextValueFrom(this.levels);
+        const levels = this.levels();
         const first_level = levels[0]?.id;
         if (!first_level) return;
-        this.zones = [first_level];
-        this.updateZones(this.zones);
+        this.updateZones([first_level]);
+    }
+
+    private _sameZones(first: string[], second: string[]) {
+        return (
+            first.length === second.length &&
+            first.every((zone, index) => zone === second[index])
+        );
     }
 }

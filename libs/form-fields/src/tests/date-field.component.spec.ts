@@ -44,6 +44,10 @@ describe('DateFieldComponent', () => {
         expect('button').toBeDisabled();
     });
 
+    it('should use a non-submit trigger button', () => {
+        expect(spectator.query('button')).toHaveAttribute('type', 'button');
+    });
+
     it('should handler external changes to the date selected', fakeAsync(() => {
         spectator.component.writeValue(Date.now());
         spectator.detectChanges();

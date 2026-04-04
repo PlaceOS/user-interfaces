@@ -1,11 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     listChildMetadata,
     PlaceZoneMetadata,
     setToken,
 } from '@placeos/ts-client';
-import { BehaviorSubject, lastValueFrom, of } from 'rxjs';
+import { lastValueFrom, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -46,7 +47,6 @@ import { parseTokenFromUrl } from './token-from-url';
             <div
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
-                @let has_beverage = !!existing_beverage();
                 <h3 class="mb-2 w-full text-xl">
                     {{ 'APP.VISITOR_KIOSK.BEVERAGE_MSG' | translate }}
                 </h3>
@@ -58,7 +58,7 @@ import { parseTokenFromUrl } from './token-from-url';
                                 'APP.VISITOR_KIOSK.BEVERAGE_SELECT' | translate
                             "
                         >
-                            @for (item of menu | async; track item) {
+                            @for (item of menu(); track item) {
                                 <mat-option [value]="item">
                                     {{ item.name }}
                                 </mat-option>
@@ -66,7 +66,7 @@ import { parseTokenFromUrl } from './token-from-url';
                         </mat-select>
                     </mat-form-field>
                 </div>
-                @if (has_beverage) {
+                @if (has_beverage()) {
                     <div
                         class="bg-warning text-warning-content rounded-sm px-2 py-1"
                     >
@@ -78,11 +78,11 @@ import { parseTokenFromUrl } from './token-from-url';
                         btn
                         matRipple
                         class="w-32"
-                        [disabled]="has_beverage"
+                        [disabled]="has_beverage()"
                         (click)="update()"
                     >
                         {{
-                            (beverage
+                            (beverage()
                                 ? 'APP.VISITOR_KIOSK.SAVE'
                                 : 'APP.VISITOR_KIOSK.CONTINUE'
                             ) | translate
@@ -146,15 +146,16 @@ export class CheckinPreferencesComponent
     public loading = signal(false);
     public type = signal<'save' | 'menu'>('menu');
     public existing_beverage = signal<CateringItem>(null);
-    public beverage: CateringItem;
+    public beverage = signal<CateringItem>(null);
+    public has_beverage = computed(() => !!this.existing_beverage());
     public readonly event = this._checkin.event;
-    public readonly bld_id = new BehaviorSubject('');
+    public readonly bld_id = signal('');
     public readonly allow_standalone = settingSignal(
         'standalone_visitor_location',
         '',
     );
 
-    public readonly menu = this.bld_id.pipe(
+    private readonly _menu = toObservable(this.bld_id).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
             listChildMetadata(bld, {
@@ -190,13 +191,14 @@ export class CheckinPreferencesComponent
         startWith([]),
         shareReplay(1),
     );
+    public readonly menu = toSignal(this._menu, { initialValue: [] });
 
     public ngOnInit(): void {
         this.loading.set(true);
         this.subscription(
             'bld',
             this._org.active_building.subscribe((v) =>
-                v ? this.bld_id.next(v.id) : '',
+                this.bld_id.set(v?.id || ''),
             ),
         );
         this.subscription(
@@ -215,7 +217,7 @@ export class CheckinPreferencesComponent
                     if (user) {
                         const email = user.e;
                         const [event_id, , bld_zone] = user.r || [];
-                        this.bld_id.next(bld_zone);
+                        this.bld_id.set(bld_zone);
 
                         await this._checkin
                             .loadGuestAndEvent(email, event_id)
@@ -250,7 +252,7 @@ export class CheckinPreferencesComponent
                     );
                     if (existing) {
                         this.existing_beverage.set(existing);
-                        this.beverage = existing;
+                        this.beverage.set(existing);
                     }
                 });
             },
@@ -258,7 +260,7 @@ export class CheckinPreferencesComponent
         );
         this.subscription(
             'menu',
-            this.menu.subscribe((l) => {
+            this._menu.subscribe((l) => {
                 if (l.length) {
                     this.loading.set(false);
                     this.clearTimeout('no_menu');
@@ -278,13 +280,13 @@ export class CheckinPreferencesComponent
 
     public async update() {
         this.type.set('save');
-        if (!this.beverage) return this.next();
+        if (!this.beverage()) return this.next();
         this.loading.set(true);
         const booking = await nextValueFrom(this._checkin.event);
         if (!booking) return notifyError(i18n('APP.VISITOR_KIOSK.LOAD_ERROR'));
         const email = booking.asset_id;
         const catering_item = new CateringItem({
-            ...this.beverage,
+            ...this.beverage(),
             quantity: 1,
         });
         await lastValueFrom(

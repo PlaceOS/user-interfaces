@@ -1,4 +1,12 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    OnInit,
+    Output,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -34,19 +42,19 @@ import { ParkingUser } from './parking-state.service';
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{
-                        (id
+                        (id()
                             ? 'APP.CONCIERGE.PARKING_USER_EDIT'
                             : 'APP.CONCIERGE.PARKING_USER_NEW'
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
+                @if (!loading()) {
                     <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
@@ -162,7 +170,7 @@ import { ParkingUser } from './parking-state.service';
                     <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
                 </main>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
                 >
@@ -195,11 +203,9 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading = false;
+    public readonly loading = signal(false);
 
-    public get id() {
-        return this._data?.id || '';
-    }
+    public readonly id = computed(() => this._data?.id || '');
 
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -244,7 +250,7 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
 
     public postForm() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = this.form.value;
         if (value.user) {
             value.email = value.user.email;

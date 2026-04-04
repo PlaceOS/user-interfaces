@@ -1,10 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SwUpdate } from '@angular/service-worker';
 import {
     AsyncHandler,
     current_user,
-    currentUser,
     firstTruthyValueFrom,
     LocaleService,
     log,
@@ -17,6 +16,7 @@ import {
     setupCache,
     setupPlace,
     UploadsService,
+    userSignal,
 } from '@placeos/common';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
@@ -41,6 +41,15 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _snackbar = inject(MatSnackBar);
     private _locales = inject(LocaleService);
     private _uploads = inject(UploadsService);
+    private _current_user = userSignal();
+    private _internal_user_domain = computed(() => {
+        const email = this._current_user()?.email || '';
+        const domain = email.split('@')[1];
+        return (
+            this._settings.get('app.internal_user_domain') ||
+            (domain ? `@${domain}` : '')
+        );
+    });
 
     public readonly title = 'outlook-addin';
 
@@ -108,11 +117,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         await current_user.pipe(first((_) => !!_)).toPromise();
         this.clearTimeout('wait_for_user');
-        setDefaultCreator(currentUser());
-        setInternalUserDomain(
-            this._settings.get('app.internal_user_domain') ||
-                `@${currentUser()?.email?.split('@')[1]}`,
-        );
+        setDefaultCreator(this._current_user());
+        const internal_user_domain = this._internal_user_domain();
+        if (internal_user_domain) setInternalUserDomain(internal_user_domain);
     }
 
     private async _authenticateGraphAPIWithDialog() {
@@ -185,7 +192,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     private onInitError() {
-        if (isMock() || currentUser()?.is_logged_in) return;
+        if (isMock() || this._current_user()?.is_logged_in) return;
         invalidateToken();
         location.reload();
     }

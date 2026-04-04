@@ -1407,6 +1407,7 @@
             "PARKING_TAB_MAP": "地図",
             "PARKING_TAB_REQUESTS": "リクエスト",
             "PARKING_TAB_BOOKINGS": "予約",
+            "PARKING_FILTER_MANUAL": "Manual",
             "PARKING_BAY": "駐車ベイ",
             "PARKING_BAY_NUMBER": "ベイ番号",
             "PARKING_RESERVED_FOR": "予約者",

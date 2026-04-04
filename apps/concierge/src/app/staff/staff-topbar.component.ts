@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
@@ -25,7 +25,7 @@ import { StaffStateService } from './staff-state.service';
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    @for (level of levels | async; track level) {
+                    @for (level of levels(); track level.id) {
                         <mat-option [value]="level.id">
                             {{ level.display_name || level.name }}
                         </mat-option>
@@ -34,7 +34,7 @@ import { StaffStateService } from './staff-state.service';
             </mat-form-field>
             <mat-slide-toggle
                 class="m-2"
-                [ngModel]="(filters | async)?.only_onsite"
+                [ngModel]="filters()?.only_onsite"
                 (ngModelChange)="setFilters({ only_onsite: $event })"
                 ><div class="text-xs">
                     {{ 'APP.CONCIERGE.DIRECTORY_ONSITE_ONLY' | translate }}
@@ -72,11 +72,11 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
 
     /** List of selected levels */
-    public zones: string[] = [];
+    public readonly zones = signal<string[]>([]);
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = signal<any[]>([]);
 
-    public readonly filters = this._state.filters;
+    public readonly filters = signal<any>({});
     /** Set filtered date */
     public readonly setDate = (date) => this._state.setFilters({ date });
     /** Set filtered date */
@@ -108,21 +108,32 @@ export class StaffTopbarComponent extends AsyncHandler implements OnInit {
                         this._org.building = this._org.buildings.find(
                             (bld) => bld.id === level.parent_id,
                         );
-                        this.zones = zones;
+                        this.zones.set(zones);
                     }
                 }
             }),
         );
+        if (this._state.filters?.subscribe) {
+            this.subscription(
+                'filters',
+                this._state.filters.subscribe((filters) => {
+                    this.filters.set(filters || {});
+                }),
+            );
+        }
         this.subscription(
             'levels',
             this._org.active_levels.subscribe((levels) => {
-                this.zones = this.zones.filter((zone) =>
-                    levels.find((lvl) => lvl.id === zone),
+                const current_levels = levels || [];
+                this.levels.set(current_levels);
+                const zones = this.zones().filter((zone) =>
+                    current_levels.find((lvl) => lvl.id === zone),
                 );
-                if (!this.zones.length && levels.length) {
-                    this.zones.push(levels[0].id);
+                if (!zones.length && current_levels.length) {
+                    zones.push(current_levels[0].id);
                 }
-                this.updateZones(this.zones);
+                this.zones.set(zones);
+                this.updateZones(zones);
             }),
         );
         this.setSearch('');

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -23,6 +24,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'region-modal',
@@ -69,7 +71,7 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                         />
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (tz of filtered_timezones; track tz) {
+                        @for (tz of filtered_timezones(); track tz) {
                             <mat-option [value]="tz">{{ tz }}</mat-option>
                         }
                         @if (!timezones.length) {
@@ -93,17 +95,14 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
         ReactiveFormsModule,
     ],
 })
-export class RegionModalComponent extends AsyncHandler implements OnInit {
+export class RegionModalComponent extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _data = inject<Region | undefined>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<RegionModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
-    public readonly building_list = this._org.building_list;
-
-    public timezones: string[] = [];
-    public filtered_timezones: string[] = [];
+    public readonly timezones = TIMEZONES_IANA;
 
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || ''),
@@ -115,14 +114,16 @@ export class RegionModalComponent extends AsyncHandler implements OnInit {
         ),
         parent_id: new FormControl(this._org.organisation.id),
     });
-
-    public ngOnInit() {
-        this._updateTimezoneList();
-        this.subscription(
-            'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
-        );
-    }
+    private readonly _timezone = toSignal(
+        this.form.controls.timezone.valueChanges.pipe(
+            startWith(this.form.controls.timezone.value || ''),
+        ),
+        { initialValue: this.form.controls.timezone.value || '' },
+    );
+    public readonly filtered_timezones = computed(() => {
+        const timezone = (this._timezone() || '').toLowerCase();
+        return this.timezones.filter((_) => _.toLowerCase().includes(timezone));
+    });
 
     public async save() {
         if (!this.form.valid) {
@@ -154,13 +155,5 @@ export class RegionModalComponent extends AsyncHandler implements OnInit {
             .catch();
         if (resp.id) this._dialog_ref.close(resp);
         this.loading.set(false);
-    }
-
-    private _updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones = TIMEZONES_IANA;
-        this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
-        );
     }
 }

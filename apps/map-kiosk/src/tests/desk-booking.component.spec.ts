@@ -42,8 +42,7 @@ describe('DeskBookingComponent', () => {
 
     it('should reset to map after time', fakeAsync(() => {
         const router = spectator.inject(Router);
-        const settings = spectator.inject(SettingsService);
-        (settings.get as any).mockImplementation(() => 5);
+        spectator.component.countdown_time.set(5);
         spectator.component.resetCountdown();
         expect(router.navigate).not.toHaveBeenCalled();
         tick(5);

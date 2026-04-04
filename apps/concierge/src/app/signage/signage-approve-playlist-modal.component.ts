@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,7 +8,7 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { i18n, nextValueFrom, notifySuccess } from '@placeos/common';
+import { i18n, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -19,12 +20,10 @@ import {
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import {
-    BehaviorSubject,
     combineLatest,
     filter,
     lastValueFrom,
     map,
-    shareReplay,
     switchMap,
     tap,
 } from 'rxjs';
@@ -44,21 +43,17 @@ import { SignageStateService } from './signage-state.service';
             </header>
             @if (!loading()) {
                 <main class="max-h-[60vh] gap-2 overflow-auto py-2">
-                    @let versions = playlist_versions | async;
-                    @let media = playlist_media | async;
                     <div class="flex gap-2">
                         <div
                             class="border-base-300 bg-success-light w-[24rem] rounded-sm border"
                         >
-                            @let current_version = versions?.[0];
-                            @let current_media = media?.[0] || [];
                             <div
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Version to approve</h3>
                                 <div class="font-mono text-xs opacity-50">
                                     {{
-                                        current_version?.updated_at * 1000
+                                        current_version()?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
                                     }}
                                 </div>
@@ -70,14 +65,15 @@ import { SignageStateService } from './signage-state.service';
                                             | translate
                                                 : {
                                                       count:
-                                                          current_version?.items
-                                                              .length || 0,
+                                                          current_version()
+                                                              ?.items.length ||
+                                                          0,
                                                   }
-                                                : current_version?.items
+                                                : current_version()?.items
                                                       .length || 0
                                     }}
                                 </div>
-                                @for (item of current_media; track item?.id) {
+                                @for (item of current_media(); track item?.id) {
                                     <div
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
@@ -122,15 +118,13 @@ import { SignageStateService } from './signage-state.service';
                         <div
                             class="border-base-300 bg-error-light w-[24rem] rounded-sm border"
                         >
-                            @let previous_version = versions?.[1];
-                            @let previous_media = media?.[1] || [];
                             <div
                                 class="border-base-300 bg-base-200 flex items-center space-x-8 rounded-sm border-b px-4 py-2"
                             >
                                 <h3>Previous version</h3>
                                 <div class="font-mono text-xs opacity-50">
                                     {{
-                                        previous_version?.updated_at * 1000
+                                        previous_version()?.updated_at * 1000
                                             | date: 'dd MMM, HH:mm'
                                     }}
                                 </div>
@@ -142,15 +136,18 @@ import { SignageStateService } from './signage-state.service';
                                             | translate
                                                 : {
                                                       count:
-                                                          previous_version
+                                                          previous_version()
                                                               ?.items.length ||
                                                           0,
                                                   }
-                                                : previous_version?.items
+                                                : previous_version()?.items
                                                       .length || 0
                                     }}
                                 </div>
-                                @for (item of previous_media; track item?.id) {
+                                @for (
+                                    item of previous_media();
+                                    track item?.id
+                                ) {
                                     <div
                                         class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-sm border p-2"
                                     >
@@ -225,8 +222,7 @@ import { SignageStateService } from './signage-state.service';
         AuthenticatedImageDirective,
     ],
 })
-export class SignageApprovePlaylistModalComponent implements OnInit {
-    private _playlist_id = new BehaviorSubject('');
+export class SignageApprovePlaylistModalComponent {
     private _playlist = inject(MAT_DIALOG_DATA);
     private _dialog_ref = inject(
         MatDialogRef<SignageApprovePlaylistModalComponent>,
@@ -234,36 +230,56 @@ export class SignageApprovePlaylistModalComponent implements OnInit {
     private _service = inject(SignageStateService);
 
     public readonly loading = signal('');
+    private readonly _playlist_id = signal(this._playlist?.id || '');
 
-    public readonly playlist_versions = this._playlist_id.pipe(
-        filter((_) => !!_),
-        tap(() => this.loading.set('Loading versions...')),
-        switchMap((id) => listSignagePlaylistMediaRevisions(id, { limit: 2 })),
-        shareReplay(1),
-    );
-
-    public readonly playlist_media = combineLatest([
-        this.playlist_versions,
-        this._service.media,
-    ]).pipe(
-        map(([playlists, media]) =>
-            playlists.map((playlist) =>
-                playlist.items.map((id) => media.find((m) => m?.id === id)),
+    public readonly playlist_versions = toSignal(
+        toObservable(this._playlist_id).pipe(
+            filter((_) => !!_),
+            tap(() => this.loading.set('Loading versions...')),
+            switchMap((id) =>
+                listSignagePlaylistMediaRevisions(id, { limit: 2 }),
             ),
         ),
-        tap(() => this.loading.set('')),
-        shareReplay(1),
+        { initialValue: [] },
     );
 
-    public ngOnInit() {
-        console.log('Playlist', this._playlist);
-        this._playlist_id.next(this._playlist?.id);
-    }
+    private readonly _playlist_media = toSignal(
+        combineLatest([
+            toObservable(this.playlist_versions),
+            this._service.media,
+        ]).pipe(
+            map(([playlists, media]) =>
+                playlists.map((playlist) =>
+                    playlist.items.map((id) => media.find((m) => m?.id === id)),
+                ),
+            ),
+            tap(() => this.loading.set('')),
+        ),
+        { initialValue: [] },
+    );
+    public readonly playlist_media = computed(() => this._playlist_media());
+    public readonly current_version = computed(
+        () => this.playlist_versions()[0],
+    );
+    public readonly previous_version = computed(
+        () => this.playlist_versions()[1],
+    );
+    public readonly current_media = computed(
+        () => this.playlist_media()[0] || [],
+    );
+    public readonly previous_media = computed(
+        () => this.playlist_media()[1] || [],
+    );
 
     public async undoChanges() {
         this.loading.set('Undoing changes...');
         this._dialog_ref.disableClose = true;
-        const [, previous] = await nextValueFrom(this.playlist_versions);
+        const [, previous] = this.playlist_versions();
+        if (!previous) {
+            this.loading.set('');
+            this._dialog_ref.disableClose = false;
+            return;
+        }
         await lastValueFrom(
             updateSignagePlaylistMedia(this._playlist?.id, previous.items),
         );

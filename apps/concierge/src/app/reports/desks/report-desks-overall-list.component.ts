@@ -1,5 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import { format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
@@ -39,7 +40,7 @@ import { ReportsStateService } from '../reports-state.service';
                 </div>
                 <simple-table
                     class="block w-full text-sm"
-                    [data]="day_list"
+                    [data]="day_list()"
                     [columns]="[
                         {
                             key: 'date',
@@ -93,10 +94,12 @@ export class ReportDesksOverallListComponent {
 
     public readonly print = input(false);
 
-    public readonly day_list = this._state.day_list;
+    public readonly day_list = toSignal(this._state.day_list, {
+        initialValue: [],
+    });
 
     public readonly download = async () => {
-        let data = await nextValueFrom(this.day_list);
+        let data = this.day_list();
         data = data.map((d) => ({
             ...d,
             date: format(d.date, 'MMM d, y(EEE)'),

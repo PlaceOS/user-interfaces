@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,7 +19,6 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { Observable } from 'rxjs';
 import { FeaturesFilterService } from './features-filter.service';
 
 @Component({
@@ -56,14 +56,14 @@ import { FeaturesFilterService } from './features-filter.service';
                         >
                             <div class="my-2 text-lg">Details</div>
                             <div class="flex flex-col">
-                                @if ((buildings | async)?.length > 1) {
+                                @if (has_multiple_buildings()) {
                                     <label
                                         class="mb-1 text-sm font-bold text-gray-700"
                                     >
                                         Location
                                     </label>
                                 }
-                                @if ((buildings | async)?.length > 1) {
+                                @if (has_multiple_buildings()) {
                                     <mat-form-field
                                         overlay
                                         buildings
@@ -72,7 +72,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                     >
                                         <mat-select
                                             placeholder="Select Building..."
-                                            [ngModel]="building | async"
+                                            [ngModel]="building()"
                                             (ngModelChange)="
                                                 setBuilding($event)
                                             "
@@ -81,7 +81,7 @@ import { FeaturesFilterService } from './features-filter.service';
                                             }"
                                         >
                                             @for (
-                                                bld of buildings | async;
+                                                bld of buildings();
                                                 track bld
                                             ) {
                                                 <mat-option [value]="bld">
@@ -160,7 +160,7 @@ import { FeaturesFilterService } from './features-filter.service';
                     <section class="border-base-200 flex flex-col">
                         <div class="mx-auto w-[calc(100%-2rem)] max-w-90">
                             <div class="my-2 text-lg">Features</div>
-                            @for (feature of features$ | async; track feature) {
+                            @for (feature of features(); track feature) {
                                 <div>
                                     <div class="mb-1 flex flex-row">
                                         <span> {{ feature.name }}</span>
@@ -209,7 +209,7 @@ import { FeaturesFilterService } from './features-filter.service';
         IconComponent,
     ],
 })
-export class FilterSpaceComponent implements OnInit {
+export class FilterSpaceComponent {
     data = inject<{
         data;
     }>(MAT_BOTTOM_SHEET_DATA);
@@ -218,20 +218,22 @@ export class FilterSpaceComponent implements OnInit {
     private _state = inject(EventFormService);
     private _org = inject(OrganisationService);
 
-    readonly buildings = this._org.building_list;
-    readonly building = this._org.active_building;
+    readonly buildings = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
+    readonly building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
+    readonly features = toSignal(this._featuresFilterService.features$, {
+        initialValue: [],
+    });
+    readonly has_multiple_buildings = computed(
+        () => this.buildings().length > 1,
+    );
+    readonly form = this._state.form;
     minDate = Date.now();
-    features$: Observable<{ name: string; value: boolean }[]>;
 
     public readonly setBuilding = (b) => (this._org.building = b);
-
-    ngOnInit() {
-        this.features$ = this._featuresFilterService.features$;
-    }
-
-    public get form() {
-        return this._state.form;
-    }
 
     applyFilters() {
         this._bottomsheetRef.dismiss(this.form);

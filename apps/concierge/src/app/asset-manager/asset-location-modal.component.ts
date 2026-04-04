@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Booking, OrganisationService } from '@placeos/common';
 import {
     IconComponent,
@@ -29,8 +30,8 @@ import { SplitJoinPipe } from './split-join.pipe';
                 <icon>close</icon>
             </button>
             <h2 class="mb-2 font-medium">
-                {{ (asset | async)?.name }} in use location:
-                {{ (requests | async)?.length }}
+                {{ asset()?.name }} in use location:
+                {{ requests().length }}
             </h2>
             <mat-form-field appearance="outline" class="mb-2 h-14">
                 <icon matPrefix>search</icon>
@@ -42,7 +43,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                 >
                     <simple-table
                         class="block w-full"
-                        [data]="requests"
+                        [data]="requests()"
                         [columns]="[
                             {
                                 key: 'zone',
@@ -60,31 +61,31 @@ import { SplitJoinPipe } from './split-join.pipe';
                         [sortable]="true"
                         empty_message="No requested assets for this product"
                         (row_clicked)="
-                            selected = $any($event); updateFeatures()
+                            selected.set($any($event)); updateFeatures()
                         "
                     ></simple-table>
                 </div>
                 <div
                     class="border-base-200 bg-base-200 relative flex h-[60vh] w-1/2 flex-1 items-center justify-center border"
                 >
-                    @if (selected) {
+                    @if (selected()) {
                         <div
                             class="border-base-200 bg-base-100 absolute top-4 left-4 rounded-3xl border px-4 py-2"
                         >
                             {{
-                                level(selected.zones?.[0])?.display_name ||
+                                level(selected().zones?.[0])?.display_name ||
                                     'N/A'
                             }}
                         </div>
                     }
-                    @if (selected) {
+                    @if (selected()) {
                         <interactive-map
-                            [src]="level(selected.zones?.[0])?.map_id || ''"
+                            [src]="level(selected().zones?.[0])?.map_id || ''"
                             [styles]="{
                                 '#Zones': { display: 'none' },
                                 '#zones': { display: 'none' },
                             }"
-                            [features]="selected_feature"
+                            [features]="selected_feature()"
                         ></interactive-map>
                     } @else {
                         <p class="opacity-30">
@@ -106,7 +107,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                     class="flex w-full items-center rounded-sm bg-none px-2 py-1 text-left"
                     [matMenuTriggerFor]="tracking_menu"
                     (click)="$event.stopPropagation()"
-                    [disabled]="loading[row.id]"
+                    [disabled]="loading()[row.id]"
                 >
                     <div class="min-w-32 flex-1 capitalize">
                         {{
@@ -156,40 +157,45 @@ export class AssetLocationModalComponent {
     private _state = inject(AssetManagerStateService);
     private _org = inject(OrganisationService);
 
-    public readonly asset = this._state.active_product;
-    public readonly requests = this._state.active_product_requests;
+    public readonly asset = toSignal(this._state.active_product, {
+        initialValue: null,
+    });
+    public readonly requests = toSignal(this._state.active_product_requests, {
+        initialValue: [],
+    });
 
     public readonly _space = new SpacePipe(this._org);
 
-    public selected: Booking;
-    public selected_feature;
+    public readonly selected = signal<Booking | null>(null);
+    public readonly selected_feature = signal<any[]>([]);
 
-    public loading = {};
+    public readonly loading = signal<Record<string, boolean>>({});
 
     public async updateFeatures() {
+        const selected = this.selected();
+        if (!selected) {
+            this.selected_feature.set([]);
+            return;
+        }
         const space = await this._space.transform(
-            this.selected.extension_data?.location_id,
+            selected.extension_data?.location_id,
         );
-        this.selected_feature = this.selected
-            ? [
-                  {
-                      location: space.map_id,
-                      content: MapPinComponent,
-                      z_index: 99,
-                      data: {
-                          message: `${
-                              space.display_name || space.name
-                          } is here`,
-                      },
-                  },
-              ]
-            : [];
+        this.selected_feature.set([
+            {
+                location: space.map_id,
+                content: MapPinComponent,
+                z_index: 99,
+                data: {
+                    message: `${space.display_name || space.name} is here`,
+                },
+            },
+        ]);
     }
 
     public async setTracking(item: any, state: string) {
-        this.loading[item.id] = true;
+        this.loading.update((loading) => ({ ...loading, [item.id]: true }));
         await this._state.setTracking(item, state);
-        this.loading[item.id] = false;
+        this.loading.update((loading) => ({ ...loading, [item.id]: false }));
     }
 
     public level(zones) {

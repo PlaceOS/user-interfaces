@@ -1407,6 +1407,7 @@
             "PARKING_TAB_MAP": "地图",
             "PARKING_TAB_REQUESTS": "请求",
             "PARKING_TAB_BOOKINGS": "预订",
+            "PARKING_FILTER_MANUAL": "Manual",
             "PARKING_BAY": "停车位",
             "PARKING_BAY_NUMBER": "车位号",
             "PARKING_RESERVED_FOR": "预留给",

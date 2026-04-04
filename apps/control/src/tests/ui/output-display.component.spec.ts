@@ -20,7 +20,7 @@ describe('OutputDisplayComponent', () => {
             {
                 provide: ControlStateService,
                 useValue: {
-                    input_list: new BehaviorSubject([]),
+                    available_inputs: new BehaviorSubject([]),
                 },
             },
         ],

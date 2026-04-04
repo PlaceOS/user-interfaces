@@ -50,10 +50,10 @@ describe('DayviewTopbarComponent', () => {
     });
 
     it('should handle query parameters', () => {
-        expect(spectator.component.zones).toEqual([]);
+        expect(spectator.component.zones()).toEqual([]);
         spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');
         spectator.detectChanges();
-        expect(spectator.component.zones).toEqual(['zone-1234', 'zone-2345']);
+        expect(spectator.component.zones()).toEqual(['zone-1234', 'zone-2345']);
     });
 
     it('should allow user to make new bookings', () => {

@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -8,19 +9,17 @@ import { ParkingSpacePipe } from '@placeos/assets';
 import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map, shareReplay, startWith } from 'rxjs/operators';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-bookings-week-view',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('bookings')"
+            [class.opacity-0]="!loading().includes('[BOOKINGS]')"
             class="sticky left-0 w-full"
         />
         <div class="flex h-full min-h-0 flex-1">
-            @for (day of days | async; track day) {
+            @for (day of days(); track day) {
                 <div
                     class="border-base-200 flex min-w-36 flex-1 flex-col border-r last:border-r-0"
                 >
@@ -39,7 +38,7 @@ import { ParkingStateService } from './parking-state.service';
                     </div>
                     <div class="flex flex-1 flex-col gap-1 overflow-auto p-2">
                         @for (
-                            booking of (grouped_bookings | async)?.[day] || [];
+                            booking of grouped_bookings()[day] || [];
                             track booking.id
                         ) {
                             <div
@@ -47,8 +46,13 @@ import { ParkingStateService } from './parking-state.service';
                                 [class.border-success]="
                                     booking.status === 'approved'
                                 "
+                                [class.border-info]="
+                                    booking.status === 'tentative' &&
+                                    isWaitlisted(booking)
+                                "
                                 [class.border-warning]="
-                                    booking.status === 'tentative'
+                                    booking.status === 'tentative' &&
+                                    !isWaitlisted(booking)
                                 "
                                 [class.border-error]="
                                     booking.status === 'declined'
@@ -101,7 +105,7 @@ import { ParkingStateService } from './parking-state.service';
                                 </div>
                                 @let bay_name =
                                     booking.asset_id | parkingSpace | async;
-                                @if (bay_name) {
+                                @if (bay_name && !isRequest(booking)) {
                                     <div class="mt-0.5 opacity-40">
                                         {{
                                             bay_name?.identifier ||
@@ -136,10 +140,20 @@ import { ParkingStateService } from './parking-state.service';
                                             booking.status === 'declined'
                                         "
                                         [class.text-warning-content]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
                                         "
                                         [class.bg-warning]="
-                                            booking.status === 'tentative'
+                                            booking.status === 'tentative' &&
+                                            !isWaitlisted(booking)
+                                        "
+                                        [class.text-info-content]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
+                                        "
+                                        [class.bg-info]="
+                                            booking.status === 'tentative' &&
+                                            isWaitlisted(booking)
                                         "
                                         [class.text-neutral-content]="
                                             booking.status === 'ended'
@@ -158,7 +172,9 @@ import { ParkingStateService } from './parking-state.service';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                                    : isWaitlisted(booking)
+                                                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                                                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                             ) | translate
                                         }}
                                     </button>
@@ -200,6 +216,28 @@ import { ParkingStateService } from './parking-state.service';
                                             </div>
                                         </button>
                                     </mat-menu>
+                                    @if (isRequest(booking)) {
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="h-6 w-6"
+                                            [disabled]="
+                                                booking.checked_in ||
+                                                booking.state ===
+                                                    'in_progress' ||
+                                                booking.status === 'ended'
+                                            "
+                                            [matTooltip]="
+                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                    | translate
+                                            "
+                                            (click)="assignSpace(booking)"
+                                        >
+                                            <icon class="text-base"
+                                                >add_location</icon
+                                            >
+                                        </button>
+                                    }
                                     <button
                                         icon
                                         matRipple
@@ -221,11 +259,13 @@ import { ParkingStateService } from './parking-state.service';
                                 </div>
                             </div>
                         }
-                        @if (!(grouped_bookings | async)?.[day]?.length) {
+                        @if (!grouped_bookings()[day]?.length) {
                             <div class="p-4 text-center text-xs opacity-30">
                                 {{
-                                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
-                                        | translate
+                                    (isRequestFilter(options().request_filter)
+                                        ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
+                                        : 'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
+                                    ) | translate
                                 }}
                             </div>
                         }
@@ -263,44 +303,42 @@ export class ParkingBookingsWeekViewComponent
     private _settings = inject(SettingsService);
     private _date_pipe = new DatePipe('en');
 
-    public readonly loading = this._state.loading;
-    public readonly options = this._state.options;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly days = this._state.options.pipe(
-        map((options) => {
-            const week_start = this._state.week_start;
-            const start = startOfWeek(options.date, {
-                weekStartsOn: week_start,
-            });
-            return Array.from({ length: 7 }, (_, i) =>
-                addDays(start, i).valueOf(),
-            );
-        }),
-    );
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
 
-    public readonly grouped_bookings = combineLatest([
-        this._state.bookings,
-        this.days,
-        this.options,
-    ]).pipe(
-        map(([bookings, days, { search }]) => {
-            const show_requests = !!this._settings.get(
-                'app.parking.show_requests',
+    public readonly days = computed(() => {
+        const options = this.options();
+        const week_start = this._state.week_start;
+        const start = startOfWeek(options.date, {
+            weekStartsOn: week_start,
+        });
+        return Array.from({ length: 7 }, (_, i) => addDays(start, i).valueOf());
+    });
+
+    public readonly grouped_bookings = computed<Record<number, Booking[]>>(
+        () => {
+            const days = this.days();
+            const { search, request_filter } = this.options();
+            const filtered = this._state.filterEventList(
+                this.bookings(),
+                request_filter,
             );
-            let list = show_requests
-                ? bookings.filter((b) => !b.asset_id?.startsWith('unallocated'))
-                : bookings;
-            const s = search?.toLowerCase();
-            if (s) {
-                list = list.filter(
-                    (b) =>
-                        b.user_name?.toLowerCase().includes(s) ||
-                        b.user_email?.toLowerCase().includes(s) ||
-                        b.booked_by_name?.toLowerCase().includes(s) ||
-                        b.booked_by_email?.toLowerCase().includes(s) ||
-                        b.asset_name?.toLowerCase().includes(s),
-                );
-            }
+            const list = this._state.filterEventSearch(filtered, search);
             const grouped: Record<number, Booking[]> = {};
             for (const day of days) {
                 grouped[day] = list
@@ -318,18 +356,25 @@ export class ParkingBookingsWeekViewComponent
                     .sort((a, b) => a.date - b.date);
             }
             return grouped;
-        }),
-        startWith({}),
-        shareReplay(1),
+        },
     );
 
     public readonly reject = (e: Booking) => this._state.rejectBooking(e);
     public readonly approve = (e: Booking) => this._state.approveBooking(e);
     public readonly editReservation = (e: Booking) =>
         this._state.editReservation(e);
+    public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly isRequest = (e: Booking) => this._state.isRequest(e);
+    public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public isRequestFilter(filter_type?: string) {
+        return ['manual', 'pending', 'requests', 'waitlist'].includes(
+            filter_type || '',
+        );
     }
 
     public isToday(date: number) {

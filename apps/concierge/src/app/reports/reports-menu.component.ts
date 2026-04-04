@@ -13,7 +13,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             class="bg-base-200 absolute inset-0 flex items-center justify-center overflow-auto"
         >
             <div class="grid w-full justify-items-center">
-                @if (features.includes('desks')) {
+                @if (features().includes('desks')) {
                     <a
                         [routerLink]="['/reports', 'desks']"
                         matRipple
@@ -27,7 +27,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('spaces')) {
+                @if (features().includes('spaces')) {
                     <a
                         [routerLink]="['/reports', 'bookings']"
                         matRipple
@@ -41,7 +41,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('catering')) {
+                @if (features().includes('catering')) {
                     <a
                         [routerLink]="['/reports', 'catering']"
                         matRipple
@@ -55,7 +55,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @if (features.includes('contact-tracing')) {
+                @if (features().includes('contact-tracing')) {
                     <a
                         [routerLink]="['/reports', 'contact-tracing']"
                         matRipple
@@ -69,7 +69,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                         </div>
                     </a>
                 }
-                @for (report of custom_reports; track report) {
+                @for (report of custom_reports(); track report) {
                     <a
                         [routerLink]="['/reports', report.id]"
                         matRipple
@@ -112,11 +112,14 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
 export class ReportsMenuComponent {
     private _settings = inject(SettingsService);
 
-    public get custom_reports() {
-        return this._settings.get('app.custom_reports') || [];
-    }
-
-    public get features() {
-        return this._settings.get('app.reports.features') || DEFAULT_FEATURES;
-    }
+    public readonly custom_reports = this._settings.signal(
+        'app.custom_reports',
+        [],
+        true,
+    );
+    public readonly features = this._settings.signal(
+        'app.reports.features',
+        DEFAULT_FEATURES,
+        true,
+    );
 }

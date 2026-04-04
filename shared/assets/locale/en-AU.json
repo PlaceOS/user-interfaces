@@ -1646,6 +1646,7 @@
             "PARKING_TAB_MAP": "Map",
             "PARKING_TAB_REQUESTS": "Requests",
             "PARKING_TAB_BOOKINGS": "Bookings",
+            "PARKING_FILTER_MANUAL": "Manual",
             "PARKING_BAY": "Parking Bay",
             "PARKING_BAY_NUMBER": "Bay Number",
             "PARKING_RESERVED_FOR": "Reserved For",

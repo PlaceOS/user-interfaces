@@ -1,5 +1,5 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     BookingFormService,
@@ -16,7 +16,7 @@ import {
     template: `
         <fullscreen-modal-shell
             [heading]="'BOOKINGS.VISITOR_INVITE_TITLE' | translate"
-            [loading]="loading | async"
+            [loading]="loading()"
             [confirm_text]="'BOOKINGS.VISITOR_SEND' | translate"
             [hide_confirm]="!!done()"
             (confirm)="post()"
@@ -38,7 +38,6 @@ import {
     `,
     styles: [``],
     imports: [
-        AsyncPipe,
         TranslatePipe,
         VisitorInviteFormComponent,
         VisitorInviteSuccessComponent,
@@ -53,7 +52,9 @@ export class InviteVisitorModalComponent {
         inject<MatDialogRef<InviteVisitorModalComponent>>(MatDialogRef);
     private _form = inject(BookingFormService);
 
-    public readonly loading = this._form.loading;
+    public readonly loading = toSignal(this._form.loading, {
+        initialValue: '',
+    });
 
     public readonly date = this._data.date;
     public readonly done = signal(0);

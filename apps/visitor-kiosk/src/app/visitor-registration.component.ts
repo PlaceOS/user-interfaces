@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -179,9 +180,9 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <a-duration-field
                                 name="duration"
                                 formControlName="duration"
-                                [time]="form.value.date"
+                                [time]="form_value().date"
                                 [max]="max_duration()"
-                                [disabled]="form.value.all_day"
+                                [disabled]="form_value().all_day"
                             ></a-duration-field>
                         }
                     </div>
@@ -251,6 +252,9 @@ export class VisitorRegistrationComponent
     private readonly _induction_details = settingSignal('induction_details');
 
     public readonly form = this._booking_form.form;
+    public readonly form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
     public readonly loading = signal(false);
     public readonly now = signal(startOfMinute(Date.now()).valueOf());
     public readonly background = settingSignal('welcome_background');

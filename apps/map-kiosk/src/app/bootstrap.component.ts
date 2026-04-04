@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,9 +47,9 @@ import { first } from 'rxjs/operators';
                     </div>
                 </div>
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <div class="flex flex-col px-4">
-                    @if ((regions | async)?.length > 1) {
+                    @if (regions().length > 1) {
                         <label>Select a region from the dropdown below</label>
                         <mat-form-field
                             appearance="outline"
@@ -57,7 +58,7 @@ import { first } from 'rxjs/operators';
                             <mat-select
                                 #select
                                 building
-                                [(ngModel)]="active_region"
+                                [ngModel]="active_region()"
                                 (ngModelChange)="setRegion($event)"
                                 placeholder="Select region"
                             >
@@ -65,18 +66,18 @@ import { first } from 'rxjs/operators';
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_region?.display_name ||
-                                                    active_region?.name
+                                                active_region()?.display_name ||
+                                                    active_region()?.name
                                             }}
                                         </div>
                                         <div
                                             class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_region?.id }}
+                                            {{ active_region()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
-                                @for (option of regions | async; track option) {
+                                @for (option of regions(); track option) {
                                     <mat-option [value]="option">
                                         <div class="leading-tight">
                                             <div>
@@ -99,7 +100,7 @@ import { first } from 'rxjs/operators';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if ((buildings | async)?.length) {
+                    @if (buildings().length) {
                         <label>Select a building from the dropdown below</label>
                         <mat-form-field
                             appearance="outline"
@@ -108,7 +109,7 @@ import { first } from 'rxjs/operators';
                             <mat-select
                                 #select
                                 building
-                                [(ngModel)]="active_building"
+                                [ngModel]="active_building()"
                                 (ngModelChange)="setBuilding($event)"
                                 placeholder="Select building"
                             >
@@ -116,21 +117,19 @@ import { first } from 'rxjs/operators';
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_building?.display_name ||
-                                                    active_building?.name
+                                                active_building()
+                                                    ?.display_name ||
+                                                    active_building()?.name
                                             }}
                                         </div>
                                         <div
                                             class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_building?.id }}
+                                            {{ active_building()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
-                                @for (
-                                    option of buildings | async;
-                                    track option
-                                ) {
+                                @for (option of buildings(); track option) {
                                     <mat-option [value]="option">
                                         <div class="leading-tight">
                                             <div>
@@ -153,7 +152,7 @@ import { first } from 'rxjs/operators';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if ((levels | async)?.length && active_building) {
+                    @if (levels().length && active_building()) {
                         <div></div>
                         <label>Select a level from the dropdown below</label>
                         <mat-form-field
@@ -163,25 +162,26 @@ import { first } from 'rxjs/operators';
                             <mat-select
                                 #select
                                 level
-                                [(ngModel)]="active_level"
+                                [ngModel]="active_level()"
+                                (ngModelChange)="active_level.set($event)"
                                 placeholder="Select level"
                             >
                                 <mat-select-trigger>
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1 truncate">
                                             {{
-                                                active_level?.display_name ||
-                                                    active_level?.name
+                                                active_level()?.display_name ||
+                                                    active_level()?.name
                                             }}
                                         </div>
                                         <div
                                             class="bg-base-200 mr-4! rounded-sm px-1.5 font-mono text-[0.625rem]"
                                         >
-                                            {{ active_level?.id }}
+                                            {{ active_level()?.id }}
                                         </div>
                                     </div>
                                 </mat-select-trigger>
-                                @for (option of levels | async; track option) {
+                                @for (option of levels(); track option) {
                                     <mat-option [value]="option">
                                         <div class="leading-tight">
                                             <div>
@@ -203,13 +203,16 @@ import { first } from 'rxjs/operators';
                                 }
                             </mat-select>
                         </mat-form-field>
-                        @if (active_level?.tags.includes('parking')) {
-                            <settings-toggle [(ngModel)]="parking" class="mt-2"
+                        @if (active_level()?.tags.includes('parking')) {
+                            <settings-toggle
+                                [ngModel]="parking()"
+                                (ngModelChange)="parking.set($event)"
+                                class="mt-2"
                                 >Show as fixed parking display</settings-toggle
                             >
                         }
                     }
-                    @if (rotations && rotations.length) {
+                    @if (rotations().length) {
                         <div></div>
                         <label>
                             Please select an orientation from the dropdown below
@@ -220,10 +223,11 @@ import { first } from 'rxjs/operators';
                         >
                             <mat-select
                                 #select
-                                [(value)]="active_rotation"
+                                [ngModel]="active_rotation()"
+                                (ngModelChange)="active_rotation.set($event)"
                                 placeholder="Select orientation"
                             >
-                                @for (option of rotations; track option) {
+                                @for (option of rotations(); track option) {
                                     <mat-option [value]="option">
                                         <div class="leading-tight">
                                             <div>
@@ -246,7 +250,7 @@ import { first } from 'rxjs/operators';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (locations && locations.length) {
+                    @if (locations().length) {
                         <div></div>
                         <label>
                             Please select an fixed location from the dropdown
@@ -258,10 +262,11 @@ import { first } from 'rxjs/operators';
                         >
                             <mat-select
                                 #select
-                                [(value)]="active_location"
+                                [ngModel]="active_location()"
+                                (ngModelChange)="active_location.set($event)"
                                 placeholder="Select location"
                             >
-                                @for (option of locations; track option) {
+                                @for (option of locations(); track option) {
                                     <mat-option [value]="option">
                                         <div class="leading-tight">
                                             <div>
@@ -288,10 +293,10 @@ import { first } from 'rxjs/operators';
             } @else {
                 <div class="m-auto flex flex-col items-center p-8">
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <div
                     class="border-base-200 mt-4! flex w-full items-center justify-end border-t px-4 py-2"
                 >
@@ -299,7 +304,7 @@ import { first } from 'rxjs/operators';
                         btn
                         matRipple
                         class="w-32"
-                        [disabled]="!active_building && !active_level"
+                        [disabled]="!active_building() && !active_level()"
                         (click)="bootstrapKiosk()"
                     >
                         Finish Setup
@@ -349,50 +354,61 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     /** Loading state of the bootstrap */
-    public loading: string;
+    public readonly loading = signal<string | null>(null);
     /** Actively selected building */
-    public active_region: Region;
+    public readonly active_region = signal<Region | null>(null);
     /** Actively selected building */
-    public active_building: Building;
+    public readonly active_building = signal<Building | null>(null);
     /** Actively selected level */
-    public active_level: BuildingLevel;
+    public readonly active_level = signal<BuildingLevel | null>(null);
     /** Actively selected level */
-    public active_rotation: Identity;
+    public readonly active_rotation = signal<Identity | null>(null);
     /** Actively selected location */
-    public active_location: Identity;
+    public readonly active_location = signal<Identity | null>(null);
     /** Whether to show the map as a parking view */
-    public parking = false;
+    public readonly parking = signal(false);
 
-    public rotations: Identity[] = [];
+    public readonly rotations = signal<Identity[]>([]);
 
-    public readonly regions = this._org.region_list;
-    public readonly buildings = this._org.active_buildings;
-    public readonly levels = this._org.active_levels;
+    public readonly regions = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
 
     public setRegion(region: Region) {
         this._org.region = region;
-        this.active_building = undefined;
-        this.active_level = undefined;
+        this.active_region.set(region);
+        this.active_building.set(null);
+        this.active_level.set(null);
+        this.active_location.set(null);
         this.updateRotations();
     }
 
     public setBuilding(building: Building) {
         this._org.building = building;
-        this.active_level = undefined;
+        this.active_building.set(building);
+        this.active_level.set(null);
+        this.active_location.set(null);
         this.updateRotations();
     }
 
     /** List of available locations */
-    public get locations(): readonly Identity[] {
-        if (!this.active_level) {
+    public readonly locations = computed((): readonly Identity[] => {
+        const active_level = this.active_level();
+        if (!active_level) {
             return [];
         }
-        return this.active_level.locations || [];
-    }
+        return active_level.locations || [];
+    });
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
-        this.active_region = this._org.region;
+        this.active_region.set(this._org.region);
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
@@ -409,7 +425,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 if (params.has('level')) {
                     const level = this._org.levelWithID([params.get('level')]);
                     if (level) {
-                        this.active_level = level;
+                        this.active_level.set(level);
                         this.bootstrapKiosk();
                     }
                 }
@@ -419,9 +435,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public updateRotations() {
-        this.rotations = [];
-        if (!this.active_building) return;
-        const orientations = this.active_building.orientations;
+        this.rotations.set([]);
+        const active_building = this.active_building();
+        if (!active_building) {
+            this.active_rotation.set(null);
+            return;
+        }
+        const orientations = active_building.orientations;
         const rotations: Identity[] = [];
         for (const key in orientations) {
             if (orientations[key]) {
@@ -434,46 +454,51 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 });
             }
         }
-        this.rotations = rotations;
-        this.active_rotation = this.rotations[0];
+        this.rotations.set(rotations);
+        this.active_rotation.set(rotations[0] || null);
     }
 
     /**
      * Store bootstrapped values and navigate to the main page
      */
     public bootstrapKiosk() {
-        this.loading = 'Bootstrapping application...';
-        if (this.active_level) {
+        this.loading.set('Bootstrapping application...');
+        const active_level = this.active_level();
+        const active_building = this.active_building();
+        const active_rotation = this.active_rotation();
+        const active_location = this.active_location();
+        const parking = this.parking();
+        if (active_level) {
             if (localStorage) {
                 localStorage.setItem(
                     'KIOSK.building',
-                    this.active_building?.id || this.active_level.parent_id,
+                    active_building?.id || active_level.parent_id,
                 );
-                localStorage.setItem('KIOSK.level', this.active_level.id);
-                if (this.parking) localStorage.setItem('KIOSK.parking', `true`);
-                if (this.active_rotation) {
+                localStorage.setItem('KIOSK.level', active_level.id);
+                if (parking) localStorage.setItem('KIOSK.parking', `true`);
+                if (active_rotation) {
                     localStorage.setItem(
                         'KIOSK.orientation',
-                        `${this.active_rotation.id}`,
+                        `${active_rotation.id}`,
                     );
                 }
-                if (this.active_location) {
+                if (active_location) {
                     localStorage.setItem(
                         'KIOSK.location',
-                        `${this.active_location.id}`,
+                        `${active_location.id}`,
                     );
                 }
             }
-            this._router.navigate([this.parking ? '/parking' : '/explore']);
+            this._router.navigate([parking ? '/parking' : '/explore']);
         }
-        this.loading = null;
+        this.loading.set(null);
     }
 
     /**
      * Check for any existing bootstrapped values
      */
     private checkBootstrap() {
-        this.loading = 'Checking for existing parameters...';
+        this.loading.set('Checking for existing parameters...');
         const building_id = localStorage?.getItem('KIOSK.building');
         const level_id = localStorage?.getItem('KIOSK.level');
         const parking = localStorage?.getItem('KIOSK.parking');
@@ -482,6 +507,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
-        this.loading = null;
+        this.loading.set(null);
     }
 }

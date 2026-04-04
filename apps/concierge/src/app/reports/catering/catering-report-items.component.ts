@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CateringOption, OrganisationService } from '@placeos/common';
 import { SimpleTableComponent, TranslatePipe } from '@placeos/components';
@@ -23,7 +24,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="items"
+                [data]="items()"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
@@ -91,7 +92,9 @@ export class CateringReportItemsComponent {
     private _org = inject(OrganisationService);
 
     public readonly print = input(false);
-    public readonly items = this._report.catering_items;
+    public readonly items = toSignal(this._report.catering_items, {
+        initialValue: [],
+    });
 
     public get code() {
         return this._org.currency_code;

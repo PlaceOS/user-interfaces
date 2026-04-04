@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { addMinutes, format } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
@@ -41,7 +41,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                 </div>
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">schedule</icon>
-                    <span class="opacity-60">{{ time }}</span>
+                    <span class="opacity-60">{{ time() }}</span>
                 </div>
                 <div class="mb-2 flex items-center">
                     <icon class="mr-1">people</icon>
@@ -81,8 +81,8 @@ import { EventsStateService } from '../day-view/events-state.service';
                     <span class="opacity-60"
                         >{{ building.display_name || building.name }},
                         {{
-                            (space_id | space | async)?.display_name ||
-                                (space_id | space | async)?.name
+                            (space_id() | space | async)?.display_name ||
+                                (space_id() | space | async)?.name
                         }}</span
                     >
                 </div>
@@ -99,7 +99,7 @@ import { EventsStateService } from '../day-view/events-state.service';
                     ></span>
                 </div>
             </div>
-            @if (!is_delegated) {
+            @if (!is_delegated()) {
                 <div
                     name="actions"
                     class="justify-content flex items-center space-x-4 p-4"
@@ -178,23 +178,25 @@ export class ViewEventDetailsComponent {
         return this._org.building;
     }
 
-    public get space_id() {
+    public readonly space_id = computed(() => {
         const event = this.event();
         return event?.resources[0]?.id || event?.space?.id || event?.system?.id;
-    }
+    });
 
-    public get time() {
-        const date = new Date(this.event().date);
+    public readonly time = computed(() => {
+        const event = this.event();
+        if (!event) return '';
+        const date = new Date(event.date);
         return (
             format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event().duration), this.time_format)
+            format(addMinutes(date, event.duration), this.time_format)
         );
-    }
+    });
 
-    public get is_delegated() {
-        return this._settings.get('app.delegated');
-    }
+    public readonly is_delegated = computed(() =>
+        this._settings.get('app.delegated'),
+    );
 
     public get time_format() {
         return this._settings.time_format;

@@ -1,11 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AssetListFieldComponent } from '@placeos/assets';
 import { BookingFormService, DeskListFieldComponent } from '@placeos/bookings';
-import { AsyncHandler, Desk, SettingsService } from '@placeos/common';
+import { AsyncHandler, Desk, settingSignal } from '@placeos/common';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -55,7 +56,7 @@ import {
                             >
                             <a-time-field
                                 name="start-time"
-                                [ngModel]="form.value.date"
+                                [ngModel]="form_value().date"
                                 (ngModelChange)="
                                     form.patchValue({ date: $event })
                                 "
@@ -67,13 +68,13 @@ import {
                             <a-duration-field
                                 name="end-time"
                                 formControlName="duration"
-                                [time]="form.get('date')?.value"
+                                [time]="form_value().date"
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
                             >
                             </a-duration-field>
-                            @if (allow_all_day) {
+                            @if (allow_all_day()) {
                                 <mat-checkbox
                                     formControlName="all_day"
                                     class="absolute top-0 right-0"
@@ -83,11 +84,13 @@ import {
                             }
                         </div>
                     </div>
-                    @if (can_book_lockers) {
+                    @if (can_book_lockers()) {
                         <div class="flex items-center space-x-2">
                             <div class="w-1/3 flex-1">
                                 <mat-checkbox
-                                    [ngModel]="!!form.value.secondary_resource"
+                                    [ngModel]="
+                                        !!form_value().secondary_resource
+                                    "
                                     (ngModelChange)="
                                         form.patchValue({
                                             secondary_resource: $event
@@ -116,7 +119,7 @@ import {
                         formControlName="resources"
                     ></desk-list-field>
                 </section>
-                @if (allow_assets) {
+                @if (allow_assets()) {
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -128,8 +131,8 @@ import {
                         </h3>
                         <asset-list-field
                             [options]="{
-                                date: form.value.date,
-                                duration: form.value.duration,
+                                date: form_value().date,
+                                duration: form_value().duration,
                             }"
                             formControlName="assets"
                         ></asset-list-field>
@@ -154,21 +157,17 @@ import {
 })
 export class DeskBookingFormComponent extends AsyncHandler implements OnInit {
     private _service = inject(BookingFormService);
-    private _settings = inject(SettingsService);
 
     public readonly form = this._service.form;
-
-    public get allow_assets() {
-        return this._settings.get('app.desks.allow_assets');
-    }
-
-    public get allow_all_day() {
-        return this._settings.get('app.desks.allow_all_day');
-    }
-
-    public get can_book_lockers() {
-        return this._settings.get('app.desks.can_book_lockers');
-    }
+    public readonly form_value = toSignal(this.form.valueChanges, {
+        initialValue: this.form.getRawValue(),
+    });
+    public readonly allow_assets = settingSignal('desks.allow_assets', false);
+    public readonly allow_all_day = settingSignal('desks.allow_all_day', false);
+    public readonly can_book_lockers = settingSignal(
+        'desks.can_book_lockers',
+        false,
+    );
 
     public ngOnInit() {
         this._service.setOptions({ type: 'desk' });

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -13,7 +14,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { queryAnswers, Survey } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -68,12 +69,12 @@ import { NewSurveyService } from './new-survey.service';
             <date-range-field [week_start]="week_start">
                 <input
                     #startDate
-                    [ngModel]="(options$ | async).start"
+                    [ngModel]="options().start"
                     (ngModelChange)="$event ? setStartDate($event) : ''"
                 />
                 <input
                     #endDate
-                    [ngModel]="(options$ | async).start"
+                    [ngModel]="options().end"
                     (ngModelChange)="$event ? setEndDate($event) : ''"
                 />
             </date-range-field>
@@ -151,7 +152,7 @@ import { NewSurveyService } from './new-survey.service';
                 }}</span>
             </div>
         }
-        @if (loading$ | async) {
+        @if (loading()) {
             <div class="bg-base-100 absolute inset-0 z-10 flex opacity-60">
                 <div class="m-auto flex flex-col items-center space-y-4">
                     <mat-spinner [diameter]="32"></mat-spinner>
@@ -179,21 +180,20 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _service = inject(NewSurveyService);
 
-    public readonly options$ = new BehaviorSubject<any>({});
-    public readonly loading$ = new BehaviorSubject('');
+    public readonly options = signal<any>({});
+    public readonly loading = signal('');
+    private readonly _options = toObservable(this.options);
 
     public readonly survey$ = this._service.survey$;
     public readonly questions$ = this._service.survey_questions$;
 
     public readonly answers$ = combineLatest([
         this.survey$,
-        this.options$,
+        this._options,
     ]).pipe(
         filter(([_]) => !!_),
         switchMap(([{ id }, { start, end }]) => {
-            this.loading$.next(
-                addStringKey(this.loading$.getValue(), 'ANSWERS'),
-            );
+            this.loading.set(addStringKey(this.loading(), 'ANSWERS'));
             const q: any = {
                 survey_id: id,
             };
@@ -203,11 +203,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
             }
             return queryAnswers(q).pipe(catchError(() => of([])));
         }),
-        tap(() =>
-            this.loading$.next(
-                removeStringKey(this.loading$.getValue(), 'ANSWERS'),
-            ),
-        ),
+        tap(() => this.loading.set(removeStringKey(this.loading(), 'ANSWERS'))),
         shareReplay(1),
         startWith([]),
     );
@@ -253,10 +249,10 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
     }
 
     public setStartDate(date: number) {
-        this.options$.next({ ...this.options$.getValue(), start: date });
+        this.options.update((options) => ({ ...options, start: date }));
     }
 
     public setEndDate(date: number) {
-        this.options$.next({ ...this.options$.getValue(), end: date });
+        this.options.update((options) => ({ ...options, end: date }));
     }
 }

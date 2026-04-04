@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, input, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,7 +29,7 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 const ALLOWED_CALENDAR_ROLES = [
@@ -142,7 +150,7 @@ const ALLOWED_CALENDAR_ROLES = [
                         formControlName="resources"
                     ></space-list-field>
                 </div>
-                @if ((has_catering | async) && form().contains('catering')) {
+                @if (has_catering() && form().contains('catering')) {
                     <div class="py-2">
                         <label for="catering">Catering:</label>
                         <catering-list-field
@@ -156,9 +164,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                     form().value.resources[0]?.level?.parent_id,
                             }"
                         ></catering-list-field>
-                        @if (
-                            form().value.catering?.length && has_codes | async
-                        ) {
+                        @if (form().value.catering?.length && has_codes()) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
@@ -171,16 +177,13 @@ const ALLOWED_CALENDAR_ROLES = [
                                     <input
                                         #input
                                         class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
-                                        [ngModel]="code_filter.getValue()"
-                                        (ngModelChange)="
-                                            code_filter.next($event)
-                                        "
+                                        [(ngModel)]="code_filter"
                                         [ngModelOptions]="{ standalone: true }"
                                         placeholder="Search charge codes..."
                                     />
                                     <mat-option class="hidden"></mat-option>
                                     @for (
-                                        code of filtered_codes | async;
+                                        code of filtered_codes();
                                         track code
                                     ) {
                                         <mat-option [value]="code">
@@ -200,7 +203,7 @@ const ALLOWED_CALENDAR_ROLES = [
                                 [class.mt-2]="
                                     !(
                                         form().value.catering?.length &&
-                                            has_codes | async
+                                        has_codes()
                                     )
                                 "
                             >
@@ -327,28 +330,33 @@ export class EventFormComponent extends AsyncHandler {
         }
     }
 
-    public code_filter = new BehaviorSubject('');
+    public readonly code_filter = signal('');
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
+    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
+        initialValue: [],
+    });
+
+    public readonly has_catering = toSignal(
+        this._catering.available_menu.pipe(map((l) => l.length > 0)),
+        { initialValue: false },
     );
 
-    public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0),
-        tap((has_codes) => {
-            if (!has_codes) {
-                this.form().get('catering_charge_code').setValidators([]);
-                this.form().updateValueAndValidity();
-            }
-        }),
+    public readonly has_codes = toSignal(
+        this._catering.charge_codes.pipe(
+            map((l) => l.length > 0),
+            tap((has_codes) => {
+                if (!has_codes) {
+                    this.form().get('catering_charge_code').setValidators([]);
+                    this.form().updateValueAndValidity();
+                }
+            }),
+        ),
+        { initialValue: false },
     );
 
-    public readonly filtered_codes = combineLatest([
-        this.code_filter,
-        this._catering.charge_codes,
-    ]).pipe(
-        map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+    public readonly filtered_codes = computed(() =>
+        this._charge_codes().filter((_) =>
+            _.toLowerCase().includes(this.code_filter().toLowerCase()),
         ),
     );
 

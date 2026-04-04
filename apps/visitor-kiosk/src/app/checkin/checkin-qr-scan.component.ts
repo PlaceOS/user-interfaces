@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     OnDestroy,
+    computed,
     inject,
     signal,
     viewChild,
@@ -14,6 +15,7 @@ import {
     nextValueFrom,
     notifyError,
     scanForQRCode,
+    settingSignal,
 } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
@@ -41,8 +43,7 @@ import { CheckinStateService } from './checkin-state.service';
                 >
                     <input
                         matInput
-                        [ngModel]="email()"
-                        (ngModelChange)="email.set($event)"
+                        [(ngModel)]="email"
                         placeholder="Enter email..."
                         type="email"
                         autocomplete="off"
@@ -148,6 +149,17 @@ export class CheckinQRScanComponent
     public readonly scanner_ready = signal(false);
     /** Email address of the visitor */
     public readonly email = signal('');
+    public readonly induction_enabled = settingSignal(
+        'induction_enabled',
+        false,
+    );
+    public readonly induction_details = settingSignal('induction_details');
+    public readonly is_induction_enabled = computed(
+        () => this.induction_enabled() && this.induction_details(),
+    );
+    public readonly induction_after_details = settingSignal(
+        'induction_after_details',
+    );
     /** Video element to emit camera feed */
     private readonly _video_el =
         viewChild<ElementRef<HTMLVideoElement>>('video');
@@ -155,17 +167,6 @@ export class CheckinQRScanComponent
     private _canvas: HTMLCanvasElement;
     /** Canvas context */
     private _ctx: CanvasRenderingContext2D;
-
-    public get is_induction_enabled() {
-        return (
-            this._settings.get('app.induction_enabled') &&
-            this._settings.get('app.induction_details')
-        );
-    }
-
-    public get induction_after_details() {
-        return this._settings.get('app.induction_after_details');
-    }
 
     public ngAfterViewInit() {
         this._checkin.metadata = '';
@@ -218,7 +219,7 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        if (this.is_induction_enabled && event?.induction !== 'accepted') {
+        if (this.is_induction_enabled() && event?.induction !== 'accepted') {
             this._router.navigate(['/checkin', 'induction']);
         } else {
             this._router.navigate(['/checkin', 'details']);
@@ -257,8 +258,8 @@ export class CheckinQRScanComponent
         }
         if (
             event.induction !== 'accepted' &&
-            this.is_induction_enabled &&
-            !this.induction_after_details
+            this.is_induction_enabled() &&
+            !this.induction_after_details()
         ) {
             this._router.navigate(['/checkin', 'induction']);
         } else {

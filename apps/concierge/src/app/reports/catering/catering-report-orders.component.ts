@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -39,7 +40,7 @@ import { CateringReportStateService } from './catering-report-state.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="orders"
+                [data]="orders()"
                 [columns]="[
                     {
                         key: 'deliver_at',
@@ -92,7 +93,9 @@ export class CateringReportOrdersComponent {
     private _settings = inject(SettingsService);
 
     public readonly print = input(false);
-    public readonly orders = this._report.catering_orders;
+    public readonly orders = toSignal(this._report.catering_orders, {
+        initialValue: [],
+    });
 
     public get code() {
         return this._org.currency_code;

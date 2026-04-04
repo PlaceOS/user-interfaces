@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
@@ -40,7 +41,7 @@ import { VisitorsStateService } from './visitors-state.service';
         <simple-table
             class="z-0 block text-sm"
             [style.min-width]="68 + extra_width + 'rem'"
-            [data]="guests"
+            [data]="guests()"
             [columns]="[
                 {
                     key: 'state',
@@ -146,7 +147,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_out_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -175,7 +176,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_in_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -409,10 +410,10 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #time_template let-data="data">
             <div class="px-4">
-                {{ data * 1000 | date: time_format : tz }}
-                @if (timezone) {
+                {{ data * 1000 | date: time_format : tz() }}
+                @if (timezone()) {
                     <span class="text-xs opacity-30">
-                        {{ data * 1000 | date: 'zzzz' : tz }}
+                        {{ data * 1000 | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
@@ -441,14 +442,14 @@ import { VisitorsStateService } from './visitors-state.service';
                 {{
                     row.date
                         | date
-                            : ((filters | async)?.period > 1
+                            : (filters()?.period > 1
                                   ? 'MMM d, ' + time_format
                                   : time_format)
-                            : tz
+                            : tz()
                 }}
-                @if (timezone) {
+                @if (timezone()) {
                     <span class="text-xs opacity-30">
-                        {{ row.date | date: 'zzzz' : tz }}
+                        {{ row.date | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
@@ -694,7 +695,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 }
             </div>
         </ng-template>
-        @if ((guests | async)?.length) {
+        @if (guests().length) {
             <button
                 class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
@@ -731,13 +732,33 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly printing = signal('');
-    public readonly guests = this._state.filtered_bookings;
+    public readonly guests = toSignal(this._state.filtered_bookings, {
+        initialValue: [],
+    });
     public readonly search = this._state.search;
-    public readonly filters = this._state.filters;
+    public readonly filters = toSignal<any>(this._state.filters, {
+        initialValue: {} as any,
+    });
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
     public readonly user_pass = signal({});
+    public readonly active_building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    public readonly timezone = computed(() => {
+        this.active_building();
+        const use_tz = this._settings.get('app.bookings.use_building_timezone');
+        const bld_tz = this._org.building.timezone;
+        return use_tz &&
+            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
+            ? bld_tz
+            : '';
+    });
+    public readonly tz = computed(() => {
+        const tz = this.timezone();
+        return tz ? getTimezoneOffsetString(tz) : '';
+    });
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -748,21 +769,6 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     public get extra_width() {
         const hide = this._settings.get('app.visitors.hide_fields') || [];
         return Math.max(0, 3 - hide.length) * 6;
-    }
-
-    public get timezone() {
-        const use_tz = this._settings.get('app.bookings.use_building_timezone');
-        const bld_tz = this._org.building.timezone;
-        return use_tz &&
-            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
-            ? bld_tz
-            : '';
-    }
-
-    public get tz() {
-        const tz = this.timezone;
-        if (!tz) return '';
-        return getTimezoneOffsetString(tz);
     }
 
     public get allow_printing_label() {

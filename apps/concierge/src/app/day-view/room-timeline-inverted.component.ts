@@ -4,10 +4,12 @@ import {
     Component,
     ElementRef,
     OnInit,
+    computed,
     inject,
     signal,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -37,16 +39,9 @@ import {
     startOfMinute,
 } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import {
-    debounceTime,
-    filter,
-    first,
-    map,
-    shareReplay,
-    startWith,
-} from 'rxjs/operators';
+import { debounceTime, filter, first } from 'rxjs/operators';
 import { DateOptionsComponent } from '../ui/date-options.component';
-import { EventsStateService } from './events-state.service';
+import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingSearchComponent } from './room-booking-search.component';
 
 @Component({
@@ -63,12 +58,12 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             class="border-base-200 relative z-20 flex items-center justify-center space-x-2 border-b p-2"
         >
             <date-options
-                [date]="date | async"
+                [date]="date()"
                 (dateChange)="setDate($event)"
                 [is_new]="true"
                 [hide_today]="true"
             ></date-options>
-            @if (is_today | async) {
+            @if (is_today()) {
                 <div
                     class="text-info absolute top-1/2 left-4 -translate-y-1/2 text-sm"
                 >
@@ -91,7 +86,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 class="bg-base-100 sticky top-0 left-0 z-30 flex h-10 items-center justify-center"
             >
                 <div class="text-xs opacity-30">
-                    {{ date | async | date: 'zzzz' : tz }}
+                    {{ date() | date: 'zzzz' : tz }}
                 </div>
                 <div
                     class="bg-base-300 absolute right-0 bottom-0 h-2 w-px"
@@ -105,7 +100,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 class="border-base-300 bg-base-100 sticky top-0 z-20 flex h-10 items-center border-b"
                 [style.width]="block_range * block_width + 'rem'"
             >
-                @for (hour of hours; track hour; let i = $index) {
+                @for (hour of hours(); track hour; let i = $index) {
                     <div
                         class="relative flex h-full min-w-0 items-center justify-center"
                         [style.width]="block_width + 'rem'"
@@ -124,11 +119,9 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
             <div
                 room-headers
                 class="border-base-300 bg-base-100 sticky left-0 z-40 overflow-visible border-r"
-                [style.height]="
-                    ((spaces | async)?.length || 0) * row_height + 'rem'
-                "
+                [style.height]="spaces().length * row_height + 'rem'"
             >
-                @for (space of spaces | async; track space; let i = $index) {
+                @for (space of spaces(); track space; let i = $index) {
                     <div
                         class="border-base-200 flex w-full items-center border-b px-2 transition-colors duration-150"
                         [style.height]="row_height + 'rem'"
@@ -142,7 +135,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         <div
                             class="bg-base-200 text-base-content ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium"
                         >
-                            {{ ((events | async)[space.id] || []).length }}
+                            {{ (events()[space.id] || []).length }}
                         </div>
                     </div>
                 }
@@ -151,17 +144,15 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                 timeline-grid
                 class="relative z-0 overflow-hidden"
                 [style.width]="block_range * block_width + 'rem'"
-                [style.height]="
-                    ((spaces | async)?.length || 0) * row_height + 'rem'
-                "
+                [style.height]="spaces().length * row_height + 'rem'"
             >
-                @for (hour of hours; track hour; let i = $index) {
+                @for (hour of hours(); track hour; let i = $index) {
                     <div
                         class="bg-base-200 absolute top-0 h-full w-px"
                         [style.left]="i * block_width + 'rem'"
                     ></div>
                 }
-                @for (space of spaces | async; track space; let i = $index) {
+                @for (space of spaces(); track space; let i = $index) {
                     <div
                         class="absolute left-0 w-full rounded-sm transition-colors duration-150"
                         [style.top]="i * row_height + 'rem'"
@@ -174,13 +165,9 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         class="border-base-200 absolute left-0 w-full border-b"
                         [style.top]="i * row_height + row_height + 'rem'"
                     ></div>
-                    @for (
-                        event of (events | async)[space.id] || [];
-                        track event.id
-                    ) {
+                    @for (event of events()[space.id] || []; track event.id) {
                         @if (
-                            !event.is_system_event ||
-                            (ui_options | async).show_overflow
+                            !event.is_system_event || ui_options().show_overflow
                         ) {
                             <button
                                 event
@@ -254,7 +241,7 @@ import { RoomBookingSearchComponent } from './room-booking-search.component';
                         }
                     }
                 }
-                @if (show_time | async) {
+                @if (show_time()) {
                     <div
                         class="bg-secondary absolute inset-y-0 w-0.5"
                         [style.left]="timeToOffset(now) + '%'"
@@ -299,80 +286,83 @@ export class RoomBookingsInvertedTimelineComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _timeline_el = viewChild<ElementRef<HTMLElement>>('timeline_el');
+    private _building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    private _filtered = toSignal(this._state.filtered, { initialValue: [] });
     private _did_auto_scroll = false;
     public readonly hovered_row = signal(-1);
 
     public block_width = 7;
     public row_height = 2.75;
-    public readonly ui_options = this._state.options;
-    public readonly spaces = this._state.spaces;
-    public readonly date = this._state.date;
-    public readonly is_today = this.date.pipe(
-        map((d) => isSameDay(d, Date.now())),
+    public readonly ui_options = toSignal(this._state.options, {
+        initialValue: {} as BookingUIOptions,
+    });
+    public readonly spaces = toSignal(this._state.spaces, { initialValue: [] });
+    public readonly date = toSignal(this._state.date, {
+        initialValue: this._state.getDate(),
+    });
+    public readonly is_today = computed(() =>
+        isSameDay(this.date(), Date.now()),
     );
-    public readonly show_time = combineLatest([
-        this.date,
-        this._org.active_building,
-    ]).pipe(
-        map(([d]) => {
-            const today = isSameDay(d, Date.now());
-            const offset = this.timezone
-                ? getTimezoneDifferenceInHours(this.timezone)
-                : 0;
-            const start = addHours(
-                setHours(startOfDay(Date.now()), this.block_start),
-                -offset,
-            ).valueOf();
-            const end = addHours(
-                setHours(startOfDay(Date.now()), this.block_end),
-                -offset,
-            ).valueOf();
-            return today && Date.now() >= start && Date.now() <= end;
-        }),
-    );
-    public readonly events = combineLatest([
-        this._state.spaces,
-        this._state.filtered,
-        this.date,
-    ]).pipe(
-        debounceTime(300),
-        map(([spaces, events, date]) => {
-            const map = {};
-            const offset = this.timezone
-                ? getTimezoneDifferenceInHours(this.timezone)
-                : 0;
-            const start = addHours(
-                setHours(startOfDay(date), this.block_start),
-                -offset,
-            ).valueOf();
-            const end = addHours(
-                setHours(startOfDay(date), this.block_end),
-                -offset,
-            ).valueOf();
-            for (const space of spaces) {
-                map[space.id] = events
-                    .filter(
-                        (event) =>
-                            event.resources.find(
-                                (item) =>
-                                    item.id === space.id ||
-                                    item.email === space.email,
-                            ) ||
-                            event.system?.id === space.id ||
-                            event.system?.email === space.email,
-                    )
-                    .filter(
-                        (event) => event.date_end >= start && event.date <= end,
-                    );
-            }
-            return map;
-        }),
-        startWith({}),
-        shareReplay(1),
-    );
+    public readonly show_time = computed(() => {
+        this._building();
+        const date = this.date();
+        const today = isSameDay(date, Date.now());
+        const offset = this.timezone
+            ? getTimezoneDifferenceInHours(this.timezone)
+            : 0;
+        const start = addHours(
+            setHours(startOfDay(Date.now()), this.block_start),
+            -offset,
+        ).valueOf();
+        const end = addHours(
+            setHours(startOfDay(Date.now()), this.block_end),
+            -offset,
+        ).valueOf();
+        return today && Date.now() >= start && Date.now() <= end;
+    });
+    public readonly events = computed(() => {
+        const spaces = this.spaces();
+        const events = this._filtered();
+        const date = this.date();
+        const event_map = {};
+        const offset = this.timezone
+            ? getTimezoneDifferenceInHours(this.timezone)
+            : 0;
+        const start = addHours(
+            setHours(startOfDay(date), this.block_start),
+            -offset,
+        ).valueOf();
+        const end = addHours(
+            setHours(startOfDay(date), this.block_end),
+            -offset,
+        ).valueOf();
+        for (const space of spaces) {
+            event_map[space.id] = events
+                .filter(
+                    (event) =>
+                        event.resources.find(
+                            (item) =>
+                                item.id === space.id ||
+                                item.email === space.email,
+                        ) ||
+                        event.system?.id === space.id ||
+                        event.system?.email === space.email,
+                )
+                .filter(
+                    (event) => event.date_end >= start && event.date <= end,
+                );
+        }
+        return event_map;
+    });
 
     private _hour_list = Array.from({ length: 24 }, (_, i) => i);
-    public hours: number[] = [];
+    public readonly hours = computed(() =>
+        this._hour_list.filter(
+            (hour) => hour >= this.block_start && hour < this.block_end,
+        ),
+    );
 
     public get now() {
         return startOfMinute(Date.now()).valueOf();
@@ -434,24 +424,13 @@ Host:  ${event.organiser?.name || event.host}`;
         this.subscription('poll', this._state.startPolling());
         this.subscription(
             'auto_scroll',
-            combineLatest([this.date, this.spaces])
+            combineLatest([this._state.date, this._state.spaces])
                 .pipe(
                     debounceTime(100),
                     filter(([_, spaces]) => spaces.length > 0),
                     first(),
                 )
                 .subscribe(([date]) => this._autoScrollToCurrentTime(date)),
-        );
-        this.subscription(
-            'hour_list',
-            this._org.active_building.subscribe(() => {
-                this.hours = this._hour_list.filter(
-                    (h) => h >= this.block_start && h < this.block_end,
-                );
-            }),
-        );
-        this.hours = this._hour_list.filter(
-            (h) => h >= this.block_start && h < this.block_end,
         );
     }
 

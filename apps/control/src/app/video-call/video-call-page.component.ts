@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,31 +25,28 @@ import { getModule } from '@placeos/ts-client';
 import { filter } from 'rxjs/operators';
 import { ControlStateService } from '../control-state.service';
 import { DialpadComponent } from '../ui/dialpad.component';
-import { VideoCallStateService } from './video-call-state.service';
+import { VideoCallStateService, VideoLayout } from './video-call-state.service';
 
 @Component({
     selector: '[video-call-page]',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div class="h-full w-full p-2">
                 <div class="flex h-1/2 flex-1">
                     <div
                         class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
                     >
-                        @if ((camera_list | async)?.length > 1) {
+                        @if (camera_list()?.length > 1) {
                             <mat-form-field
                                 appearance="outline"
                                 class="h-12 w-full"
                             >
                                 <mat-select
-                                    [ngModel]="selected_camera"
+                                    [ngModel]="selected_camera()"
                                     (ngModelChange)="selectCamera($event)"
                                     placeholder="Select Camera"
                                 >
-                                    @for (
-                                        cam of camera_list | async;
-                                        track cam
-                                    ) {
+                                    @for (cam of camera_list(); track cam) {
                                         <mat-option [value]="cam.id">
                                             {{ cam.name }}
                                         </mat-option>
@@ -49,7 +54,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (present_output() && (presentables$ | async)) {
+                        @if (present_output() && presentables()) {
                             <mat-form-field
                                 appearance="outline"
                                 class="h-14 w-full"
@@ -61,10 +66,7 @@ import { VideoCallStateService } from './video-call-state.service';
                                     "
                                     placeholder="Select presentation source"
                                 >
-                                    @for (
-                                        opt of presentables$ | async;
-                                        track opt
-                                    ) {
+                                    @for (opt of presentables(); track opt) {
                                         <mat-option [value]="opt">{{
                                             opt.name
                                         }}</mat-option>
@@ -80,7 +82,7 @@ import { VideoCallStateService } from './video-call-state.service';
                             class="h-14 w-full"
                         >
                             <mat-select
-                                [ngModel]="presentation_mode | async"
+                                [ngModel]="presentation_mode()"
                                 (ngModelChange)="setPresentationMode($event)"
                                 placeholder="Select HDMI content destination"
                             >
@@ -106,7 +108,7 @@ import { VideoCallStateService } from './video-call-state.service';
                             class="h-14 w-full"
                         >
                             <mat-select
-                                [ngModel]="video_layout | async"
+                                [ngModel]="video_layout()"
                                 (ngModelChange)="setVideoLayout($event)"
                                 [placeholder]="
                                     'APP.CONTROL.VC_LAYOUT_SELECT' | translate
@@ -147,14 +149,14 @@ import { VideoCallStateService } from './video-call-state.service';
                             matRipple
                             class="w-full"
                             (click)="toggleMute()"
-                            [class.inverse]="!(mic_mute | async)"
+                            [class.inverse]="!mic_mute()"
                         >
                             <div class="flex items-center space-x-4">
                                 <icon>{{
-                                    (mic_mute | async) ? 'mic_off' : 'mic'
+                                    mic_mute() ? 'mic_off' : 'mic'
                                 }}</icon>
                                 <span>{{
-                                    ((mic_mute | async)
+                                    (mic_mute()
                                         ? 'APP.CONTROL.VC_MICS_UNMUTE'
                                         : 'APP.CONTROL.VC_MICS_MUTE'
                                     ) | translate
@@ -165,19 +167,17 @@ import { VideoCallStateService } from './video-call-state.service';
                             btn
                             matRipple
                             class="w-full"
-                            [class.inverse]="
-                                (call | async)?.Status !== 'OnHold'
-                            "
+                            [class.inverse]="call()?.Status !== 'OnHold'"
                             (click)="toggleOnHold()"
                         >
                             <div class="flex items-center space-x-4">
                                 <icon>{{
-                                    (call | async)?.Status !== 'OnHold'
+                                    call()?.Status !== 'OnHold'
                                         ? 'stop'
                                         : 'play_arrow'
                                 }}</icon>
                                 <span>{{
-                                    ((call | async)?.Status !== 'OnHold'
+                                    (call()?.Status !== 'OnHold'
                                         ? 'APP.CONTROL.VC_ON_HOLD'
                                         : 'APP.CONTROL.VC_RESUME'
                                     ) | translate
@@ -189,16 +189,16 @@ import { VideoCallStateService } from './video-call-state.service';
                             matRipple
                             class="w-full"
                             (click)="toggleCamera()"
-                            [class.inverse]="show_camera_pip | async"
+                            [class.inverse]="show_camera_pip()"
                         >
                             <div class="flex items-center space-x-4">
                                 <icon>{{
-                                    !(show_camera_pip | async)
+                                    !show_camera_pip()
                                         ? 'visibility_off'
                                         : 'visibility'
                                 }}</icon>
                                 <span>{{
-                                    ((show_camera_pip | async)
+                                    (show_camera_pip()
                                         ? 'APP.CONTROL.VC_PIP_HIDE'
                                         : 'APP.CONTROL.VC_PIP_SHOW'
                                     ) | translate
@@ -213,7 +213,7 @@ import { VideoCallStateService } from './video-call-state.service';
                 class="flex h-full w-full flex-col items-center justify-center space-y-2 p-24 text-black"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>
-                <p>{{ loading }}</p>
+                <p>{{ loading() }}</p>
             </div>
         }
     `,
@@ -243,24 +243,45 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
 
     public readonly redirect = input(true);
     public readonly present_output = input('');
-    public loading = '';
-    public readonly call = this._state.call;
-    public readonly show_camera_pip = this._state.show_camera_pip;
-    public readonly mic_mute = this._state.mic_mute;
-    public readonly video_layout = this._state.video_layout;
-    public readonly presentation_mode = this._state.presentation_mode;
-    public readonly presentables$ = this._control.presentables$;
+    public readonly loading = signal('');
+    public readonly call = toSignal(this._state.call, {
+        initialValue: null,
+    });
+    private readonly _show_camera_pip = toSignal(this._state.show_camera_pip, {
+        initialValue: null,
+    });
+    public readonly show_camera_pip = computed(() => !!this._show_camera_pip());
+    private readonly _mic_mute = toSignal(this._state.mic_mute, {
+        initialValue: null,
+    });
+    public readonly mic_mute = computed(() => !!this._mic_mute());
+    public readonly video_layout = toSignal(this._state.video_layout as never, {
+        initialValue: null as VideoLayout | null,
+    });
+    public readonly presentation_mode = toSignal(
+        this._state.presentation_mode as never,
+        {
+            initialValue: null as 'None' | 'Local' | 'Remote' | null,
+        },
+    );
+    public readonly presentables = toSignal(this._control.presentables$, {
+        initialValue: [],
+    });
     /** List of available cameras to select from */
-    public readonly camera_list = this._control.camera_list;
+    public readonly camera_list = toSignal(this._control.camera_list, {
+        initialValue: [],
+    });
     public readonly video_layouts = [
         'Auto',
         'Equal',
         'Overlay',
         'Prominent',
         'Single',
-    ];
+    ] satisfies VideoLayout[];
 
-    public readonly selected_camera = this._control.selected_camera;
+    public readonly selected_camera = toSignal(this._control.selected_camera, {
+        initialValue: '',
+    });
 
     public readonly sentDTMF = (d) => this._state.sendDTMF(d);
     public readonly setPresentationSource = (i) =>
@@ -269,14 +290,14 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
         this._state.setPresentationMode(d);
     public readonly setVideoLayout = (d) => this._state.setVideoLayout(d);
     public readonly toggleCamera = async () =>
-        this._state.showCameraPIP(!(await nextValueFrom(this.show_camera_pip)));
+        this._state.showCameraPIP(!this.show_camera_pip());
     public readonly toggleMute = async () =>
-        this._state.muteMicrophone(!(await nextValueFrom(this.mic_mute)));
+        this._state.muteMicrophone(!this.mic_mute());
     public readonly toggleOnHold = () => this._state.toggleCallOnHold();
     public readonly endCall = async () => {
-        this.loading = i18n('APP.CONTROL.VC_LEAVE_LOADING');
+        this.loading.set(i18n('APP.CONTROL.VC_LEAVE_LOADING'));
         await this._state.hangup().catch((_) => {
-            this.loading = '';
+            this.loading.set('');
             notifyError(i18n('APP.CONTROL.VC_LEAVE_ERROR', { error: _ }));
             throw _;
         });
@@ -284,7 +305,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
     };
 
     public async ngOnInit() {
-        this.loading = i18n('APP.CONTROL.VC_LOADING');
+        this.loading.set(i18n('APP.CONTROL.VC_LOADING'));
         this.timeout(
             'check_call',
             () => {
@@ -294,7 +315,7 @@ export class VideoCallPageComponent extends AsyncHandler implements OnInit {
             5000,
         );
         await nextValueFrom(this._state.call.pipe(filter((_) => !!_)));
-        this.loading = '';
+        this.loading.set('');
         this.clearTimeout('check_call');
     }
 

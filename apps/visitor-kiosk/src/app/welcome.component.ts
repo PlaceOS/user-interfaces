@@ -97,7 +97,7 @@ import {
             <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
             </div>
-            @if (locales.length > 1) {
+            @if (locales().length > 1) {
                 <button
                     class="absolute top-4 left-4"
                     [matMenuTriggerFor]="menu"
@@ -204,11 +204,12 @@ export class WelcomeComponent
     public readonly can_register = settingSignal('allow_self_registration');
     public readonly hide_building_image = settingSignal('hide_building_image');
     public readonly welcome_message = settingSignal('welcome_message');
-    public readonly locales = settingSignal('locales');
+    public readonly locales = settingSignal('locales', []);
     public readonly is_public_mode = isPublicMode;
+    public readonly locale = signal(this._locale.locale);
     public readonly active_locale = computed(() => {
         const locale_list = this.locales();
-        const locale = this._locale.locale;
+        const locale = this.locale();
         for (const item of locale_list) {
             if (item.id === locale) return item.name;
         }
@@ -216,6 +217,7 @@ export class WelcomeComponent
     });
 
     public readonly setLocale = (code: string) => {
+        this.locale.set(code);
         this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
         setTimeout(() => location.reload(), 300);

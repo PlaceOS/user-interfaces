@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,9 +14,9 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: '[checkin-details]',
     template: `
-        @if ((form | async) && !loading()) {
+        @if (ready_form(); as form_group) {
             <form
-                [formGroup]="form | async"
+                [formGroup]="form_group"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h3 class="m-4 text-2xl">Confirm Details</h3>
@@ -175,8 +176,12 @@ export class CheckinDetailsComponent implements OnInit {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
 
-    public readonly form = this._checkin.form;
+    public readonly form$ = this._checkin.form;
+    public readonly form = toSignal(this.form$, { initialValue: null });
     public readonly loading = signal(false);
+    public readonly ready_form = computed(() =>
+        this.loading() ? null : this.form(),
+    );
     public readonly induction_after_details = settingSignal(
         'induction_after_details',
         false,
@@ -185,19 +190,28 @@ export class CheckinDetailsComponent implements OnInit {
         'allow_pass_number',
         false,
     );
+    public readonly induction_enabled = settingSignal(
+        'induction_enabled',
+        false,
+    );
+    public readonly induction_details = settingSignal('induction_details');
+    public readonly allow_printing_label = settingSignal(
+        'allow_printing_label',
+        false,
+    );
+    public readonly allow_user_photo_setting = settingSignal(
+        'allow_user_photo',
+        false,
+    );
     public readonly induction_available = computed(
-        () =>
-            settingSignal('induction_enabled', false)() &&
-            settingSignal('induction_details')(),
+        () => this.induction_enabled() && this.induction_details(),
     );
     public readonly allow_user_photo = computed(
-        () =>
-            settingSignal('allow_user_photo', false)() &&
-            settingSignal('allow_printing_label', false)(),
+        () => this.allow_user_photo_setting() && this.allow_printing_label(),
     );
 
     public async ngOnInit() {
-        const form = await nextValueFrom(this.form.pipe(first()));
+        const form = await nextValueFrom(this.form$.pipe(first()));
         const event = await nextValueFrom(this._checkin.event.pipe(first()));
         if (this._checkin.metadata === 'registered') {
             this.updateGuest(false);

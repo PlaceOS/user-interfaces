@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -11,23 +12,22 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest, map } from 'rxjs';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-bookings-list',
     template: `
-        @if ((period | async) === 'week') {
+        @if (period() === 'week') {
             <parking-bookings-week-view />
         } @else {
             <mat-progress-bar
-                [class.opacity-0]="!(loading | async)?.includes('bookings')"
+                [class.opacity-0]="!loading().includes('[BOOKINGS]')"
                 class="sticky left-0 w-full"
             />
             <simple-table
                 class="block min-w-304 text-sm"
-                [data]="filtered_events"
+                [data]="filtered_events()"
                 [columns]="[
                     {
                         key: 'state',
@@ -73,14 +73,17 @@ import { ParkingStateService } from './parking-state.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
+                        size: '6.5rem',
                         sortable: false,
                     },
                 ]"
-                [filter]="(options | async)?.search"
+                [filter]="options().search"
                 [sortable]="true"
                 [empty_message]="
-                    'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY' | translate
+                    (isRequestFilter(options().request_filter)
+                        ? 'APP.CONCIERGE.PARKING_REQUESTS_EMPTY'
+                        : 'APP.CONCIERGE.PARKING_BOOKINGS_EMPTY'
+                    ) | translate
                 "
             />
             <ng-template #date_template let-row="row">
@@ -157,7 +160,13 @@ import { ParkingStateService } from './parking-state.service';
             </ng-template>
             <ng-template #bay_template let-id="data">
                 <div class="px-4 py-2">
-                    {{ (id | parkingSpace | async)?.identifier || id }}
+                    @if (id && !isRequestId(id)) {
+                        {{ (id | parkingSpace | async)?.identifier || id }}
+                    } @else {
+                        <span class="opacity-30">
+                            {{ 'COMMON.EMPTY' | translate }}
+                        </span>
+                    }
                 </div>
             </ng-template>
             <ng-template #plate_template let-row="row">
@@ -185,9 +194,17 @@ import { ParkingStateService } from './parking-state.service';
                         [class.bg-neutral]="row?.status === 'ended'"
                         [class.opacity-30]="row?.status === 'ended'"
                         [class.text-warning-content]="
-                            row?.status === 'tentative'
+                            row?.status === 'tentative' && !isWaitlisted(row)
                         "
-                        [class.bg-warning]="row?.status === 'tentative'"
+                        [class.bg-warning]="
+                            row?.status === 'tentative' && !isWaitlisted(row)
+                        "
+                        [class.text-info-content]="
+                            row?.status === 'tentative' && isWaitlisted(row)
+                        "
+                        [class.bg-info]="
+                            row?.status === 'tentative' && isWaitlisted(row)
+                        "
                         [matMenuTriggerFor]="menu"
                         [disabled]="row?.status === 'ended'"
                     >
@@ -200,7 +217,9 @@ import { ParkingStateService } from './parking-state.service';
                                           ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                           : row?.status === 'declined'
                                             ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                            : isWaitlisted(row)
+                                              ? 'APP.CONCIERGE.PARKING_WAITLISTED'
+                                              : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
                                 }}
                             </div>
@@ -233,6 +252,23 @@ import { ParkingStateService } from './parking-state.service';
             </ng-template>
             <ng-template #action_template let-row="row">
                 <div class="mx-auto flex items-center justify-end space-x-2">
+                    @if (isRequest(row)) {
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="
+                                row.checked_in ||
+                                row.state === 'in_progress' ||
+                                row.status === 'ended'
+                            "
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
+                            "
+                            (click)="assignSpace(row)"
+                        >
+                            <icon class="text-2xl">add_location</icon>
+                        </button>
+                    }
                     <button
                         icon
                         matRipple
@@ -273,48 +309,55 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly events = this._state.bookings;
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
-    public readonly period = this._state.period;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly filtered_events = combineLatest([
-        this._state.bookings,
-        this.options,
-    ]).pipe(
-        map(([booking_list, { search }]) => {
-            const show_requests = !!this._settings.get(
-                'app.parking.show_requests',
-            );
-            const list = show_requests
-                ? booking_list.filter(
-                      (b) => !b.asset_id?.startsWith('unallocated'),
-                  )
-                : booking_list;
-            const s = search.toLowerCase();
-            return !s
-                ? list
-                : list.filter(
-                      (b) =>
-                          b.user_name.toLowerCase().includes(s) ||
-                          b.user_email.toLowerCase().includes(s) ||
-                          b.booked_by_name.toLowerCase().includes(s) ||
-                          b.booked_by_email.toLowerCase().includes(s) ||
-                          b.asset_name.toLowerCase().includes(s),
-                  );
-        }),
-    );
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day',
+    });
+
+    public readonly filtered_events = computed(() => {
+        const { search, request_filter } = this.options();
+        const list = this._state.filterEventList(
+            this.bookings(),
+            request_filter,
+        );
+        return this._state.filterEventSearch(list, search);
+    });
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
     public readonly editReservation = (e) => this._state.editReservation(e);
+    public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly isRequest = (e) => this._state.isRequest(e);
+    public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
 
     public get time_format() {
         return this._settings.time_format;
     }
 
-    public get week_start() {
-        return this._settings.get('app.week_start') || 0;
+    public isRequestFilter(filter_type?: string) {
+        return ['manual', 'pending', 'requests', 'waitlist'].includes(
+            filter_type || '',
+        );
+    }
+
+    public isRequestId(id?: string) {
+        return !!id?.startsWith('unallocated');
     }
 
     public ngOnInit() {
