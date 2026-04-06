@@ -137,6 +137,7 @@ export class PlaceOS_Service extends AsyncHandler {
         localStorage.setItem('TESTING.callback_url', callback_url.toString());
         const search = callback_url.searchParams.toString();
         if (!search) return;
+
         await closeNativeBrowser();
         location.replace(`${location.origin}${location.pathname}?${search}`);
         setTimeout(() => console.log('NATIVE CALLBACK URL', url), 10 * 1000);
