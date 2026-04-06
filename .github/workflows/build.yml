@@ -33,9 +33,9 @@ jobs:
               with:
                   node-version: '20'
 
-            - name: NPM install
+            - name: Install dependencies
               if: steps.cache.outputs.cache-hit != 'true'
-              run: npm install --force
+              run: npm ci
 
             - name: Get short hash
               id: vars
