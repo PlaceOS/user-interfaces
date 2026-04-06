@@ -37,7 +37,7 @@ jobs:
                   java-version: '21'
 
             - name: Install dependencies
-              run: npm install --force
+              run: npm ci
 
             - name: Setup version
               run: npm run postinstall
@@ -67,7 +67,7 @@ jobs:
                   cache: 'npm'
 
             - name: Install dependencies
-              run: npm install --force
+              run: npm ci
 
             - name: Setup version
               run: npm run postinstall

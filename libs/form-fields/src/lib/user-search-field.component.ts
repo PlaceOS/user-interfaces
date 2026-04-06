@@ -109,23 +109,25 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                     ) {
                         <mat-option class="pointer-events-none relative">
                             <div
-                                class="pointer-events-auto absolute inset-0 px-4"
+                                class="pointer-events-auto absolute inset-0 flex items-center px-4"
                                 (mousedown)="stopEvent($event)"
                                 (touchstart)="stopEvent($event)"
                                 (click)="
                                     setValueFromEmail(term); stopEvent($event)
                                 "
                             >
-                                <div class="pointer-events-none">
-                                    {{
-                                        'FORM.USER_ADD_EXTERNAL'
-                                            | translate: { name: term }
-                                    }}
-                                </div>
+                                {{
+                                    'FORM.USER_SET_EXTERNAL'
+                                        | translate: { name: term }
+                                }}
                             </div>
                         </mat-option>
                     }
-                    @if (!user_list?.length && (search_term() || error())) {
+                    @if (
+                        !user_list?.length &&
+                        (search_term() || error()) &&
+                        !disable_search()
+                    ) {
                         <mat-option
                             [disabled]="!empty_fn()"
                             (click)="empty_fn()()"
@@ -198,6 +200,10 @@ export class UserSearchFieldComponent
     public readonly options = input<User[]>(undefined);
     /** Whether guests should also show when searching for users */
     public readonly guests = input<boolean>(undefined);
+    /** Whether only guests should show when searching for users */
+    public readonly guests_only = input<boolean>(false);
+    /** Whether directory search should be disabled */
+    public readonly disable_search = input<boolean>(false);
     /** Whether to show clear button */
     public readonly clear = input<boolean>(false);
     /** Message to display when no user matches have been found */
@@ -211,25 +217,27 @@ export class UserSearchFieldComponent
     /** Function for filtering the results of the user list */
     public readonly filter = input<(_: any, s?: string) => boolean>(undefined);
     /** Function for querying the user list */
-    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) =>
-        this.use_basic_search()
+    public readonly query_fn = input<(_: string) => Observable<User[]>>((q) => {
+        const staff_query = this.use_basic_search()
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((_) => new User(_))),
                   catchError(() => of([])),
               )
-            : this.guests()
-              ? forkJoin([
-                    searchStaff(q).pipe(catchError(() => of([]))),
-                    searchGuests(q).pipe(catchError(() => of([]))),
-                ])
-              : searchStaff(q).pipe(catchError(() => of([]))),
-    );
+            : searchStaff(q).pipe(catchError(() => of([])));
+        const guest_query = searchGuests(q).pipe(catchError(() => of([])));
+        if (this.guests_only()) return guest_query;
+        if (!this.guests()) return staff_query;
+        return forkJoin([staff_query, guest_query]).pipe(
+            map(([staff, guests]) => [...staff, ...guests]),
+        );
+    });
 
     public readonly search_results = toObservable(this.search_term).pipe(
         debounceTime(300),
         switchMap((term) => {
             if (term && typeof term !== 'string') return of([term]);
             if (term === this.user()?.name) return of([this.user()]);
+            if (this.disable_search()) return of([]);
             this.loading.set(true);
             const s = `${term || ''}`.toLowerCase();
             return this.options()?.length

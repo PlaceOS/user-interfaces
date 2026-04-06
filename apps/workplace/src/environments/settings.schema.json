@@ -343,6 +343,11 @@
                     "type": "array",
                     "description": "Optional list of user groups that can see this request type. If empty or omitted, the type is visible to all users.",
                     "items": { "type": "string" }
+                },
+                "book_as": {
+                    "type": "string",
+                    "enum": ["internals", "externals", "both"],
+                    "description": "Optional host selection mode for this request type. When omitted or invalid, the host field is hidden."
                 }
             }
         },
