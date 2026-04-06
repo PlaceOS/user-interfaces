@@ -13,13 +13,13 @@ jobs:
     install_deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
               with:
                   fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -29,9 +29,9 @@ jobs:
                       ${{ runner.os }}-
 
             - name: Setup Node.js environment
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
-                  node-version: '20'
+                  node-version: '24'
 
             - name: Install dependencies
               if: steps.cache.outputs.cache-hit != 'true'
@@ -87,11 +87,11 @@ jobs:
             matrix:
                 package: ${{ fromJSON(needs.install_deps.outputs.affected_units) }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -102,7 +102,7 @@ jobs:
 
             - name: Cache nx build cache
               id: cache-nx
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules/.cache/nx
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
@@ -130,11 +130,11 @@ jobs:
             short_sha: ${{ needs.install_deps.outputs.short_sha }}
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
 
             - name: Cache node modules
               id: cache
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -145,7 +145,7 @@ jobs:
 
             - name: Cache nx build cache
               id: cache-nx
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: node_modules/.cache/nx
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/package-lock.json') }}
