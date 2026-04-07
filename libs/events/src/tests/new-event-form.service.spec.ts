@@ -97,4 +97,33 @@ describe('EventFormService', () => {
         expect(service.last_success()?.title).toBe('Updated booking');
         expect(service.last_success()?.date_end).toBe(date + 60 * 60 * 1000);
     });
+
+    it('should keep custom all-day events marked all-day in the form', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+
+        service.newForm(event);
+
+        expect(service.form.getRawValue().all_day).toBe(true);
+    });
+
+    it('should keep custom all-day events marked all-day after reloading the form', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+        sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
+
+        service.loadForm();
+
+        expect(service.form.getRawValue().all_day).toBe(true);
+    });
 });

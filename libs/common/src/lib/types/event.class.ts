@@ -338,8 +338,7 @@ export class CalendarEvent {
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
         const custom_all_day = !!(
-            data.extension_data?.custom_all_day ||
-            (data as any).custom_all_day
+            data.extension_data?.custom_all_day || (data as any).custom_all_day
         );
         this.id = data.event_id || data.id || '';
         this.event_start =
@@ -626,7 +625,11 @@ export class CalendarEvent {
             obj.all_day = false;
             obj.extension_data.custom_all_day = true;
         } else {
-            delete obj.extension_data.custom_all_day;
+            if (this.id) {
+                obj.extension_data.custom_all_day = false;
+            } else {
+                delete obj.extension_data.custom_all_day;
+            }
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null }),

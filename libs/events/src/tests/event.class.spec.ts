@@ -199,6 +199,20 @@ describe('CalendarEvent', () => {
         expect(json.extension_data.all_day_date).toBe('2028-06-15');
     });
 
+    it('should clear custom all-day metadata when updating an existing event', () => {
+        event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(false);
+    });
+
     it('should expose list of guests for event', () => {
         setInternalUserDomain('work.com');
         expect(event.guests).toEqual([]);
