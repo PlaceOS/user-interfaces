@@ -114,7 +114,17 @@ import { ParkingService } from './parking.service';
                     >
                         chevron_right
                     </icon>
+                    @if (booking()?.checked_in && !booking()?.is_done) {
+                        <div
+                            checked-in-badge
+                            class="bg-success text-success-content absolute top-2 right-2 flex items-center space-x-1 rounded-xl px-2 py-1 text-xs"
+                        >
+                            <icon class="text-sm">check_circle</icon>
+                            <span>{{ 'COMMON.CHECKED_IN' | translate }}</span>
+                        </div>
+                    }
                     @if (
+                        !booking()?.checked_in &&
                         !for_current_user() &&
                         booking()?.booking_type !== 'group-event'
                     ) {
@@ -124,14 +134,19 @@ import { ParkingService } from './parking.service';
                             {{ 'BOOKINGS.ASSOCIATE' | translate }}
                         </div>
                     }
-                    @if (booking()?.booking_type === 'group-event') {
+                    @if (
+                        !booking()?.checked_in &&
+                        booking()?.booking_type === 'group-event'
+                    ) {
                         <div
                             class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
                             {{ 'BOOKINGS.EVENT' | translate }}
                         </div>
                     }
-                    @if (is_reserved_parking_space()) {
+                    @if (
+                        !booking()?.checked_in && is_reserved_parking_space()
+                    ) {
                         <div
                             class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
