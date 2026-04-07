@@ -370,6 +370,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                     edit_fn: this.edit_booking_fn,
                     remove_fn: this.remove_fn,
                     end_fn: this.end_fn,
+                    refresh_fn: () => this._state.refreshUpcomingEvents(),
                 };
                 this._dialog.open(view_component, { data });
             } else if (event instanceof CalendarEvent) {
