@@ -162,7 +162,10 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                             booking.status === 'ended'
                                         "
                                         [matMenuTriggerFor]="menu"
-                                        [disabled]="booking.status === 'ended'"
+                                        [disabled]="
+                                            booking.status === 'ended' ||
+                                            !canApproveBooking(booking)
+                                        "
                                     >
                                         {{
                                             (booking.status === 'ended'
@@ -181,6 +184,9 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                     <mat-menu #menu="matMenu">
                                         <button
                                             mat-menu-item
+                                            [disabled]="
+                                                !canApproveBooking(booking)
+                                            "
                                             (click)="approve(booking)"
                                         >
                                             <div
@@ -199,6 +205,9 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         </button>
                                         <button
                                             mat-menu-item
+                                            [disabled]="
+                                                !canApproveBooking(booking)
+                                            "
                                             (click)="reject(booking)"
                                         >
                                             <div
@@ -366,6 +375,8 @@ export class ParkingBookingsWeekViewComponent
     public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
     public readonly isRequest = (e: Booking) => this._state.isRequest(e);
     public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
+    public readonly canApproveBooking = (e: Booking) =>
+        this._state.canApproveBooking(e);
 
     public get time_format() {
         return this._settings.time_format;

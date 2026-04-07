@@ -6,7 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ParkingSpacePipe } from '@placeos/assets';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -206,7 +206,9 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             row?.status === 'tentative' && isWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="
+                            row?.status === 'ended' || !canApproveBooking(row)
+                        "
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
@@ -228,7 +230,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="approve(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canApproveBooking(row)"
+                        (click)="approve(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
@@ -238,7 +244,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             </div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="reject(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canApproveBooking(row)"
+                        (click)="reject(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
@@ -345,6 +355,8 @@ export class ParkingBookingsListComponent
     public readonly assignSpace = (e) => this._state.assignSpace(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
+    public readonly canApproveBooking = (e: Booking) =>
+        this._state.canApproveBooking(e);
 
     public get time_format() {
         return this._settings.time_format;

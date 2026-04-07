@@ -85,4 +85,61 @@ describe('ParkingStateService', () => {
         subscription.unsubscribe();
         jest.useRealTimers();
     });
+
+    it('should not filter requests by approver group in event lists', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as jest.Mock).mockImplementation((name: string) => {
+            if (name === 'app.parking.show_requests') return true;
+            if (name === 'app.use_region') return false;
+            if (name === 'app.bookings.use_building_timezone') return true;
+            return undefined;
+        });
+        const request = {
+            id: 'req-1',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: Date.now(),
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+
+        expect(
+            spectator.service.filterEventList([request], 'requests'),
+        ).toEqual([request]);
+    });
+
+    it('should only allow approval for matching approver groups', () => {
+        const restricted_request = {
+            asset_id: 'unallocated-1',
+            extension_data: { approver_group: 'parking-team' },
+        } as any;
+        const allowed_request = {
+            asset_id: 'unallocated-1',
+            extension_data: { approver_group: 'staff' },
+        } as any;
+
+        expect(
+            spectator.service.canApproveBooking(restricted_request, ['staff']),
+        ).toBe(false);
+        expect(
+            spectator.service.canApproveBooking(allowed_request, ['staff']),
+        ).toBe(true);
+        expect(
+            spectator.service.canApproveBooking(
+                {
+                    asset_id: 'bay-1',
+                    extension_data: { approver_group: 'parking-team' },
+                } as any,
+                ['staff'],
+            ),
+        ).toBe(false);
+        expect(
+            spectator.service.canApproveBooking(
+                {
+                    asset_id: 'unallocated-1',
+                    extension_data: {},
+                } as any,
+                ['staff'],
+            ),
+        ).toBe(true);
+    });
 });

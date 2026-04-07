@@ -189,6 +189,7 @@ nx migrate --run-migrations
 - Custom localization support via `shared/locales`, **TranslationPipe** and **LocaleService**
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
+- Angular supports two-way binding of signals. e.g. Prefer `[(ngModel)]="a_signal"` over `[ngModel]="a_signal()" (ngModelChange)="a_signal.set($event)"`
 
 ## Other
 

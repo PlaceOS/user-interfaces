@@ -5,12 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    AsyncHandler,
-    Booking,
-    SettingsService,
-    currentUser,
-} from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -196,7 +191,9 @@ import {
                             row?.status === 'tentative' && !isWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="row?.status === 'ended'"
+                        [disabled]="
+                            row?.status === 'ended' || !canApproveBooking(row)
+                        "
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
@@ -218,7 +215,11 @@ import {
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="approve(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canApproveBooking(row)"
+                        (click)="approve(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
@@ -228,7 +229,11 @@ import {
                             </div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="reject(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canApproveBooking(row)"
+                        (click)="reject(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
@@ -319,32 +324,19 @@ export class ParkingRequestsListComponent
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();
-        const user_groups = currentUser()?.groups || [];
-        let unallocated = this.bookings().filter((b) => {
-            if (!b.asset_id?.startsWith('unallocated')) return false;
-            const approver_group = b.extension_data?.approver_group;
-            if (approver_group && !user_groups.includes(approver_group))
-                return false;
-            return true;
-        });
+        let unallocated = this.bookings().filter((b) =>
+            b.asset_id?.startsWith('unallocated'),
+        );
         unallocated = this._applyRequestFilter(unallocated, request_filter);
-        const s = search.toLowerCase();
-        return !s
-            ? unallocated
-            : unallocated.filter(
-                  (b) =>
-                      b.user_name.toLowerCase().includes(s) ||
-                      b.user_email.toLowerCase().includes(s) ||
-                      b.booked_by_name.toLowerCase().includes(s) ||
-                      b.booked_by_email.toLowerCase().includes(s) ||
-                      b.asset_name.toLowerCase().includes(s),
-              );
+        return this._state.filterEventSearch(unallocated, search);
     });
 
     public readonly reject = (e) => this._state.rejectBooking(e);
     public readonly approve = (e) => this._state.approveBooking(e);
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
+    public readonly canApproveBooking = (e: Booking) =>
+        this._state.canApproveBooking(e);
 
     private _applyRequestFilter(
         list: Booking[],

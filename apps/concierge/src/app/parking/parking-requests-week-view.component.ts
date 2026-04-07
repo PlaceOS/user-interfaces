@@ -5,12 +5,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    AsyncHandler,
-    Booking,
-    currentUser,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, endOfWeek, isSameDay, startOfWeek } from 'date-fns';
 import {
@@ -160,7 +155,10 @@ import {
                                             booking.status === 'ended'
                                         "
                                         [matMenuTriggerFor]="menu"
-                                        [disabled]="booking.status === 'ended'"
+                                        [disabled]="
+                                            booking.status === 'ended' ||
+                                            !canApproveBooking(booking)
+                                        "
                                     >
                                         {{
                                             (booking.status === 'ended'
@@ -179,6 +177,9 @@ import {
                                     <mat-menu #menu="matMenu">
                                         <button
                                             mat-menu-item
+                                            [disabled]="
+                                                !canApproveBooking(booking)
+                                            "
                                             (click)="approve(booking)"
                                         >
                                             <div
@@ -197,6 +198,9 @@ import {
                                         </button>
                                         <button
                                             mat-menu-item
+                                            [disabled]="
+                                                !canApproveBooking(booking)
+                                            "
                                             (click)="reject(booking)"
                                         >
                                             <div
@@ -326,29 +330,11 @@ export class ParkingRequestsWeekViewComponent
         () => {
             const days = this.days();
             const { search, request_filter } = this.options();
-            const user_groups = currentUser()?.groups || [];
-            let list = this.bookings().filter((b) => {
-                if (!b.asset_id?.startsWith('unallocated')) return false;
-                const approver_group = b.extension_data?.approver_group;
-                if (approver_group && !user_groups.includes(approver_group)) {
-                    return false;
-                }
-                return true;
-            });
+            let list = this.bookings().filter((b) =>
+                b.asset_id?.startsWith('unallocated'),
+            );
             list = this._applyRequestFilter(list, request_filter);
-            const search_term = search?.toLowerCase();
-            if (search_term) {
-                list = list.filter(
-                    (b) =>
-                        b.user_name?.toLowerCase().includes(search_term) ||
-                        b.user_email?.toLowerCase().includes(search_term) ||
-                        b.booked_by_name?.toLowerCase().includes(search_term) ||
-                        b.booked_by_email
-                            ?.toLowerCase()
-                            .includes(search_term) ||
-                        b.asset_name?.toLowerCase().includes(search_term),
-                );
-            }
+            list = this._state.filterEventSearch(list, search);
             const grouped: Record<number, Booking[]> = {};
             for (const day of days) {
                 grouped[day] = list
@@ -374,6 +360,8 @@ export class ParkingRequestsWeekViewComponent
     public readonly editReservation = (e: Booking) =>
         this._state.editReservation(e);
     public readonly assignSpace = (e: Booking) => this._state.assignSpace(e);
+    public readonly canApproveBooking = (e: Booking) =>
+        this._state.canApproveBooking(e);
 
     private _applyRequestFilter(
         list: Booking[],
