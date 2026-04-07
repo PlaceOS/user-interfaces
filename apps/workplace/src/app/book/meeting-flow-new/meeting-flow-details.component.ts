@@ -83,7 +83,7 @@ import {
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [range]="bookable_hours()"
-                                [disabled]="form_value().all_day"
+                                [disabled]="start_time_disabled()"
                             />
                         </div>
                         <div class="flex-1">
@@ -268,6 +268,12 @@ export class MeetingFlowDetailsComponent {
     public readonly form_value = toSignal(this._event_form.form.valueChanges, {
         initialValue: this._event_form.form.getRawValue(),
     });
+    public readonly date_status = toSignal(
+        this._event_form.form.controls.date.statusChanges,
+        {
+            initialValue: this._event_form.form.controls.date.status,
+        },
+    );
     public readonly allow_all_day = settingSignal(
         'events.allow_all_day',
         false,
@@ -293,6 +299,10 @@ export class MeetingFlowDetailsComponent {
     public readonly has_title = computed(
         () => !!this.form_value()?.title?.trim(),
     );
+    public readonly start_time_disabled = computed(() => {
+        this.date_status();
+        return this.form_value().all_day || this.form().controls.date.disabled;
+    });
     public readonly setCapacity = (capacity: number) => {
         this._event_form.setFilters({ capacity });
     };
