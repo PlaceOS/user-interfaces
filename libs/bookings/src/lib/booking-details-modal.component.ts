@@ -433,6 +433,7 @@ export class BookingDetailsModalComponent {
         edit_fn: (i) => void;
         remove_fn: (i, s?) => void;
         end_fn: (i) => void;
+        refresh_fn?: () => void;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -627,6 +628,7 @@ export class BookingDetailsModalComponent {
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
+        this._data.refresh_fn?.();
         this.checking_in.set(false);
     }
 

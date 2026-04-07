@@ -14,15 +14,32 @@ import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.c
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
+import * as bookings_fn from '../lib/bookings.fn';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
+    const refresh_fn = jest.fn();
     const createComponent = createComponentFactory({
         component: BookingDetailsModalComponent,
         providers: [
-            MockProvider(MAT_DIALOG_DATA, { booking: new Booking() }),
+            MockProvider(MAT_DIALOG_DATA, {
+                booking: new Booking({
+                    id: 'booking-1',
+                    booking_type: 'desk',
+                    type: 'desk',
+                    asset_id: 'desk-1',
+                    asset_name: 'Desk 1',
+                    date: Date.now(),
+                    duration: 60,
+                    status: 'approved',
+                } as any),
+                edit_fn: jest.fn(),
+                remove_fn: jest.fn(),
+                end_fn: jest.fn(),
+                refresh_fn,
+            }),
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
@@ -45,7 +62,10 @@ describe('BookingDetailsModalComponent', () => {
         imports: [MockModule(MatMenuModule), MockModule(MatDialogModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        jest.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
@@ -94,5 +114,21 @@ describe('BookingDetailsModalComponent', () => {
 
         expect(spectator.component.display_title()).toBe('Vendor Interview');
         expect(spectator.component.visitor_display_name()).toBe('Visitor One');
+    });
+
+    it('should refresh parent state after toggling checked in', async () => {
+        jest.spyOn(bookings_fn, 'checkinBooking').mockReturnValue(
+            of(
+                new Booking({
+                    id: 'booking-1',
+                    checked_in: true,
+                } as any),
+            ),
+        );
+
+        await spectator.component.toggleCheckedIn();
+
+        expect(refresh_fn).toHaveBeenCalled();
+        expect(spectator.component.booking().checked_in).toBe(true);
     });
 });
