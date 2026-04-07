@@ -7,11 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-    MAT_DIALOG_DATA,
-    MatDialog,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     CalendarEvent,
@@ -23,7 +19,6 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { FindAvailabilityModalComponent } from '@placeos/users';
 import { map, tap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
@@ -48,7 +43,7 @@ import {
     UserListFieldComponent,
 } from '@placeos/form-fields';
 
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 @Component({
     selector: 'event-book-modal',
@@ -76,6 +71,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
+                            type="button"
                             icon
                             name="toggle-details-meeting"
                             matRipple
@@ -111,14 +107,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
-                                matRipple
-                                name="find-attendee-availability"
-                                class="text-info bg-none text-xs underline"
-                                (click)="findAvailableTime()"
-                            >
-                                {{ 'COMMON.AVAILABILITY' | translate }}
-                            </button>
-                            <button
+                                type="button"
                                 icon
                                 name="toggle-attendees-meeting"
                                 matRipple
@@ -157,6 +146,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
+                            type="button"
                             icon
                             name="toggle-spaces-meeting"
                             matRipple
@@ -209,6 +199,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
+                                type="button"
                                 icon
                                 name="toggle-catering-meeting"
                                 matRipple
@@ -324,6 +315,7 @@ import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
+                                type="button"
                                 icon
                                 name="toggle-assets-meeting"
                                 matRipple
@@ -420,7 +412,6 @@ export class EventBookModalComponent implements OnInit {
     private _catering = inject(CateringOrderStateService);
     private _dialog_ref =
         inject<MatDialogRef<EventBookModalComponent>>(MatDialogRef);
-    private _dialog = inject(MatDialog);
 
     public readonly event = output<DialogEvent>();
     public readonly loading = signal(false);
@@ -507,26 +498,6 @@ export class EventBookModalComponent implements OnInit {
 
     public ngOnInit() {
         this._event_form.newForm(this._data.event);
-    }
-
-    public findAvailableTime() {
-        const { attendees, organiser, date, duration } = this.form.value;
-        const ref = this._dialog.open(FindAvailabilityModalComponent, {
-            data: {
-                users: attendees,
-                host: organiser || currentUser(),
-                date,
-                duration,
-            },
-        });
-        ref.afterClosed().subscribe((d) => {
-            if (!d) return;
-            this.form.patchValue({
-                date: ref.componentInstance.date(),
-                attendees: ref.componentInstance.users(),
-                duration: ref.componentInstance.duration(),
-            });
-        });
     }
 
     public async save() {

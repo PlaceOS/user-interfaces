@@ -1,15 +1,7 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,129 +10,38 @@ import {
     CateringListFieldComponent,
     CateringOrderStateService,
 } from '@placeos/catering';
-import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { queryCalendarPermission } from '@placeos/events';
+import { EventFormService } from '@placeos/events';
 import {
-    DateFieldComponent,
     DurationFieldComponent,
     SpaceListFieldComponent,
-    TimeFieldComponent,
     UserListFieldComponent,
-    UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { lastValueFrom } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
-const ALLOWED_CALENDAR_ROLES = [
-    'write',
-    'delegateWithoutPrivateEventAccess',
-    'delegateWithPrivateEventAccess',
-];
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 @Component({
     selector: 'event-form',
     template: `
         @if (form()) {
             <form [formGroup]="form()">
-                <div class="flex flex-col">
-                    <label for="title"
-                        >{{ 'FORM.TITLE' | translate }}<span>*</span>:</label
-                    >
-                    <mat-form-field appearance="outline">
-                        <input
-                            matInput
-                            name="title"
-                            formControlName="title"
-                            placeholder="Meeting Title"
-                        />
-                        <mat-error>{{
-                            'FORM.TITLE_REQUIRED' | translate
-                        }}</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="relative flex flex-col">
-                    <label for="date"
-                        >{{ 'FORM.DATE' | translate }}<span>*</span>:</label
-                    >
-                    <a-date-field
-                        name="date"
-                        formControlName="date"
-                    ></a-date-field>
-                    @if (allow_all_day) {
-                        <mat-checkbox
-                            formControlName="all_day"
-                            class="absolute -top-2 right-0"
-                        >
-                            {{ 'FORM.ALL_DAY' | translate }}
-                        </mat-checkbox>
-                    }
-                </div>
-                @if (!form().value.all_day) {
-                    <div class="flex space-x-2">
-                        <div class="flex flex-1 flex-col">
-                            <label for="start-time"
-                                >{{ 'FORM.TIME_START' | translate
-                                }}<span>*</span>:</label
-                            >
-                            <a-time-field
-                                name="start-time"
-                                [ngModel]="form().get('date').value"
-                                (ngModelChange)="
-                                    form().patchValue({ date: $event })
-                                "
-                                [ngModelOptions]="{ standalone: true }"
-                                [use_24hr]="use_24hr_time"
-                                [range]="bookable_hours"
-                                [min_duration]="effective_min_duration"
-                            ></a-time-field>
-                        </div>
-                        <div class="flex flex-1 flex-col">
-                            <label for="duration"
-                                >{{ 'FORM.DURATION' | translate
-                                }}<span>*</span>:</label
-                            >
-                            <a-duration-field
-                                name="duration"
-                                [time]="form().controls?.date?.value"
-                                formControlName="duration"
-                                [use_24hr]="use_24hr_time"
-                                [max]="max_duration"
-                                [custom_options]="custom_duration_options"
-                                [end_time]="bookable_hours?.end"
-                            ></a-duration-field>
-                        </div>
+                <meeting-form-details [form]="form()"></meeting-form-details>
+                @if (!hide_attendees) {
+                    <div class="flex flex-1 flex-col">
+                        <label for="attendees">
+                            {{ 'CALENDAR_EVENT.ATTENDEES' | translate
+                            }}<span>*</span>:
+                        </label>
+                        <a-user-list-field
+                            name="attendees"
+                            formControlName="attendees"
+                            [time]="form().value.date"
+                            [guests]="allow_externals"
+                        ></a-user-list-field>
                     </div>
                 }
-                <div class="mb-4 flex flex-1 flex-col">
-                    <label for="organiser"
-                        >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
-                    >
-                    <a-user-search-field
-                        name="organiser"
-                        formControlName="organiser"
-                    ></a-user-search-field>
-                    @if (checking_permission()) {
-                        <p class="text-pending mt-1 text-xs">
-                            Checking calendar permissions...
-                        </p>
-                    }
-                    @if (permission_error()) {
-                        <p class="text-error mt-1 text-xs">
-                            {{ permission_error() }}
-                        </p>
-                    }
-                </div>
-                <div class="flex flex-1 flex-col">
-                    <label for="attendees">
-                        {{ 'CALENDAR_EVENT.ATTENDEES' | translate
-                        }}<span>*</span>:</label
-                    >
-                    <a-user-list-field
-                        name="attendees"
-                        formControlName="attendees"
-                    ></a-user-list-field>
-                </div>
                 <div class="flex flex-1 flex-col">
                     <label for="space">
                         {{ 'RESOURCE.ROOM' | translate }}<span>*</span>
@@ -148,6 +49,7 @@ const ALLOWED_CALENDAR_ROLES = [
                     <space-list-field
                         class="w-full"
                         formControlName="resources"
+                        [multiday]="allow_multiday"
                     ></space-list-field>
                 </div>
                 @if (has_catering() && form().contains('catering')) {
@@ -161,21 +63,20 @@ const ALLOWED_CALENDAR_ROLES = [
                                 duration: form().value.duration,
                                 all_day: form().value.all_day,
                                 zone_id:
-                                    form().value.resources[0]?.level?.parent_id,
+                                    form().value.resources?.[0]?.level
+                                        ?.parent_id,
                             }"
                         ></catering-list-field>
                         @if (form().value.catering?.length && has_codes()) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
-                                (openedChange)="focusInput()"
                             >
                                 <mat-select
                                     formControlName="catering_charge_code"
                                     placeholder="Charge Code"
                                 >
                                     <input
-                                        #input
                                         class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
                                         [(ngModel)]="code_filter"
                                         [ngModelOptions]="{ standalone: true }"
@@ -229,107 +130,54 @@ const ALLOWED_CALENDAR_ROLES = [
                         ></asset-list-field>
                     </div>
                 }
-                <div class="flex space-x-2">
-                    <div class="flex flex-1 flex-col space-y-2">
-                        <label for="setup">Setup Duration</label>
-                        <a-duration-field
-                            name="setup"
-                            formControlName="setup_time"
-                            [min]="0"
-                            [custom_options]="[5, 10]"
-                        ></a-duration-field>
+                @if (allow_setup_breakdown) {
+                    <div class="flex space-x-2">
+                        <div class="flex flex-1 flex-col space-y-2">
+                            <label for="setup">Setup Duration</label>
+                            <a-duration-field
+                                name="setup"
+                                formControlName="setup_time"
+                                [min]="0"
+                                [custom_options]="[5, 10]"
+                            ></a-duration-field>
+                        </div>
+                        <div class="flex flex-1 flex-col space-y-2">
+                            <label for="breakdown">Breakdown Duration</label>
+                            <a-duration-field
+                                name="breakdown"
+                                [min]="0"
+                                formControlName="breakdown_time"
+                                [custom_options]="[5, 10]"
+                            ></a-duration-field>
+                        </div>
                     </div>
-                    <div class="flex flex-1 flex-col space-y-2">
-                        <label for="breakdown">Breakdown Duration</label>
-                        <a-duration-field
-                            name="breakdown"
-                            [min]="0"
-                            formControlName="breakdown_time"
-                            [custom_options]="[5, 10]"
-                        ></a-duration-field>
-                    </div>
-                </div>
+                }
             </form>
         }
     `,
     styles: [``],
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,
-        DateFieldComponent,
-        TimeFieldComponent,
         DurationFieldComponent,
         MatSelectModule,
         TranslatePipe,
         UserListFieldComponent,
-        UserSearchFieldComponent,
         SpaceListFieldComponent,
         AssetListFieldComponent,
         CateringListFieldComponent,
+        MeetingFormDetailsComponent,
     ],
 })
-export class EventFormComponent extends AsyncHandler {
-    private _dialog = inject(MatDialog);
+export class EventFormComponent {
     private _settings = inject(SettingsService);
+    private _event_form = inject(EventFormService);
     private _catering = inject(CateringOrderStateService);
 
     public readonly form = input<FormGroup>(undefined);
-    public readonly checking_permission = signal(false);
-    public readonly permission_error = signal('');
-
-    constructor() {
-        super();
-        effect(() => {
-            const form = this.form();
-            if (!form) return;
-            this.subscription(
-                'organiser_permission_check',
-                form.get('organiser').valueChanges.subscribe((user) => {
-                    this._checkCalendarPermission(user);
-                }),
-            );
-        });
-    }
-
-    private async _checkCalendarPermission(user: any) {
-        this.permission_error.set('');
-        if (!user?.email) return;
-        const current = currentUser();
-        if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
-        const checked_email = user.email;
-        this.checking_permission.set(true);
-        try {
-            const permission = await lastValueFrom(
-                queryCalendarPermission(checked_email),
-            );
-            if (this.form()?.value?.organiser?.email !== checked_email) return;
-            if (
-                !permission.has_access ||
-                !ALLOWED_CALENDAR_ROLES.includes(permission.role)
-            ) {
-                this.permission_error.set(
-                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
-                );
-                this.form()?.patchValue(
-                    { organiser: currentUser() },
-                    { emitEvent: false },
-                );
-            }
-        } catch (_) {
-            if (this.form()?.value?.organiser?.email !== checked_email) return;
-            this.permission_error.set(
-                "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
-            );
-            this.form()?.patchValue(
-                { organiser: currentUser() },
-                { emitEvent: false },
-            );
-        } finally {
-            this.checking_permission.set(false);
-        }
-    }
-
     public readonly code_filter = signal('');
 
     private readonly _charge_codes = toSignal(this._catering.charge_codes, {
@@ -360,35 +208,26 @@ export class EventFormComponent extends AsyncHandler {
         ),
     );
 
-    public get allow_all_day() {
-        return !!this._settings.get('app.events.allow_all_day');
+    public get hide_attendees() {
+        return !!this._settings.get('app.events.hide_attendees');
+    }
+
+    public get allow_externals() {
+        return !!this._settings.get('app.events.allow_externals');
+    }
+
+    public get allow_multiday() {
+        return (
+            !!this._settings.get('app.events.allow_multiday') ||
+            this._event_form.is_multiday
+        );
     }
 
     public get has_assets() {
         return !!this._settings.get('app.events.has_assets');
     }
 
-    public get use_24hr_time() {
-        return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get bookable_hours() {
-        return this._settings.get('app.events.bookable_hours');
-    }
-
-    public get min_duration() {
-        return this._settings.get('app.events.min_duration') || 30;
-    }
-
-    public get custom_duration_options() {
-        return this._settings.get('app.events.custom_duration_options') || [];
-    }
-
-    public get effective_min_duration() {
-        return Math.min(this.min_duration, ...this.custom_duration_options);
-    }
-
-    public get max_duration() {
-        return this._settings.get('app.events.max_duration') || 480;
+    public get allow_setup_breakdown() {
+        return !!this._settings.get('app.events.allow_setup_breakdown');
     }
 }

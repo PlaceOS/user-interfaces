@@ -12,7 +12,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
-import { EventFormService, queryCalendarPermission } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -30,6 +29,9 @@ import {
     startOfDay,
 } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
+
+import { queryCalendarPermission } from './calendar.fn';
+import { EventFormService } from './new-event-form.service';
 
 const MINUTES_IN_DAY = 24 * 60;
 
