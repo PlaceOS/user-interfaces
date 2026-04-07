@@ -1,4 +1,5 @@
-import { MediaAnimation } from '@placeos/ts-client';
+import { HashMap } from '@placeos/common';
+import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 
 export interface MediaPlayerItem {
     id: string;
@@ -12,6 +13,8 @@ export interface MediaPlayerItem {
     valid_from: number;
     valid_until: number;
     play_hours: string;
+    plugin?: SignagePlugin;
+    plugin_params?: HashMap;
     getURL: () => Promise<string | URL>;
 }
 

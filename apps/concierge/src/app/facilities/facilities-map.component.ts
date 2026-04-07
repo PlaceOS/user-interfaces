@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { AsyncHandler } from '@placeos/common';
@@ -13,12 +14,12 @@ import { EventsStateService } from '../day-view/events-state.service';
     selector: 'facilities-map',
     template: `
         <interactive-map
-            [src]="url | async"
-            [zoom]="(positions | async).zoom"
-            [center]="(positions | async).center"
-            [styles]="styles | async"
-            [features]="features | async"
-            [actions]="actions | async"
+            [src]="url()"
+            [zoom]="positions().zoom"
+            [center]="positions().center"
+            [styles]="styles()"
+            [features]="features()"
+            [actions]="actions()"
         />
         <explore-zoom-controls class="absolute right-2 bottom-2" />
     `,
@@ -37,25 +38,35 @@ import { EventsStateService } from '../day-view/events-state.service';
         ExploreZoomControlComponent,
     ],
 })
-export class FacilitiesMapComponent extends AsyncHandler implements OnInit {
+export class FacilitiesMapComponent extends AsyncHandler {
     private _explore = inject(ExploreStateService);
     private _state = inject(EventsStateService);
 
     /** Observable for the active map */
-    public readonly url = this._explore.map_url;
+    public readonly url = toSignal(this._explore.map_url, { initialValue: '' });
     /** Observable for the active map */
-    public readonly styles = this._explore.map_styles;
+    public readonly styles = toSignal(this._explore.map_styles, {
+        initialValue: { text: { display: '' } } as any,
+    });
     /** Observable for the active map */
-    public readonly positions = this._explore.map_positions;
+    public readonly positions = toSignal(this._explore.map_positions, {
+        initialValue: { zoom: 1, center: null } as any,
+    });
     /** Observable for the active map */
-    public readonly features = this._explore.map_features;
+    public readonly features = toSignal(this._explore.map_features, {
+        initialValue: [],
+    });
     /** Observable for the active map */
-    public readonly actions = this._explore.map_actions;
+    public readonly actions = toSignal(this._explore.map_actions, {
+        initialValue: [],
+    });
+    private readonly _zones = toSignal(this._state.zones, { initialValue: [] });
 
-    public ngOnInit() {
-        this.subscription(
-            'active_zone',
-            this._state.zones.subscribe((z) => this._explore.setLevel(z[0])),
-        );
+    constructor() {
+        super();
+        effect(() => {
+            const [zone] = this._zones();
+            if (zone) this._explore.setLevel(zone);
+        });
     }
 }

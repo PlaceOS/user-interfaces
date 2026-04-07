@@ -58,11 +58,15 @@ describe('AssetSelectModalComponent', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as any).mockImplementation(() => []);
         spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', [
-            '1',
-        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'favourite_assets',
+            ['1'],
+        );
         (settings.get as any).mockImplementation(() => ['1']);
         spectator.component.toggleFavourite({ id: '1' } as any);
-        expect(settings.saveUserSetting).toBeCalledWith('favourite_assets', []);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'favourite_assets',
+            [],
+        );
     });
 });

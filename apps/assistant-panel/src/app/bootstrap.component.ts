@@ -7,7 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
+import {
+    AsyncHandler,
+    OrganisationService,
+    Space,
+    VERSION,
+} from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { querySystems } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
@@ -120,6 +125,15 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                 </footer>
             }
         </div>
+        <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+            <div class="text-xs opacity-40">
+                {{ 'COMMON.CONTROLS_VERSION' | translate }}: {{ version.hash }}
+            </div>
+            <div class="text-xs opacity-40">
+                {{ version.time | date: 'longDate' }}
+                ({{ version.time | date: 'shortTime' }})
+            </div>
+        </div>
     `,
     styles: [],
     imports: [
@@ -137,6 +151,10 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+
+    public get version() {
+        return VERSION;
+    }
 
     public loading = '';
     /** ID of the system to bootstrap */

@@ -61,7 +61,7 @@ test.describe('Panel View - Room Details Display', () => {
 
         // Panel should have bg-black class
         await expect(
-            page.locator('panel-view-details > div.bg-black')
+            page.locator('panel-view-details > div.bg-black'),
         ).toBeVisible();
     });
 });
@@ -74,13 +74,13 @@ test.describe('Panel View - Status Display', () => {
 
     test('should display NOW section', async ({ page }) => {
         await expect(
-            page.locator('panel-view-status h3', { hasText: /now/i })
+            page.locator('panel-view-status h3', { hasText: /now/i }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 
     test('should display NEXT section', async ({ page }) => {
         await expect(
-            page.locator('panel-view-status h3', { hasText: /next/i })
+            page.locator('panel-view-status h3', { hasText: /next/i }),
         ).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 
@@ -95,9 +95,11 @@ test.describe('Panel View - Status Display', () => {
 
     test('should show status color indicator', async ({ page }) => {
         const statusColors = page.locator(
-            'panel-view-status .bg-success, panel-view-status .bg-error, panel-view-status .bg-warning'
+            'panel-view-status .bg-success, panel-view-status .bg-error, panel-view-status .bg-warning',
         );
-        await expect(statusColors.first()).toBeVisible({ timeout: STATUS_TIMEOUT });
+        await expect(statusColors.first()).toBeVisible({
+            timeout: STATUS_TIMEOUT,
+        });
     });
 });
 
@@ -144,7 +146,7 @@ test.describe('Panel View - User Interactions', () => {
         if (isFree) {
             // Should show booking instruction hint
             const hintText = page.locator(
-                'panel-view-status p:has-text("book"), panel-view-status p:has-text("tap")'
+                'panel-view-status p:has-text("book"), panel-view-status p:has-text("tap")',
             );
             // Hint visibility depends on locale
         }
@@ -164,7 +166,9 @@ test.describe('Panel View - Responsive Layout', () => {
         await expect(page.locator('panel-view-status')).toBeVisible();
     });
 
-    test('should adapt to portrait orientation (768x1024)', async ({ page }) => {
+    test('should adapt to portrait orientation (768x1024)', async ({
+        page,
+    }) => {
         await page.setViewportSize({ width: 768, height: 1024 });
         await page.goto(`${PANEL_URL}?mock=true`);
         await page.locator('panel-view').waitFor({ timeout: LOAD_TIMEOUT });

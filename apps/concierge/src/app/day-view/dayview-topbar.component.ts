@@ -1,5 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 import {
@@ -41,7 +43,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
                     (ngModelChange)="updateZones($event)"
                     [placeholder]="'COMMON.LEVEL_ALL' | translate"
                 >
-                    @for (level of levels | async; track level) {
+                    @for (level of levels(); track level) {
                         <mat-option [value]="level.id">
                             {{ level.display_name || level.name }}
                         </mat-option>
@@ -65,7 +67,7 @@ import { BookingUIOptions, EventsStateService } from './events-state.service';
             </mat-form-field>
             @if (allow_setup_breakdown) {
                 <settings-toggle
-                    [ngModel]="(ui_options | async)?.show_overflow"
+                    [ngModel]="ui_options().show_overflow"
                     (ngModelChange)="updateUIOptions({ show_overflow: $event })"
                     >Setup / Breakdown</settings-toggle
                 >
@@ -105,7 +107,7 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of selected levels */
-    public zones: string[] = [];
+    public readonly zones = signal<string[]>([]);
 
     public readonly types: Identity[] = [
         { id: 'internal', name: 'Internal' },
@@ -113,31 +115,42 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
         { id: 'cancelled', name: 'Cancelled' },
     ];
     /** List of selected types */
-    public type_list: string[] = this.types.map((i) => `${i.id}`);
+    public readonly type_list = signal(this.types.map((i) => `${i.id}`));
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = toSignal(this._org.active_levels || of([]), {
+        initialValue: [],
+    });
     /** List of levels for the active building */
-    public readonly ui_options = this._state.options;
+    public readonly ui_options = toSignal(
+        this._state.options || of({} as BookingUIOptions),
+        { initialValue: {} as BookingUIOptions },
+    );
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setDate(d);
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (zones: string[]) => {
+        const zone_ids = this._clean_zone_ids(zones);
+        this.zones.set(zone_ids);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: {
+                zone_ids: zone_ids.length ? zone_ids.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
     };
     /** List of levels for the active building */
-    public readonly updateTypes = (types) =>
+    public readonly updateTypes = (types: string[]) => {
+        this.type_list.set(types);
         this._state.setFilters({
-            hide_type: this.types.reduce((list, item) => {
-                !types.includes(item.id) ? list.push(item) : '';
+            hide_type: this.types.reduce<any[]>((list, item) => {
+                !types.includes(`${item.id}`) ? list.push(item) : '';
                 return list;
             }, []),
         });
+    };
 
     public updateUIOptions(options: BookingUIOptions) {
         this._state.setUIOptions(options);
@@ -153,9 +166,11 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
+                    const zones = this._clean_zone_ids(
+                        params.get('zone_ids').split(','),
+                    );
                     if (zones.length) {
-                        this.zones = zones;
+                        this.zones.set(zones);
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
                         this._org.building = this._org.buildings.find(
@@ -165,6 +180,10 @@ export class DayviewTopbarComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this.updateTypes(this.type_list);
+        this.updateTypes(this.type_list());
+    }
+
+    private _clean_zone_ids(zones: string[] = []) {
+        return (zones || []).filter((zone_id) => !!zone_id);
     }
 }

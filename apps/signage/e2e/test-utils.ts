@@ -52,12 +52,11 @@ export async function initializeAppWithMock(page: Page): Promise<void> {
 /**
  * Navigate to a URL with mock mode enabled
  */
-export async function navigateWithMock(
-    page: Page,
-    url: string
-): Promise<void> {
+export async function navigateWithMock(page: Page, url: string): Promise<void> {
     await initializeAppWithMock(page);
-    const full_url = url.includes('?') ? `${url}&mock=true` : `${url}?mock=true`;
+    const full_url = url.includes('?')
+        ? `${url}&mock=true`
+        : `${url}?mock=true`;
     await page.goto(full_url);
     await waitForLoadingComplete(page);
 }
@@ -68,7 +67,7 @@ export async function navigateWithMock(
 export async function navigateWithConfig(
     page: Page,
     url: string,
-    config?: { building_id?: string; system_id?: string }
+    config?: { building_id?: string; system_id?: string },
 ): Promise<void> {
     await page.goto('/?mock=true');
     await page.waitForTimeout(500);
@@ -91,10 +90,12 @@ export async function navigateWithConfig(
             system_id,
             display_key: STORE_DISPLAY_KEY,
             building_key: STORE_BUILDING_KEY,
-        }
+        },
     );
 
-    const full_url = url.includes('?') ? `${url}&mock=true` : `${url}?mock=true`;
+    const full_url = url.includes('?')
+        ? `${url}&mock=true`
+        : `${url}?mock=true`;
     await page.goto(full_url);
     await page.waitForTimeout(500);
     await waitForLoadingComplete(page);
@@ -196,7 +197,7 @@ export async function waitForDebugControls(page: Page): Promise<void> {
  */
 export async function selectDisplay(
     page: Page,
-    display_name?: string
+    display_name?: string,
 ): Promise<void> {
     const select = page.locator('mat-select').first();
     await select.click();
@@ -219,9 +220,11 @@ export async function selectDisplay(
 export async function clickBootstrapButton(page: Page): Promise<void> {
     // The button uses translation key COMMON.BOOTSTRAP_SUBMIT which translates to "Finish setup"
     // Use the button[btn] selector as a fallback
-    const button = page.locator(
-        '[bootstrap] button[btn], button:has-text("Finish setup"), button:has-text("Bootstrap")'
-    ).first();
+    const button = page
+        .locator(
+            '[bootstrap] button[btn], button:has-text("Finish setup"), button:has-text("Bootstrap")',
+        )
+        .first();
     await button.click();
     await page.waitForTimeout(300);
 }
@@ -229,10 +232,7 @@ export async function clickBootstrapButton(page: Page): Promise<void> {
 /**
  * Enable debug mode by navigating with debug=true parameter
  */
-export async function enableDebugMode(
-    page: Page,
-    url: string
-): Promise<void> {
+export async function enableDebugMode(page: Page, url: string): Promise<void> {
     const debug_url = url.includes('?')
         ? `${url}&debug=true&mock=true`
         : `${url}?debug=true&mock=true`;
@@ -245,7 +245,7 @@ export async function enableDebugMode(
  */
 export async function clickPlayPause(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("play_arrow")), media-controls button:has(icon:has-text("pause"))'
+        'media-controls button:has(icon:has-text("play_arrow")), media-controls button:has(icon:has-text("pause"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -256,7 +256,7 @@ export async function clickPlayPause(page: Page): Promise<void> {
  */
 export async function clickSkipNext(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("skip_next"))'
+        'media-controls button:has(icon:has-text("skip_next"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -267,7 +267,7 @@ export async function clickSkipNext(page: Page): Promise<void> {
  */
 export async function clickSkipPrevious(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("skip_previous"))'
+        'media-controls button:has(icon:has-text("skip_previous"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -278,7 +278,7 @@ export async function clickSkipPrevious(page: Page): Promise<void> {
  */
 export async function clickMuteToggle(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("volume_up")), media-controls button:has(icon:has-text("volume_off"))'
+        'media-controls button:has(icon:has-text("volume_up")), media-controls button:has(icon:has-text("volume_off"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -289,7 +289,7 @@ export async function clickMuteToggle(page: Page): Promise<void> {
  */
 export async function clickLoopToggle(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("repeat"))'
+        'media-controls button:has(icon:has-text("repeat"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -300,7 +300,7 @@ export async function clickLoopToggle(page: Page): Promise<void> {
  */
 export async function clickShuffleToggle(page: Page): Promise<void> {
     const button = page.locator(
-        'media-controls button:has(icon:has-text("shuffle"))'
+        'media-controls button:has(icon:has-text("shuffle"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -311,7 +311,7 @@ export async function clickShuffleToggle(page: Page): Promise<void> {
  */
 export async function isMediaPlaying(page: Page): Promise<boolean> {
     const pause_button = page.locator(
-        'media-controls button:has(icon:has-text("pause"))'
+        'media-controls button:has(icon:has-text("pause"))',
     );
     return pause_button.isVisible().catch(() => false);
 }
@@ -337,7 +337,7 @@ export async function getPlaylistItemCount(page: Page): Promise<number> {
  */
 export async function clickPlaylistItem(
     page: Page,
-    index: number
+    index: number,
 ): Promise<void> {
     const item = page.locator('playlist-display [playlist-item]').nth(index);
     await item.click();
@@ -349,7 +349,7 @@ export async function clickPlaylistItem(
  */
 export async function openTimeControls(page: Page): Promise<void> {
     const button = page.locator(
-        'time-controls button:has(icon:has-text("schedule"))'
+        'time-controls button:has(icon:has-text("schedule"))',
     );
     await button.click();
     await page.waitForTimeout(300);
@@ -372,7 +372,7 @@ export async function clearLocalStorage(page: Page): Promise<void> {
             localStorage.removeItem(building_key);
             localStorage.removeItem(display_key);
         },
-        { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+        { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY },
     );
 }
 
@@ -380,7 +380,7 @@ export async function clearLocalStorage(page: Page): Promise<void> {
  * Get current media type being displayed
  */
 export async function getCurrentMediaType(
-    page: Page
+    page: Page,
 ): Promise<'image' | 'video' | 'iframe' | 'unknown'> {
     const image = page.locator('media-player img');
     const video = page.locator('media-player video');
@@ -405,7 +405,7 @@ export async function isOverrideActive(page: Page): Promise<boolean> {
  */
 export async function closeOverridePlaylist(page: Page): Promise<void> {
     const close_button = page.locator(
-        'button:has(icon:has-text("close")):near([override-indicator])'
+        'button:has(icon:has-text("close")):near([override-indicator])',
     );
     const is_visible = await close_button.isVisible().catch(() => false);
     if (is_visible) {

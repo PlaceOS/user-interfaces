@@ -158,6 +158,61 @@ describe('CalendarEvent', () => {
         expect(event.is_today).toBeFalsy();
     });
 
+    it('should preserve custom all-day periods', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+        expect(event.date_end).toBe(
+            new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        );
+    });
+
+    it('should load custom all-day events from extension data', () => {
+        event = new CalendarEvent({
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+
+        expect(event.all_day).toBe(true);
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+    });
+
+    it('should serialise custom all-day events for the backend', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(true);
+        expect(json.extension_data.all_day_date).toBe('2028-06-15');
+    });
+
+    it('should clear custom all-day metadata when updating an existing event', () => {
+        event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(false);
+    });
+
     it('should expose list of guests for event', () => {
         setInternalUserDomain('work.com');
         expect(event.guests).toEqual([]);
@@ -187,5 +242,30 @@ describe('CalendarEvent', () => {
         expect(event.creator).toBe('jim@place.tech');
         event = new CalendarEvent({ creator: 'a@p.tech' });
         expect(event.creator).toBe('a@p.tech');
+    });
+
+    it('should treat attendees matching system email as resources', () => {
+        event = new CalendarEvent({
+            attendees: [
+                {
+                    name: 'Meeting Room',
+                    email: 'ROOM-1@WORK.COM',
+                    response_status: 'accepted',
+                },
+                { name: 'Alex', email: 'alex@work.com' },
+            ] as any,
+            system: { email: 'room-1@work.com' } as any,
+        });
+        expect(event.attendees).toEqual([
+            new User({ name: 'Alex', email: 'alex@work.com' }),
+        ]);
+        expect(event.resources).toContainEqual(
+            new Space({
+                name: 'Meeting Room',
+                email: 'ROOM-1@WORK.COM',
+                response_status: 'accepted',
+            }),
+        );
+        expect(event.status).toBe('approved');
     });
 });

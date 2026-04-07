@@ -1,0 +1,35 @@
+{
+    "workplace": {
+        "project_name": "workplace",
+        "display_name": "Workplace",
+        "bundle_id": "com.placeos.workplace",
+        "web_output_path": "dist/apps/workplace/browser",
+        "icon_source_path": "apps/workplace/src/assets/icons/icon-512x512.png",
+        "icon_background_color": "#1976d2",
+        "icon_background_color_dark": "#0d47a1",
+        "splash_background_color": "#fafafa",
+        "splash_background_color_dark": "#1976d2"
+    },
+    "booking-panel": {
+        "project_name": "booking-panel",
+        "display_name": "Booking Panel",
+        "bundle_id": "com.placeos.booking.panel",
+        "web_output_path": "dist/apps/booking-panel/browser",
+        "icon_source_path": "apps/booking-panel/src/assets/icons/icon-512x512.png",
+        "icon_background_color": "#1976d2",
+        "icon_background_color_dark": "#0d47a1",
+        "splash_background_color": "#fafafa",
+        "splash_background_color_dark": "#1976d2"
+    },
+    "control": {
+        "project_name": "control",
+        "display_name": "Control",
+        "bundle_id": "com.placeos.control",
+        "web_output_path": "dist/apps/control/browser",
+        "icon_source_path": "apps/control/src/assets/icons/icon-512x512.png",
+        "icon_background_color": "#1976d2",
+        "icon_background_color_dark": "#0d47a1",
+        "splash_background_color": "#fafafa",
+        "splash_background_color_dark": "#1976d2"
+    }
+}

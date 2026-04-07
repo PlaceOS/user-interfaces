@@ -1,5 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -490,12 +491,21 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public loading = false;
-    public timezones = signal(TIMEZONES_IANA);
-    public filtered_timezones = signal<string[]>([]);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** Group of form fields used for creating the system */
     public form = generateSystemsFormFields(this._data.room as any);
+    public readonly timezones = signal(TIMEZONES_IANA);
+    private readonly _timezone_query = toSignal(
+        this.form.controls.timezone.valueChanges,
+        { initialValue: this.form.controls.timezone.value || '' },
+    );
+    public readonly filtered_timezones = computed(() => {
+        const timezone = `${this._timezone_query() || ''}`.toLowerCase();
+        return this.timezones().filter((item) =>
+            item.toLowerCase().includes(timezone),
+        );
+    });
     public settings_form = new FormGroup({
         setup: new FormControl(0),
         breakdown: new FormControl(0),
@@ -526,11 +536,6 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         if (this._data.room.id && overflow[this._data.room.id]) {
             this.settings_form.patchValue(overflow[this._data.room.id]);
         }
-        this._updateTimezoneList();
-        this.subscription(
-            'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
-        );
     }
 
     /**
@@ -616,16 +621,6 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         this.loading = false;
     }
 
-    private _updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones.set(TIMEZONES_IANA);
-        this.filtered_timezones.set(
-            this.timezones().filter((_) =>
-                _.toLowerCase().includes(timezone.toLowerCase()),
-            ),
-        );
-    }
-
     public selectItemfromMap() {
         let level = this._org.levelWithID(this.form.value.zones as any);
         const ref = this._dialog.open(SelectMapItemModalComponent, {
@@ -636,7 +631,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            level = ref.componentInstance.level || level;
+            level = ref.componentInstance.level() || level;
             const zones = unique([
                 this._org.organisation.id,
                 this._org.building.parent_id,

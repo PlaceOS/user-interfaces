@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,11 +7,10 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { DialogEvent } from '@placeos/common';
+import { BookingClash, DialogEvent } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { first } from 'rxjs/operators';
-import { BookingClash } from './bookings.fn';
 
 export interface RecurringClashModalData {
     clashes: BookingClash[];

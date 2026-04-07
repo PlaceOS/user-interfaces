@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
+import { map } from 'rxjs/operators';
 
 import {
     CateringMenuComponent,
@@ -21,7 +22,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <catering-topbar class="relative z-10"></catering-topbar>
                 <div class="flex h-1/2 flex-1 flex-col px-8">
-                    @if (page === 'menu') {
+                    @if (page() === 'menu') {
                         <div
                             class="bg-info mb-4 flex items-center justify-center rounded-sm p-2 text-sm text-white"
                         >
@@ -29,7 +30,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                         </div>
                     }
                     <div class="flex h-1/2 w-full flex-1 overflow-auto">
-                        @switch (page) {
+                        @switch (page()) {
                             @case ('orders') {
                                 <catering-order-list
                                     class="flex-1"
@@ -50,9 +51,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         <div
                                             name="img"
                                             class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                            [style.background-image]="
-                                                'url(assets/menus.jpg)'
-                                            "
+                                            [style.background-image]="'url(assets/menus.jpg)'"
                                         >
                                             <div
                                                 class="bg-neutral absolute inset-0 z-0 opacity-60"
@@ -75,9 +74,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                                         <div
                                             name="img"
                                             class="relative flex w-full flex-1 items-center justify-center bg-cover bg-center text-2xl text-white"
-                                            [style.background-image]="
-                                                'url(assets/orders.jpg)'
-                                            "
+                                            [style.background-image]="'url(assets/orders.jpg)'"
                                         >
                                             <div
                                                 class="bg-neutral absolute inset-0 z-0 opacity-60"
@@ -139,19 +136,10 @@ import { CateringTopbarComponent } from './catering-topbar.component';
         CateringMenuComponent,
     ],
 })
-export class CateringComponent extends AsyncHandler implements OnInit {
+export class CateringComponent {
     private _route = inject(ActivatedRoute);
-
-    /** Page being displayed */
-    public page: string;
-
-    public ngOnInit() {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe(
-                (params) =>
-                    (this.page = params.has('view') ? params.get('view') : ''),
-            ),
-        );
-    }
+    public readonly page = toSignal(
+        this._route.paramMap.pipe(map((params) => params.get('view') || '')),
+        { initialValue: this._route.snapshot.paramMap.get('view') || '' },
+    );
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     WorktimePreference,
@@ -93,7 +93,7 @@ import { TranslatePipe } from './translate.pipe';
                                     <icon>expand_more</icon>
                                 </button>
                                 <mat-menu #work_menu="matMenu">
-                                    @for (loc of locations; track loc) {
+                                    @for (loc of locations(); track loc) {
                                         <button
                                             mat-menu-item
                                             (click)="setLocation(i, loc.id)"
@@ -160,14 +160,14 @@ import { TranslatePipe } from './translate.pipe';
 export class WorkLocationTooltipComponent implements OnInit {
     private _dialog = inject(MatDialog);
 
-    public locations = [];
-    public settings: WorktimePreference[];
-    public overrides: Record<string, WorktimePreference>;
+    public readonly locations = signal([]);
+    public readonly settings = signal<WorktimePreference[]>(undefined);
+    public readonly overrides = signal<Record<string, WorktimePreference>>({});
 
     public get active_preference() {
         const date = format(new Date(), 'yyyy-MM-dd');
-        if (this.overrides[date]) return this.overrides[date];
-        return this.settings.find(
+        if (this.overrides()[date]) return this.overrides()[date];
+        return this.settings()?.find(
             (pref) => pref.day_of_week === new Date().getDay(),
         );
     }
@@ -178,13 +178,14 @@ export class WorkLocationTooltipComponent implements OnInit {
 
     public ngOnInit() {
         const user = currentUser();
-        this.settings = user.work_preferences;
-        this.overrides = user.work_overrides;
-        this.locations = [
+        this.settings.set(user.work_preferences);
+        this.overrides.set(user.work_overrides);
+        this.locations.set([
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
             { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
-        ];
+            { id: 'sick', name: i18n('COMMON.WORK_SICK'), icon: 'sick' },
+        ]);
     }
 
     public location_icon(time: number) {
@@ -214,19 +215,19 @@ export class WorkLocationTooltipComponent implements OnInit {
 
     public async setLocation(index: number, location: string) {
         const user = currentUser();
-        const active_preference = this.active_preference;
+        const current_active_preference = this.active_preference;
         const date = format(Date.now(), 'yyyy-MM-dd');
         const new_overrides = {
             ...user.work_overrides,
             [date]: {
-                ...active_preference,
+                ...current_active_preference,
                 blocks: [
-                    ...active_preference.blocks.slice(0, index),
+                    ...current_active_preference.blocks.slice(0, index),
                     {
-                        ...active_preference.blocks[index],
+                        ...current_active_preference.blocks[index],
                         location,
                     },
-                    ...active_preference.blocks.slice(index + 1),
+                    ...current_active_preference.blocks.slice(index + 1),
                 ],
             },
         };
@@ -239,7 +240,7 @@ export class WorkLocationTooltipComponent implements OnInit {
                 delete new_overrides[key];
             }
         }
-        this.overrides = new_overrides;
+        this.overrides.set(new_overrides);
         await updateUser(user.id, {
             ...user,
             work_overrides: new_overrides,

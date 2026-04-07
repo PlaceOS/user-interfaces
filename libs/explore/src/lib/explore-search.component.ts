@@ -1,14 +1,16 @@
 import {
     Component,
+    computed,
     ElementRef,
-    OnInit,
     inject,
+    OnInit,
+    signal,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
@@ -49,7 +51,7 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 #input
                 keyboard
                 class="flex-1 border-none text-base outline-hidden"
-                [(ngModel)]="search_str"
+                [ngModel]="search_str"
                 (ngModelChange)="setFilter($event)"
                 [placeholder]="'COMMON.SEARCH' | translate"
                 (focus)="cancelClear()"
@@ -57,21 +59,18 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
                 [matAutocomplete]="auto"
                 [matAutocompleteConnectedTo]="origin"
             />
-            @if (loading | async) {
+            @if (loading()) {
                 <mat-spinner class="mr-2" [diameter]="32"></mat-spinner>
             }
         </div>
         <mat-autocomplete #auto="matAutocomplete">
-            @if ((loading | async) !== true && (show || search_str)) {
-                @if (!(results | async)?.length) {
+            @if (loading() !== true && (show || search_str)) {
+                @if (!results_list().length) {
                     <mat-option class="pointer-events-none">
                         {{ 'COMMON.SEARCH_EMPTY' | translate }}
                     </mat-option>
                 }
-                @for (
-                    option of results | async | slice: 0 : 5;
-                    track option.name
-                ) {
+                @for (option of results_list().slice(0, 5); track option.name) {
                     <mat-option [value]="option.name" (click)="select(option)">
                         <div
                             class="flex w-88 max-w-[calc(100vw-2rem)] items-center leading-tight"
@@ -120,7 +119,6 @@ import { ExploreSearchService, SearchResult } from './explore-search.service';
         `,
     ],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,
@@ -136,12 +134,44 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public show = false;
-    public search_str = '';
-    public right_size = false;
-    public readonly results = this._search.search_results;
-    public readonly loading = this._search.loading;
-    public readonly setFilter = (s) => this._search.setFilter(s);
+    private readonly _show = signal(false);
+    private readonly _search_str = signal('');
+    private readonly _right_size = signal(false);
+    public readonly results = toSignal(this._search.search_results, {
+        initialValue: [],
+    });
+    public readonly results_list = computed(() => this.results() || []);
+    public readonly loading = toSignal(this._search.loading, {
+        initialValue: false,
+    });
+    public readonly setFilter = (value: string) => {
+        this.search_str = value || '';
+        this._search.setFilter(value);
+    };
+
+    public get show() {
+        return this._show();
+    }
+
+    public set show(value: boolean) {
+        this._show.set(value);
+    }
+
+    public get search_str() {
+        return this._search_str();
+    }
+
+    public set search_str(value: string) {
+        this._search_str.set(value || '');
+    }
+
+    public get right_size() {
+        return this._right_size();
+    }
+
+    public set right_size(value: boolean) {
+        this._right_size.set(value);
+    }
 
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
@@ -159,7 +189,6 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
     public clear() {
         this.timeout('clear', () => {
             this.show = false;
-            this.search_str = '';
             this.setFilter('');
         });
     }
@@ -185,7 +214,6 @@ export class ExploreSearchComponent extends AsyncHandler implements OnInit {
 
     public closeSearch(e?: any) {
         this.show = false;
-        this.search_str = '';
         this.setFilter('');
         const _input_el = this._input_el();
         if (_input_el?.nativeElement) {

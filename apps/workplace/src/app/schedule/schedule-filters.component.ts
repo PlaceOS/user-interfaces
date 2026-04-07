@@ -61,7 +61,7 @@ import { ScheduleStateService } from './schedule-state.service';
                 }
                 @if (
                     (filters | async)?.shown_types?.includes('parking') &&
-                    hasFeature('parking')
+                    (hasFeature('parking') || hasFeature('parking-requests'))
                 ) {
                     <div
                         class="border-base-200 m-1 flex items-center rounded-3xl border"
@@ -192,7 +192,7 @@ import { ScheduleStateService } from './schedule-state.service';
             }
             @if (
                 (filters | async)?.shown_types?.includes('parking') &&
-                hasFeature('parking')
+                (hasFeature('parking') || hasFeature('parking-requests'))
             ) {
                 <div
                     class="border-base-200 bg-base-100 flex items-center rounded-3xl border pl-2 text-sm"

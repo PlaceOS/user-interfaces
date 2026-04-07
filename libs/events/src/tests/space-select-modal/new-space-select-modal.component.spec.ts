@@ -6,15 +6,14 @@ import {
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService, Space } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import { mockComponent } from 'libs/common/src/tests/test-helpers';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockModule, MockProvider } from 'ng-mocks';
+import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+import { NewSpaceDetailsComponent } from '../../lib/new-space-select-modal/new-space-details.component';
+import { NewSpaceFiltersDisplayComponent } from '../../lib/new-space-select-modal/new-space-filters-display.component';
+import { NewSpaceFiltersComponent } from '../../lib/new-space-select-modal/new-space-filters.component';
+import { NewSpaceListComponent } from '../../lib/new-space-select-modal/new-space-list.component';
+import { NewSpaceMapComponent } from '../../lib/new-space-select-modal/new-space-map.component';
 import { NewSpaceSelectModalComponent } from '../../lib/new-space-select-modal/new-space-select-modal.component';
-import { SpaceDetailsComponent } from '../../lib/space-select-modal/space-details.component';
-import { SpaceFiltersDisplayComponent } from '../../lib/space-select-modal/space-filters-display.component';
-import { SpaceFiltersComponent } from '../../lib/space-select-modal/space-filters.component';
-import { SpaceListComponent } from '../../lib/space-select-modal/space-list.component';
 
 describe('NewSpaceSelectModalComponent', () => {
     let spectator: Spectator<NewSpaceSelectModalComponent>;
@@ -28,23 +27,27 @@ describe('NewSpaceSelectModalComponent', () => {
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: jest.fn() }),
             MockProvider(EventFormService, {
+                loading$: new BehaviorSubject(''),
                 room_alerts: new BehaviorSubject({}),
                 options$: new BehaviorSubject({}),
                 filters$: new BehaviorSubject({}),
                 available_spaces: new BehaviorSubject([]),
+                spaces$: new BehaviorSubject([]),
                 form: generateEventForm(),
+                filters: {},
                 setOptions: jest.fn(),
                 setFilters: jest.fn(),
+                setView: jest.fn(),
             }),
         ],
-        declarations: [
-            mockComponent(IconComponent),
-            mockComponent(SpaceDetailsComponent),
-            mockComponent(SpaceListComponent),
-            mockComponent(SpaceFiltersComponent),
-            mockComponent(SpaceFiltersDisplayComponent),
+        imports: [
+            MockModule(MatDialogModule),
+            MockComponent(NewSpaceDetailsComponent),
+            MockComponent(NewSpaceFiltersComponent),
+            MockComponent(NewSpaceFiltersDisplayComponent),
+            MockComponent(NewSpaceListComponent),
+            MockComponent(NewSpaceMapComponent),
         ],
-        imports: [MockModule(MatDialogModule)],
     });
 
     beforeEach(() => (spectator = createComponent()));
@@ -66,29 +69,75 @@ describe('NewSpaceSelectModalComponent', () => {
         expect('header [mat-dialog-close]').toExist());
 
     it('should allow setting selected spaces', () => {
-        expect(spectator.component.selected_ids).not.toContain('space-1');
+        expect(spectator.component.selected_ids()).not.toContain('space-1');
         spectator.component.setSelected(new Space({ id: 'space-1' }), true);
-        expect(spectator.component.selected_ids).toContain('space-1');
+        expect(spectator.component.selected_ids()).toContain('space-1');
         spectator.component.setSelected(new Space({ id: 'space-1' }), true);
-        expect(spectator.component.selected_ids).toEqual('space-1');
+        expect(spectator.component.selected_ids()).toEqual('space-1');
         spectator.component.setSelected(new Space({ id: 'space-1' }), false);
-        expect(spectator.component.selected_ids).not.toContain('space-1');
+        expect(spectator.component.selected_ids()).not.toContain('space-1');
     });
 
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', ['1']);
+        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
-        (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => ['1'],
-        );
+        // Add space-1 as favourite first, then un-favourite it
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toBeCalledWith('favourite_spaces', []);
+        ).toHaveBeenCalledWith('favourite_spaces', ['1']);
+    });
+});
+
+describe('NewSpaceSelectModalComponent (with favourites)', () => {
+    let spectator: Spectator<NewSpaceSelectModalComponent>;
+    const createComponent = createRoutingFactory({
+        component: NewSpaceSelectModalComponent,
+        providers: [
+            MockProvider(SettingsService, {
+                get: jest.fn((key: string) =>
+                    key === 'favourite_spaces' ? ['1'] : undefined,
+                ) as any,
+                saveUserSetting: jest.fn(),
+            }),
+            MockProvider(MAT_DIALOG_DATA, []),
+            MockProvider(MatDialogRef, { close: jest.fn() }),
+            MockProvider(EventFormService, {
+                loading$: new BehaviorSubject(''),
+                room_alerts: new BehaviorSubject({}),
+                options$: new BehaviorSubject({}),
+                filters$: new BehaviorSubject({}),
+                available_spaces: new BehaviorSubject([]),
+                spaces$: new BehaviorSubject([]),
+                form: generateEventForm(),
+                filters: {},
+                setOptions: jest.fn(),
+                setFilters: jest.fn(),
+                setView: jest.fn(),
+            }),
+        ],
+        imports: [
+            MockModule(MatDialogModule),
+            MockComponent(NewSpaceDetailsComponent),
+            MockComponent(NewSpaceFiltersComponent),
+            MockComponent(NewSpaceFiltersDisplayComponent),
+            MockComponent(NewSpaceListComponent),
+            MockComponent(NewSpaceMapComponent),
+        ],
+    });
+
+    beforeEach(() => (spectator = createComponent()));
+
+    it('should allow un-favouriting a space', () => {
+        spectator.component.favorites.set(['1']);
+        spectator.component.toggleFavourite(new Space({ id: '1' }));
+        expect(
+            spectator.inject(SettingsService).saveUserSetting,
+        ).toHaveBeenCalledWith('favourite_spaces', []);
     });
 });

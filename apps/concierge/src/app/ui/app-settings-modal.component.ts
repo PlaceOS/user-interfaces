@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -33,7 +33,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     App Configuration - {{ zone.display_name }}
                 </h2>
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="z-0 h-1/2 flex-1 space-y-2 overflow-auto p-2"
                     [formGroup]="form"
@@ -201,10 +201,10 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     class="z-0 flex h-1/2 flex-1 flex-col items-center justify-center space-y-2 overflow-auto p-2"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
-                    <p>{{ loading }}</p>
+                    <p>{{ loading() }}</p>
                 </main>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
                     class="bg-base-100 sticky bottom-0 z-10 mx-auto flex w-full max-w-[640px] items-center justify-end space-x-2 p-2"
                 >
@@ -216,7 +216,7 @@ import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
                     </button>
                 </footer>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <button
                     icon
                     matRipple
@@ -279,7 +279,7 @@ export class AppSettingsModalComponent implements OnInit {
         'allow_recurrence',
     ];
     public readonly desk_features = ['allow_all_day'];
-    public loading = '';
+    public readonly loading = signal('');
     public combined_settings: Record<string, any> = {};
     public active_features: Record<string, boolean> = {};
 
@@ -343,7 +343,7 @@ export class AppSettingsModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        this.loading = 'Loading settings...';
+        this.loading.set('Loading settings...');
         this._dialog_ref.disableClose = true;
         const zone_settings: any = (
             await showMetadata(this.zone.id, `${this.workplace_key}`)
@@ -405,13 +405,13 @@ export class AppSettingsModalComponent implements OnInit {
             this.active_features[feature] = true;
         }
         this.combined_settings = combined_settings;
-        this.loading = '';
+        this.loading.set('');
         this._dialog_ref.disableClose = false;
     }
 
     public async save() {
         this.updateFormValues();
-        this.loading = 'Saving settings...';
+        this.loading.set('Saving settings...');
         this._dialog_ref.disableClose = true;
         await updateMetadata(this.zone.id, {
             name: `${this.workplace_key}`,
@@ -422,7 +422,7 @@ export class AppSettingsModalComponent implements OnInit {
             .catch((e) => {
                 console.error(e);
                 this._dialog_ref.disableClose = false;
-                this.loading = '';
+                this.loading.set('');
                 notifyError(
                     `Failed to save settings: ${e.message || e.error || e}`,
                 );

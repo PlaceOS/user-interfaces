@@ -1,19 +1,18 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    MOCK_SYSTEM_ID,
-    navigateWithConfig,
-    waitForSignagePage,
-    waitForMediaPlayer,
-    waitForDebugControls,
-    isPlaylistVisible,
-    getPlaylistItemCount,
+    clickLoopToggle,
     clickPlaylistItem,
+    clickShuffleToggle,
     clickSkipNext,
     clickSkipPrevious,
-    clickLoopToggle,
-    clickShuffleToggle,
+    getPlaylistItemCount,
+    isPlaylistVisible,
+    LOAD_TIMEOUT,
+    MOCK_SYSTEM_ID,
+    navigateWithConfig,
+    waitForDebugControls,
+    waitForMediaPlayer,
 } from './test-utils';
 
 /**
@@ -81,7 +80,7 @@ test.describe('US-SIG-008: Cycle Through Playlist', () => {
         await waitForDebugControls(page);
 
         const skip_next = page.locator(
-            'media-controls button:has(icon:has-text("skip_next"))'
+            'media-controls button:has(icon:has-text("skip_next"))',
         );
         const is_visible = await skip_next.isVisible().catch(() => false);
 
@@ -103,7 +102,7 @@ test.describe('US-SIG-008: Cycle Through Playlist', () => {
         await waitForDebugControls(page);
 
         const skip_prev = page.locator(
-            'media-controls button:has(icon:has-text("skip_previous"))'
+            'media-controls button:has(icon:has-text("skip_previous"))',
         );
         const is_visible = await skip_prev.isVisible().catch(() => false);
 
@@ -127,7 +126,7 @@ test.describe('US-SIG-009: Loop Playlist', () => {
         await waitForDebugControls(page);
 
         const loop_button = page.locator(
-            'media-controls button:has(icon:has-text("repeat"))'
+            'media-controls button:has(icon:has-text("repeat"))',
         );
         const is_visible = await loop_button.isVisible().catch(() => false);
 
@@ -140,7 +139,7 @@ test.describe('US-SIG-009: Loop Playlist', () => {
         await waitForDebugControls(page);
 
         const loop_button = page.locator(
-            'media-controls button:has(icon:has-text("repeat"))'
+            'media-controls button:has(icon:has-text("repeat"))',
         );
         const is_visible = await loop_button.isVisible().catch(() => false);
 
@@ -167,7 +166,7 @@ test.describe('US-SIG-009: Loop Playlist', () => {
         await waitForDebugControls(page);
 
         const loop_button = page.locator(
-            'media-controls button:has(icon:has-text("repeat"))'
+            'media-controls button:has(icon:has-text("repeat"))',
         );
         const is_visible = await loop_button.isVisible().catch(() => false);
 
@@ -196,7 +195,7 @@ test.describe('US-SIG-010: Shuffle Playlist', () => {
         await waitForDebugControls(page);
 
         const shuffle_button = page.locator(
-            'media-controls button:has(icon:has-text("shuffle"))'
+            'media-controls button:has(icon:has-text("shuffle"))',
         );
         const is_visible = await shuffle_button.isVisible().catch(() => false);
 
@@ -209,7 +208,7 @@ test.describe('US-SIG-010: Shuffle Playlist', () => {
         await waitForDebugControls(page);
 
         const shuffle_button = page.locator(
-            'media-controls button:has(icon:has-text("shuffle"))'
+            'media-controls button:has(icon:has-text("shuffle"))',
         );
         const is_visible = await shuffle_button.isVisible().catch(() => false);
 
@@ -229,7 +228,7 @@ test.describe('US-SIG-010: Shuffle Playlist', () => {
         await waitForDebugControls(page);
 
         const shuffle_button = page.locator(
-            'media-controls button:has(icon:has-text("shuffle"))'
+            'media-controls button:has(icon:has-text("shuffle"))',
         );
         const is_visible = await shuffle_button.isVisible().catch(() => false);
 
@@ -280,7 +279,7 @@ test.describe('US-SIG-011: Skip Invalid Media Items', () => {
         if (playlist_visible) {
             // Check for any error indicators in playlist items
             const error_indicators = page.locator(
-                'playlist-display [error], playlist-display .error, playlist-display icon:has-text("error")'
+                'playlist-display [error], playlist-display .error, playlist-display icon:has-text("error")',
             );
             const error_count = await error_indicators.count();
 
@@ -328,7 +327,7 @@ test.describe('Playlist Display Sidebar', () => {
         if (playlist_visible) {
             // Look for highlighted/active item
             const active_item = page.locator(
-                'playlist-display [playlist-item].active, playlist-display [playlist-item].playing, playlist-display [playlist-item].current'
+                'playlist-display [playlist-item].active, playlist-display [playlist-item].playing, playlist-display [playlist-item].current',
             );
             const has_active = await active_item.isVisible().catch(() => false);
 

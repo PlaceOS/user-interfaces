@@ -18,7 +18,9 @@ describe('PanelViewComponent', () => {
             {
                 provide: PanelStateService,
                 useValue: {
-                    space: { subscribe: jest.fn() },
+                    space: {
+                        subscribe: jest.fn(() => ({ unsubscribe: jest.fn() })),
+                    },
                     setting: jest.fn(() => false),
                     system: '',
                 },

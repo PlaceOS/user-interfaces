@@ -32,9 +32,9 @@ describe('CateringComponent', () => {
     });
 
     it('should handle route parameters', () => {
-        expect(spectator.component.page).toBeFalsy();
+        expect(spectator.component.page()).toBeFalsy();
         spectator.setRouteParam('view', 'orders');
         spectator.detectChanges();
-        expect(spectator.component.page).toBe('orders');
+        expect(spectator.component.page()).toBe('orders');
     });
 });

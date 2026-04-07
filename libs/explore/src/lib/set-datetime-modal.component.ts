@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -8,7 +9,13 @@ import {
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SettingsService, User } from '@placeos/common';
+import {
+    alignDateToBookableHours,
+    BookableHoursRange,
+    settingSignal,
+    SettingsService,
+    User,
+} from '@placeos/common';
 
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -31,7 +38,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
         </header>
         @if (form) {
             <main [formGroup]="form" class="w-[24rem] max-w-[85vw]">
-                @if (resource) {
+                @if (resource()) {
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
@@ -41,15 +48,15 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                                 class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
                             >
                                 {{
-                                    resource.name ||
-                                        resource.map_id ||
+                                    resource().name ||
+                                        resource().map_id ||
                                         'Unknown Resource'
                                 }}
                             </div>
                         </div>
                     </div>
                 }
-                @if (host) {
+                @if (host()) {
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
                     >
@@ -67,7 +74,10 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                 >
                     <div class="flex w-full flex-1 flex-col sm:w-1/4">
                         <label>Date</label>
-                        <a-date-field [to]="book_until" formControlName="date">
+                        <a-date-field
+                            [to]="book_until()"
+                            formControlName="date"
+                        >
                             Date and time must be in the future
                         </a-date-field>
                     </div>
@@ -81,10 +91,11 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                             [ngModel]="form.value.date"
                             (ngModelChange)="form.patchValue({ date: $event })"
                             [ngModelOptions]="{ standalone: true }"
-                            [use_24hr]="use_24hr_time"
+                            [range]="bookable_hours()"
+                            [use_24hr]="use_24hr_time()"
                         ></a-time-field>
                     </div>
-                    @if (!form.value.all_day) {
+                    @if (!all_day()) {
                         <div class="flex w-full flex-1 flex-col sm:w-1/3">
                             <label>End Time</label>
                             <a-duration-field
@@ -93,13 +104,14 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
-                                [use_24hr]="use_24hr_time"
+                                [end_time]="bookable_hours()?.end"
+                                [use_24hr]="use_24hr_time()"
                             >
                             </a-duration-field>
                         </div>
                     }
                 </div>
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div
                         class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
                     >
@@ -143,10 +155,11 @@ export class SetDatetimeModalComponent implements OnInit {
         resource: BookingAsset;
         all_day?: boolean;
         allow_all_day?: boolean;
+        bookable_hours?: BookableHoursRange | null;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
-    public host = this._data.host;
+    public readonly host = signal(this._data.host);
     public form = new FormGroup({
         user: new FormControl(this._data.user),
         date: new FormControl(this._data.date),
@@ -154,15 +167,40 @@ export class SetDatetimeModalComponent implements OnInit {
         all_day: new FormControl(this._data.all_day ?? false),
     });
 
-    public readonly book_until = this._data.until;
-    public readonly resource = this._data.resource;
-    public readonly allow_all_day = this._data.allow_all_day ?? false;
-
-    public get use_24hr_time() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly book_until = signal(this._data.until);
+    public readonly resource = signal(this._data.resource);
+    public readonly allow_all_day = signal(this._data.allow_all_day ?? false);
+    public readonly bookable_hours = signal(this._data.bookable_hours ?? null);
+    public readonly all_day = toSignal(
+        this.form.controls.all_day.valueChanges,
+        {
+            initialValue: this.form.controls.all_day.value,
+        },
+    );
+    public readonly use_24hr_time = settingSignal('use_24_hour_time', false);
 
     public ngOnInit(): void {
+        if (this.bookable_hours()) {
+            const aligned_date = alignDateToBookableHours(
+                this.form.value.date,
+                this.bookable_hours(),
+            );
+            if (aligned_date !== this.form.value.date) {
+                this.form.patchValue({ date: aligned_date });
+            }
+        }
+        this.form.controls.date.valueChanges.subscribe((date) => {
+            if (this.bookable_hours() && date) {
+                const aligned = alignDateToBookableHours(
+                    date,
+                    this.bookable_hours(),
+                    this._data.date,
+                );
+                if (aligned !== date) {
+                    this.form.patchValue({ date: aligned });
+                }
+            }
+        });
         this.form.controls.all_day.valueChanges.subscribe((all_day) => {
             if (all_day) {
                 this.form.controls.duration.disable();

@@ -13,16 +13,20 @@ import {
     listDashboardAlerts,
     PlaceAlert,
     PlaceAlertDashboard,
+    PlaceModule,
     queryAlertDashboards,
+    queryModules,
     removeAlert,
     removeAlertDashboard,
     showAlert,
     showAlertDashboard,
+    systemModuleState,
     token,
     TriggerComparison,
     TriggerConditionOperator,
 } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
@@ -119,6 +123,39 @@ interface BrokerAlert {
     value: any;
 }
 
+/**
+ * Calculate module index based on modules of the same name/class
+ */
+function calculateModuleIndex(
+    module_list: PlaceModule[],
+    module: PlaceModule,
+): number {
+    const driver = module.driver || ({ class_name: 'System' } as any);
+    const module_class = module.custom_name || module.name || driver.class_name;
+    const modules_with_class = module_list.filter((mod) => {
+        const d = mod.driver || ({ class_name: 'System' } as any);
+        const mod_class = mod.custom_name || mod.name || d.class_name;
+        return mod_class === module_class;
+    });
+    return Math.max(
+        1,
+        modules_with_class.findIndex((mod) => mod.id === module.id) + 1,
+    );
+}
+
+/**
+ * Get list of valid device names (module_name_index format) for a system's modules
+ */
+function getModuleDeviceNames(modules: PlaceModule[]): string[] {
+    return modules.map((mod) => {
+        const driver = mod.driver || ({ class_name: 'System' } as any);
+        const name =
+            mod.custom_name || mod.name || driver.class_name || 'Blank';
+        const index = calculateModuleIndex(modules, mod);
+        return `${name}_${index}`;
+    });
+}
+
 function findCompareMatches(alerts: BrokerAlert[], item: TriggerComparison) {
     const topic = compareAsTopic(item);
     const matches: BrokerAlert[] = [];
@@ -173,8 +210,20 @@ export class DashboardsService extends AsyncHandler {
     private _alerts = signal([]);
     private _initialising = signal(false);
     private _region_set_from_params = false;
+    /** Capture original URL query string at construction time before effects can modify it */
+    private _initial_query_string = (() => {
+        const hash = location.hash;
+        const idx = hash.indexOf('?');
+        return idx >= 0 ? hash.substring(idx + 1) : '';
+    })();
     /** Track alert IDs that have already been notified to prevent duplicates */
     private _notified_alert_ids = new Set<string>();
+    /** Cache of system modules: system_id -> list of valid device names */
+    private _system_modules_cache = new Map<string, string[]>();
+    /** Track in-flight module queries to prevent duplicate requests */
+    private _pending_module_queries = new Map<string, Promise<string[]>>();
+    /** Track current alert subscription scope to avoid unnecessary resets */
+    private _alert_scope = '';
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -190,28 +239,41 @@ export class DashboardsService extends AsyncHandler {
 
     constructor() {
         super();
-        // Check for region/building in URL query params immediately
-        this._initFromQueryParams();
 
         firstTruthyValueFrom(this._org.initialised).then(() => {
-            this.timeout('org_init', () => {
-                // Don't overwrite if region was explicitly set from query params
-                if (!this._region_set_from_params) {
-                    this.region_id.set(this._org.region?.id || '');
-                    this.building_id.set(this._org.building?.id || '');
-                }
-            });
+            // Check for region/building in URL query params immediately
+            this._initFromQueryParams();
+
+            // If not set from params, sync with org service region/building
+            if (!this._region_set_from_params) {
+                this.region_id.set(this._org.region?.id || '');
+                this.building_id.set(this._org.building?.id || '');
+                // Subscribe to catch late region restoration (e.g., from localStorage)
+                this.subscription(
+                    'org_region',
+                    this._org.active_region.subscribe((region) => {
+                        if (!this._region_set_from_params) {
+                            this.region_id.set(region?.id || '');
+                        }
+                    }),
+                );
+                this.subscription(
+                    'org_building',
+                    this._org.active_building.subscribe((building) => {
+                        if (!this._region_set_from_params) {
+                            this.building_id.set(building?.id || '');
+                        }
+                    }),
+                );
+            }
         });
     }
 
     /** Initialize region/building from URL query params */
     private _initFromQueryParams() {
-        // Parse query params from hash (for hash routing) or search
-        const hash = location.hash;
-        const queryIndex = hash.indexOf('?');
-        const queryString =
-            queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
-        const params = new URLSearchParams(queryString);
+        // Use query string captured at construction time to avoid reading
+        // params injected by the _query_sync effect in AlertsComponent
+        const params = new URLSearchParams(this._initial_query_string);
 
         const region_param = params.get('region');
         const building_param = params.get('building');
@@ -322,9 +384,21 @@ export class DashboardsService extends AsyncHandler {
     }
 
     public async listenForDashboardAlerts(force = false) {
-        this.dashboard_alerts.set([]);
         const dashboard = this.dashboard();
         if (!dashboard && !force) return;
+        const alert_scope = [
+            dashboard?.id || 'disconnected',
+            this.region_id() || '',
+            this.building_id() || '',
+        ].join('|');
+        const scope_changed = this._alert_scope !== alert_scope;
+        if (!scope_changed && this._mqtt_broker && this._connected) return;
+
+        if (scope_changed) {
+            this.dashboard_alerts.set([]);
+            this._alerts.set([]);
+        }
+        this._alert_scope = alert_scope;
         if (!this._mqtt_broker) await this._initialiseBroker();
         this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }
@@ -360,6 +434,182 @@ export class DashboardsService extends AsyncHandler {
             throw e;
         }
         this.timeout('init_finish', () => this._initialising.set(false));
+    }
+
+    /**
+     * Get valid module device names for a system.
+     * Caches results to avoid repeated API calls.
+     */
+    private async _getSystemModuleNames(system_id: string): Promise<string[]> {
+        // Return cached result if available
+        if (this._system_modules_cache.has(system_id)) {
+            return this._system_modules_cache.get(system_id);
+        }
+
+        // Check if there's already a pending query for this system
+        if (this._pending_module_queries.has(system_id)) {
+            return this._pending_module_queries.get(system_id);
+        }
+
+        // Create new query promise
+        const query_promise = lastValueFrom(
+            queryModules({ control_system_id: system_id }).pipe(
+                map((resp) => resp.data),
+            ),
+        )
+            .then((modules) => {
+                const device_names = getModuleDeviceNames(modules);
+                this._system_modules_cache.set(system_id, device_names);
+                this._pending_module_queries.delete(system_id);
+                return device_names;
+            })
+            .catch((err) => {
+                log(
+                    'ALERTS',
+                    `Failed to fetch modules for system ${system_id}:`,
+                    err,
+                );
+                this._pending_module_queries.delete(system_id);
+                // Return empty array on error - this will cause the alert to be filtered out
+                return [];
+            });
+
+        this._pending_module_queries.set(system_id, query_promise);
+        return query_promise;
+    }
+
+    /**
+     * Check if a module exists on a system.
+     * Returns true if the module exists, false otherwise.
+     */
+    private async _moduleExistsOnSystem(
+        system_id: string,
+        device: string,
+    ): Promise<boolean> {
+        const module_names = await this._getSystemModuleNames(system_id);
+        return module_names.includes(device);
+    }
+
+    /**
+     * Get the current value of a status variable from a module.
+     * Returns undefined if the value cannot be fetched.
+     */
+    private async _getModuleStatusValue(
+        system_id: string,
+        device: string,
+        status_key: string,
+        keys: string[] = [],
+    ): Promise<any> {
+        const parts = (device || '').split('_');
+        const module_index = parseInt(parts.pop(), 10) || 1;
+        const module_name = parts.join('_');
+        if (!module_name) return undefined;
+
+        try {
+            const state = await lastValueFrom(
+                systemModuleState(system_id, module_name, module_index),
+            );
+            let value = state?.[status_key];
+            // Navigate through sub-keys if specified
+            for (const key of keys || []) {
+                if (value == null) break;
+                value = value[key];
+            }
+            return value;
+        } catch (err) {
+            log(
+                'ALERTS',
+                `Failed to fetch status value for ${device}.${status_key} on system ${system_id}:`,
+                err,
+            );
+            return undefined;
+        }
+    }
+
+    /**
+     * Coerce a value that may be a string representation to its actual type.
+     * Handles "true"/"false" strings, numeric strings, and null/undefined strings.
+     */
+    private _coerceValue(value: any): any {
+        if (typeof value !== 'string') return value;
+
+        const lower = value.toLowerCase();
+        // Handle boolean strings
+        if (lower === 'true') return true;
+        if (lower === 'false') return false;
+        // Handle null/undefined strings
+        if (lower === 'null') return null;
+        if (lower === 'undefined') return undefined;
+        // Handle numeric strings
+        if (value !== '' && !isNaN(Number(value))) {
+            return Number(value);
+        }
+        return value;
+    }
+
+    /**
+     * Validate that an alert condition matches the current module state.
+     * This prevents false positives from delayed or stale MQTT messages.
+     */
+    private async _validateAlertCondition(
+        system_id: string,
+        device: string,
+        comparison: TriggerComparison,
+    ): Promise<boolean> {
+        // Get the status key and subkeys from the comparison
+        let status_key: string;
+        let keys: string[] = [];
+        if (comparison.left instanceof Object) {
+            status_key = comparison.left.status;
+            keys = comparison.left.keys || [];
+        } else {
+            status_key = comparison.left as string;
+        }
+
+        // Fetch the current value from the module
+        const raw_value = await this._getModuleStatusValue(
+            system_id,
+            device,
+            status_key,
+            keys,
+        );
+
+        if (raw_value === undefined) {
+            // If we can't fetch the value, don't validate (let alert through)
+            log(
+                'ALERTS',
+                `Could not fetch current value for ${device}.${status_key}, skipping validation`,
+            );
+            return true;
+        }
+
+        // Coerce values that may be string representations to their actual types
+        const current_value = this._coerceValue(raw_value);
+        const expected = this._coerceValue(comparison.right);
+
+        // Validate against the comparison operator
+        switch (comparison.operator) {
+            case TriggerConditionOperator.EQ:
+                return current_value === expected;
+            case TriggerConditionOperator.NEQ:
+                return current_value !== expected;
+            case TriggerConditionOperator.GT:
+                return current_value > expected;
+            case TriggerConditionOperator.LT:
+                return current_value < expected;
+            case TriggerConditionOperator.GTE:
+                return current_value >= expected;
+            case TriggerConditionOperator.LTE:
+                return current_value <= expected;
+            case TriggerConditionOperator.AND:
+                return !!(current_value && expected);
+            case TriggerConditionOperator.OR:
+                return !!(current_value || expected);
+            case TriggerConditionOperator.XOR:
+                return !!current_value !== !!expected;
+            default:
+                return true;
+        }
     }
 
     private _listenToAlertTopics() {
@@ -421,9 +671,12 @@ export class DashboardsService extends AsyncHandler {
     private _updateDashboardAlertList() {
         this.timeout(
             'update_alerts',
-            () => {
+            async () => {
                 const alert_list = this.alerts_list();
-                let alert_out: Alert[] = [];
+                // Track alerts with their triggering comparisons for validation
+                let alert_out: (Alert & {
+                    _comparisons?: TriggerComparison[];
+                })[] = [];
                 for (const alert of alert_list) {
                     const comparision_matches: any[][] = [];
                     for (const item of alert.conditions.comparisons) {
@@ -466,14 +719,60 @@ export class DashboardsService extends AsyncHandler {
                                 body: alert.description,
                                 status: 'open',
                                 timestamp: time * 1000,
+                                // Store comparisons for validation
+                                _comparisons: alert.conditions.comparisons,
                             });
                         }
                     }
                     alert_out = unique(alert_out, 'id');
                 }
+
+                // Filter out alerts where the module no longer exists on the system
+                // and validate that current state matches the alert condition
+                const filtered_alerts: Alert[] = [];
+                for (const alert of alert_out) {
+                    const exists = await this._moduleExistsOnSystem(
+                        alert.location,
+                        alert.device,
+                    );
+                    if (!exists) {
+                        log(
+                            'ALERTS',
+                            `Filtering out alert for non-existent module: ${alert.device} on system ${alert.location}`,
+                        );
+                        continue;
+                    }
+
+                    // Validate current state matches at least one comparison
+                    const comparisons = alert._comparisons || [];
+                    let valid = comparisons.length === 0; // If no comparisons, consider valid
+                    for (const comparison of comparisons) {
+                        const is_valid = await this._validateAlertCondition(
+                            alert.location,
+                            alert.device,
+                            comparison,
+                        );
+                        if (is_valid) {
+                            valid = true;
+                            break; // At least one comparison is still valid
+                        }
+                    }
+
+                    if (valid) {
+                        // Remove internal _comparisons before adding to output
+                        const { _comparisons, ...clean_alert } = alert;
+                        filtered_alerts.push(clean_alert);
+                    } else {
+                        log(
+                            'ALERTS',
+                            `Filtering out alert for ${alert.device} on system ${alert.location}: current state no longer matches condition`,
+                        );
+                    }
+                }
+
                 // Send push notifications for new alerts
-                this._sendPushNotifications(alert_out);
-                this.dashboard_alerts.set(alert_out);
+                this._sendPushNotifications(filtered_alerts);
+                this.dashboard_alerts.set(filtered_alerts);
             },
             10,
         );

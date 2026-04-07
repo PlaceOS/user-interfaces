@@ -300,7 +300,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                                         standalone: true,
                                                     }"
                                                     [placeholder]="
-                                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEARCH'
                                                             | translate
                                                     "
                                                 />

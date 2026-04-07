@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { startOfMinute } from 'date-fns';
 
 import { AsyncHandler, generateQRCode } from '@placeos/common';
@@ -11,6 +12,8 @@ import { PanelStateService } from '../panel-state.service';
     selector: 'panel-view-details',
     template: `
         <div class="relative h-full w-full bg-black text-white">
+            @let cur = current();
+            @let sys = system();
             @if (room_image) {
                 <div
                     class="absolute inset-0 bg-cover bg-center"
@@ -19,7 +22,6 @@ import { PanelStateService } from '../panel-state.service';
             }
             <div class="absolute inset-0 bg-black opacity-50"></div>
             <div name class="absolute top-4 left-4 text-4xl font-medium">
-                @let sys = system | async;
                 {{ sys?.display_name || sys?.name || '' }}
             </div>
             @if (checkin) {
@@ -35,17 +37,13 @@ import { PanelStateService } from '../panel-state.service';
                     }
                 </div>
             }
-            @if (
-                (current | async) &&
-                !hide_meeting_details &&
-                !hide_meeting_title
-            ) {
+            @if (cur && !hide_meeting_details && !hide_meeting_title) {
                 <div
                     class="absolute inset-x-0 bottom-0 p-4 text-center text-3xl text-white"
                 >
                     <div class="bg-neutral absolute inset-0 opacity-30"></div>
                     <div class="relative">
-                        {{ (current | async)?.title }}
+                        {{ cur?.title }}
                         <span class="font-light">{{
                             'APP.BOOKING_PANEL.MEETING_IN_PROGRESS' | translate
                         }}</span>
@@ -55,21 +53,16 @@ import { PanelStateService } from '../panel-state.service';
             <div
                 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 space-y-4 text-center font-normal"
                 [class.pb-8]="
-                    (current | async) &&
-                    !hide_meeting_details &&
-                    !hide_meeting_title
+                    cur && !hide_meeting_details && !hide_meeting_title
                 "
             >
                 <p class="text-3xl">
                     {{ time() | date: 'EEE, MMM d, y h:mm a' }}
                 </p>
-                @if ((current | async) && !hide_meeting_details) {
+                @if (cur && !hide_meeting_details) {
                     <p class="text-4xl">
                         {{ 'APP.BOOKING_PANEL.HOST' | translate }}
-                        {{
-                            (current | async)?.organiser?.name ||
-                                (current | async)?.host
-                        }}
+                        {{ cur?.organiser?.name || cur?.host }}
                     </p>
                 }
             </div>
@@ -87,8 +80,8 @@ import { PanelStateService } from '../panel-state.service';
 export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
 
-    public readonly system = this._state.space;
-    public readonly current = this._state.current;
+    public readonly system = toSignal(this._state.space);
+    public readonly current = toSignal(this._state.current);
     public readonly qr_code = signal('');
 
     public readonly time = signal(Date.now());
@@ -123,7 +116,6 @@ export class PanelViewDetailsComponent extends AsyncHandler implements OnInit {
             () => this.time.set(startOfMinute(Date.now()).valueOf()),
             5 * 1000,
         );
-        this.subscription('current', this._state.current.subscribe());
         this.subscription(
             'settings',
             this._state.settings.subscribe(

@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -121,9 +121,9 @@ import { BookingAsset } from '../booking-form.service';
                     >
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="map_url"
+                            [src]="map_url()"
                             [focus]="desk().map_id || desk().id"
-                            [features]="features"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -139,20 +139,26 @@ import { BookingAsset } from '../booking-form.service';
                     btn
                     matRipple
                     name="toggle-desk-details"
-                    [class.inverse]="active()"
+                    [class.inverse]="!single_select() && active()"
                     class="w-full"
                     (click)="activeChange.emit()"
                 >
                     <div class="flex items-center justify-center">
                         <icon class="text-2xl">{{
-                            active() ? 'remove' : 'add'
+                            single_select()
+                                ? 'done'
+                                : active()
+                                  ? 'remove'
+                                  : 'add'
                         }}</icon>
                         <p>
                             {{
-                                (active()
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                single_select()
+                                    ? 'Select Item'
+                                    : ((active()
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
                             }}
                         </p>
                     </div>
@@ -181,29 +187,22 @@ export class DeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);
+    public readonly single_select = input(false);
     public readonly hide_map = input(false);
 
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
     public readonly activeChange = output<void>();
 
-    public map_url = '';
-    public features: ViewerFeature[] = [];
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.desk && this.desk()) {
-            this.updateFeature();
-        }
-    }
-
-    private updateFeature() {
-        this.map_url = this.desk().zone.map_id;
+    public readonly map_url = computed(() => this.desk()?.zone?.map_id || '');
+    public readonly features = computed<ViewerFeature[]>(() => {
         const desk = this.desk();
-        this.features = [
+        if (!desk) return [];
+        return [
             {
                 location: desk.map_id || desk.id,
                 content: MapPinComponent,
             },
         ];
-    }
+    });
 }

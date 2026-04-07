@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
+    authority,
     clientId,
     convertPairStringToMap,
     invalidateToken,
@@ -11,6 +12,7 @@ import {
     isMock,
     refreshToken,
     setAPI_Key,
+    setToken,
     token,
 } from '@placeos/ts-client';
 import * as Sentry from '@sentry/angular';
@@ -31,9 +33,18 @@ import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
 import { MapsPeopleService } from './mapspeople.service';
+import {
+    bindNativeAuthRedirects,
+    clearNativeDomain,
+    closeNativeBrowser,
+    consumeNativeAuthRedirect,
+    getNativeDomain,
+    isNativeApp,
+    openNativeBrowser,
+} from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
-import { setupPlace } from './placeos';
+import { createNativeAuthUrl, setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
 import { current_user, currentUser } from './user-state';
@@ -47,6 +58,8 @@ declare global {
 }
 
 const LOADING_MESSAGE = signal('Loading...');
+const NEEDS_DOMAIN = signal(false);
+const DOMAIN_ERROR = signal('');
 
 export function getLoadingMessage() {
     return LOADING_MESSAGE;
@@ -54,6 +67,16 @@ export function getLoadingMessage() {
 
 export function setLoadingMessage(message: string) {
     LOADING_MESSAGE.set(message);
+}
+
+/** Signal indicating the native domain overlay should be displayed. */
+export function needsNativeDomain() {
+    return NEEDS_DOMAIN;
+}
+
+/** Signal containing an error message to display in the domain overlay. */
+export function nativeDomainError() {
+    return DOMAIN_ERROR;
 }
 
 export function initSentry(dsn: string, sample_rate = 0.1) {
@@ -106,6 +129,19 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private _zone = '';
     private _region = '';
+    private _initial_token = '';
+    private _domain_resolve: (() => void) | null = null;
+
+    private async _handleNativeAuthRedirect(url: string): Promise<void> {
+        const callback_url = new URL(url);
+        localStorage.setItem('TESTING.callback_url', callback_url.toString());
+        const search = callback_url.searchParams.toString();
+        if (!search) return;
+
+        await closeNativeBrowser();
+        location.replace(`${location.origin}${location.pathname}?${search}`);
+        setTimeout(() => console.log('NATIVE CALLBACK URL', url), 10 * 1000);
+    }
 
     public get debug() {
         return (
@@ -125,7 +161,28 @@ export class PlaceOS_Service extends AsyncHandler {
         _mocks = value;
     }
 
+    public setInitialToken(token: string) {
+        this._initial_token = token || '';
+    }
+
+    /** Called by the native domain overlay once the user has set a domain. */
+    public onNativeDomainSet(): void {
+        NEEDS_DOMAIN.set(false);
+        this._domain_resolve?.();
+        this._domain_resolve = null;
+    }
+
     public async init() {
+        if (isNativeApp()) {
+            await bindNativeAuthRedirects((url) => {
+                void this._handleNativeAuthRedirect(url);
+            });
+            const launch_url = await consumeNativeAuthRedirect();
+            if (launch_url) {
+                await this._handleNativeAuthRedirect(launch_url);
+                return;
+            }
+        }
         log('APP', 'MOCKS:', _mocks);
         if (_mocks) {
             setLoadingMessage('Initializing mocks...');
@@ -189,6 +246,9 @@ export class PlaceOS_Service extends AsyncHandler {
         await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
+        settings.app_name =
+            this._settings.get('app.name') ||
+            this._settings.get('app.short_name');
         settings.mock =
             !!this._settings.get('mock') ||
             (_mocks && location.origin.includes('demo.place.tech'));
@@ -200,9 +260,41 @@ export class PlaceOS_Service extends AsyncHandler {
                 queryParams: query,
             });
         }
-        setLoadingMessage('Authenticating...');
-        /** Wait for authentication details to load */
-        await setupPlace(settings).catch((_) => console.error(_));
+        /** On native platforms, ensure we have a server domain before auth. */
+        while (isNativeApp()) {
+            let domain = getNativeDomain();
+            while (!domain) {
+                setLoadingMessage('Waiting for server configuration...');
+                NEEDS_DOMAIN.set(true);
+                await new Promise<void>((r) => (this._domain_resolve = r));
+                domain = getNativeDomain();
+            }
+            settings.domain = domain;
+            settings.protocol = 'https:';
+            settings.use_domain = true;
+            setLoadingMessage('Authenticating...');
+            const auth_error = await setupPlace(settings)
+                .then(() => null)
+                .catch((_) => _);
+            if (!auth_error) break;
+            log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
+            clearNativeDomain();
+            DOMAIN_ERROR.set(
+                'Unable to connect to your server. Check the email address and try again.',
+            );
+        }
+        if (isNativeApp() && !token(false) && authority()) {
+            setLoadingMessage('Opening sign in...');
+            await openNativeBrowser(
+                await createNativeAuthUrl(settings, clientId()),
+            );
+            return;
+        }
+        if (!isNativeApp()) {
+            setLoadingMessage('Authenticating...');
+            await setupPlace(settings).catch((_) => console.error(_));
+        }
+        if (this._initial_token) setToken(this._initial_token);
         await lastValueFrom(this._org.initialised.pipe(first((_) => _)));
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
@@ -315,17 +407,28 @@ export class PlaceOS_Service extends AsyncHandler {
     }
 
     private _setZones() {
+        if (this._region || this._zone) {
+            this._org.skipAutoSelection();
+        }
         this.timeout(
             'set_building+region',
             async () => {
-                const region = this._org.regions.find(
-                    (b) => b.id === this._region,
-                );
-                if (region) this._org.setRegion(region);
                 const building_list = await nextValueFrom(
                     this._org.building_list,
                 );
-                const bld = building_list.find((b) => b.id === this._zone);
+                let bld = building_list.find((b) => b.id === this._zone);
+                // Determine the target region: explicit region_id, or derived from building's parent
+                const target_region_id = this._region || bld?.parent_id;
+                const region = this._org.regions.find(
+                    (b) => b.id === target_region_id,
+                );
+                if (region) await this._org.setRegion(region);
+                if (!bld && this._zone) {
+                    const building_list = await nextValueFrom(
+                        this._org.building_list,
+                    );
+                    bld = building_list.find((b) => b.id === this._zone);
+                }
                 if (bld) this._org.setBuilding(bld, true);
             },
             1000,

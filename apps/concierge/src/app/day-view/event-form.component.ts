@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,8 +18,9 @@ import {
     CateringListFieldComponent,
     CateringOrderStateService,
 } from '@placeos/catering';
-import { SettingsService } from '@placeos/common';
+import { AsyncHandler, currentUser, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { queryCalendarPermission } from '@placeos/events';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -20,8 +29,14 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+
+const ALLOWED_CALENDAR_ROLES = [
+    'write',
+    'delegateWithoutPrivateEventAccess',
+    'delegateWithPrivateEventAccess',
+];
 
 @Component({
     selector: 'event-form',
@@ -76,6 +91,8 @@ import { map, tap } from 'rxjs/operators';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr_time"
+                                [range]="bookable_hours"
+                                [min_duration]="effective_min_duration"
                             ></a-time-field>
                         </div>
                         <div class="flex flex-1 flex-col">
@@ -88,19 +105,31 @@ import { map, tap } from 'rxjs/operators';
                                 [time]="form().controls?.date?.value"
                                 formControlName="duration"
                                 [use_24hr]="use_24hr_time"
+                                [max]="max_duration"
+                                [custom_options]="custom_duration_options"
+                                [end_time]="bookable_hours?.end"
                             ></a-duration-field>
                         </div>
                     </div>
                 }
-                <div class="flex flex-1 flex-col">
+                <div class="mb-4 flex flex-1 flex-col">
                     <label for="organiser"
                         >{{ 'FORM.HOST' | translate }}<span>*</span>:</label
                     >
                     <a-user-search-field
                         name="organiser"
                         formControlName="organiser"
-                        class="mb-4"
                     ></a-user-search-field>
+                    @if (checking_permission()) {
+                        <p class="text-pending mt-1 text-xs">
+                            Checking calendar permissions...
+                        </p>
+                    }
+                    @if (permission_error()) {
+                        <p class="text-error mt-1 text-xs">
+                            {{ permission_error() }}
+                        </p>
+                    }
                 </div>
                 <div class="flex flex-1 flex-col">
                     <label for="attendees">
@@ -121,7 +150,7 @@ import { map, tap } from 'rxjs/operators';
                         formControlName="resources"
                     ></space-list-field>
                 </div>
-                @if ((has_catering | async) && form().contains('catering')) {
+                @if (has_catering() && form().contains('catering')) {
                     <div class="py-2">
                         <label for="catering">Catering:</label>
                         <catering-list-field
@@ -135,9 +164,7 @@ import { map, tap } from 'rxjs/operators';
                                     form().value.resources[0]?.level?.parent_id,
                             }"
                         ></catering-list-field>
-                        @if (
-                            form().value.catering?.length && has_codes | async
-                        ) {
+                        @if (form().value.catering?.length && has_codes()) {
                             <mat-form-field
                                 appearance="outline"
                                 class="mt-2 w-full"
@@ -150,16 +177,13 @@ import { map, tap } from 'rxjs/operators';
                                     <input
                                         #input
                                         class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
-                                        [ngModel]="code_filter.getValue()"
-                                        (ngModelChange)="
-                                            code_filter.next($event)
-                                        "
+                                        [(ngModel)]="code_filter"
                                         [ngModelOptions]="{ standalone: true }"
                                         placeholder="Search charge codes..."
                                     />
                                     <mat-option class="hidden"></mat-option>
                                     @for (
-                                        code of filtered_codes | async;
+                                        code of filtered_codes();
                                         track code
                                     ) {
                                         <mat-option [value]="code">
@@ -179,7 +203,7 @@ import { map, tap } from 'rxjs/operators';
                                 [class.mt-2]="
                                     !(
                                         form().value.catering?.length &&
-                                            has_codes | async
+                                        has_codes()
                                     )
                                 "
                             >
@@ -245,35 +269,94 @@ import { map, tap } from 'rxjs/operators';
         CateringListFieldComponent,
     ],
 })
-export class EventFormComponent {
+export class EventFormComponent extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _catering = inject(CateringOrderStateService);
 
     public readonly form = input<FormGroup>(undefined);
+    public readonly checking_permission = signal(false);
+    public readonly permission_error = signal('');
 
-    public code_filter = new BehaviorSubject('');
+    constructor() {
+        super();
+        effect(() => {
+            const form = this.form();
+            if (!form) return;
+            this.subscription(
+                'organiser_permission_check',
+                form.get('organiser').valueChanges.subscribe((user) => {
+                    this._checkCalendarPermission(user);
+                }),
+            );
+        });
+    }
 
-    public readonly has_catering = this._catering.available_menu.pipe(
-        map((l) => l.length > 0),
-    );
-
-    public readonly has_codes = this._catering.charge_codes.pipe(
-        map((l) => l.length > 0),
-        tap((has_codes) => {
-            if (!has_codes) {
-                this.form().get('catering_charge_code').setValidators([]);
-                this.form().updateValueAndValidity();
+    private async _checkCalendarPermission(user: any) {
+        this.permission_error.set('');
+        if (!user?.email) return;
+        const current = currentUser();
+        if (user.email.toLowerCase() === current?.email?.toLowerCase()) return;
+        const checked_email = user.email;
+        this.checking_permission.set(true);
+        try {
+            const permission = await lastValueFrom(
+                queryCalendarPermission(checked_email),
+            );
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            if (
+                !permission.has_access ||
+                !ALLOWED_CALENDAR_ROLES.includes(permission.role)
+            ) {
+                this.permission_error.set(
+                    "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+                );
+                this.form()?.patchValue(
+                    { organiser: currentUser() },
+                    { emitEvent: false },
+                );
             }
-        }),
+        } catch (_) {
+            if (this.form()?.value?.organiser?.email !== checked_email) return;
+            this.permission_error.set(
+                "You don't have permission to book on behalf of that user, please select a user which has shared their calendar with Edit or Delegate permissions.",
+            );
+            this.form()?.patchValue(
+                { organiser: currentUser() },
+                { emitEvent: false },
+            );
+        } finally {
+            this.checking_permission.set(false);
+        }
+    }
+
+    public readonly code_filter = signal('');
+
+    private readonly _charge_codes = toSignal(this._catering.charge_codes, {
+        initialValue: [],
+    });
+
+    public readonly has_catering = toSignal(
+        this._catering.available_menu.pipe(map((l) => l.length > 0)),
+        { initialValue: false },
     );
 
-    public readonly filtered_codes = combineLatest([
-        this.code_filter,
-        this._catering.charge_codes,
-    ]).pipe(
-        map(([s, l]) =>
-            l.filter((_) => _.toLowerCase().includes(s.toLowerCase())),
+    public readonly has_codes = toSignal(
+        this._catering.charge_codes.pipe(
+            map((l) => l.length > 0),
+            tap((has_codes) => {
+                if (!has_codes) {
+                    this.form().get('catering_charge_code').setValidators([]);
+                    this.form().updateValueAndValidity();
+                }
+            }),
+        ),
+        { initialValue: false },
+    );
+
+    public readonly filtered_codes = computed(() =>
+        this._charge_codes().filter((_) =>
+            _.toLowerCase().includes(this.code_filter().toLowerCase()),
         ),
     );
 
@@ -287,5 +370,25 @@ export class EventFormComponent {
 
     public get use_24hr_time() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return this._settings.get('app.events.bookable_hours');
+    }
+
+    public get min_duration() {
+        return this._settings.get('app.events.min_duration') || 30;
+    }
+
+    public get custom_duration_options() {
+        return this._settings.get('app.events.custom_duration_options') || [];
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
+    }
+
+    public get max_duration() {
+        return this._settings.get('app.events.max_duration') || 480;
     }
 }

@@ -1,8 +1,8 @@
 import { Component, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -17,13 +17,13 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <p count class="mb-4 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
-                    | translate: { count: (assets | async)?.length || 0 }
+                    | translate: { count: assets()?.length || 0 }
             }}
         </p>
-        @if (!(loading | async)) {
-            @if ((assets | async)?.length) {
+        @if (!loading()) {
+            @if (assets()?.length) {
                 <ul class="list-style-none space-y-2">
-                    @for (space of assets | async; track space) {
+                    @for (space of assets(); track space) {
                         <li
                             space
                             [class.border-info!]="active() === space.id"
@@ -131,7 +131,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,
@@ -148,21 +147,26 @@ export class ParkingSpaceListComponent {
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
 
-    public readonly assets = combineLatest([
-        this._form.options,
-        this._form.available_resources,
-    ]).pipe(
-        map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
-                (a, b) => {
-                    const a_fav = this.isFavourite(a.id) ? 1 : 0;
-                    const b_fav = this.isFavourite(b.id) ? 1 : 0;
-                    return b_fav - a_fav;
-                },
+    public readonly assets = toSignal(
+        combineLatest([
+            this._form.options,
+            this._form.available_resources,
+        ]).pipe(
+            map(([{ show_fav }, _]) =>
+                _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
+                    (a, b) => {
+                        const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                        const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                        return b_fav - a_fav;
+                    },
+                ),
             ),
         ),
+        { initialValue: [] },
     );
-    public readonly loading = this._form.loading;
+    public readonly loading = toSignal(this._form.loading, {
+        initialValue: '',
+    });
 
     public isFavourite(space_id: string) {
         return this.favorites().includes(space_id);

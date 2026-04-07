@@ -12,7 +12,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { MOCK_ASSETS } from './assets.data';
-import { generateCateringOrder, MOCK_MENU } from './catering.data';
+import { generateCateringOrder } from './catering.data';
 
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
@@ -289,10 +289,11 @@ const generateCateringOrderBooking = (
     });
 
     // Pick a random caterer name from menu items
-    const caterer =
-        ['Gourmet Events Catering', 'Fresh & Local Kitchen', 'Premium Dining'][
-            predictableRandomInt(3)
-        ];
+    const caterer = [
+        'Gourmet Events Catering',
+        'Fresh & Local Kitchen',
+        'Premium Dining',
+    ][predictableRandomInt(3)];
 
     // Add caterer to items
     const items_with_caterer = cateringOrder.items.map((item: any) => ({

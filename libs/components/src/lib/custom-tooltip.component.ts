@@ -1,5 +1,5 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { CdkPortal, PortalModule } from '@angular/cdk/portal';
+import { TemplatePortal } from '@angular/cdk/portal';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -12,6 +12,7 @@ import {
     SimpleChanges,
     TemplateRef,
     Type,
+    ViewContainerRef,
     computed,
     effect,
     inject,
@@ -31,7 +32,7 @@ export class CustomTooltipData<T = any> {
     selector: '[customTooltip]',
     template: `
         <ng-content />
-        <ng-template cdk-portal>
+        <ng-template #portal_content>
             <div custom-tooltip class="relative print:hidden">
                 @switch (type()) {
                     @case ('component') {
@@ -58,7 +59,7 @@ export class CustomTooltipData<T = any> {
             }
         `,
     ],
-    imports: [CommonModule, PortalModule, SanitizePipe],
+    imports: [CommonModule, SanitizePipe],
 })
 export class CustomTooltipComponent<T = any>
     extends AsyncHandler
@@ -67,6 +68,7 @@ export class CustomTooltipComponent<T = any>
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
     private _overlay = inject(Overlay);
     private _injector = inject(Injector);
+    private _view_container_ref = inject(ViewContainerRef);
 
     /** Horizontal position of the rendered overlay */
     public readonly x_pos = input<'start' | 'center' | 'end'>('end', {
@@ -113,7 +115,9 @@ export class CustomTooltipComponent<T = any>
 
     private _overlay_ref: OverlayRef = null;
 
-    private readonly _portal = viewChild(CdkPortal);
+    private readonly _portal_content = viewChild.required('portal_content', {
+        read: TemplateRef,
+    });
 
     private _update_injector = effect(() => {
         this.injector = Injector.create({
@@ -180,9 +184,10 @@ export class CustomTooltipComponent<T = any>
                     this.timeout('onclose', () => this.close(), delay);
                 }
                 if (this._overlay_ref) this.close();
-                const _portal = this._portal();
-                if (!_portal) return;
-                const pos = this._element.nativeElement.getBoundingClientRect();
+                const portal = new TemplatePortal(
+                    this._portal_content(),
+                    this._view_container_ref,
+                );
                 const default_x = 'end';
                 const default_y = 'top';
                 const y_pos = this.y_pos();
@@ -205,7 +210,7 @@ export class CustomTooltipComponent<T = any>
                             },
                         ]),
                 });
-                this._overlay_ref.attach(_portal);
+                this._overlay_ref.attach(portal);
                 if (this.backdrop()) {
                     this.subscription(
                         'backdrop',

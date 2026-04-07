@@ -53,8 +53,8 @@ export enum ZoomDirection {
                         <h3 class="mb-2 w-full pr-12 text-xl font-medium">
                             {{ 'APP.CONTROL.CAMERA_PRESETS' | translate }}
                         </h3>
-                        @if (presets?.length) {
-                            @for (name of presets; track name) {
+                        @if (presets().length) {
+                            @for (name of presets(); track name) {
                                 <div class="flex items-center space-x-2">
                                     <button
                                         preset
@@ -66,7 +66,7 @@ export enum ZoomDirection {
                                     >
                                         {{ name }}
                                     </button>
-                                    @if (presets?.length > 1) {
+                                    @if (presets().length > 1) {
                                         <button
                                             icon
                                             matRipple
@@ -105,7 +105,8 @@ export enum ZoomDirection {
                                 >
                                     <input
                                         matInput
-                                        [(ngModel)]="new_preset"
+                                        [ngModel]="new_preset()"
+                                        (ngModelChange)="new_preset.set($event)"
                                         [placeholder]="
                                             'APP.CONTROL.CAMERA_PRESETS_NEW'
                                                 | translate
@@ -115,10 +116,11 @@ export enum ZoomDirection {
                                 <button
                                     btn
                                     matRipple
-                                    [disabled]="!new_preset"
+                                    [disabled]="!new_preset()"
                                     class="w-full"
                                     (click)="
-                                        addPreset(new_preset); new_preset = ''
+                                        addPreset(new_preset());
+                                        new_preset.set('')
                                     "
                                 >
                                     {{
@@ -205,9 +207,11 @@ export enum ZoomDirection {
                 <i
                     binding
                     (modelChange)="
-                        presets = active_camera()?.index
-                            ? ($event || [])[active_camera()?.index]
-                            : $event
+                        presets.set(
+                            active_camera()?.index
+                                ? ($event || [])[active_camera()?.index]
+                                : $event || []
+                        )
                     "
                     [sys]="id"
                     [mod]="active_camera()?.mod"
@@ -242,7 +246,7 @@ export class CameraTooltipComponent {
     /** Currently active camera */
     public readonly active_camera = signal<RoomInput | undefined>(undefined);
     /** List of available presets for the active camera */
-    public presets: string[] = [];
+    public readonly presets = signal<string[]>([]);
     /** Currently active preset */
     public preset = '';
     /** Current zoom value for camera */
@@ -252,7 +256,7 @@ export class CameraTooltipComponent {
     /** Current tilting value for camera */
     public tilt: JoystickTilt = JoystickTilt.Stop;
     /** New preset name input */
-    public new_preset = '';
+    public readonly new_preset = signal('');
     /** List of available cameras to select from */
     public readonly camera_list = toSignal(this._state.available_cameras, {
         initialValue: [] as RoomInput[],

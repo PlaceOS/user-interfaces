@@ -1,14 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    input,
-    OnChanges,
-    signal,
-    SimpleChanges,
-} from '@angular/core';
+
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -46,8 +38,7 @@ import { SignageStateService } from './signage-state.service';
                 <input
                     matInput
                     [placeholder]="'COMMON.SEARCH' | translate"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                 />
             </mat-form-field>
             <button
@@ -104,7 +95,7 @@ import { SignageStateService } from './signage-state.service';
                 cdkDropList
                 id="media-list"
                 [cdkDropListData]="media()"
-                [cdkDropListConnectedTo]="playlist_ids"
+                [cdkDropListConnectedTo]="playlist_ids()"
                 (cdkDropListDropped)="drop($event)"
             >
                 @for (media of media(); track media.id) {
@@ -234,10 +225,7 @@ import { SignageStateService } from './signage-state.service';
                                             [placeholder]="
                                                 'COMMON.SEARCH' | translate
                                             "
-                                            [ngModel]="playlist_search()"
-                                            (ngModelChange)="
-                                                playlist_search.set($event)
-                                            "
+                                            [(ngModel)]="playlist_search"
                                         />
                                     </mat-form-field>
                                 </div>
@@ -354,7 +342,6 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatMenuModule,
@@ -369,7 +356,7 @@ import { SignageStateService } from './signage-state.service';
         AuthenticatedImageDirective,
     ],
 })
-export class SignageMediaListComponent implements OnChanges {
+export class SignageMediaListComponent {
     private _state = inject(SignageStateService);
 
     public readonly link = signal('');
@@ -400,6 +387,11 @@ export class SignageMediaListComponent implements OnChanges {
             _.name.toLowerCase().includes(search_term.toLowerCase()),
         );
     });
+    public readonly playlist_ids = computed(() =>
+        new Array(this.playlist_count())
+            .fill(0)
+            .map((_, idx) => `playlist-${idx}`),
+    );
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);
@@ -414,8 +406,6 @@ export class SignageMediaListComponent implements OnChanges {
         this.link.set('');
     };
 
-    public playlist_ids: string[] = [];
-
     public get now() {
         return getUnixTime(startOfMinute(Date.now()));
     }
@@ -428,14 +418,6 @@ export class SignageMediaListComponent implements OnChanges {
 
     public readonly removeItem = async (item: SignageMedia) =>
         this._state.removeMedia(item);
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.playlist_count) {
-            this.playlist_ids = new Array(this.playlist_count())
-                .fill(0)
-                .map((_, idx) => `playlist-${idx}`);
-        }
-    }
 
     public drop(event: any) {
         // No-op for media list drops - media is managed via addToPlaylist

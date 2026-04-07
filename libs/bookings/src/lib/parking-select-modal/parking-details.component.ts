@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
 import { MapPinComponent } from '@placeos/components';
@@ -63,16 +63,16 @@ import { BookingAsset } from '../booking-form.service';
                     <div class="flex items-center space-x-2">
                         <icon>meeting_room</icon>
                         <p>
-                            {{ level?.display_name || level?.name }}
+                            {{ level()?.display_name || level()?.name }}
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <icon>place</icon>
                         <p>
                             {{
-                                building?.address ||
-                                    building?.display_name ||
-                                    building?.name
+                                building()?.address ||
+                                    building()?.display_name ||
+                                    building()?.name
                             }}
                         </p>
                     </div>
@@ -85,9 +85,9 @@ import { BookingAsset } from '../booking-form.service';
                     >
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="map_url"
+                            [src]="map_url()"
                             [focus]="space().map_id"
-                            [features]="features"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -162,34 +162,25 @@ export class ParkingSpaceDetailsComponent {
     public readonly close = output<void>();
     public readonly toggleFav = output<void>();
 
-    public map_url = '';
-    public features: ViewerFeature[] = [];
-
-    public get level() {
+    public readonly level = computed(() => {
         const space = this.space();
-        return this._org.levelWithID([space?.zone.id]) || space?.zone;
-    }
-
-    public get building() {
+        return this._org.levelWithID([space?.zone?.id]) || space?.zone;
+    });
+    public readonly building = computed(() => {
         const space = this.space();
         return this._org.buildings.find(
-            (_) => space?.zone.id === _.id || space?.zone.parent_id === _.id,
+            (_) => space?.zone?.id === _.id || space?.zone?.parent_id === _.id,
         );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.space && this.space()) {
-            this._updateFeature();
-        }
-    }
-
-    private _updateFeature() {
-        this.map_url = this.level?.map_id;
-        this.features = [
+    });
+    public readonly map_url = computed(() => this.level()?.map_id || '');
+    public readonly features = computed<ViewerFeature[]>(() => {
+        const space = this.space();
+        if (!space?.map_id) return [];
+        return [
             {
-                location: this.space()?.map_id,
+                location: space.map_id,
                 content: MapPinComponent,
             },
         ];
-    }
+    });
 }

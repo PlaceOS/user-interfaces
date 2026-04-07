@@ -1,4 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -6,6 +7,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { i18n, settingSignal } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { filter, map, startWith } from 'rxjs';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { SignageStateService } from './signage-state.service';
@@ -51,7 +53,6 @@ import { SignageStateService } from './signage-state.service';
                                     [routerLink]="
                                         '/signage/' + (link.id | lowercase)
                                     "
-                                    (click)="active_link.set(link.id)"
                                     [active]="active_link() == link.id"
                                 >
                                     {{ link.name }}
@@ -100,33 +101,22 @@ export class SignageComponent {
         { id: 'Displays', name: i18n('APP.CONCIERGE.SIGNAGE_DISPLAYS') },
         { id: 'Zones', name: i18n('APP.CONCIERGE.SIGNAGE_ZONES') },
     ]);
-    public readonly active_link = signal(this.links()[0]?.id);
-    public readonly hide_sidebar = settingSignal('hide_sidebar', false);
-
-    constructor() {
-        // Update active link based on current URL
-        const current_url = this._router.url;
-        const matching_link = this.links().find((_) =>
-            current_url.includes(_.id.toLowerCase()),
+    private readonly _current_url = toSignal(
+        this._router.events.pipe(
+            filter((event) => event instanceof NavigationEnd),
+            map((event) => event.urlAfterRedirects),
+            startWith(this._router.url),
+        ),
+        { initialValue: this._router.url },
+    );
+    public readonly active_link = computed(() => {
+        const current_url = this._current_url();
+        return (
+            this.links().find((_) => current_url.includes(_.id.toLowerCase()))
+                ?.id || this.links()[0]?.id
         );
-        if (matching_link) {
-            this.active_link.set(matching_link.id);
-        }
-
-        // Watch for navigation changes
-        effect(() => {
-            this._router.events.subscribe((event) => {
-                if (event instanceof NavigationEnd) {
-                    const link = this.links().find((_) =>
-                        event.url.includes(_.id.toLowerCase()),
-                    );
-                    if (link) {
-                        this.active_link.set(link.id);
-                    }
-                }
-            });
-        });
-    }
+    });
+    public readonly hide_sidebar = settingSignal('hide_sidebar', false);
 
     public readonly previewFile = (event) =>
         this._state.previewFileFromInput(event);

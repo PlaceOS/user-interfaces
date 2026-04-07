@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     input,
@@ -314,7 +313,6 @@ export function numberToPosition(num: number): string {
     `,
     styles: [],
     imports: [
-        CommonModule,
         FormsModule,
         CronInputFieldComponent,
         MatFormFieldModule,

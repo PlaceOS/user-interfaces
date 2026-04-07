@@ -1,7 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-
-import { AsyncHandler } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -14,8 +13,8 @@ import { VideoCallPageComponent } from './video-call-page.component';
 @Component({
     selector: 'app-control-main-view',
     template: `
-        @if ((system | async).connected) {
-            @if ((system | async).active) {
+        @if (system()?.connected) {
+            @if (system()?.active) {
                 <div class="absolute inset-0 flex flex-col">
                     <topbar-header></topbar-header>
                     <div class="h-1/2 flex-1">
@@ -36,7 +35,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
                     <h2 class="mb-4 text-4xl font-light">
                         {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
                     </h2>
-                    <p class="text-lg">{{ (system | async).name }}</p>
+                    <p class="text-lg">{{ system()?.name }}</p>
                 </div>
             }
         } @else {
@@ -46,7 +45,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="my-4 text-2xl">
-                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id() } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -85,36 +84,33 @@ import { VideoCallPageComponent } from './video-call-page.component';
         TranslatePipe,
     ],
 })
-export class ControlVideoCallViewComponent
-    extends AsyncHandler
-    implements OnInit
-{
+export class ControlVideoCallViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
 
-    public readonly system = this._state.system;
+    private readonly _param_map = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    private readonly _query_param_map = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+
+    public readonly system = toSignal(this._state.system, {
+        initialValue: {} as any,
+    });
 
     public readonly powerOn = () => this._state.powerOn();
-    public get id() {
-        return this._state.id;
-    }
+    public readonly id = toSignal(this._state.system_id, { initialValue: '' });
 
-    public ngOnInit(): void {
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) =>
-                params.has('system')
-                    ? this._state.setID(params.get('system'))
-                    : '',
-            ),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) =>
-                params.get('join') === 'true'
-                    ? this._state.selectMeeting()
-                    : '',
-            ),
-        );
+    constructor() {
+        effect(() => {
+            const params = this._param_map();
+            if (params.has('system')) this._state.setID(params.get('system'));
+        });
+
+        effect(() => {
+            const params = this._query_param_map();
+            if (params.get('join') === 'true') this._state.selectMeeting();
+        });
     }
 }

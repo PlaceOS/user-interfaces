@@ -51,10 +51,6 @@ export class BookMeetingFlowComponent extends AsyncHandler implements OnInit {
             this._state.view$.subscribe((v) => this.view.set(v)),
         );
         this.subscription(
-            'state:rooms',
-            this._state.available_spaces.subscribe(),
-        );
-        this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
                 if (param.has('step'))

@@ -64,6 +64,8 @@ export class SettingsService extends AsyncHandler {
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */
     private _overrides = new BehaviorSubject<HashMap[]>([]);
+    /** Observable that emits when overrides change (e.g. after a building switch) */
+    public readonly overrides$ = this._overrides.asObservable();
     /** User's personal settings */
     private _user_settings = new BehaviorSubject<HashMap>({});
     /** Mapping of behaviour subjects */

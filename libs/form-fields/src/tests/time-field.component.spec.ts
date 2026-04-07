@@ -40,11 +40,11 @@ describe('TimeFieldComponent', () => {
         expect(option_elements.length).toBeGreaterThan(0);
         option_elements[0].dispatchEvent(new Event('click'));
         spectator.detectChanges();
-        expect(spectator.component.time).toBe(
-            `${spectator.component.time_options[0].id}`,
+        expect(spectator.component.time()).toBe(
+            `${spectator.component.time_options()[0].id}`,
         );
         spectator.component.writeValue(startOfDay(Date.now()).valueOf());
-        expect(spectator.component.time).toBe(`00:00`);
+        expect(spectator.component.time()).toBe(`00:00`);
         flush();
     }));
 
@@ -61,20 +61,24 @@ describe('TimeFieldComponent', () => {
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });
         spectator.detectChanges();
-        expect(spectator.component._time_options[1].id).toBe('00:05');
+        expect(spectator.component._time_options()[1].id).toBe('00:05');
         const step = Math.floor(Math.random() * 4 + 1) * 5;
         spectator.setInput({ step });
         spectator.detectChanges();
-        expect(spectator.component._time_options[1].id).toBe(
+        expect(spectator.component._time_options()[1].id).toBe(
             format(addMinutes(startOfDay(new Date()), step), 'HH:mm'),
         );
     });
 
     it('should allow the current time as an option', () => {
-        const date_str = format(new Date(), 'HH:mm');
-        const option = spectator.component.time_options.find(
-            (block) => block.id === date_str,
-        );
+        const current_time = addMinutes(startOfDay(new Date()), 35);
+        const date_str = format(current_time, 'HH:mm');
+        spectator.setInput({ no_past_times: false });
+        spectator.component.writeValue(current_time.valueOf());
+        spectator.detectChanges();
+        const option = spectator.component
+            .time_options()
+            .find((block) => block.id === date_str);
         expect(option).toBeTruthy();
     });
 
@@ -83,10 +87,45 @@ describe('TimeFieldComponent', () => {
         spectator.detectChanges();
         const date = startOfMinute(subMinutes(new Date(), 6));
         const first_option = parse(
-            `${spectator.component.time_options[0].id}`,
+            `${spectator.component.time_options()[0].id}`,
             'HH:mm',
             new Date(),
         );
         expect(date <= first_option).toBeTruthy();
+    });
+
+    it('should allow limiting selectable times by time of day', () => {
+        const date = startOfDay(new Date()).valueOf();
+        spectator.setInput({
+            no_past_times: false,
+            from: date,
+            range: { start: 1, end: 1.75 },
+        });
+        spectator.component.writeValue(date);
+        spectator.detectChanges();
+        expect(spectator.component.time_options().map((_) => _.id)).toEqual([
+            '01:00',
+            '01:15',
+            '01:30',
+            '01:45',
+        ]);
+    });
+
+    it('should not include custom times outside the time range', () => {
+        const date = startOfDay(new Date()).valueOf();
+        spectator.setInput({
+            no_past_times: false,
+            from: date,
+            range: { start: 1, end: 2 },
+        });
+        spectator.component.writeValue(addMinutes(date, 35).valueOf());
+        spectator.detectChanges();
+        expect(spectator.component.time_options().map((_) => _.id)).toEqual([
+            '01:00',
+            '01:15',
+            '01:30',
+            '01:45',
+            '02:00',
+        ]);
     });
 });

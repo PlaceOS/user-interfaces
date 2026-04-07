@@ -178,7 +178,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public async saveTemplate(template: EmailTemplate, old_zone = '') {
-        if (!template.zone_id) return;
+        if (!template.zone_id) throw 'A building is required';
         if (template.id && old_zone) {
             const old_metadata = await lastValueFrom(
                 showMetadata(old_zone, 'email_templates'),

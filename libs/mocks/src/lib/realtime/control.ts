@@ -48,7 +48,12 @@ class RoomModule {
     public readonly environment;
 
     // Lighting bindings
-    public lighting_scenes: string[] = ['Off', 'Presentation', 'Meeting', 'Full'];
+    public lighting_scenes: string[] = [
+        'Off',
+        'Presentation',
+        'Meeting',
+        'Full',
+    ];
     public lighting_scene: string = 'Off';
     public lighting_levels: HashMap<number> = {
         zone1: 50,
@@ -66,7 +71,11 @@ class RoomModule {
     public selected_camera: string = 'Camera_1';
 
     // Microphone bindings
-    public microphones: string[] = ['Microphone_1', 'Microphone_2', 'Microphone_3'];
+    public microphones: string[] = [
+        'Microphone_1',
+        'Microphone_2',
+        'Microphone_3',
+    ];
 
     // Room joining bindings
     public join_modes: HashMap<string> = {
@@ -314,7 +323,9 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
         if (this.lighting_scenes.includes(scene)) {
             this.lighting_scene = scene;
             // Also update env_sources for lights
-            const light_source = this.env_sources.find((_) => _.type === 'lights');
+            const light_source = this.env_sources.find(
+                (_) => _.type === 'lights',
+            );
             if (light_source) {
                 this[`${light_source.type}/${light_source.id}`] = {
                     ...light_source,
@@ -352,7 +363,9 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
 
     /** Control a room accessory */
     $set_accessory_state(accessory_id: string, state: string) {
-        const accessory = this.room_accessories.find((_) => _.id === accessory_id);
+        const accessory = this.room_accessories.find(
+            (_) => _.id === accessory_id,
+        );
         if (accessory && accessory.states.includes(state)) {
             accessory.state = state;
             this.room_accessories = [...this.room_accessories];

@@ -29,12 +29,14 @@ describe('PowerTooltipComponent', () => {
     it('should allow shutting down', () => {
         expect('button:not(.inverse)').toExist();
         spectator.click('button:not(.inverse)');
-        expect(spectator.inject(ControlStateService).powerOff).toBeCalled();
+        expect(
+            spectator.inject(ControlStateService).powerOff,
+        ).toHaveBeenCalled();
     });
 
     it('should allow cancelling', () => {
         expect('button.inverse').toExist();
         spectator.click('button.inverse');
-        expect(spectator.inject(CustomTooltipData).close).toBeCalled();
+        expect(spectator.inject(CustomTooltipData).close).toHaveBeenCalled();
     });
 });

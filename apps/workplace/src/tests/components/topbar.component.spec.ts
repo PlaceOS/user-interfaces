@@ -1,3 +1,4 @@
+import { fakeAsync, tick } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import {
@@ -27,6 +28,8 @@ describe('TopbarComponent', () => {
             MockProvider(SettingsService, { get: jest.fn(), value: jest.fn() }),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject(new Building()),
+                active_region: new BehaviorSubject(null),
+                region_list: new BehaviorSubject([]),
                 building: new Building(),
             }),
         ],
@@ -71,4 +74,11 @@ describe('TopbarComponent', () => {
 
     it('should render user avatar and details', () =>
         expect('[avatar]').toExist());
+
+    it('should open user controls sidebar on click', fakeAsync(() => {
+        spectator.click('[name="user-controls"]');
+        tick(250);
+        spectator.detectChanges();
+        expect(document.body.querySelector('user-controls')).toBeTruthy();
+    }));
 });

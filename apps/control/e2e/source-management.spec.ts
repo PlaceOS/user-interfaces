@@ -130,7 +130,9 @@ test.describe('US-007: Route Source to Display', () => {
             await page.waitForTimeout(500);
 
             // Source select should have source options
-            const sourceSelect = page.locator('source-select-modal, source-select');
+            const sourceSelect = page.locator(
+                'source-select-modal, source-select',
+            );
             if (await sourceSelect.isVisible().catch(() => false)) {
                 // Sources should be listed
                 await expect(sourceSelect).toBeVisible();
@@ -148,7 +150,7 @@ test.describe('US-007: Route Source to Display', () => {
 
             // Find and click close button
             const closeButton = page.locator(
-                'source-select-modal button[mat-dialog-close], source-select-modal button icon:has-text("close")'
+                'source-select-modal button[mat-dialog-close], source-select-modal button icon:has-text("close")',
             );
             if (await closeButton.isVisible().catch(() => false)) {
                 await closeButton.click();
@@ -156,7 +158,9 @@ test.describe('US-007: Route Source to Display', () => {
 
                 // Modal should be closed
                 const modal = page.locator('source-select-modal');
-                await expect(modal).not.toBeVisible({ timeout: ACTION_TIMEOUT });
+                await expect(modal).not.toBeVisible({
+                    timeout: ACTION_TIMEOUT,
+                });
             }
         }
     });
@@ -222,7 +226,9 @@ test.describe('Source Management - Tab Navigation', () => {
 
         // Tabs are dynamically configured per room
         // Look for tab navigation elements
-        const tabs = page.locator('[tab-outlet] button, [tab-outlet] [role="tab"]');
+        const tabs = page.locator(
+            '[tab-outlet] button, [tab-outlet] [role="tab"]',
+        );
         const count = await tabs.count();
 
         if (count > 1) {

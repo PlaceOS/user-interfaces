@@ -1,4 +1,11 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
     currentUser,
@@ -13,6 +20,7 @@ import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
 
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -43,7 +51,7 @@ export interface AppLocale {
     selector: 'user-controls',
     template: `
         <div
-            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex max-h-[90vh] flex-col divide-y overflow-auto rounded-sm border shadow-sm"
+            class="divide-base-200 border-base-300 bg-base-100 relative mt-1 flex flex-col divide-y overflow-auto rounded-sm border shadow-sm"
             [class.border]="!sidebar()"
         >
             <div avatar class="flex w-full min-w-72 flex-col items-center p-2">
@@ -53,9 +61,11 @@ export interface AppLocale {
                     [matTooltip]="groups"
                 ></a-user-avatar>
                 <div class="">{{ user?.name }}</div>
-                <div class="truncate text-xs opacity-60">{{ user?.email }}</div>
+                <div class="truncate text-xs opacity-60">
+                    {{ user?.email }}
+                </div>
             </div>
-            @if (features.includes('wfh') && active_block) {
+            @if (features.includes('wfh') && active_block()) {
                 <div class="border-base-200 w-full rounded-sm border-y py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
@@ -67,7 +77,7 @@ export interface AppLocale {
                             >
                                 <icon class="text-2xl">{{
                                     location_icon(
-                                        timeFrom(active_block.start_time)
+                                        timeFrom(active_block().start_time)
                                     )
                                 }}</icon>
                             </div>
@@ -81,7 +91,7 @@ export interface AppLocale {
                                         {{
                                             location(
                                                 timeFrom(
-                                                    active_block.start_time
+                                                    active_block().start_time
                                                 )
                                             )
                                         }}
@@ -89,7 +99,7 @@ export interface AppLocale {
                                     <icon>expand_more</icon>
                                 </button>
                                 <mat-menu #work_menu="matMenu">
-                                    @for (loc of pref_locations; track loc) {
+                                    @for (loc of pref_locations(); track loc) {
                                         <button
                                             mat-menu-item
                                             (click)="
@@ -114,12 +124,12 @@ export interface AppLocale {
                                 </mat-menu>
                                 <div class="px-2 text-xs opacity-60">
                                     {{
-                                        timeFrom(active_block.start_time)
+                                        timeFrom(active_block().start_time)
                                             | date: 'shortTime'
                                     }}
                                     &ndash;
                                     {{
-                                        timeFrom(active_block.end_time)
+                                        timeFrom(active_block().end_time)
                                             | date: 'shortTime'
                                     }}
                                 </div>
@@ -128,7 +138,7 @@ export interface AppLocale {
                     </div>
                 </div>
             }
-            @if ((regions | async).length) {
+            @if (regions()?.length) {
                 <div customTooltip [content]="region_select" class="relative">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -138,10 +148,7 @@ export interface AppLocale {
                                 <icon>layers</icon>
                             </div>
                             <div class="w-px flex-1 truncate">
-                                {{
-                                    (region | async)?.display_name ||
-                                        (region | async)?.name
-                                }}
+                                {{ region()?.display_name || region()?.name }}
                             </div>
                             <icon class="text-2xl opacity-60">
                                 chevron_right
@@ -161,8 +168,7 @@ export interface AppLocale {
                             </div>
                             <div class="w-px flex-1 truncate">
                                 {{
-                                    (building | async)?.display_name ||
-                                        (building | async)?.name
+                                    building()?.display_name || building()?.name
                                 }}
                             </div>
                             <icon class="text-2xl opacity-60">
@@ -393,9 +399,9 @@ export class UserControlsComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _locale = inject(LocaleService);
 
-    public readonly building = this._org.active_building;
-    public readonly region = this._org.active_region;
-    public readonly regions = this._org.region_list;
+    public readonly building = toSignal(this._org.active_building);
+    public readonly region = toSignal(this._org.active_region);
+    public readonly regions = toSignal(this._org.region_list);
     public readonly sidebar = input(false);
 
     public readonly region_select = RegionSelectComponent;
@@ -405,35 +411,35 @@ export class UserControlsComponent implements OnInit {
     public readonly language_tooltip = LanguageSelectComponent;
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
     public readonly parking_tooltip = UserParkingTooltipComponent;
-    public pref_locations = [];
-    public work_prefs: WorktimePreference[] = [];
-    public overrides: Record<string, WorktimePreference> = {};
+    public readonly pref_locations = signal([]);
+    public readonly work_prefs = signal<WorktimePreference[]>([]);
+    public readonly overrides = signal<Record<string, WorktimePreference>>({});
 
-    public get active_block() {
+    public readonly active_block = computed(() => {
         const date = format(new Date(), 'yyyy-MM-dd');
         const day = new Date().getDay();
-        const pref = this.overrides[date]
-            ? this.overrides[date]
-            : this.work_prefs.find((pref) => pref.day_of_week === day);
+        const pref = this.overrides()[date]
+            ? this.overrides()[date]
+            : this.work_prefs().find((pref) => pref.day_of_week === day);
         return pref?.blocks?.find(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
         );
-    }
+    });
 
-    public get active_index() {
+    public readonly active_index = computed(() => {
         const date = format(new Date(), 'yyyy-MM-dd');
         const day = new Date().getDay();
-        const pref = this.overrides[date]
-            ? this.overrides[date]
-            : this.work_prefs.find((pref) => pref.day_of_week === day);
+        const pref = this.overrides()[date]
+            ? this.overrides()[date]
+            : this.work_prefs().find((pref) => pref.day_of_week === day);
         return pref?.blocks?.findIndex(
             (_) =>
                 this.now >= this.timeFrom(_.start_time) &&
                 this.now < this.timeFrom(_.end_time),
         );
-    }
+    });
 
     public location_icon(time: number) {
         const user = currentUser();
@@ -461,7 +467,7 @@ export class UserControlsComponent implements OnInit {
     }
 
     public get groups() {
-        return this.user.groups.join('\n');
+        return this.user?.groups?.join('\n') || '';
     }
 
     public get version() {
@@ -507,13 +513,14 @@ export class UserControlsComponent implements OnInit {
 
     public ngOnInit() {
         const user = currentUser();
-        this.work_prefs = user.work_preferences;
-        this.overrides = user.work_overrides;
-        this.pref_locations = [
+        this.work_prefs.set(user?.work_preferences || []);
+        this.overrides.set(user?.work_overrides || {});
+        this.pref_locations.set([
             { id: 'wfo', name: i18n('COMMON.WORK_OFFICE'), icon: 'business' },
             { id: 'wfh', name: i18n('COMMON.WORK_HOME'), icon: 'home' },
             { id: 'aol', name: i18n('COMMON.WORK_LEAVE'), icon: 'event_busy' },
-        ];
+            { id: 'sick', name: i18n('COMMON.WORK_SICK'), icon: 'sick' },
+        ]);
     }
 
     public logout() {

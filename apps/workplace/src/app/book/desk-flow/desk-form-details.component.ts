@@ -32,7 +32,9 @@ import {
     UserListFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { addDays, endOfDay, set } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
+
+const MINUTES_IN_DAY = 24 * 60;
 
 @Component({
     selector: 'desk-form-details',
@@ -162,6 +164,8 @@ import { addDays, endOfDay, set } from 'date-fns';
                                         form().patchValue({ date: $event })
                                     "
                                     [ngModelOptions]="{ standalone: true }"
+                                    [range]="bookable_hours"
+                                    [min_duration]="effective_min_duration"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
                                 ></a-time-field>
@@ -178,6 +182,8 @@ import { addDays, endOfDay, set } from 'date-fns';
                                     [max]="max_duration"
                                     [min]="60"
                                     [step]="60"
+                                    [custom_options]="custom_duration_options"
+                                    [end_time]="bookable_hours?.end"
                                     [use_24hr]="use_24hr"
                                     [timezone]="timezone"
                                 >
@@ -256,7 +262,7 @@ import { addDays, endOfDay, set } from 'date-fns';
                         </div>
                     </section>
                 }
-                @if (form().contains('resources')) {
+                @if (form().contains('resources') && !auto_allocation) {
                     <section class="p-2">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
@@ -278,6 +284,17 @@ import { addDays, endOfDay, set } from 'date-fns';
                                 {{ 'BOOKINGS.DESK_GROUP_INFO' | translate }}
                             </p>
                         }
+                    </section>
+                }
+                @if (auto_allocation) {
+                    <section class="p-2">
+                        <p
+                            class="bg-info/10 text-info rounded-sm px-4 py-3 text-center text-sm"
+                        >
+                            {{
+                                'BOOKINGS.DESK_AUTO_ALLOCATION_INFO' | translate
+                            }}
+                        </p>
                     </section>
                 }
                 @if (has_assets && !(options | async)?.group) {
@@ -342,11 +359,7 @@ export class NewDeskFormDetailsComponent
     public readonly options = this._state.options;
     /** List of set options for desk booking */
     public readonly features = this._state.features;
-
-    public readonly force_time = set(Date.now(), {
-        hours: 6,
-        minutes: 0,
-    }).valueOf();
+    public readonly minimum_duration = 60;
 
     /** Selected desk for booking */
     public selected_desk: Desk;
@@ -404,6 +417,10 @@ export class NewDeskFormDetailsComponent
         return this._settings.get('app.desks.needs_reason') === true;
     }
 
+    public get auto_allocation() {
+        return !!this._state.auto_allocation;
+    }
+
     public get allow_time_changes() {
         return this._settings.get('app.desks.allow_time_changes') !== false;
     }
@@ -411,7 +428,7 @@ export class NewDeskFormDetailsComponent
     public get allow_all_day() {
         return (
             this.allow_time_changes &&
-            (!!this._settings.get('app.desks.allow_all_day') ||
+            (this._settings.get('app.desks.allow_all_day') ??
                 !!this._settings.get('app.bookings.allow_all_day'))
         );
     }
@@ -419,7 +436,7 @@ export class NewDeskFormDetailsComponent
     public get timezone() {
         return this._settings.get('app.bookings.use_building_timezone') ||
             this._settings.get('app.desks.use_building_timezone')
-            ? this._org.building.timezone
+            ? this._org.building?.timezone || ''
             : '';
     }
 
@@ -434,6 +451,33 @@ export class NewDeskFormDetailsComponent
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
+    }
+
+    public get bookable_hours() {
+        return (
+            this._settings.get('app.desks.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours')
+        );
+    }
+
+    public get min_duration() {
+        return (
+            this._settings.get('app.desks.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            60
+        );
+    }
+
+    public get custom_duration_options() {
+        return (
+            this._settings.get('app.desks.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            []
+        );
+    }
+
+    public get effective_min_duration() {
+        return Math.min(this.min_duration, ...this.custom_duration_options);
     }
 
     public ngOnChanges(changes: SimpleChanges) {

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,12 +32,7 @@ import { IconComponent } from '@placeos/components';
             }
         </button>
     `,
-    imports: [
-        CommonModule,
-        MatProgressSpinnerModule,
-        IconComponent,
-        MatRippleModule,
-    ],
+    imports: [MatProgressSpinnerModule, IconComponent, MatRippleModule],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -100,21 +94,25 @@ export class UploadButtonComponent {
         console.log(`Uploading file...`);
         this.progress.set(0);
         this.uploading.set(true);
-        let status = null;
+        let upload_id = '';
         this._uploads.uploadFileWithProgress(file).subscribe(
             (s) => {
                 console.log(`Progress:`, s);
                 this.progress.set(s.progress);
-                status = s;
+                upload_id = s.upload_id || s.upload?.id || s.id || upload_id;
             },
             () => {
                 notifyError('Failed to upload image. Try again later');
                 this.uploading.set(false);
             },
             () => {
-                const id = (status as any).upload._request.upload_id;
+                if (!upload_id) {
+                    notifyError('Failed to get uploaded file ID');
+                    this.uploading.set(false);
+                    return;
+                }
                 this.setValue(
-                    `/api/engine/v2/uploads/${encodeURIComponent(id)}/url`,
+                    `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`,
                 );
                 this.uploading.set(false);
             },

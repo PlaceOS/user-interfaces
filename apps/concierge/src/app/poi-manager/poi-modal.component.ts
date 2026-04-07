@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -52,7 +53,9 @@ import { PointOfInterest } from './poi-management.service';
                 ) | translate
             "
             (confirm)="save()"
-            [loading]="loading ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''"
+            [loading]="
+                loading() ? ('APP.CONCIERGE.POI_SAVING' | translate) : ''
+            "
         >
             <form [formGroup]="form">
                 <image-field
@@ -74,7 +77,7 @@ import { PointOfInterest } from './poi-management.service';
                         </mat-form-field>
                     </div>
                 }
-                @if ((building_list | async)?.length > 1) {
+                @if (building_list().length > 1) {
                     <div class="flex flex-col">
                         <label for="building">
                             {{ 'RESOURCE.BUILDING' | translate }}<span>*</span>
@@ -85,7 +88,7 @@ import { PointOfInterest } from './poi-management.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 placeholder="Select Building"
                             >
-                                @for (bld of building_list | async; track bld) {
+                                @for (bld of building_list(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name }}
                                     </mat-option>
@@ -104,10 +107,7 @@ import { PointOfInterest } from './poi-management.service';
                                 formControlName="level_id"
                                 placeholder="Select Level"
                             >
-                                @for (
-                                    level of level_list | async;
-                                    track level
-                                ) {
+                                @for (level of level_list(); track level) {
                                     <mat-option [value]="level.id">
                                         {{ level.display_name }}
                                     </mat-option>
@@ -134,7 +134,7 @@ import { PointOfInterest } from './poi-management.service';
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    @if (location_type === 'map_id') {
+                    @if (location_type() === 'map_id') {
                         <div class="flex items-center space-x-2 pb-2">
                             <mat-form-field
                                 class="no-subscript"
@@ -160,7 +160,7 @@ import { PointOfInterest } from './poi-management.service';
                             </button>
                         </div>
                     }
-                    @if (location_type === 'coordinates') {
+                    @if (location_type() === 'coordinates') {
                         <div class="flex items-center space-x-2">
                             <mat-form-field appearance="outline" class="flex-1">
                                 <input
@@ -297,11 +297,16 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    public loading = false;
-    public location_type =
-        this._data?.location instanceof Array ? 'coordinates' : 'map_id';
-    public readonly building_list = this._org.building_list;
-    public readonly level_list = this._org.active_levels;
+    public readonly loading = signal(false);
+    public readonly location_type = signal(
+        this._data?.location instanceof Array ? 'coordinates' : 'map_id',
+    );
+    public readonly building_list = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
+    public readonly level_list = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
     public readonly extra_details = this._data?.extra_details || [];
 
     public get building() {
@@ -330,7 +335,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         if (!this.form.value.level_id) {
-            const levels = await nextValueFrom(this.level_list);
+            const levels = await nextValueFrom(this._org.active_levels);
             if (levels.length) this.form.patchValue({ level_id: levels[0].id });
         }
     }
@@ -346,7 +351,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
             if (!d) return;
             this.form.patchValue({
                 location: d,
-                level_id: ref.componentInstance.level?.id,
+                level_id: ref.componentInstance.level()?.id,
             });
         });
     }
@@ -394,7 +399,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 }/auth/login?continue=${encodeURIComponent(uri)}`,
             } as any).toPromise();
         }
-        this.loading = true;
+        this.loading.set(true);
         const old_metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
@@ -421,6 +426,6 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
             .toPromise()
             .catch((e) => notifyError(e));
         if ((resp as any).id) this._dialog_ref.close(resp);
-        this.loading = false;
+        this.loading.set(false);
     }
 }

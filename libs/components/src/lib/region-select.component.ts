@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -22,10 +22,7 @@ import { TranslatePipe } from './translate.pipe';
                 <icon class="text-2xl">arrow_back</icon>
                 <div class="leading-tight">
                     <div>
-                        {{
-                            (region | async)?.display_name ||
-                                (region | async)?.name
-                        }}
+                        {{ region()?.display_name || region()?.name }}
                     </div>
                     <div class="text-xs opacity-30">
                         {{ 'RESOURCE.REGION' | translate }}
@@ -36,10 +33,10 @@ import { TranslatePipe } from './translate.pipe';
                 {{ 'COMMON.REGION_SELECT' | translate }}
             </div>
             <mat-radio-group
-                [ngModel]="(region | async)?.id"
+                [ngModel]="region()?.id"
                 class="flex flex-col space-y-2 px-2"
             >
-                @for (item of regions | async; track item) {
+                @for (item of regions(); track item) {
                     <mat-radio-button
                         [value]="item.id"
                         (click)="setRegion(item)"
@@ -52,7 +49,6 @@ import { TranslatePipe } from './translate.pipe';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRadioModule,
         IconComponent,
         TranslatePipe,
@@ -64,8 +60,8 @@ export class RegionSelectComponent {
     private _data = inject(CustomTooltipData);
     private _org = inject(OrganisationService);
 
-    public readonly regions = this._org.region_list;
-    public readonly region = this._org.active_region;
+    public readonly regions = toSignal(this._org.region_list);
+    public readonly region = toSignal(this._org.active_region);
 
     public readonly setRegion = async (i) => {
         await this._org.setRegion(i);

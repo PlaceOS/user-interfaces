@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import {
+    Component,
+    computed,
+    EventEmitter,
+    inject,
+    Output,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
@@ -60,7 +67,7 @@ export interface AttachedResourceConfigModalData {
                         | translate: { name: resource_name }
                 }}
             </h2>
-            @if (!loading) {
+            @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
@@ -69,9 +76,9 @@ export interface AttachedResourceConfigModalData {
         <main
             class="max-w-lg min-w-xl space-y-4 overflow-auto px-4 pt-2 pb-4 text-center"
         >
-            @if (can_save_notes) {
+            @if (can_save_notes()) {
                 <settings-toggle
-                    [ngModel]="require_notes"
+                    [ngModel]="require_notes()"
                     (ngModelChange)="saveNotesSetting($event)"
                     [name]="'RESOURCE.REQUIRE_NOTES' | translate"
                 ></settings-toggle>
@@ -80,7 +87,7 @@ export interface AttachedResourceConfigModalData {
                 btn
                 matRipple
                 class="w-full"
-                (click)="rulesets.push({ id: new_id, name: '', rules: [] })"
+                (click)="rulesets.push({ id: newId(), name: '', rules: [] })"
             >
                 {{ 'RESOURCE.RULESET_NEW' | translate }}
             </button>
@@ -116,7 +123,7 @@ export interface AttachedResourceConfigModalData {
                                 class="w-52"
                                 (click)="
                                     set.rules.push($any(['', '']));
-                                    show_rules = set.id
+                                    show_rules.set(set.id)
                                 "
                             >
                                 <div class="flex items-center space-x-2">
@@ -132,19 +139,20 @@ export interface AttachedResourceConfigModalData {
                             <button
                                 mat-menu-item
                                 (click)="
-                                    show_rules =
-                                        show_rules !== set.id ? set.id : ''
+                                    show_rules.set(
+                                        show_rules() !== set.id ? set.id : ''
+                                    )
                                 "
                             >
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl">{{
-                                        show_rules === set.id
+                                        show_rules() === set.id
                                             ? 'expand_less'
                                             : 'expand_more'
                                     }}</icon>
                                     <div>
                                         {{
-                                            (show_rules === set.id
+                                            (show_rules() === set.id
                                                 ? 'RESOURCE.RULESET_HIDE_RULES'
                                                 : 'RESOURCE.RULESET_SHOW_RULES'
                                             ) | translate
@@ -174,8 +182,9 @@ export interface AttachedResourceConfigModalData {
                         name="rules"
                         class="overflow-hidden"
                         [style.height]="
-                            (show_rules === set.id ? 4 * set.rules.length : 0) +
-                            'em'
+                            (show_rules() === set.id
+                                ? 4 * set.rules.length
+                                : 0) + 'em'
                         "
                     >
                         @for (rule of set.rules; track rule; let i = $index) {
@@ -265,23 +274,21 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
     /** Emitter for events on the modal */
     @Output() public event = new EventEmitter<DialogEvent>();
     /** Whether changes are being saved */
-    public loading = false;
+    public loading = signal(false);
     /** Whether to show rules for a ruleset */
-    public show_rules: string;
-    public require_notes = this._data.require_notes;
+    public show_rules = signal<string>('');
+    public require_notes = signal(this._data.require_notes);
     public readonly resource_name = this._data.resource_name || 'Catering';
 
     public readonly rulesets: AttachedResourceRuleset[];
 
     public readonly rule_types: readonly Identity[] = RULE_TYPES;
 
-    public get new_id() {
+    public newId() {
         return 'ruleset-' + Math.floor(Math.random() * 9999_9999);
     }
 
-    public get can_save_notes() {
-        return !!this._data.saveNotes;
-    }
+    public readonly can_save_notes = computed(() => !!this._data.saveNotes);
 
     constructor() {
         super();
@@ -305,7 +312,7 @@ export class AttachedResourceConfigModalComponent extends AsyncHandler {
     }
 
     public saveChanges() {
-        this.loading = true;
+        this.loading.set(true);
         const rulesets = this.rulesets.map((set) => {
             return {
                 ...set,

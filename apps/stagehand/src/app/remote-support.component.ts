@@ -76,16 +76,11 @@ function contains(str: string, substr: string) {
                         <div
                             class="border-base-300 bg-base-100 flex items-center space-x-2 rounded-lg border p-4 shadow-sm"
                         >
-                            <icon class="text-error mb-5 text-3xl"
-                                >warning</icon
-                            >
+                            <icon class="text-error text-3xl">warning</icon>
                             <div class="flex-1">
                                 <h3 class="text-xl font-medium">
                                     Active Alerts
                                 </h3>
-                                <div class="text-sm opacity-40">
-                                    {{ critical_alerts() }} critical
-                                </div>
                             </div>
                             <div class="px-2 text-4xl font-bold">
                                 {{ room_alerts().length }}
@@ -166,12 +161,19 @@ function contains(str: string, substr: string) {
                                 },
                                 {
                                     key: 'available',
-                                    name: 'Occupancy',
+                                    name: 'Schedule',
                                     content: status_template,
                                     size: '8rem',
                                 },
                                 {
-                                    key: 'event',
+                                    key: 'current_event',
+                                    name: is_eduction()
+                                        ? 'Current Class'
+                                        : 'Current Event',
+                                    content: event_template,
+                                },
+                                {
+                                    key: 'next_event',
                                     name: is_eduction()
                                         ? 'Next Class'
                                         : 'Next Event',
@@ -194,6 +196,20 @@ function contains(str: string, substr: string) {
                             empty_message="No rooms able to be remotely supported"
                         ></simple-table>
                         <ng-template #status_template let-space="row">
+                            <i
+                                binding
+                                (modelChange)="setCurrentBooking(space, $event)"
+                                [sys]="space.id"
+                                mod="Bookings"
+                                bind="current_booking"
+                            ></i>
+                            <i
+                                binding
+                                (modelChange)="setNextBooking(space, $event)"
+                                [sys]="space.id"
+                                mod="Bookings"
+                                bind="next_booking"
+                            ></i>
                             <div class="flex items-center space-x-2 p-4">
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -221,22 +237,27 @@ function contains(str: string, substr: string) {
                                 </div>
                             </div>
                         </ng-template>
-                        <ng-template #event_template let-space="row">
-                            <i
-                                binding
-                                (modelChange)="setNextBooking(space, $event)"
-                                [sys]="space.id"
-                                mod="Bookings"
-                                bind="next_booking"
-                            ></i>
+                        <ng-template
+                            #event_template
+                            let-key="key"
+                            let-space="row"
+                        >
+                            @let events =
+                                key === 'current_event' ? current() : next();
                             <div class="p-4">
-                                @if (next()[space.id]) {
-                                    {{
-                                        next()[space.id].event_start * 1000
-                                            | date: 'shortTime'
-                                    }}
-                                    &ndash;
-                                    {{ next()[space.id]?.title }}
+                                @if (events[space.id]) {
+                                    <div>{{ events[space.id].title }}</div>
+                                    <div class="text-xs opacity-30">
+                                        {{
+                                            events[space.id].event_start * 1000
+                                                | date: 'shortTime'
+                                        }}
+                                        &ndash;
+                                        {{
+                                            events[space.id].event_end * 1000
+                                                | date: 'shortTime'
+                                        }}
+                                    </div>
                                 } @else {
                                     <span class="opacity-30">None</span>
                                 }
@@ -295,7 +316,8 @@ function contains(str: string, substr: string) {
                             </div>
                         </ng-template>
                         <ng-template #feed_template let-space="row">
-                            @if (space.camera_snapshot_url) {
+                            @let feed_url = cameraSnapshotFeed(space);
+                            @if (feed_url) {
                                 <button
                                     snap
                                     matRipple
@@ -308,11 +330,7 @@ function contains(str: string, substr: string) {
                                     <div viewport-only class="h-full w-full">
                                         <img
                                             auth
-                                            [source]="
-                                                snapshotUrl(
-                                                    space.camera_snapshot_url
-                                                )
-                                            "
+                                            [source]="snapshotUrl(feed_url)"
                                             class="h-full w-full object-cover"
                                             alt="Camera Feed"
                                         />
@@ -459,6 +477,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public readonly search_term = signal('');
     public readonly status = signal<Record<string, string>>({});
+    public readonly current = signal<Record<string, CalendarEvent>>({});
     public readonly next = signal<Record<string, CalendarEvent>>({});
     public readonly state = signal('');
     private _query_checks = effect(() => {
@@ -584,6 +603,12 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         return `${base_url}${separator}t=${timestamp}`;
     }
 
+    public cameraSnapshotFeed(
+        space: Partial<Space> & { camera_snapshot_urls?: string[] },
+    ): string {
+        return space.camera_snapshot_urls?.[0] || '';
+    }
+
     public setHovering(hovering: boolean) {
         this._is_hovering.set(hovering);
     }
@@ -645,15 +670,27 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'room_list',
             this._support.space_list.subscribe((l) => {
-                this.room_list.set(l);
+                this.room_list.set(l as any as Space[]);
                 this._dashboard.setDashboard('');
                 this._dashboard.listenForDashboardAlerts(true);
             }),
         );
     }
 
+    public setCurrentBooking(space: Space, event: CalendarEvent) {
+        const current = this.current();
+        if (!event && current[space.id]) {
+            delete current[space.id];
+            this.current.set(current);
+            return;
+        }
+        // Only update if the event actually changed
+        if (JSON.stringify(current[space.id]) !== JSON.stringify(event)) {
+            this.current.update((old) => ({ ...old, [space.id]: event }));
+        }
+    }
+
     public setNextBooking(space: Space, event: CalendarEvent) {
-        console.log('Next:', space, event);
         const current = this.next();
         if (!event && current[space.id]) {
             delete current[space.id];
@@ -677,7 +714,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     public openCameraSnapshot(space: Space) {
         this._dialog.open(CameraSnapshotModalComponent, {
             data: {
-                camera_snapshot_url: space.camera_snapshot_url,
+                camera_snapshot_urls: space.camera_snapshot_urls,
                 camera_url: space.camera_url,
                 room_name: space.display_name || space.name,
             },

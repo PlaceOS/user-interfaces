@@ -1,0 +1,75 @@
+@import '../../../shared/styles/tailwind.css';
+
+/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role='button']:focus-visible,
+[role='tab']:focus-visible,
+[mat-menu-item]:focus-visible {
+    outline: 3px solid var(--color-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    top: -10rem;
+    left: 1rem;
+    z-index: 1000;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-base-100, #ffffff);
+    color: var(--color-base-content, #111827);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
+:root {
+    --bg: #212121;
+    --transition-delay: 1000ms;
+}
+
+.player-animate {
+    transition:
+        transform var(--transition-delay) ease-out,
+        opacity var(--transition-delay) ease-out;
+}
+
+.fullscreen-dialog {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    width: 100vw;
+    height: 100vh;
+}
+
+.fullscreen-dialog .mat-mdc-dialog-surface {
+    border-radius: 0;
+}
+
+@media (max-width: 767px) {
+    .mobile-fullscreen {
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .mobile-fullscreen .mat-mdc-dialog-surface {
+        border-radius: 0;
+    }
+}

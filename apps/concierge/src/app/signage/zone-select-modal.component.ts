@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -7,16 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { queryZones } from '@placeos/ts-client';
-import {
-    BehaviorSubject,
-    catchError,
-    debounceTime,
-    map,
-    of,
-    shareReplay,
-    startWith,
-    switchMap,
-} from 'rxjs';
+import { catchError, debounceTime, map, of, startWith, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-zone-select-modal',
@@ -40,33 +32,35 @@ import {
             >
                 <input
                     matInput
-                    [ngModel]="search_term.getValue()"
-                    (ngModelChange)="search_term.next($event)"
+                    [(ngModel)]="search_term"
                     placeholder="Search zones"
                 />
             </mat-form-field>
-            @let zone_list = zones | async;
+            @let zone_list = zones();
             @if (zone_list.length > 0) {
-                <button
-                    matRipple
-                    class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border p-2 text-left"
-                    *ngFor="let zone of zone_list"
-                    [mat-dialog-close]="zone.id"
-                >
-                    <div class="flex-1">
-                        <div class="">{{ zone.display_name || zone.name }}</div>
-                        <div class="text-xs opacity-30">
-                            {{ zone.id }}
+                @for (zone of zone_list; track zone) {
+                    <button
+                        matRipple
+                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center justify-center space-x-2 rounded-sm border p-2 text-left"
+                        [mat-dialog-close]="zone.id"
+                    >
+                        <div class="flex-1">
+                            <div class="">
+                                {{ zone.display_name || zone.name }}
+                            </div>
+                            <div class="text-xs opacity-30">
+                                {{ zone.id }}
+                            </div>
                         </div>
-                    </div>
-                    @for (tag of zone.tags | slice: 0 : 3; track $index) {
-                        <div
-                            class="bg-info text-info-content rounded-lg px-2 py-1 font-mono text-[0.625rem]"
-                        >
-                            {{ tag }}
-                        </div>
-                    }
-                </button>
+                        @for (tag of zone.tags | slice: 0 : 3; track $index) {
+                            <div
+                                class="bg-info text-info-content rounded-lg px-2 py-1 font-mono text-[0.625rem]"
+                            >
+                                {{ tag }}
+                            </div>
+                        }
+                    </button>
+                }
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -95,17 +89,21 @@ export class ZoneSelectModalComponent {
 
     public readonly query = this._data.query || {};
     public readonly ignore = this._data.ignore || [];
-    public readonly search_term = new BehaviorSubject<string>('');
-    public readonly zones = this.search_term.pipe(
-        debounceTime(300),
-        switchMap((term) =>
-            queryZones({ ...this.query, q: term, limit: 100 }).pipe(
-                map((_) => _.data),
-                catchError(() => of([])),
+    public readonly search_term = signal('');
+    private readonly _zones = toSignal(
+        toObservable(this.search_term).pipe(
+            debounceTime(300),
+            switchMap((term) =>
+                queryZones({ ...this.query, q: term, limit: 100 }).pipe(
+                    map((_) => _.data),
+                    catchError(() => of([])),
+                ),
             ),
+            startWith([]),
         ),
-        map((zones) => zones.filter((zone) => !this.ignore.includes(zone.id))),
-        startWith([]),
-        shareReplay(1),
+        { initialValue: [] },
+    );
+    public readonly zones = computed(() =>
+        this._zones().filter((zone) => !this.ignore.includes(zone.id)),
     );
 }

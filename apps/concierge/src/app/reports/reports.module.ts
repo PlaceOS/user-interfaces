@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 
 import { AssetsReportComponent } from './assets/assets-report.component';
+import { SiteAttendanceReportComponent } from './attendance/site-attendance-report.component';
 import { CateringReportComponent } from './catering/catering-report.component';
 import { ContactTracingReportComponent } from './contact-tracing/contact-tracing-report.component';
 import { CustomReportComponent } from './custom-report.component';
@@ -16,6 +17,7 @@ import { VisitorsReportComponent } from './visitors/visitors-report.component';
 const children: Route[] = [
     { path: '', component: ReportsOptionsComponent },
     { path: 'bookings', component: ReportSpacesComponent },
+    { path: 'attendance', component: SiteAttendanceReportComponent },
     { path: 'desks', component: ReportDesksComponent },
     { path: 'parking', component: ParkingReportComponent },
     { path: 'lockers', component: LockersReportComponent },
@@ -36,6 +38,7 @@ const ROUTES: Route[] = [{ path: '', component: ReportsComponent, children }];
     declarations: [],
     imports: [
         ReportsComponent,
+        SiteAttendanceReportComponent,
         ReportSpacesComponent,
         ReportDesksComponent,
         ParkingReportComponent,

@@ -51,8 +51,13 @@ test.describe('Signage App Initialization', () => {
         // Check that Material components are available in the DOM
         const has_material = await page.evaluate(() => {
             // Check for Material-related elements or classes
-            const mat_elements = document.querySelectorAll('[class*="mat-"], [class*="mdc-"]');
-            return mat_elements.length > 0 || document.querySelector('mat-select') !== null;
+            const mat_elements = document.querySelectorAll(
+                '[class*="mat-"], [class*="mdc-"]',
+            );
+            return (
+                mat_elements.length > 0 ||
+                document.querySelector('mat-select') !== null
+            );
         });
 
         // Material should be loaded (elements or styles present)

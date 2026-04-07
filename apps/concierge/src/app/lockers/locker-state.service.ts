@@ -12,10 +12,12 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
+    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -30,8 +32,23 @@ import {
     User,
 } from '@placeos/common';
 import { QueryResponse, updateMetadata } from '@placeos/ts-client';
-import { addHours, endOfDay, getUnixTime, set, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs';
+import {
+    addHours,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    set,
+    startOfDay,
+    subDays,
+} from 'date-fns';
+import {
+    BehaviorSubject,
+    combineLatest,
+    lastValueFrom,
+    Observable,
+    of,
+    Subject,
+} from 'rxjs';
 import {
     debounceTime,
     distinctUntilChanged,
@@ -93,6 +110,14 @@ export class LockerStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asObservable();
+
+    public get tz_offset() {
+        const tz = this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building.timezone
+            : '';
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
+    }
 
     public readonly filters = this._filters.asObservable();
 
@@ -179,6 +204,11 @@ export class LockerStateService extends AsyncHandler {
         tap(([filters, loaded]) => {
             if (!loaded) return;
             const date = filters.date || Date.now();
+            const period_start = addMinutes(
+                startOfDay(date),
+                this.tz_offset * 60,
+            );
+            const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
             const zones =
                 !filters.zones ||
                 filters.zones.some((z) => this._all_zones_keys.includes(z))
@@ -188,8 +218,8 @@ export class LockerStateService extends AsyncHandler {
                     : filters.zones;
             this._next_page.next(() =>
                 queryPagedBookings({
-                    period_start: getUnixTime(startOfDay(date)),
-                    period_end: getUnixTime(endOfDay(date)),
+                    period_start: getUnixTime(period_start),
+                    period_end: getUnixTime(period_end),
                     type: 'locker',
                     zones: zones.join(','),
                     include_checked_out: true,
@@ -789,15 +819,32 @@ export class LockerStateService extends AsyncHandler {
         this.refresh();
     }
 
-    private async _clearAssignedBooking(locker: Locker) {
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(Date.now())),
-            period_end: getUnixTime(endOfDay(Date.now())),
-            type: 'locker',
-            email: locker.assigned_to,
-            include_checked_out: true,
-        }).toPromise();
-        const filtered = booking_list.filter((_) => _.asset_id === locker.id);
-        await Promise.all(filtered.map((_) => removeBooking(_.id).toPromise()));
+    private async _clearAssignedBooking(resource: Locker) {
+        const today = Date.now();
+        const booking_list = await lastValueFrom(
+            queryBookings({
+                period_start: getUnixTime(startOfDay(today)),
+                period_end: getUnixTime(endOfDay(today)),
+                type: 'locker',
+                email: resource.assigned_to,
+                include_checked_out: true,
+            }),
+        );
+        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
+        for (const booking of filtered) {
+            const is_recurring = booking.instance;
+            if (is_recurring) {
+                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
+                await lastValueFrom(
+                    updateBooking(
+                        booking.id,
+                        { recurrence_end: yesterday_end },
+                        'patch',
+                    ),
+                );
+            } else {
+                await lastValueFrom(removeBooking(booking.id));
+            }
+        }
     }
 }

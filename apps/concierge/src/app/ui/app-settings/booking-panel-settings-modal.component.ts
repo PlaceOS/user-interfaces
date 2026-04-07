@@ -148,6 +148,10 @@ don't detect presence in room after a period of time"
                         name="Show Booking QR Code"
                         formControlName="show_qr_code"
                     ></settings-toggle>
+                    <settings-toggle
+                        name="Hide QR helper text"
+                        formControlName="hide_qr_text"
+                    ></settings-toggle>
                 </div>
                 <div class="mb-2">
                     <label for="custom-qr-url">Custom QR Code URL</label>
@@ -166,6 +170,47 @@ don't detect presence in room after a period of time"
                             QR Code
                         </mat-hint>
                     </mat-form-field>
+                </div>
+                <div class="mb-2">
+                    <label for="custom-qr-color">Custom QR Color</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            name="custom-qr-color"
+                            placeholder="#4A2C89"
+                            formControlName="custom_qr_color"
+                        />
+                    </mat-form-field>
+                </div>
+                <div class="flex space-x-4">
+                    <div class="flex-1">
+                        <label for="control-ui">Control UI URL</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="control-ui"
+                                formControlName="control_ui"
+                                placeholder="https://control.example.com/..."
+                            />
+                            <mat-error
+                                >Control UI must be a valid URL</mat-error
+                            >
+                        </mat-form-field>
+                    </div>
+                    <div class="flex-1">
+                        <label for="catering-ui">Catering UI URL</label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <input
+                                matInput
+                                name="catering-ui"
+                                formControlName="catering_ui"
+                                placeholder="https://catering.example.com/..."
+                            />
+                            <mat-error>
+                                Catering UI must be a valid URL
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
                 </div>
                 <div class="flex space-x-4">
                     <div class="flex-1">
@@ -279,6 +324,7 @@ export class BookingPanelSettingsModalComponent
         custom_qr_url: new FormControl('', validateURL),
         custom_qr_color: new FormControl(''),
         show_qr_code: new FormControl(true),
+        hide_qr_text: new FormControl(false),
         disable_book_now: new FormControl(false),
         disable_book_now_host: new FormControl(true),
         disable_end_meeting: new FormControl(false),

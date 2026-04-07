@@ -16,7 +16,9 @@ test.describe('US-15: View Loading State', () => {
         await page.goto(`/#/survey/${SURVEY_ID_EMPLOYEE}?mock=true`);
 
         // Wait for app-root to be visible first
-        await page.locator('app-root').waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('app-root')
+            .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 
         // Check for loading spinner or page content (loading can be quick)
         const spinner = page.locator('mat-spinner');
@@ -24,8 +26,12 @@ test.describe('US-15: View Loading State', () => {
 
         // Wait for either spinner or page to be visible
         await Promise.race([
-            spinner.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT }).catch(() => {}),
-            pageContent.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT }).catch(() => {}),
+            spinner
+                .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT })
+                .catch(() => {}),
+            pageContent
+                .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT })
+                .catch(() => {}),
         ]);
 
         const spinnerVisible = await spinner.isVisible().catch(() => false);
@@ -40,7 +46,9 @@ test.describe('US-15: View Loading State', () => {
         await page.goto(`/#/survey/${SURVEY_ID_EMPLOYEE}?mock=true`);
 
         // Wait for app-root to be visible first
-        await page.locator('app-root').waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('app-root')
+            .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT });
 
         // Check for loading text or page content
         const loadingText = page.locator('main[loading] p');
@@ -48,8 +56,12 @@ test.describe('US-15: View Loading State', () => {
 
         // Wait for either loading message or page to be visible
         await Promise.race([
-            loadingText.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT }).catch(() => {}),
-            pageContent.waitFor({ state: 'visible', timeout: LOAD_TIMEOUT }).catch(() => {}),
+            loadingText
+                .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT })
+                .catch(() => {}),
+            pageContent
+                .waitFor({ state: 'visible', timeout: LOAD_TIMEOUT })
+                .catch(() => {}),
         ]);
 
         const loadingVisible = await loadingText.isVisible().catch(() => false);

@@ -1,7 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import {
+    MatBottomSheet,
+    MatBottomSheetRef,
+} from '@angular/material/bottom-sheet';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,9 +34,9 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { EventFormService, SpacesService } from '@placeos/events';
-import { ViewAction, ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { filter, first, map, tap } from 'rxjs/operators';
+import { ViewerFeature, ViewerStyles } from '@placeos/svg-viewer';
+import { Observable, combineLatest, of } from 'rxjs';
+import { filter, first, map } from 'rxjs/operators';
 import { FeaturesFilterService } from './features-filter.service';
 import { FilterSpaceComponent } from './filter-space.component';
 import { FindSpaceItemComponent } from './find-space-item.component';
@@ -58,9 +69,9 @@ import { RoomConfirmService } from './room-confirm.service';
                             (click)="openFilter()"
                         >
                             Filters
-                            @if ((selected_features$ | async)?.length) {
+                            @if (selected_feature_count()) {
                                 <span>
-                                    ({{ (selected_features$ | async).length }}
+                                    ({{ selected_feature_count() }}
                                     applied)
                                 </span>
                             }
@@ -100,17 +111,14 @@ import { RoomConfirmService } from './room-confirm.service';
                     </div>
                 </header>
                 <main class="flex h-1/2 w-full flex-1 flex-col">
-                    @if (!(loading | async)) {
-                        @if ((spaces$ | async)?.length > 0) {
+                    @if (!loading()) {
+                        @if (spaces().length > 0) {
                             @if (view() === 'list') {
                                 <div class="flex flex-col space-y-2">
-                                    @for (
-                                        space of spaces$ | async;
-                                        track space
-                                    ) {
+                                    @for (space of spaces(); track space) {
                                         <find-space-item
                                             [space]="space"
-                                            [selected]="book_space[space.id]"
+                                            [selected]="book_space()[space.id]"
                                             (selectedChange)="
                                                 handleBookEvent(space, $event)
                                             "
@@ -124,20 +132,15 @@ import { RoomConfirmService } from './room-confirm.service';
                                     class="mr-2 ml-auto flex text-sm"
                                 >
                                     <mat-select
-                                        [(ngModel)]="selected_level"
+                                        [ngModel]="selected_level()"
                                         (ngModelChange)="
                                             updateSelectedLevel($event)
                                         "
                                     >
-                                        <mat-option
-                                            [value]="maps_list$ | async"
-                                        >
+                                        <mat-option [value]="maps_list()">
                                             {{ 'COMMON.LEVEL_ALL' | translate }}
                                         </mat-option>
-                                        @for (
-                                            map of maps_list$ | async;
-                                            track map
-                                        ) {
+                                        @for (map of maps_list(); track map) {
                                             <mat-option [value]="map">{{
                                                 map.level
                                             }}</mat-option>
@@ -159,7 +162,7 @@ import { RoomConfirmService } from './room-confirm.service';
                             class="flex h-full w-full flex-1 items-center justify-center"
                         >
                             <mat-spinner [diameter]="32"></mat-spinner>
-                            <p>{{ loading | async }}</p>
+                            <p>{{ loading() }}</p>
                         </div>
                     }
                 </main>
@@ -196,11 +199,9 @@ import { RoomConfirmService } from './room-confirm.service';
                             >
                                 <span>Filter</span>
 
-                                @if ((selected_features$ | async)?.length) {
+                                @if (selected_feature_count()) {
                                     <span>
-                                        ({{
-                                            (selected_features$ | async).length
-                                        }}
+                                        ({{ selected_feature_count() }}
                                         applied)
                                     </span>
                                 }
@@ -265,25 +266,21 @@ import { RoomConfirmService } from './room-confirm.service';
                         <div class="flex flex-col">
                             <span class="mt-3 text-lg font-bold"> Results</span>
                             <span class="mt-1 text-xs text-gray-500">
-                                {{ (spaces$ | async)?.length || 0 }} results
-                                found</span
+                                {{ spaces().length || 0 }} results found</span
                             >
                         </div>
                     </section>
 
                     <div class="bg-base-200 w-full flex-1">
-                        @if (!(loading | async)) {
-                            @if ((spaces$ | async)?.length > 0) {
-                                @if (view() == 'list') {
+                        @if (!loading()) {
+                            @if (spaces().length > 0) {
+                                @if (view() === 'list') {
                                     <div>
-                                        @for (
-                                            space of spaces$ | async;
-                                            track space
-                                        ) {
+                                        @for (space of spaces(); track space) {
                                             <find-space-item
                                                 [space]="space"
                                                 [selected]="
-                                                    book_space[space.id]
+                                                    book_space()[space.id]
                                                 "
                                                 (selectedChange)="
                                                     handleBookEvent(
@@ -298,19 +295,19 @@ import { RoomConfirmService } from './room-confirm.service';
                                     </div>
                                 }
                                 @if (
-                                    view() == 'map' &&
-                                    (map_features$ | async)?.length > 0
+                                    view() === 'map' &&
+                                    map_features().length > 0
                                 ) {
                                     <div class="h-full text-center">
-                                        @if ((maps_list$ | async)?.length > 1) {
+                                        @if (maps_list().length > 1) {
                                             <div>
                                                 <mat-form-field
                                                     appearance="outline"
                                                     class="m-3 ml-auto flex text-sm"
                                                 >
                                                     <mat-select
-                                                        [(ngModel)]="
-                                                            selected_level
+                                                        [ngModel]="
+                                                            selected_level()
                                                         "
                                                         (ngModelChange)="
                                                             updateSelectedLevel(
@@ -320,8 +317,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                     >
                                                         <mat-option
                                                             [value]="
-                                                                maps_list$
-                                                                    | async
+                                                                maps_list()
                                                             "
                                                         >
                                                             {{
@@ -330,8 +326,7 @@ import { RoomConfirmService } from './room-confirm.service';
                                                             }}
                                                         </mat-option>
                                                         @for (
-                                                            map of maps_list$
-                                                                | async;
+                                                            map of maps_list();
                                                             track map
                                                         ) {
                                                             <mat-option
@@ -345,15 +340,15 @@ import { RoomConfirmService } from './room-confirm.service';
                                                 </mat-form-field>
                                             </div>
                                         }
-                                        @if (selected_level) {
+                                        @if (selected_level()) {
                                             <div
                                                 class="relative m-6 max-w-screen"
                                             >
                                                 <!-- If 'All Levels' option is selected -->
-                                                @if (selected_level?.length) {
+                                                @if (selected_all_levels()) {
                                                     <div>
                                                         @for (
-                                                            map of selected_level;
+                                                            map of selected_level_maps();
                                                             track map
                                                         ) {
                                                             <div
@@ -364,16 +359,13 @@ import { RoomConfirmService } from './room-confirm.service';
                                                                         map?.map_id
                                                                     "
                                                                     [styles]="
-                                                                        map_styles$
-                                                                            | async
+                                                                        map_styles()
                                                                     "
                                                                     [features]="
-                                                                        map_features$
-                                                                            | async
+                                                                        map_features()
                                                                     "
                                                                     [actions]="
-                                                                        map_actions$
-                                                                            | async
+                                                                        map_actions()
                                                                     "
                                                                     class="m-1 max-w-screen p-1"
                                                                 >
@@ -383,25 +375,23 @@ import { RoomConfirmService } from './room-confirm.service';
                                                     </div>
                                                 }
                                                 <!-- If an individual level is selected -->
-                                                @if (!selected_level?.length) {
+                                                @if (!selected_all_levels()) {
                                                     <div
                                                         class="relative m-3 h-96 max-w-screen"
                                                     >
                                                         <interactive-map
                                                             [src]="
-                                                                selected_level?.map_id
+                                                                selected_map()
+                                                                    ?.map_id
                                                             "
                                                             [styles]="
-                                                                map_styles$
-                                                                    | async
+                                                                map_styles()
                                                             "
                                                             [features]="
-                                                                map_features$
-                                                                    | async
+                                                                map_features()
                                                             "
                                                             [actions]="
-                                                                map_actions$
-                                                                    | async
+                                                                map_actions()
                                                             "
                                                             class="m-1 max-w-screen p-1"
                                                         >
@@ -438,7 +428,7 @@ import { RoomConfirmService } from './room-confirm.service';
                 <section
                     class="top-box-shadow border-base-200 flex flex-col items-center justify-center border-t py-1"
                 >
-                    @if (show_room_details$ | async) {
+                    @if (show_room_details()) {
                         <div>
                             <button
                                 matRipple
@@ -503,31 +493,54 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     private _roomConfirmService = inject(RoomConfirmService);
     private _router = inject(Router);
 
-    start_time$: Observable<any>;
+    start_time$: Observable<string>;
     duration_minutes: number;
-    end_time$: Observable<any>;
-    selected_features$: Observable<any>;
+    end_time$: Observable<string>;
     filtered_spaces: Space[] = [];
-    show_room_details$: Observable<boolean> = of(false);
+    show_room_details = signal(false);
     selected_space: Space;
     public readonly view = signal<'list' | 'map'>('list');
     locatable_spaces$: Observable<Locatable[]>;
-    maps_list$: Observable<MapsList[]>;
-    map_features$: Observable<ViewerFeature[]>;
-    _map_features: BehaviorSubject<ViewerFeature[]> = new BehaviorSubject<
-        ViewerFeature[]
-    >(null);
-    map_actions$: Observable<ViewAction[]> = null;
-    map_styles$: Observable<ViewerStyles> = null;
-    bottomSheetRef: any;
+    bottomSheetRef: MatBottomSheetRef<FilterSpaceComponent>;
 
-    public selected_level: any;
+    public readonly selected_features = toSignal(
+        this._featuresFilterService.selected_features$,
+        { initialValue: [] },
+    );
+    public readonly selected_feature_count = computed(
+        () => this.selected_features()?.length || 0,
+    );
+    public readonly loading = toSignal(this._state.loading$, {
+        initialValue: '',
+    });
+    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
+    public readonly spaces = toSignal(this.spaces$, { initialValue: [] });
+    public readonly maps_list = toSignal(this._mapService.maps_list$, {
+        initialValue: [],
+    });
+    public readonly map_features = signal<ViewerFeature[]>([]);
+    public readonly map_actions = toSignal(this._mapService.map_actions$, {
+        initialValue: [],
+    });
+    public readonly map_styles = signal<ViewerStyles>(null);
+    public readonly selected_level = signal<MapsList | MapsList[] | null>(null);
+    public readonly selected_all_levels = computed(() =>
+        Array.isArray(this.selected_level()),
+    );
+    public readonly selected_level_maps = computed(() => {
+        const selected_level = this.selected_level();
+        return Array.isArray(selected_level) ? selected_level : [];
+    });
+    public readonly selected_map = computed(() => {
+        const selected_level = this.selected_level();
+        return !Array.isArray(selected_level) ? selected_level : null;
+    });
 
     public get form() {
         return this._state.form;
     }
 
-    public book_space: HashMap<boolean> = {};
+    public readonly book_space = signal<HashMap<boolean>>({});
     public space_list: Space[] = [];
     public quick_capacities = [
         { name: 'Any Capacity', value: 0 },
@@ -537,11 +550,15 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         { name: 'Huge (32+)', value: 33 },
     ];
 
-    public readonly buildings = this._org.building_list;
-    public readonly building = this._org.active_building;
+    public readonly buildings = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
+    public readonly building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
 
     public readonly levels = combineLatest([
-        this.building,
+        this._org.active_building,
         this._state.options$,
     ]).pipe(
         filter(([_]) => !!_),
@@ -554,20 +571,24 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         ]),
     );
 
-    public readonly loading = this._state.loading$;
     public readonly options = this._state.options;
-
-    public readonly spaces$: Observable<Space[]> = this._state.available_spaces;
     public readonly features = this._spaces.features;
 
     public readonly setBuilding = (b) => (this._org.building = b);
     public readonly setOptions = (o) => this._state.setOptions(o);
 
+    constructor() {
+        super();
+        effect(() => {
+            const maps = this.maps_list();
+            if (maps?.length && !this.selected_level()) {
+                this.selected_level.set(maps);
+            }
+        });
+    }
+
     public async ngOnInit() {
         this.view.set('list');
-
-        this.selected_features$ =
-            this._featuresFilterService.selected_features$;
         this._state.setView('find');
         this.setTimeChips();
 
@@ -576,10 +597,10 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
         await nextValueFrom(this._state.available_spaces);
 
         this.setBuilding(this._org.building);
-        this.book_space = {};
+        this.book_space.set({});
         this.subscription(
             'features',
-            this.selected_features$?.subscribe((v) =>
+            this._featuresFilterService.selected_features$.subscribe((v) =>
                 this.setOptions({ features: v || [] }),
             ),
         );
@@ -588,32 +609,26 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
 
         this.locatable_spaces$ = this._mapService.locatable_spaces$;
 
-        this.maps_list$ = this._mapService.maps_list$?.pipe(
-            tap((maps) => (this.selected_level = maps)),
-        );
-
         await this._mapService.features_loaded$
             .pipe(first((_) => !!_))
             .toPromise();
 
         this.applyMapDecorations();
 
-        this._map_features.next(this._mapService.map_features);
-        this.map_features$ = this._map_features.asObservable();
-        this.map_actions$ = this._mapService.map_actions$;
+        this.map_features.set(this._mapService.map_features || []);
     }
 
     public handleBookEvent(space: Space, book = true) {
-        this.book_space[space.id] = book;
-        this._roomConfirmService.book_space = this.book_space;
+        this.book_space.update((state) => ({ ...state, [space.id]: book }));
+        this._roomConfirmService.book_space = this.book_space();
         this._roomConfirmService.handleBookEvent(space, book);
-        this.show_room_details$ = of(true);
+        this.show_room_details.set(true);
         this._roomConfirmService.updateSelectedSpace(space);
     }
 
     openFilter() {
         this.bottomSheetRef = this._bottomSheet.open(FilterSpaceComponent, {
-            data: this.buildings as OrganisationService['building_list'],
+            data: this.buildings(),
         });
     }
 
@@ -622,7 +637,7 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     resetSpace() {
-        this.show_room_details$ = of(false);
+        this.show_room_details.set(false);
     }
 
     setTimeChips() {
@@ -646,8 +661,8 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     updateSelectedLevel(e) {
-        this.selected_level = e;
-        if (!this.selected_level?.length) {
+        this.selected_level.set(e);
+        if (!Array.isArray(this.selected_level())) {
             this.applyMapDecorations();
         }
     }
@@ -664,11 +679,16 @@ export class FindSpaceComponent extends AsyncHandler implements OnInit {
     }
 
     processFeature() {
-        this.map_features$ = this._mapService.map_features$;
+        this.subscription(
+            'map_features',
+            this._mapService.map_features$.subscribe((features) =>
+                this.map_features.set(features || []),
+            ),
+        );
     }
 
     processStyles() {
-        this.map_styles$ = of(this._mapService.style_map);
+        this.map_styles.set(this._mapService.style_map);
     }
 
     closeModal() {

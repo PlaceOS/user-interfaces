@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -172,12 +172,12 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
 
     private readonly TAB_NAMES = ['regions', 'buildings', 'levels'];
 
-    public readonly addButtonText = () => {
+    public readonly addButtonText = computed(() => {
         const tab_index = this.selected_tab();
         if (tab_index === 0) return 'APP.CONCIERGE.REGIONS_ADD';
         if (tab_index === 1) return 'APP.CONCIERGE.BUILDINGS_ADD';
         return 'APP.CONCIERGE.LEVELS_ADD';
-    };
+    });
 
     public readonly addItem = () => {
         const tab_index = this.selected_tab();

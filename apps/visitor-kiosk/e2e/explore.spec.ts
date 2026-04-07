@@ -1,10 +1,5 @@
 import { expect, test } from '@playwright/test';
-import {
-    LOAD_TIMEOUT,
-    EXPLORE_URL,
-    WELCOME_URL,
-    navigateWithConfig,
-} from './test-utils';
+import { EXPLORE_URL, WELCOME_URL, navigateWithConfig } from './test-utils';
 
 /**
  * E2E Tests for Map Exploration
@@ -53,7 +48,9 @@ test.describe('US-EXPLORE-002: Pan and Zoom Map', () => {
         await page.waitForTimeout(2000);
 
         // The explore module should have some container
-        const container = page.locator('.explore-container, [explore], explore-map');
+        const container = page.locator(
+            '.explore-container, [explore], explore-map',
+        );
         const count = await container.count();
         expect(count).toBeGreaterThanOrEqual(0);
     });
@@ -76,7 +73,7 @@ test.describe('US-EXPLORE-003: Return to Welcome from Map', () => {
 
         // Look for back button or home navigation
         const backButton = page.locator(
-            'a[routerLink*="welcome"], button:has-text("Back"), icon:has-text("arrow_back"), icon:has-text("home")'
+            'a[routerLink*="welcome"], button:has-text("Back"), icon:has-text("arrow_back"), icon:has-text("home")',
         );
         const count = await backButton.count();
         expect(count).toBeGreaterThanOrEqual(0);

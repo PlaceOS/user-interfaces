@@ -302,7 +302,7 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     private _room_alerts: Record<string, [string, string]>;
     public readonly assets = combineLatest([
         this._booking_form.loadResourceList('desks' as any),
-        this._booking_form.loadResourceList('parking-spaces' as any),
+        this._booking_form.loadParkingResources(),
         this._change,
     ]).pipe(
         map(([desks, parking]) => {
@@ -397,24 +397,20 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
 
     public async newBooking(type: BookingType, item: any) {
         if (!item) return;
-        if (this._settings.get('app.new_features')) {
-            this._router.navigate([
-                '/book',
-                type === 'desk'
+        const booking_path =
+            type === 'desk'
+                ? this._settings.get('app.new_features')
                     ? 'desk'
-                    : type === 'locker'
-                      ? 'locker'
-                      : 'parking',
-            ]);
-        } else {
-            this._router.navigate([
-                '/book',
-                type === 'desk'
-                    ? 'desks'
-                    : type === 'locker'
-                      ? 'locker'
-                      : 'parking',
-            ]);
+                    : 'desks'
+                : type === 'locker'
+                  ? 'locker'
+                  : 'parking';
+        const query_params = type === 'desk' ? { asset_id: item.id } : {};
+        this._router.navigate(['/book', booking_path], {
+            queryParams: query_params,
+        });
+        if (type === 'desk') {
+            return;
         }
         setTimeout(() => {
             this._booking_form.newForm(type);

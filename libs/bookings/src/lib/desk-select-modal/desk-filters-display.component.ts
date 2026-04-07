@@ -1,6 +1,7 @@
 import { Component, inject, model, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -87,7 +88,7 @@ import { DeskFiltersComponent } from './desk-filters.component';
                     {{ 'COMMON.ALL_DAY' | translate }}
                 }
             </div>
-            @for (feat of (options | async)?.features || []; track feat) {
+            @for (feat of options()?.features || []; track feat) {
                 <div filter-item features>
                     <p>{{ feat }}</p>
                     <button
@@ -101,7 +102,7 @@ import { DeskFiltersComponent } from './desk-filters.component';
                     </button>
                 </div>
             }
-            @if ((options | async)?.show_fav) {
+            @if (options()?.show_fav) {
                 <div filter-item>
                     <span>{{ 'COMMON.FAVOURITES_ONLY' | translate }}</span>
                     <button
@@ -119,14 +120,16 @@ import { DeskFiltersComponent } from './desk-filters.component';
     `,
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
-export class DeskFiltersDisplayComponent extends AsyncHandler {
+export class DeskFiltersDisplayComponent {
     private _bsheet = inject(MatBottomSheet);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
 
     public readonly view = model<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._state.options;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
 
@@ -149,8 +152,4 @@ export class DeskFiltersDisplayComponent extends AsyncHandler {
     }
 
     public readonly editFilter = () => this._bsheet.open(DeskFiltersComponent);
-
-    constructor() {
-        super();
-    }
 }

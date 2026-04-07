@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    deleteAssetGroup,
     generateAssetForm,
     getGroupsWithAssets,
     queryAssetCategories,
@@ -39,6 +38,7 @@ import { SpacesService } from '@placeos/events';
 import {
     PlaceMetadata,
     cleanObject,
+    removeAssetType,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -208,7 +208,7 @@ export class AssetManagerStateService extends AsyncHandler {
         switchMap(() => queryAssetCategories()),
         map((list) => [
             new AssetCategory({ id: '', name: 'Uncategorised' }),
-            ...list,
+            ...list.data,
         ]),
         shareReplay(1),
     );
@@ -384,7 +384,7 @@ export class AssetManagerStateService extends AsyncHandler {
     public async deleteActiveProduct() {
         const item = await nextValueFrom(this.active_product);
         if (!item?.id) return;
-        await deleteAssetGroup(item.id).toPromise();
+        await removeAssetType(item.id).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
     }
@@ -438,7 +438,7 @@ export class AssetManagerStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false),
+            () => ref.componentInstance.loading.set(false),
         );
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
@@ -10,7 +10,7 @@ import { CheckinStateService } from './checkin-state.service';
 @Component({
     selector: 'app-checkout',
     template: `
-        @if (!loading) {
+        @if (!loading()) {
             <div
                 class="bg-base-100 relative flex w-md flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
@@ -65,7 +65,7 @@ export class CheckoutComponent implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
 
-    public loading = false;
+    public loading = signal(false);
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
@@ -74,12 +74,12 @@ export class CheckoutComponent implements OnInit {
     }
 
     public async checkout() {
-        this.loading = true;
+        this.loading.set(true);
         const result = await this._state
             .checkinGuest(false)
             .then(() => true)
             .catch(() => false);
-        this.loading = false;
+        this.loading.set(false);
         if (!result) return;
         this._router.navigate(['/welcome']);
         notifySuccess(i18n('APP.VISITOR_KIOSK.CHECKOUT_SUCCESS'));

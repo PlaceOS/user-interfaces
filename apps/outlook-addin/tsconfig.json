@@ -5,7 +5,10 @@
         "experimentalDecorators": true,
         "noEmitOnError": true,
         "target": "es2020",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "lib": ["dom", "es2022"]
     },
     "references": [
         {

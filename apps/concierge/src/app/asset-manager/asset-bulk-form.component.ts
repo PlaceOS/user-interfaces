@@ -1,16 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    addAssetsInBulk,
-    generateAssetForm,
-    showAsset,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetForm } from '@placeos/assets';
 import {
     AssetGroup,
     AsyncHandler,
@@ -24,6 +20,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { addAssets, showAsset, showAssetType } from '@placeos/ts-client';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -36,8 +33,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     : 'APP.CONCIERGE.ASSETS_BULK_ADD'
                 ) | translate
             "
-            [close]="product ? [base_route, 'view', product.id] : [base_route]"
-            [loading]="loading"
+            [close]="
+                product() ? [base_route, 'view', product()?.id] : [base_route]
+            "
+            [loading]="loading()"
             (confirm)="save()"
         >
             <form [formGroup]="form">
@@ -48,7 +47,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-form-field appearance="outline">
                         <input
                             matInput
-                            [ngModel]="product?.name || 'No Product'"
+                            [ngModel]="product()?.name || 'No Product'"
                             [ngModelOptions]="{ standalone: true }"
                             [disabled]="true"
                         />
@@ -62,7 +61,8 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
-                                [(ngModel)]="count"
+                                [ngModel]="count()"
+                                (ngModelChange)="count.set(+$event || 0)"
                                 name="count"
                                 type="number"
                                 [placeholder]="
@@ -106,10 +106,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
                             "
                         >
-                            @for (
-                                order of purchase_orders | async;
-                                track order
-                            ) {
+                            @for (order of purchase_orders(); track order) {
                                 <mat-option [value]="order.id">
                                     {{
                                         order.purchase_order_number ||
@@ -117,7 +114,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     }}
                                 </mat-option>
                             }
-                            @if (!(purchase_orders | async)?.length) {
+                            @if (!purchase_orders().length) {
                                 <mat-option
                                     class="opacity-60"
                                     [disabled]="true"
@@ -157,10 +154,12 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly form = generateAssetForm();
-    public readonly purchase_orders = this._state.purchase_orders;
-    public product: AssetGroup;
-    public count = 2;
-    public loading = '';
+    public readonly purchase_orders = toSignal(this._state.purchase_orders, {
+        initialValue: [],
+    });
+    public readonly product = signal<AssetGroup | null>(null);
+    public readonly count = signal(2);
+    public readonly loading = signal('');
 
     public get base_route() {
         return this._state.base_route;
@@ -171,8 +170,8 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = i18n(
-                        'APP.CONCIERGE.ASSETS_BULK_ASSET_LOADING',
+                    this.loading.set(
+                        i18n('APP.CONCIERGE.ASSETS_BULK_ASSET_LOADING'),
                     );
                     const asset = await showAsset(params.get('id'))
                         .toPromise()
@@ -182,13 +181,13 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                         this._router.navigate([this.base_route]);
                     }
                     this.form.patchValue(asset);
-                    this.loading = '';
+                    this.loading.set('');
                 }
                 if (params.get('group_id')) {
-                    this.loading = i18n(
-                        'APP.CONCIERGE.ASSETS_BULK_PRODUCT_LOADING',
+                    this.loading.set(
+                        i18n('APP.CONCIERGE.ASSETS_BULK_PRODUCT_LOADING'),
                     );
-                    const product = await showAssetGroup(params.get('group_id'))
+                    const product = await showAssetType(params.get('group_id'))
                         .toPromise()
                         .catch(() => null);
                     if (!product) {
@@ -197,18 +196,18 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                         );
                         this._router.navigate([this.base_route]);
                     }
-                    this.product = product;
+                    this.product.set(product);
                     this.form.patchValue({ asset_type_id: product.id });
-                    this.loading = '';
+                    this.loading.set('');
                 }
             }),
         );
         this._state.setOptions({ active_item: null });
-        this.count = 2;
+        this.count.set(2);
     }
 
     public async save() {
-        if (!this.count && this.count < 1) {
+        if (!this.count() || this.count() < 1) {
             return notifyError(i18n('APP.CONCIERGE.ASSETS_BULK_COUNT_ERROR'));
         }
         if (!this.form.valid) {
@@ -218,17 +217,17 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 }),
             );
         }
-        this.loading = i18n('APP.CONCIERGE.ASSETS_BULK_SAVING');
+        this.loading.set(i18n('APP.CONCIERGE.ASSETS_BULK_SAVING'));
         const data = this.form.value;
-        const list = await addAssetsInBulk(
-            new Array(this.count).fill({
+        const list = await addAssets(
+            new Array(this.count()).fill({
                 ...data,
                 zone_id: this._org.building.id,
             }),
         )
             .toPromise()
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(
                     i18n('APP.CONCIERGE.ASSETS_BULK_COUNT_ERROR', {
                         error: e.message,
@@ -237,7 +236,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 throw e;
             });
         this._state.setExtraAssets(
-            list.map((d) => ({ ...d, asset_type_id: this.product.id })),
+            list.map((d) => ({ ...d, asset_type_id: this.product()?.id })),
         );
         this.form.reset();
         this._state.postChange();
@@ -246,7 +245,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 count: list.length,
             }),
         );
-        this._router.navigate([this.base_route, 'view', this.product?.id]);
-        this.loading = '';
+        this._router.navigate([this.base_route, 'view', this.product()?.id]);
+        this.loading.set('');
     }
 }

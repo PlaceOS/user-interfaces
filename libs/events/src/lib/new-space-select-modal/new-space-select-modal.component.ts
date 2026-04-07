@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -7,7 +7,12 @@ import {
 } from '@angular/material/dialog';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { isMobileSafari, SettingsService, Space } from '@placeos/common';
+import {
+    isMobileSafari,
+    settingSignal,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { EventFormOptions, EventFormService } from '@placeos/events';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -25,7 +30,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
     template: `
         <div
             class="bg-base-100 mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden p-2 sm:m-0 sm:h-auto sm:w-auto"
-            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
+            [style.height]="is_safari() ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
@@ -70,8 +75,8 @@ export const FAV_DESK_KEY = 'favourite_spaces';
             >
                 <div
                     filters
-                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
-                    [class.hidden]="!show_filters"
+                    class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-80"
+                    [class.hidden]="!show_filters()"
                 >
                     <new-space-filters
                         [hide_levels]="view() !== 'list'"
@@ -79,8 +84,8 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                 </div>
                 <div
                     list
-                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
-                    [class.hidden]="show_filters || displayed()"
+                    class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-80 md:w-112 lg:block"
+                    [class.hidden]="show_filters() || displayed()"
                     [class.sm:hidden]="displayed()"
                     [class.md:block]="!displayed()"
                     [class.p-2]="view() === 'list'"
@@ -101,8 +106,8 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                         <new-space-list
                             list
                             [active]="displayed()?.id"
-                            [selected]="selected_ids"
-                            [favorites]="favorites"
+                            [selected]="selected_ids()"
+                            [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed.set($event)"
                         ></new-space-list>
@@ -119,7 +124,7 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                 </div>
                 <div
                     class="border-base-300 relative h-full w-full overflow-auto rounded-sm border shadow-sm sm:w-[20rem]"
-                    [class.hidden]="show_filters || !displayed()"
+                    [class.hidden]="show_filters() || !displayed()"
                     [class.sm:hidden]="!displayed()"
                     [class.md:block]="displayed()"
                     [class.lg:block]="view() === 'list'"
@@ -137,67 +142,76 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     <new-space-details
                         details
                         [space]="displayed()"
-                        [active]="selected_ids.includes(displayed()?.id)"
+                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
                         (activeChange)="setSelected(displayed(), $event)"
                         [fav]="
-                            displayed &&
-                            this.favorites.includes(displayed()?.id)
+                            displayed() && favorites().includes(displayed()?.id)
                         "
                         (toggleFav)="toggleFavourite(displayed())"
                         (close)="displayed.set(null)"
                     ></new-space-details>
                 </div>
-                @if (!displayed) {
+                @if (!displayed()) {
                     <button
                         icon
                         matRipple
                         class="border-base-200 bg-base-100 absolute top-3 right-2 z-20 border sm:hidden"
-                        (click)="show_filters = !show_filters"
+                        (click)="toggleFilters()"
                     >
                         <icon>{{
-                            show_filters ? 'close' : 'filter_list'
+                            show_filters() ? 'close' : 'filter_list'
                         }}</icon>
                     </button>
                 }
             </main>
             <footer
-                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
+                [class.justify-between]="allow_multiple()"
+                [class.justify-end]="!allow_multiple()"
             >
-                <button
-                    btn
-                    matRipple
-                    name="space-return"
-                    [mat-dialog-close]="selected"
-                    class="inverse bg-base-100 text-secondary"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple()) {
+                    <button
+                        btn
+                        matRipple
+                        name="space-return"
+                        [mat-dialog-close]="selected()"
+                        class="inverse bg-base-100 text-secondary"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-xl">done</icon>
+                            <div class="pr-2">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <button
                     btn
                     matRipple
                     name="toggle-space"
                     [disabled]="!displayed()"
-                    [class.inverse]="isSelected(displayed()?.id)"
-                    (click)="
-                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    [class.inverse]="
+                        allow_multiple() && isSelected(displayed()?.id)
                     "
+                    (click)="toggleDisplayedSpace()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed()?.id) ? 'remove' : 'add'
+                            allow_multiple()
+                                ? isSelected(displayed()?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed()?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple()
+                                    ? ((isSelected(displayed()?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Item'
                             }}
                         </div>
                     </div>
@@ -238,49 +252,70 @@ export class NewSpaceSelectModalComponent {
         multiday?: boolean;
     }>(MAT_DIALOG_DATA);
 
-    public show_filters = false;
-    public selected: Space[] = [];
+    public readonly show_filters = signal(false);
+    public readonly selected = signal<Space[]>([]);
     public readonly view = signal<'list' | 'map'>('list');
     public readonly displayed = signal<Space | null>(null);
     public readonly multiday = !!this._data.multiday;
     public readonly room_alerts = this._event_form.room_alerts;
 
-    public get is_safari() {
-        return isMobileSafari();
-    }
+    public readonly is_safari = computed(() => isMobileSafari());
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
-    }
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .map((_) => _.id)
+            .join(','),
+    );
 
-    public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || [];
-    }
+    public readonly favorites = settingSignal<string[]>(
+        'favourite_spaces',
+        [],
+        true,
+    );
+
+    public readonly allow_multiple = settingSignal<boolean>(
+        'events.allow_multiple_spaces',
+        false,
+    );
 
     constructor() {
         const _data = this._data;
 
-        this.selected = [...(_data.spaces || [])];
+        this.selected.set([...(_data.spaces || [])]);
         this._event_form.setOptions(_data.options);
         this._event_form.setFilters(_data.options as any);
     }
 
+    public toggleFilters() {
+        this.show_filters.update((v) => !v);
+    }
+
     public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+        return id && this.selected_ids().includes(id);
     }
 
     public setSelected(item: Space, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== item.id);
+        const list = this.selected().filter((_) => _.id !== item.id);
         if (state) list.push(item);
-        this.selected = list;
-        if (!this._settings.get('app.events.allow_multiple_spaces') && state) {
-            this.selected = [item];
+        this.selected.set(list);
+        if (!this.allow_multiple() && state) {
+            this.selected.set([item]);
             this._dialog_ref.close([item]);
         }
     }
 
+    public toggleDisplayedSpace() {
+        if (!this.displayed()) return;
+        this.setSelected(
+            this.displayed(),
+            this.allow_multiple()
+                ? !this.isSelected(this.displayed()?.id)
+                : true,
+        );
+    }
+
     public toggleFavourite(item: Space) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
         if (new_state) {
             this._settings.saveUserSetting('favourite_spaces', [

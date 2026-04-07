@@ -1,32 +1,31 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, Booking, i18n, notifySuccess } from '@placeos/common';
+import { AsyncHandler, i18n, notifySuccess } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { ParkingSpace } from '@placeos/explore';
-import { combineLatest } from 'rxjs';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-space-list',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('spaces')"
+            [class.opacity-0]="!loading().includes('spaces')"
             class="w-full"
         />
         <simple-table
             class="block min-w-208 text-sm"
-            [data]="spaces"
+            [data]="spaces()"
             [columns]="[
                 {
-                    key: 'name',
+                    key: 'identifier',
                     name: 'APP.CONCIERGE.PARKING_BAY' | translate,
                     content: name_template,
                 },
@@ -36,6 +35,12 @@ import { ParkingStateService } from './parking-state.service';
                     content: assigned_template,
                 },
                 { key: 'notes', name: 'FORM.NOTES' | translate },
+                {
+                    key: 'bookable',
+                    name: 'COMMON.BOOKABLE' | translate,
+                    content: bookable_template,
+                    size: '5.5rem',
+                },
                 {
                     key: 'status',
                     name: 'COMMON.STATUS' | translate,
@@ -51,36 +56,36 @@ import { ParkingStateService } from './parking-state.service';
                     size: '6.5rem',
                 },
             ]"
-            [filter]="(options | async)?.search"
+            [filter]="options().search"
             [sortable]="true"
         />
         <ng-template #status_template let-row="row">
             <div
                 class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm"
                 [class.bg-warning]="
-                    !space_status[row.id]?.includes('free') &&
-                    !space_status[row.id]?.includes('busy')
+                    !space_status()[row.id]?.includes('free') &&
+                    !space_status()[row.id]?.includes('busy')
                 "
                 [class.text-warning-content]="
-                    !space_status[row.id]?.includes('free') &&
-                    !space_status[row.id]?.includes('busy')
+                    !space_status()[row.id]?.includes('free') &&
+                    !space_status()[row.id]?.includes('busy')
                 "
-                [class.bg-success]="space_status[row.id]?.includes('free')"
+                [class.bg-success]="space_status()[row.id]?.includes('free')"
                 [class.text-success-content]="
-                    space_status[row.id]?.includes('free')
+                    space_status()[row.id]?.includes('free')
                 "
-                [class.bg-error]="space_status[row.id]?.includes('busy')"
+                [class.bg-error]="space_status()[row.id]?.includes('busy')"
                 [class.text-error-content]="
-                    space_status[row.id]?.includes('busy')
+                    space_status()[row.id]?.includes('busy')
                 "
-                [matTooltip]="statusTooltip(space_status[row.id]) | translate"
+                [matTooltip]="statusTooltip(space_status()[row.id]) | translate"
                 matTooltipPosition="left"
             >
                 <icon class="text-2xl">
                     {{
-                        space_status[row.id]?.includes('assigned')
+                        space_status()[row.id]?.includes('assigned')
                             ? 'person'
-                            : space_status[row.id]?.includes('reuse')
+                            : space_status()[row.id]?.includes('reuse')
                               ? 'event_available'
                               : 'question_mark'
                     }}
@@ -143,6 +148,19 @@ import { ParkingStateService } from './parking-state.service';
                 </button>
             </div>
         </ng-template>
+        <ng-template #bookable_template let-row="row">
+            <div
+                class="mx-auto flex h-8 w-8 items-center justify-center rounded-sm"
+                [class.bg-success]="row.bookable"
+                [class.text-success-content]="row.bookable"
+                [class.bg-base-300]="!row.bookable"
+                [class.text-base-content]="!row.bookable"
+            >
+                <icon class="text-2xl">
+                    {{ row.bookable ? 'done' : 'close' }}
+                </icon>
+            </div>
+        </ng-template>
         <div class="h-20 w-full"></div>
     `,
     styles: [],
@@ -156,29 +174,64 @@ import { ParkingStateService } from './parking-state.service';
         TranslatePipe,
     ],
 })
-export class ParkingSpaceListComponent extends AsyncHandler implements OnInit {
+export class ParkingSpaceListComponent extends AsyncHandler {
     private _state = inject(ParkingStateService);
     private _clipboard = inject(Clipboard);
 
-    public readonly spaces = this._state.spaces;
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
-    public readonly bookings = this._state.bookings;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly space_status: Record<string, string> = {};
+    public readonly spaces = toSignal(this._state.spaces, { initialValue: [] });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [],
+    });
+
+    public readonly space_status = computed<Record<string, string>>(() => {
+        const status: Record<string, string> = {};
+        for (const space of this.spaces()) {
+            const booking = this.bookings().find(
+                (_) =>
+                    _.asset_id === space.id &&
+                    _.status !== 'declined' &&
+                    _.status !== 'cancelled' &&
+                    _.status !== 'ended',
+            );
+            if (space.assigned_to && !booking) {
+                status[space.id] = 'assigned_free';
+            } else if (
+                space.assigned_to &&
+                booking &&
+                booking.user_email === space.assigned_to
+            ) {
+                status[space.id] = 'assigned_busy';
+            } else if (
+                space.assigned_to &&
+                booking &&
+                booking.user_email !== space.assigned_to
+            ) {
+                status[space.id] = 'reuse_busy';
+            } else if (!space.assigned_to && booking) {
+                status[space.id] = 'busy';
+            } else {
+                status[space.id] = 'free';
+            }
+        }
+        return status;
+    });
 
     public readonly editSpace = (s?) => this._state.editSpace(s);
     public readonly removeSpace = (s) => this._state.removeSpace(s);
-
-    public ngOnInit() {
-        this.subscription(
-            'bookings',
-            combineLatest([this.spaces, this.bookings]).subscribe(
-                ([spaces, bookings]) =>
-                    this._updateStatusList(spaces, bookings),
-            ),
-        );
-    }
 
     public copyToClipboard(id: string, type?: string) {
         const success = this._clipboard.copy(id);
@@ -206,36 +259,5 @@ export class ParkingSpaceListComponent extends AsyncHandler implements OnInit {
                 return 'APP.CONCIERGE.PARKING_STATUS_FREE';
         }
         return 'APP.CONCIERGE.PARKING_STATUS_FREE';
-    }
-
-    private _updateStatusList(spaces: ParkingSpace[], bookings: Booking[]) {
-        for (const space of spaces) {
-            const booking = bookings.find(
-                (_) =>
-                    _.asset_id === space.id &&
-                    _.status !== 'declined' &&
-                    _.status !== 'cancelled' &&
-                    _.status !== 'ended',
-            );
-            if (space.assigned_to && !booking) {
-                this.space_status[space.id] = 'assigned_free';
-            } else if (
-                space.assigned_to &&
-                booking &&
-                booking.user_email === space.assigned_to
-            ) {
-                this.space_status[space.id] = 'assigned_busy';
-            } else if (
-                space.assigned_to &&
-                booking &&
-                booking.user_email !== space.assigned_to
-            ) {
-                this.space_status[space.id] = 'reuse_busy';
-            } else if (!space.assigned_to && booking) {
-                this.space_status[space.id] = 'busy';
-            } else {
-                this.space_status[space.id] = 'free';
-            }
-        }
     }
 }

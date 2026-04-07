@@ -105,7 +105,7 @@ export class AssetStateService {
         this._options,
         this._org.active_building,
     ]).pipe(
-        debounceTime(300),
+        debounceTime(1000),
         switchMap(([{ zone, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
@@ -126,23 +126,43 @@ export class AssetStateService {
     );
 
     public readonly category_list = this._org.active_building.pipe(
-        switchMap((bld) => queryAssetCategories({ zone_id: bld.id })),
-        map((_) => _.sort((a, b) => a.name.localeCompare(b.name))),
+        filter((bld) => !!bld),
+        switchMap((bld) => queryAssetCategories({ zone_id: bld.id } as any)),
+        map((_) =>
+            _.data
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .filter((c) => !c.hidden),
+        ),
+        shareReplay(1),
+    );
+
+    public readonly visible_category_ids = this.category_list.pipe(
+        map((list) => list.map((item) => item.id)),
+        tap((visible_ids) => {
+            const selected_categories = this._category.getValue();
+            const valid_categories = selected_categories.filter((item) =>
+                visible_ids.includes(item),
+            );
+            if (valid_categories.length !== selected_categories.length) {
+                this._category.next(valid_categories);
+            }
+        }),
         shareReplay(1),
     );
 
     public readonly filtered_assets = combineLatest([
         this._search,
         this._category,
+        this.visible_category_ids,
         this.available_groups,
         this.rules,
     ]).pipe(
-        map(([search, category, assets, rules]) => {
+        map(([search, category, visible_categories, assets, rules]) => {
             const s = search.toLowerCase();
-            console.log('Rules:', rules);
             const list = assets.filter(
                 (_) =>
                     _.assets?.length &&
+                    visible_categories.includes(_.category_id) &&
                     (!category.length || category.includes(_.category_id)) &&
                     (_.name.toLowerCase().includes(s) ||
                         _.description.toLowerCase().includes(s)) &&

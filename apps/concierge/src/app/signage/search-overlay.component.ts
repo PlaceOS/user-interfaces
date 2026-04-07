@@ -1,8 +1,8 @@
+import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    SimpleChanges,
     TemplateRef,
+    computed,
     input,
     output,
     signal,
@@ -10,6 +10,11 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+
+interface SearchItem {
+    id: string;
+    name: string;
+}
 
 @Component({
     selector: 'search-overlay',
@@ -26,8 +31,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
             >
                 <input
                     class="border-base-300 bg-base-100 text-base-content w-full rounded-[4rem] border py-4 pr-6 pl-14 text-xl shadow-sm"
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [(ngModel)]="search"
                     [placeholder]="'COMMON.SEARCH' | translate"
                 />
                 <icon
@@ -40,7 +44,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                 class="z-10 mx-auto max-h-[65%] w-lg max-w-[calc(100%-2rem)] overflow-auto rounded-sm"
                 (click)="$event.stopPropagation()"
             >
-                @for (item of item_list(); track item) {
+                @for (item of filtered_items(); track item) {
                     <button
                         matRipple
                         class="w-full text-left"
@@ -57,12 +61,12 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             <div
                                 class="border-base-300 bg-base-100 hover:bg-base-200 w-full border p-4"
                             >
-                                {{ $any(item).name || item }}
+                                {{ item.name || item }}
                             </div>
                         }
                     </button>
                 }
-                @if (!item_list()?.length) {
+                @if (!filtered_items().length) {
                     <button
                         matRipple
                         class="text-base-100 w-full p-4"
@@ -86,21 +90,28 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         </div>
     `,
     styles: [``],
-    imports: [FormsModule, IconComponent, MatRippleModule, TranslatePipe],
+    imports: [
+        FormsModule,
+        IconComponent,
+        MatRippleModule,
+        TranslatePipe,
+        CommonModule,
+    ],
 })
-export class SearchOverlayComponent<T extends {} = any> implements OnChanges {
-    public readonly item_list = input<T[]>([]);
+export class SearchOverlayComponent {
+    public readonly item_list = input<SearchItem[]>([]);
     public readonly result_template = input<TemplateRef<any>>(undefined);
 
-    public readonly selected = output<T>();
+    public readonly selected = output<SearchItem>();
     public readonly close = output<void>();
 
     public readonly search = signal('');
-    private _items = signal<T[]>([]);
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item_list) {
-            this._items.set(this.item_list() || []);
-        }
-    }
+    public readonly filtered_items = computed(() => {
+        const term = this.search().trim().toLowerCase();
+        const items = this.item_list() || [];
+        if (!term) return items;
+        return items.filter((item) =>
+            `${item?.name || item || ''}`.toLowerCase().includes(term),
+        );
+    });
 }

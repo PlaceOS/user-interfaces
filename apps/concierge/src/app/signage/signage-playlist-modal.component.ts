@@ -1,11 +1,4 @@
-import {
-    Component,
-    ElementRef,
-    inject,
-    OnInit,
-    signal,
-    viewChild,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -40,7 +33,6 @@ import {
     startOfDay,
 } from 'date-fns';
 import { CronInputFieldComponent } from 'libs/form-fields/src/lib/cron-input-field.component';
-import { BehaviorSubject } from 'rxjs';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -251,8 +243,7 @@ import { SignageStateService } from './signage-state.service';
                         class="no-subscript w-full"
                     >
                         <mat-select
-                            [ngModel]="schedule()"
-                            (ngModelChange)="schedule.set($event)"
+                            [(ngModel)]="schedule"
                             [ngModelOptions]="{ standalone: true }"
                         >
                             <mat-option value="">No schedule</mat-option>
@@ -403,8 +394,6 @@ export class SignagePlaylistModalComponent implements OnInit {
         '',
     );
 
-    public readonly search = new BehaviorSubject('');
-
     public readonly form = new FormGroup({
         id: new FormControl(this.playlist.id || ''),
         name: new FormControl(this.playlist.name || '', [Validators.required]),
@@ -424,9 +413,6 @@ export class SignagePlaylistModalComponent implements OnInit {
         play_at: new FormControl(Date.now()),
         play_cron: new FormControl('* * * * *'),
     });
-
-    public readonly search_input =
-        viewChild<ElementRef<HTMLInputElement>>('search_input');
 
     public ngOnInit() {
         this.form.patchValue({

@@ -45,14 +45,10 @@ export interface UserDetails extends User {
                         [user]="user()"
                     ></a-user-avatar>
                 </div>
-                <div class="mb-[0.25em] text-[1.5em]">{{ user().name }}</div>
-                <div>
-                    {{
-                        'APP.VISITOR_KIOSK.LABEL_FOR'
-                            | translate: { title: user()?.title }
-                    }}
+                <div class="mb-[0.25em] text-[1.5em] text-black">
+                    {{ user().name }}
                 </div>
-                <div class="opacity-60">
+                <div class="text-black">
                     {{
                         'APP.VISITOR_KIOSK.LABEL_HOST'
                             | translate
@@ -79,7 +75,7 @@ export interface UserDetails extends User {
                 />
                 @let level = user().zones | level;
                 @if (level) {
-                    <div class="text-right text-[0.75em]">
+                    <div class="text-right text-[0.75em] text-black">
                         {{
                             'APP.VISITOR_KIOSK.LABEL_LOCATION'
                                 | translate
@@ -90,9 +86,11 @@ export interface UserDetails extends User {
                         }}
                     </div>
                 }
-                <pre class="text-right">{{ user()?.extra_details }}</pre>
+                <pre class="text-right text-black">{{
+                    user()?.extra_details
+                }}</pre>
                 @if (user()?.pass_number) {
-                    <pre class="text-right text-[0.75em]">{{
+                    <pre class="text-right text-[0.75em] text-black">{{
                         user()?.pass_number
                     }}</pre>
                 }
@@ -103,7 +101,7 @@ export interface UserDetails extends User {
                 [class.space-y-[0.5em]]="landscape()"
                 [class.flex-col]="landscape()"
             >
-                <div class="text-right leading-tight font-medium">
+                <div class="text-right leading-tight font-medium text-black">
                     <div>
                         {{ user().date | date: 'shortTime' }}
                     </div>

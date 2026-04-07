@@ -11,9 +11,15 @@ import {
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
-import { MediaAnimation } from '@placeos/ts-client';
+import { AsyncHandler, log, shuffleArrayWithFirstItem } from '@placeos/common';
+import {
+    IconComponent,
+    PluginConfigPayload,
+    PluginEmbedComponent,
+    PluginErrorPayload,
+    SignagePluginMessageType,
+} from '@placeos/components';
+import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { MediaControlsComponent } from './media-controls.component';
 import { validateMedia } from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
@@ -41,6 +47,12 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #previous_web_el
                     class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
+                @if (previous_plugin()) {
+                    <plugin-embed
+                        class="absolute top-0 left-0 h-full w-full"
+                        [plugin]="previous_plugin()"
+                    />
+                }
             </div>
             <div
                 #media_container
@@ -58,6 +70,16 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #web_el
                     class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
+                @if (active_plugin()) {
+                    <plugin-embed
+                        class="absolute top-0 left-0 h-full w-full"
+                        [plugin]="active_plugin()"
+                        [config]="plugin_config()"
+                        [play]="plugin_play()"
+                        (statusChange)="onPluginStatus($event)"
+                        (plugin_error)="onPluginError($event)"
+                    />
+                }
             </div>
             @if (controls()) {
                 <div class="absolute top-0 left-0 p-4">
@@ -139,6 +161,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
         IconComponent,
         MediaControlsComponent,
         TimeControlsComponent,
+        PluginEmbedComponent,
     ],
 })
 export class MediaPlayerComponent
@@ -166,6 +189,13 @@ export class MediaPlayerComponent
     public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
+
+    public readonly active_plugin = signal<SignagePlugin>(null);
+    public readonly previous_plugin = signal<SignagePlugin>(null);
+    public readonly plugin_config = signal<PluginConfigPayload>(null);
+    public readonly plugin_play = signal(0);
+
+    private _plugin_finished = false;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -375,6 +405,16 @@ export class MediaPlayerComponent
             this.setPlaylistItem(0);
         }
         const item = this.active_item;
+        // For playsthrough plugins, advance when plugin signals finished
+        if (
+            item?.type === 'plugin' &&
+            item.plugin?.playback_type === 'playsthrough'
+        ) {
+            if (this._plugin_finished) {
+                this.nextItem();
+            }
+            return;
+        }
         if (Date.now() > this._item_start + item?.duration) {
             this.nextItem();
         }
@@ -416,35 +456,82 @@ export class MediaPlayerComponent
         this._item_progress = 0;
         this.progress.set(0);
         this.duration.set(0);
-        const url = this.url(item.id);
-        if (!url) {
-            this.timeout('wait-for-url', () => this.setPlaylistItem(index));
-            return;
-        }
+        this._plugin_finished = false;
+        // Hide all media elements first
         this._video_element().nativeElement.classList.add('hidden');
         this._web_element().nativeElement.classList.add('hidden');
         this._image_element().nativeElement.classList.add('hidden');
-        const active_el = (
-            item.type === 'video'
-                ? this._video_element()
-                : item.type === 'webpage'
-                  ? this._web_element()
-                  : this._image_element()
-        ).nativeElement;
-        active_el.src = url.toString();
-        active_el.classList.remove('hidden');
-        if (item.type === 'video') {
-            try {
-                requestAnimationFrame(() =>
-                    this._video_element().nativeElement.play(),
-                );
-            } catch {
-                this.nextItem();
-            }
+        // Preserve outgoing plugin in previous layer for transitions
+        const outgoing_plugin = this.active_plugin();
+        if (outgoing_plugin) {
+            this.previous_plugin.set(outgoing_plugin);
+        }
+        if (item.type === 'plugin' && item.plugin) {
+            this._showPlugin(item);
         } else {
-            this._video_element().nativeElement.pause();
+            // Clear active plugin when switching to non-plugin media
+            this.active_plugin.set(null);
+            this.plugin_config.set(null);
+            const url = this.url(item.id);
+            if (!url) {
+                this.timeout('wait-for-url', () => this.setPlaylistItem(index));
+                return;
+            }
+            const active_el = (
+                item.type === 'video'
+                    ? this._video_element()
+                    : item.type === 'webpage'
+                      ? this._web_element()
+                      : this._image_element()
+            ).nativeElement;
+            active_el.src = url.toString();
+            active_el.classList.remove('hidden');
+            if (item.type === 'video') {
+                try {
+                    requestAnimationFrame(() =>
+                        this._video_element().nativeElement.play(),
+                    );
+                } catch {
+                    this.nextItem();
+                }
+            } else {
+                this._video_element().nativeElement.pause();
+            }
         }
         this._transition();
+    }
+
+    public onPluginStatus(status: SignagePluginMessageType | 'unknown') {
+        const item = this.active_item;
+        if (!item || item.type !== 'plugin') return;
+        log('MediaPlayer', `Plugin status: ${status}`, [item.name]);
+        if (status === 'ready') {
+            this.plugin_config.set({
+                instance_id: item.id,
+                config: item.plugin_params || {},
+                timing: { scheduled_duration_ms: item.duration },
+            });
+            // Send play signal after config
+            this.timeout(
+                'plugin-play',
+                () => this.plugin_play.set(Date.now()),
+                100,
+            );
+        } else if (status === 'finished') {
+            this._plugin_finished = true;
+        }
+    }
+
+    public onPluginError(error: PluginErrorPayload) {
+        log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
+        if (error.fatal) {
+            this.nextItem();
+        }
+    }
+
+    private _showPlugin(item: MediaPlayerItem) {
+        log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
+        this.active_plugin.set(item.plugin);
     }
 
     private async _processURLs() {
@@ -472,6 +559,8 @@ export class MediaPlayerComponent
         // Request new URLs
         for (const item of item_list) {
             if (!item?.id || this._item_urls[item.id]) continue;
+            // Plugins don't need pre-fetched URLs
+            if (item.type === 'plugin') continue;
             this._item_urls[item.id] = await item.getURL().catch((_) => null);
         }
         // Revoke old URLs
@@ -508,23 +597,30 @@ export class MediaPlayerComponent
             if (index === indexValue) index = indexValue - 1;
             if (index < 0) index = this._item_playlist.length - 1;
             const item = this._item_playlist[index];
-            const url = this.url(item.id);
-            if (url) {
-                if (item.type === 'video') {
-                    img_el.classList.add('hidden');
-                    web_el.classList.add('hidden');
-                    video_el.src = url.toString();
-                    video_el.classList.remove('hidden');
-                } else if (item.type === 'web') {
-                    img_el.classList.add('hidden');
-                    video_el.classList.add('hidden');
-                    web_el.src = url.toString();
-                    web_el.classList.remove('hidden');
-                } else {
-                    video_el.classList.add('hidden');
-                    web_el.classList.add('hidden');
-                    img_el.src = url.toString();
-                    img_el.classList.remove('hidden');
+            if (item.type === 'plugin') {
+                // Plugin is handled by previous_plugin signal in the previous container
+                img_el.classList.add('hidden');
+                video_el.classList.add('hidden');
+                web_el.classList.add('hidden');
+            } else {
+                const url = this.url(item.id);
+                if (url) {
+                    if (item.type === 'video') {
+                        img_el.classList.add('hidden');
+                        web_el.classList.add('hidden');
+                        video_el.src = url.toString();
+                        video_el.classList.remove('hidden');
+                    } else if (item.type === 'web') {
+                        img_el.classList.add('hidden');
+                        video_el.classList.add('hidden');
+                        web_el.src = url.toString();
+                        web_el.classList.remove('hidden');
+                    } else {
+                        video_el.classList.add('hidden');
+                        web_el.classList.add('hidden');
+                        img_el.src = url.toString();
+                        img_el.classList.remove('hidden');
+                    }
                 }
             }
         }
@@ -575,6 +671,7 @@ export class MediaPlayerComponent
         this._previous_video_element().nativeElement.classList.add('hidden');
         this._previous_img_element().nativeElement.classList.add('hidden');
         this._previous_web_element().nativeElement.classList.add('hidden');
+        this.previous_plugin.set(null);
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
         this.in_animation.set(false);

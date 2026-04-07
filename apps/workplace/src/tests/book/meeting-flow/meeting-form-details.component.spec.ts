@@ -49,7 +49,13 @@ describe('MeetingFormDetailsComponent', () => {
             form: new FormGroup({
                 title: new FormControl(),
                 date: new FormControl(),
+                date_end: new FormControl(),
                 duration: new FormControl(),
+                all_day: new FormControl(false),
+                organiser: new FormControl(),
+                recurrence: new FormControl(),
+                update_master: new FormControl(false),
+                visibility: new FormControl('normal'),
             }),
         });
     });

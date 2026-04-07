@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -25,9 +26,9 @@ import { AssetsReportService } from './assets-report.service';
     selector: '[report-assets]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="!!(loading | async)"
-            [has_data]="!!(total_count | async)"
+            (printing)="printing.set($event)"
+            [loading]="loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -36,29 +37,27 @@ import { AssetsReportService } from './assets-report.service';
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{ 'APP.CONCIERGE.REPORTS_ASSETS_HEADER' | translate }}
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
                     <asset-report-overall></asset-report-overall>
                     <asset-report-daily-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-daily-usage>
                     <asset-report-product-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-product-usage>
-                    <asset-report-users [print]="printing"></asset-report-users>
+                    <asset-report-users
+                        [print]="printing()"
+                    ></asset-report-users>
                     <asset-report-expired-items
-                        [print]="printing"
+                        [print]="printing()"
                     ></asset-report-expired-items>
                 } @else {
                     <div
@@ -107,23 +106,32 @@ export class AssetsReportComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.stats$.pipe(
-        map((i) => i.total_booked_items || 0),
+    public readonly printing = signal(false);
+    private readonly _stats = toSignal(this._state.stats$, {
+        initialValue: {} as any,
+    });
+    public readonly total_count = computed(
+        () => this._stats()?.total_booked_items || 0,
     );
-    public readonly loading = this._state.loading$;
+    public readonly loading = toSignal(this._state.loading$, {
+        initialValue: false,
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public ngOnInit() {

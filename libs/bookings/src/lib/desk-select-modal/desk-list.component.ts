@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -27,13 +27,13 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         <p count class="mb-4 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
-                    | translate: { count: (desks | async)?.length || 0 }
+                    | translate: { count: desks()?.length || 0 }
             }}
         </p>
-        @if (!(loading | async)?.length) {
-            @if ((desks | async)?.length) {
+        @if (!loading()?.length) {
+            @if (desks()?.length) {
                 <ul class="list-style-none space-y-2">
-                    @for (desk of desks | async; track desk.id) {
+                    @for (desk of desks(); track desk.id) {
                         <li
                             desk
                             class="border-base-200 bg-base-100 relative w-full overflow-hidden rounded-lg border shadow-sm"
@@ -129,7 +129,6 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
         }
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -146,21 +145,26 @@ export class DeskListComponent {
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
 
-    public readonly desks = combineLatest([
-        this._state.options,
-        this._state.available_resources,
-    ]).pipe(
-        map(([{ show_fav }, _]) =>
-            _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
-                (a, b) => {
-                    const a_fav = this.isFavourite(a.id) ? 1 : 0;
-                    const b_fav = this.isFavourite(b.id) ? 1 : 0;
-                    return b_fav - a_fav;
-                },
+    public readonly desks = toSignal(
+        combineLatest([
+            this._state.options,
+            this._state.available_resources,
+        ]).pipe(
+            map(([{ show_fav }, _]) =>
+                _.filter((i) => !show_fav || this.isFavourite(i.id)).sort(
+                    (a, b) => {
+                        const a_fav = this.isFavourite(a.id) ? 1 : 0;
+                        const b_fav = this.isFavourite(b.id) ? 1 : 0;
+                        return b_fav - a_fav;
+                    },
+                ),
             ),
         ),
+        { initialValue: [] },
     );
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
 
     public isFavourite(desk_id: string) {
         return this.favorites().includes(desk_id);

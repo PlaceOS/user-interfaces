@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -30,7 +30,7 @@ import {
                 [href]="outlook_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
-                (click)="has_actioned = true"
+                (click)="has_actioned.set(true)"
             >
                 <img src="assets/icons/outlook.svg" class="w-6" />
                 <span>{{ 'BOOKINGS.LINK_OUTLOOK' | translate }}</span>
@@ -42,7 +42,7 @@ import {
                 [href]="google_link | sanitize: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
-                (click)="has_actioned = true"
+                (click)="has_actioned.set(true)"
             >
                 <img src="assets/icons/gcal.svg" class="w-6" />
                 <span>{{ 'BOOKINGS.LINK_GOOGLE' | translate }}</span>
@@ -54,7 +54,7 @@ import {
                 [href]="ical_link | safe: 'url'"
                 target="_blank"
                 rel="noopener noreferer"
-                (click)="has_actioned = true"
+                (click)="has_actioned.set(true)"
             >
                 <icon class="text-xl">download</icon>
                 <span>{{ 'BOOKINGS.LINK_ICAL' | translate }}</span>
@@ -66,7 +66,7 @@ import {
         <button
             icon
             matRipple
-            [mat-dialog-close]="has_actioned"
+            [mat-dialog-close]="has_actioned()"
             class="absolute top-2 right-0"
         >
             <icon>close</icon>
@@ -101,10 +101,10 @@ export class EventLinkModalComponent {
     );
     public readonly ical_link = generateCalendarFileLink(this._event as any);
 
-    public has_actioned = false;
+    public has_actioned = signal(false);
 
     public close() {
-        if (!this.has_actioned) {
+        if (!this.has_actioned()) {
             return notifyError(
                 'You need to select a calendar option to finish creating this booking',
             );

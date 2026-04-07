@@ -244,10 +244,10 @@ test.describe('Room Joining - Z-Index Priority', () => {
         if (await lockoutOverlay.isVisible().catch(() => false)) {
             // Join and power buttons should be above the lockout overlay
             const joinButtonWrapper = page.locator(
-                '[customTooltip]:has(button[type="join"])'
+                '[customTooltip]:has(button[type="join"])',
             );
             const powerButtonWrapper = page.locator(
-                '[customTooltip]:has(button[type="power"])'
+                '[customTooltip]:has(button[type="power"])',
             );
 
             // These should be clickable even with lockout active
@@ -274,7 +274,7 @@ test.describe('Room Joining - Responsive', () => {
         await page.waitForTimeout(500);
 
         const menuButton = page.locator(
-            'topbar-header button icon:has-text("more_vert")'
+            'topbar-header button icon:has-text("more_vert")',
         );
 
         if (await menuButton.isVisible().catch(() => false)) {

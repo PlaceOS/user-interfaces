@@ -12,6 +12,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -229,50 +230,58 @@ import { SidebarComponent } from './ui/sidebar.component';
                         </div>
                     </div>
                     <div class="overflow-auto p-4">
-                        <simple-table
-                            class="bg-base-100 block w-full min-w-4xl overflow-hidden text-sm"
-                            [data]="filtered_alerts()"
-                            [filter]="search()"
-                            [columns]="[
-                                {
-                                    key: 'actions',
-                                    name: ' ',
-                                    content: actions_template,
-                                    sortable: false,
-                                    size: '3.125rem',
-                                },
-                                {
-                                    key: 'severity',
-                                    name: 'Severity',
-                                    content: severity_template,
-                                    size: '8rem',
-                                },
-                                {
-                                    key: 'issue',
-                                    name: 'Issue',
-                                    content: issue_template,
-                                },
-                                {
-                                    key: 'type',
-                                    name: 'Device',
-                                    content: device_template,
-                                },
-                                {
-                                    key: 'location',
-                                    name: 'Location',
-                                    content: location_template,
-                                },
-                                {
-                                    key: 'status',
-                                    name: 'Status',
-                                    content: status_template,
-                                    show: false,
-                                    size: '9rem',
-                                },
-                            ]"
-                            [sortable]="true"
-                            empty_message="No requested assets for this product"
-                        ></simple-table>
+                        @if (show_alert_list_loading()) {
+                            <div
+                                class="flex h-48 w-full items-center justify-center"
+                            >
+                                <mat-spinner [diameter]="36"></mat-spinner>
+                            </div>
+                        } @else {
+                            <simple-table
+                                class="bg-base-100 block w-full min-w-4xl overflow-hidden text-sm"
+                                [data]="filtered_alerts()"
+                                [filter]="search()"
+                                [columns]="[
+                                    {
+                                        key: 'actions',
+                                        name: ' ',
+                                        content: actions_template,
+                                        sortable: false,
+                                        size: '3.125rem',
+                                    },
+                                    {
+                                        key: 'severity',
+                                        name: 'Severity',
+                                        content: severity_template,
+                                        size: '8rem',
+                                    },
+                                    {
+                                        key: 'issue',
+                                        name: 'Issue',
+                                        content: issue_template,
+                                    },
+                                    {
+                                        key: 'type',
+                                        name: 'Device',
+                                        content: device_template,
+                                    },
+                                    {
+                                        key: 'location',
+                                        name: 'Location',
+                                        content: location_template,
+                                    },
+                                    {
+                                        key: 'status',
+                                        name: 'Status',
+                                        content: status_template,
+                                        show: false,
+                                        size: '9rem',
+                                    },
+                                ]"
+                                [sortable]="true"
+                                empty_message="No requested assets for this product"
+                            ></simple-table>
+                        }
                         <ng-template #issue_template let-row="row">
                             <div class="p-4 text-sm">
                                 <div class="truncate font-medium">
@@ -410,6 +419,7 @@ import { SidebarComponent } from './ui/sidebar.component';
         FormsModule,
         SpacePipe,
         MatTooltipModule,
+        MatProgressSpinnerModule,
         RouterLink,
     ],
 })
@@ -419,6 +429,12 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     private _dashboards = inject(DashboardsService);
     private _org = inject(OrganisationService);
     private _initialized = signal(false);
+    private _waiting_for_first_alert = signal(true);
+    private _first_alert_watch = effect(() => {
+        if (this.alert_list().length > 0) {
+            this._waiting_for_first_alert.set(false);
+        }
+    });
 
     public readonly search = signal('');
     public readonly severity_types = {
@@ -499,6 +515,9 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             list = list.filter((a) => a.status === this.status());
         return list;
     });
+    public readonly show_alert_list_loading = computed(
+        () => this._waiting_for_first_alert() && this.alert_list().length < 1,
+    );
 
     public readonly backoffice_link = settingSignal(
         'backoffice_link',
@@ -584,8 +603,18 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _applyDashboard(id: string) {
+        this._startAlertListLoadingWindow();
         await this._dashboards.setDashboard(id);
         this.dashboard.set(id);
         this._dashboards.listenForDashboardAlerts(true);
+    }
+
+    private _startAlertListLoadingWindow() {
+        this._waiting_for_first_alert.set(true);
+        this.timeout(
+            'alert_list_loading_timeout',
+            () => this._waiting_for_first_alert.set(false),
+            15000,
+        );
     }
 }

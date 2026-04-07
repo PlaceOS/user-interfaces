@@ -23,6 +23,7 @@ import {
 import { log, mapLastValueFrom, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
+import { isPublicMode } from '../public-mode';
 import { SettingsService } from '../settings.service';
 import {
     Building,
@@ -93,6 +94,8 @@ export class OrganisationService {
     private _region_settings: Record<string, Record<string, any>> = {};
     /** Mapping of buildings to settings overrides */
     private _building_settings: Record<string, Record<string, any>> = {};
+    /** Flag to skip automatic building/region selection when set externally */
+    private _skip_auto_selection = false;
 
     /** Mapping of organisation settings overrides */
     public get settings() {
@@ -144,12 +147,18 @@ export class OrganisationService {
         this.setRegion(item);
     }
 
+    /** Prevent automatic building/region selection from overriding externally set values */
+    public skipAutoSelection() {
+        this._skip_auto_selection = true;
+    }
+
     public async setRegion(item: Region) {
         if (!item || this._active_region.value?.id == item.id) return;
         this._active_region.next(item);
         await this.loadRegionData(item);
         this._setBuildingFromTimezone();
         if (
+            !this._skip_auto_selection &&
             this.building?.parent_id !== item.id &&
             this.buildingsForRegion(item).length
         ) {
@@ -355,12 +364,26 @@ export class OrganisationService {
             return;
         }
         this._initialised.next(false);
-        await this.load().catch((err) => {
-            notifyError('Error loading organisation data. Retrying...');
-            setTimeout(() => this.init(tries), Math.min(10_000, 300 * ++tries));
-            throw err;
-        });
+        if (isPublicMode()) {
+            await this.load().catch((err) => {
+                console.warn(
+                    'Organisation loading failed in public mode, using local public organisation data.',
+                    err,
+                );
+                this._setPublicData();
+            });
+        } else {
+            await this.load().catch((err) => {
+                notifyError('Error loading organisation data. Retrying...');
+                setTimeout(
+                    () => this.init(tries),
+                    Math.min(10_000, 300 * ++tries),
+                );
+                throw err;
+            });
+        }
         setTimeout(() => {
+            if (this._skip_auto_selection) return;
             if (localStorage.getItem('PLACEOS.region')) {
                 this.region = this.regions.find(
                     (region) =>
@@ -379,6 +402,48 @@ export class OrganisationService {
             window.app.org = this;
         }
         this._initialised.next(true);
+    }
+
+    private _setPublicData() {
+        const region_id = localStorage.getItem('PLACEOS.region') || 'public';
+        const building_id =
+            localStorage.getItem('KIOSK.building') ||
+            localStorage.getItem('PLACEOS.building') ||
+            'public-building';
+        const level_id = localStorage.getItem('KIOSK.level') || 'public-level';
+        const organisation = new Organisation({
+            id: 'public-org',
+            name: 'Public Organisation',
+            tags: ['org'],
+        });
+        const region = new Region({
+            id: region_id,
+            name: 'Public Region',
+            display_name: 'Public Region',
+        });
+        const building = new Building({
+            id: building_id,
+            parent_id: region.id,
+            name: 'Public Building',
+            display_name: 'Public Building',
+        });
+        const level = new BuildingLevel({
+            id: level_id,
+            parent_id: building.id,
+            name: 'Public Level',
+            display_name: 'Public Level',
+        });
+        this._organisation = organisation;
+        this._regions.next([region]);
+        this.regions_signal.set([region]);
+        this._buildings.next([building]);
+        this.buildings_signal.set([building]);
+        this._levels.next([level]);
+        this.levels_signal.set([level]);
+        this._active_region.next(region);
+        this._active_building.next(building);
+        this.building_signal.set(building);
+        this._updateSettingOverrides();
     }
 
     /**
@@ -583,12 +648,16 @@ export class OrganisationService {
         if (!this._organisation) return;
         const app_settings = (
             await lastValueFrom(
-                showMetadata(this._organisation?.id, this.app_key),
+                showMetadata(this._organisation?.id, this.app_key).pipe(
+                    catchError(() => of({} as PlaceMetadata)),
+                ),
             )
         )?.details;
         const global_settings = (
             await lastValueFrom(
-                showMetadata(this._organisation?.id, 'settings'),
+                showMetadata(this._organisation?.id, 'settings').pipe(
+                    catchError(() => of({} as PlaceMetadata)),
+                ),
             )
         )?.details;
         this._settings = [global_settings, app_settings];
@@ -641,8 +710,8 @@ export class OrganisationService {
                         resolve();
                     },
                 );
-            } else if (!this.building?.id) {
-                this._setDefaultBuilding();
+            } else {
+                if (!this.building?.id) this._setDefaultBuilding();
                 resolve();
             }
         });
@@ -683,6 +752,7 @@ export class OrganisationService {
     }
 
     private _setBuildingFromTimezone() {
+        if (this._skip_auto_selection) return;
         const bld_list = this.buildings.filter(
             (bld) => !this.region || bld.parent_id === this.region?.id,
         );

@@ -7,7 +7,6 @@ import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import {
     Building,
     BuildingLevel,
-    nextValueFrom,
     OrganisationService,
     Region,
     SettingsService,
@@ -49,7 +48,11 @@ describe('BootstrapComponent', () => {
         imports: [MatFormFieldModule, MatSelectModule, FormsModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        window.PLACEOS_PUBLIC_MODE = false;
+        localStorage.clear();
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
@@ -64,9 +67,7 @@ describe('BootstrapComponent', () => {
 
         expect(spectator.component.active_building()?.id).toBe('1');
         expect(spectator.component.active_level()).toBeFalsy();
-        expect((await nextValueFrom(spectator.component.levels)).length).toBe(
-            2,
-        );
+        expect(spectator.component.levels().length).toBe(2);
         expect('[level]').toExist();
         spectator.click('[level]');
         spectator.click(document.querySelector('mat-option'));
@@ -105,11 +106,11 @@ describe('BootstrapComponent', () => {
             'KIOSK.location',
             'kiosk-1',
         );
-        spectator.component.active_rotation = { id: '90', name: '' };
-        spectator.component.active_location = {
+        spectator.component.active_rotation.set({ id: '90', name: '' });
+        spectator.component.active_location.set({
             id: 'kiosk-1',
             name: 'South West',
-        };
+        });
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).toHaveBeenCalledWith(
             'KIOSK.orientation',
@@ -133,6 +134,40 @@ describe('BootstrapComponent', () => {
         );
     });
 
+    it('should navigate to checkin preferences when action is preferences', () => {
+        const router = spectator.inject(Router);
+        spectator.setRouteQueryParam('action', 'preferences');
+        spectator.setRouteQueryParam('token', 'abc.123');
+        spectator.component.active_building.set(new Building({ id: 'bld-1' }));
+        spectator.component.active_level.set(
+            new BuildingLevel({ id: 'lvl-1' }),
+        );
+        spectator.detectChanges();
+
+        spectator.component.bootstrapKiosk();
+
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
+    });
+
+    it('should bypass bootstrap when action is preferences on load', async () => {
+        const router = spectator.inject(Router);
+        spectator.setRouteQueryParam('action', 'preferences');
+        spectator.setRouteQueryParam('token', 'abc.123');
+        await spectator.component.ngOnInit();
+
+        expect(router.navigate).toHaveBeenCalledWith(
+            ['/checkin', 'preferences'],
+            {
+                queryParams: { action: 'preferences', token: 'abc.123' },
+            },
+        );
+    });
+
     it('should re-direct if already bootstrapped', fakeAsync(async () => {
         const router = spectator.inject(Router);
         expect(router.navigate).not.toHaveBeenCalled();
@@ -146,4 +181,12 @@ describe('BootstrapComponent', () => {
         // TODO: Fix
         // expect(router.navigate).toHaveBeenCalled();
     }));
+
+    it('should show public mode blocker when enabled', () => {
+        window.PLACEOS_PUBLIC_MODE = true;
+        spectator.detectChanges();
+        expect(spectator.query('h2')?.textContent?.trim()).toBe(
+            'Public mode is enabled',
+        );
+    });
 });

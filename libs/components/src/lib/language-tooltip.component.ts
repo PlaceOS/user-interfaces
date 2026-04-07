@@ -62,7 +62,7 @@ export class LanguageSelectComponent {
         setTimeout(() => location.reload(), 300);
     };
 
-    public get active_locale() {
+    public get active_locale(): string {
         return this._locale.locale;
     }
 

@@ -50,7 +50,7 @@ describe('CateringItemFiltersComponent', () => {
         spectator.triggerEventHandler('input', 'ngModelChange', 'test');
         expect(
             spectator.inject(CateringOrderStateService).setFilters,
-        ).toBeCalledWith({ search: 'test' });
+        ).toHaveBeenCalledWith({ search: 'test' });
     });
 
     it('should allow toggling tag filters', () => {

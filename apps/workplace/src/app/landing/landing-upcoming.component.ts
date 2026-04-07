@@ -149,6 +149,7 @@ export class LandingUpcomingComponent
     public editBooking(event: Booking) {
         this._router.navigate(['/book', `${event.type}`]);
         this._booking_form.newForm(event.booking_type, event);
+        if (event.booking_type === 'visitor') return;
         setTimeout(() => {
             this._booking_form.form.patchValue({
                 resources: [

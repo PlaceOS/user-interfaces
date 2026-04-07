@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingCardComponent } from '@placeos/bookings';
 import { AsyncHandler, CalendarEvent, currentUser } from '@placeos/common';
@@ -24,13 +25,13 @@ import { startOfMinute } from 'date-fns';
                     </h2>
                 </header>
                 <h3 class="px-4 pt-4 text-lg font-medium">
-                    {{ now | date: 'EEE dd LLL yyyy' }}
+                    {{ now() | date: 'EEE dd LLL yyyy' }}
                 </h3>
                 <div
                     class="h-1/2 flex-1 space-y-4 p-4"
-                    [class.hidden]="loading$ | async"
+                    [class.hidden]="loading()"
                 >
-                    @let event_list = events$ | async;
+                    @let event_list = events();
                     @if (event_list?.length) {
                         @for (item of event_list; track item.id) {
                             @if (isEvent(item)) {
@@ -52,7 +53,7 @@ import { startOfMinute } from 'date-fns';
                 </div>
                 <div
                     loading
-                    [class.hidden]="!(loading$ | async)"
+                    [class.hidden]="!loading()"
                     class="my-6 flex h-3/4 w-full flex-1 flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
@@ -74,12 +75,13 @@ export class UpcomingBookingsComponent extends AsyncHandler implements OnInit {
     private _schedule = inject(ScheduleStateService);
 
     public user = currentUser();
-    public readonly loading$ = this._schedule.loading;
-    public readonly events$ = this._schedule.filtered_bookings;
-
-    public get now() {
-        return startOfMinute(Date.now());
-    }
+    public readonly loading = toSignal(this._schedule.loading, {
+        initialValue: false,
+    });
+    public readonly events = toSignal(this._schedule.filtered_bookings, {
+        initialValue: [],
+    });
+    public readonly now = signal(startOfMinute(Date.now()));
 
     public ngOnInit(): void {
         this._schedule.toggleType('parking', true);

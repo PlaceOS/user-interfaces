@@ -14,7 +14,7 @@ describe('SourceSelectComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     output_list: new BehaviorSubject([]),
-                    input_list: new BehaviorSubject([]),
+                    available_inputs: new BehaviorSubject([]),
                     setRoute: jest.fn(),
                 },
             },

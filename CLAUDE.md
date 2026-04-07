@@ -202,3 +202,33 @@ nx migrate --run-migrations
 - Use PascalCase for classes, types and interfaces
 - Use kebab-case for file names, directories and CSS selectors (id, class, attribute)
 - Use CAPS_CASE for constants
+
+## Standards & Conventions
+
+Detailed coding standards are documented in `.docs/STANDARDS.md`.
+
+### When to Reference Standards
+
+- **Writing new code**: Consult standards for naming conventions, component structure, service patterns, and styling approaches
+- **Creating components**: Follow the standalone component patterns, control flow syntax, and host styling conventions
+- **Adding services**: Use the `AsyncHandler` base class, `inject()` for DI, and BehaviorSubject/Signal patterns
+- **Writing tests**: Follow Spectator/Jest patterns with proper mocking
+- **Reviewing code**: Verify code follows established patterns before approving
+
+### Key Standards Quick Reference
+
+| Category | Standard |
+|----------|----------|
+| Variables | `snake_case` |
+| Functions | `camelCase` |
+| Classes/Types | `PascalCase` |
+| Files/Directories | `kebab-case` |
+| Constants | `CAPS_CASE` |
+| Private members | Prefix with `_` |
+| Components | Standalone with inline templates |
+| Control flow | `@if`, `@for`, `@switch` (not `*ngIf`, `*ngFor`) |
+| DI | `inject()` function |
+| Subscriptions | Extend `AsyncHandler` |
+| Styling | Tailwind utilities |
+
+For comprehensive details including code examples, see `.docs/STANDARDS.md`.

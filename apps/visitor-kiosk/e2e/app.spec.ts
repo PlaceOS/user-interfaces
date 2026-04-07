@@ -1,16 +1,16 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
-    WELCOME_URL,
-    REGISTER_URL,
     BOOTSTRAP_URL,
-    CHECKIN_SCAN_URL,
-    CHECKIN_RESULTS_URL,
     CHECKIN_ERROR_URL,
+    CHECKIN_RESULTS_URL,
+    CHECKIN_SCAN_URL,
     CHECKOUT_URL,
-    EXPLORE_URL,
-    navigateWithConfig,
     clearKioskConfig,
+    EXPLORE_URL,
+    LOAD_TIMEOUT,
+    navigateWithConfig,
+    REGISTER_URL,
+    WELCOME_URL,
 } from './test-utils';
 
 /**
@@ -48,7 +48,9 @@ test.describe('Visitor Kiosk - Application Initialization', () => {
 test.describe('Visitor Kiosk - Route Navigation', () => {
     test('should navigate to welcome page', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         await expect(page.locator('a[href*="checkin"]')).toBeVisible();
     });
 
@@ -60,13 +62,17 @@ test.describe('Visitor Kiosk - Route Navigation', () => {
 
     test('should navigate to register page', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
         await expect(page.locator('input[name="name"]')).toBeVisible();
     });
 
     test('should navigate to check-in scan page', async ({ page }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await expect(page.locator('[checkin-qr-scan]')).toBeAttached();
     });
 
@@ -115,7 +121,9 @@ test.describe('Visitor Kiosk - Core User Flows', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const checkinButton = page.locator('a[href*="checkin"]');
         await checkinButton.click();
@@ -127,11 +135,17 @@ test.describe('Visitor Kiosk - Core User Flows', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden before clicking
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         const closeButton = page.locator('a[href*="welcome"]');
         const isVisible = await closeButton.isVisible().catch(() => false);
@@ -150,11 +164,17 @@ test.describe('Visitor Kiosk - Core User Flows', () => {
         page,
     }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden before clicking
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         const closeButton = page.locator('a[href*="welcome"]');
         const isVisible = await closeButton.isVisible().catch(() => false);

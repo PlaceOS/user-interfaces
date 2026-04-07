@@ -37,8 +37,8 @@ describe('CateringReportOrdersComponent', () => {
 
     it('should allow downloading orders', () => {
         const service = spectator.inject(CateringReportStateService);
-        expect(service.downloadOrders).not.toBeCalled();
+        expect(service.downloadOrders).not.toHaveBeenCalled();
         spectator.click('button');
-        expect(service.downloadOrders).toBeCalled();
+        expect(service.downloadOrders).toHaveBeenCalled();
     });
 });

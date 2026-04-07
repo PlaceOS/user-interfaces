@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     forwardRef,
     inject,
     input,
     OnChanges,
     OnInit,
+    signal,
     SimpleChanges,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -33,12 +35,12 @@ const EMPTY_FAVS = [];
     selector: `catering-list-field`,
     template: `
         <div list class="space-y-2">
-            @for (order of orders; track order.id) {
+            @for (order of orders(); track order.id) {
                 <div
                     order
                     class="bg-base-100 overflow-hidden rounded-xl border shadow-sm"
-                    [class.border-error]="end_time < order.deliver_at"
-                    [class.border-base-300]="end_time >= order.deliver_at"
+                    [class.border-error]="end_time() < order.deliver_at"
+                    [class.border-base-300]="end_time() >= order.deliver_at"
                 >
                     <div class="flex items-center space-x-2 p-4">
                         <div class="flex-1">
@@ -49,18 +51,18 @@ const EMPTY_FAVS = [];
                                             | translate
                                                 : {
                                                       date:
-                                                          order.deliver_at_time
+                                                          order.deliver_at
                                                           | date: 'mediumDate',
                                                       time:
-                                                          order.deliver_at_time
+                                                          order.deliver_at
                                                           | date: time_format,
                                                   }
                                     }}
                                 </div>
-                                @if (end_time < order.deliver_at) {
+                                @if (end_time() < order.deliver_at) {
                                     <div
                                         class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
-                                        [matTooltip]="err_tooltip"
+                                        [matTooltip]="err_tooltip()"
                                     >
                                         <icon>priority_high</icon>
                                     </div>
@@ -79,7 +81,7 @@ const EMPTY_FAVS = [];
                                 }}
                             </div>
                         </div>
-                        @if (!disabled) {
+                        @if (!disabled()) {
                             <button
                                 icon
                                 matRipple
@@ -92,7 +94,7 @@ const EMPTY_FAVS = [];
                                 <icon>content_copy</icon>
                             </button>
                         }
-                        @if (!disabled) {
+                        @if (!disabled()) {
                             <button
                                 icon
                                 matRipple
@@ -105,7 +107,7 @@ const EMPTY_FAVS = [];
                                 <icon>edit</icon>
                             </button>
                         }
-                        @if (!disabled) {
+                        @if (!disabled()) {
                             <button
                                 icon
                                 matRipple
@@ -120,18 +122,16 @@ const EMPTY_FAVS = [];
                             icon
                             matRipple
                             [matTooltip]="
-                                (show_order[order.id]
+                                (show_order()[order.id]
                                     ? 'CALENDAR_EVENT.CATERING_ORDER_HIDE'
                                     : 'CALENDAR_EVENT.CATERING_ORDER_SHOW'
                                 ) | translate
                             "
-                            (click)="
-                                show_order[order.id] = !show_order[order.id]
-                            "
+                            (click)="toggleOrder(order.id)"
                         >
                             <icon>
                                 {{
-                                    show_order[order.id]
+                                    show_order()[order.id]
                                         ? 'expand_less'
                                         : 'expand_more'
                                 }}
@@ -140,7 +140,7 @@ const EMPTY_FAVS = [];
                     </div>
                     <div
                         class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                        [@show]="show_order[order.id] ? 'show' : 'hide'"
+                        [@show]="show_order()[order.id] ? 'show' : 'hide'"
                     >
                         @for (item of order.items; track item.custom_id) {
                             <div
@@ -181,7 +181,7 @@ const EMPTY_FAVS = [];
                                     }}
                                     ea
                                 </div>
-                                @if (!disabled) {
+                                @if (!disabled()) {
                                     <button
                                         icon
                                         matRipple
@@ -227,7 +227,7 @@ const EMPTY_FAVS = [];
             matRipple
             name="add-catering-item"
             class="inverse mt-2 w-full"
-            [disabled]="disabled"
+            [disabled]="disabled()"
             (click)="editOrder()"
         >
             <div class="flex items-center justify-center space-x-2">
@@ -270,10 +270,16 @@ export class CateringListFieldComponent
         all_day?: boolean;
         zone_id?: string;
     }>({});
-    public orders: CateringOrder[] = [];
-    public show_order: Record<string, boolean> = {};
-    public disabled = false;
-    public err_tooltip = '';
+    public readonly orders = signal<CateringOrder[]>([]);
+    public readonly show_order = signal<Record<string, boolean>>({});
+    public readonly disabled = signal(false);
+    public readonly err_tooltip = signal('');
+    public readonly end_time = computed(() => {
+        const time =
+            (this.options().date || Date.now()) +
+            (this.options().duration || 30) * 60 * 1000;
+        return this.options().all_day ? endOfDay(time).valueOf() : time;
+    });
 
     private _onChange: (_: CateringOrder[]) => void;
     private _onTouch: (_: CateringOrder[]) => void;
@@ -285,23 +291,16 @@ export class CateringListFieldComponent
         );
     }
 
-    public get end_time() {
-        const time =
-            (this.options().date || Date.now()) +
-            (this.options().duration || 30) * 60 * 1000;
-        return this.options().all_day ? endOfDay(time).valueOf() : time;
-    }
-
     public get time_format() {
         return this._settings.time_format || 'shortTime';
     }
 
     public get currency_code() {
-        return this._org.building?.currency || 'USD';
+        return this._org.currency_code;
     }
 
     public ngOnInit() {
-        this.err_tooltip = i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR');
+        this.err_tooltip.set(i18n('CALENDAR_EVENT.CATERING_ORDER_ERROR'));
     }
 
     /**
@@ -309,16 +308,20 @@ export class CateringListFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: CateringOrder[]) {
-        this.orders = new_value;
-        if (this._onChange) this._onChange(this.orders);
+        const orders = [...(new_value || [])];
+        this.orders.set(orders);
+        this.syncExpandedOrders(orders);
+        if (this._onChange) this._onChange(orders);
+        if (this._onTouch) this._onTouch(orders);
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
-            this.orders = (this.orders || []).map(
+            const orders = this.orders().map(
                 (_) =>
                     new CateringOrder({ ..._, event: this.options() as any }),
             );
+            this.orders.set(orders);
         }
     }
 
@@ -327,19 +330,21 @@ export class CateringListFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: CateringOrder[]) {
-        this.orders = (value || []).map(
+        const orders = (value || []).map(
             (_) => new CateringOrder({ ..._, event: this.options() as any }),
         );
+        this.orders.set(orders);
+        this.syncExpandedOrders(orders);
     }
 
     public readonly registerOnChange = (fn: (_: CateringOrder[]) => void) =>
         (this._onChange = fn);
     public readonly registerOnTouched = (fn: (_: CateringOrder[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public removeOrder(order: CateringOrder) {
-        const updated_list = this.orders.filter((_) => _.id !== order.id);
+        const updated_list = this.orders().filter((_) => _.id !== order.id);
         this.setValue(updated_list);
     }
 
@@ -348,7 +353,7 @@ export class CateringListFieldComponent
             ...order,
             id: `order-${randomString(8)}`,
         });
-        this.setValue([...this.orders, new_order]);
+        this.setValue([...this.orders(), new_order]);
     }
 
     public removeOrderItem(order: CateringOrder, item: CateringItem) {
@@ -356,7 +361,7 @@ export class CateringListFieldComponent
             ...order,
             items: order.items.filter((_) => _.custom_id !== item.custom_id),
         });
-        const updated_list = this.orders.filter((_) => _.id !== order.id);
+        const updated_list = this.orders().filter((_) => _.id !== order.id);
         if (new_order.items.length > 0) {
             this.setValue([...updated_list, new_order]);
         } else this.setValue(updated_list);
@@ -384,8 +389,12 @@ export class CateringListFieldComponent
             },
         });
         ref.afterClosed().subscribe((items?: CateringItem[]) => {
-            const orders = this.orders.filter((_) => _.id !== order.id);
-            if (!items?.length) return;
+            const orders = this.orders().filter((_) => _.id !== order.id);
+            if (!items) return;
+            if (!items.length) {
+                this.setValue(orders);
+                return;
+            }
             const time = new Date(this.options().date);
             for (const item of items) {
                 (item as any).options = [
@@ -409,9 +418,19 @@ export class CateringListFieldComponent
                     : null,
                 deliver_day_offset: ref.componentInstance.offset_day || 0,
             });
-            if (new_order.item_count <= 0) return;
+            if (new_order.item_count <= 0) {
+                this.setValue(orders);
+                return;
+            }
             this.setValue([...orders, new_order]);
         });
+    }
+
+    public toggleOrder(order_id: string) {
+        this.show_order.update((state) => ({
+            ...state,
+            [order_id]: !state[order_id],
+        }));
     }
 
     public optionList(item: CateringItem) {
@@ -432,5 +451,14 @@ export class CateringListFieldComponent
                 fav_list.filter((_) => _ !== cateringitem.id),
             );
         }
+    }
+
+    private syncExpandedOrders(orders: CateringOrder[]) {
+        const order_ids = new Set(orders.map((_) => _.id));
+        this.show_order.update((state) =>
+            Object.fromEntries(
+                Object.entries(state).filter(([id]) => order_ids.has(id)),
+            ),
+        );
     }
 }

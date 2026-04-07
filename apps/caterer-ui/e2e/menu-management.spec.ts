@@ -81,7 +81,9 @@ test.describe('US-MENU-002: View Menu Item Details', () => {
 });
 
 test.describe('US-MENU-003: View Item Availability by Zone', () => {
-    test('should display menu table with availability controls', async ({ page }) => {
+    test('should display menu table with availability controls', async ({
+        page,
+    }) => {
         await page.goto(MENU_URL);
         await page.locator('catering-menu').waitFor({ timeout: LOAD_TIMEOUT });
 
@@ -97,19 +99,27 @@ test.describe('US-MENU-003: View Item Availability by Zone', () => {
 test.describe('US-MENU-004: Add New Menu Item', () => {
     test('should display add menu item button', async ({ page }) => {
         await page.goto(MENU_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show add button with tooltip
-        const add_button = page.locator('button').filter({ has: page.locator('icon:has-text("add")') });
+        const add_button = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("add")') });
         await expect(add_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
     test('should open modal when add button clicked', async ({ page }) => {
         await page.goto(MENU_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Click add button
-        const add_button = page.locator('button').filter({ has: page.locator('icon:has-text("add")') });
+        const add_button = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("add")') });
         await add_button.click();
 
         // Should open dialog
@@ -119,10 +129,14 @@ test.describe('US-MENU-004: Add New Menu Item', () => {
 
     test('should show form fields in add item modal', async ({ page }) => {
         await page.goto(MENU_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Click add button
-        const add_button = page.locator('button').filter({ has: page.locator('icon:has-text("add")') });
+        const add_button = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("add")') });
         await add_button.click();
 
         // Should show dialog
@@ -194,11 +208,15 @@ test.describe('US-MENU-009: Delete Menu Item', () => {
         await page.waitForTimeout(2000);
 
         // Click first actions button
-        const action_buttons = page.locator('button').filter({ has: page.locator('icon:has-text("more_vert")') });
+        const action_buttons = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("more_vert")') });
         await action_buttons.first().click();
 
         // Should show delete option with delete icon
-        const delete_option = page.locator('[mat-menu-item]').filter({ has: page.locator('icon:has-text("delete")') });
+        const delete_option = page
+            .locator('[mat-menu-item]')
+            .filter({ has: page.locator('icon:has-text("delete")') });
         await expect(delete_option).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
@@ -212,11 +230,15 @@ test.describe('US-MENU-010: Add Option Group to Menu Item', () => {
         await page.waitForTimeout(2000);
 
         // Click first actions button
-        const action_buttons = page.locator('button').filter({ has: page.locator('icon:has-text("more_vert")') });
+        const action_buttons = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("more_vert")') });
         await action_buttons.first().click();
 
         // Should show add option
-        const add_option = page.locator('[mat-menu-item]').filter({ has: page.locator('icon:has-text("add")') });
+        const add_option = page
+            .locator('[mat-menu-item]')
+            .filter({ has: page.locator('icon:has-text("add")') });
         await expect(add_option).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
@@ -234,7 +256,9 @@ test.describe('US-MENU-011 to US-MENU-014: Item Options Management', () => {
         await expect(table).toBeVisible();
     });
 
-    test('should display menu items with expandable structure', async ({ page }) => {
+    test('should display menu items with expandable structure', async ({
+        page,
+    }) => {
         await page.goto(MENU_URL);
         await page.locator('catering-menu').waitFor({ timeout: LOAD_TIMEOUT });
 
@@ -250,19 +274,27 @@ test.describe('US-MENU-011 to US-MENU-014: Item Options Management', () => {
 test.describe('US-MENU-015: Import Menu from File', () => {
     test('should display import menu button', async ({ page }) => {
         await page.goto(MENU_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should show import button with cloud_upload icon
-        const import_button = page.locator('button').filter({ has: page.locator('icon:has-text("cloud_upload")') });
+        const import_button = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("cloud_upload")') });
         await expect(import_button).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
     test('should open import modal when button clicked', async ({ page }) => {
         await page.goto(MENU_URL);
-        await page.locator('catering-topbar').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('catering-topbar')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Click import button
-        const import_button = page.locator('button').filter({ has: page.locator('icon:has-text("cloud_upload")') });
+        const import_button = page
+            .locator('button')
+            .filter({ has: page.locator('icon:has-text("cloud_upload")') });
         await import_button.click();
 
         // Should open dialog

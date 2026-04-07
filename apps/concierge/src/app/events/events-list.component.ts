@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, nextValueFrom, SettingsService } from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     addDays,
@@ -17,7 +18,7 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
@@ -46,7 +47,7 @@ import { EventStateService } from './event-state.service';
                     btn
                     matRipple
                     class="rounded-3xl"
-                    [class.inverse]="view !== 'list'"
+                    [class.inverse]="view() !== 'list'"
                     (click)="setView('list')"
                 >
                     <div class="flex items-center space-x-2">
@@ -58,7 +59,7 @@ import { EventStateService } from './event-state.service';
                     btn
                     matRipple
                     class="rounded-3xl"
-                    [class.inverse]="view !== 'calendar'"
+                    [class.inverse]="view() !== 'calendar'"
                     (click)="setView('calendar')"
                 >
                     <div class="flex items-center space-x-2">
@@ -73,7 +74,7 @@ import { EventStateService } from './event-state.service';
                 </div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
-                        [ngModel]="period | async"
+                        [ngModel]="period()"
                         (ngModelChange)="setPeriodType($event)"
                     >
                         <mat-option value="week">{{
@@ -86,10 +87,10 @@ import { EventStateService } from './event-state.service';
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript w-64">
                     <mat-select
-                        [(ngModel)]="selected_range"
+                        [ngModel]="selected_range()"
                         (ngModelChange)="setPeriod($event)"
                     >
-                        @for (range of period_list; track range.id) {
+                        @for (range of period_list(); track range.id) {
                             <mat-option [value]="range.id">
                                 {{ range.display }}
                             </mat-option>
@@ -98,12 +99,12 @@ import { EventStateService } from './event-state.service';
                 </mat-form-field>
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
-                @if (view === 'list') {
+                @if (view() === 'list') {
                     <div class="min-h-full w-full overflow-x-auto">
                         <event-listing class="block"></event-listing>
                     </div>
                 }
-                @if (view === 'calendar') {
+                @if (view() === 'calendar') {
                     <event-calendar></event-calendar>
                 }
             </div>
@@ -143,14 +144,14 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public readonly period = this._state.options.pipe(
-        map((_) => _.period),
-        distinctUntilChanged(),
+    public readonly period = toSignal(
+        this._state.options.pipe(map((_) => _.period)),
+        { initialValue: this._state.period },
     );
 
-    public view: 'list' | 'calendar' = 'list';
-    public period_list = [];
-    public selected_range: number;
+    public readonly view = signal<'list' | 'calendar'>('list');
+    public readonly period_list = signal<any[]>([]);
+    public readonly selected_range = signal<number>(undefined);
 
     public get has_calendar() {
         return this._settings.get('app.group_events_calendar');
@@ -160,7 +161,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.subscription('poll_events', this._state.startPolling());
         this.subscription(
             'period',
-            this.period.subscribe(() => {
+            this._state.options.pipe(map((_) => _.period)).subscribe(() => {
                 this._generatePeriods();
                 this._initPeriod();
             }),
@@ -171,7 +172,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((q) => {
                 if (q.has('view')) {
-                    this.view = q.get('view') as 'list' | 'calendar';
+                    this.view.set(q.get('view') as 'list' | 'calendar');
                 }
                 if (q.has('period') && q.get('period') !== this._state.period) {
                     this.setPeriodType(
@@ -184,22 +185,22 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 if (q.has('range')) {
                     this.timeout('update', () => {
                         const id = parseInt(q.get('range'), 10);
-                        const item = this.period_list.find(
+                        const item = this.period_list().find(
                             (_) => id >= _.start && id < _.end,
                         ) ||
-                            this.period_list[0] || {
+                            this.period_list()[0] || {
                                 start: id,
                                 end:
                                     this._state.period === 'week'
                                         ? addWeeks(id, 1).valueOf()
                                         : addMonths(id, 1).valueOf(),
                             };
-                        this.selected_range = item.id || id;
+                        this.selected_range.set(item.id || id);
                         this._state.setOptions({
                             date: item.start,
                             end: item.end,
                         });
-                        this.setPeriod(this.selected_range);
+                        this.setPeriod(this.selected_range());
                     });
                 }
             }),
@@ -207,7 +208,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     }
 
     public setView(view: 'list' | 'calendar') {
-        this.view = view;
+        this.view.set(view);
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { view: view },
@@ -229,10 +230,10 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     public setPeriod(id: number) {
         this.timeout('set_period', () => {
             const item =
-                this.period_list.find((_) => id >= _.start && id < _.end) ||
-                this.period_list[0];
+                this.period_list().find((_) => id >= _.start && id < _.end) ||
+                this.period_list()[0];
             if (!item) return;
-            this.selected_range = item.id;
+            this.selected_range.set(item.id);
             const { start, end } = item;
             this._state.setOptions({ date: start, end });
             this._router.navigate([], {
@@ -246,7 +247,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _generatePeriods() {
         this.timeout('generate_periods', async () => {
             const periods = [];
-            const period_type = await nextValueFrom(this.period);
+            const period_type = this.period();
             let date = subMonths(Date.now(), 6).valueOf();
             const end_date = addMonths(Date.now(), 6).valueOf();
             const week_offset = this._settings.get('app.week_start') || 0;
@@ -281,7 +282,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                     date = addMonths(date, 1).valueOf();
                 } else break;
             }
-            this.period_list = periods;
+            this.period_list.set(periods);
         });
     }
 
@@ -289,13 +290,13 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'update',
             () => {
-                if (this.period_list.length) {
-                    let index = this.period_list.findIndex(
+                if (this.period_list().length) {
+                    let index = this.period_list().findIndex(
                         (_) => _.start <= Date.now() && _.end >= Date.now(),
                     );
                     if (index < 0) index = 0;
-                    this.setPeriod(this.period_list[index].id);
-                    this.selected_range = this.period_list[index].id;
+                    this.setPeriod(this.period_list()[index].id);
+                    this.selected_range.set(this.period_list()[index].id);
                 }
             },
             350,

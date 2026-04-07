@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { IconComponent } from '@placeos/components';
 
 @Component({
@@ -17,7 +17,7 @@ import { IconComponent } from '@placeos/components';
                 </div>
                 <div class="text-bold p-4">{{ '24' }}</div>
             </div>
-            <div class="text-bold mr-4 text-right">Total: {{ total || 0 }}</div>
+            <div class="text-bold mr-4 text-right">Total: {{ total() }}</div>
         </div>
         <div class="bg-base-100 w-full rounded-sm p-6 shadow-xs">
             <h3 class="mt-0 mb-2">Mood</h3>
@@ -35,7 +35,7 @@ import { IconComponent } from '@placeos/components';
                 <div class="text-bold px-4 text-sm">4/5 Satisfied</div>
             </div>
             <h4>Feedback:</h4>
-            <p>{{ feedback }}</p>
+            <p>{{ feedback() }}</p>
         </div>
     `,
     styles: [
@@ -65,6 +65,6 @@ import { IconComponent } from '@placeos/components';
     imports: [IconComponent],
 })
 export class FacilitiesStatusComponent {
-    public feedback: string;
-    public total: number;
+    public readonly feedback = signal('');
+    public readonly total = signal(0);
 }

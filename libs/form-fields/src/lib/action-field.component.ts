@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 @Component({
@@ -22,7 +22,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <ng-content></ng-content>
             </div>
             <icon class="text-xl" (click)="performAction()">
-                arrow_drop_{{ show_tooltip ? 'up' : 'down' }}
+                arrow_drop_{{ show_tooltip() ? 'up' : 'down' }}
             </icon>
         </button>
     `,
@@ -43,13 +43,13 @@ export class ActionFieldComponent {
     /** Emitter for user interaction events */
     public readonly on_action = output({ alias: 'onAction' });
     /** Whether to show tooltip */
-    public show_tooltip = false;
+    public readonly show_tooltip = signal(false);
 
     /**
      * Emit that the user has performed an action on the field
      */
     public performAction() {
-        this.show_tooltip = !this.show_tooltip;
+        this.show_tooltip.update((state) => !state);
         this.on_action.emit();
     }
 }

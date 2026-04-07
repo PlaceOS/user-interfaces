@@ -6,6 +6,7 @@ import {
     currentUser,
     flatten,
     OrganisationService,
+    setupFormTimeSync,
 } from '@placeos/common';
 import {
     createViewer,
@@ -14,11 +15,6 @@ import {
     removeViewer,
 } from '@placeos/svg-viewer';
 import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
-import {
-    addMinutes,
-    differenceInMinutes,
-    roundToNearestMinutes,
-} from 'date-fns';
 import { endInFuture } from 'libs/events/src/lib/validators';
 import { combineLatest, forkJoin, Observable, of } from 'rxjs';
 import {
@@ -36,6 +32,7 @@ function setBookingAsset(form: FormGroup, resource: any) {
         {
             asset_id: resource.id,
             asset_name: resource.name,
+            name: resource.display_name || resource.name || resource.id,
             map_id: resource.map_id || resource.id,
             description: resource.name,
             zones: resource.zone
@@ -48,6 +45,10 @@ function setBookingAsset(form: FormGroup, resource: any) {
 }
 
 export function generateBookingForm(booking: Booking = new Booking()) {
+    const visitor_name =
+        booking.booking_type === 'visitor'
+            ? booking.extension_data?.visitor_name || booking.asset_name || ''
+            : booking.asset_name || booking.description;
     const form = new FormGroup({
         id: new FormControl(booking.id || ''),
         parent_id: new FormControl(booking.parent_id || ''),
@@ -66,9 +67,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         description: new FormControl(booking.description),
         booking_asset: new FormControl(null),
         resources: new FormControl([]),
-        company: new FormControl(''),
+        company: new FormControl(booking.extension_data?.company || ''),
         asset_id: new FormControl(booking.asset_id, [Validators.required]),
-        asset_name: new FormControl(booking.description),
+        asset_name: new FormControl(visitor_name),
         assets: new FormControl(booking.extension_data?.assets || []),
         attendees: new FormControl(booking.attendees || []),
         map_id: new FormControl(booking.extension_data?.map_id),
@@ -97,7 +98,25 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         plate_number: new FormControl(
             booking.extension_data.plate_number || '',
         ),
+        vehicle_type: new FormControl(
+            booking.extension_data.vehicle_type || 'car',
+        ),
+        request_type: new FormControl(
+            booking.extension_data.request_type || 'standard',
+        ),
+        space_restrictions: new FormControl(
+            booking.extension_data.space_restrictions ?? false,
+        ),
+        approver_group: new FormControl(
+            booking.extension_data.approver_group || '',
+        ),
+        prefer_booked_location_first: new FormControl(
+            booking.extension_data.prefer_booked_location_first ?? false,
+        ),
         pass_number: new FormControl(booking.extension_data.pass_number || ''),
+        international: new FormControl(
+            booking.extension_data.international ?? false,
+        ),
         recurrence_custom: new FormControl(
             booking.extension_data.recurrence_custom ?? false,
         ),
@@ -108,6 +127,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         ),
         recurrence_interval: new FormControl(booking.recurrence_interval),
         recurrence_end: new FormControl(booking.recurrence_end),
+        recurrence_instances: new FormControl(
+            booking.extension_data.recurrence_instances,
+        ),
         notes: new FormControl(booking.extension_data.notes || ''),
         update_master: new FormControl(false),
         self_registered: new FormControl(false),
@@ -139,7 +161,6 @@ export function generateBookingForm(booking: Booking = new Booking()) {
                 booked_by: user,
                 booked_by_id: user?.id,
                 booked_by_email: user?.email,
-                name: user?.name,
             },
             { emitEvent: false },
         );
@@ -147,63 +168,7 @@ export function generateBookingForm(booking: Booking = new Booking()) {
     form.controls.resources.valueChanges.subscribe((resources) =>
         setBookingAsset(form, (resources || [])[0]),
     );
-    form.controls.duration.valueChanges.subscribe((duration) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-    });
-    form.controls.date_end.valueChanges.subscribe((date) => {
-        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
-            form.patchValue(
-                {
-                    date_end: roundToNearestMinutes(
-                        addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' },
-                    ).valueOf(),
-                    duration: 30,
-                },
-                { emitEvent: false },
-            );
-        } else {
-            form.patchValue(
-                {
-                    duration: differenceInMinutes(
-                        date,
-                        form.getRawValue().date,
-                    ),
-                },
-                { emitEvent: false },
-            );
-        }
-    });
-    form.controls.date.valueChanges.subscribe((date) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        if (date < Date.now() && !form.value.id) {
-            form.patchValue(
-                {
-                    date: roundToNearestMinutes(Date.now(), {
-                        nearestTo: 5,
-                        roundingMethod: 'ceil',
-                    }).valueOf(),
-                },
-                { emitEvent: false },
-            );
-        }
-    });
+    (form as any)._time_sync = setupFormTimeSync(form);
     if (booking.state === 'started') form.get('date').disable();
     return form;
 }

@@ -20,9 +20,11 @@ export * from './lib/map-pin.component';
 export * from './lib/map-radius.component';
 export * from './lib/maps-indoors.component';
 export * from './lib/misconfigured.component';
+export * from './lib/plugin-embed.component';
 export * from './lib/popout-menu.component';
 export * from './lib/printable.component';
 export * from './lib/redirect.component';
+export * from './lib/schema-form.component';
 export * from './lib/settings-toggle.component';
 export * from './lib/simple-table.component';
 export * from './lib/status-overlay.component';
@@ -30,8 +32,8 @@ export * from './lib/survey-outlet.component';
 export * from './lib/translate.pipe';
 export * from './lib/unauthorised.component';
 export * from './lib/user-avatar.component';
-export * from './lib/user-controls.component';
 export * from './lib/user-controls-sidebar.component';
+export * from './lib/user-controls.component';
 export * from './lib/virtual-keyboard.component';
 
 export * from './lib/chat/chat.service';
@@ -49,4 +51,5 @@ export * from './lib/authorised-admin.guard';
 export * from './lib/authorised-user.guard';
 
 export * from './lib/binding.directive';
+export * from './lib/native-domain-overlay.component';
 export * from './lib/viewport-visibility.component';

@@ -1,20 +1,15 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    BOOTSTRAP_URL,
-    SIGNAGE_URL,
-    UNAUTHORISED_URL,
+    LOAD_TIMEOUT,
     MOCK_SYSTEM_ID,
-    MOCK_BUILDING_ID,
-    STORE_DISPLAY_KEY,
     STORE_BUILDING_KEY,
-    navigateWithMock,
-    navigateWithConfig,
-    waitForSignagePage,
-    waitForMediaPlayer,
-    waitForBootstrapPage,
+    STORE_DISPLAY_KEY,
+    UNAUTHORISED_URL,
     clearLocalStorage,
+    navigateWithConfig,
+    navigateWithMock,
+    waitForMediaPlayer,
 } from './test-utils';
 
 /**
@@ -26,7 +21,10 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
     test('should continue playback when media fails to load', async ({
         page,
     }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         // Wait for potential media loading
@@ -40,7 +38,10 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
     test('should show error indicator for failed media in debug mode', async ({
         page,
     }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         // Check for error indicators in playlist
@@ -49,7 +50,7 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
 
         if (playlist_visible) {
             const error_icons = page.locator(
-                'playlist-display icon:has-text("error"), playlist-display icon:has-text("warning"), playlist-display [error]'
+                'playlist-display icon:has-text("error"), playlist-display icon:has-text("warning"), playlist-display [error]',
             );
             const error_count = await error_icons.count();
 
@@ -61,11 +62,14 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
     });
 
     test('should skip failed items and continue to next', async ({ page }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         const skip_next = page.locator(
-            'media-controls button:has(icon:has-text("skip_next"))'
+            'media-controls button:has(icon:has-text("skip_next"))',
         );
         const is_visible = await skip_next.isVisible().catch(() => false);
 
@@ -85,7 +89,10 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
     });
 
     test('should retry failed media URLs', async ({ page }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         // Wait for potential retry cycles (5 second intervals)
@@ -99,7 +106,10 @@ test.describe('US-SIG-027: Handle Missing Media', () => {
     test('should maintain playback with mixed valid/invalid items', async ({
         page,
     }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         // Wait for media cycling
@@ -142,7 +152,7 @@ test.describe('US-SIG-028: Redirect Unauthorized Users', () => {
 
         // Look for error messaging
         const error_content = page.locator(
-            'h1, h2, p:has-text("unauthorized"), p:has-text("access"), p:has-text("permission")'
+            'h1, h2, p:has-text("unauthorized"), p:has-text("access"), p:has-text("permission")',
         );
         const has_message = await error_content
             .first()
@@ -160,7 +170,7 @@ test.describe('US-SIG-028: Redirect Unauthorized Users', () => {
 
         // Look for a link back to bootstrap or retry
         const back_link = page.locator(
-            'a[href*="bootstrap"], button:has-text("Retry"), button:has-text("Back")'
+            'a[href*="bootstrap"], button:has-text("Retry"), button:has-text("Back")',
         );
         const has_link = await back_link.isVisible().catch(() => false);
 
@@ -214,7 +224,10 @@ test.describe('US-SIG-029: Auto-Redirect Uninitialized Displays', () => {
                 localStorage.removeItem(building_key);
                 localStorage.removeItem(display_key);
             },
-            { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+            {
+                display_key: STORE_DISPLAY_KEY,
+                building_key: STORE_BUILDING_KEY,
+            },
         );
 
         // Navigate to signage root
@@ -269,7 +282,10 @@ test.describe('US-SIG-029: Auto-Redirect Uninitialized Displays', () => {
 
 test.describe('Error Recovery', () => {
     test('should recover from network errors', async ({ page }) => {
-        await navigateWithConfig(page, `/#/signage/${MOCK_SYSTEM_ID}?debug=true`);
+        await navigateWithConfig(
+            page,
+            `/#/signage/${MOCK_SYSTEM_ID}?debug=true`,
+        );
         await waitForMediaPlayer(page);
 
         // Simulate offline then online
@@ -291,7 +307,10 @@ test.describe('Error Recovery', () => {
                 localStorage.setItem(building_key, 'bld-01');
                 localStorage.setItem(display_key, 'sys-signage-01');
             },
-            { display_key: STORE_DISPLAY_KEY, building_key: STORE_BUILDING_KEY }
+            {
+                display_key: STORE_DISPLAY_KEY,
+                building_key: STORE_BUILDING_KEY,
+            },
         );
 
         // Rapidly navigate between pages
@@ -318,7 +337,7 @@ test.describe('Error Recovery', () => {
         // Should still have configuration
         const building_id = await page.evaluate(
             ({ key }) => localStorage.getItem(key),
-            { key: STORE_BUILDING_KEY }
+            { key: STORE_BUILDING_KEY },
         );
 
         expect(building_id).toBeTruthy();
@@ -331,7 +350,9 @@ test.describe('Accessibility Error States', () => {
 
         // Check for ARIA attributes on error content
         const has_aria = await page.evaluate(() => {
-            const elements = document.querySelectorAll('[role="alert"], [aria-live], [aria-describedby]');
+            const elements = document.querySelectorAll(
+                '[role="alert"], [aria-live], [aria-describedby]',
+            );
             return elements.length > 0;
         });
 

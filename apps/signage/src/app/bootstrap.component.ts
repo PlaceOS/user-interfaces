@@ -6,17 +6,13 @@ import {
     firstTruthyValueFrom,
     i18n,
     Identity,
+    log,
     OrganisationService,
+    VERSION,
 } from '@placeos/common';
 import { PlaceSystem, querySystems } from '@placeos/ts-client';
 import { of } from 'rxjs';
-import {
-    catchError,
-    filter,
-    map,
-    shareReplay,
-    switchMap,
-} from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -33,7 +29,7 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="bg-base-300 absolute inset-0">
+        <div class="bg-base-200 absolute inset-0">
             <div
                 form
                 class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
@@ -45,23 +41,6 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                 </header>
                 @if (!loading()) {
                     <main class="px-4 py-2">
-                        <!-- <label for="building">{{'APP.SIGNAGE.BOOTSTRAP_BUILDING' | translate}}</label>
-                            <mat-form-field appearance="outline">
-                            <mat-select
-                                #select
-                                name="building"
-                                [ngModel]="(active_building | async)?.id"
-                                (ngModelChange)="setBuilding($event)"
-                                [placeholder]="'APP.SIGNAGE.BOOTSTRAP_BUILDING_SELECT' | translate"
-                                >
-                                <mat-option
-                                *ngFor="let option of buildings | async"
-                                [value]="option.id"
-                                >
-                                {{ option.name }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field> -->
                         <label for="display">
                             {{ 'APP.SIGNAGE.BOOTSTRAP_DISPLAY' | translate }}
                         </label>
@@ -110,8 +89,8 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                             btn
                             matRipple
                             class="mb-2 w-full"
-                            [disabled]="!active_building || !active_display"
-                            (click)="bootstrapKiosk()"
+                            [disabled]="!active_display"
+                            (click)="bootstrapPanel()"
                         >
                             {{ 'COMMON.BOOTSTRAP_SUBMIT' | translate }}
                         </button>
@@ -122,6 +101,16 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                         <p>{{ loading() }}</p>
                     </div>
                 }
+            </div>
+            <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
+                <div class="text-xs opacity-40">
+                    {{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                    {{ version.hash }}
+                </div>
+                <div class="text-xs opacity-40">
+                    {{ version.time | date: 'longDate' }}
+                    ({{ version.time | date: 'shortTime' }})
+                </div>
             </div>
         </div>
     `,
@@ -151,10 +140,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
 
+    public get version() {
+        return VERSION;
+    }
+
     /** Loading state of the bootstrap */
     public readonly loading = signal('');
-    /** Actively selected building */
-    public readonly active_building = this._org.active_building;
     /** Actively selected display */
     public active_display: any;
 
@@ -162,9 +153,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
 
     public readonly buildings = this._org.building_list;
 
-    public readonly displays = this.active_building.pipe(
-        filter((_) => !!_),
-        switchMap((_) =>
+    public readonly displays = this._org.initialised.pipe(
+        first((_) => !!_),
+        switchMap(() =>
             querySystems({
                 zone_id: this._org.organisation?.id,
                 limit: 500,
@@ -191,44 +182,45 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        await firstTruthyValueFrom(this._org.initialised);
+        this._org.limit_init = true;
+        log('BOOTSTRAP', 'Initialising...');
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('clear') && params.get('clear') === 'true') {
+                    log('BOOTSTRAP', 'Bootstrapped data clear');
                     localStorage.removeItem(STORE_DISPLAY_KEY);
                     localStorage.removeItem(STORE_BUILDING_KEY);
                 }
-                if (params.has('building')) {
-                    this.setBuilding(params.get('building'));
-                }
                 if (params.has('display')) {
                     this.active_display = params.get('display');
-                    this.bootstrapKiosk();
+                    log('BOOTSTRAP', 'Bootstrapped data for display set');
+                    this.bootstrapPanel();
                 }
             }),
         );
+        await firstTruthyValueFrom(this._org.initialised);
         this.timeout('check', () => this.checkBootstrap(), 1000);
-    }
-
-    public setBuilding(bld_id: string) {
-        const bld = this._org.buildings.find(({ id }) => id === bld_id);
-        if (!bld) return;
-        this._org.building = bld;
     }
 
     /**
      * Store bootstrapped values and navigate to the main page
      */
-    public async bootstrapKiosk() {
+    public async bootstrapPanel() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING'));
-        const bld = await firstTruthyValueFrom(this.active_building);
-        if (!bld?.id || !this.active_display || !localStorage) {
+        if (!this.active_display || !localStorage) {
+            log(
+                'BOOTSTRAP',
+                `Unable to bootstrap panel. Reason: ${!this.active_display ? 'No display ID set' : 'Local Storage unavailable'}`,
+            );
             this.loading.set('');
             return;
         }
-        localStorage.setItem(STORE_BUILDING_KEY, bld.id);
         localStorage.setItem(STORE_DISPLAY_KEY, this.active_display);
+        log(
+            'BOOTSTRAP',
+            `Bootstrapped panel to display ${this.active_display}`,
+        );
         this._router.navigate(['/signage', this.active_display]);
         this.loading.set('');
     }
@@ -238,14 +230,17 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
      */
     private checkBootstrap() {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK'));
-        const bld_id = localStorage?.getItem(STORE_BUILDING_KEY);
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
-
-        if (bld_id && display_id) {
+        if (display_id) {
+            log(
+                'BOOTSTRAP',
+                `Application already bootstrapped to display ${display_id}`,
+            );
             this._router.navigate(['/signage', display_id]);
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';
+        log('BOOTSTRAP', `No bootstrap details found for system`);
         this.loading.set('');
     }
 }

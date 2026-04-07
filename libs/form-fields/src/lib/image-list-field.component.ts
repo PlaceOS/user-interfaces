@@ -3,9 +3,12 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     AfterViewInit,
     Component,
+    computed,
+    effect,
     ElementRef,
     forwardRef,
     inject,
+    Injector,
     signal,
     viewChild,
 } from '@angular/core';
@@ -13,10 +16,6 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { Upload } from '@placeos/cloud-uploads';
 
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -61,12 +60,12 @@ export interface UploadDetails {
             images
             #image_list
             class="relative mb-2 flex w-full items-center space-x-2 overflow-hidden py-2"
-            (window:resize)="ngAfterViewInit()"
+            (window:resize)="updateViewSpace()"
         >
             <div
                 image
                 class="border-base-200 hover:border-base-300 hover:bg-base-200 relative flex h-32 w-36 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed"
-                [style.transform]="'translate(-' + offset + '00%)'"
+                [style.transform]="'translate(-' + offset() + '00%)'"
             >
                 <icon class="text-4xl opacity-60">add</icon>
                 <p class="px-4 text-center opacity-60">
@@ -79,11 +78,11 @@ export interface UploadDetails {
                     (change)="uploadImages($event)"
                 />
             </div>
-            @for (url of list; track url; let i = $index) {
+            @for (url of list(); track url; let i = $index) {
                 <div
                     image
                     class="bg-base-200 relative h-32 w-36 shrink-0 overflow-hidden rounded-sm bg-cover bg-center"
-                    [style.transform]="'translate(-' + offset + '00%)'"
+                    [style.transform]="'translate(-' + offset() + '00%)'"
                 >
                     <img
                         auth
@@ -112,11 +111,11 @@ export interface UploadDetails {
                     </div>
                 </div>
             }
-            @for (item of uploads | async; track item; let i = $index) {
+            @for (item of uploads(); track item; let i = $index) {
                 <div
                     upload
                     class="border-base-content/10 /5 bg-base-200 flex h-32 w-36 shrink-0 items-center justify-center rounded-sm border bg-cover bg-center"
-                    [style.transform]="'translate(-' + offset + '00%)'"
+                    [style.transform]="'translate(-' + offset() + '00%)'"
                     [matTooltip]="item.error"
                     (click)="retryUpload(item)"
                 >
@@ -140,24 +139,24 @@ export interface UploadDetails {
                     }
                 </div>
             }
-            @if (length > view_space()) {
+            @if (length() > view_space()) {
                 <button
                     icon
                     matRipple
-                    [disabled]="offset === 0"
+                    [disabled]="offset() === 0"
                     class="bg-base-100 absolute top-1/2 left-0 -translate-y-1/2 transform"
-                    (click)="offset = offset - 1"
+                    (click)="previousOffset()"
                 >
                     <icon>chevron_left</icon>
                 </button>
             }
-            @if (length > view_space()) {
+            @if (length() > view_space()) {
                 <button
                     icon
                     matRipple
-                    [disabled]="offset >= length - view_space()"
+                    [disabled]="offset() >= length() - view_space()"
                     class="bg-base-100 absolute top-1/2 right-0 -translate-y-1/2 transform"
-                    (click)="offset = offset + 1"
+                    (click)="nextOffset()"
                 >
                     <icon>chevron_right</icon>
                 </button>
@@ -165,7 +164,7 @@ export interface UploadDetails {
         </div>
         <mat-form-field appearance="outline" class="w-full">
             <mat-chip-grid #chipList aria-label="Image List">
-                @for (item of list; track item) {
+                @for (item of list(); track item) {
                     <mat-chip-row (removed)="removeImage(item)">
                         <div class="max-w-md truncate">{{ item }}</div>
                         <button
@@ -232,7 +231,6 @@ export interface UploadDetails {
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
-        CommonModule,
         TranslatePipe,
         AuthenticatedImageDirective,
     ],
@@ -244,27 +242,43 @@ export class ImageListFieldComponent
     private _clipboard = inject(Clipboard);
     private _uploads = inject(UploadsService);
     private _dialog = inject(MatDialog);
+    private _injector = inject(Injector);
+    private readonly _upload_completion_effect = effect(
+        () => {
+            const list = this.upload_list();
+            const id_list = this.upload_ids();
+            for (const id of id_list) {
+                const item = list.find((_) => _?.id === id);
+                if (item && item.progress >= 100) {
+                    this.addImageUrl(item.link);
+                    this.upload_ids.set(
+                        this.upload_ids().filter((_) => _ !== id),
+                    );
+                }
+            }
+        },
+        { injector: this._injector },
+    );
 
     /** List of images */
-    public list: string[] = [];
+    public readonly list = signal<string[]>([]);
     /** List of images */
     public upload_map: Record<string, string> = {};
-    public upload_ids = new BehaviorSubject<string[]>([]);
-    private _upload_list = new BehaviorSubject<UploadDetails[]>([]);
-    public readonly upload_list = this._upload_list.asObservable();
-    public offset = 0;
+    public readonly upload_ids = signal<string[]>([]);
+    public readonly upload_list = signal<UploadDetails[]>([]);
+    public readonly offset = signal(0);
 
     public readonly view_space = signal(0);
     public readonly separators = [COMMA, ENTER];
 
-    public readonly uploads = combineLatest([
-        this.upload_list,
-        this.upload_ids,
-    ]).pipe(map(([list, ids]) => list.filter((i) => ids.includes(i?.id))));
+    public readonly uploads = computed(() => {
+        const ids = this.upload_ids();
+        return this.upload_list().filter((item) => ids.includes(item?.id));
+    });
 
-    public get length() {
-        return this.list.length + this._upload_list.getValue().length + 1;
-    }
+    public readonly length = computed(
+        () => this.list().length + this.upload_list().length + 1,
+    );
 
     private readonly _list_el =
         viewChild<ElementRef<HTMLDivElement>>('image_list');
@@ -277,29 +291,19 @@ export class ImageListFieldComponent
     private _onTouch: (_: string[]) => void;
 
     public ngAfterViewInit() {
+        this.updateViewSpace();
+    }
+
+    public updateViewSpace() {
         this.timeout(
             'init_view_space',
             () => {
                 const box =
-                    this._list_el().nativeElement.getBoundingClientRect();
+                    this._list_el()?.nativeElement?.getBoundingClientRect();
+                if (!box) return;
                 this.view_space.set(Math.floor(box.width / 152));
             },
             100,
-        );
-        this.subscription(
-            'upload_changes',
-            this.upload_list.subscribe((list) => {
-                const id_list = this.upload_ids.getValue();
-                for (const id of id_list) {
-                    const item = list.find((_) => _?.id === id);
-                    if (item && item.progress >= 100) {
-                        this.addImageUrl(item.link);
-                        this.upload_ids.next(
-                            this.upload_ids.getValue().filter((_) => _ !== id),
-                        );
-                    }
-                }
-            }),
         );
     }
 
@@ -313,17 +317,17 @@ export class ImageListFieldComponent
     }
 
     public removeImage(url: string) {
-        this.setValue(this.list.filter((_) => _ !== url));
+        this.setValue(this.list().filter((_) => _ !== url));
     }
 
     public addImage(event: MatChipInputEvent) {
         if (!event.value) return;
-        this.setValue(unique([...this.list, event.value]));
+        this.setValue(unique([...this.list(), event.value]));
         event.chipInput.inputElement.value = '';
     }
 
     public addImageUrl(url: string) {
-        this.setValue(unique([...this.list, url]));
+        this.setValue(unique([...this.list(), url]));
     }
 
     public retryUpload(item: UploadDetails) {
@@ -331,6 +335,14 @@ export class ImageListFieldComponent
             item.error = null;
             item.upload.resume();
         }
+    }
+
+    public previousOffset() {
+        this.offset.update((value) => value - 1);
+    }
+
+    public nextOffset() {
+        this.offset.update((value) => value + 1);
     }
 
     public async uploadImages(event) {
@@ -347,7 +359,7 @@ export class ImageListFieldComponent
                     const id = await this._uploads.uploadFileWithPermissions(
                         files[i],
                     );
-                    this.upload_ids.next([...this.upload_ids.getValue(), id]);
+                    this.upload_ids.set([...this.upload_ids(), id]);
                     this._file_input().nativeElement.value = '';
                 }
             }
@@ -355,8 +367,9 @@ export class ImageListFieldComponent
     }
 
     public setValue(value: string[]) {
-        this.list = value;
-        if (this._onChange) this._onChange(value);
+        const list = value || [];
+        this.list.set(list);
+        if (this._onChange) this._onChange(list);
     }
 
     /**
@@ -364,7 +377,7 @@ export class ImageListFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value?: string[]) {
-        this.list = value || [];
+        this.list.set(value || []);
     }
 
     public readonly registerOnChange = (fn: (_: string[]) => void) =>
@@ -373,14 +386,14 @@ export class ImageListFieldComponent
         (this._onTouch = fn);
 
     private async _updateUploadHistory() {
-        const list = this.upload_ids.getValue();
+        const list = this.upload_ids();
         if (list.length === 0) return;
         const global_list = await nextValueFrom(this._uploads.upload_list);
         const new_list = global_list.filter((_) =>
             list.find((i) => i === _?.id),
         );
         const done_list = new_list.filter((file) => file.progress >= 100);
-        this._upload_list.next(new_list);
+        this.upload_list.set(new_list);
         done_list.forEach((i) => {
             console.log('ID:', { ...i });
             this.upload_map[i?.id] = i.upload?.id || i?.id;

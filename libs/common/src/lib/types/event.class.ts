@@ -18,6 +18,7 @@ import {
 } from 'date-fns';
 import { RecurrenceDetails } from '../formatting';
 import { removeEmptyFields, unique } from '../general';
+import { endOfDayInTimezone, startOfDayInTimezone } from '../timezone-helpers';
 import { LinkedBooking } from '../types';
 import { AssetRequest } from './asset-request.class';
 import { CateringOrder } from './catering.class';
@@ -80,6 +81,8 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    /** Whether a custom-period booking should still behave as all day in the UI */
+    custom_all_day?: boolean;
     event_type?: string;
     /** Event category */
     category?: string;
@@ -334,6 +337,9 @@ export class CalendarEvent {
     }
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
+        const custom_all_day = !!(
+            data.extension_data?.custom_all_day || (data as any).custom_all_day
+        );
         this.id = data.event_id || data.id || '';
         this.event_start =
             data.event_start ||
@@ -345,6 +351,7 @@ export class CalendarEvent {
             );
         this.event_end =
             data.event_end ||
+            getUnixTime(data.date_end || 0) ||
             getUnixTime(
                 addMinutes(this.event_start * 1000, data.duration || 30),
             );
@@ -359,14 +366,18 @@ export class CalendarEvent {
             ''
         ).toLowerCase();
         const attendees = data.attendees || [];
+        const system_email = (data.system?.email || '').toLowerCase();
+        const is_system_resource = (user: Partial<User>) =>
+            !!(user as any).resource ||
+            (!!system_email && user.email?.toLowerCase() === system_email);
         this.attendees = attendees
-            .filter((user: any) => !user.resource)
+            .filter((user: any) => !is_system_resource(user))
             .map((u) => new User(u));
         this.resources =
             unique(
                 data.resources ||
                     attendees
-                        .filter((user) => (user as any).resource)
+                        .filter((user) => is_system_resource(user as any))
                         .map((s) => new Space(s as any)),
                 'email',
             ) || [];
@@ -376,21 +387,37 @@ export class CalendarEvent {
             '',
         );
         this.private = !!data.private;
-        this.all_day = !!data.all_day;
+        this.all_day = !!data.all_day || custom_all_day;
+        this.timezone =
+            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.date = this.event_start * 1000 || this.date;
         this.date_end = this.event_end * 1000 || this.date_end;
         this.duration = differenceInMinutes(this.date_end, this.date);
         if (this.all_day) {
-            (this as any).date = startOfDay(this.date).getTime();
-            (this as any).duration = Math.max(24 * 60 - 1, this.duration - 1);
-            (this as any).date_end = endOfDay(
-                addMinutes(this.date, this.duration).valueOf() - 1,
-            ).getTime();
+            if (!data.duration && !data.date_end && !data.event_end) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = 24 * 60 - 1;
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            } else if (this.duration % (24 * 60) === 0) {
+                (this as any).date = startOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+                (this as any).duration = Math.max(1, this.duration - 1);
+                (this as any).date_end = endOfDayInTimezone(
+                    this.date,
+                    this.timezone,
+                );
+            }
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
         const associated_id = matches ? matches[1] : null;
-        this.timezone =
-            data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.meeting_url = data.meeting_url || data.online_meeting_url || '';
         this.meeting_id =
             associated_id || data.meeting_id || data.online_meeting_id || '';
@@ -433,7 +460,9 @@ export class CalendarEvent {
         const system = data.system;
         if (
             system?.email &&
-            !this.resources.find((_) => _.email === system.email)
+            !this.resources.find(
+                (_) => _.email.toLowerCase() === system.email.toLowerCase(),
+            )
         ) {
             this.resources.push(
                 new Space({ ...(system as any), response_status: data.status }),
@@ -551,9 +580,16 @@ export class CalendarEvent {
      */
     public toJSON(): Record<string, any> {
         const obj: Record<string, any> = { ...this };
-        const date = this.all_day ? startOfDay(this.date) : this.date;
-        const end = this.all_day
-            ? endOfDay(this.date_end).valueOf() + 1
+        const is_full_day_period =
+            this.all_day &&
+            this.date === startOfDayInTimezone(this.date, this.timezone) &&
+            this.date_end === endOfDayInTimezone(this.date_end, this.timezone);
+        const is_custom_all_day = this.all_day && !is_full_day_period;
+        const date = is_full_day_period
+            ? startOfDayInTimezone(this.date, this.timezone)
+            : this.date;
+        const end = is_full_day_period
+            ? endOfDayInTimezone(this.date_end, this.timezone) + 1
             : this.date_end;
         obj.event_start = getUnixTime(date);
         obj.event_end = getUnixTime(end);
@@ -585,6 +621,16 @@ export class CalendarEvent {
             obj.breakdown_time = 0;
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
         }
+        if (is_custom_all_day) {
+            obj.all_day = false;
+            obj.extension_data.custom_all_day = true;
+        } else {
+            if (this.id) {
+                obj.extension_data.custom_all_day = false;
+            } else {
+                delete obj.extension_data.custom_all_day;
+            }
+        }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null }),
         );
@@ -592,6 +638,7 @@ export class CalendarEvent {
             (i) => new AssetRequest({ ...i, event: null }),
         );
         obj.system_id = this.system?.id;
+        obj.online_meeting_provider = this.meeting_provider;
         for (const key of [
             'catering',
             'date',

@@ -4,7 +4,10 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
-import { CalendarAvailabilityQueryParams } from './calendar.interfaces';
+import {
+    CalendarAvailabilityQueryParams,
+    CalendarPermission,
+} from './calendar.interfaces';
 
 const CALENDAR_ENDPOINT = '/api/staff/v1/calendars';
 
@@ -67,4 +70,13 @@ export function querySpaceFreeBusy(
         map((i) => i.map((c) => new Calendar(c))),
         calendarsToSpaces(org),
     );
+}
+
+/** Check the current user's permission on a target user's calendar */
+export function queryCalendarPermission(
+    user_email: string,
+): Observable<CalendarPermission> {
+    return get(
+        `${CALENDAR_ENDPOINT}/${encodeURIComponent(user_email)}/permission`,
+    ).pipe(map((i) => i as CalendarPermission));
 }

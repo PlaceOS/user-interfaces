@@ -8,6 +8,7 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     AssetRequest,
     AsyncHandler,
+    Booking,
     Desk,
     OrganisationService,
     SettingsService,
@@ -252,7 +253,16 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     public readonly postForm = async () => {
         try {
             if ((await nextValueFrom(this._state.options))?.group) {
-                await this._state.postFormForGroup();
+                const booking = new Booking(this._state.form.getRawValue());
+                if (booking.id) {
+                    const sibling_list =
+                        await this._state.loadGroupSiblings(booking);
+                    await this._state.editFormForGroup(
+                        sibling_list.length ? sibling_list : [booking],
+                    );
+                } else {
+                    await this._state.postFormForGroup();
+                }
             } else {
                 await this._state.postForm();
             }

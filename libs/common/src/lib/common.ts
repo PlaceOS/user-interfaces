@@ -11,6 +11,7 @@ export * from './api';
 export * from './application';
 export * from './formatting';
 export * from './general';
+export * from './native-app';
 export * from './notifications';
 export * from './placeos';
 export * from './settings';

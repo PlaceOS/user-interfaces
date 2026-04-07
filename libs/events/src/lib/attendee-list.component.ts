@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -41,17 +40,23 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                     ) {
                         <div
                             attendee
-                            class="hover:bg-base-200 flex items-center space-x-2 p-2"
+                            class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             <a-user-avatar [user]="user"></a-user-avatar>
                             <div class="w-1/2 flex-1">
                                 <div class="truncate">{{ user.name }}</div>
-                                @if (host() === user.email) {
-                                    <div class="text-sm opacity-60">
-                                        {{ 'FORM.HOST' | translate }}
-                                    </div>
-                                }
+                                <div class="text-xs opacity-60">
+                                    {{ user.email }}
+                                </div>
                             </div>
+
+                            @if (host() === user.email) {
+                                <div
+                                    class="bg-info-light rounded px-2 py-1 font-mono text-xs shadow"
+                                >
+                                    {{ 'FORM.HOST' | translate }}
+                                </div>
+                            }
                             <div class="p-2">
                                 <div
                                     class="h-3 w-3 rounded-full"
@@ -73,7 +78,6 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,

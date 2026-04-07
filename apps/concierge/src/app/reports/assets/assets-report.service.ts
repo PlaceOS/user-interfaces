@@ -156,7 +156,7 @@ export class AssetsReportService {
             return combineLatest([queryAssetPurchaseOrders({}), this._options]);
         }),
         map(([purchase_orders, options]) => {
-            return purchase_orders.filter((order) => {
+            return purchase_orders.data.filter((order) => {
                 order.expected_service_end_date <
                     getUnixTime(options.start || Date.now());
             });

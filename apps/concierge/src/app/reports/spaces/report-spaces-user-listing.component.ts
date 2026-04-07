@@ -1,19 +1,14 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    downloadFile,
-    formatDuration,
-    jsonToCsv,
-    nextValueFrom,
-} from '@placeos/common';
+import { downloadFile, formatDuration, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { combineLatest } from 'rxjs';
-import { debounceTime, map, shareReplay } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ReportsStateService } from '../reports-state.service';
 
 @Component({
@@ -41,7 +36,7 @@ import { ReportsStateService } from '../reports-state.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="user_list"
+                [data]="user_list()"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
@@ -84,65 +79,64 @@ export class ReportSpacesUserListingComponent {
     private _reports = inject(ReportsStateService);
 
     public readonly print = input(false);
-
-    public readonly user_list = combineLatest([this._reports.stats]).pipe(
-        debounceTime(300),
-        map(([stats]) => {
-            const list = [];
-            for (const booking of stats.events) {
-                const host = booking.attendees?.find(
-                    (_) =>
-                        _.email === booking.extension_data?.host_override ||
-                        _.email === booking.host,
-                );
-                if (!host) continue;
-                const capacity = Math.max(
-                    booking.resources.reduce((c, s) => c + s.capacity, 0) || 1,
-                    1,
-                );
-                let details = list.find(
-                    (_) => _.id?.toLowerCase() === host.email.toLowerCase(),
-                );
-                if (!details) {
-                    details = {
-                        id: host.email,
-                        name: host.name,
-                        capacity,
-                        booking_count: 0,
-                        attendees: 0,
-                        avg_attendees: 0,
-                        no_shows: 0,
-                        occupancy: 0,
-                        total_time: 0,
-                    };
-                    list.push(details);
-                }
-                if (booking.extension_data?.people_count?.max === 0) {
-                    details.no_shows += 1;
-                }
-                details.booking_count += 1;
-                details.attendees += booking.attendees.length;
-                details.total_time += booking.duration || 15;
-            }
-            for (const space of list) {
-                space.avg_attendees =
-                    Math.floor((space.attendees / space.booking_count) * 100) /
-                    100;
-                space.occupancy =
-                    Math.floor((space.avg_attendees / space.capacity) * 100) /
-                    100;
-                space.total_time = formatDuration({
-                    hours: Math.floor(space.total_time / 60),
-                    minutes: space.total_time % 60,
-                });
-            }
-            return list;
-        }),
-        shareReplay(1),
+    private readonly _stats = toSignal(
+        this._reports.stats.pipe(map((stats) => stats || { events: [] })),
+        { initialValue: { events: [] } },
     );
 
+    public readonly user_list = computed(() => {
+        const { events } = this._stats();
+        const list = [];
+        for (const booking of events) {
+            const host = booking.attendees?.find(
+                (_) =>
+                    _.email === booking.extension_data?.host_override ||
+                    _.email === booking.host,
+            );
+            if (!host) continue;
+            const capacity = Math.max(
+                booking.resources.reduce((c, s) => c + s.capacity, 0) || 1,
+                1,
+            );
+            let details = list.find(
+                (_) => _.id?.toLowerCase() === host.email.toLowerCase(),
+            );
+            if (!details) {
+                details = {
+                    id: host.email,
+                    name: host.name,
+                    capacity,
+                    booking_count: 0,
+                    attendees: 0,
+                    avg_attendees: 0,
+                    no_shows: 0,
+                    occupancy: 0,
+                    total_time: 0,
+                };
+                list.push(details);
+            }
+            if (booking.extension_data?.people_count?.max === 0) {
+                details.no_shows += 1;
+            }
+            details.booking_count += 1;
+            details.attendees += booking.attendees.length;
+            details.total_time += booking.duration || 15;
+        }
+        for (const space of list) {
+            space.avg_attendees =
+                Math.floor((space.attendees / space.booking_count) * 100) / 100;
+            space.occupancy =
+                Math.floor((space.avg_attendees / space.capacity) * 100) / 100;
+            space.total_time = formatDuration({
+                hours: Math.floor(space.total_time / 60),
+                minutes: space.total_time % 60,
+            });
+        }
+        return list;
+    });
+
     public readonly download = async () => {
-        const data = await nextValueFrom(this.user_list);
+        const data = this.user_list().map((item) => ({ ...item }));
         for (const item of data) {
             delete item.attendance;
             delete item.avg_attendance;
