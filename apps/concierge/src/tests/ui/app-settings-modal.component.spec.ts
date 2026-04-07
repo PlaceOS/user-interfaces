@@ -136,7 +136,7 @@ describe('AppSettingsModalComponent', () => {
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
         expect(ts_client.showMetadata).toHaveBeenCalled();
-        expect(spectator.component.loading).toBe('');
+        expect(spectator.component.loading()).toBe('');
     });
 
     it('should load metadata from zone, parent, and org', async () => {
@@ -254,8 +254,8 @@ describe('AppSettingsModalComponent', () => {
     it('should set loading and disableClose during init', async () => {
         const dialog_ref = spectator.inject(MatDialogRef);
         const init_promise = spectator.component.ngOnInit();
-        expect(spectator.component.loading).toBe('Loading settings...');
+        expect(spectator.component.loading()).toBe('Loading settings...');
         await init_promise;
-        expect(spectator.component.loading).toBe('');
+        expect(spectator.component.loading()).toBe('');
     });
 });

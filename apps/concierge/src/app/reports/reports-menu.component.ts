@@ -2,9 +2,15 @@ import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import { SettingsService } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
-const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
+const DEFAULT_FEATURES = [
+    'attendance',
+    'desks',
+    'spaces',
+    'catering',
+    'contact-tracing',
+];
 
 @Component({
     selector: 'reports-menu,[reports-menu]',
@@ -35,6 +41,25 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
                     >
                         <icon class="text-8xl">meeting_room</icon>
                         <h3 class="mb-4 text-xl font-bold">Rooms</h3>
+                        <div class="flex items-center">
+                            <p>View Report</p>
+                            <icon class="ml-2">chevron_right</icon>
+                        </div>
+                    </a>
+                }
+                @if (features().includes('attendance')) {
+                    <a
+                        [routerLink]="['/reports', 'attendance']"
+                        matRipple
+                        class="border-base-200 bg-base-100 flex h-64 w-64 flex-col items-center justify-center rounded-sm border p-4 shadow-sm hover:opacity-80"
+                    >
+                        <icon class="text-8xl">groups</icon>
+                        <h3 class="mb-4 text-center text-xl font-bold">
+                            {{
+                                'APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE'
+                                    | translate
+                            }}
+                        </h3>
                         <div class="flex items-center">
                             <p>View Report</p>
                             <icon class="ml-2">chevron_right</icon>
@@ -107,7 +132,7 @@ const DEFAULT_FEATURES = ['desks', 'spaces', 'catering', 'contact-tracing'];
             }
         `,
     ],
-    imports: [RouterModule, IconComponent, MatRippleModule],
+    imports: [RouterModule, IconComponent, MatRippleModule, TranslatePipe],
 })
 export class ReportsMenuComponent {
     private _settings = inject(SettingsService);
