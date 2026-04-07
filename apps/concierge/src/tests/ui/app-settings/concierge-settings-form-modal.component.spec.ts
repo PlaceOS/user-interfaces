@@ -139,6 +139,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(parking.get('allow_all_day')).toBeTruthy();
         expect(parking.get('bookable_hours')).toBeTruthy();
         expect(parking.get('show_users')).toBeTruthy();
+        expect(parking.get('show_status_details')).toBeTruthy();
         expect(parking.get('disable_bookings')).toBeTruthy();
     });
 

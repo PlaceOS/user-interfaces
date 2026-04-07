@@ -1373,6 +1373,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Show parking status details on map"
+                                        formControlName="show_status_details"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Disable reservations"
                                         formControlName="disable_bookings"
                                     ></settings-toggle>
@@ -1702,6 +1706,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
                 end: new FormControl<number | null>(null),
             }),
             show_users: new FormControl(false),
+            show_status_details: new FormControl(true),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
             available_period: new FormControl(7),
