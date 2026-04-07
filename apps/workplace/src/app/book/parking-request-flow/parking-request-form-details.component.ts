@@ -11,6 +11,7 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { bookedResourceList, ParkingService } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
@@ -25,7 +26,15 @@ import {
     DateFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { addDays, endOfDay, startOfWeek } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfWeek,
+} from 'date-fns';
+import { combineLatest, of } from 'rxjs';
+import { catchError, filter, map, startWith, switchMap } from 'rxjs/operators';
 import { SettingsToggleComponent } from '../../../../../../libs/components/src/lib/settings-toggle.component';
 
 interface ParkingRequestShiftOption {
@@ -595,7 +604,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                         <div class="space-y-2">
                             @for (bld of building_list | async; track bld.id) {
                                 <div
-                                    class="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+                                    class="flex min-h-15 cursor-pointer items-center gap-3 rounded-lg border px-4 py-2 transition-colors"
                                     [class.border-info]="
                                         (building | async)?.id === bld.id
                                     "
@@ -621,13 +630,84 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             ></div>
                                         }
                                     </div>
-                                    <div>
-                                        <div class="font-medium">
-                                            {{ bld.display_name || bld.name }}
+                                    <div
+                                        class="flex flex-1 items-center justify-between gap-3"
+                                    >
+                                        <div>
+                                            <div class="font-medium">
+                                                {{
+                                                    bld.display_name || bld.name
+                                                }}
+                                            </div>
+                                            @if (getBayInfo(bld)) {
+                                                <div class="text-sm opacity-60">
+                                                    {{ getBayInfo(bld) }}
+                                                </div>
+                                            }
                                         </div>
-                                        @if (getBayInfo(bld)) {
-                                            <div class="text-sm opacity-60">
-                                                {{ getBayInfo(bld) }}
+                                        @if (
+                                            (building | async)?.id === bld.id
+                                        ) {
+                                            <div
+                                                class="border-base-300 flex shrink-0 items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
+                                            >
+                                                @if (availability_loading()) {
+                                                    <div
+                                                        class="text-sm font-medium opacity-60"
+                                                    >
+                                                        Checking...
+                                                    </div>
+                                                } @else if (
+                                                    available_space_count() !==
+                                                    null
+                                                ) {
+                                                    @let percent =
+                                                        usage_ratio();
+                                                    <div
+                                                        class="flex items-center"
+                                                    >
+                                                        {{
+                                                            spaces_in_use_count()
+                                                        }}
+                                                        of
+                                                        {{
+                                                            total_space_count()
+                                                        }}
+                                                        <icon
+                                                            class="ml-1! text-lg"
+                                                            >car_lock</icon
+                                                        >
+                                                    </div>
+                                                    <div
+                                                        class="rounded-sm px-2 py-1 font-mono text-xs"
+                                                        [class.bg-error]="
+                                                            percent === 1
+                                                        "
+                                                        [class.text-error-content]="
+                                                            percent === 1
+                                                        "
+                                                        [class.bg-warning]="
+                                                            percent > 0.5 &&
+                                                            percent < 1
+                                                        "
+                                                        [class.text-warning-content]="
+                                                            percent > 0.5 &&
+                                                            percent < 1
+                                                        "
+                                                        [class.bg-success]="
+                                                            percent < 0.5
+                                                        "
+                                                        [class.text-success-content]="
+                                                            percent < 0.5
+                                                        "
+                                                    >
+                                                        {{
+                                                            percent * 100
+                                                                | number
+                                                                    : '1.0-0'
+                                                        }}%
+                                                    </div>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -644,6 +724,72 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 }}
                             </settings-toggle>
                         }
+                    </div>
+                } @else {
+                    <div
+                        class="border-base-300 space-y-3 rounded-lg border p-4"
+                    >
+                        <h3
+                            class="text-success flex items-center gap-2 text-sm font-bold tracking-wider uppercase"
+                        >
+                            <icon class="text-lg">place</icon>
+                            {{
+                                'BOOKINGS.PARKING_LOCATION_PREFERENCE'
+                                    | translate
+                            }}
+                        </h3>
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <div class="font-medium">
+                                    {{
+                                        (building | async)?.display_name ||
+                                            (building | async)?.name
+                                    }}
+                                </div>
+                                @if (getBayInfo(building | async)) {
+                                    <div class="text-sm opacity-60">
+                                        {{ getBayInfo(building | async) }}
+                                    </div>
+                                }
+                            </div>
+                            <div
+                                class="border-base-300 mr-2 flex shrink-0 items-center space-x-2 rounded-md border py-1 pr-1 pl-3 text-sm"
+                            >
+                                @if (availability_loading()) {
+                                    <div class="text-sm font-medium opacity-60">
+                                        Checking...
+                                    </div>
+                                } @else if (available_space_count() !== null) {
+                                    @let percent = usage_ratio();
+                                    <div class="flex items-center">
+                                        {{ spaces_in_use_count() }} of
+                                        {{ total_space_count() }}
+                                        <icon class="ml-1! text-lg"
+                                            >car_lock</icon
+                                        >
+                                    </div>
+                                    <div
+                                        class="rounded-sm px-2 py-1 font-mono text-xs"
+                                        [class.bg-error]="percent === 1"
+                                        [class.text-error-content]="
+                                            percent === 1
+                                        "
+                                        [class.bg-warning]="
+                                            percent > 0.5 && percent < 1
+                                        "
+                                        [class.text-warning-content]="
+                                            percent > 0.5 && percent < 1
+                                        "
+                                        [class.bg-success]="percent < 0.5"
+                                        [class.text-success-content]="
+                                            percent < 0.5
+                                        "
+                                    >
+                                        {{ percent * 100 | number: '2.0-0' }}%
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
                 <!-- VEHICLE DETAILS -->
@@ -793,6 +939,7 @@ export class ParkingRequestFormDetailsComponent
     extends AsyncHandler
     implements OnInit
 {
+    private _parking = inject(ParkingService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -800,6 +947,27 @@ export class ParkingRequestFormDetailsComponent
     public readonly show_special_needs = input<boolean>(false);
     public readonly building = this._org.active_building;
     public readonly building_list = this._org.active_buildings;
+    public readonly available_space_count = signal<number | null>(null);
+    public readonly total_space_count = signal<number | null>(null);
+    public readonly availability_loading = signal(false);
+    public readonly spaces_in_use_count = computed(() => {
+        const available = this.available_space_count();
+        const total = this.total_space_count();
+        if (available === null || total === null) return null;
+        return Math.max(total - available, 0);
+    });
+    public readonly usage_percentage = computed(() => {
+        const used = this.spaces_in_use_count();
+        const total = this.total_space_count();
+        if (used === null || total === null || total <= 0) return 0;
+        return Math.round((used / total) * 100);
+    });
+    public readonly usage_ratio = computed(() => {
+        const used = this.spaces_in_use_count();
+        const total = this.total_space_count();
+        if (used === null || total === null || total <= 0) return 0;
+        return used / total;
+    });
 
     public readonly can_book_for_anyone = computed(
         () =>
@@ -1014,6 +1182,54 @@ export class ParkingRequestFormDetailsComponent
     public ngOnInit() {
         const form = this.form();
         if (!form) return;
+        this.subscription(
+            'space_availability',
+            combineLatest([
+                this._org.active_building,
+                this._parking.spaces,
+                form.valueChanges.pipe(startWith(form.getRawValue())),
+            ])
+                .pipe(
+                    filter(([bld]) => !!bld?.id),
+                    switchMap(([bld, spaces, value]) => {
+                        const space_ids = new Set(
+                            spaces
+                                .filter((space) => space.bookable !== false)
+                                .map((space) => space.id),
+                        );
+                        this.total_space_count.set(space_ids.size);
+                        if (!space_ids.size) return of(0);
+                        const start_date = value.date || Date.now();
+                        const duration = value.duration || 540;
+                        this.availability_loading.set(true);
+                        return bookedResourceList({
+                            period_start: getUnixTime(start_date),
+                            period_end: getUnixTime(
+                                addMinutes(start_date, duration),
+                            ),
+                            type: 'parking',
+                            zones: bld.id,
+                            rejected: false,
+                        }).pipe(
+                            map((booked_assets) => {
+                                const booked_ids = new Set(
+                                    booked_assets.filter((id) =>
+                                        space_ids.has(id),
+                                    ),
+                                );
+                                return [...space_ids].filter(
+                                    (id) => !booked_ids.has(id),
+                                ).length;
+                            }),
+                            catchError(() => of(0)),
+                        );
+                    }),
+                )
+                .subscribe((count) => {
+                    this.available_space_count.set(count);
+                    this.availability_loading.set(false);
+                }),
+        );
         const default_custom_shift = this._defaultCustomShift();
         this.custom_start_time_mins.set(default_custom_shift.start_time);
         this.custom_end_time_mins.set(default_custom_shift.end_time);
@@ -1236,6 +1452,7 @@ export class ParkingRequestFormDetailsComponent
     }
 
     public getBayInfo(bld: any): string {
+        if (!bld) return '';
         const metadata = bld.metadata || {};
         const parking = metadata.parking?.details || {};
         const car_bays = parking.car_bays;
