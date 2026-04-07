@@ -37,3 +37,25 @@ export function validateMedia(item: MediaPlayerItem) {
     }
     return '';
 }
+
+export function findValidPlaylistIndex(
+    playlist: MediaPlayerItem[],
+    start_index: number,
+    step: 1 | -1,
+    include_start = false,
+) {
+    if (!playlist?.length) return -1;
+    let index = start_index;
+    let checked = 0;
+    while (checked < playlist.length) {
+        if (
+            (include_start || checked > 0) &&
+            validateMedia(playlist[index]) === ''
+        ) {
+            return index;
+        }
+        index = (index + step + playlist.length) % playlist.length;
+        checked += 1;
+    }
+    return -1;
+}
