@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,6 +11,7 @@ import {
     CalendarEvent,
     i18n,
     notifySuccess,
+    settingSignal,
     User,
 } from '@placeos/common';
 import {
@@ -27,7 +28,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
 @Component({
     selector: 'landing-colleagues-new',
     template: `
-        <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+        <div class="border-base-300 bg-base-100 rounded-lg border p-4">
             @let contact_list = contacts | async;
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="text-lg font-medium">
@@ -81,7 +82,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                 <div class="mt-2 flex w-full flex-col space-y-2">
                     @for (user of contact_list; track user) {
                         <div
-                            class="relative flex items-center space-x-2 overflow-hidden rounded border border-base-300 p-2"
+                            class="border-base-300 relative flex items-center space-x-2 overflow-hidden rounded border p-2"
                             [class.border-secondary]="isSelected(user)"
                         >
                             <mat-checkbox
@@ -121,48 +122,58 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                                         </div>
                                     </div>
                                 </button>
-                                <button
-                                    mat-menu-item
-                                    (click)="toggleFavorite(user)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">{{
-                                            isFavorite(user) ? 'star' : 'star_outline'
-                                        }}</icon>
-                                        <div>
-                                            {{
-                                                (isFavorite(user)
-                                                    ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_FAVORITE'
-                                                    : 'APP.WORKPLACE.COLLEAGUES_ADD_FAVORITE'
-                                                ) | translate
-                                            }}
+                                @if (has_team_schedule()) {
+                                    <button
+                                        mat-menu-item
+                                        (click)="toggleFavorite(user)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">{{
+                                                isFavorite(user)
+                                                    ? 'star'
+                                                    : 'star_outline'
+                                            }}</icon>
+                                            <div>
+                                                {{
+                                                    (isFavorite(user)
+                                                        ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_FAVORITE'
+                                                        : 'APP.WORKPLACE.COLLEAGUES_ADD_FAVORITE'
+                                                    ) | translate
+                                                }}
+                                            </div>
                                         </div>
-                                    </div>
-                                </button>
-                                <button
-                                    mat-menu-item
-                                    (click)="toggleTeamMember(user)"
-                                >
-                                    <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl">{{
-                                            isTeamMember(user) ? 'group_remove' : 'group_add'
-                                        }}</icon>
-                                        <div>
-                                            {{
-                                                (isTeamMember(user)
-                                                    ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_TEAM'
-                                                    : 'APP.WORKPLACE.COLLEAGUES_ADD_TEAM'
-                                                ) | translate
-                                            }}
+                                    </button>
+                                    <button
+                                        mat-menu-item
+                                        (click)="toggleTeamMember(user)"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <icon class="text-2xl">{{
+                                                isTeamMember(user)
+                                                    ? 'group_remove'
+                                                    : 'group_add'
+                                            }}</icon>
+                                            <div>
+                                                {{
+                                                    (isTeamMember(user)
+                                                        ? 'APP.WORKPLACE.COLLEAGUES_REMOVE_TEAM'
+                                                        : 'APP.WORKPLACE.COLLEAGUES_ADD_TEAM'
+                                                    ) | translate
+                                                }}
+                                            </div>
                                         </div>
-                                    </div>
-                                </button>
+                                    </button>
+                                }
                                 <button
                                     mat-menu-item
                                     (click)="removeColleague(user)"
                                 >
                                     <div class="flex items-center space-x-2">
-                                        <icon class="text-2xl text-error"
+                                        <icon class="text-error text-2xl"
                                             >person_remove</icon
                                         >
                                         <div>
@@ -176,7 +187,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                             </mat-menu>
                             @if (isSelected(user)) {
                                 <div
-                                    class="absolute inset-0 !m-0 bg-secondary opacity-10"
+                                    class="bg-secondary absolute inset-0 !m-0 opacity-10"
                                 ></div>
                             }
                         </div>
@@ -184,7 +195,7 @@ import { AddColleaguesModalComponent } from './add-colleagues-modal.component';
                 </div>
             } @else {
                 <div
-                    class="flex h-48 w-full flex-col items-center justify-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex h-48 w-full flex-col items-center justify-center space-y-2 rounded-xl p-8"
                 >
                     <img src="assets/icons/no-contacts.svg" />
                     <p class="text-center text-sm opacity-60">
@@ -222,6 +233,10 @@ export class LandingColleaguesNewComponent {
     private _team_schedule = inject(TeamScheduleService);
 
     public readonly contacts = this._state.contacts;
+    public readonly features = settingSignal('features');
+    public readonly has_team_schedule = computed(() =>
+        this.features().includes('team-schedule'),
+    );
     public readonly selected_users = signal<User[]>([]);
 
     public openAddColleaguesModal() {
