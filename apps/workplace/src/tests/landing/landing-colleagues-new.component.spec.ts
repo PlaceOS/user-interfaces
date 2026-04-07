@@ -1,4 +1,5 @@
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { signal } from '@angular/core';
 import { fakeAsync, tick } from '@angular/core/testing';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +17,8 @@ describe('LandingColleaguesNewComponent', () => {
     let spectator: Spectator<LandingColleaguesNewComponent>;
     let features: string[] = [];
     const settings_service = {
-        get: jest.fn((key: string) =>
-            key === 'app.features' ? features : undefined,
+        signal: jest.fn((key: string, default_value?: string[]) =>
+            signal(key === 'features' ? features : (default_value ?? [])),
         ),
     };
     const createComponent = createComponentFactory({
@@ -69,7 +70,7 @@ describe('LandingColleaguesNewComponent', () => {
 
     beforeEach(() => {
         features = [];
-        settings_service.get.mockClear();
+        settings_service.signal.mockClear();
     });
 
     afterEach(() => {

@@ -11,7 +11,7 @@ import {
     CalendarEvent,
     i18n,
     notifySuccess,
-    settingSignal,
+    SettingsService,
     User,
 } from '@placeos/common';
 import {
@@ -230,10 +230,11 @@ export class LandingColleaguesNewComponent {
     private _event_form = inject(EventFormService);
     private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
+    private _settings = inject(SettingsService);
     private _team_schedule = inject(TeamScheduleService);
 
     public readonly contacts = this._state.contacts;
-    public readonly features = settingSignal('features');
+    public readonly features = this._settings.signal<string[]>('features', []);
     public readonly has_team_schedule = computed(() =>
         this.features().includes('team-schedule'),
     );
