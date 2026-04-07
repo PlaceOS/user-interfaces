@@ -37,6 +37,14 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         sortable: false,
                     },
                     {
+                        key: 'booking_type',
+                        name: 'COMMON.TYPE' | translate,
+                        content: type_template,
+                        size: '5.5rem',
+                        sort_fn: bookingTypeSort,
+                        show: show_request_types,
+                    },
+                    {
                         key: 'date',
                         name: 'FORM.TIME' | translate,
                         content: date_template,
@@ -177,6 +185,26 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             {{ 'COMMON.EMPTY' | translate }}
                         </span>
                     }
+                </div>
+            </ng-template>
+            <ng-template #type_template let-row="row">
+                @let type = bookingType(row);
+                <div class="flex justify-center px-4 py-2">
+                    <div
+                        class="inline-flex h-8 w-8 items-center justify-center rounded"
+                        [class.bg-success]="type === 'booked'"
+                        [class.text-success-content]="type === 'booked'"
+                        [class.bg-base-300]="type === 'request'"
+                        [class.text-base-content]="type === 'request'"
+                        [class.bg-warning]="type === 'pending_manual'"
+                        [class.text-warning-content]="type === 'pending_manual'"
+                        [class.bg-info]="type === 'waitlisted'"
+                        [class.text-info-content]="type === 'waitlisted'"
+                        [matTooltip]="bookingTypeLabel(row) | translate"
+                        matTooltipPosition="right"
+                    >
+                        <icon class="text-2xl">{{ bookingTypeIcon(row) }}</icon>
+                    </div>
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row">
@@ -346,7 +374,10 @@ export class ParkingBookingsListComponent
             this.bookings(),
             request_filter,
         );
-        return this._state.filterEventSearch(list, search);
+        return this._state.filterEventSearch(list, search).map((booking) => ({
+            ...booking,
+            booking_type: this.bookingTypeSortValue(booking),
+        }));
     });
 
     public readonly reject = (e) => this._state.rejectBooking(e);
@@ -354,9 +385,15 @@ export class ParkingBookingsListComponent
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
+    public readonly isManualRequest = (e) => this._state.isManualRequest(e);
     public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
+    public readonly bookingTypeSort = (a: number, b: number) => a - b;
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
+
+    public get show_request_types() {
+        return !!this._settings.get('app.parking.show_requests');
+    }
 
     public get time_format() {
         return this._settings.time_format;
@@ -370,6 +407,46 @@ export class ParkingBookingsListComponent
 
     public isRequestId(id?: string) {
         return !!id?.startsWith('unallocated');
+    }
+
+    public bookingType(booking: Booking) {
+        if (!this.isRequest(booking)) {
+            return 'booked';
+        }
+        if (this.isWaitlisted(booking)) {
+            return 'waitlisted';
+        }
+        if (this.isManualRequest(booking) || booking.status === 'tentative') {
+            return 'pending_manual';
+        }
+        return 'request';
+    }
+
+    public bookingTypeSortValue(booking: Booking) {
+        return {
+            request: 0,
+            pending_manual: 1,
+            waitlisted: 2,
+            booked: 3,
+        }[this.bookingType(booking)];
+    }
+
+    public bookingTypeLabel(booking: Booking) {
+        return {
+            booked: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED',
+            request: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST',
+            pending_manual: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL',
+            waitlisted: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED',
+        }[this.bookingType(booking)];
+    }
+
+    public bookingTypeIcon(booking: Booking) {
+        return {
+            booked: 'event_available',
+            request: 'outbox',
+            pending_manual: 'pending_actions',
+            waitlisted: 'hourglass_top',
+        }[this.bookingType(booking)];
     }
 
     public ngOnInit() {
