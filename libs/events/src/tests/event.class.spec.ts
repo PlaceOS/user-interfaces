@@ -172,6 +172,33 @@ describe('CalendarEvent', () => {
         );
     });
 
+    it('should load custom all-day events from extension data', () => {
+        event = new CalendarEvent({
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+
+        expect(event.all_day).toBe(true);
+        expect(event.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
+        expect(event.duration).toBe(8 * 60);
+    });
+
+    it('should serialise custom all-day events for the backend', () => {
+        event = new CalendarEvent({
+            all_day: true,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+        });
+
+        const json = event.toJSON();
+
+        expect(json.all_day).toBe(false);
+        expect(json.extension_data.custom_all_day).toBe(true);
+        expect(json.extension_data.all_day_date).toBe('2028-06-15');
+    });
+
     it('should expose list of guests for event', () => {
         setInternalUserDomain('work.com');
         expect(event.guests).toEqual([]);

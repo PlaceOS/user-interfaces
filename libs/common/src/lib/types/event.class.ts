@@ -81,6 +81,8 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    /** Whether a custom-period booking should still behave as all day in the UI */
+    custom_all_day?: boolean;
     event_type?: string;
     /** Event category */
     category?: string;
@@ -335,6 +337,10 @@ export class CalendarEvent {
     }
 
     constructor(data: Partial<CalendarEventExtended> = {}) {
+        const custom_all_day = !!(
+            data.extension_data?.custom_all_day ||
+            (data as any).custom_all_day
+        );
         this.id = data.event_id || data.id || '';
         this.event_start =
             data.event_start ||
@@ -382,7 +388,7 @@ export class CalendarEvent {
             '',
         );
         this.private = !!data.private;
-        this.all_day = !!data.all_day;
+        this.all_day = !!data.all_day || custom_all_day;
         this.timezone =
             data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         this.date = this.event_start * 1000 || this.date;
@@ -579,6 +585,7 @@ export class CalendarEvent {
             this.all_day &&
             this.date === startOfDayInTimezone(this.date, this.timezone) &&
             this.date_end === endOfDayInTimezone(this.date_end, this.timezone);
+        const is_custom_all_day = this.all_day && !is_full_day_period;
         const date = is_full_day_period
             ? startOfDayInTimezone(this.date, this.timezone)
             : this.date;
@@ -614,6 +621,12 @@ export class CalendarEvent {
             obj.setup_time = 0;
             obj.breakdown_time = 0;
             obj.extension_data.all_day_date = format(date, 'yyyy-MM-dd');
+        }
+        if (is_custom_all_day) {
+            obj.all_day = false;
+            obj.extension_data.custom_all_day = true;
+        } else {
+            delete obj.extension_data.custom_all_day;
         }
         obj.extension_data.catering = obj.extension_data.catering.map(
             (i) => new CateringOrder({ ...i, event: null }),

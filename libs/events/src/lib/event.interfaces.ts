@@ -37,6 +37,8 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    /** Whether a custom-period booking should still behave as all day in the UI */
+    custom_all_day?: boolean;
     event_type?: string;
     /** Event category */
     category?: string;
