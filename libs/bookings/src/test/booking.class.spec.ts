@@ -94,4 +94,19 @@ describe('Booking class', () => {
             new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
         );
     });
+
+    it('should load custom all-day bookings from extension data', () => {
+        booking = new Booking({
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            duration: 8 * 60,
+            extension_data: { custom_all_day: true },
+        });
+
+        expect(booking.all_day).toBe(true);
+        expect(booking.date).toBe(
+            new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+        );
+        expect(booking.duration).toBe(8 * 60);
+    });
 });

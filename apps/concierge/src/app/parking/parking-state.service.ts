@@ -283,11 +283,10 @@ export class ParkingStateService extends AsyncHandler {
         return !!booking.asset_id?.startsWith('unallocated');
     }
 
-    public canViewRequest(
+    public canApproveBooking(
         booking: Booking,
         user_groups = currentUser()?.groups || [],
     ) {
-        if (!this.isRequest(booking)) return true;
         const approver_group = booking.extension_data?.approver_group;
         return !approver_group || user_groups.includes(approver_group);
     }
@@ -317,13 +316,8 @@ export class ParkingStateService extends AsyncHandler {
 
     public filterEventList(list: Booking[], filter_type: ParkingRequestFilter) {
         const show_requests = !!this._settings.get('app.parking.show_requests');
-        const user_groups = currentUser()?.groups || [];
         const visible_list = show_requests
-            ? list.filter(
-                  (booking) =>
-                      !this.isRequest(booking) ||
-                      this.canViewRequest(booking, user_groups),
-              )
+            ? list
             : list.filter((booking) => !this.isRequest(booking));
         if (filter_type === 'bookings') {
             return visible_list.filter((booking) => !this.isRequest(booking));

@@ -4,7 +4,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator/jest';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { OrganisationService } from '@placeos/common';
+import { CalendarEvent, OrganisationService } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
@@ -56,6 +56,20 @@ describe('EventFormService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should keep custom all-day events marked all-day when resetting the form', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            all_day: false,
+            date: new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
+            date_end: new Date(2028, 5, 15, 17, 0, 0, 0).valueOf(),
+            extension_data: { custom_all_day: true },
+        });
+
+        await spectator.service.newForm(event);
+
+        expect(spectator.service.form.getRawValue().all_day).toBe(true);
     });
 
     /// TODO: Fix

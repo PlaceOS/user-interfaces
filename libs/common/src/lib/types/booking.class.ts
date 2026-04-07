@@ -212,6 +212,10 @@ export class Booking {
     }
 
     constructor(data: Partial<BookingComplete> = {}) {
+        const custom_all_day = !!(
+            data.extension_data?.custom_all_day ||
+            (data as any).custom_all_day
+        );
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';
         this.asset_id = data.asset_id || '';
@@ -295,7 +299,8 @@ export class Booking {
         this.attendees = data.attendees || data.guests || data.members || [];
         this.tags = data.tags || data.extension_data?.tags || [];
         this.images = data.images || [];
-        this.all_day = data.all_day || this.duration >= 24 * 60;
+        this.all_day =
+            !!data.all_day || custom_all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
         if (this.all_day) {
             if (!data.duration && !data.date_end && !data.booking_end) {

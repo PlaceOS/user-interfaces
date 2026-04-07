@@ -290,6 +290,11 @@ export class ApplicationSidebarComponent
                 icon: 'analytics',
                 children: [
                     {
+                        id: 'attendance-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE'),
+                        route: ['/reports/attendance'],
+                    },
+                    {
                         id: 'booking-report',
                         name: i18n('APP.CONCIERGE.MENU_REPORT_ROOMS'),
                         route: ['/reports/bookings'],

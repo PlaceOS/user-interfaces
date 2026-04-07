@@ -17,8 +17,9 @@ import {
     HostSelectFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { MockProvider } from 'ng-mocks';
+
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;

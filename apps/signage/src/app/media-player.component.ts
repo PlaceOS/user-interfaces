@@ -21,7 +21,7 @@ import {
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { MediaControlsComponent } from './media-controls.component';
-import { validateMedia } from './media-helpers';
+import { findValidPlaylistIndex, validateMedia } from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
@@ -586,40 +586,41 @@ export class MediaPlayerComponent
             const img_el = this._previous_img_element().nativeElement;
             const web_el = this._previous_web_element().nativeElement;
             const video_el = this._previous_video_element().nativeElement;
-            let index = indexValue - 1;
-            while (
-                !this.isValidMedia(this._item_playlist[index]) ||
-                index === indexValue
-            ) {
-                index = index - 1;
-                if (index < 0) index = this._item_playlist.length - 1;
-            }
-            if (index === indexValue) index = indexValue - 1;
-            if (index < 0) index = this._item_playlist.length - 1;
-            const item = this._item_playlist[index];
-            if (item.type === 'plugin') {
-                // Plugin is handled by previous_plugin signal in the previous container
+            const previous_index = findValidPlaylistIndex(
+                this._item_playlist,
+                indexValue,
+                -1,
+            );
+            if (previous_index === -1) {
                 img_el.classList.add('hidden');
                 video_el.classList.add('hidden');
                 web_el.classList.add('hidden');
             } else {
-                const url = this.url(item.id);
-                if (url) {
-                    if (item.type === 'video') {
-                        img_el.classList.add('hidden');
-                        web_el.classList.add('hidden');
-                        video_el.src = url.toString();
-                        video_el.classList.remove('hidden');
-                    } else if (item.type === 'web') {
-                        img_el.classList.add('hidden');
-                        video_el.classList.add('hidden');
-                        web_el.src = url.toString();
-                        web_el.classList.remove('hidden');
-                    } else {
-                        video_el.classList.add('hidden');
-                        web_el.classList.add('hidden');
-                        img_el.src = url.toString();
-                        img_el.classList.remove('hidden');
+                const item = this._item_playlist[previous_index];
+                if (item.type === 'plugin') {
+                    // Plugin is handled by previous_plugin signal in the previous container
+                    img_el.classList.add('hidden');
+                    video_el.classList.add('hidden');
+                    web_el.classList.add('hidden');
+                } else {
+                    const url = this.url(item.id);
+                    if (url) {
+                        if (item.type === 'video') {
+                            img_el.classList.add('hidden');
+                            web_el.classList.add('hidden');
+                            video_el.src = url.toString();
+                            video_el.classList.remove('hidden');
+                        } else if (item.type === 'web') {
+                            img_el.classList.add('hidden');
+                            video_el.classList.add('hidden');
+                            web_el.src = url.toString();
+                            web_el.classList.remove('hidden');
+                        } else {
+                            video_el.classList.add('hidden');
+                            web_el.classList.add('hidden');
+                            img_el.src = url.toString();
+                            img_el.classList.remove('hidden');
+                        }
                     }
                 }
             }
@@ -699,15 +700,10 @@ export class MediaPlayerComponent
         const playlist = this.playlist();
         const item = playlist[idx];
         if (!item || !this.isValidMedia(item)) return false;
-        if (idx === playlist.length - 1) return true;
-        let next_index = idx + 1;
-        let next_item = playlist[next_index];
-        while (!next_item && !this.isValidMedia(next_item)) {
-            next_index += 1;
-            if (next_index >= playlist.length) next_index = 0;
-            next_item = playlist[next_index];
-        }
+        const next_index = findValidPlaylistIndex(playlist, idx, 1);
         if (next_index === idx) return true;
+        if (next_index === -1) return true;
+        const next_item = playlist[next_index];
         return item.playlist !== next_item.playlist;
     }
 

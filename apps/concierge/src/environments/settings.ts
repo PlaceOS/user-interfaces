@@ -25,6 +25,7 @@ const app = {
         'catering',
         'events',
         'booking-report',
+        'attendance-report',
         'contact-tracing-report',
         'signage',
         'events',

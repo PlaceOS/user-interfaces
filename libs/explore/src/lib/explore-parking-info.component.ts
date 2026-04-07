@@ -17,33 +17,49 @@ interface ParkingSpaceExtended extends ParkingSpace {
     template: `
         <div
             class="bg-base-300 absolute top-1/2 left-1/2 rounded-lg rounded-tl-none! p-2 text-left shadow-sm"
-            [class.bg-error!]="status() === 'busy'"
-            [class.text-error-content!]="status() === 'busy'"
-            [class.bg-warning!]="status() === 'reserved'"
-            [class.text-warning-content!]="status() === 'reserved'"
-            [class.bg-success!]="status() === 'free'"
-            [class.text-success-content!]="status() === 'free'"
-            [class.bg-neutral!]="status() === 'not-bookable'"
-            [class.text-neutral-content!]="status() === 'not-bookable'"
+            [class.bg-error!]="show_status_details() && status() === 'busy'"
+            [class.text-error-content!]="
+                show_status_details() && status() === 'busy'
+            "
+            [class.bg-warning!]="
+                show_status_details() && status() === 'reserved'
+            "
+            [class.text-warning-content!]="
+                show_status_details() && status() === 'reserved'
+            "
+            [class.bg-success!]="show_status_details() && status() === 'free'"
+            [class.text-success-content!]="
+                show_status_details() && status() === 'free'
+            "
+            [class.bg-neutral!]="
+                show_status_details() && status() === 'not-bookable'
+            "
+            [class.text-neutral-content!]="
+                show_status_details() && status() === 'not-bookable'
+            "
         >
             <div class="triangle absolute top-0.5 left-0.5"></div>
             <div class="flex space-x-2">
                 <div class="flex min-w-24 flex-col pl-1 leading-tight">
                     <div class="whitespace-nowrap">{{ name() }}</div>
-                    <div class="text-sm font-medium capitalize">
-                        {{
-                            status() === 'not-bookable'
-                                ? ('COMMON.STATUS_NOT_BOOKABLE' | translate)
-                                : status()
-                        }}
-                    </div>
-                    @if (show_parking_users() && user()) {
-                        <div class="text-sm">
-                            {{ (user() | user | async)?.name || user() }}
+                    @if (show_status_details()) {
+                        <div class="text-sm font-medium capitalize">
+                            {{
+                                status() === 'not-bookable'
+                                    ? ('COMMON.STATUS_NOT_BOOKABLE' | translate)
+                                    : status()
+                            }}
                         </div>
+                        @if (show_parking_users() && user()) {
+                            <div class="text-sm">
+                                {{ (user() | user | async)?.name || user() }}
+                            </div>
+                        }
                     }
                 </div>
-                @if (is_concierge() && plate_number()) {
+                @if (
+                    show_status_details() && is_concierge() && plate_number()
+                ) {
                     <div
                         class="bg-base-100 text-base-content relative flex h-full flex-col rounded-sm px-2 leading-tight shadow-sm"
                     >
@@ -93,6 +109,10 @@ export class ExploreParkingInfoComponent {
     public readonly show_parking_users = settingSignal(
         'parking.show_users',
         false,
+    );
+    public readonly show_status_details = settingSignal(
+        'parking.show_status_details',
+        true,
     );
 
     public readonly is_concierge = computed(() =>

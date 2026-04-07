@@ -1773,6 +1773,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="show_users"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Show parking status details on map"
+                                        formControlName="show_status_details"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Allow user selecting booking time"
                                         formControlName="allow_time_changes"
                                     ></settings-toggle>
@@ -2139,6 +2143,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             }),
             all_day_default: new FormControl(false),
             show_users: new FormControl(false),
+            show_status_details: new FormControl(true),
             allow_time_changes: new FormControl(false),
             auto_allocation: new FormControl(false),
             can_book_for_others: new FormControl(false),

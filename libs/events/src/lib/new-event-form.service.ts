@@ -341,8 +341,6 @@ export class EventFormService extends AsyncHandler {
                 sessionStorage?.getItem('PLACEOS.last_modified_event') || '{}',
             ),
         );
-        if (this.last_success()?.date === event.date)
-            return this.last_success();
         this.last_success.set(event);
         return event;
     }

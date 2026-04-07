@@ -193,6 +193,10 @@
                 "hide_custom_shift": {
                     "type": "boolean",
                     "description": "Whether to hide the custom option from the shift selection dropdown in the parking request flow."
+                },
+                "show_status_details": {
+                    "type": "boolean",
+                    "description": "Whether the explore parking tooltip should show availability status details such as status text, assigned users, and plate numbers."
                 }
             }
         },
