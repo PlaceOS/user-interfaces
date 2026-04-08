@@ -55,6 +55,10 @@ interface ParkingRequestTimeWindow {
     end_time: number;
 }
 
+interface ParkingRequestShiftState extends ParkingRequestTimeWindow {
+    type: string;
+}
+
 interface VehicleTypeOption {
     id: string;
     name: string;
@@ -1013,6 +1017,7 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _saved_shift_state: ParkingRequestShiftState | null = null;
 
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(false);
@@ -1698,12 +1703,25 @@ export class ParkingRequestFormDetailsComponent
     private _syncRequestTypeTime(form: FormGroup) {
         const forced_time = this.forced_request_time();
         if (forced_time) {
+            if (!this._saved_shift_state) {
+                this._saved_shift_state = {
+                    type: this.shift_type(),
+                    start_time: this.start_time_mins(),
+                    end_time: this.end_time_mins(),
+                };
+            }
             this.custom_start_time_mins.set(forced_time.start_time);
             this.custom_end_time_mins.set(forced_time.end_time);
             this.start_time_mins.set(forced_time.start_time);
             this.end_time_mins.set(forced_time.end_time);
             this.shift_type.set('custom');
             this._updateFormTimes(forced_time.start_time, forced_time.end_time);
+            return;
+        }
+        if (this._saved_shift_state) {
+            const saved_shift = this._saved_shift_state;
+            this._saved_shift_state = null;
+            this._restoreShiftState(saved_shift);
             return;
         }
         this._detectShiftType(this.start_time_mins(), this.end_time_mins());
@@ -1715,6 +1733,35 @@ export class ParkingRequestFormDetailsComponent
                 this.setShiftType(default_shift.id);
             }
         }
+    }
+
+    private _restoreShiftState(shift: ParkingRequestShiftState) {
+        const preset =
+            (shift.type !== 'custom' &&
+                this.shift_options().find((_) => _.id === shift.type)) ||
+            this.shift_options().find(
+                (_) =>
+                    _.start_time === shift.start_time &&
+                    _.end_time === shift.end_time,
+            );
+        if (preset) {
+            this.setShiftType(preset.id);
+            return;
+        }
+        const { start_time, end_time } = this._normaliseCustomShift(
+            shift.start_time,
+            shift.end_time,
+        );
+        if (this.hide_custom_shift() && this.shift_options()[0]) {
+            this.setShiftType(this.shift_options()[0].id);
+            return;
+        }
+        this.custom_start_time_mins.set(start_time);
+        this.custom_end_time_mins.set(end_time);
+        this.start_time_mins.set(start_time);
+        this.end_time_mins.set(end_time);
+        this.shift_type.set('custom');
+        this._updateFormTimes(start_time, end_time);
     }
 
     private _syncRequestTypeUser(form: FormGroup) {

@@ -8,7 +8,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import { randomInt } from '@placeos/common';
+import {
+    getTimeInTimezone,
+    randomInt,
+    setTimeInTimezone,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -79,5 +83,22 @@ describe('DateFieldComponent', () => {
 
         expect(spectator.component.date()).toBeNull();
         expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+    });
+
+    it('should preserve wall-clock time in the configured timezone', () => {
+        const timezone = 'UTC';
+        const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
+        const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
+        const on_change = jest.fn();
+        spectator.setInput('timezone', timezone);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(old_date);
+
+        spectator.component.setValue(new_date);
+
+        const { hours, minutes } = getTimeInTimezone(old_date, timezone);
+        expect(on_change).toHaveBeenCalledWith(
+            setTimeInTimezone(new_date, hours, minutes, timezone),
+        );
     });
 });
