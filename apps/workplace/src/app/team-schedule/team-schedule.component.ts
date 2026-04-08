@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { settingSignal } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { FullscreenEmbedComponent } from '../components/fullscreen-embed.component';
+import { SidebarEmbedComponent } from '../components/sidebar-embed.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { TeamQuickActionsComponent } from './team-quick-actions.component';
 import { TeamScheduleFiltersComponent } from './team-schedule-filters.component';
@@ -64,10 +65,38 @@ export class TeamScheduleComponent {
         'virtual_concierge_url',
         '',
     );
+    public readonly virtual_concierge_display = settingSignal<
+        'fullscreen' | 'sidebar'
+    >('virtual_concierge.display', 'fullscreen');
+    public readonly virtual_concierge_side = settingSignal<'left' | 'right'>(
+        'virtual_concierge.side',
+        'left',
+    );
 
     public viewVirtualConcierge() {
+        const url = this.virtual_concierge_url();
+        const is_sidebar = this.virtual_concierge_display() === 'sidebar';
+        const side = this.virtual_concierge_side();
+        const position =
+            side === 'right'
+                ? { right: '0', top: '0' }
+                : { left: '0', top: '0' };
+        if (is_sidebar) {
+            this._dialog.open(SidebarEmbedComponent, {
+                data: { url, side },
+                height: '100vh',
+                width: '28rem',
+                maxWidth: '100vw',
+                position,
+                panelClass: [
+                    'sidebar-embed-dialog',
+                    `sidebar-embed-dialog-${side}`,
+                ],
+            });
+            return;
+        }
         this._dialog.open(FullscreenEmbedComponent, {
-            data: this.virtual_concierge_url(),
+            data: url,
         });
     }
 }

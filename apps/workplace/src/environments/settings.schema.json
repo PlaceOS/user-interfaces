@@ -245,6 +245,27 @@
                     }
                 }
             }
+        },
+        "virtual_concierge": {
+            "type": "object",
+            "description": "Data associated with virtual concierge rendering",
+            "properties": {
+                "display": {
+                    "type": "string",
+                    "enum": ["fullscreen", "sidebar"],
+                    "description": "How the virtual concierge embed opens from workplace pages."
+                },
+                "side": {
+                    "type": "string",
+                    "enum": ["left", "right"],
+                    "description": "Which side of the screen the virtual concierge sidebar opens on when sidebar display is enabled."
+                },
+                "prompts": {
+                    "type": "array",
+                    "description": "Suggested prompts shown in the virtual concierge UI.",
+                    "items": { "type": "string" }
+                }
+            }
         }
     },
     "$defs": {

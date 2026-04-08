@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { FullscreenEmbedComponent } from '../components/fullscreen-embed.component';
+import { SidebarEmbedComponent } from '../components/sidebar-embed.component';
 import { TopbarComponent } from '../components/topbar.component';
 import { LandingStateService } from '../landing/landing-state.service';
 import { LandingAvailableNowComponent } from './landing-available-now.component';
@@ -21,7 +22,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
             @if (!hide_nav()) {
                 <topbar class="z-10" />
             }
-            <div class="relative flex h-1/2 flex-1 overflow-auto bg-base-200">
+            <div class="bg-base-200 relative flex h-1/2 flex-1 overflow-auto">
                 <div
                     class="mx-auto grid w-[80rem] max-w-full grid-cols-1 gap-4 p-4 md:grid-cols-3"
                 >
@@ -39,7 +40,7 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
                     <button
                         icon
                         matRipple
-                        class="absolute left-2 top-1/2 h-16 w-16 -translate-y-1/2 bg-secondary"
+                        class="bg-secondary absolute top-1/2 left-2 h-16 w-16 -translate-y-1/2"
                         (click)="viewVirtualConcierge()"
                     >
                         <img
@@ -79,8 +80,15 @@ export class LandingNewComponent
 
     public readonly hide_nav = signal(false);
     public readonly virtual_concierge_url = settingSignal(
-        'virtual_concierge_url',
+        'virtual_concierge.url',
         '',
+    );
+    public readonly virtual_concierge_display = settingSignal<
+        'fullscreen' | 'sidebar'
+    >('virtual_concierge.display', 'fullscreen');
+    public readonly virtual_concierge_side = settingSignal<'left' | 'right'>(
+        'virtual_concierge.side',
+        'left',
     );
 
     public ngOnInit() {
@@ -88,8 +96,29 @@ export class LandingNewComponent
     }
 
     public viewVirtualConcierge() {
+        const url = this.virtual_concierge_url();
+        const is_sidebar = this.virtual_concierge_display() === 'sidebar';
+        const side = this.virtual_concierge_side();
+        const position =
+            side === 'right'
+                ? { right: '0', top: '0' }
+                : { left: '0', top: '0' };
+        if (is_sidebar) {
+            this._dialog.open(SidebarEmbedComponent, {
+                data: { url, side },
+                height: '100vh',
+                width: '28rem',
+                maxWidth: '100vw',
+                position,
+                panelClass: [
+                    'sidebar-embed-dialog',
+                    `sidebar-embed-dialog-${side}`,
+                ],
+            });
+            return;
+        }
         this._dialog.open(FullscreenEmbedComponent, {
-            data: this.virtual_concierge_url(),
+            data: url,
         });
     }
 }
