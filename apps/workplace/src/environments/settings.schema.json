@@ -173,7 +173,7 @@
                 },
                 "request_types": {
                     "type": "array",
-                    "description": "Request type options shown in the parking request flow. Each item requires a `value` and `label`. Optional `description` and `badge` fields. Defaults to standard, special, and after_hours types.",
+                    "description": "Request type options shown in the parking request flow. Each item requires an `id` or `value` and a `name` or `label`. Optional `description`, `badge`, and `forced_time` fields. Defaults to standard, special, and after_hours types.",
                     "items": { "$ref": "#/$defs/parking_request_type" }
                 },
                 "request_space_restrictions": {
@@ -325,11 +325,22 @@
         },
         "parking_request_type": {
             "type": "object",
-            "required": ["value", "label"],
+            "anyOf": [
+                { "required": ["id", "name"] },
+                { "required": ["value", "label"] }
+            ],
             "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique value identifying this request type"
+                },
                 "value": {
                     "type": "string",
                     "description": "Unique value identifying this request type"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Display label for the request type. Supports translation keys."
                 },
                 "label": {
                     "type": "string",
@@ -352,6 +363,24 @@
                     "type": "string",
                     "enum": ["internals", "externals", "both"],
                     "description": "Optional host selection mode for this request type. When omitted or invalid, the host field is hidden."
+                },
+                "forced_time": {
+                    "$ref": "#/$defs/parking_request_time_window",
+                    "description": "Optional fixed start and end time for this request type. When set, the shift picker is hidden and the form time is locked to this range."
+                }
+            }
+        },
+        "parking_request_time_window": {
+            "type": "object",
+            "required": ["start_time", "end_time"],
+            "properties": {
+                "start_time": {
+                    "type": "number",
+                    "description": "Start time in minutes from midnight"
+                },
+                "end_time": {
+                    "type": "number",
+                    "description": "End time in minutes from midnight"
                 }
             }
         },
