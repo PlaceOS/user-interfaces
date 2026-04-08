@@ -52,6 +52,7 @@ import {
     first,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -94,11 +95,16 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         switchMap(() => {
             this._loading.next(true);
-            return getGroupsWithAssets({ zone_id: this._org.building?.id });
+            return getGroupsWithAssets({
+                zone_id: this._org.building?.id,
+            }).pipe(
+                map((r) => r.data),
+                catchError(() => of([])),
+            );
         }),
         tap((_) => this._loading.next(false)),
         shareReplay(1),
-    ) as any;
+    );
     /** List of available assets */
     public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
         this._change.pipe(
@@ -253,6 +259,7 @@ export class AssetManagerStateService extends AsyncHandler {
                   )
                 : list,
         ),
+        startWith([]),
     );
     /** Mapping of available assets to categories */
     public readonly product_mapping = combineLatest([
@@ -270,7 +277,7 @@ export class AssetManagerStateService extends AsyncHandler {
                     : '',
             }));
             const categories = unique(
-                mapped_products.map((i) => i.category_id),
+                mapped_products?.map((i) => i.category_id) || [],
             );
             for (const group of categories) {
                 map[group] = mapped_products.filter(
