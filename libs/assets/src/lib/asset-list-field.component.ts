@@ -9,6 +9,7 @@ import {
     AssetItem,
     AssetRequest,
     SettingsService,
+    Space,
     i18n,
     notifyError,
     randomInt,
@@ -250,7 +251,9 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         date?: number;
         duration?: number;
         all_day?: boolean;
+        zone?: string;
         zone_id?: string;
+        resources?: Space[];
     }>({});
     public readonly rejected_ids = input<string[]>([]);
     public asset_requests: AssetRequest[] = [];
@@ -288,8 +291,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
                 (_) => new AssetRequest({ ..._, event: options as any }),
             );
             this._state.setOptions({
-                date: options.date,
-                duration: options.duration,
+                ...options,
+                zone: options.zone || options.zone_id,
             });
         });
     }

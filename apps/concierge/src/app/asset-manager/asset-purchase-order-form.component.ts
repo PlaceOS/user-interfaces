@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     generateAssetPurchaseOrderForm,
+    queryAssetTypes,
     queryAssets,
     saveAssetPurchaseOrder,
 } from '@placeos/assets';
@@ -24,7 +25,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { queryAssetTypes, showAssetPurchaseOrder } from '@placeos/ts-client';
+import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';

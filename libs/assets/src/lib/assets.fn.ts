@@ -14,10 +14,10 @@ import {
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
-    queryAssetCategories,
+    queryAssetCategories as queryAssetCategoriesAPI,
     queryAssetPurchaseOrders,
-    queryAssets,
-    queryAssetTypes,
+    queryAssets as queryAssetsAPI,
+    queryAssetTypes as queryAssetTypesAPI,
     showAssetType,
     updateAsset,
     updateAssetCategory,
@@ -27,19 +27,83 @@ import {
 } from '@placeos/ts-client';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
+    bookedResourceList,
     BookingsQueryParams,
     createBooking,
     queryBookings,
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
-import { combineLatest, forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, EMPTY, Observable, of } from 'rxjs';
+import { expand, map, reduce, tap } from 'rxjs/operators';
 
-export {
-    queryAssetCategories,
-    queryAssetPurchaseOrders,
-    queryAssets,
-} from '@placeos/ts-client';
+export { queryAssetPurchaseOrders } from '@placeos/ts-client';
+
+function filter_hidden_items<T extends { data: any[] }>(response: T): T {
+    return {
+        ...response,
+        data: response.data.filter((item) => !item?.hidden),
+    };
+}
+
+function visible_category_ids() {
+    return queryAssetCategoriesAPI({}).pipe(
+        map(
+            (response) =>
+                new Set(
+                    response.data
+                        .filter((item) => !item?.hidden)
+                        .map((item) => item.id),
+                ),
+        ),
+    );
+}
+
+export function queryAssetCategories(query: any = {}) {
+    if (query.hidden === true) return queryAssetCategoriesAPI(query);
+    const { hidden, ...rest } = query;
+    return queryAssetCategoriesAPI(rest).pipe(map(filter_hidden_items));
+}
+
+export function queryAssetTypes(query: any = {}) {
+    if (query.hidden === true) return queryAssetTypesAPI(query);
+    const { hidden, ...rest } = query;
+    return combineLatest([
+        queryAssetTypesAPI(rest),
+        visible_category_ids(),
+    ]).pipe(
+        map(([response, visible_ids]) => ({
+            ...response,
+            data: response.data.filter(
+                (item) =>
+                    !(item as any)?.hidden && visible_ids.has(item.category_id),
+            ),
+        })),
+    );
+}
+
+export function queryAssets(query: any = {}) {
+    if (query.hidden === true) return queryAssetsAPI(query);
+    const { hidden, ...rest } = query;
+    return combineLatest([
+        queryAssetsAPI(rest),
+        queryAssetTypes({
+            ...(rest.zone_id ? { zone_id: rest.zone_id } : {}),
+            limit: 2000,
+        }),
+    ]).pipe(
+        map(([response, types]) => {
+            const visible_type_ids = new Set(types.data.map((item) => item.id));
+            return {
+                ...response,
+                data: response.data.filter(
+                    (item) =>
+                        !(item as any)?.hidden &&
+                        visible_type_ids.has(item.asset_type_id),
+                ),
+            };
+        }),
+    );
+}
 
 ////////////////////////////////
 ////    Asset Categories    ////
@@ -58,43 +122,76 @@ export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
 const REMOVE_QUERY_KEYS = ['period_start', 'period_end', 'type', 'rejected'];
 
+function queryAllAssetPages(query: any = {}) {
+    return queryAssetsAPI({ ...query, limit: query.limit || 500 }).pipe(
+        expand((response) =>
+            typeof response.next === 'function'
+                ? response.next() || EMPTY
+                : EMPTY,
+        ),
+        reduce(
+            (state, response) => ({
+                total: response.total,
+                data: [...state.data, ...response.data],
+            }),
+            {
+                total: 0,
+                data: [] as PlaceAsset[],
+            },
+        ),
+        map(({ total, data }) => ({ total, next: () => null, data })),
+    );
+}
+
 export function queryAssetGroupsExtended(
     query: any = {},
 ): Observable<AssetGroup[]> {
-    if (_GROUPS_CACHE.has(query.zones)) {
-        return of(_GROUPS_CACHE.get(query.zones));
+    const cache_key = JSON.stringify({
+        zones: query.zones || query.zone_id || '',
+        category_id: query.category_id || '',
+        q: query.q || '',
+        type_id: query.type_id || '',
+    });
+    if (_GROUPS_CACHE.has(cache_key)) {
+        return of(_GROUPS_CACHE.get(cache_key));
     }
     const q = { ...query };
     for (const key of REMOVE_QUERY_KEYS) {
         if (key in q) delete q[key];
     }
-    console.log('Query:', q, query);
-    return queryAssetTypes(q).pipe(
-        switchMap((list) =>
-            list.data.length
-                ? forkJoin(
-                      list.data.map((group) =>
-                          queryAssets({
-                              limit: 200,
-                              ...q,
-                              type_id: group.id,
-                          }).pipe(
-                              map(
-                                  (assets) =>
-                                      ({
-                                          ...group,
-                                          assets: assets.data,
-                                      }) as AssetGroup,
-                              ),
-                          ),
-                      ),
-                  )
-                : of([]),
-        ),
+    // Booking availability uses `zones`, while asset APIs use `zone_id`.
+    if (q.zones && !q.zone_id) q.zone_id = q.zones;
+    if (q.zones) delete q.zones;
+    return combineLatest([queryAssetTypesAPI(q), queryAllAssetPages(q)]).pipe(
+        map(([types, assets]) => {
+            let groups = types.data.filter((item) => !(item as any)?.hidden);
+            if (q.type_id)
+                groups = groups.filter((item) => item.id === q.type_id);
+            const visible_type_ids = new Set(groups.map((item) => item.id));
+            const assets_by_type = new Map<string, PlaceAsset[]>();
+            for (const asset of assets.data) {
+                if (
+                    (asset as any)?.hidden ||
+                    !visible_type_ids.has(asset.asset_type_id)
+                ) {
+                    continue;
+                }
+                const list = assets_by_type.get(asset.asset_type_id) || [];
+                list.push(asset);
+                assets_by_type.set(asset.asset_type_id, list);
+            }
+            return groups.map(
+                (group) =>
+                    ({
+                        ...group,
+                        assets: assets_by_type.get(group.id) || [],
+                    }) as AssetGroup,
+            );
+        }),
         tap((_) => {
-            _GROUPS_CACHE.set(query.zones, _);
+            _GROUPS_CACHE.set(cache_key, _);
             // Clear cache after 5 minutes
-            setTimeout(() => _GROUPS_CACHE.delete(query.zones), 5 * 60 * 1000);
+            setTimeout(() => _GROUPS_CACHE.delete(cache_key), 5 * 60 * 1000);
         }),
     );
 }
@@ -186,16 +283,12 @@ export function queryAvailableAssets(
     ignore?: string[],
 ) {
     query.type = 'asset-request';
-    return combineLatest([queryAssets(query), queryBookings(query)]).pipe(
-        map(([assets, bookings]) =>
+    return combineLatest([queryAssets(query), bookedResourceList(query)]).pipe(
+        map(([assets, booked_assets]) =>
             assets.data.filter(
                 (asset) =>
                     ignore?.includes(asset.id) ||
-                    !bookings.find(
-                        (booking) =>
-                            booking.asset_id === asset.id ||
-                            booking.asset_ids?.includes(asset.id),
-                    ),
+                    !booked_assets.find((id) => id === asset.id),
             ),
         ),
     );

@@ -30,6 +30,7 @@ import {
 
 export interface AssetOptions {
     zone?: string;
+    zone_id?: string;
     date: number;
     duration?: number;
     ignore?: string[];
@@ -59,7 +60,9 @@ export class AssetStateService {
         debounceTime(300),
         switchMap(([options, bld]) => {
             this._loading.next(this._loading.getValue() + '[Rules]');
-            return getAssetRulesForZone(bld.id || options.zone || '');
+            return getAssetRulesForZone(
+                options.zone || options.zone_id || bld.id || '',
+            );
         }),
         tap((_) =>
             this._loading.next(
@@ -84,10 +87,10 @@ export class AssetStateService {
 
     public readonly asset_bookings = this._options.pipe(
         debounceTime(300),
-        switchMap(({ zone, date }) => {
+        switchMap(({ zone, zone_id, date }) => {
             this._loading.next(this._loading.getValue() + '[Bookings]');
             return queryBookings({
-                zones: zone || '',
+                zones: zone || zone_id || '',
                 period_start: getUnixTime(startOfDay(date)),
                 period_end: getUnixTime(endOfDay(date)),
                 type: 'asset-request',
@@ -106,10 +109,10 @@ export class AssetStateService {
         this._org.active_building,
     ]).pipe(
         debounceTime(1000),
-        switchMap(([{ zone, date, duration, ignore }, bld]) => {
+        switchMap(([{ zone, zone_id, date, duration, ignore }, bld]) => {
             return queryGroupAvailability(
                 {
-                    zones: bld.id || zone || '',
+                    zones: zone || zone_id || bld.id || '',
                     period_start: getUnixTime(startOfMinute(date)),
                     period_end: getUnixTime(
                         endOfMinute(addMinutes(date, duration || 30)),
@@ -118,16 +121,23 @@ export class AssetStateService {
                     rejected: false,
                 } as any,
                 ignore,
-            ).pipe(catchError(() => of([] as AssetGroup[])));
+            ).pipe(
+                catchError((e) => {
+                    console.error(e);
+                    return of([] as AssetGroup[]);
+                }),
+            );
         }),
         map((list) => list.sort((a, b) => a.name.localeCompare(b.name))),
+        tap((l) => console.log('Items returned:', l)),
         tap((_) => updateAssetGroupList(_)),
         shareReplay(1),
     );
 
     public readonly category_list = this._org.active_building.pipe(
         filter((bld) => !!bld),
-        switchMap((bld) => queryAssetCategories({ zone_id: bld.id } as any)),
+        // Asset categories are global, not building-scoped.
+        switchMap(() => queryAssetCategories()),
         map((_) =>
             _.data
                 .sort((a, b) => a.name.localeCompare(b.name))
