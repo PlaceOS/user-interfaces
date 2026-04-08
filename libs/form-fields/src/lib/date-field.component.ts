@@ -17,8 +17,13 @@ import {
     NgControl,
 } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { getTimezoneOffsetString, markUserDateChange } from '@placeos/common';
-import { addYears, endOfDay, set, startOfDay } from 'date-fns';
+import {
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+    markUserDateChange,
+    setTimeInTimezone,
+} from '@placeos/common';
+import { addYears, endOfDay, startOfDay } from 'date-fns';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -237,13 +242,14 @@ export class DateFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: number) {
-        // Keep hours and minutes of the old date
-        const old_date = new Date(this.date() || Date.now());
-        let new_date = set(new_value, {
-            hours: old_date.getHours(),
-            minutes: old_date.getMinutes(),
-        }).valueOf();
-        // Check that new date is not before from date
+        // Keep the existing wall-clock time in the selected timezone.
+        const timezone = this.timezone() || undefined;
+        const { hours, minutes } = getTimeInTimezone(
+            this.date() || Date.now(),
+            timezone,
+        );
+        let new_date = setTimeInTimezone(new_value, hours, minutes, timezone);
+        // Check that new date is not before the configured minimum.
         if (new_date < this.from.valueOf()) {
             new_date = this.from.valueOf();
         }

@@ -55,11 +55,21 @@ interface ParkingRequestShiftOption {
     name: string;
     start_time: number;
     end_time: number;
+    groups?: string[];
 }
 
 interface ParkingRequestOption {
     id: string;
     name: string;
+}
+
+interface ParkingRequestTimeWindow {
+    start_time: number;
+    end_time: number;
+}
+
+interface ParkingRequestShiftState extends ParkingRequestTimeWindow {
+    type: string;
 }
 
 interface VehicleTypeOption {
@@ -69,6 +79,19 @@ interface VehicleTypeOption {
 
 type ParkingRequestBookAs = 'internals' | 'externals' | 'both';
 
+interface ParkingRequestTypeConfig {
+    id?: string;
+    value?: string;
+    name?: string;
+    label?: string;
+    description?: string;
+    badge?: string;
+    groups?: string[];
+    approver_groups?: string[];
+    book_as?: ParkingRequestBookAs;
+    forced_time?: ParkingRequestTimeWindow;
+}
+
 interface ParkingRequestType {
     id: string;
     name: string;
@@ -77,6 +100,7 @@ interface ParkingRequestType {
     groups?: string[];
     approver_groups?: string[];
     book_as?: ParkingRequestBookAs;
+    forced_time?: ParkingRequestTimeWindow;
 }
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
@@ -559,171 +583,222 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                     </div>
                 </div>
                 <div class="space-y-3 p-4">
-                    <div class="space-y-3">
-                        <div>
-                            @if (show_shift_select()) {
+                    @if (forced_request_time(); as forced_time) {
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
                                 <label class="mb-1 block text-sm font-medium">
                                     {{
-                                        'BOOKINGS.PARKING_SHIFT_TYPE'
+                                        'BOOKINGS.PARKING_START_TIME'
                                             | translate
                                     }}
                                 </label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
+                                <div
+                                    class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
                                 >
-                                    <mat-select
-                                        [value]="shift_type()"
-                                        (selectionChange)="
-                                            setShiftType($event.value)
-                                        "
-                                    >
-                                        <mat-select-trigger>
-                                            @if (
-                                                selected_shift_option();
-                                                as option
-                                            ) {
-                                                {{ option.name | translate }}
-                                                ({{
-                                                    shiftTime(option.start_time)
-                                                        | date: time_format
-                                                }}
-                                                -
-                                                {{
-                                                    shiftTime(option.end_time)
-                                                        | date: time_format
-                                                }})
-                                            } @else {
-                                                {{
-                                                    'BOOKINGS.PARKING_SHIFT_CUSTOM'
-                                                        | translate
-                                                }}
-                                                ({{
-                                                    shiftTime(start_time_mins())
-                                                        | date: time_format
-                                                }}
-                                                -
-                                                {{
-                                                    shiftTime(end_time_mins())
-                                                        | date: time_format
-                                                }})
-                                            }
-                                        </mat-select-trigger>
-                                        @for (
-                                            option of shift_options();
-                                            track option.id
-                                        ) {
-                                            <mat-option [value]="option.id">
-                                                {{ option.name | translate }}
-                                                ({{
-                                                    shiftTime(option.start_time)
-                                                        | date: time_format
-                                                }}
-                                                -
-                                                {{
-                                                    shiftTime(option.end_time)
-                                                        | date: time_format
-                                                }})
-                                            </mat-option>
-                                        }
-                                        @if (!hide_custom_shift()) {
-                                            <mat-option value="custom">
-                                                {{
-                                                    'BOOKINGS.PARKING_SHIFT_CUSTOM'
-                                                        | translate
-                                                }}
-                                                ({{
-                                                    shiftTime(
-                                                        custom_start_time_mins()
-                                                    ) | date: time_format
-                                                }}
-                                                -
-                                                {{
-                                                    shiftTime(
-                                                        custom_end_time_mins()
-                                                    ) | date: time_format
-                                                }})
-                                            </mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            }
-                        </div>
-                        @if (
-                            shift_type() === 'custom' && !hide_custom_shift()
-                        ) {
-                            <div class="flex gap-4">
-                                <div class="flex-1">
-                                    <label
-                                        class="mb-1 block text-sm font-medium"
-                                    >
-                                        {{
-                                            'BOOKINGS.PARKING_START_TIME'
-                                                | translate
-                                        }}
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            [value]="start_time_mins()"
-                                            (selectionChange)="
-                                                setStartTime($event.value)
-                                            "
-                                        >
-                                            @for (
-                                                opt of time_options();
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{
-                                                        shiftTime(opt.value)
-                                                            | date: time_format
-                                                    }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                    </mat-form-field>
-                                </div>
-                                <div class="flex-1">
-                                    <label
-                                        class="mb-1 block text-sm font-medium"
-                                    >
-                                        {{
-                                            'BOOKINGS.PARKING_END_TIME'
-                                                | translate
-                                        }}
-                                    </label>
-                                    <mat-form-field
-                                        appearance="outline"
-                                        class="w-full"
-                                    >
-                                        <mat-select
-                                            [value]="end_time_mins()"
-                                            (selectionChange)="
-                                                setEndTime($event.value)
-                                            "
-                                        >
-                                            @for (
-                                                opt of time_options();
-                                                track opt.value
-                                            ) {
-                                                <mat-option
-                                                    [value]="opt.value"
-                                                    >{{
-                                                        shiftTime(opt.value)
-                                                            | date: time_format
-                                                    }}</mat-option
-                                                >
-                                            }
-                                        </mat-select>
-                                    </mat-form-field>
+                                    {{
+                                        shiftTime(forced_time.start_time)
+                                            | date: time_format
+                                    }}
                                 </div>
                             </div>
-                        }
-                    </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium">
+                                    {{
+                                        'BOOKINGS.PARKING_END_TIME' | translate
+                                    }}
+                                </label>
+                                <div
+                                    class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
+                                >
+                                    {{
+                                        shiftTime(forced_time.end_time)
+                                            | date: time_format
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="space-y-3">
+                            <div>
+                                @if (show_shift_select()) {
+                                    <label
+                                        class="mb-1 block text-sm font-medium"
+                                    >
+                                        {{
+                                            'BOOKINGS.PARKING_SHIFT_TYPE'
+                                                | translate
+                                        }}
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <mat-select
+                                            [value]="shift_type()"
+                                            (selectionChange)="
+                                                setShiftType($event.value)
+                                            "
+                                        >
+                                            <mat-select-trigger>
+                                                @if (
+                                                    selected_shift_option();
+                                                    as option
+                                                ) {
+                                                    {{
+                                                        option.name | translate
+                                                    }}
+                                                    ({{
+                                                        shiftTime(
+                                                            option.start_time
+                                                        ) | date: time_format
+                                                    }}
+                                                    -
+                                                    {{
+                                                        shiftTime(
+                                                            option.end_time
+                                                        ) | date: time_format
+                                                    }})
+                                                } @else {
+                                                    {{
+                                                        'BOOKINGS.PARKING_SHIFT_CUSTOM'
+                                                            | translate
+                                                    }}
+                                                    ({{
+                                                        shiftTime(
+                                                            start_time_mins()
+                                                        ) | date: time_format
+                                                    }}
+                                                    -
+                                                    {{
+                                                        shiftTime(
+                                                            end_time_mins()
+                                                        ) | date: time_format
+                                                    }})
+                                                }
+                                            </mat-select-trigger>
+                                            @for (
+                                                option of shift_options();
+                                                track option.id
+                                            ) {
+                                                <mat-option [value]="option.id">
+                                                    {{
+                                                        option.name | translate
+                                                    }}
+                                                    ({{
+                                                        shiftTime(
+                                                            option.start_time
+                                                        ) | date: time_format
+                                                    }}
+                                                    -
+                                                    {{
+                                                        shiftTime(
+                                                            option.end_time
+                                                        ) | date: time_format
+                                                    }})
+                                                </mat-option>
+                                            }
+                                            @if (!hide_custom_shift()) {
+                                                <mat-option value="custom">
+                                                    {{
+                                                        'BOOKINGS.PARKING_SHIFT_CUSTOM'
+                                                            | translate
+                                                    }}
+                                                    ({{
+                                                        shiftTime(
+                                                            custom_start_time_mins()
+                                                        ) | date: time_format
+                                                    }}
+                                                    -
+                                                    {{
+                                                        shiftTime(
+                                                            custom_end_time_mins()
+                                                        ) | date: time_format
+                                                    }})
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                }
+                            </div>
+                            @if (
+                                shift_type() === 'custom' &&
+                                !hide_custom_shift()
+                            ) {
+                                <div class="flex gap-4">
+                                    <div class="flex-1">
+                                        <label
+                                            class="mb-1 block text-sm font-medium"
+                                        >
+                                            {{
+                                                'BOOKINGS.PARKING_START_TIME'
+                                                    | translate
+                                            }}
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                [value]="start_time_mins()"
+                                                (selectionChange)="
+                                                    setStartTime($event.value)
+                                                "
+                                            >
+                                                @for (
+                                                    opt of time_options();
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            shiftTime(opt.value)
+                                                                | date
+                                                                    : time_format
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1">
+                                        <label
+                                            class="mb-1 block text-sm font-medium"
+                                        >
+                                            {{
+                                                'BOOKINGS.PARKING_END_TIME'
+                                                    | translate
+                                            }}
+                                        </label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full"
+                                        >
+                                            <mat-select
+                                                [value]="end_time_mins()"
+                                                (selectionChange)="
+                                                    setEndTime($event.value)
+                                                "
+                                            >
+                                                @for (
+                                                    opt of time_options();
+                                                    track opt.value
+                                                ) {
+                                                    <mat-option
+                                                        [value]="opt.value"
+                                                        >{{
+                                                            shiftTime(opt.value)
+                                                                | date
+                                                                    : time_format
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <!-- LOCATION PREFERENCE -->
@@ -1102,6 +1177,7 @@ export class ParkingRequestFormDetailsComponent
     private _org = inject(OrganisationService);
     private _uploads = inject(UploadsService);
     private _dialog = inject(MatDialog);
+    private _saved_shift_state: ParkingRequestShiftState | null = null;
 
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(true);
@@ -1202,9 +1278,19 @@ export class ParkingRequestFormDetailsComponent
     public readonly supporting_doc_names = signal<string[]>([]);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
-    public readonly shift_options = computed(() =>
-        this._normaliseShiftOptions(this.shift_options_setting()),
-    );
+    public readonly shift_options = computed(() => {
+        const user_groups = currentUser()?.groups || [];
+        return this._normaliseShiftOptions(this.shift_options_setting()).filter(
+            (option) => {
+                if (option.groups?.length) {
+                    return option.groups.some((group) =>
+                        user_groups.includes(group),
+                    );
+                }
+                return true;
+            },
+        );
+    });
     public readonly selected_shift_option = computed(() =>
         this.shift_options().find((_) => _.id === this.shift_type()),
     );
@@ -1224,6 +1310,9 @@ export class ParkingRequestFormDetailsComponent
         this.request_types().find(
             (_) => _.id === this.selected_request_type_id(),
         ),
+    );
+    public readonly forced_request_time = computed(
+        () => this.selected_request_type()?.forced_time || null,
     );
     public readonly host_book_as = computed<ParkingRequestBookAs | null>(() => {
         const book_as = this.selected_request_type()?.book_as;
@@ -1278,13 +1367,14 @@ export class ParkingRequestFormDetailsComponent
         },
     ];
 
-    public readonly request_types_setting = settingSignal<ParkingRequestType[]>(
-        'parking.request_types',
-        null,
-    );
+    public readonly request_types_setting = settingSignal<
+        ParkingRequestTypeConfig[]
+    >('parking.request_types', null);
 
     public readonly request_types = computed(() => {
-        const custom_types = this.request_types_setting();
+        const custom_types = this._normaliseRequestTypes(
+            this.request_types_setting(),
+        );
         const all_types =
             custom_types?.length > 0
                 ? custom_types
@@ -1429,6 +1519,7 @@ export class ParkingRequestFormDetailsComponent
         if (form.value.request_type) {
             this.selected_request_type_id.set(form.value.request_type);
         }
+        this._syncRequestTypeTime(form);
         this._syncRequestTypeUser(form);
         if (
             this.filtered_approver_group_options().length &&
@@ -1518,6 +1609,7 @@ export class ParkingRequestFormDetailsComponent
         const form = this.form();
         if (!form) return;
         form.patchValue({ request_type: type_id });
+        this._syncRequestTypeTime(form);
         this._syncRequestTypeUser(form);
         const options = this.filtered_approver_group_options();
         if (options.length && !this.is_auto_approved()) {
@@ -1790,6 +1882,7 @@ export class ParkingRequestFormDetailsComponent
                 name: option.name || option.id,
                 start_time: option.start_time,
                 end_time: option.end_time,
+                groups: option.groups?.filter((group) => !!group),
             }));
     }
 
@@ -1802,6 +1895,106 @@ export class ParkingRequestFormDetailsComponent
                 id: option.id,
                 name: option.name || option.id,
             }));
+    }
+
+    private _normaliseRequestTypes(
+        request_types: ParkingRequestTypeConfig[] | undefined,
+    ): ParkingRequestType[] {
+        return ((request_types || [])
+            .map((type) => {
+                const id = type?.id || type?.value;
+                if (!id) return null;
+                const forced_time =
+                    typeof type.forced_time?.start_time === 'number' &&
+                    typeof type.forced_time?.end_time === 'number'
+                        ? this._normaliseCustomShift(
+                              type.forced_time.start_time,
+                              type.forced_time.end_time,
+                          )
+                        : undefined;
+                return {
+                    id,
+                    name: type.name || type.label || id,
+                    description: type.description,
+                    badge: type.badge,
+                    groups: type.groups?.filter((group) => !!group),
+                    approver_groups: type.approver_groups?.filter(
+                        (group) => !!group,
+                    ),
+                    book_as:
+                        type.book_as === 'internals' ||
+                        type.book_as === 'externals' ||
+                        type.book_as === 'both'
+                            ? type.book_as
+                            : undefined,
+                    forced_time,
+                };
+            })
+            .filter((type) => !!type) || []) as ParkingRequestType[];
+    }
+
+    private _syncRequestTypeTime(form: FormGroup) {
+        const forced_time = this.forced_request_time();
+        if (forced_time) {
+            if (!this._saved_shift_state) {
+                this._saved_shift_state = {
+                    type: this.shift_type(),
+                    start_time: this.start_time_mins(),
+                    end_time: this.end_time_mins(),
+                };
+            }
+            this.custom_start_time_mins.set(forced_time.start_time);
+            this.custom_end_time_mins.set(forced_time.end_time);
+            this.start_time_mins.set(forced_time.start_time);
+            this.end_time_mins.set(forced_time.end_time);
+            this.shift_type.set('custom');
+            this._updateFormTimes(forced_time.start_time, forced_time.end_time);
+            return;
+        }
+        if (this._saved_shift_state) {
+            const saved_shift = this._saved_shift_state;
+            this._saved_shift_state = null;
+            this._restoreShiftState(saved_shift);
+            return;
+        }
+        this._detectShiftType(this.start_time_mins(), this.end_time_mins());
+        this.custom_start_time_mins.set(this.start_time_mins());
+        this.custom_end_time_mins.set(this.end_time_mins());
+        if (this.shift_type() === 'custom' && this.hide_custom_shift()) {
+            const default_shift = this.shift_options()[0];
+            if (default_shift) {
+                this.setShiftType(default_shift.id);
+            }
+        }
+    }
+
+    private _restoreShiftState(shift: ParkingRequestShiftState) {
+        const preset =
+            (shift.type !== 'custom' &&
+                this.shift_options().find((_) => _.id === shift.type)) ||
+            this.shift_options().find(
+                (_) =>
+                    _.start_time === shift.start_time &&
+                    _.end_time === shift.end_time,
+            );
+        if (preset) {
+            this.setShiftType(preset.id);
+            return;
+        }
+        const { start_time, end_time } = this._normaliseCustomShift(
+            shift.start_time,
+            shift.end_time,
+        );
+        if (this.hide_custom_shift() && this.shift_options()[0]) {
+            this.setShiftType(this.shift_options()[0].id);
+            return;
+        }
+        this.custom_start_time_mins.set(start_time);
+        this.custom_end_time_mins.set(end_time);
+        this.start_time_mins.set(start_time);
+        this.end_time_mins.set(end_time);
+        this.shift_type.set('custom');
+        this._updateFormTimes(start_time, end_time);
     }
 
     private _syncRequestTypeUser(form: FormGroup) {

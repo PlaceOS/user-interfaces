@@ -14,7 +14,7 @@ import {
     i18n,
     SettingsService,
 } from '@placeos/common';
-import { addMinutes, format, isSameDay } from 'date-fns';
+import { addMinutes, format, isSameDay, isSameWeek } from 'date-fns';
 import { map } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
@@ -225,7 +225,15 @@ export class BookingCardComponent {
         if (booking?.status === 'approved') return 'success';
         if (booking?.status === 'declined') return 'error';
         if (booking?.status === 'cancelled') return 'error';
-        if (booking?.status === 'tentative') return 'warning';
+        if (booking?.status === 'tentative') {
+            if (
+                (booking.booking_type === 'parking',
+                isSameWeek(Date.now(), booking.date))
+            ) {
+                return 'info';
+            }
+            return 'warning';
+        }
         return 'warning';
     });
 
