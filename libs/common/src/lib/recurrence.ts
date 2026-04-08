@@ -243,12 +243,26 @@ export function toBookingRecurrence(
     r: Recurrence,
     date: number = Date.now(),
 ): BookingRecurrence {
-    if (r.type === 'none') return { recurrence_type: 'none' };
+    if (r.type === 'none') {
+        return {
+            recurrence_custom: false,
+            recurrence_type: 'none',
+            recurrence_days: undefined,
+            recurrence_nth_of_month: undefined,
+            recurrence_interval: undefined,
+            recurrence_end: undefined,
+            recurrence_instances: undefined,
+        };
+    }
 
     const booking: BookingRecurrence = {
         recurrence_custom: r._custom,
         recurrence_type: r.type === 'yearly' ? 'monthly' : r.type,
+        recurrence_days: undefined,
+        recurrence_nth_of_month: undefined,
         recurrence_interval: r.type === 'yearly' ? r.interval * 12 : r.interval,
+        recurrence_end: undefined,
+        recurrence_instances: undefined,
     };
 
     if (r.end_type === 'date' && r.end_date) {

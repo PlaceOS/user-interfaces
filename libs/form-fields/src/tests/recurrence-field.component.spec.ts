@@ -20,7 +20,7 @@ import {
 } from 'date-fns';
 import { MockModule, MockProvider } from 'ng-mocks';
 
-import { BookingRecurrence } from '@placeos/common';
+import { BookingRecurrence, NO_RECURR } from '@placeos/common';
 import { RecurrenceFieldComponent } from '../lib/recurrence-field.component';
 
 // ---------------------------------------------------------------------------
@@ -609,6 +609,36 @@ describe('RecurrenceFieldComponent – date change regression', () => {
             expect(spectator.component.formatted_value()).toContain(
                 '2 instances',
             );
+        });
+
+        it('clears stale custom booking fields when switching back to none', () => {
+            const jan8 = new Date(2024, 0, 8).valueOf();
+            setDate(jan8);
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([1 as any]),
+                end_type: 'instances',
+                end_instances: 4,
+                end_date: endOfWeek(addWeeks(jan8, 3)).valueOf(),
+            });
+
+            const custom_value = spectator.component.toRaw(
+                spectator.component.value(),
+            ) as BookingRecurrence;
+            const cleared_value = {
+                ...custom_value,
+                ...(spectator.component.toRaw(NO_RECURR) as BookingRecurrence),
+            };
+
+            spectator.component.writeValue(cleared_value);
+
+            expect(spectator.component.value().type).toBe('none');
+            expect(spectator.component.value()._custom).toBe(false);
+            expect(spectator.component.recurr_type()).toBe('none');
+            expect(spectator.component.formatted_value()).toBe('');
         });
     });
 });
