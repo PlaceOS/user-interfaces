@@ -365,10 +365,22 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     });
     public readonly filter_options = [
         { label: 'COMMON.ALL', value: 'all' },
-        { label: 'APP.CONCIERGE.PARKING_TAB_REQUESTS', value: 'requests' },
-        { label: 'APP.CONCIERGE.PARKING_FILTER_MANUAL', value: 'manual' },
-        { label: 'APP.CONCIERGE.PARKING_WAITLIST', value: 'waitlist' },
-        { label: 'APP.CONCIERGE.PARKING_TAB_BOOKINGS', value: 'bookings' },
+        {
+            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST',
+            value: 'requests',
+        },
+        {
+            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL',
+            value: 'manual',
+        },
+        {
+            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED',
+            value: 'waitlist',
+        },
+        {
+            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED',
+            value: 'bookings',
+        },
     ] as const;
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
