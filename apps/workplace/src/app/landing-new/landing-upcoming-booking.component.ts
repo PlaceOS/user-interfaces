@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,20 +13,24 @@ import {
     AsyncHandler,
     Booking,
     CalendarEvent,
+    currentUser,
     i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
 import {
+    BindingDirective,
     IconComponent,
     MapLocateModalComponent,
     TranslatePipe,
 } from '@placeos/components';
 import {
+    checkinEventGuest,
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
 import { LandingStateService } from '../landing/landing-state.service';
 import { ScheduleStateService } from '../schedule/schedule-state.service';
@@ -38,6 +42,16 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
             <div
                 class="bg-grad border-base-300 text-brand-content col-span-2 space-y-2 rounded-lg border p-4"
             >
+                @if (room_system_id(); as room_id) {
+                    <i
+                        binding
+                        class="hidden"
+                        [(model)]="room_status"
+                        [sys]="room_id"
+                        mod="Bookings"
+                        bind="status"
+                    ></i>
+                }
                 <div class="flex w-full items-center justify-between">
                     <div
                         class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
@@ -235,6 +249,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
     imports: [
         CommonModule,
         MatRippleModule,
+        BindingDirective,
         IconComponent,
         TranslatePipe,
         RouterLink,
@@ -249,6 +264,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _router = inject(Router);
 
     public readonly upcomingEvents = toSignal(this._state.upcoming_events);
+    public readonly room_status = signal('');
 
     public readonly edit_fn = (i) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
@@ -260,14 +276,29 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         return events?.[0];
     });
 
+    public readonly room_system_id = computed(() => {
+        const event = this.nextEvent();
+        if (
+            !(event instanceof CalendarEvent) ||
+            event.extension_data?.shared_event
+        )
+            return '';
+        return event.space?.id || event.system?.id || '';
+    });
+
     public readonly canCheckin = computed(() => {
         const event = this.nextEvent();
         const can_checkin =
             event instanceof Booking
                 ? !event.checked_out_at
-                : event?.can_check_in;
+                : event?.extension_data?.shared_event
+                  ? event?.can_check_in
+                  : event?.can_check_in;
         return (
             can_checkin &&
+            (event instanceof Booking ||
+                event?.extension_data?.shared_event ||
+                (this.room_status() && this.room_status() !== 'free')) &&
             (event.state === 'upcoming' ||
                 event.state === 'started' ||
                 event.state === 'in_progress') &&
@@ -326,9 +357,32 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public readonly isCheckedIn = computed(() => {
         const event = this.nextEvent();
-        if (!event || !(event instanceof Booking)) return false;
-        return event.checked_in;
+        if (!event) return false;
+        if (event instanceof Booking) return event.checked_in;
+        if (!event.extension_data?.shared_event) {
+            return (
+                !!this.room_status() &&
+                this.room_status() !== 'pending' &&
+                this.room_status() !== 'free'
+            );
+        }
+        const user_email = currentUser()?.email?.toLowerCase();
+        if (!user_email) return false;
+        const checked_in = (event.extension_data as any)?.checked_in || [];
+        return checked_in.some(
+            (email: string) => `${email}`.toLowerCase() === user_email,
+        );
     });
+
+    constructor() {
+        super();
+        this.subscription(
+            'reset_room_status',
+            this._state.upcoming_events.subscribe(() =>
+                this.room_status.set(''),
+            ),
+        );
+    }
 
     public readonly attendeeCount = computed(() => {
         const event = this.nextEvent();
@@ -341,10 +395,25 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public async checkIn() {
         const event = this.nextEvent();
-        if (!event || !(event instanceof Booking)) return;
+        if (!event) return;
 
         try {
-            await checkinBooking(event.id, true).toPromise();
+            if (event instanceof Booking) {
+                await checkinBooking(event.id, true).toPromise();
+            } else if (event.extension_data?.shared_event) {
+                const user_email = currentUser()?.email;
+                if (!user_email) throw new Error('Missing current user email');
+                await checkinEventGuest(event.id, user_email, true, {
+                    system_id: event.system?.id,
+                }).toPromise();
+            } else {
+                const mod = getModule(
+                    event.space?.id || event.system?.id,
+                    'Bookings',
+                );
+                if (!mod) throw new Error('Missing bookings module');
+                await mod.execute('checkin', [Math.floor(event.date / 1000)]);
+            }
             notifySuccess('Successfully checked in');
             this._state.refreshUpcomingEvents();
         } catch (error) {

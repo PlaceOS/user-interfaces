@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
-import { Booking, OrganisationService } from '@placeos/common';
+import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-upcoming-booking.component';
@@ -94,5 +94,24 @@ describe('LandingUpcomingBookingComponent', () => {
 
         expect(refreshUpcomingEvents).toHaveBeenCalled();
         jest.useRealTimers();
+    });
+
+    it('should reflect checked in state for room events', () => {
+        upcoming_events.next([
+            new CalendarEvent({
+                id: 'event-1',
+                title: 'Room Booking',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+                system: { id: 'sys-1' },
+            } as any),
+        ]);
+        spectator.component.room_status.set('busy');
+
+        spectator.detectChanges();
+
+        expect(spectator.component.isCheckedIn()).toBe(true);
+        expect(spectator.query('button[btn]')).toBeDisabled();
     });
 });
