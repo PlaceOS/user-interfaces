@@ -42,6 +42,7 @@ interface ParkingRequestShiftOption {
     name: string;
     start_time: number;
     end_time: number;
+    groups?: string[];
 }
 
 interface ParkingRequestOption {
@@ -1041,9 +1042,19 @@ export class ParkingRequestFormDetailsComponent
     public readonly end_time_mins = signal<number>(1020);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
-    public readonly shift_options = computed(() =>
-        this._normaliseShiftOptions(this.shift_options_setting()),
-    );
+    public readonly shift_options = computed(() => {
+        const user_groups = currentUser()?.groups || [];
+        return this._normaliseShiftOptions(this.shift_options_setting()).filter(
+            (option) => {
+                if (option.groups?.length) {
+                    return option.groups.some((group) =>
+                        user_groups.includes(group),
+                    );
+                }
+                return true;
+            },
+        );
+    });
     public readonly selected_shift_option = computed(() =>
         this.shift_options().find((_) => _.id === this.shift_type()),
     );
@@ -1557,6 +1568,7 @@ export class ParkingRequestFormDetailsComponent
                 name: option.name || option.id,
                 start_time: option.start_time,
                 end_time: option.end_time,
+                groups: option.groups?.filter((group) => !!group),
             }));
     }
 

@@ -163,7 +163,7 @@
                 },
                 "request_shift_options": {
                     "type": "array",
-                    "description": "Shift presets shown in the parking request flow. The custom shift option is always shown separately.",
+                    "description": "Shift presets shown in the parking request flow. Each preset can optionally be limited to specific user groups. The custom shift option is always shown separately.",
                     "items": { "$ref": "#/$defs/parking_request_shift_option" }
                 },
                 "auto_approved_groups": {
@@ -374,6 +374,11 @@
                 "end_time": {
                     "type": "number",
                     "description": "Shift end time in minutes from midnight"
+                },
+                "groups": {
+                    "type": "array",
+                    "description": "Optional list of user groups that can see this shift preset. If empty or omitted, the preset is visible to all users.",
+                    "items": { "type": "string" }
                 }
             }
         }
