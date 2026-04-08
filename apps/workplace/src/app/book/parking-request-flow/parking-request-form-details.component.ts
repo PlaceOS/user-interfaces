@@ -31,6 +31,7 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
+    startOfDay,
     startOfWeek,
 } from 'date-fns';
 import { combineLatest, of } from 'rxjs';
@@ -1238,20 +1239,7 @@ export class ParkingRequestFormDetailsComponent
 
     public get weekdays(): number[] {
         if (this.booking_frequency() !== 'daily') return [];
-        const form = this.form();
-        const date = form?.getRawValue()?.date || Date.now();
-        const week_start = startOfWeek(date, { weekStartsOn: 1 });
-        const selected = this.selected_days();
-        const weeks = this.num_weeks();
-        const dates: number[] = [];
-        for (let w = 0; w < weeks; w++) {
-            for (let d = 0; d < 7; d++) {
-                if (selected.has(d + 1)) {
-                    dates.push(addDays(week_start, w * 7 + d).valueOf());
-                }
-            }
-        }
-        return dates;
+        return this._computeRecurrenceDates();
     }
 
     public get region_name(): string {
@@ -1406,11 +1394,24 @@ export class ParkingRequestFormDetailsComponent
                 if (days.size > 0) this.selected_days.set(days);
             }
             if (form.value.recurrence_end && date) {
-                const week_start = startOfWeek(date, { weekStartsOn: 1 });
-                const diff = form.value.recurrence_end - week_start.valueOf();
+                const reference = startOfDay(date);
+                const ref_dow =
+                    reference.getDay() === 0 ? 7 : reference.getDay();
+                const selected = [...this.selected_days()];
+                const max_offset_days = selected.length
+                    ? Math.max(
+                          ...selected.map((d) => (d - ref_dow + 7) % 7),
+                      )
+                    : 0;
+                const day_ms = 24 * 60 * 60 * 1000;
+                const diff_days = Math.floor(
+                    (startOfDay(form.value.recurrence_end).valueOf() -
+                        reference.valueOf()) /
+                        day_ms,
+                );
                 const weeks = Math.max(
                     1,
-                    Math.ceil(diff / (7 * 24 * 60 * 60 * 1000)),
+                    Math.floor((diff_days - max_offset_days) / 7) + 1,
                 );
                 this.num_weeks.set(Math.min(weeks, this.max_weeks()));
             }
@@ -1430,6 +1431,7 @@ export class ParkingRequestFormDetailsComponent
         }
         this.selected_days.set(days);
         this._updateRecurrenceDays();
+        this._updateRecurrenceEnd();
     }
 
     public setNumWeeks(weeks: number) {
@@ -1468,14 +1470,12 @@ export class ParkingRequestFormDetailsComponent
         } else {
             this.selected_days.set(new Set([1, 2, 3, 4, 5]));
             this.num_weeks.set(1);
-            const date = form.getRawValue().date || Date.now();
-            const week_start = startOfWeek(date, { weekStartsOn: 1 });
             form.patchValue({
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_days: this._computeDaysBitmask(),
-                recurrence_end: endOfDay(addDays(week_start, 6)).valueOf(),
             });
+            this._updateRecurrenceEnd();
         }
     }
 
@@ -1589,15 +1589,29 @@ export class ParkingRequestFormDetailsComponent
     private _updateRecurrenceEnd() {
         const form = this.form();
         if (!form || this.booking_frequency() !== 'daily') return;
-        const date = form.getRawValue().date || Date.now();
-        const week_start = startOfWeek(date, { weekStartsOn: 1 });
-        const last_day_of_week = addDays(
-            week_start,
-            (this.num_weeks() - 1) * 7 + 6,
-        );
+        const dates = this._computeRecurrenceDates();
+        if (!dates.length) return;
         form.patchValue({
-            recurrence_end: endOfDay(last_day_of_week).valueOf(),
+            recurrence_end: endOfDay(dates[dates.length - 1]).valueOf(),
         });
+    }
+
+    private _computeRecurrenceDates(): number[] {
+        const form = this.form();
+        if (!form) return [];
+        const raw_date = form.getRawValue()?.date || Date.now();
+        const reference = startOfDay(raw_date);
+        const ref_dow = reference.getDay() === 0 ? 7 : reference.getDay();
+        const selected = [...this.selected_days()].sort((a, b) => a - b);
+        const weeks = Math.max(1, this.num_weeks());
+        const dates: number[] = [];
+        for (const day of selected) {
+            const offset = (day - ref_dow + 7) % 7;
+            for (let w = 0; w < weeks; w++) {
+                dates.push(addDays(reference, offset + w * 7).valueOf());
+            }
+        }
+        return dates.sort((a, b) => a - b);
     }
 
     private _detectShiftType(start: number, end: number) {
