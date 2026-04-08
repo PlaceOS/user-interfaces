@@ -29,7 +29,14 @@ import {
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
-import { format, isSameDay, setHours, setMinutes, startOfDay } from 'date-fns';
+import {
+    format,
+    isSameDay,
+    isSameWeek,
+    setHours,
+    setMinutes,
+    startOfDay,
+} from 'date-fns';
 import { ScheduleStateService } from './schedule-state.service';
 
 interface TimeSlot {
@@ -519,8 +526,16 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
 
     public bookingStatus(
         booking: Booking | CalendarEvent,
-    ): 'approved' | 'tentative' | 'declined' | null {
+    ): 'approved' | 'tentative' | 'declined' | 'waitlisted' | null {
         const status = booking.status;
+        if (
+            status === 'tentative' &&
+            booking instanceof Booking &&
+            booking.booking_type === 'parking' &&
+            isSameWeek(Date.now(), booking.date)
+        ) {
+            return 'waitlisted';
+        }
         return status === 'approved' ||
             status === 'tentative' ||
             status === 'declined'
@@ -528,12 +543,17 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
             : null;
     }
 
-    public statusLabel(status: 'approved' | 'tentative' | 'declined') {
+    public statusLabel(
+        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
+    ) {
         return status.charAt(0).toUpperCase() + status.slice(1);
     }
 
-    public statusColor(status: 'approved' | 'tentative' | 'declined') {
+    public statusColor(
+        status: 'approved' | 'tentative' | 'declined' | 'waitlisted',
+    ) {
         if (status === 'approved') return 'var(--success)';
+        if (status === 'waitlisted') return 'var(--info)';
         if (status === 'tentative') return 'var(--warn)';
         return 'var(--error)';
     }
