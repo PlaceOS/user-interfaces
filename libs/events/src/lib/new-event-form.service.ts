@@ -469,6 +469,9 @@ export class EventFormService extends AsyncHandler {
             catering_charge_code:
                 event.extension_data.catering?.[0]?.charge_code,
             catering_notes: event.extension_data.catering?.[0]?.notes,
+            assets: (event.extension_data.assets || []).map(
+                (_) => new AssetRequest({ ..._, event }),
+            ),
         });
         this._form.controls.date[lock_start_time ? 'disable' : 'enable']({
             emitEvent: false,
