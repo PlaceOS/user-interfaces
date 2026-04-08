@@ -398,11 +398,12 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                             date: form.getRawValue().date,
                                             duration: form.value.duration,
                                             all_day: form.value.all_day,
-                                            zone_id: form.value?.resources
-                                                ?.length
+                                            zone: form.value?.resources?.length
                                                 ? form.value?.resources[0]
                                                       ?.level?.parent_id
                                                 : '',
+                                            resources:
+                                                form.value?.resources || [],
                                         }"
                                         [rejected_ids]="invalid_assets"
                                         formControlName="assets"
@@ -611,7 +612,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 date: value.date,
                 duration: value.duration,
                 resources: space_list,
-                zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
+                zone: this._org.levelWithID(space_list[0].zones)?.parent_id,
                 tags: [],
                 categories: [],
             } as any);
@@ -808,6 +809,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.form.controls.assets.disable();
+        this.form.controls.catering.disable();
         this.subscription(
             'asset_changes',
             this.form.controls.assets.valueChanges.subscribe(() =>
