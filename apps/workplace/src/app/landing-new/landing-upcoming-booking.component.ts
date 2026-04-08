@@ -360,11 +360,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         if (!event) return false;
         if (event instanceof Booking) return event.checked_in;
         if (!event.extension_data?.shared_event) {
-            return (
-                !!this.room_status() &&
-                this.room_status() !== 'pending' &&
-                this.room_status() !== 'free'
-            );
+            return !!this.room_status() && this.room_status() !== 'pending';
         }
         const user_email = currentUser()?.email?.toLowerCase();
         if (!user_email) return false;
