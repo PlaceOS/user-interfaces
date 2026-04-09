@@ -6,8 +6,16 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     addDays,
     addMonths,
@@ -18,7 +26,9 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
@@ -97,6 +107,33 @@ import { EventStateService } from './event-state.service';
                         }
                     </mat-select>
                 </mat-form-field>
+                <mat-form-field appearance="outline" class="no-subscript w-56">
+                    <mat-select
+                        [ngModel]="zones()"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                        multiple
+                    >
+                        @for (level of levels(); track level.id) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
+                                    </div>
+                                </div>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
                 @if (view() === 'list') {
@@ -136,11 +173,13 @@ import { EventStateService } from './event-state.service';
         MatRippleModule,
         RouterModule,
         FormsModule,
+        BuildingPipe,
     ],
 })
 export class EventsListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
+    private _org = inject(OrganisationService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
@@ -152,9 +191,29 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     public readonly view = signal<'list' | 'calendar'>('list');
     public readonly period_list = signal<any[]>([]);
     public readonly selected_range = signal<number>(undefined);
+    /** Currently selected level ids (empty = all levels) */
+    public readonly zones = signal<string[]>([]);
+    /** Levels available for the active building/region */
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+        ]).pipe(
+            map(([bld, region]) =>
+                this._settings.get('app.use_region')
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld),
+            ),
+        ),
+        { initialValue: [] },
+    );
 
     public get has_calendar() {
         return this._settings.get('app.group_events_calendar');
+    }
+
+    public get use_region() {
+        return !!this._settings.get('app.use_region');
     }
 
     public ngOnInit() {
@@ -182,6 +241,13 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 }
                 this._generatePeriods();
 
+                if (q.has('zone_ids')) {
+                    const zones = (q.get('zone_ids') || '')
+                        .split(',')
+                        .filter(Boolean);
+                    this._applyZones(zones, false);
+                }
+
                 if (q.has('range')) {
                     this.timeout('update', () => {
                         const id = parseInt(q.get('range'), 10);
@@ -205,6 +271,55 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
+        this.subscription(
+            'levels',
+            combineLatest([
+                this._org.active_building,
+                this._org.active_region,
+            ]).subscribe(() => {
+                const levels = this.levels();
+                if (!levels.length) return;
+                const valid = this.zones().filter((zone) =>
+                    levels.find((lvl) => lvl.id === zone),
+                );
+                if (valid.length !== this.zones().length) {
+                    this._applyZones(valid, true);
+                    return;
+                }
+                if (this.zones().length) return;
+                // No selection yet: restore persisted zones (if any).
+                const persisted = loadPersistedZones(
+                    'events',
+                    this._persistScopeId(),
+                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                if (persisted.length) this._applyZones(persisted, true);
+            }),
+        );
+    }
+
+    public updateZones(zones: string[]) {
+        this._applyZones((zones || []).filter((_) => !!_), true);
+    }
+
+    private _applyZones(zones: string[], persist: boolean) {
+        this.zones.set(zones);
+        this._state.setOptions({ zone_ids: zones });
+        if (persist) {
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: {
+                    zone_ids: zones.length ? zones.join(',') : null,
+                },
+                queryParamsHandling: 'merge',
+            });
+            persistZones('events', this._persistScopeId(), zones);
+        }
+    }
+
+    private _persistScopeId() {
+        return this._settings.get('app.use_region')
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public setView(view: 'list' | 'calendar') {

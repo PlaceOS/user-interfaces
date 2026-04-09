@@ -780,7 +780,7 @@ export class ScheduleStateService extends AsyncHandler {
             ),
             type,
             include_checked_out: true,
-            include_deleted: 'recurring',
+            include_booked_by: true,
         }).pipe(catchError(() => of([])));
     }
 

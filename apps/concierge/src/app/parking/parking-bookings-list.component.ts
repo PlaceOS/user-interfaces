@@ -53,6 +53,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         key: 'asset_id',
                         name: 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
                         content: bay_template,
+                        show: !hide_bay_number_column(),
                     },
                     {
                         key: 'user_name',
@@ -220,7 +221,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         [class.bg-error]="row?.status === 'declined'"
                         [class.text-neutral-content]="row?.status === 'ended'"
                         [class.bg-neutral]="row?.status === 'ended'"
-                        [class.opacity-30]="row?.status === 'ended'"
+                        [class.opacity-30]="isStatusActionDisabled(row)"
                         [class.text-warning-content]="
                             row?.status === 'tentative' && !isWaitlisted(row)
                         "
@@ -234,9 +235,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             row?.status === 'tentative' && isWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="
-                            row?.status === 'ended' || !canApproveBooking(row)
-                        "
+                        [disabled]="isStatusActionDisabled(row)"
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
@@ -289,23 +288,28 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                 </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="mx-auto flex items-center justify-end space-x-2">
+                <div
+                    class="flex w-full items-center justify-end space-x-2 px-2"
+                >
                     @if (isRequest(row)) {
-                        <button
-                            icon
-                            matRipple
-                            [disabled]="
-                                row.checked_in ||
-                                row.state === 'in_progress' ||
-                                row.status === 'ended'
-                            "
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
-                            "
-                            (click)="assignSpace(row)"
-                        >
-                            <icon class="text-2xl">add_location</icon>
-                        </button>
+                        @if (!hide_assign_space) {
+                            <button
+                                icon
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended'
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
+                                (click)="assignSpace(row)"
+                            >
+                                <icon class="text-2xl">add_location</icon>
+                            </button>
+                        }
                     }
                     <button
                         icon
@@ -390,9 +394,23 @@ export class ParkingBookingsListComponent
     public readonly bookingTypeSort = (a: number, b: number) => a - b;
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
+    public readonly isStatusActionDisabled = (e: Booking) =>
+        e?.status === 'ended' || !this.canApproveBooking(e);
+    public readonly hide_bay_number_column = computed(() => {
+        const { request_filter } = this.options();
+        return this.hide_bay_number || this.isRequestFilter(request_filter);
+    });
 
     public get show_request_types() {
         return !!this._settings.get('app.parking.show_requests');
+    }
+
+    public get hide_bay_number() {
+        return !!this._settings.get('app.parking.hide_bay_number');
+    }
+
+    public get hide_assign_space() {
+        return !!this._settings.get('app.parking.hide_assign_space');
     }
 
     public get time_format() {

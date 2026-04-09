@@ -32,6 +32,7 @@ import { lastValueFrom, timer } from 'rxjs';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import {
     ParkingOptions,
     ParkingRequestFilter,
@@ -163,7 +164,12 @@ import {
                 <mat-select
                     [(ngModel)]="zones"
                     (ngModelChange)="updateZones($event)"
-                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                    [placeholder]="
+                        (section() === 'manage'
+                            ? 'COMMON.LEVEL_SELECT'
+                            : 'COMMON.LEVEL_ALL'
+                        ) | translate
+                    "
                     multiple
                 >
                     @for (level of levels(); track level) {
@@ -401,8 +407,14 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this._state.setOptions({ request_filter: f });
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
-        const zones = [...z];
+        let zones = (z || []).filter((_) => !!_);
         if (!this._router.url.includes('parking')) return;
+        // Manage section must always have a specific zone; snap empty
+        // selections back to the first available level.
+        if (this.section() === 'manage' && !zones.length) {
+            const first = this.levels()[0]?.id;
+            if (first) zones = [first];
+        }
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: zones.length ? zones.join(',') : null },
@@ -410,6 +422,11 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         });
         this.zones.set(zones);
         this._state.setOptions({ zones });
+        persistZones(
+            this.section() === 'manage' ? 'parking-manage' : 'parking',
+            this._persistScopeId(),
+            zones,
+        );
     };
 
     public get use_region() {
@@ -472,15 +489,33 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             if (!this._ready() || this.use_region) return;
             const levels = this.levels();
             if (!levels.length) return;
-            const zones = this.zones().filter((zone) =>
+            let zones = this.zones().filter((zone) =>
                 levels.find((lvl) => lvl.id === zone),
             );
             if (!zones.length) {
-                zones.push(levels[0].id);
+                // Fall back to persisted selection for this section. Manage
+                // view additionally guarantees at least the first level.
+                const persisted = loadPersistedZones(
+                    this.section() === 'manage'
+                        ? 'parking-manage'
+                        : 'parking',
+                    this._persistScopeId(),
+                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                if (persisted.length) {
+                    zones = persisted;
+                } else if (this.section() === 'manage') {
+                    zones = [levels[0].id];
+                }
             }
             if (this._sameZones(zones, this.zones())) return;
             this.updateZones(zones);
         });
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public async ngOnInit() {
@@ -553,9 +588,12 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             return;
         }
         const levels = this.levels();
-        const first_level = levels[0]?.id;
-        if (!first_level) return;
-        this.updateZones([first_level]);
+        if (!levels.length) return;
+        const persisted = loadPersistedZones(
+            'parking-manage',
+            this._persistScopeId(),
+        ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+        this.updateZones(persisted.length ? persisted : [levels[0].id]);
     }
 
     private _sameZones(first: string[], second: string[]) {

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     inject,
     input,
     OnInit,
@@ -17,6 +18,7 @@ import { bookedResourceList, ParkingService } from '@placeos/bookings';
 import {
     AsyncHandler,
     currentUser,
+    firstTruthyValueFrom,
     getTimeInTimezone,
     notifyError,
     OrganisationService,
@@ -103,6 +105,12 @@ interface ParkingRequestType {
     book_as?: ParkingRequestBookAs;
     forced_time?: ParkingRequestTimeWindow;
 }
+
+const CUSTOM_SHIFT_ID = 'custom';
+const ALL_DAY_SHIFT_ID = 'all_day';
+const ALL_DAY_START_MINS = 0;
+const ALL_DAY_END_MINS = 1440;
+const DEFAULT_DAY_DURATION_MINS = 540;
 
 const DEFAULT_SHIFT_OPTIONS: ParkingRequestShiftOption[] = [
     {
@@ -618,6 +626,12 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 </div>
                             </div>
                         </div>
+                    } @else if (is_all_day_forced()) {
+                        <div
+                            class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
+                        >
+                            {{ 'BOOKINGS.PARKING_SHIFT_ALL_DAY' | translate }}
+                        </div>
                     } @else {
                         <div class="space-y-3">
                             <div>
@@ -698,8 +712,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                                     }})
                                                 </mat-option>
                                             }
-                                            @if (!hide_custom_shift()) {
-                                                <mat-option value="custom">
+                                            @if (allow_custom_shift()) {
+                                                <mat-option
+                                                    [value]="CUSTOM_SHIFT_ID"
+                                                >
                                                     {{
                                                         'BOOKINGS.PARKING_SHIFT_CUSTOM'
                                                             | translate
@@ -719,12 +735,35 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             }
                                         </mat-select>
                                     </mat-form-field>
+                                } @else if (
+                                    selected_shift_option();
+                                    as option
+                                ) {
+                                    <label
+                                        class="mb-1 block text-sm font-medium"
+                                    >
+                                        {{
+                                            'BOOKINGS.PARKING_SHIFT_TYPE'
+                                                | translate
+                                        }}
+                                    </label>
+                                    <div
+                                        class="border-base-300 bg-base-200 rounded-lg border px-4 py-3"
+                                    >
+                                        {{ option.name | translate }}
+                                        ({{
+                                            shiftTime(option.start_time)
+                                                | date: time_format
+                                        }}
+                                        -
+                                        {{
+                                            shiftTime(option.end_time)
+                                                | date: time_format
+                                        }})
+                                    </div>
                                 }
                             </div>
-                            @if (
-                                shift_type() === 'custom' &&
-                                !hide_custom_shift()
-                            ) {
+                            @if (show_custom_time_inputs()) {
                                 <div class="flex gap-4">
                                     <div class="flex-1">
                                         <label
@@ -1209,6 +1248,34 @@ export class ParkingRequestFormDetailsComponent
     private _uploads = inject(UploadsService);
     private _dialog = inject(MatDialog);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
+    /**
+     * Set to `true` once the user has explicitly chosen a shift via the
+     * dropdown / custom inputs / request type. While this is `false` the
+     * preferred shift is re-applied whenever the available shift options
+     * change (e.g. when settings load asynchronously after the form opens).
+     */
+    private _user_selected_shift = false;
+
+    constructor() {
+        super();
+        // Re-resolve the preferred shift whenever the configured shift
+        // options change. Settings are loaded asynchronously from PlaceOS
+        // metadata, so on first open the form often initialises with no
+        // presets and falls through to "custom + booking-form defaults".
+        // When the real options arrive we want to snap onto the first
+        // preset (or all-day, etc.) without waiting for the user to touch
+        // the dropdown.
+        effect(() => {
+            // Track the dependencies that should re-trigger this.
+            this.shift_options();
+            this.allow_custom_shift();
+            const form = this.form();
+            if (!form) return;
+            if (this._user_selected_shift) return;
+            if (this.forced_request_time()) return;
+            this._applyPreferredShift();
+        });
+    }
 
     public readonly form = input<FormGroup>(undefined);
     public readonly show_special_needs = input<boolean>(true);
@@ -1306,8 +1373,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly week_options = computed(() =>
         Array.from({ length: this.max_weeks() }, (_, i) => i + 1),
     );
-    public readonly shift_type = signal<string>('day_worker');
-    public readonly start_time_mins = signal<number>(420);
+    public readonly CUSTOM_SHIFT_ID = CUSTOM_SHIFT_ID;
+    public readonly shift_type = signal<string>(CUSTOM_SHIFT_ID);
+    public readonly start_time_mins = signal<number>(480);
     public readonly end_time_mins = signal<number>(1020);
     public readonly supporting_doc_names = signal<string[]>([]);
     public readonly custom_start_time_mins = signal<number>(480);
@@ -1328,11 +1396,29 @@ export class ParkingRequestFormDetailsComponent
     public readonly selected_shift_option = computed(() =>
         this.shift_options().find((_) => _.id === this.shift_type()),
     );
+    public readonly has_preset_shifts = computed(
+        () => this.shift_options().length > 0,
+    );
+    public readonly allow_custom_shift = computed(
+        () => !this.hide_custom_shift(),
+    );
+    /**
+     * True when no preset shifts are configured and custom shifts are
+     * disabled — the form must fall back to a single all-day window.
+     */
+    public readonly is_all_day_forced = computed(
+        () => !this.has_preset_shifts() && !this.allow_custom_shift(),
+    );
     public readonly show_shift_select = computed(() => {
+        if (this.is_all_day_forced()) return false;
         const preset_count = this.shift_options().length;
-        const custom_count = this.hide_custom_shift() ? 0 : 1;
+        const custom_count = this.allow_custom_shift() ? 1 : 0;
         return preset_count + custom_count > 1;
     });
+    public readonly show_custom_time_inputs = computed(
+        () =>
+            this.shift_type() === CUSTOM_SHIFT_ID && this.allow_custom_shift(),
+    );
     public readonly vehicle_type_options = computed(() =>
         this._normaliseOptions(this.vehicle_type_options_setting()),
     );
@@ -1454,7 +1540,8 @@ export class ParkingRequestFormDetailsComponent
         return this._settings.time_format;
     }
 
-    public ngOnInit() {
+    public async ngOnInit() {
+        await firstTruthyValueFrom(this._org.initialised);
         const form = this.form();
         if (!form) return;
         this.supporting_doc_names.set(
@@ -1511,35 +1598,7 @@ export class ParkingRequestFormDetailsComponent
                     this.availability_loading.set(false);
                 }),
         );
-        const default_custom_shift = this._defaultCustomShift();
-        this.custom_start_time_mins.set(default_custom_shift.start_time);
-        this.custom_end_time_mins.set(default_custom_shift.end_time);
-        const date = form.getRawValue().date;
-        if (date) {
-            const tz = this.timezone;
-            const { hours, minutes } = getTimeInTimezone(date, tz || undefined);
-            const start = hours * 60 + minutes;
-            const duration = form.value.duration || 600;
-            this.start_time_mins.set(start);
-            this.end_time_mins.set(start + duration);
-            this._detectShiftType(start, start + duration);
-            if (this.shift_type() === 'custom') {
-                if (this.shift_options().length) {
-                    this.setShiftType(this.shift_options()[0].id);
-                } else {
-                    this.custom_start_time_mins.set(start);
-                    this.custom_end_time_mins.set(start + duration);
-                }
-            }
-        } else {
-            if (this.shift_options().length) {
-                this.setShiftType(this.shift_options()[0].id);
-            } else {
-                this.start_time_mins.set(default_custom_shift.start_time);
-                this.end_time_mins.set(default_custom_shift.end_time);
-                this.shift_type.set('custom');
-            }
-        }
+        this._initShiftStateFromForm(form);
         if (form.value.request_type) {
             this.selected_request_type_id.set(form.value.request_type);
         }
@@ -1596,15 +1655,14 @@ export class ParkingRequestFormDetailsComponent
                 }
                 if (days.size > 0) this.selected_days.set(days);
             }
-            if (form.value.recurrence_end && date) {
-                const reference = startOfDay(date);
+            const raw_date = form.getRawValue().date;
+            if (form.value.recurrence_end && raw_date) {
+                const reference = startOfDay(raw_date);
                 const ref_dow =
                     reference.getDay() === 0 ? 7 : reference.getDay();
                 const selected = [...this.selected_days()];
                 const max_offset_days = selected.length
-                    ? Math.max(
-                          ...selected.map((d) => (d - ref_dow + 7) % 7),
-                      )
+                    ? Math.max(...selected.map((d) => (d - ref_dow + 7) % 7))
                     : 0;
                 const day_ms = 24 * 60 * 60 * 1000;
                 const diff_days = Math.floor(
@@ -1682,9 +1740,31 @@ export class ParkingRequestFormDetailsComponent
         }
     }
 
+    /**
+     * Public entry point for shift selection — wired to the dropdown
+     * `(selectionChange)` handler. Marks the shift as user-chosen so the
+     * settings-load effect won't override it.
+     */
     public setShiftType(type: string) {
-        this.shift_type.set(type);
-        if (type === 'custom') {
+        this._user_selected_shift = true;
+        this._applyShift(type);
+    }
+
+    /**
+     * Internal shift application — used by auto-init paths
+     * (`_applyPreferredShift`, `_restoreShiftState`, etc.) that should not
+     * count as a user selection.
+     */
+    private _applyShift(type: string) {
+        if (type === ALL_DAY_SHIFT_ID) {
+            this.shift_type.set(ALL_DAY_SHIFT_ID);
+            this.start_time_mins.set(ALL_DAY_START_MINS);
+            this.end_time_mins.set(ALL_DAY_END_MINS);
+            this._updateFormTimes(ALL_DAY_START_MINS, ALL_DAY_END_MINS);
+            return;
+        }
+        if (type === CUSTOM_SHIFT_ID) {
+            this.shift_type.set(CUSTOM_SHIFT_ID);
             const { start_time, end_time } = this._normaliseCustomShift(
                 this.custom_start_time_mins(),
                 this.custom_end_time_mins(),
@@ -1697,36 +1777,33 @@ export class ParkingRequestFormDetailsComponent
             return;
         }
         const preset = this.shift_options().find((_) => _.id === type);
-        if (preset) {
-            this.start_time_mins.set(preset.start_time);
-            this.end_time_mins.set(preset.end_time);
-            this._updateFormTimes(preset.start_time, preset.end_time);
-        }
+        if (!preset) return;
+        this.shift_type.set(type);
+        this.start_time_mins.set(preset.start_time);
+        this.end_time_mins.set(preset.end_time);
+        this._updateFormTimes(preset.start_time, preset.end_time);
     }
 
     public setStartTime(mins: number) {
-        const { start_time, end_time } = this._normaliseCustomShift(
-            mins,
-            this.end_time_mins(),
-        );
-        this.start_time_mins.set(start_time);
-        this.end_time_mins.set(end_time);
-        this.custom_start_time_mins.set(start_time);
-        this.custom_end_time_mins.set(end_time);
-        this.shift_type.set('custom');
-        this._updateFormTimes(start_time, end_time);
+        this._user_selected_shift = true;
+        this._applyCustomShift(mins, this.end_time_mins());
     }
 
     public setEndTime(mins: number) {
+        this._user_selected_shift = true;
+        this._applyCustomShift(this.start_time_mins(), mins);
+    }
+
+    private _applyCustomShift(start_mins: number, end_mins: number) {
         const { start_time, end_time } = this._normaliseCustomShift(
-            this.start_time_mins(),
-            mins,
+            start_mins,
+            end_mins,
         );
         this.start_time_mins.set(start_time);
         this.end_time_mins.set(end_time);
         this.custom_start_time_mins.set(start_time);
         this.custom_end_time_mins.set(end_time);
-        this.shift_type.set('custom');
+        this.shift_type.set(CUSTOM_SHIFT_ID);
         this._updateFormTimes(start_time, end_time);
     }
 
@@ -1845,14 +1922,47 @@ export class ParkingRequestFormDetailsComponent
         const raw_date = form.getRawValue().date || Date.now();
         const tz = this.timezone;
         const day = startOfDayInTimezone(raw_date, tz);
-        const new_date = day + start_mins * 60 * 1000;
+        let new_date = day + start_mins * 60 * 1000;
         const duration =
             end_mins > start_mins
                 ? end_mins - start_mins
                 : 1440 - start_mins + end_mins;
+        const safe_duration = Math.max(duration, 30);
+        // If the chosen shift would end in the past on this day, roll
+        // forward by whole days until the window ends in the future, so the
+        // `endInFuture` validator on `duration` passes. Only applied to new
+        // bookings — existing ones may legitimately represent past windows.
+        if (!form.value.id) {
+            while (new_date + safe_duration * 60 * 1000 <= Date.now()) {
+                new_date = addDays(new_date, 1).valueOf();
+            }
+        }
         const was_disabled = form.controls.date.disabled;
         if (was_disabled) form.controls.date.enable({ emitEvent: false });
-        form.patchValue({ date: new_date, duration: Math.max(duration, 30) });
+        // Clear `all_day` first so the booking-form time sync doesn't
+        // bail out of its date/duration handlers (which short-circuit when
+        // `all_day` is set) and so `postForm` doesn't substitute the
+        // building's all-day period for the shift window we're about to
+        // write. The parking shift _is_ the time window — it must win.
+        if (form.controls.all_day) {
+            form.controls.all_day.patchValue(false, { emitEvent: false });
+        }
+        // Patch `date` silently so the generic booking-form time sync does
+        // not snap shift start times earlier in the day back to `now` or
+        // realign them to bookable hours — the shift select must
+        // authoritatively set the form's start time and duration.
+        form.controls.date.patchValue(new_date, { emitEvent: false });
+        if (form.controls.date_end) {
+            form.controls.date_end.patchValue(
+                new_date + safe_duration * 60 * 1000,
+                {
+                    emitEvent: false,
+                },
+            );
+        }
+        // Patch `duration` loudly so downstream subscriptions (availability,
+        // asset lookups, etc.) see the updated window.
+        form.controls.duration.patchValue(safe_duration);
         if (was_disabled) form.controls.date.disable({ emitEvent: false });
     }
 
@@ -1896,20 +2006,6 @@ export class ParkingRequestFormDetailsComponent
         return dates.sort((a, b) => a - b);
     }
 
-    private _detectShiftType(start: number, end: number) {
-        const normalized_end = end > 1440 ? end - 1440 : end;
-        for (const option of this.shift_options()) {
-            if (
-                option.start_time === start &&
-                option.end_time === normalized_end
-            ) {
-                this.shift_type.set(option.id);
-                return;
-            }
-        }
-        this.shift_type.set('custom');
-    }
-
     private _defaultCustomShift() {
         const tz = this.timezone;
         const { hours, minutes } = getTimeInTimezone(
@@ -1940,7 +2036,8 @@ export class ParkingRequestFormDetailsComponent
             .filter(
                 (option) =>
                     !!option?.id &&
-                    option.id !== 'custom' &&
+                    option.id !== CUSTOM_SHIFT_ID &&
+                    option.id !== ALL_DAY_SHIFT_ID &&
                     typeof option.start_time === 'number' &&
                     typeof option.end_time === 'number',
             )
@@ -2000,6 +2097,69 @@ export class ParkingRequestFormDetailsComponent
             .filter((type) => !!type) || []) as ParkingRequestType[];
     }
 
+    /**
+     * Seed the shift state from the form's current date/duration and then
+     * pick the preferred shift for the active configuration. Called once
+     * on initialisation.
+     */
+    private _initShiftStateFromForm(form: FormGroup) {
+        const default_custom_shift = this._defaultCustomShift();
+        this.custom_start_time_mins.set(default_custom_shift.start_time);
+        this.custom_end_time_mins.set(default_custom_shift.end_time);
+        const date = form.getRawValue().date;
+        if (date) {
+            const { hours, minutes } = getTimeInTimezone(
+                date,
+                this.timezone || undefined,
+            );
+            const start = hours * 60 + minutes;
+            const duration = form.value.duration || DEFAULT_DAY_DURATION_MINS;
+            this.start_time_mins.set(start);
+            this.end_time_mins.set(start + duration);
+            const { start_time, end_time } = this._normaliseCustomShift(
+                start,
+                start + duration,
+            );
+            this.custom_start_time_mins.set(start_time);
+            this.custom_end_time_mins.set(end_time);
+        } else {
+            this.start_time_mins.set(default_custom_shift.start_time);
+            this.end_time_mins.set(default_custom_shift.end_time);
+        }
+        this._applyPreferredShift();
+    }
+
+    /**
+     * Pick and apply the best shift for the active configuration. The
+     * resolution order matches the user-facing rules:
+     *
+     * 1. No presets and no custom → force all-day.
+     * 2. Presets exist → prefer a preset matching the current start/end
+     *    times, otherwise default to the first preset. Custom is only
+     *    reached via an explicit user action against the dropdown — auto
+     *    initialisation must always land on a preset when one is offered.
+     * 3. No presets but custom is allowed → custom.
+     */
+    private _applyPreferredShift() {
+        if (this.is_all_day_forced()) {
+            this._applyShift(ALL_DAY_SHIFT_ID);
+            return;
+        }
+        if (this.has_preset_shifts()) {
+            const matching_preset = this.shift_options().find((_) =>
+                this._matchesShiftOption(
+                    _,
+                    this.start_time_mins(),
+                    this.end_time_mins(),
+                ),
+            );
+            this._applyShift((matching_preset || this.shift_options()[0]).id);
+            return;
+        }
+        // No presets — custom is allowed (otherwise is_all_day_forced).
+        this._applyShift(CUSTOM_SHIFT_ID);
+    }
+
     private _syncRequestTypeTime(form: FormGroup) {
         const forced_time = this.forced_request_time();
         if (forced_time) {
@@ -2014,7 +2174,7 @@ export class ParkingRequestFormDetailsComponent
             this.custom_end_time_mins.set(forced_time.end_time);
             this.start_time_mins.set(forced_time.start_time);
             this.end_time_mins.set(forced_time.end_time);
-            this.shift_type.set('custom');
+            this.shift_type.set(CUSTOM_SHIFT_ID);
             this._updateFormTimes(forced_time.start_time, forced_time.end_time);
             return;
         }
@@ -2024,44 +2184,55 @@ export class ParkingRequestFormDetailsComponent
             this._restoreShiftState(saved_shift);
             return;
         }
-        this._detectShiftType(this.start_time_mins(), this.end_time_mins());
-        this.custom_start_time_mins.set(this.start_time_mins());
-        this.custom_end_time_mins.set(this.end_time_mins());
-        if (this.shift_type() === 'custom' && this.hide_custom_shift()) {
-            const default_shift = this.shift_options()[0];
-            if (default_shift) {
-                this.setShiftType(default_shift.id);
-            }
-        }
+        this._applyPreferredShift();
     }
 
     private _restoreShiftState(shift: ParkingRequestShiftState) {
+        if (this.is_all_day_forced()) {
+            this._applyShift(ALL_DAY_SHIFT_ID);
+            return;
+        }
+        // Prefer a preset that matches the saved shift by id or by times.
         const preset =
-            (shift.type !== 'custom' &&
+            (shift.type !== CUSTOM_SHIFT_ID &&
                 this.shift_options().find((_) => _.id === shift.type)) ||
-            this.shift_options().find(
-                (_) =>
-                    _.start_time === shift.start_time &&
-                    _.end_time === shift.end_time,
+            this.shift_options().find((_) =>
+                this._matchesShiftOption(_, shift.start_time, shift.end_time),
             );
         if (preset) {
-            this.setShiftType(preset.id);
+            this._applyShift(preset.id);
+            return;
+        }
+        // No preset match — restore as custom if allowed, else fall back.
+        if (!this.allow_custom_shift()) {
+            this._applyShift(this.shift_options()[0].id);
             return;
         }
         const { start_time, end_time } = this._normaliseCustomShift(
             shift.start_time,
             shift.end_time,
         );
-        if (this.hide_custom_shift() && this.shift_options()[0]) {
-            this.setShiftType(this.shift_options()[0].id);
-            return;
-        }
         this.custom_start_time_mins.set(start_time);
         this.custom_end_time_mins.set(end_time);
-        this.start_time_mins.set(start_time);
-        this.end_time_mins.set(end_time);
-        this.shift_type.set('custom');
-        this._updateFormTimes(start_time, end_time);
+        this._applyShift(CUSTOM_SHIFT_ID);
+    }
+
+    private _matchesShiftOption(
+        option: ParkingRequestShiftOption,
+        start_time: number,
+        end_time: number,
+    ) {
+        return (
+            option.start_time === start_time &&
+            this._shiftDuration(option.start_time, option.end_time) ===
+                this._shiftDuration(start_time, end_time)
+        );
+    }
+
+    private _shiftDuration(start_time: number, end_time: number) {
+        return end_time > start_time
+            ? end_time - start_time
+            : 1440 - start_time + end_time;
     }
 
     private _syncRequestTypeUser(form: FormGroup) {

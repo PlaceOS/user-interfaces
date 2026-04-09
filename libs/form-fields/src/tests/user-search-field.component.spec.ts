@@ -136,6 +136,27 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component.search_term()).toEqual(user);
     }));
 
+    it('should show selected state only when the input contains the selected user', fakeAsync(() => {
+        const user = new User(generateMockUser());
+        spectator.component.writeValue(user);
+        spectator.tick(111);
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_user()).toEqual(user);
+
+        spectator.component.search_term.set('Search text' as any);
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_user()).toBeNull();
+        expect(spectator.query('mat-hint')).toBeNull();
+
+        spectator.component.resetTerm();
+        spectator.tick(1);
+        spectator.detectChanges();
+
+        expect(spectator.component.selected_user()).toEqual(user);
+    }));
+
     it('should validate email addresses correctly', () => {
         expect(spectator.component.isValidEmail('user@example.com')).toBe(true);
         expect(spectator.component.isValidEmail('test.name@domain.co')).toBe(
@@ -165,6 +186,39 @@ describe('UserSearchFieldComponent', () => {
         expect(set_user.email).toBe('john.doe@external.com');
 
         tick(1000);
+    }));
+
+    it('should blur the input after selecting a user from an email', fakeAsync(() => {
+        spectator.detectChanges();
+        const input = spectator.query('input') as HTMLInputElement;
+        const blur_spy = jest.spyOn(input, 'blur');
+
+        spectator.component.setValueFromEmail('john.doe@external.com');
+        spectator.tick(1);
+
+        expect(blur_spy).toHaveBeenCalled();
+    }));
+
+    it('should blur the input after selecting an external attendee by name', fakeAsync(() => {
+        spectator.detectChanges();
+        const input = spectator.query('input') as HTMLInputElement;
+        const blur_spy = jest.spyOn(input, 'blur');
+
+        spectator.component.setExternalValue('External Person');
+        spectator.tick(1);
+
+        expect(blur_spy).toHaveBeenCalled();
+    }));
+
+    it('should select all text when the input is focused', fakeAsync(() => {
+        spectator.detectChanges();
+        const input = spectator.query('input') as HTMLInputElement;
+        const select_spy = jest.spyOn(input, 'select');
+
+        spectator.dispatchFakeEvent(input, 'focus');
+        spectator.tick(1);
+
+        expect(select_spy).toHaveBeenCalled();
     }));
 
     it('should not create user from email when allow_externals is false', fakeAsync(() => {

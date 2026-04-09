@@ -276,7 +276,13 @@ export class ParkingRequestFormComponent
             attachments: [],
             recurrence_type: 'none',
         };
-        if (!this.form.getRawValue().date) {
+        // For new parking requests (no id), always seed a sensible parking
+        // window — the booking-form service starts every form with
+        // `date = Date.now() + 5min` and `duration = 60` (see Booking
+        // class), so the existing `!date` guard never trips and the form
+        // would otherwise open at "current time, 1 hour" instead of the
+        // shift the user expects.
+        if (!this.form.getRawValue().id) {
             const day_start = startOfDay(now);
             defaults.date = day_start.valueOf() + 7 * 60 * 60 * 1000;
             defaults.duration = 600;

@@ -698,6 +698,7 @@
         "PARKING_SHIFT_MORNING": "Morning",
         "PARKING_SHIFT_AFTERNOON": "Afternoon",
         "PARKING_SHIFT_CUSTOM": "Custom Hours",
+        "PARKING_SHIFT_ALL_DAY": "All Day",
         "PARKING_START_TIME": "Start Time",
         "PARKING_END_TIME": "End Time",
         "PARKING_LOCATION_PREFERENCE": "Location Preference",

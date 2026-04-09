@@ -25,6 +25,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    unique,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -38,6 +39,18 @@ import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parkin
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+
+export function bookingZonesForLevel(
+    org: Pick<OrganisationService, 'organisation' | 'region'>,
+    level?: Pick<BuildingLevel, 'id' | 'parent_id'>,
+) {
+    return unique([
+        org.organisation?.id,
+        org.region?.id,
+        level?.parent_id,
+        level?.id,
+    ]).filter((_) => _);
+}
 
 @Component({
     selector: 'parking-assign-space-modal',
@@ -350,13 +363,18 @@ export class ParkingAssignSpaceModalComponent
 
     public async confirmAssign() {
         const space = this.selected_space();
+        const level = this.selected_level();
         if (!space) return;
         this.loading.set(true);
         try {
-            const asset_name = this.space_label(space);
+            const asset_name =
+                this.space_label(space) || space.name || space.id;
             await updateBooking(this._data.booking.id, {
                 asset_id: space.id,
                 asset_name,
+                zones: level
+                    ? bookingZonesForLevel(this._org, level)
+                    : this._data.booking.zones,
                 extension_data: {
                     ...this._data.booking.extension_data,
                     asset_name,

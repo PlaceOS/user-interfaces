@@ -410,6 +410,8 @@ export class BookingFormService extends AsyncHandler {
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (type !== this._options.getValue().type) this.clearForm();
         this.setOptions({ type });
+        const initial_date = booking.date;
+        const initial_duration = booking.duration;
         if (!booking.id) {
             (booking as any).all_day = this.setting('all_day_default');
         }
@@ -436,11 +438,12 @@ export class BookingFormService extends AsyncHandler {
                 this.storeForm();
             }),
         );
-        this.timeout('date', async () =>
-            this.form.patchValue({
-                date: booking.date,
-                duration: booking.duration,
-            }),
+        this._syncWindowIfUnchanged(
+            'date',
+            initial_date,
+            initial_duration,
+            booking.date,
+            booking.duration,
         );
         this._booking.next(new Booking(booking));
         this._options.next({ type: this._options.getValue().type });
@@ -508,6 +511,29 @@ export class BookingFormService extends AsyncHandler {
             period?.start,
             period?.end,
         );
+    }
+
+    /**
+     * Re-apply the supplied booking window after async form setup only if no
+     * other consumer has already changed it.
+     */
+    private _syncWindowIfUnchanged(
+        timeout_name: string,
+        initial_date: number,
+        initial_duration: number,
+        date: number,
+        duration: number,
+    ) {
+        this.timeout(timeout_name, async () => {
+            const window = this.form.getRawValue();
+            if (
+                window.date !== initial_date ||
+                window.duration !== initial_duration
+            ) {
+                return;
+            }
+            this.form.patchValue({ date, duration });
+        });
     }
 
     public setView(value: BookingFlowView) {
@@ -579,6 +605,8 @@ export class BookingFormService extends AsyncHandler {
             sessionStorage.getItem('PLACEOS.booking_form') || '{}',
         );
         const booking = new Booking(data);
+        const initial_date = booking.date;
+        const initial_duration = booking.duration;
         this.setOptions({
             ...JSON.parse(
                 sessionStorage.getItem('PLACEOS.booking_form_filters') || '{}',
@@ -596,11 +624,12 @@ export class BookingFormService extends AsyncHandler {
         );
         this.form.patchValue(booking_data, { emitEvent: false });
         this._applyDurationSettings();
-        this.timeout('load-date', async () =>
-            this.form.patchValue({
-                date: booking.date,
-                duration: booking.duration,
-            }),
+        this._syncWindowIfUnchanged(
+            'load-date',
+            initial_date,
+            initial_duration,
+            booking.date,
+            booking.duration,
         );
         this.setOptions({
             ...JSON.parse(
