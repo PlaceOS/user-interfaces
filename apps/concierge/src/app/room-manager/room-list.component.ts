@@ -168,6 +168,14 @@ import { RoomManagementService } from './room-management.service';
                         }}</span>
                     </div>
                 </button>
+                <button mat-menu-item (click)="viewBookingHistory(row)">
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-xl">history</icon>
+                        <span>{{
+                            'APP.CONCIERGE.ROOMS_VIEW_HISTORY' | translate
+                        }}</span>
+                    </div>
+                </button>
                 @if (row.support_url || control_path()) {
                     <a
                         mat-menu-item
@@ -218,6 +226,8 @@ export class RoomListComponent {
 
     public readonly editRoom = (room) => this._manager.editRoom(room);
     public readonly setRoomAlert = (room) => this._manager.setRoomAlert(room);
+    public readonly viewBookingHistory = (room) =>
+        this._manager.viewBookingHistory(room);
 
     public readonly copyToClipboard = (id: string) => {
         const success = this._clipboard.copy(id);

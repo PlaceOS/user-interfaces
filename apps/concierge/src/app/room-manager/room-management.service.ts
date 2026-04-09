@@ -11,6 +11,7 @@ import {
     switchMap,
 } from 'rxjs/operators';
 import { RoomAlertModalComponent } from './room-alert-modal.component';
+import { RoomBookingHistoryModalComponent } from './room-booking-history-modal.component';
 import { RoomModalComponent } from './room-modal.component';
 
 export interface RoomListOptions {
@@ -119,6 +120,18 @@ export class RoomManagementService {
         });
         ref.afterClosed().subscribe((data) => {
             if (data) setTimeout(() => this._change.next(Date.now()), 300);
+        });
+    }
+
+    public viewBookingHistory(room: PlaceSystem) {
+        if (!room) return;
+        this._dialog.open(RoomBookingHistoryModalComponent, {
+            data: { room },
+            panelClass: 'fullscreen-dialog',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            width: '100vw',
+            height: '100vh',
         });
     }
 }

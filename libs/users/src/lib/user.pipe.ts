@@ -6,6 +6,7 @@ import { showGuest } from './guests.fn';
 import { showStaff } from './staff.fn';
 
 const USER_LIST: User[] = [];
+const INFLIGHT_REQUESTS: Map<string, Promise<User>> = new Map();
 
 const EMPTY_USER: User = {} as any;
 
@@ -19,6 +20,20 @@ export function replaceUser(user: User): void {
     else USER_LIST.push(user);
 }
 
+async function fetchUser(user_id: string): Promise<User> {
+    let user = await lastValueFrom(showStaff(user_id)).catch(() => null);
+    if (user) {
+        USER_LIST.push(user);
+        return user;
+    }
+    user = await lastValueFrom(showGuest(user_id)).catch(() => null);
+    if (user) {
+        USER_LIST.push(user);
+        return user;
+    }
+    return EMPTY_USER;
+}
+
 @Pipe({
     name: 'user',
 })
@@ -29,20 +44,16 @@ export class UserPipe implements PipeTransform {
      */
     public async transform(user_id: string): Promise<User> {
         if (!user_id) return EMPTY_USER;
-        let user = USER_LIST.find(
+        const user = USER_LIST.find(
             ({ id, email }) => id === user_id || email === user_id,
         );
         if (user) return user;
-        user = await lastValueFrom(showStaff(user_id)).catch(() => null);
-        if (user) {
-            USER_LIST.push(user);
-            return user;
-        }
-        user = await lastValueFrom(showGuest(user_id)).catch(() => null);
-        if (user) {
-            USER_LIST.push(user);
-            return user;
-        }
-        return EMPTY_USER;
+        const existing = INFLIGHT_REQUESTS.get(user_id);
+        if (existing) return existing;
+        const request = fetchUser(user_id).finally(() =>
+            INFLIGHT_REQUESTS.delete(user_id),
+        );
+        INFLIGHT_REQUESTS.set(user_id, request);
+        return request;
     }
 }
