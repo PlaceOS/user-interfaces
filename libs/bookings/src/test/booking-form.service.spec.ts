@@ -217,6 +217,25 @@ describe('BookingFormService', () => {
         jest.useRealTimers();
     });
 
+    it('should not overwrite date and duration changed before delayed form sync runs', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 2, 20, 9, 0, 0));
+
+        spectator.service.newForm('parking');
+        spectator.service.form.patchValue({
+            date: new Date(2026, 2, 21, 8, 0, 0).valueOf(),
+            duration: 240,
+        });
+
+        jest.runAllTimers();
+
+        expect(spectator.service.form.getRawValue().date).toBe(
+            new Date(2026, 2, 21, 8, 0, 0).valueOf(),
+        );
+        expect(spectator.service.form.getRawValue().duration).toBe(240);
+        jest.useRealTimers();
+    });
+
     it('should align loaded draft bookings to the start of bookable hours', () => {
         jest.useFakeTimers();
         // Set system time well before the draft date so it is not considered
