@@ -190,6 +190,8 @@ const ALLOWED_CALENDAR_ROLES = [
                                     formControlName="duration"
                                     [time]="form()?.getRawValue()?.date"
                                     [max]="max_duration"
+                                    [min]="min_duration"
+                                    [step]="duration_step"
                                     [custom_options]="custom_duration_options"
                                     [end_time]="bookable_hours?.end"
                                     [use_24hr]="use_24hr"
@@ -374,6 +376,10 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
+    }
+
+    public get duration_step() {
+        return this._settings.get('app.events.duration_step') || 30;
     }
 
     public get can_book_for_others() {

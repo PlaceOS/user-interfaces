@@ -180,8 +180,8 @@ const MINUTES_IN_DAY = 24 * 60;
                                     formControlName="duration"
                                     [time]="form().get('date')?.value"
                                     [max]="max_duration"
-                                    [min]="60"
-                                    [step]="60"
+                                    [min]="min_duration"
+                                    [step]="duration_step"
                                     [custom_options]="custom_duration_options"
                                     [end_time]="bookable_hours?.end"
                                     [use_24hr]="use_24hr"
@@ -465,6 +465,14 @@ export class NewDeskFormDetailsComponent
             this._settings.get('app.desks.min_duration') ||
             this._settings.get('app.bookings.min_duration') ||
             60
+        );
+    }
+
+    public get duration_step() {
+        return (
+            this._settings.get('app.desks.duration_step') ||
+            this._settings.get('app.bookings.duration_step') ||
+            30
         );
     }
 
