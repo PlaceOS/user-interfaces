@@ -13,6 +13,7 @@ describe('ParkingBookingsListComponent', () => {
     let can_approve = true;
     let show_requests = true;
     let hide_bay_number = false;
+    let hide_assign_space = false;
     let request_filter: 'all' | 'bookings' | 'requests' = 'all';
 
     const createComponent = createComponentFactory({
@@ -56,7 +57,9 @@ describe('ParkingBookingsListComponent', () => {
                         ? show_requests
                         : name === 'app.parking.hide_bay_number'
                           ? hide_bay_number
-                          : false,
+                          : name === 'app.parking.hide_assign_space'
+                            ? hide_assign_space
+                            : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -68,6 +71,7 @@ describe('ParkingBookingsListComponent', () => {
         can_approve = true;
         show_requests = true;
         hide_bay_number = false;
+        hide_assign_space = false;
         request_filter = 'all';
     });
 
@@ -118,6 +122,28 @@ describe('ParkingBookingsListComponent', () => {
         expect(
             table?.active_columns().map((column) => column.key),
         ).not.toContain('asset_id');
+    });
+
+    it('should hide the assign space action when the setting is enabled', () => {
+        hide_assign_space = true;
+        bookings = [
+            {
+                id: 'request-1',
+                asset_id: 'unallocated-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: {},
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(
+            spectator
+                .queryAll('icon')
+                .some((icon) => icon.textContent?.includes('add_location')),
+        ).toBe(false);
     });
 
     it('should map bookings to the expected type labels', () => {

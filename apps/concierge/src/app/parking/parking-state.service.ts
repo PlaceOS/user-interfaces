@@ -16,6 +16,7 @@ import {
 import {
     approveBooking,
     approveBookingInstance,
+    bookedResourceList,
     checkinBooking,
     checkinBookingInstance,
     queryBookings,
@@ -24,6 +25,7 @@ import {
     removeBooking,
     saveBooking,
     updateBooking,
+    updateBookingInstance,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -756,6 +758,21 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async approveBooking(booking: Booking) {
+        if (
+            this._settings.get('app.parking.assign_space_on_approve') &&
+            this.isRequest(booking)
+        ) {
+            try {
+                await this._assignSpaceForApproval(booking);
+            } catch (error) {
+                notifyError(
+                    i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
+                        error: error?.message || error?.error || error,
+                    }),
+                );
+                return;
+            }
+        }
         const promise = (
             booking.instance
                 ? approveBookingInstance(booking.id, booking.instance)
@@ -799,6 +816,72 @@ export class ParkingStateService extends AsyncHandler {
         });
         const result = await ref.afterClosed().toPromise();
         if (result) this._change.next(Date.now());
+    }
+
+    private async _assignSpaceForApproval(booking: Booking) {
+        const building = this._org.building;
+        const levels = this._org
+            .levelsForBuilding(building)
+            .filter((level) => level.tags.includes('parking'));
+        if (!building?.id || !levels.length) {
+            throw i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_EMPTY');
+        }
+        const [booked_ids, level_spaces] = await Promise.all([
+            lastValueFrom(
+                bookedResourceList({
+                    period_start: getUnixTime(startOfDay(booking.date)),
+                    period_end: getUnixTime(endOfDay(booking.date)),
+                    type: 'parking',
+                    zones: building.id,
+                }),
+            ),
+            Promise.all(
+                levels.map((level) =>
+                    lastValueFrom(queryParkingSpaces(level.id)),
+                ),
+            ),
+        ]);
+        const booked_resource_ids = new Set(booked_ids);
+        const available_space = level_spaces
+            .flat()
+            .find(
+                (space) =>
+                    !booked_resource_ids.has(space.id) &&
+                    !space.assigned_to &&
+                    space.bookable !== false,
+            );
+        if (!available_space) {
+            throw i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_EMPTY');
+        }
+        const level = levels.find(
+            (item) => item.id === available_space.zone_id,
+        );
+        const asset_name = available_space.name || available_space.id;
+        const patch = {
+            asset_id: available_space.id,
+            asset_name,
+            zones: level
+                ? unique([
+                      this._org.organisation.id,
+                      this._org.region?.id,
+                      level.parent_id,
+                      level.id,
+                  ]).filter((_) => _)
+                : booking.zones,
+            extension_data: {
+                ...booking.extension_data,
+                asset_name,
+            },
+        } as Partial<Booking>;
+        await lastValueFrom(
+            booking.instance
+                ? updateBookingInstance(
+                      booking.id,
+                      booking.instance || booking.booking_start,
+                      patch,
+                  )
+                : updateBooking(booking.id, patch),
+        );
     }
 
     private async _clearAssignedBooking(resource: ParkingSpace) {

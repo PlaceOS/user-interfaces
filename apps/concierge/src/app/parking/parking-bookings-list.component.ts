@@ -288,23 +288,28 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                 </mat-menu>
             </ng-template>
             <ng-template #action_template let-row="row">
-                <div class="mx-auto flex items-center justify-end space-x-2">
+                <div
+                    class="flex w-full items-center justify-end space-x-2 px-2"
+                >
                     @if (isRequest(row)) {
-                        <button
-                            icon
-                            matRipple
-                            [disabled]="
-                                row.checked_in ||
-                                row.state === 'in_progress' ||
-                                row.status === 'ended'
-                            "
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE' | translate
-                            "
-                            (click)="assignSpace(row)"
-                        >
-                            <icon class="text-2xl">add_location</icon>
-                        </button>
+                        @if (!hide_assign_space) {
+                            <button
+                                icon
+                                matRipple
+                                [disabled]="
+                                    row.checked_in ||
+                                    row.state === 'in_progress' ||
+                                    row.status === 'ended'
+                                "
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                        | translate
+                                "
+                                (click)="assignSpace(row)"
+                            >
+                                <icon class="text-2xl">add_location</icon>
+                            </button>
+                        }
                     }
                     <button
                         icon
@@ -402,6 +407,10 @@ export class ParkingBookingsListComponent
 
     public get hide_bay_number() {
         return !!this._settings.get('app.parking.hide_bay_number');
+    }
+
+    public get hide_assign_space() {
+        return !!this._settings.get('app.parking.hide_assign_space');
     }
 
     public get time_format() {

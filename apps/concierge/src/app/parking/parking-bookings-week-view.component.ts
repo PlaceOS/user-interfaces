@@ -228,26 +228,28 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         </button>
                                     </mat-menu>
                                     @if (isRequest(booking)) {
-                                        <button
-                                            icon
-                                            matRipple
-                                            class="h-6 w-6"
-                                            [disabled]="
-                                                booking.checked_in ||
-                                                booking.state ===
-                                                    'in_progress' ||
-                                                booking.status === 'ended'
-                                            "
-                                            [matTooltip]="
-                                                'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
-                                                    | translate
-                                            "
-                                            (click)="assignSpace(booking)"
-                                        >
-                                            <icon class="text-base"
-                                                >add_location</icon
+                                        @if (!hide_assign_space) {
+                                            <button
+                                                icon
+                                                matRipple
+                                                class="h-6 w-6"
+                                                [disabled]="
+                                                    booking.checked_in ||
+                                                    booking.state ===
+                                                        'in_progress' ||
+                                                    booking.status === 'ended'
+                                                "
+                                                [matTooltip]="
+                                                    'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
+                                                        | translate
+                                                "
+                                                (click)="assignSpace(booking)"
                                             >
-                                        </button>
+                                                <icon class="text-base"
+                                                    >add_location</icon
+                                                >
+                                            </button>
+                                        }
                                     }
                                     <button
                                         icon
@@ -384,6 +386,10 @@ export class ParkingBookingsWeekViewComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public get hide_assign_space() {
+        return !!this._settings.get('app.parking.hide_assign_space');
     }
 
     public isRequestFilter(filter_type?: string) {

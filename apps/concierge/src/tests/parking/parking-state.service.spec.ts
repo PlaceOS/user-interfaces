@@ -1,6 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { SpectatorService, createServiceFactory } from '@ngneat/spectator/jest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { BehaviorSubject, of } from 'rxjs';
 
@@ -14,7 +14,12 @@ jest.mock('@placeos/assets');
 jest.mock('@placeos/bookings');
 jest.mock('@placeos/common', () => {
     const actual = jest.requireActual('@placeos/common');
-    return { ...actual, getTimezoneDifferenceInHours: jest.fn(() => 0) };
+    return {
+        ...actual,
+        getTimezoneDifferenceInHours: jest.fn(() => 0),
+        notifyError: jest.fn(),
+        notifySuccess: jest.fn(),
+    };
 });
 
 describe('ParkingStateService', () => {
@@ -22,11 +27,18 @@ describe('ParkingStateService', () => {
     let active_building: BehaviorSubject<any>;
     let active_region: BehaviorSubject<any>;
     let current_building: any;
+    let settings_map: Record<string, any>;
 
     const organisation_service: any = {
+        organisation: { id: 'org-1' },
         region: { id: 'region-1' },
         levels: [],
         buildingsForRegion: jest.fn(() => []),
+        levelsForBuilding: jest.fn((bld) =>
+            organisation_service.levels.filter(
+                (level) => level.parent_id === (bld || current_building)?.id,
+            ),
+        ),
         get building() {
             return current_building;
         },
@@ -37,13 +49,7 @@ describe('ParkingStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, {
-                get: jest.fn((name: string) => {
-                    if (name === 'app.use_region') return false;
-                    if (name === 'app.bookings.use_building_timezone') {
-                        return true;
-                    }
-                    return undefined;
-                }) as any,
+                get: jest.fn((name: string) => settings_map[name]) as any,
             } as any),
             MockProvider(OrganisationService, organisation_service),
         ],
@@ -51,14 +57,26 @@ describe('ParkingStateService', () => {
 
     beforeEach(() => {
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
+        settings_map = {
+            'app.use_region': false,
+            'app.bookings.use_building_timezone': true,
+            'app.parking.assign_space_on_approve': false,
+        };
         active_building = new BehaviorSubject(current_building);
         active_region = new BehaviorSubject({ id: 'region-1' });
         organisation_service.active_building = active_building;
         organisation_service.active_region = active_region;
+        organisation_service.levels = [];
         (assets_mod as any).queryParkingUsers = jest.fn(() => of([]));
         (assets_mod as any).queryParkingFleetVehicles = jest.fn(() => of([]));
         (assets_mod as any).queryParkingSpaces = jest.fn(() => of([]));
+        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
+        (booking_mod as any).updateBooking = jest.fn(() => of({}));
+        (booking_mod as any).updateBookingInstance = jest.fn(() => of({}));
+        (booking_mod as any).approveBooking = jest.fn(() => of({}));
+        (booking_mod as any).approveBookingInstance = jest.fn(() => of({}));
+        jest.clearAllMocks();
         (common_mod.getTimezoneDifferenceInHours as jest.Mock).mockReturnValue(
             2,
         );
@@ -87,13 +105,7 @@ describe('ParkingStateService', () => {
     });
 
     it('should not filter requests by approver group in event lists', () => {
-        const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((name: string) => {
-            if (name === 'app.parking.show_requests') return true;
-            if (name === 'app.use_region') return false;
-            if (name === 'app.bookings.use_building_timezone') return true;
-            return undefined;
-        });
+        settings_map['app.parking.show_requests'] = true;
         const request = {
             id: 'req-1',
             asset_id: 'unallocated-1',
@@ -141,5 +153,84 @@ describe('ParkingStateService', () => {
                 ['staff'],
             ),
         ).toBe(true);
+    });
+
+    it('should assign a space before approving requests when enabled', async () => {
+        settings_map['app.parking.assign_space_on_approve'] = true;
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
+            of([
+                {
+                    id: 'space-1',
+                    name: 'Bay 1',
+                    zone_id: 'lvl-1',
+                    bookable: true,
+                },
+            ]),
+        );
+        (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
+        const request = {
+            id: 'req-1',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: new Date('2026-06-15T09:00:00').valueOf(),
+            zones: ['org-1', 'bld-1'],
+            extension_data: {},
+        } as Booking;
+
+        await spectator.service.approveBooking(request);
+
+        expect(booking_mod.bookedResourceList).toHaveBeenCalledWith(
+            expect.objectContaining({ zones: 'bld-1', type: 'parking' }),
+        );
+        expect(assets_mod.queryParkingSpaces).toHaveBeenCalledWith('lvl-1');
+        expect(booking_mod.updateBooking).toHaveBeenCalledWith(
+            'req-1',
+            expect.objectContaining({
+                asset_id: 'space-1',
+                asset_name: 'Bay 1',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+                extension_data: expect.objectContaining({
+                    asset_name: 'Bay 1',
+                }),
+            }),
+        );
+        expect(booking_mod.approveBooking).toHaveBeenCalledWith('req-1');
+    });
+
+    it('should error instead of approving when no spaces are available', async () => {
+        settings_map['app.parking.assign_space_on_approve'] = true;
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (assets_mod as any).queryParkingSpaces = jest.fn(() =>
+            of([
+                {
+                    id: 'space-1',
+                    name: 'Bay 1',
+                    zone_id: 'lvl-1',
+                    bookable: true,
+                },
+            ]),
+        );
+        (booking_mod as any).bookedResourceList = jest.fn(() =>
+            of(['space-1']),
+        );
+        const request = {
+            id: 'req-1',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: new Date('2026-06-15T09:00:00').valueOf(),
+            zones: ['org-1', 'bld-1'],
+            extension_data: {},
+        } as Booking;
+
+        await spectator.service.approveBooking(request);
+
+        expect(booking_mod.updateBooking).not.toHaveBeenCalled();
+        expect(booking_mod.approveBooking).not.toHaveBeenCalled();
+        expect(common_mod.notifyError).toHaveBeenCalled();
     });
 });
