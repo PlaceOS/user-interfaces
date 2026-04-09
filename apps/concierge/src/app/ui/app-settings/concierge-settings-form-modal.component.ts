@@ -1384,6 +1384,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         name="Show booking requests"
                                         formControlName="show_requests"
                                     ></settings-toggle>
+                                    <settings-toggle
+                                        name="Always hide bay number column"
+                                        formControlName="hide_bay_number"
+                                    ></settings-toggle>
                                 </div>
                             </div>
                         </div>
@@ -1709,6 +1713,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_status_details: new FormControl(true),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
+            hide_bay_number: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
         }),

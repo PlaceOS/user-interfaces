@@ -2,27 +2,33 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Booking, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { defer, of } from 'rxjs';
 
 import { ParkingBookingsListComponent } from '../../app/parking/parking-bookings-list.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 
 describe('ParkingBookingsListComponent', () => {
     let spectator: Spectator<ParkingBookingsListComponent>;
+    let bookings: Booking[] = [];
+    let can_approve = true;
     let show_requests = true;
+    let hide_bay_number = false;
+    let request_filter: 'all' | 'bookings' | 'requests' = 'all';
 
     const createComponent = createComponentFactory({
         component: ParkingBookingsListComponent,
         providers: [
             MockProvider(ParkingStateService, {
-                bookings: of([]),
-                options: of({
-                    date: Date.now(),
-                    search: '',
-                    zones: [],
-                    period: 'day',
-                    request_filter: 'all',
-                }),
+                bookings: defer(() => of(bookings)),
+                options: defer(() =>
+                    of({
+                        date: Date.now(),
+                        search: '',
+                        zones: [],
+                        period: 'day',
+                        request_filter,
+                    }),
+                ),
                 loading: of([]),
                 period: of('day'),
                 startPolling: jest.fn(() => () => null),
@@ -42,17 +48,27 @@ describe('ParkingBookingsListComponent', () => {
                 isWaitlisted: jest.fn(
                     (booking: Booking) => booking.id === 'waitlisted',
                 ),
-                canApproveBooking: jest.fn(() => true),
+                canApproveBooking: jest.fn(() => can_approve),
             } as any),
             MockProvider(SettingsService, {
                 get: jest.fn((name: string) =>
                     name === 'app.parking.show_requests'
                         ? show_requests
-                        : false,
+                        : name === 'app.parking.hide_bay_number'
+                          ? hide_bay_number
+                          : false,
                 ),
                 time_format: 'h:mm a',
             }),
         ],
+    });
+
+    beforeEach(() => {
+        bookings = [];
+        can_approve = true;
+        show_requests = true;
+        hide_bay_number = false;
+        request_filter = 'all';
     });
 
     it('should show the booking type column when requests are enabled', () => {
@@ -81,6 +97,27 @@ describe('ParkingBookingsListComponent', () => {
         expect(
             table?.active_columns().map((column) => column.key),
         ).not.toContain('booking_type');
+    });
+
+    it('should hide the bay number column when viewing requests', () => {
+        request_filter = 'requests';
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        expect(
+            table?.active_columns().map((column) => column.key),
+        ).not.toContain('asset_id');
+    });
+
+    it('should hide the bay number column when the setting is enabled', () => {
+        hide_bay_number = true;
+        request_filter = 'bookings';
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        expect(
+            table?.active_columns().map((column) => column.key),
+        ).not.toContain('asset_id');
     });
 
     it('should map bookings to the expected type labels', () => {
@@ -171,5 +208,31 @@ describe('ParkingBookingsListComponent', () => {
                 asset_id: 'bay-1',
             } as any),
         ).toBe(3);
+    });
+
+    it('should show the status action as disabled when the user cannot approve the booking', () => {
+        can_approve = false;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        const status_button = spectator
+            .queryAll('button')
+            .find(
+                (button) =>
+                    button.classList.contains('w-30') &&
+                    button.classList.contains('rounded-3xl'),
+            );
+
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('opacity-30');
     });
 });

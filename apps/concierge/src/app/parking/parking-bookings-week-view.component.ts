@@ -161,10 +161,12 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         [class.bg-neutral]="
                                             booking.status === 'ended'
                                         "
+                                        [class.opacity-30]="
+                                            isStatusActionDisabled(booking)
+                                        "
                                         [matMenuTriggerFor]="menu"
                                         [disabled]="
-                                            booking.status === 'ended' ||
-                                            !canApproveBooking(booking)
+                                            isStatusActionDisabled(booking)
                                         "
                                     >
                                         {{
@@ -377,6 +379,8 @@ export class ParkingBookingsWeekViewComponent
     public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
+    public readonly isStatusActionDisabled = (e: Booking) =>
+        e?.status === 'ended' || !this.canApproveBooking(e);
 
     public get time_format() {
         return this._settings.time_format;
