@@ -107,6 +107,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
         space_restrictions: new FormControl(
             booking.extension_data.space_restrictions ?? false,
         ),
+        extra_space_restrictions: new FormControl(
+            booking.extension_data.extra_space_restrictions ?? [],
+        ),
         approver_group: new FormControl(
             booking.extension_data.approver_group || '',
         ),

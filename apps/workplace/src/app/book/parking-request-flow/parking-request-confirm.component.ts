@@ -108,6 +108,15 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                         </span>
                     </div>
                 }
+                @for (
+                    label of extra_space_restriction_labels;
+                    track $index
+                ) {
+                    <div class="flex items-center space-x-2">
+                        <icon>warning</icon>
+                        <span>{{ label | translate }}</span>
+                    </div>
+                }
                 @if (
                     booking.recurrence_type &&
                     booking.recurrence_type !== 'none'
@@ -175,6 +184,9 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
     public readonly space_restriction_options = settingSignal<
         { id: string; name: string }[]
     >('parking.request_space_restrictions', DEFAULT_SPACE_RESTRICTION_OPTIONS);
+    public readonly extra_space_restriction_options = settingSignal<
+        { id: string; name: string }[]
+    >('parking.extra_space_restrictions', []);
 
     public readonly postForm = async () => {
         const r = await this._state.postForm().catch((_) => {
@@ -209,6 +221,15 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
         return (
             this.space_restriction_options().find((_) => _.id === value)
                 ?.name || value
+        );
+    }
+
+    public get extra_space_restriction_labels(): string[] {
+        const value = this.booking.extra_space_restrictions;
+        if (!Array.isArray(value) || !value.length) return [];
+        const options = this.extra_space_restriction_options();
+        return value.map(
+            (id) => options.find((_) => _.id === id)?.name || id,
         );
     }
 }
