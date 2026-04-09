@@ -26,6 +26,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
+    HostSelectFieldComponent,
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
@@ -200,7 +201,7 @@ type VisitorFormType = 'single' | 'group';
                         </label>
                         <host-select-field
                             name="host"
-                            formControlName="organiser"
+                            formControlName="user"
                         ></host-select-field>
                     </div>
                 }
@@ -238,6 +239,7 @@ type VisitorFormType = 'single' | 'group';
         TranslatePipe,
         IconComponent,
         UserSearchFieldComponent,
+        HostSelectFieldComponent,
         MatCheckboxModule,
     ],
 })
