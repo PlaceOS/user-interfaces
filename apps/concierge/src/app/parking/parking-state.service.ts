@@ -7,6 +7,7 @@ import {
     deleteParkingUser,
     queryParkingFleetVehicles,
     queryParkingSpaces,
+    queryParkingSpacesForZones,
     queryParkingUsers,
     saveParkingFleetVehicle,
     saveParkingSpace,
@@ -161,12 +162,16 @@ export class ParkingStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         switchMap(([levels, options]) => {
-            const zone_id = options.zones[0] || levels[0]?.id;
-            if (!zone_id) {
+            const zone_ids = options.zones.length
+                ? options.zones
+                : levels[0]?.id
+                  ? [levels[0].id]
+                  : [];
+            if (!zone_ids.length) {
                 return of([] as ParkingSpace[]);
             }
             this._loading.next([...this._loading.getValue(), 'spaces']);
-            return queryParkingSpaces(zone_id);
+            return queryParkingSpacesForZones(zone_ids);
         }),
         tap(() =>
             this._loading.next(

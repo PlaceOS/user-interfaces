@@ -70,6 +70,7 @@ describe('ParkingStateService', () => {
         (assets_mod as any).queryParkingUsers = jest.fn(() => of([]));
         (assets_mod as any).queryParkingFleetVehicles = jest.fn(() => of([]));
         (assets_mod as any).queryParkingSpaces = jest.fn(() => of([]));
+        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() => of([]));
         (booking_mod as any).bookedResourceList = jest.fn(() => of([]));
         (booking_mod as any).queryBookings = jest.fn(() => of([]));
         (booking_mod as any).updateBooking = jest.fn(() => of({}));
@@ -99,6 +100,39 @@ describe('ParkingStateService', () => {
                 period_end: getUnixTime(addMinutes(endOfDay(date), 120)),
             }),
         );
+
+        subscription.unsubscribe();
+        jest.useRealTimers();
+    });
+
+    it('should load spaces for all selected parking levels', async () => {
+        jest.useFakeTimers();
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+            { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
+            of([
+                { id: 'space-1', zone_id: 'lvl-1' },
+                { id: 'space-2', zone_id: 'lvl-2' },
+            ]),
+        );
+        let spaces: any[] = [];
+        const subscription = spectator.service.spaces.subscribe(
+            (list) => (spaces = list),
+        );
+
+        spectator.service.setOptions({ zones: ['lvl-1', 'lvl-2'] });
+        await jest.advanceTimersByTimeAsync(400);
+
+        expect(assets_mod.queryParkingSpacesForZones).toHaveBeenLastCalledWith([
+            'lvl-1',
+            'lvl-2',
+        ]);
+        expect(spaces).toEqual([
+            expect.objectContaining({ id: 'space-1', zone_id: 'lvl-1' }),
+            expect.objectContaining({ id: 'space-2', zone_id: 'lvl-2' }),
+        ]);
 
         subscription.unsubscribe();
         jest.useRealTimers();
