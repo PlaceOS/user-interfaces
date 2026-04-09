@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     ElementRef,
     forwardRef,
     input,
@@ -15,7 +16,10 @@ import {
     FormsModule,
     NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {
+    MatAutocompleteModule,
+    MatAutocompleteTrigger,
+} from '@angular/material/autocomplete';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -45,20 +49,30 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
             <mat-form-field
                 appearance="outline"
                 class="w-1/2 flex-1"
-                [class.no-subscript]="!error()"
+                [class.no-subscript]="!error() && !selected_user()"
             >
-                <icon
+                <div
                     matPrefix
-                    class="block flex w-6 items-center justify-center text-2xl"
-                    >search</icon
+                    class="mr-2 flex h-8 w-8 items-center justify-center"
                 >
+                    @if (selected_user(); as user) {
+                        <a-user-avatar [user]="user" />
+                    } @else {
+                        <icon
+                            class="block flex w-6 items-center justify-center text-2xl"
+                            >search</icon
+                        >
+                    }
+                </div>
                 <input
+                    #input
                     matInput
                     [ngModel]="search_term()"
                     (ngModelChange)="search_term.set($event)"
                     [disabled]="disabled()"
                     [matAutocomplete]="auto"
                     [placeholder]="placeholder() | translate"
+                    (focus)="selectInputText()"
                     (blur)="resetTerm()"
                 />
                 @if (loading()) {
@@ -90,7 +104,9 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
                                 class="pointer-events-auto absolute inset-0 px-4"
                                 (mousedown)="stopEvent($event)"
                                 (touchstart)="stopEvent($event)"
-                                (click)="setValue(term); stopEvent($event)"
+                                (click)="
+                                    setExternalValue(term); stopEvent($event)
+                                "
                             >
                                 <div class="pointer-events-none">
                                     {{
@@ -191,6 +207,10 @@ export class UserSearchFieldComponent
     public readonly search_term = signal<string>('');
     public readonly loading = signal(false);
     public readonly user = signal<User | null>(null);
+    public readonly selected_user = computed<User | null>(() => {
+        const term = this.search_term() as string | User;
+        return term && typeof term !== 'string' ? term : null;
+    });
 
     /** Whether form field is disabled */
     public readonly disabled = model<boolean>(undefined);
@@ -265,6 +285,7 @@ export class UserSearchFieldComponent
     public readonly setDisabledState = (s) => this.disabled.set(s);
 
     private readonly _input_el = viewChild('input', { read: ElementRef });
+    private readonly _autocomplete_trigger = viewChild(MatAutocompleteTrigger);
 
     /**
      * Update the form field value
@@ -295,6 +316,11 @@ export class UserSearchFieldComponent
                 })
                 .catch(() => null);
         }
+    }
+
+    public setExternalValue(name: string): void {
+        this.setValue(name);
+        this.dismissAutocomplete();
     }
 
     /**
@@ -329,6 +355,7 @@ export class UserSearchFieldComponent
     public setValueFromEmail(email: string): void {
         const name = email.split('@')[0];
         this.setValue(name, email);
+        this.dismissAutocomplete();
     }
 
     public clearUser() {
@@ -336,6 +363,21 @@ export class UserSearchFieldComponent
         this._onChange ? this._onChange(null) : null;
         this._onTouch ? this._onTouch(null) : null;
         this.resetTerm();
+    }
+
+    public blurInput() {
+        this._input_el()?.nativeElement?.blur();
+    }
+
+    public selectInputText() {
+        setTimeout(() => this._input_el()?.nativeElement?.select());
+    }
+
+    public dismissAutocomplete() {
+        setTimeout(() => {
+            this._autocomplete_trigger()?.closePanel();
+            this.blurInput();
+        });
     }
 
     public resetTerm() {
