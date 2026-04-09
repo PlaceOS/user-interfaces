@@ -1101,7 +1101,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                 }
 
                 <!-- SPACE RESTRICTIONS -->
-                @if (space_restriction_options().length) {
+                @if (
+                    space_restriction_options().length ||
+                    extra_space_restriction_options().length
+                ) {
                     <div
                         class="gradient border-base-content flex items-center space-x-2 border-l-8 px-4 py-3 font-medium"
                     >
@@ -1120,23 +1123,50 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                     | translate
                             }}
                         </p>
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                [value]="selected_space_restriction()"
-                                (selectionChange)="
-                                    setSpaceRestriction($event.value)
-                                "
-                            >
+                        @if (space_restriction_options().length) {
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-select
+                                    [value]="selected_space_restriction()"
+                                    (selectionChange)="
+                                        setSpaceRestriction($event.value)
+                                    "
+                                >
+                                    @for (
+                                        option of space_restriction_options();
+                                        track option.id
+                                    ) {
+                                        <mat-option [value]="option.id">{{
+                                            option.name | translate
+                                        }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        @if (extra_space_restriction_options().length) {
+                            <div class="flex flex-col gap-2">
                                 @for (
-                                    option of space_restriction_options();
+                                    option of extra_space_restriction_options();
                                     track option.id
                                 ) {
-                                    <mat-option [value]="option.id">{{
-                                        option.name | translate
-                                    }}</mat-option>
+                                    <settings-toggle
+                                        [name]="option.name | translate"
+                                        [toggle]="true"
+                                        [ngModel]="
+                                            isExtraRestrictionSelected(
+                                                option.id
+                                            )
+                                        "
+                                        (ngModelChange)="
+                                            setExtraRestriction(
+                                                option.id,
+                                                $event
+                                            )
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></settings-toggle>
                                 }
-                            </mat-select>
-                        </mat-form-field>
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -1236,6 +1266,9 @@ export class ParkingRequestFormDetailsComponent
     public readonly space_restriction_options_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.request_space_restrictions', []);
+    public readonly extra_space_restriction_options_setting = settingSignal<
+        ParkingRequestOption[]
+    >('parking.extra_space_restrictions', []);
     public readonly approver_groups_setting = settingSignal<
         ParkingRequestOption[]
     >('parking.approver_groups', []);
@@ -1305,6 +1338,9 @@ export class ParkingRequestFormDetailsComponent
     );
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
+    );
+    public readonly extra_space_restriction_options = computed(() =>
+        this._normaliseOptions(this.extra_space_restriction_options_setting()),
     );
     public readonly selected_request_type_id = signal<string>('standard');
     public readonly selected_request_type = computed(() =>
@@ -1700,6 +1736,23 @@ export class ParkingRequestFormDetailsComponent
         form.patchValue({
             space_restrictions: value || false,
         });
+    }
+
+    public isExtraRestrictionSelected(id: string): boolean {
+        const form = this.form();
+        const value = form?.getRawValue()?.extra_space_restrictions;
+        return Array.isArray(value) && value.includes(id);
+    }
+
+    public setExtraRestriction(id: string, enabled: boolean) {
+        const form = this.form();
+        if (!form) return;
+        const current = form.getRawValue()?.extra_space_restrictions;
+        const list = Array.isArray(current) ? [...current] : [];
+        const index = list.indexOf(id);
+        if (enabled && index === -1) list.push(id);
+        if (!enabled && index !== -1) list.splice(index, 1);
+        form.patchValue({ extra_space_restrictions: list });
     }
 
     public readonly setBuilding = (bld) => (this._org.building = bld);

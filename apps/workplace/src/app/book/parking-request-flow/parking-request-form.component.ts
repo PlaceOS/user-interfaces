@@ -270,6 +270,7 @@ export class ParkingRequestFormComponent
             request_type: 'standard',
             vehicle_type: 'car',
             space_restrictions: false,
+            extra_space_restrictions: [],
             prefer_booked_location_first: false,
             p2_document_names: [],
             attachments: [],

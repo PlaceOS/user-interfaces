@@ -181,6 +181,11 @@
                     "description": "Space restriction options shown in the parking request flow. If this list is empty, the field is hidden.",
                     "items": { "$ref": "#/$defs/identity" }
                 },
+                "extra_space_restrictions": {
+                    "type": "array",
+                    "description": "Additional space restriction options shown as on/off toggles in the parking request flow. Multiple toggles can be enabled at once. Each item requires an `id` and a `name` (translation key or label).",
+                    "items": { "$ref": "#/$defs/identity" }
+                },
                 "vehicle_types": {
                     "type": "array",
                     "description": "Vehicle type options shown in the parking request flow. Defaults to car, bike, van, truck, and other.",
