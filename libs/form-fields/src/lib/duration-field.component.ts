@@ -49,7 +49,9 @@ export interface DurationOption {
                                       : (selected().id >= 24 * 60
                                             ? 'mediumDate'
                                             : time_format())) + ' ('
-                            : ''
+                            : duration_options()?.length
+                              ? ''
+                              : 'No duration options available'
                     }}{{ selected()?.name }}{{ selected()?.date ? ')' : '' }}
                 </div>
                 @if (timezone() && tz()) {

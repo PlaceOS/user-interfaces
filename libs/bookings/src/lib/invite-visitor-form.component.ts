@@ -183,7 +183,7 @@ import { BookingFormService } from './booking-form.service';
                                     </label>
                                     <host-select-field
                                         name="host"
-                                        formControlName="organiser"
+                                        formControlName="user"
                                     ></host-select-field>
                                 </div>
                             }
