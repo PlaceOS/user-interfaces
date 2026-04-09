@@ -29,7 +29,11 @@ import {
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { debounceTime, filter, map } from 'rxjs/operators';
+import { debounceTime, map } from 'rxjs/operators';
+import {
+    loadPersistedZones,
+    persistZones,
+} from '../ui/zone-persistence';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
@@ -307,6 +311,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
             queryParamsHandling: 'merge',
         });
         this._state.setZones(zone_ids);
+        persistZones('room-bookings', this._persistScopeId(), zone_ids);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
@@ -403,22 +408,33 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 .pipe(debounceTime(300))
                 .subscribe(async (levels) => {
                     if (this.use_region) return;
-                    const zones = this.zones().filter((zone) =>
+                    const current = this.zones().filter((zone) =>
                         levels.find((lvl) => lvl.id === zone),
                     );
-                    this.updateZones(zones);
+                    if (!this.zones().length) {
+                        // Restore persisted selection when the view first
+                        // loads without an explicit URL filter. Empty means
+                        // "all levels".
+                        const persisted = loadPersistedZones(
+                            'room-bookings',
+                            this._persistScopeId(),
+                        ).filter((zone) =>
+                            levels.find((lvl) => lvl.id === zone),
+                        );
+                        if (persisted.length) {
+                            this.updateZones(persisted);
+                            return;
+                        }
+                    }
+                    this.updateZones(current);
                 }),
         );
-        this.subscription(
-            'region',
-            this._org.active_region
-                .pipe(filter((_) => !!_))
-                .subscribe(async (_) => {
-                    const zones = this.zones();
-                    if (zones.length) return;
-                    this.updateZones([_.id]);
-                }),
-        );
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public setFilter(id: string, value: boolean) {

@@ -34,6 +34,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { LockerFilters, LockerStateService } from './locker-state.service';
 
 @Component({
@@ -96,7 +97,12 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
                 <mat-select
                     [ngModel]="zones()"
                     (ngModelChange)="updateZones($event)"
-                    [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                    [placeholder]="
+                        (path() === 'manage'
+                            ? 'COMMON.LEVEL_SELECT'
+                            : 'COMMON.LEVEL_ALL'
+                        ) | translate
+                    "
                     multiple
                 >
                     @for (level of levels(); track level) {
@@ -224,13 +230,25 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;
-        this.zones.set(z);
+        let zones = (z || []).filter((_) => !!_);
+        // Manage view must always have a specific zone; snap empty
+        // selections back to the first available level.
+        if (this.path() === 'manage' && !zones.length) {
+            const first = this.levels()[0]?.id;
+            if (first) zones = [first];
+        }
+        this.zones.set(zones);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
             queryParamsHandling: 'merge',
         });
-        this._state.setFilters({ zones: z });
+        this._state.setFilters({ zones });
+        persistZones(
+            this.path() === 'manage' ? 'lockers-manage' : 'lockers',
+            this._persistScopeId(),
+            zones,
+        );
     };
 
     public get use_region() {
@@ -265,15 +283,31 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
             if (!this._ready() || this.use_region) return;
             const levels = this.levels();
             if (!levels.length) return;
-            const zones = this.zones().filter((zone) =>
+            let zones = this.zones().filter((zone) =>
                 levels.find((lvl) => lvl.id === zone),
             );
             if (!zones.length) {
-                zones.push(levels[0].id);
+                // Fall back to persisted selection for this view. Manage
+                // view additionally guarantees at least the first level.
+                const persisted = loadPersistedZones(
+                    this.path() === 'manage' ? 'lockers-manage' : 'lockers',
+                    this._persistScopeId(),
+                ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+                if (persisted.length) {
+                    zones = persisted;
+                } else if (this.path() === 'manage') {
+                    zones = [levels[0].id];
+                }
             }
             if (this._same_zones(zones, this.zones())) return;
             this.updateZones(zones);
         });
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 
     public async ngOnInit() {

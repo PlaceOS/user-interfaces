@@ -50,6 +50,7 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -155,7 +156,9 @@ import { DesksStateService } from './desks-state.service';
                                         : ''
                                 "
                                 (ngModelChange)="updateZones([$event])"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
                             >
                                 @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
@@ -365,12 +368,26 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
+        let clean_zones = (zones || []).filter((_) => !!_);
+        // Manage view must always have a specific zone to write metadata
+        // to — snap empty selections back to the first available level.
+        if (this.manage() && !clean_zones.length) {
+            const levels = this.levels();
+            if (levels.length) clean_zones = [levels[0].id];
+        }
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
+            queryParams: {
+                zone_ids: clean_zones.length ? clean_zones.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
-        this._state.setFilters({ zones });
+        this._state.setFilters({ zones: clean_zones });
+        persistZones(
+            this.manage() ? 'desks-manage' : 'desks',
+            this._persistScopeId(),
+            clean_zones,
+        );
     };
 
     public get use_region() {
@@ -393,16 +410,17 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (!zones.length) return;
-                    const level = this._org.levelWithID(zones);
-                    this._state.setFilters({ zones });
-                    if (!level) return;
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id,
-                    );
-                }
+                if (!params.has('zone_ids')) return;
+                const zones = (params.get('zone_ids') || '')
+                    .split(',')
+                    .filter(Boolean);
+                if (!zones.length) return;
+                const level = this._org.levelWithID(zones);
+                this._state.setFilters({ zones });
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
             }),
         );
         this.subscription(
@@ -515,11 +533,24 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        const next_zones = this.manage()
+        let next_zones = this.manage()
             ? valid_zones.slice(0, 1)
             : valid_zones;
-        if (!next_zones.length && levels.length) {
-            next_zones.push(levels[0].id);
+        if (!next_zones.length) {
+            // Restore persisted selection for the current view when none is
+            // active. Manage view then falls back to the first level if no
+            // valid persisted zone exists — it can never be "all levels".
+            const persisted = loadPersistedZones(
+                this.manage() ? 'desks-manage' : 'desks',
+                this._persistScopeId(),
+            ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+            if (persisted.length) {
+                next_zones = this.manage()
+                    ? persisted.slice(0, 1)
+                    : persisted;
+            } else if (this.manage() && levels.length) {
+                next_zones = [levels[0].id];
+            }
         }
         if (this._sameZones(current_zones, next_zones)) return;
         this.updateZones(next_zones);
@@ -533,5 +564,11 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             current_zones.length === next_zones.length &&
             current_zones.every((zone, index) => zone === next_zones[index])
         );
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 }

@@ -112,14 +112,17 @@ describe('DesksComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should update zones when the active building changes', () => {
+    it('should clear stale zones when the active building changes', () => {
+        // Events view defaults to "all levels" (empty selection). When the
+        // building changes, zones that don't belong to the new building must
+        // be dropped so the user isn't left with a stale selection.
         const update_zones = jest.spyOn(spectator.component, 'updateZones');
         update_zones.mockClear();
 
         current_building = { id: 'bld-2', parent_id: 'region-1' };
         active_building.next(current_building);
 
-        expect(update_zones).toHaveBeenCalledWith(['level-b']);
+        expect(update_zones).toHaveBeenCalledWith([]);
     });
 
     it.todo('should handle routing events');

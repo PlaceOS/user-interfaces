@@ -66,7 +66,19 @@ export class EventStateService extends AsyncHandler {
                     endOfDay(options.end || options.date || Date.now()),
                 ),
                 calendars: this.calendar,
-            });
+            }).pipe(
+                map((list) => {
+                    const zone_ids = this._options.getValue().zone_ids || [];
+                    if (!zone_ids.length) return list;
+                    return list.filter((event) =>
+                        event.resources?.some((space) =>
+                            (space.zones || []).some((zone) =>
+                                zone_ids.includes(zone),
+                            ),
+                        ),
+                    );
+                }),
+            );
         }),
         map((list) =>
             list
