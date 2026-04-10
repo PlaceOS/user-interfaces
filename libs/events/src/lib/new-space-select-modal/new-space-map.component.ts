@@ -48,7 +48,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
                                 <div class="flex flex-col-reverse">
-                                    @if (use_region) {
+                                    @if (use_region()) {
                                         <div class="text-xs opacity-30">
                                             {{
                                                 (lvl.parent_id | building)
@@ -103,6 +103,7 @@ export class NewSpaceMapComponent implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _destroy_ref = inject(DestroyRef);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly selected = input<string[]>([]);
     public readonly active = input<string>(undefined);
@@ -129,7 +130,7 @@ export class NewSpaceMapComponent implements OnInit {
         this._org.active_building,
     ]).pipe(
         map(([region, bld]) => {
-            const level_list = this.use_region
+            const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
@@ -209,10 +210,7 @@ export class NewSpaceMapComponent implements OnInit {
     );
 
     public readonly styles = toSignal(this._styles$, { initialValue: {} });
-
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
+    public readonly use_region = this._use_region;
 
     public ngOnInit() {
         this._event_form.options$

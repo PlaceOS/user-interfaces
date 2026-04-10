@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -23,7 +24,10 @@ describe('DeskListFieldComponent', () => {
                     })),
                 },
             },
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            {
+                provide: SettingsService,
+                useValue: createSettingsServiceMock(),
+            },
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatRadioModule), FormsModule],

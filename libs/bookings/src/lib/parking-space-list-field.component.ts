@@ -147,7 +147,11 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _onTouch: (_: BookingAsset[]) => void;
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_spaces',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     /** Add or edit selected spaces */

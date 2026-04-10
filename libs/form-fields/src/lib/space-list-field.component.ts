@@ -230,8 +230,11 @@ export class SpaceListFieldComponent
         // Return cache if available for instant updates
         if (this._favorites_cache !== null) return this._favorites_cache;
         return (
-            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_ROOMS) ||
-            EMPTY_FAVS
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_ROOMS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
         );
     }
 

@@ -18,7 +18,10 @@ import {
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Desk, SETTING_KEYS, SettingsService } from '@placeos/common';
-import { mockComponent } from '@placeos/common/tests';
+import {
+    createSettingsServiceMock,
+    mockComponent,
+} from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
@@ -37,10 +40,7 @@ describe('DeskSelectModalComponent', () => {
                 provide: BookingFormService,
                 useValue: { setOptions: jest.fn() },
             },
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
-            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(MatDialogRef, { close: jest.fn() }),
         ],

@@ -515,7 +515,7 @@ export class BookingRulesFormComponent implements OnChanges {
     });
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public ngOnChanges(changes: SimpleChanges): void {

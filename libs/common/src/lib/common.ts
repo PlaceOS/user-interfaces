@@ -9,6 +9,7 @@ export { VorlonService } from './vorlon.service';
 export * from './angular-animations';
 export * from './api';
 export * from './application';
+export * from './constants';
 export * from './formatting';
 export * from './general';
 export * from './native-app';

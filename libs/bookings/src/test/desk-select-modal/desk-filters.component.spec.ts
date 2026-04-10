@@ -16,6 +16,7 @@ import {
     Region,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
@@ -27,7 +28,7 @@ describe('DeskFiltersComponent', () => {
         shallow: true,
         providers: [
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject(new Building({ id: '1' })),
                 active_buildings: of([new Building({ id: '1' })]),
@@ -87,6 +88,7 @@ describe('DeskFiltersComponent', () => {
                 return true;
             },
         );
+        spectator = createComponent();
         spectator.detectChanges();
         expect('[formControlName="all_day"]').toExist();
     });

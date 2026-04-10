@@ -1,5 +1,6 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addHours, set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -27,7 +28,7 @@ describe('BookingCardComponent', () => {
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
     });
 

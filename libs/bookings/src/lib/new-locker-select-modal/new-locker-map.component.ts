@@ -53,7 +53,7 @@ import { loadLockerBanks, loadLockers } from '../booking.utilities';
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
                                 <div class="flex flex-col-reverse">
-                                    @if (use_region) {
+                                    @if (use_region()) {
                                         <div class="text-xs opacity-30">
                                             {{
                                                 (lvl.parent_id | building)
@@ -112,18 +112,19 @@ export class NewLockerMapComponent implements OnInit {
     public readonly is_displayed = input(false);
     public readonly active = input('');
     public readonly onSelect = output<BookingAsset>();
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly lockers_banks$ = loadLockerBanks(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._settings.get('app.use_region'),
+        () => this._use_region(),
     );
 
     public readonly lockers$ = loadLockers(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
         this.lockers_banks$,
-        () => this._settings.get('app.use_region'),
+        () => this._use_region(),
     );
 
     private readonly _locker_banks$ = combineLatest([
@@ -170,7 +171,7 @@ export class NewLockerMapComponent implements OnInit {
             this._org.active_building,
         ]).pipe(
             map(([region, bld]) => {
-                const level_list = this.use_region
+                const level_list = this._use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
                 const viewable_levels = level_list.filter(
@@ -266,9 +267,7 @@ export class NewLockerMapComponent implements OnInit {
         { initialValue: {} },
     );
 
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
+    public readonly use_region = this._use_region;
 
     constructor() {
         effect(() => {

@@ -32,7 +32,7 @@ const EMPTY_FAVS: string[] = [];
                 @for (request of asset_requests; track request) {
                     <div
                         request
-                        class="overflow-hidden rounded-xl border bg-base-100 shadow"
+                        class="bg-base-100 overflow-hidden rounded-xl border shadow"
                         [class.border-error]="end_time < request.deliver_at"
                         [class.border-base-300]="end_time >= request.deliver_at"
                     >
@@ -61,7 +61,7 @@ const EMPTY_FAVS: string[] = [];
                                         request.conflict
                                     ) {
                                         <div
-                                            class="flex h-6 w-6 items-center justify-center rounded-full bg-error text-error-content"
+                                            class="bg-error text-error-content flex h-6 w-6 items-center justify-center rounded-full"
                                             [matTooltip]="err_tooltip(request)"
                                         >
                                             <icon>priority_high</icon>
@@ -120,7 +120,7 @@ const EMPTY_FAVS: string[] = [];
                             </button>
                         </div>
                         <div
-                            class="flex flex-col divide-y divide-base-100 bg-base-200"
+                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
                             [@show]="show_request[request.id] ? 'show' : 'hide'"
                         >
                             @for (item of request.items; track item) {
@@ -131,7 +131,7 @@ const EMPTY_FAVS: string[] = [];
                                         {{ item.name || 'Item' }}
                                     </div>
                                     <div
-                                        class="rounded bg-success px-2 py-1 text-xs text-success-content"
+                                        class="bg-success text-success-content rounded px-2 py-1 text-xs"
                                     >
                                         x{{ item.quantity }}
                                     </div>
@@ -195,7 +195,7 @@ const EMPTY_FAVS: string[] = [];
         } @else {
             @if (disabled) {
                 <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
                 >
                     <icon class="text-6xl opacity-30">hand_meal</icon>
                     <p class="opacity-30">
@@ -205,7 +205,7 @@ const EMPTY_FAVS: string[] = [];
                 </div>
             } @else {
                 <div
-                    class="flex w-full flex-col items-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex w-full flex-col items-center space-y-2 rounded-xl p-8"
                 >
                     <p>No asset requests for this booking</p>
                     <button
@@ -270,7 +270,11 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     public selected: AssetRequest[] = [];
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_assets',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     public get end_time() {
@@ -281,7 +285,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }
 
     public get time_format() {
-        return this._settings.time_format || 'shortTime';
+        return this._settings.time_format_signal() || 'shortTime';
     }
 
     constructor() {

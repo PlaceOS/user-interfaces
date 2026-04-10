@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     DestroyRef,
     effect,
     inject,
@@ -20,15 +21,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
-    Booking,
-    SettingsService,
-    User,
     alignDateToBookableHours,
+    Booking,
     currentUser,
     getInvalidFields,
     i18n,
     notifyError,
     notifySuccess,
+    SettingsService,
+    User,
 } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
@@ -114,7 +115,7 @@ import { BookingFormService } from './booking-form.service';
                                     formControlName="date"
                                 ></a-date-field>
                             </div>
-                            @if (allow_all_day) {
+                            @if (allow_all_day()) {
                                 <div class="-mt-2 mb-2 flex justify-end">
                                     <mat-checkbox formControlName="all_day">
                                         {{ 'COMMON.ALL_DAY' | translate }}
@@ -130,8 +131,10 @@ import { BookingFormService } from './booking-form.service';
                                         </label>
                                         <a-time-field
                                             name="start-time"
-                                            [ngModel]="form_date"
-                                            [disabled]="is_start_time_disabled"
+                                            [ngModel]="form_date()"
+                                            [disabled]="
+                                                is_start_time_disabled()
+                                            "
                                             (ngModelChange)="
                                                 form.patchValue({
                                                     date: $event,
@@ -140,10 +143,10 @@ import { BookingFormService } from './booking-form.service';
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
-                                            [use_24hr]="use_24hr"
-                                            [range]="bookable_hours"
-                                            [min_duration]="min_duration"
-                                            [timezone]="timezone"
+                                            [use_24hr]="use_24hr()"
+                                            [range]="bookable_hours()"
+                                            [min_duration]="min_duration()"
+                                            [timezone]="timezone()"
                                         ></a-time-field>
                                     </div>
                                     <div class="flex w-1/3 flex-1 flex-col">
@@ -154,16 +157,16 @@ import { BookingFormService } from './booking-form.service';
                                         <a-duration-field
                                             name="end-time"
                                             formControlName="duration"
-                                            [time]="form_date"
-                                            [max]="max_duration"
-                                            [use_24hr]="use_24hr"
-                                            [end_time]="bookable_hours?.end"
-                                            [timezone]="timezone"
+                                            [time]="form_date()"
+                                            [max]="max_duration()"
+                                            [use_24hr]="use_24hr()"
+                                            [end_time]="bookable_hours()?.end"
+                                            [timezone]="timezone()"
                                         ></a-duration-field>
                                     </div>
                                 </div>
                             }
-                            @if (can_book_for_anyone) {
+                            @if (can_book_for_anyone()) {
                                 <div class="flex w-full flex-col">
                                     <label for="host">
                                         {{ 'FORM.HOST' | translate
@@ -175,7 +178,7 @@ import { BookingFormService } from './booking-form.service';
                                         formControlName="user"
                                     ></a-user-search-field>
                                 </div>
-                            } @else if (can_book_for_others) {
+                            } @else if (can_book_for_others()) {
                                 <div class="flex w-full flex-col">
                                     <label for="host">
                                         {{ 'FORM.HOST' | translate
@@ -187,7 +190,7 @@ import { BookingFormService } from './booking-form.service';
                                     ></host-select-field>
                                 </div>
                             }
-                            @if (!multiple) {
+                            @if (!multiple()) {
                                 <div class="flex flex-col">
                                     <label for="visitor-name">
                                         {{
@@ -389,7 +392,7 @@ import { BookingFormService } from './booking-form.service';
                                     />
                                 </mat-form-field>
                             </div>
-                            @if (allow_pass_number) {
+                            @if (allow_pass_number()) {
                                 <div class="flex flex-col">
                                     <label for="pass">{{
                                         'BOOKINGS.VISITOR_PASS' | translate
@@ -407,7 +410,7 @@ import { BookingFormService } from './booking-form.service';
                                     </mat-form-field>
                                 </div>
                             }
-                            @if (allow_international && !multiple) {
+                            @if (allow_international() && !multiple()) {
                                 <div class="-mt-2 mb-2 flex justify-end">
                                     <mat-checkbox
                                         formControlName="international"
@@ -456,7 +459,7 @@ import { BookingFormService } from './booking-form.service';
                 >
                     <h2 class="text-3xl">
                         {{
-                            (multiple
+                            (multiple()
                                 ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_SENT_SINGLE'
                             )
@@ -472,25 +475,25 @@ import { BookingFormService } from './booking-form.service';
                     <img class="mx-auto" src="assets/icons/sent.svg" />
                     <p>
                         {{
-                            (multiple && last_count > 1
+                            (multiple() && last_count > 1
                                 ? 'BOOKINGS.VISITOR_SENT_MSG_MULTIPLE'
                                 : 'BOOKINGS.VISITOR_SENT_MSG'
                             )
                                 | translate
                                     : {
                                           location:
-                                              building?.display_name ||
-                                              building?.name,
+                                              building()?.display_name ||
+                                              building()?.name,
                                           date:
                                               last_success?.date
                                               | date: 'mediumDate',
                                           time:
                                               last_success?.date
-                                              | date: time_format,
+                                              | date: time_format(),
                                       }
                         }}
                     </p>
-                    @if (show_links) {
+                    @if (show_links()) {
                         <div
                             class="relative flex flex-col items-center space-y-4 p-4"
                         >
@@ -558,7 +561,7 @@ import { BookingFormService } from './booking-form.service';
                             (click)="sent.set(false)"
                         >
                             {{
-                                (multiple && last_count > 1
+                                (multiple() && last_count > 1
                                     ? 'BOOKINGS.VISITOR_BOOK_ANOTHER_MULTIPLE'
                                     : 'BOOKINGS.VISITOR_BOOK_ANOTHER'
                                 ) | translate
@@ -621,64 +624,113 @@ export class InviteVisitorFormComponent {
     public visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
     public visitor_international: Record<string, boolean> = {};
+    private readonly _visitor_bookable_hours = this._settings.signal(
+        'visitors.bookable_hours',
+        null,
+    );
+    private readonly _booking_bookable_hours = this._settings.signal(
+        'bookings.bookable_hours',
+        null,
+    );
+    private readonly _visitor_max_duration = this._settings.signal(
+        'visitors.max_duration',
+        null,
+    );
+    private readonly _booking_max_duration = this._settings.signal(
+        'bookings.max_duration',
+        null,
+    );
+    private readonly _allow_pass_number = this._settings.signal(
+        'visitors.allow_pass_number',
+        false,
+    );
+    private readonly _allow_international = this._settings.signal(
+        'visitors.allow_international',
+        false,
+    );
+    private readonly _visitor_allow_all_day = this._settings.signal(
+        'visitors.allow_all_day',
+        undefined,
+    );
+    private readonly _booking_allow_all_day = this._settings.signal(
+        'bookings.allow_all_day',
+        false,
+    );
+    private readonly _multiple = this._settings.signal(
+        'bookings.multiple_visitors',
+        false,
+    );
+    private readonly _visitor_can_book_for_others = this._settings.signal(
+        'visitors.can_book_for_others',
+        undefined,
+    );
+    private readonly _booking_can_book_for_others = this._settings.signal(
+        'bookings.can_book_for_others',
+        false,
+    );
+    private readonly _visitor_can_book_for_anyone = this._settings.signal(
+        'visitors.can_book_for_anyone',
+        undefined,
+    );
+    private readonly _booking_can_book_for_anyone = this._settings.signal(
+        'bookings.can_book_for_anyone',
+        false,
+    );
+    private readonly _show_links = this._settings.signal(
+        'visitors.show_calendar_links',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _booking_use_building_timezone = this._settings.signal(
+        'bookings.use_building_timezone',
+        false,
+    );
+    private readonly _visitor_use_building_timezone = this._settings.signal(
+        'visitors.use_building_timezone',
+        false,
+    );
+    private readonly _visitor_min_duration = this._settings.signal(
+        'visitors.min_duration',
+        null,
+    );
+    private readonly _booking_min_duration = this._settings.signal(
+        'bookings.min_duration',
+        null,
+    );
 
-    public get bookable_hours() {
-        return (
-            this._settings.get('app.visitors.bookable_hours') ||
-            this._settings.get('app.bookings.bookable_hours')
-        );
-    }
-
-    public get max_duration() {
-        return (
-            this._settings.get('app.visitors.max_duration') ||
-            this._settings.get('app.bookings.max_duration') ||
-            4 * 60
-        );
-    }
-
-    public get allow_pass_number() {
-        return this._settings.get('app.visitors.allow_pass_number');
-    }
-
-    public get allow_international() {
-        return !!this._settings.get('app.visitors.allow_international');
-    }
-
-    public get allow_all_day() {
-        return (
-            this._settings.get('app.visitors.allow_all_day') ??
-            this._settings.get('app.bookings.allow_all_day')
-        );
-    }
-
-    public get multiple() {
-        return this._settings.get('app.bookings.multiple_visitors');
-    }
-
-    public get can_book_for_others() {
-        return (
-            this._settings.get('app.visitors.can_book_for_others') ??
-            this._settings.get('app.bookings.can_book_for_others')
-        );
-    }
-
-    public get can_book_for_anyone() {
-        return (
-            this._settings.get('app.visitors.can_book_for_anyone') ??
-            this._settings.get('app.bookings.can_book_for_anyone')
-        );
-    }
-
-    public get show_links() {
-        return this._settings.get('app.visitors.show_calendar_links');
-    }
-
-    public get building() {
-        return this._settings.get('app.use_region')
-            ? this._org.region
-            : this._org.building;
-    }
+    public readonly bookable_hours = computed(
+        () => this._visitor_bookable_hours() || this._booking_bookable_hours(),
+    );
+    public readonly max_duration = computed(
+        () =>
+            this._visitor_max_duration() ||
+            this._booking_max_duration() ||
+            4 * 60,
+    );
+    public readonly allow_pass_number = this._allow_pass_number;
+    public readonly allow_international = this._allow_international;
+    public readonly allow_all_day = computed(
+        () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+    );
+    public readonly multiple = this._multiple;
+    public readonly can_book_for_others = computed(
+        () =>
+            this._visitor_can_book_for_others() ??
+            this._booking_can_book_for_others(),
+    );
+    public readonly can_book_for_anyone = computed(
+        () =>
+            this._visitor_can_book_for_anyone() ??
+            this._booking_can_book_for_anyone(),
+    );
+    public readonly show_links = this._show_links;
+    public readonly building = computed(() =>
+        this._use_region() ? this._org.region : this._org.building,
+    );
 
     public get is_edit() {
         return !!this.form?.value?.id;
@@ -688,36 +740,23 @@ export class InviteVisitorFormComponent {
         return this._service.form;
     }
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
-
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get timezone() {
-        return this._settings.get('app.bookings.use_building_timezone') ||
-            this._settings.get('app.visitors.use_building_timezone')
+    public readonly time_format = this._settings.time_format_signal;
+    public readonly use_24hr = this._use_24hr;
+    public readonly timezone = computed(() =>
+        this._booking_use_building_timezone() ||
+        this._visitor_use_building_timezone()
             ? this._org.building?.timezone || ''
-            : '';
-    }
+            : '',
+    );
+    public readonly min_duration = computed(
+        () =>
+            this._visitor_min_duration() || this._booking_min_duration() || 30,
+    );
 
-    public get min_duration() {
-        return (
-            this._settings.get('app.visitors.min_duration') ||
-            this._settings.get('app.bookings.min_duration') ||
-            30
-        );
-    }
-
-    public get form_date() {
-        return this.form?.getRawValue()?.date;
-    }
-
-    public get is_start_time_disabled() {
-        return this.form?.get('date')?.disabled || false;
-    }
+    public readonly form_date = computed(() => this.form?.getRawValue()?.date);
+    public readonly is_start_time_disabled = computed(
+        () => this.form?.get('date')?.disabled || false,
+    );
 
     public get selected_building_id() {
         const zone_list = this.form?.getRawValue()?.zones || [];
@@ -739,7 +778,7 @@ export class InviteVisitorFormComponent {
             this.form.patchValue({
                 date: alignDateToBookableHours(
                     date,
-                    this.bookable_hours,
+                    this.bookable_hours(),
                     this.form.getRawValue().date,
                 ),
             });
@@ -778,7 +817,7 @@ export class InviteVisitorFormComponent {
             .get('assets')
             .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
             .subscribe((_) => this.syncVisitorInternational(_ || []));
-        if (this.multiple && !this.form.value.id)
+        if (this.multiple() && !this.form.value.id)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
     }
@@ -853,14 +892,17 @@ export class InviteVisitorFormComponent {
     public async sendInvite() {
         this.form.markAllAsTouched();
         const form_data = this.form.getRawValue();
-        if (!this.form.valid || (this.multiple && !form_data.assets?.length)) {
+        if (
+            !this.form.valid ||
+            (this.multiple() && !form_data.assets?.length)
+        ) {
             return notifyError(
                 `Some fields are invalid. [${
                     getInvalidFields(this.form).join(', ') || 'visitors'
                 }]`,
             );
         }
-        if (!this.form.value.user_email || !this.can_book_for_others) {
+        if (!this.form.value.user_email || !this.can_book_for_others()) {
             this.form.patchValue({ user: currentUser() });
         }
         const visitor_reason =
@@ -871,7 +913,7 @@ export class InviteVisitorFormComponent {
         const old_visitors = this._settings.get('visitor-invitees') || [];
         const { asset_id, asset_name, company, international, assets } =
             this.form.getRawValue();
-        if (this.multiple && assets?.length) {
+        if (this.multiple() && assets?.length) {
             const asset_ids = assets.map((_) => _.email).filter((_) => !!_);
             this._settings.saveUserSetting('visitor-invitees', [
                 ...old_visitors.filter((_) => {
@@ -896,7 +938,7 @@ export class InviteVisitorFormComponent {
             ]);
         }
         const is_editing = this.is_edit;
-        await (this.multiple ? this._bookForMany() : this._bookForOne());
+        await (this.multiple() ? this._bookForMany() : this._bookForOne());
         if (is_editing) {
             notifySuccess(i18n('BOOKINGS.VISITOR_UPDATED'));
             this.done.emit();
@@ -941,11 +983,11 @@ export class InviteVisitorFormComponent {
         if (!this.form.value.id && !this.form.value.zones?.length) {
             this.form.patchValue({ zones: [this._org.building?.id] });
         }
-        if (this.multiple && !this.form.value.id)
+        if (this.multiple() && !this.form.value.id)
             this.form.patchValue({ asset_id: 'multiple@place.tech' });
         if (this.form.value.id) {
             const booking_ref = this._service.booking;
-            if (this.multiple) {
+            if (this.multiple()) {
                 // Populate quickly from cached booking extension data, then
                 // refresh from sibling bookings without blocking form display.
                 const extension_visitors = this._visitorsFromGroupMembers(
@@ -977,7 +1019,7 @@ export class InviteVisitorFormComponent {
                     });
                 }
             }
-            if (!this.multiple && this.form.value.assets?.length) {
+            if (!this.multiple() && this.form.value.assets?.length) {
                 const [visitor] = this.form.value.assets as User[];
                 if (visitor?.email) {
                     this.form.patchValue({

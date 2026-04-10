@@ -5,6 +5,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { CateringItemDetailsComponent } from '../../lib/catering-order-modal/catering-item-details.component';
@@ -18,10 +19,7 @@ describe('NewCateringOrderModalComponent', () => {
     const createComponent = createRoutingFactory({
         component: NewCateringOrderModalComponent,
         providers: [
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
-            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
             MockProvider(OrganisationService, {}),
             MockProvider(CateringOrderStateService, {}),

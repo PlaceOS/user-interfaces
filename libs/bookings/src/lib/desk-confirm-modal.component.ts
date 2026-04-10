@@ -43,7 +43,7 @@ export interface DeskConfirmModalData {
         </header>
         @if (!loading()) {
             <main class="p-4">
-                @if (can_set_host) {
+                @if (can_set_host()) {
                     <div host class="flex flex-col">
                         <label>{{ 'FORM.HOST' | translate }}</label>
                         <a-user-search-field
@@ -66,7 +66,7 @@ export interface DeskConfirmModalData {
                         ></a-date-field>
                     }
                 </div>
-                @if (!hide_reason) {
+                @if (!hide_reason()) {
                     <div reason class="mb-4 flex flex-col">
                         <label>Reason</label>
                         <mat-form-field appearance="outline">
@@ -135,18 +135,21 @@ export class DeskConfirmModalComponent {
     public readonly level = this._data.level;
 
     public readonly loading = signal('');
+    private readonly _hide_reason = this._settings.signal(
+        'desks.hide_reason',
+        false,
+    );
+    private readonly _can_set_host = this._settings.signal(
+        'desks.can_book_for_others',
+        false,
+    );
 
     public readonly desk_list = computed(() =>
         this.desks.map((_) => _.name).join(', '),
     );
 
-    public get hide_reason() {
-        return !!this._settings.get('app.desks.hide_reason');
-    }
-
-    public get can_set_host() {
-        return !!this._settings.get('app.desks.can_book_for_others');
-    }
+    public readonly hide_reason = this._hide_reason;
+    public readonly can_set_host = this._can_set_host;
 
     public confirm() {
         this.loading.set('Requesting desk booking...');

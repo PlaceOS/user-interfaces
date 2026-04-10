@@ -99,6 +99,10 @@ export class SettingsService extends AsyncHandler {
             : 'light';
     });
 
+    public readonly time_format_signal = computed(() =>
+        this.signal('use_24_hour_time', false)() ? 'HH:mm' : 'h:mm a',
+    );
+
     /** Get observable for key */
     public listen<T = any>(name: string): Observable<T> {
         if (!this._observables[name]) {

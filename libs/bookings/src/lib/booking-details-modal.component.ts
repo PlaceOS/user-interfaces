@@ -474,13 +474,14 @@ export class BookingDetailsModalComponent {
             ? `${location_name}, ${resource_name}`
             : resource_name;
     });
+    private readonly _use_region = this._settings.signal('use_region', false);
     public readonly building = computed(() => {
         const zones = this.booking()?.zones || [];
         const level = this.level();
         const building = this._org.buildings.find(
             (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
         );
-        if (this._settings.get('app.use_region')) {
+        if (this._use_region()) {
             const region = this._org.regions.find(
                 (region) =>
                     zones.includes(region.id) ||
@@ -588,7 +589,7 @@ export class BookingDetailsModalComponent {
     });
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public readonly booking_status = computed(() => {

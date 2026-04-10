@@ -92,7 +92,7 @@ export interface SupportRequestType {
                         </mat-select>
                     </mat-form-field>
                 </div>
-                @if (support_request_types?.length) {
+                @if (support_request_types().length) {
                     <div class="flex flex-col">
                         <label>{{ 'COMMON.SUPPORT_TYPE' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
@@ -103,7 +103,7 @@ export interface SupportRequestType {
                                 formControlName="issue_type"
                             >
                                 @for (
-                                    type of support_request_types;
+                                    type of support_request_types();
                                     track type
                                 ) {
                                     <mat-option [value]="type?.name || type">
@@ -132,7 +132,7 @@ export interface SupportRequestType {
                         </mat-error>
                     }
                 </div>
-                @if (allow_images) {
+                @if (allow_images()) {
                     <div class="pt-4">
                         <label class="mb-4">{{
                             'COMMON.SUPPORT_IMAGES' | translate
@@ -177,6 +177,18 @@ export class SupportTicketModalComponent {
         inject<MatDialogRef<SupportTicketModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _support_email = this._settings.signal(
+        'support_email',
+        'support@place.tech',
+    );
+    private readonly _support_issue_types = this._settings.signal(
+        'support_issue_types',
+        [],
+    );
+    private readonly _allow_images = this._settings.signal(
+        'allow_support_ticket_images',
+        false,
+    );
 
     public loading = false;
     public readonly form = new FormGroup({
@@ -195,17 +207,9 @@ export class SupportTicketModalComponent {
         );
     }
 
-    public get support_email() {
-        return this._settings.get('app.support_email') || 'support@place.tech';
-    }
-
-    public get support_request_types(): SupportRequestType[] {
-        return this._settings.get('app.support_issue_types') || [];
-    }
-
-    public get allow_images() {
-        return this._settings.get('app.allow_support_ticket_images');
-    }
+    public readonly support_email = this._support_email;
+    public readonly support_request_types = this._support_issue_types;
+    public readonly allow_images = this._allow_images;
 
     public readonly buildings = this._org.building_list;
 
@@ -237,9 +241,9 @@ export class SupportTicketModalComponent {
             const { name, email, location, description, images, issue_type } =
                 this.form.value;
             const support_email =
-                this.support_request_types.find(
+                this.support_request_types().find(
                     (type) => type.name === issue_type,
-                )?.email || this.support_email;
+                )?.email || this.support_email();
             const header = i18n('COMMON.SUPPORT_MAIL_HEADER', {
                 issue_type: issue_type ? ' - ' + issue_type : '',
             });

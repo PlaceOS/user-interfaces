@@ -161,7 +161,7 @@ const ICONS = {
                     [step]="step_interval"
                     [min]="min_offset"
                     [max]="max_offset"
-                    [use_24hr]="use_24hr"
+                    [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
         }
@@ -245,9 +245,25 @@ export class NewCateringItemFiltersComponent
     public get min_offset() {
         return this.offset_day() > 0 ? 0 : this._min_offset;
     }
+    private readonly _step_interval = this._settings.signal(
+        'catering.step_interval',
+        5,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _min_offset_setting = this._settings.signal(
+        'catering.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'catering.end_offset',
+        0,
+    );
 
     public get step_interval() {
-        return this._settings.get('app.catering.step_interval') || 5;
+        return this._step_interval();
     }
 
     public get max_offset() {
@@ -264,9 +280,7 @@ export class NewCateringItemFiltersComponent
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = this._use_24hr;
 
     public readonly day_options = signal<{ id: number; value: number }[]>([]);
 
@@ -275,10 +289,7 @@ export class NewCateringItemFiltersComponent
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(
-            this._settings.get('app.catering.min_offset'),
-            0,
-        );
+        this._min_offset = Math.max(this._min_offset_setting(), 0);
         this.exact_tooltip.set(i18n('CATERING.ORDERS_DELIVER_EXACT_INFO'));
         this.subscription(
             'filters',
@@ -286,7 +297,7 @@ export class NewCateringItemFiltersComponent
                 this._max_offset = Math.max(
                     15,
                     (this._state.getFilters().duration || 60) -
-                        this._settings.get('app.catering.end_offset'),
+                        this._end_offset(),
                 );
                 this._updateDayOptions();
             }),

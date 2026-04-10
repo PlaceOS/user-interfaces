@@ -113,6 +113,6 @@ export class NewLockerFiltersDisplayComponent {
     }
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 }

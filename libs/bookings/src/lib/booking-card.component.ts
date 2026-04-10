@@ -216,7 +216,7 @@ export class BookingCardComponent {
     );
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public readonly status = computed(() => {

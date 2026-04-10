@@ -281,9 +281,13 @@ export class UserListFieldComponent
 
     private readonly _search_el =
         viewChild<ElementRef<HTMLInputElement>>('search_field');
+    private readonly _use_basic_user_search = this._settings.signal(
+        'basic_user_search',
+        false,
+    );
 
     private searchStaff(q: string) {
-        return this._settings.get('app.basic_user_search')
+        return this._use_basic_user_search()
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((u) => new User(u))),
               )

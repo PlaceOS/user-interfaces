@@ -174,8 +174,11 @@ export class LockerListFieldComponent implements ControlValueAccessor {
 
     public get favorites() {
         return (
-            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_LOCKERS) ||
-            EMPTY_FAVS
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_LOCKERS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
         );
     }
 

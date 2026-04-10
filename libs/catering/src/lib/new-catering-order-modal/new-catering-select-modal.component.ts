@@ -166,12 +166,23 @@ export class NewCateringSelectModalComponent {
     public exact_time = this._data.exact_time ?? false;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'catering.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'catering.end_offset',
+        0,
+    );
     public show_filters = false;
 
     public get favorites() {
         return (
-            this._settings.get<string[]>(SETTING_KEYS.FAVORITE_DESKS) ||
-            EMPTY_FAVS
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_DESKS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
         );
     }
 
@@ -191,11 +202,8 @@ export class NewCateringSelectModalComponent {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.catering.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.catering.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
         if (this._data.caterer) {

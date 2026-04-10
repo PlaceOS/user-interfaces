@@ -159,9 +159,13 @@ export class InteractiveMapComponent
     public readonly location = computed(() =>
         this._org.levels.find((_) => _.map_id === this.src()),
     );
+    private readonly _use_cisco_maps = this._settings.signal(
+        'explore.cisco_maps.enabled',
+        false,
+    );
 
     public get use_cisco_maps() {
-        return this._settings.get('app.explore.cisco_maps.enabled');
+        return this._use_cisco_maps();
     }
 
     public ngOnInit() {

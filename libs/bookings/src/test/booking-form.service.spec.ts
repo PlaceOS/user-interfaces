@@ -203,7 +203,11 @@ describe('BookingFormService', () => {
         jest.setSystemTime(new Date(2026, 2, 20, 18, 15, 0));
         const get = spectator.inject(SettingsService).get as jest.Mock;
         get.mockImplementation((key: string) => {
-            if (key === 'app.parking.bookable_hours') {
+            if (
+                key === 'app.parkings.bookable_hours' ||
+                key === 'app.parking.bookable_hours' ||
+                key === 'app.bookings.bookable_hours'
+            ) {
                 return { start: 8, end: 17 };
             }
             return undefined;

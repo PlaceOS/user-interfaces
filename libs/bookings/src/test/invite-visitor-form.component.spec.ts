@@ -6,6 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
 
 import { Booking, OrganisationService, User } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { BookingFormService } from '../lib/booking-form.service';
@@ -96,7 +97,7 @@ describe('InviteVisitorFormComponent', () => {
                         : null,
                 ),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         imports: [
             ReactiveFormsModule,
@@ -495,8 +496,8 @@ describe('InviteVisitorFormComponent', () => {
 
         await spectator.component.ngOnInit();
 
-        expect(spectator.component.form_date).toBe(booking_date);
-        expect(spectator.component.is_start_time_disabled).toBe(true);
+        expect(spectator.component.form_date()).toBe(booking_date);
+        expect(spectator.component.is_start_time_disabled()).toBe(true);
     });
 
     it('should set reason on title only when sending invite', async () => {
@@ -617,7 +618,7 @@ describe('InviteVisitorFormComponent', () => {
                 return { start: 480, end: 1140 };
             return undefined;
         });
-        expect(spectator.component.bookable_hours).toEqual({
+        expect(spectator.component.bookable_hours()).toEqual({
             start: 480,
             end: 1140,
         });
@@ -627,7 +628,7 @@ describe('InviteVisitorFormComponent', () => {
                 return { start: 540, end: 1080 };
             return undefined;
         });
-        expect(spectator.component.bookable_hours).toEqual({
+        expect(spectator.component.bookable_hours()).toEqual({
             start: 540,
             end: 1080,
         });

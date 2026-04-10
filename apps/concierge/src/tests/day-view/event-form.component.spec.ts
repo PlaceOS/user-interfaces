@@ -12,11 +12,20 @@ import { EventFormComponent } from '../../app/day-view/event-form.component';
 
 describe('EventFormComponent', () => {
     let spectator: Spectator<EventFormComponent>;
+    const settings_values: Record<string, any> = {};
+    const lookup_setting = (key: string, fallback?) =>
+        key in settings_values ? settings_values[key] : fallback;
     const createComponent = createComponentFactory({
         component: EventFormComponent,
         shallow: true,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn((key: string) => lookup_setting(key)),
+                signal: jest.fn(
+                    (key: string, fallback?) => () =>
+                        lookup_setting(key, fallback),
+                ),
+            }),
             MockProvider(CateringOrderStateService, {
                 charge_codes: of([]),
                 available_menu: of([]),
@@ -33,9 +42,9 @@ describe('EventFormComponent', () => {
     });
 
     beforeEach(() => {
+        for (const key of Object.keys(settings_values))
+            delete settings_values[key];
         spectator = createComponent();
-        const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation(() => false);
     });
 
     it('should create component', () => {
@@ -50,10 +59,7 @@ describe('EventFormComponent', () => {
     });
 
     it('should hide attendees when the setting is enabled', async () => {
-        const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
-            key === 'app.events.hide_attendees' ? true : false,
-        );
+        settings_values['app.events.hide_attendees'] = true;
         spectator.setInput({ form: generateEventForm() });
         spectator.detectChanges();
         await spectator.fixture.whenStable();
@@ -67,10 +73,7 @@ describe('EventFormComponent', () => {
         expect(spectator.query('label[for="setup"]')).toBeNull();
         expect(spectator.query('label[for="breakdown"]')).toBeNull();
 
-        const settings = spectator.inject(SettingsService);
-        (settings.get as jest.Mock).mockImplementation((key: string) =>
-            key === 'app.events.allow_setup_breakdown' ? true : false,
-        );
+        settings_values['app.events.allow_setup_breakdown'] = true;
         spectator.detectChanges();
         await spectator.fixture.whenStable();
         expect(spectator.query('label[for="setup"]')).toExist();
