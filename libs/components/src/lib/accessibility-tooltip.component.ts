@@ -2,7 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
-import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    current_user,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { CustomTooltipData } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 import { SettingsToggleComponent } from './settings-toggle.component';
@@ -37,16 +42,18 @@ import { TranslatePipe } from './translate.pipe';
                         </div>
                     </settings-toggle>
                 }
-                <settings-toggle
-                    [ngModel]="locatable()"
-                    (ngModelChange)="setLocatable($event)"
-                    [toggle]="true"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="-ml-2 text-xl">emergency_share</icon>
-                        <div>{{ 'COMMON.LOCATABLE' | translate }}</div>
-                    </div>
-                </settings-toggle>
+                @if (can_locate()) {
+                    <settings-toggle
+                        [ngModel]="locatable()"
+                        (ngModelChange)="setLocatable($event)"
+                        [toggle]="true"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="-ml-2 text-xl">emergency_share</icon>
+                            <div>{{ 'COMMON.LOCATABLE' | translate }}</div>
+                        </div>
+                    </settings-toggle>
+                }
                 <settings-toggle
                     [ngModel]="accessible()"
                     (ngModelChange)="applySetting('accessible', $event)"
@@ -106,6 +113,10 @@ export class AccessibilityTooltipComponent
 
     public readonly accessible = signal(false);
     public readonly locatable = signal(false);
+    public readonly can_locate = settingSignal(
+        'allow_locatability_option',
+        true,
+    );
 
     public get dark_mode() {
         return this._settings.theme === 'dark';
