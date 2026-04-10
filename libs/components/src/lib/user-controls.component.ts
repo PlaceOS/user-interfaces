@@ -219,25 +219,31 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            <div
-                customTooltip
-                [content]="accessibility_tooltip"
-                [class.border-b!]="!locales?.length || !desk_height"
-            >
-                <button btn matRipple class="clear h-14 w-full text-left">
-                    <div class="flex w-full items-center space-x-2">
-                        <div
-                            class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
-                        >
-                            <icon>mode_night</icon>
+            @if (accessibility()) {
+                <div
+                    customTooltip
+                    [content]="accessibility_tooltip"
+                    [class.border-b!]="!locales?.length || !desk_height"
+                >
+                    <button btn matRipple class="clear h-14 w-full text-left">
+                        <div class="flex w-full items-center space-x-2">
+                            <div
+                                class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
+                            >
+                                <icon>mode_night</icon>
+                            </div>
+                            <div class="flex-1">
+                                {{
+                                    'COMMON.CONTROLS_ACCESSIBILITY' | translate
+                                }}
+                            </div>
+                            <icon class="text-2xl opacity-60"
+                                >chevron_right</icon
+                            >
                         </div>
-                        <div class="flex-1">
-                            {{ 'COMMON.CONTROLS_ACCESSIBILITY' | translate }}
-                        </div>
-                        <icon class="text-2xl opacity-60">chevron_right</icon>
-                    </div>
-                </button>
-            </div>
+                    </button>
+                </div>
+            }
             @if (desk_height) {
                 <div
                     customTooltip
@@ -404,6 +410,10 @@ export class UserControlsComponent implements OnInit {
     public readonly region = toSignal(this._org.active_region);
     public readonly regions = toSignal(this._org.region_list);
     public readonly sidebar = input(false);
+    public readonly accessibility = settingSignal(
+        'allow_accessibility_changes',
+        true,
+    );
 
     public readonly region_select = RegionSelectComponent;
     public readonly building_select = BuildingSelectComponent;

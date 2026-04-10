@@ -33,6 +33,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 time_format: 'h:mm a',
             }),
             MockProvider(OrganisationService, {
+                initialised: of(true),
                 active_building: of({ id: 'bld-1', timezone: 'UTC' }),
                 active_buildings: of([]),
                 building: { id: 'bld-1', timezone: 'UTC' },
@@ -135,7 +136,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         );
     });
 
-    it('should land on the first preset on open without any user interaction (with the real time sync)', () => {
+    it('should land on the first preset on open without any user interaction (with the real time sync)', async () => {
         // Reproduce the exact production wiring: `generateBookingForm`-style
         // form with `endInFuture` + `setupFormTimeSync`, seeded with the
         // same `Date.now() + 5min` / `duration = 60` defaults that the
@@ -157,7 +158,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         });
         setupFormTimeSync(form, { timezone: 'UTC' });
         spectator.setInput('form', form);
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         // Without touching anything, the form must end up booking the
         // first preset shift (morning, 8-12) — *not* the stale "now + 60min"
@@ -191,7 +192,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.shift_type()).toBe('afternoon');
     });
 
-    it('should re-apply the preferred shift when shift options load asynchronously after init', () => {
+    it('should re-apply the preferred shift when shift options load asynchronously after init', async () => {
         // Production parking flow: settings load from PlaceOS metadata
         // *after* the component's ngOnInit fires. Until they resolve,
         // `shift_options_setting` returns the empty default, so the
@@ -206,7 +207,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             date: fake_now,
             duration: 60,
         });
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         // At this point shift options haven't loaded yet — the form is
         // sitting at the buggy default that prompted this report.
@@ -232,7 +233,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.form().getRawValue().duration).toBe(240);
     });
 
-    it('should default to the first preset shift instead of leaving the form at the booking-form defaults', () => {
+    it('should default to the first preset shift instead of leaving the form at the booking-form defaults', async () => {
         // Reproduce the singleton booking form's "fresh" state: a fixed
         // current time + 60 minute window. Without an explicit reset the
         // parking flow would land here on first open.
@@ -242,7 +243,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
             date: fake_now,
             duration: 60,
         });
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         // Even though presets exist, the form was on a "current time + 1h"
         // window that matches no preset. The init path must default to the
@@ -325,14 +326,14 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.form().controls.duration.valid).toBe(true);
     });
 
-    it('should force the first preset shift when custom is hidden and no preset matches', () => {
+    it('should force the first preset shift when custom is hidden and no preset matches', async () => {
         const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
         // Seed form with times that do not match any configured preset.
         spectator.component
             .form()
             .patchValue({ date: base_day + 600 * 60 * 1000, duration: 90 });
         spectator.component.hide_custom_shift.set(true);
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         // With custom hidden, the init path should force the first preset
         // ("morning", 480-720) rather than leaving shift_type as "custom"
@@ -346,10 +347,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.show_custom_time_inputs()).toBe(false);
     });
 
-    it('should allow a custom shift when no preset shifts are configured', () => {
+    it('should allow a custom shift when no preset shifts are configured', async () => {
         spectator.component.shift_options_setting.set([]);
         spectator.component.hide_custom_shift.set(false);
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         expect(spectator.component.is_all_day_forced()).toBe(false);
         expect(spectator.component.has_preset_shifts()).toBe(false);
@@ -358,11 +359,11 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.show_custom_time_inputs()).toBe(true);
     });
 
-    it('should force an all-day booking when neither presets nor custom are allowed', () => {
+    it('should force an all-day booking when neither presets nor custom are allowed', async () => {
         const base_day = new Date('2026-04-08T00:00:00.000Z').valueOf();
         spectator.component.shift_options_setting.set([]);
         spectator.component.hide_custom_shift.set(true);
-        spectator.component.ngOnInit();
+        await spectator.component.ngOnInit();
 
         expect(spectator.component.is_all_day_forced()).toBe(true);
         expect(spectator.component.shift_type()).toBe('all_day');
