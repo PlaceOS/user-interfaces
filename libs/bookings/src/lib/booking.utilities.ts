@@ -44,6 +44,57 @@ function setBookingAsset(form: FormGroup, resource: any) {
     );
 }
 
+const visitorGroupMemberName = (booking: Booking) => {
+    const member = (booking.extension_data?.group_members || []).find(
+        (item) => item?.email === booking.asset_id,
+    );
+    const name = `${member?.name || ''}`.trim();
+    return name || '';
+};
+
+const visitorAttendeeName = (booking: Booking) => {
+    const attendee =
+        (booking.attendees || []).find(
+            (item) => item?.email === booking.asset_id,
+        ) || booking.attendees?.[0];
+    const name = `${attendee?.name || ''}`.trim();
+    return name || '';
+};
+
+const formatEmailName = (value: string) => {
+    if (!value.includes('@')) return value;
+    const [local_part] = value.split('@');
+    const formatted_local = local_part
+        .replace(/[._-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    if (!formatted_local) return value;
+    return formatted_local.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+export const visitorDisplayNameFor = (booking: Booking) => {
+    const asset_id = `${booking?.asset_id || ''}`.trim();
+    const group_member_name = visitorGroupMemberName(booking);
+    if (group_member_name) return group_member_name;
+    const attendee_name = visitorAttendeeName(booking);
+    if (attendee_name) return attendee_name;
+    const asset_name = `${
+        booking?.extension_data?.visitor_name || booking?.asset_name || ''
+    }`.trim();
+    const reason_values = [
+        `${booking?.title || ''}`.trim().toLowerCase(),
+        `${booking?.description || ''}`.trim().toLowerCase(),
+    ].filter((_) => !!_);
+    if (
+        asset_name &&
+        asset_name.toLowerCase() !== asset_id.toLowerCase() &&
+        !reason_values.includes(asset_name.toLowerCase())
+    ) {
+        return asset_name;
+    }
+    return formatEmailName(asset_id || asset_name || 'Visitor');
+};
+
 export function generateBookingForm(booking: Booking = new Booking()) {
     const visitor_name =
         booking.booking_type === 'visitor'

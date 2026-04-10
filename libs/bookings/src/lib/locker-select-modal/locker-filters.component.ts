@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
@@ -126,7 +133,7 @@ import { BookingFormService } from '../booking-form.service';
                                     @for (lvl of levels(); track lvl) {
                                         <mat-option [value]="lvl.id">
                                             <div class="flex flex-col-reverse">
-                                                @if (use_region) {
+                                                @if (use_region()) {
                                                     <div
                                                         class="text-xs opacity-30"
                                                     >
@@ -168,7 +175,7 @@ import { BookingFormService } from '../booking-form.service';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox formControlName="all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -187,12 +194,12 @@ import { BookingFormService } from '../booking-form.service';
                                     form.patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [use_24hr]="use_24hr"
-                                [disabled]="disable_start"
-                                [range]="bookable_hours"
+                                [use_24hr]="use_24hr()"
+                                [disabled]="disable_start()"
+                                [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
-                        @if (!hide_end) {
+                        @if (!hide_end()) {
                             <div class="w-1/3 flex-1">
                                 <label>{{ 'FORM.TIME_END' | translate }}</label>
                                 <a-duration-field
@@ -205,8 +212,8 @@ import { BookingFormService } from '../booking-form.service';
                                     [max]="10 * 60"
                                     [min]="60"
                                     [step]="60"
-                                    [use_24hr]="use_24hr"
-                                    [end_time]="bookable_hours?.end"
+                                    [use_24hr]="use_24hr()"
+                                    [end_time]="bookable_hours()?.end"
                                 >
                                 </a-duration-field>
                             </div>
@@ -315,7 +322,7 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
             this._org.active_building,
         ]).pipe(
             map(([region, bld]) => {
-                const level_list = this.use_region
+                const level_list = this._use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
                 return level_list.sort(
@@ -348,53 +355,64 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
+    private readonly _locker_bookable_hours = this._settings.signal(
+        'lockers.bookable_hours',
+        null,
+    );
+    private readonly _booking_bookable_hours = this._settings.signal(
+        'bookings.bookable_hours',
+        null,
+    );
+    private readonly _bookable_hours = computed(
+        () => this._locker_bookable_hours() || this._booking_bookable_hours(),
+    );
+    private readonly _disable_date = this._settings.signal(
+        'lockers.disabled_date_select',
+        false,
+    );
+    private readonly _disable_start = this._settings.signal(
+        'lockers.disabled_start_time',
+        false,
+    );
+    private readonly _hide_end = this._settings.signal(
+        'lockers.hide_end_time',
+        false,
+    );
+    private readonly _allow_time_changes = this._settings.signal(
+        'lockers.allow_time_changes',
+        false,
+    );
+    private readonly _allow_all_day = this._settings.signal(
+        'lockers.allow_all_day',
+        false,
+    );
+    private readonly _available_period = this._settings.signal(
+        'lockers.available_period',
+        90,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
 
-    public get bookable_hours() {
-        return (
-            this._settings.get('app.lockers.bookable_hours') ||
-            this._settings.get('app.bookings.bookable_hours')
-        );
-    }
-
-    public get disable_date() {
-        return this._settings.get('app.lockers.disabled_date_select');
-    }
-
-    public get disable_start() {
-        return this._settings.get('app.lockers.disabled_start_time');
-    }
-
-    public get hide_end() {
-        return this._settings.get('app.lockers.hide_end_time');
-    }
-
-    public get allow_time_changes() {
-        return !!this._settings.get('app.lockers.allow_time_changes');
-    }
-
-    public get allow_all_day() {
-        return (
-            this.allow_time_changes &&
-            !!this._settings.get('app.lockers.allow_all_day')
-        );
-    }
+    public readonly bookable_hours = this._bookable_hours;
+    public readonly disable_date = this._disable_date;
+    public readonly disable_start = this._disable_start;
+    public readonly hide_end = this._hide_end;
+    public readonly allow_time_changes = this._allow_time_changes;
+    public readonly allow_all_day = computed(
+        () => this.allow_time_changes() && this._allow_all_day(),
+    );
 
     public get end_date() {
         return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.lockers.available_period') || 90,
-            ),
+            addDays(Date.now(), this._available_period()),
         ).valueOf();
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get use_region() {
-        return this._settings.get('app.use_region');
-    }
+    public readonly use_24hr = this._use_24hr;
+    public readonly use_region = this._use_region;
 
     constructor() {
         super();

@@ -66,7 +66,7 @@ export interface AppLocale {
                     {{ user?.email }}
                 </div>
             </div>
-            @if (features.includes('wfh') && active_block()) {
+            @if (features().includes('wfh') && active_block()) {
                 <div class="border-base-200 w-full rounded-sm border-y py-2">
                     <h3 class="w-full px-4 pb-2 text-sm font-medium">
                         Today's Work Location
@@ -158,7 +158,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (!disable_building_select && !use_region) {
+            @if (!disable_building_select() && !use_region()) {
                 <div customTooltip [content]="building_select" class="relative">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -179,7 +179,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (features.includes('help')) {
+            @if (features().includes('help')) {
                 <div customTooltip [content]="help_tooltip">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -198,7 +198,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (features.includes('wfh')) {
+            @if (features().includes('wfh')) {
                 <div customTooltip [content]="work_location_tooltip">
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -223,7 +223,7 @@ export interface AppLocale {
                 <div
                     customTooltip
                     [content]="accessibility_tooltip"
-                    [class.border-b!]="!locales?.length || !desk_height"
+                    [class.border-b!]="!locales().length || !desk_height()"
                 >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -244,11 +244,11 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (desk_height) {
+            @if (desk_height()) {
                 <div
                     customTooltip
                     [content]="desk_height_tooltip"
-                    [class.border-b!]="!locales?.length"
+                    [class.border-b!]="!locales().length"
                 >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -271,11 +271,11 @@ export interface AppLocale {
                 <desk-height-presets></desk-height-presets>
             </ng-template>
 
-            @if (features.includes('parking')) {
+            @if (features().includes('parking')) {
                 <div
                     customTooltip
                     [content]="parking_tooltip"
-                    [class.border-b!]="!locales?.length"
+                    [class.border-b!]="!locales().length"
                 >
                     <button btn matRipple class="clear h-14 w-full text-left">
                         <div class="flex w-full items-center space-x-2">
@@ -294,7 +294,7 @@ export interface AppLocale {
                     </button>
                 </div>
             }
-            @if (locales?.length > 1) {
+            @if (locales().length > 1) {
                 <div
                     customTooltip
                     [content]="language_tooltip"
@@ -338,7 +338,7 @@ export interface AppLocale {
                 </div>
             }
 
-            @if (features.includes('support-ticket')) {
+            @if (features().includes('support-ticket')) {
                 <button
                     btn
                     matRipple
@@ -422,7 +422,20 @@ export class UserControlsComponent implements OnInit {
     public readonly language_tooltip = LanguageSelectComponent;
     public readonly work_location_tooltip = WorkLocationTooltipComponent;
     public readonly parking_tooltip = UserParkingTooltipComponent;
-    public readonly pref_locations = signal([]);
+    public readonly features = settingSignal('features', []);
+    private readonly _locales = this._settings.signal('locales', []);
+    private readonly _desk_height = this._settings.signal(
+        'desks.height_enabled',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
+    private readonly _disable_building_select = this._settings.signal(
+        'disable_building_select',
+        false,
+    );
+    public readonly pref_locations = signal<
+        { id: string; name: string; icon: string }[]
+    >([]);
     public readonly work_prefs = signal<WorktimePreference[]>([]);
     public readonly overrides = signal<Record<string, WorktimePreference>>({});
 
@@ -485,12 +498,8 @@ export class UserControlsComponent implements OnInit {
         return VERSION;
     }
 
-    public get features(): string[] {
-        return this._settings.get('app.features') || [];
-    }
-
     public get active_locale(): string {
-        const locale_list = this.locales;
+        const locale_list = this.locales();
         const locale = this._locale.locale;
         for (const item of locale_list) {
             if (item.id === locale) return item.name;
@@ -502,21 +511,10 @@ export class UserControlsComponent implements OnInit {
         return startOfMinute(Date.now()).getTime();
     }
 
-    public get locales(): { id: string; name: string }[] {
-        return this._settings.get('app.locales') || [];
-    }
-
-    public get desk_height() {
-        return this._settings.get('app.desks.height_enabled');
-    }
-
-    public get use_region(): boolean {
-        return this._settings.get('app.use_region');
-    }
-
-    public get disable_building_select() {
-        return this._settings.get('app.disable_building_select');
-    }
+    public readonly locales = this._locales;
+    public readonly desk_height = this._desk_height;
+    public readonly use_region = this._use_region;
+    public readonly disable_building_select = this._disable_building_select;
 
     public get has_new_version() {
         return hasNewVersion();

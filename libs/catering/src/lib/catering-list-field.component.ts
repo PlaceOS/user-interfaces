@@ -287,12 +287,16 @@ export class CateringListFieldComponent
 
     public get favorites() {
         return (
-            this._settings.get<string[]>('favourite_menu_items') || EMPTY_FAVS
+            this._settings.signal<string[]>(
+                'favourite_menu_items',
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
         );
     }
 
     public get time_format() {
-        return this._settings.time_format || 'shortTime';
+        return this._settings.time_format_signal() || 'shortTime';
     }
 
     public get currency_code() {

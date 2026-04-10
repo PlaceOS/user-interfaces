@@ -1,43 +1,55 @@
+// Mock DeskMapComponent module before any imports so ng-mocks never processes
+// InteractiveMapComponent (which uses model() signals unsupported by ng-mocks 14.x)
+jest.mock('../../lib/desk-select-modal/desk-map.component', () => {
+    const { Component } = jest.requireActual('@angular/core');
+
+    class DeskMapComponent {}
+    Component({ selector: 'desk-map', template: '', standalone: true })(
+        DeskMapComponent,
+    );
+
+    return { DeskMapComponent };
+});
+
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
-import { Desk, SettingsService } from '@placeos/common';
+import { Desk, SETTING_KEYS, SettingsService } from '@placeos/common';
+import {
+    createSettingsServiceMock,
+    mockComponent,
+} from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import { MockModule, MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../../lib/booking-form.service';
 import { DeskDetailsComponent } from '../../lib/desk-select-modal/desk-details.component';
 import { DeskFiltersDisplayComponent } from '../../lib/desk-select-modal/desk-filters-display.component';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
 import { DeskListComponent } from '../../lib/desk-select-modal/desk-list.component';
-import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
-import {
-    DeskSelectModalComponent,
-    FAV_DESK_KEY,
-} from '../../lib/desk-select-modal/desk-select-modal.component';
+import { DeskSelectModalComponent } from '../../lib/desk-select-modal/desk-select-modal.component';
 
 describe('DeskSelectModalComponent', () => {
     let spectator: Spectator<DeskSelectModalComponent>;
     const createComponent = createComponentFactory({
         component: DeskSelectModalComponent,
         providers: [
-            MockProvider(BookingFormService),
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                saveUserSetting: jest.fn(),
-            }),
+            {
+                provide: BookingFormService,
+                useValue: { setOptions: jest.fn() },
+            },
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MAT_DIALOG_DATA, {}),
             MockProvider(MatDialogRef, { close: jest.fn() }),
         ],
         declarations: [
-            MockComponent(IconComponent),
-            MockComponent(DeskFiltersDisplayComponent),
-            MockComponent(DeskFiltersComponent),
-            MockComponent(DeskListComponent),
-            MockComponent(DeskDetailsComponent),
-            MockComponent(DeskMapComponent),
+            mockComponent(IconComponent),
+            mockComponent(DeskFiltersDisplayComponent),
+            mockComponent(DeskFiltersComponent),
+            mockComponent(DeskListComponent),
+            mockComponent(DeskDetailsComponent),
         ],
         imports: [MockModule(MatDialogModule)],
     });
@@ -61,7 +73,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith(FAV_DESK_KEY, ['1']);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_DESKS, ['1']);
     });
 
     it('should allow un-favouriting a space', () => {
@@ -71,7 +83,7 @@ describe('DeskSelectModalComponent', () => {
         spectator.component.toggleFavourite(new Desk({ id: '1' }));
         expect(
             spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith(FAV_DESK_KEY, []);
+        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_DESKS, []);
     });
 
     it('should show desk map view', () => {

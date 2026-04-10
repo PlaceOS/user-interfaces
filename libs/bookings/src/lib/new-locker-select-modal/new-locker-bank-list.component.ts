@@ -181,18 +181,19 @@ export class NewLockerBankListComponent {
     public readonly favorites = input<string[]>([]);
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     private readonly _lockers_banks$ = loadLockerBanks(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._settings.get('app.use_region'),
+        () => this._use_region(),
     );
 
     private readonly _lockers$ = loadLockers(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
         this._lockers_banks$,
-        () => this._settings.get('app.use_region'),
+        () => this._use_region(),
     );
 
     public readonly locker_banks = toSignal(

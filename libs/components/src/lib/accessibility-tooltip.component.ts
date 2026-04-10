@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -30,9 +30,9 @@ import { TranslatePipe } from './translate.pipe';
                 </div>
             </div>
             <div class="space-y-2 p-2">
-                @if (can_change_dark_mode) {
+                @if (can_change_dark_mode()) {
                     <settings-toggle
-                        [ngModel]="dark_mode"
+                        [ngModel]="dark_mode()"
                         (ngModelChange)="setDarkMode($event)"
                         [toggle]="true"
                     >
@@ -80,7 +80,7 @@ import { TranslatePipe } from './translate.pipe';
                         <input
                             matSliderThumb
                             class="text-[16px]"
-                            [ngModel]="font_size"
+                            [ngModel]="font_size()"
                             (ngModelChange)="applySetting('font_size', $event)"
                         />
                     </mat-slider>
@@ -88,7 +88,7 @@ import { TranslatePipe } from './translate.pipe';
                     <span
                         class="bg-base-300 my-2 rounded-sm px-2 py-1 text-base text-white"
                     >
-                        {{ font_size }}px
+                        {{ font_size() }}px
                     </span>
                 </div>
             }
@@ -117,18 +117,23 @@ export class AccessibilityTooltipComponent
         'allow_locatability_option',
         true,
     );
+    private readonly _allow_dark_mode = this._settings.signal(
+        'allow_dark_mode',
+        false,
+    );
+    private readonly _font_size = this._settings.signal('font_size', 16, true);
+    private readonly _accessible = this._settings.signal(
+        'accessible',
+        false,
+        true,
+    );
+    private readonly _theme = this._settings.theme_signal;
 
-    public get dark_mode() {
-        return this._settings.theme === 'dark';
-    }
-
-    public get can_change_dark_mode() {
-        return !!this._settings.get('app.allow_dark_mode');
-    }
-
-    public get font_size() {
-        return this._settings.get('font_size') || 16;
-    }
+    public readonly dark_mode = computed(() => this._theme() === 'dark');
+    public readonly can_change_dark_mode = computed(
+        () => !!this._allow_dark_mode(),
+    );
+    public readonly font_size = this._font_size;
 
     public readonly applySetting = (n, v) =>
         this.timeout(
@@ -149,7 +154,7 @@ export class AccessibilityTooltipComponent
     };
 
     public async ngOnInit() {
-        this.accessible.set(!!this._settings.get('accessible'));
+        this.accessible.set(!!this._accessible());
         this.subscription(
             'user',
             current_user.subscribe((u) => {
@@ -159,7 +164,7 @@ export class AccessibilityTooltipComponent
     }
 
     public setDarkMode(state: boolean) {
-        const theme = this._settings.theme;
+        const theme = this._theme();
         if (state && theme !== 'dark') this._settings.setTheme('dark');
         else if (!state && theme === 'dark') this._settings.setTheme('light');
     }

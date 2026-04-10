@@ -82,7 +82,7 @@ import { BookingFormService } from './booking-form.service';
                         formControlName="date"
                     ></a-date-field>
                 </div>
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox formControlName="all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -358,6 +358,14 @@ export class VisitorInviteFormComponent
     private _service = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _visitor_allow_all_day = this._settings.signal(
+        'visitors.allow_all_day',
+        undefined,
+    );
+    private readonly _booking_allow_all_day = this._settings.signal(
+        'bookings.allow_all_day',
+        false,
+    );
 
     public readonly date = input<number>(Date.now());
     public readonly confirm = input<number>(0);
@@ -448,16 +456,10 @@ export class VisitorInviteFormComponent
         return this._service.form;
     }
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
-
-    public get allow_all_day() {
-        return (
-            this._settings.get('app.visitors.allow_all_day') ??
-            this._settings.get('app.bookings.allow_all_day')
-        );
-    }
+    public readonly time_format = this._settings.time_format_signal;
+    public readonly allow_all_day = computed(
+        () => this._visitor_allow_all_day() ?? this._booking_allow_all_day(),
+    );
 
     public async ngOnInit() {
         this._service.clearOldState();

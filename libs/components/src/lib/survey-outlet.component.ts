@@ -349,6 +349,9 @@ export class SurveyOutletComponent
 {
     private readonly _route = inject(ActivatedRoute);
     private readonly _settings = inject(SettingsService);
+    private readonly _theme = this._settings.theme_signal;
+    private readonly _logo_dark = this._settings.signal('logo_dark', null);
+    private readonly _logo_light = this._settings.signal('logo_light', null);
 
     public readonly preview = input<boolean>(false);
     public readonly not_found = output<boolean>();
@@ -363,9 +366,9 @@ export class SurveyOutletComponent
 
     public readonly logo = computed(
         () =>
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {},
+            (this._theme() === 'dark'
+                ? this._logo_dark()
+                : this._logo_light()) || {},
     );
 
     public ngOnInit() {

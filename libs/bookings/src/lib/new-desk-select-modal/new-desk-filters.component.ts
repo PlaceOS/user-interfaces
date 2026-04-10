@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
@@ -48,7 +48,7 @@ import { BookingFormService } from '../booking-form.service';
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
                     }
-                    @if (use_region && regions()?.length) {
+                    @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
@@ -65,7 +65,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region && buildings()?.length > 1) {
+                    @if (!use_region() && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
@@ -98,7 +98,7 @@ import { BookingFormService } from '../booking-form.service';
                                 @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
-                                            @if (use_region) {
+                                            @if (use_region()) {
                                                 <div class="text-xs opacity-30">
                                                     {{
                                                         (
@@ -133,13 +133,13 @@ import { BookingFormService } from '../booking-form.service';
                         (ngModelChange)="form.patchValue({ date: $event })"
                         [ngModelOptions]="{ standalone: true }"
                         [to]="end_date"
-                        [timezone]="timezone"
+                        [timezone]="timezone()"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox formControlName="all_day">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -158,9 +158,9 @@ import { BookingFormService } from '../booking-form.service';
                                     form.patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [use_24hr]="use_24hr"
-                                [timezone]="timezone"
-                                [range]="bookable_hours"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone()"
+                                [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
                         <div class="w-1/3 flex-1">
@@ -171,9 +171,9 @@ import { BookingFormService } from '../booking-form.service';
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
-                                [use_24hr]="use_24hr"
-                                [timezone]="timezone"
-                                [end_time]="bookable_hours?.end"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone()"
+                                [end_time]="bookable_hours()?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -237,6 +237,7 @@ export class NewDeskFiltersComponent {
     private _state = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly hide_levels = input<boolean>(undefined);
 
@@ -261,7 +262,7 @@ export class NewDeskFiltersComponent {
             this._org.active_building,
         ]).pipe(
             map(([region, bld]) => {
-                const level_list = this.use_region
+                const level_list = this._use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
                 const viewable_levels = level_list.filter(
@@ -298,44 +299,56 @@ export class NewDeskFiltersComponent {
     public readonly setLevel = (l) => {};
 
     public readonly setRegion = (r) => (this._org.region = r);
+    private readonly _desk_bookable_hours = this._settings.signal(
+        'desks.bookable_hours',
+        null,
+    );
+    private readonly _booking_bookable_hours = this._settings.signal(
+        'bookings.bookable_hours',
+        null,
+    );
+    private readonly _bookable_hours = computed(
+        () => this._desk_bookable_hours() || this._booking_bookable_hours(),
+    );
+    private readonly _allow_time_changes = this._settings.signal(
+        'desks.allow_time_changes',
+        false,
+    );
+    private readonly _allow_all_day = this._settings.signal(
+        'desks.allow_all_day',
+        false,
+    );
+    private readonly _available_period = this._settings.signal(
+        'desks.available_period',
+        90,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _use_building_timezone = this._settings.signal(
+        'events.use_building_timezone',
+        false,
+    );
 
-    public get bookable_hours() {
-        return (
-            this._settings.get('app.desks.bookable_hours') ||
-            this._settings.get('app.bookings.bookable_hours')
-        );
-    }
+    public readonly bookable_hours = this._bookable_hours;
 
-    public get allow_time_changes() {
-        return !!this._settings.get('app.desks.allow_time_changes');
-    }
-    public get allow_all_day() {
-        return (
-            this.allow_time_changes &&
-            !!this._settings.get('app.desks.allow_all_day')
-        );
-    }
+    public readonly allow_time_changes = this._allow_time_changes;
+    public readonly allow_all_day = computed(
+        () => this.allow_time_changes() && this._allow_all_day(),
+    );
 
     public get end_date() {
         return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.desks.available_period') || 90,
-            ),
+            addDays(Date.now(), this._available_period()),
         ).valueOf();
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = this._use_24hr;
 
-    public get use_region() {
-        return this._settings.get('app.use_region');
-    }
+    public readonly use_region = this._use_region;
 
-    public get timezone() {
-        return this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
-            : '';
-    }
+    public readonly timezone = computed(() =>
+        this._use_building_timezone() ? this._org.building.timezone : '',
+    );
 }

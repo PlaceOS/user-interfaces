@@ -3,6 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -20,7 +21,7 @@ describe('DeskFiltersDisplayComponent', () => {
                 setOptions: jest.fn(),
                 setFeature: jest.fn(),
             } as any),
-            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         declarations: [MockComponent(IconComponent)],
     });

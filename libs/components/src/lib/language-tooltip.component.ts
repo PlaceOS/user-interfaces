@@ -55,6 +55,7 @@ export class LanguageSelectComponent {
     private _data = inject(CustomTooltipData);
     private _settings = inject(SettingsService);
     private _locale = inject(LocaleService);
+    private readonly _locales = this._settings.signal('locales', []);
 
     public readonly setLocale = (code: string) => {
         this._locale.setLocale(code);
@@ -67,7 +68,7 @@ export class LanguageSelectComponent {
     }
 
     public get locales(): { id: string; name: string; local?: string }[] {
-        return this._settings.get('app.locales') || [];
+        return this._locales();
     }
 
     public readonly close = () => this._data?.close();

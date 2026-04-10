@@ -6,6 +6,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { Booking } from '@placeos/common';
@@ -15,8 +16,8 @@ import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.compone
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BehaviorSubject, of } from 'rxjs';
-import * as bookings_fn from '../lib/bookings.fn';
 import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
+import * as bookings_fn from '../lib/bookings.fn';
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -44,10 +45,7 @@ describe('BookingDetailsModalComponent', () => {
                 levelWithID: jest.fn(),
                 buildings: [],
             }),
-            MockProvider(SettingsService, {
-                get: jest.fn(),
-                time_format: 'h:mm a',
-            }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),

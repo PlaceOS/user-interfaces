@@ -1,6 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent } from 'ng-mocks';
 import { AssetDetailsComponent } from '../../lib/asset-select-modal/asset-details.component';
@@ -17,7 +18,7 @@ describe('AssetSelectModalComponent', () => {
         providers: [
             {
                 provide: SettingsService,
-                useValue: { get: jest.fn(), saveUserSetting: jest.fn() },
+                useValue: createSettingsServiceMock(),
             },
             { provide: MAT_DIALOG_DATA, useValue: { details: {} } },
         ],

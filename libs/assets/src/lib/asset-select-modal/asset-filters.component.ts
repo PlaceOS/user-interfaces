@@ -85,7 +85,7 @@ import { AssetStateService } from '../asset-state.service';
                     [step]="step_interval"
                     [min]="min_offset"
                     [max]="max_offset - 1"
-                    [use_24hr]="use_24hr"
+                    [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
         }
@@ -149,6 +149,22 @@ export class AssetFiltersComponent extends AsyncHandler {
     public readonly category = this._state.category;
     public readonly categories = this._state.category_list;
     public readonly options = this._state.options;
+    private readonly _step_interval = this._settings.signal(
+        'assets.step_interval',
+        5,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _min_offset_setting = this._settings.signal(
+        'assets.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'assets.end_offset',
+        0,
+    );
 
     public readonly exact_tooltip =
         'Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.';
@@ -164,7 +180,7 @@ export class AssetFiltersComponent extends AsyncHandler {
     }
 
     public get step_interval() {
-        return this._settings.get('app.assets.step_interval') || 5;
+        return this._step_interval();
     }
 
     public get max_offset() {
@@ -181,9 +197,7 @@ export class AssetFiltersComponent extends AsyncHandler {
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = this._use_24hr;
 
     public day_options = [];
 
@@ -195,17 +209,14 @@ export class AssetFiltersComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(
-            this._settings.get('app.assets.min_offset'),
-            0,
-        );
+        this._min_offset = Math.max(this._min_offset_setting(), 0);
         this.subscription(
             'filters',
             this._state.options.subscribe(() => {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getOptions().duration || 60) -
-                        this._settings.get('app.assets.end_offset'),
+                        this._end_offset(),
                 );
                 this._updateDayOptions();
             }),

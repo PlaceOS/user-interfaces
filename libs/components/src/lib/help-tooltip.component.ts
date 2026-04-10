@@ -43,10 +43,11 @@ import { TranslatePipe } from './translate.pipe';
 export class HelpTooltipComponent {
     private _data = inject(CustomTooltipData);
     private _settings = inject(SettingsService);
+    private readonly _tiles = this._settings.signal('help', []);
 
     /** Tiles to display on the help page */
     public get tiles(): ApplicationLink[] {
-        return this._settings.get('app.help') || [];
+        return this._tiles();
     }
 
     public readonly close = () => {

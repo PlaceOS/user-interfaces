@@ -137,7 +137,7 @@ export class ParkingSpaceFiltersDisplayComponent implements OnInit {
         this._bsheet.open(ParkingSpaceFiltersComponent);
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public ngOnInit() {

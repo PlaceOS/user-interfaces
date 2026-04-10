@@ -122,10 +122,20 @@ export class DeskSettingsModalComponent {
     public readonly edit_presets = signal(false);
     public readonly preset = signal<string | null>(null);
     public readonly height = signal(71);
+    private readonly _sitting_height = this._settings.signal(
+        'desk_sitting_height',
+        71,
+        true,
+    );
+    private readonly _standing_height = this._settings.signal(
+        'desk_standing_height',
+        102,
+        true,
+    );
 
     public ngOnInit() {
-        const sitting_height = this._settings.get('desk_sitting_height');
-        const standing_height = this._settings.get('desk_standing_height');
+        const sitting_height = this._sitting_height();
+        const standing_height = this._standing_height();
         if (!sitting_height && !standing_height) {
             this.edit_presets.set(true);
         }
@@ -142,9 +152,8 @@ export class DeskSettingsModalComponent {
     }
 
     public updatePreset(new_height: number) {
-        const sitting_height = this._settings.get('desk_sitting_height') || 71;
-        const standing_height =
-            this._settings.get('desk_standing_height') || 102;
+        const sitting_height = this._sitting_height() || 71;
+        const standing_height = this._standing_height() || 102;
         if (new_height === sitting_height) {
             this.preset.set('sitting');
         } else if (new_height === standing_height) {
@@ -163,14 +172,10 @@ export class DeskSettingsModalComponent {
         this.preset.set(value || null);
         switch (value) {
             case 'standing':
-                this.height.set(
-                    this._settings.get('desk_standing_height') || 102,
-                );
+                this.height.set(this._standing_height() || 102);
                 break;
             case 'sitting':
-                this.height.set(
-                    this._settings.get('desk_sitting_height') || 71,
-                );
+                this.height.set(this._sitting_height() || 71);
                 break;
             default:
                 this.height.set(70);

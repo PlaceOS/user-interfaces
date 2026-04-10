@@ -156,6 +156,6 @@ export class LockerFiltersDisplayComponent {
         this._bsheet.open(LockerFiltersComponent);
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 }

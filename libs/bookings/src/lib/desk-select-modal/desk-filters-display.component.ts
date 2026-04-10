@@ -148,7 +148,7 @@ export class DeskFiltersDisplayComponent {
     }
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public readonly editFilter = () => this._bsheet.open(DeskFiltersComponent);

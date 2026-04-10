@@ -5,12 +5,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
+import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import { FAV_DESK_KEY } from './desk-select-modal/desk-select-modal.component';
 import { NewDeskSelectModalComponent } from './new-desk-select-modal/new-desk-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
@@ -171,7 +171,13 @@ export class DeskListFieldComponent implements ControlValueAccessor {
     private _onTouch: (_: BookingAsset[]) => void;
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || EMPTY_FAVS;
+        return (
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_DESKS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
+        );
     }
 
     /** Add or edit selected items */
@@ -234,13 +240,13 @@ export class DeskListFieldComponent implements ControlValueAccessor {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
                 ...fav_list,
                 space.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_DESK_KEY,
+                SETTING_KEYS.FAVORITE_DESKS,
                 fav_list.filter((_) => _ !== space.id),
             );
         }

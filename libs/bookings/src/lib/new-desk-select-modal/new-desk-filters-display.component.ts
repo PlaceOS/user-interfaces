@@ -109,6 +109,6 @@ export class NewDeskFiltersDisplayComponent {
     }
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 }

@@ -262,6 +262,10 @@ export class NewDeskSelectModalComponent {
             .map((_) => _.id)
             .join(','),
     );
+    private readonly _default_select_as_map = this._settings.signal(
+        'desks.default_select_as_map',
+        false,
+    );
     public readonly favorites = signal<string[]>(
         this._settings.get<string[]>(FAV_DESK_KEY) || [],
     );
@@ -277,11 +281,7 @@ export class NewDeskSelectModalComponent {
                 : this._data?.items || [];
         this.selected.set([...selected_desks]);
         this._event_form.setOptions(this._data?.options || {});
-        this.view.set(
-            this._settings.get('app.desks.default_select_as_map')
-                ? 'map'
-                : 'list',
-        );
+        this.view.set(this._default_select_as_map() ? 'map' : 'list');
     }
 
     public isSelected(id: string) {

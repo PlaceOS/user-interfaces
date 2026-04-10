@@ -3,6 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockComponent, MockDirective, MockPipe, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -22,10 +23,13 @@ describe('LoginComponent', () => {
             MockDirective(AuthenticatedImageDirective),
         ],
         providers: [
-            MockProvider(SettingsService, {
-                initialised: of(true),
-                get: jest.fn(() => ''),
-            } as any),
+            MockProvider(
+                SettingsService,
+                createSettingsServiceMock({
+                    initialised: of(true),
+                    get: jest.fn(() => ''),
+                }),
+            ),
         ],
         imports: [
             MatFormFieldModule,

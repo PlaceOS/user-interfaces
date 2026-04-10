@@ -52,7 +52,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                         @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
                                 <div class="flex flex-col-reverse">
-                                    @if (use_region) {
+                                    @if (use_region()) {
                                         <div class="text-xs opacity-30">
                                             {{
                                                 (lvl.parent_id | building)
@@ -111,6 +111,7 @@ export class DeskMapComponent implements OnInit {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _destroyRef = inject(DestroyRef);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly is_displayed = input(false);
     public readonly active = input('');
@@ -133,7 +134,7 @@ export class DeskMapComponent implements OnInit {
             this._org.active_building,
         ]).pipe(
             map(([region, bld]) => {
-                const level_list = this.use_region
+                const level_list = this._use_region()
                     ? this._org.levelsForRegion(region)
                     : this._org.levelsForBuilding(bld);
                 const viewable_levels = level_list.filter(
@@ -229,10 +230,7 @@ export class DeskMapComponent implements OnInit {
         ),
         { initialValue: {} },
     );
-
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
+    public readonly use_region = this._use_region;
 
     constructor() {
         effect(() => {

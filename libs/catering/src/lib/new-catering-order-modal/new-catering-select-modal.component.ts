@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringItem,
     OrganisationService,
+    SETTING_KEYS,
     SettingsService,
 } from '@placeos/common';
 
@@ -16,7 +17,6 @@ import { NewCateringItemFiltersComponent } from './new-catering-item-filters.com
 import { NewCateringItemListComponent } from './new-catering-item-list.component';
 
 const EMPTY_FAVS: string[] = [];
-const FAV_KEY = 'favourite_menu_items';
 
 @Component({
     selector: 'new-catering-select-modal',
@@ -166,10 +166,24 @@ export class NewCateringSelectModalComponent {
     public exact_time = this._data.exact_time ?? false;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'catering.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'catering.end_offset',
+        0,
+    );
     public show_filters = false;
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_KEY) || EMPTY_FAVS;
+        return (
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_DESKS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
+        );
     }
 
     public get selected_keys() {
@@ -188,11 +202,8 @@ export class NewCateringSelectModalComponent {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.catering.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.catering.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
         if (this._data.caterer) {
@@ -271,10 +282,13 @@ export class NewCateringSelectModalComponent {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_KEY, [...fav_list, item]);
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
+                ...fav_list,
+                item,
+            ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_KEY,
+                SETTING_KEYS.FAVORITE_DESKS,
                 fav_list.filter((_) => _ !== item),
             );
         }

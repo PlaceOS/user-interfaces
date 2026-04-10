@@ -190,8 +190,10 @@ export class DateCalendarComponent
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
 
     public generateDates() {
-        const offset =
-            this._settings.get('app.week_start') || this.offset_weekday();
+        const offset = this._settings.signal(
+            'week_start',
+            this.offset_weekday(),
+        )();
         const date = addMonths(this.date(), this.offset());
         let start = startOfWeek(startOfMonth(date), {
             weekStartsOn: offset as any,

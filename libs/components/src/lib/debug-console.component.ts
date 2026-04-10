@@ -206,9 +206,14 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
     public readonly onStart = () =>
         this.timeout('show', () => this.show.set(true), 5000);
     public readonly onEnd = () => this.clearTimeout('show');
+    private readonly _can_activate = this._settings.signal(
+        'debug_console',
+        false,
+    );
+    private readonly _log_limits = this._settings.signal('log_limits', 20000);
 
     public get can_activate() {
-        return !!this._settings.get('app.debug_console');
+        return this._can_activate();
     }
 
     constructor() {
@@ -231,8 +236,7 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
             this._logs.history.subscribe((event) => {
                 const current_logs = this.logs();
                 const trimmed =
-                    current_logs.length >
-                    (this._settings.get('app.log_limits') || 20000)
+                    current_logs.length > this._log_limits()
                         ? current_logs.slice(1)
                         : current_logs;
                 this.logs.set([...trimmed, event]);
