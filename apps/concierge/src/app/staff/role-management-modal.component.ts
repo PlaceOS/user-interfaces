@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -89,7 +88,6 @@ import { EmergencyContactsService } from './emergency-contacts.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FormsModule,
         MatDialogModule,
         MatRippleModule,

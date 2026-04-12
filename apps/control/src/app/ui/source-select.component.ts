@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -86,12 +85,7 @@ import { ControlStateService, RoomInput } from '../control-state.service';
             }
         </div>
     `,
-    imports: [
-        CommonModule,
-        TranslatePipe,
-        MatProgressSpinnerModule,
-        MatRippleModule,
-    ],
+    imports: [TranslatePipe, MatProgressSpinnerModule, MatRippleModule],
 })
 export class SourceSelectComponent {
     private _state = inject(ControlStateService);

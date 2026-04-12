@@ -17,7 +17,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -171,7 +170,6 @@ import { LockerFilters, LockerStateService } from './locker-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         DateOptionsComponent,
         IconComponent,
         MatRippleModule,

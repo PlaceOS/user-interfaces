@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { formatDuration } from '@placeos/common';
@@ -36,7 +35,7 @@ import {
         </div>
     `,
     styles: [``],
-    imports: [CommonModule, TranslatePipe],
+    imports: [TranslatePipe],
 })
 export class VisitorReportOverallComponent {
     private _state = inject(VisitorsReportService);

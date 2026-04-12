@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -56,7 +55,6 @@ import { StaffStateService } from './staff-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatSlideToggleModule,
         SearchbarComponent,
         MatFormFieldModule,

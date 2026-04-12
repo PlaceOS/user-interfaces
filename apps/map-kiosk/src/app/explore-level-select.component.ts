@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -39,7 +38,7 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    imports: [MatRippleModule, CommonModule],
+    imports: [MatRippleModule],
 })
 export class ExploreLevelSelectComponent {
     private _org = inject(OrganisationService);

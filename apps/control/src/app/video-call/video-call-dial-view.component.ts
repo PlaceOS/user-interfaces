@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -93,7 +92,6 @@ import { VideoCallStateService } from './video-call-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,

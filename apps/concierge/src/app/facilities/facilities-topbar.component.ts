@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -66,7 +65,6 @@ import { SearchbarComponent } from '../ui/searchbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         MatSelectModule,
         SearchbarComponent,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -83,7 +82,6 @@ import { CateringOrderStateService } from './catering-order-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         CateringItemListItemComponent,

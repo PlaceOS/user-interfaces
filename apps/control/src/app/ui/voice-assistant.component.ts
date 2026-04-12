@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -59,7 +58,7 @@ import { VoiceAssistantService } from './voice-assistant.service';
             }
         `,
     ],
-    imports: [CommonModule, MatRippleModule, IconComponent],
+    imports: [MatRippleModule, IconComponent],
 })
 export class VoiceAssistantComponent {
     private _service = inject(VoiceAssistantService);

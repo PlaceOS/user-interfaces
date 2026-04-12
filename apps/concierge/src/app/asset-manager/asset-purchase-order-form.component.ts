@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -183,7 +182,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         SimpleTableComponent,
         TranslatePipe,

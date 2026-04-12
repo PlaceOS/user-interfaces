@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -289,7 +288,6 @@ const CARD_DETAILS = {
         `,
     ],
     imports: [
-        CommonModule,
         ReportsOptionsComponent,
         AuthenticatedImageDirective,
         IconComponent,

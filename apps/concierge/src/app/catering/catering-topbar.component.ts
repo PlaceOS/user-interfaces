@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -181,7 +180,6 @@ import { SearchbarComponent } from '../ui/searchbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         DateOptionsComponent,
         MatRippleModule,
         IconComponent,

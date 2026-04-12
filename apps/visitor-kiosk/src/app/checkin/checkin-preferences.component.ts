@@ -17,7 +17,6 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -122,7 +121,6 @@ import { parseTokenFromUrl } from './token-from-url';
         `,
     ],
     imports: [
-        CommonModule,
         FormsModule,
         TranslatePipe,
         IconComponent,

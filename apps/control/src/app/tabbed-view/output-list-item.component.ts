@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -63,7 +62,7 @@ const STATUS = {};
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, MatRippleModule, IconComponent],
+    imports: [TranslatePipe, MatRippleModule, IconComponent],
 })
 export class DeviceOutputListItemComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

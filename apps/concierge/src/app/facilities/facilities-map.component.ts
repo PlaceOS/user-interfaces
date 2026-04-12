@@ -1,7 +1,6 @@
 import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { CommonModule } from '@angular/common';
 import { AsyncHandler } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import {
@@ -32,11 +31,7 @@ import { EventsStateService } from '../day-view/events-state.service';
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        InteractiveMapComponent,
-        ExploreZoomControlComponent,
-    ],
+    imports: [InteractiveMapComponent, ExploreZoomControlComponent],
 })
 export class FacilitiesMapComponent extends AsyncHandler {
     private _explore = inject(ExploreStateService);

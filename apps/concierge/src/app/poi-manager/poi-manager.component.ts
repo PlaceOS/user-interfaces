@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -83,7 +82,6 @@ import { POIManagementService } from './poi-management.service';
         `,
     ],
     imports: [
-        CommonModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         TranslatePipe,

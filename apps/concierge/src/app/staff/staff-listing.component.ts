@@ -10,7 +10,6 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe } from '@placeos/components';
 import { of } from 'rxjs';
@@ -112,12 +111,7 @@ const CHARS = '#abcdefghijklmnopqrstuvwxyz'.split('');
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        MatProgressBarModule,
-        StaffDetailsComponent,
-        TranslatePipe,
-    ],
+    imports: [MatProgressBarModule, StaffDetailsComponent, TranslatePipe],
 })
 export class StaffListingComponent extends AsyncHandler {
     private _state = inject(StaffStateService);

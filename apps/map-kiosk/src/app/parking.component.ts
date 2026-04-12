@@ -14,7 +14,6 @@ import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { Point } from '@placeos/svg-viewer';
 
-import { CommonModule } from '@angular/common';
 import {
     IconComponent,
     InteractiveMapComponent,
@@ -66,7 +65,7 @@ import {
     `,
     styles: [``],
     providers: [ExploreStateService, ExploreParkingService],
-    imports: [CommonModule, InteractiveMapComponent, IconComponent],
+    imports: [InteractiveMapComponent, IconComponent],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);

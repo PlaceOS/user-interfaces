@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -75,7 +74,6 @@ import { ContactTracingStateService } from './contact-tracing-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         DateRangeFieldComponent,
         MatRippleModule,
         MatTooltipModule,

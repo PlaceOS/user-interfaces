@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -108,7 +107,6 @@ import { ReportDesksOverallListComponent } from './report-desks-overall-list.com
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,

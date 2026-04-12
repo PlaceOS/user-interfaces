@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -30,10 +29,7 @@ import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import {
-    loadPersistedZones,
-    persistZones,
-} from '../ui/zone-persistence';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
 import { RoomBookingsListComponent } from './room-bookings-list.component';
@@ -246,7 +242,6 @@ const EMPTY = [];
     styles: [``],
     providers: [UserPipe],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,

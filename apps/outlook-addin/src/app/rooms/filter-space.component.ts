@@ -1,7 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
     MAT_BOTTOM_SHEET_DATA,
@@ -196,7 +195,6 @@ import { FeaturesFilterService } from './features-filter.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatCheckboxModule,
         FormsModule,

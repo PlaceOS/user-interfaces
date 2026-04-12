@@ -108,10 +108,7 @@ const DEFAULT_SPACE_RESTRICTION_OPTIONS = [
                         </span>
                     </div>
                 }
-                @for (
-                    label of extra_space_restriction_labels;
-                    track $index
-                ) {
+                @for (label of extra_space_restriction_labels; track $index) {
                     <div class="flex items-center space-x-2">
                         <icon>warning</icon>
                         <span>{{ label | translate }}</span>
@@ -228,8 +225,6 @@ export class ParkingRequestConfirmComponent extends AsyncHandler {
         const value = this.booking.extra_space_restrictions;
         if (!Array.isArray(value) || !value.length) return [];
         const options = this.extra_space_restriction_options();
-        return value.map(
-            (id) => options.find((_) => _.id === id)?.name || id,
-        );
+        return value.map((id) => options.find((_) => _.id === id)?.name || id);
     }
 }

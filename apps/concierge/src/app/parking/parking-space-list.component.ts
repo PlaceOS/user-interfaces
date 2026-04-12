@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -165,7 +165,6 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
     `,
     styles: [],
     imports: [
-        CommonModule,
         MatProgressBarModule,
         IconComponent,
         MatRippleModule,

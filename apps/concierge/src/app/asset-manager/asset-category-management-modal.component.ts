@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -76,7 +75,6 @@ import { Observable } from 'rxjs';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         TranslatePipe,
         IconComponent,

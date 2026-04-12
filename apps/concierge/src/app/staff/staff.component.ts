@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -39,7 +38,6 @@ import { StaffTopbarComponent } from './staff-topbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressBarModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,

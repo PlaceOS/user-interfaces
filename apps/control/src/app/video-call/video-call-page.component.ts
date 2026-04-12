@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     OnInit,
@@ -225,7 +224,6 @@ import { VideoCallStateService, VideoLayout } from './video-call-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         FormsModule,
         MatProgressSpinnerModule,
         TranslatePipe,

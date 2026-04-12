@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -157,7 +156,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         MatFormFieldModule,
