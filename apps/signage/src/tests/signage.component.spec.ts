@@ -29,6 +29,8 @@ describe('SignagePanelComponent', () => {
         signage_service = {
             playlist: of([]),
             override_playlist: signal({ ends_at: 0, playlist: [] }),
+            debug: signal(false),
+            playing_id: signal(''),
             setDisplay: jest.fn(),
             clearPlaylistOverride: jest.fn(),
             storeMetricEvent: jest.fn(),

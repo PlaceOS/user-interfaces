@@ -308,9 +308,11 @@ export class MediaPlayerComponent
             this._item_start = Date.now() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
-                requestAnimationFrame(() =>
-                    this._video_element().nativeElement.play(),
-                );
+                this._requestVideoPlayback(() => {
+                    this.state.set('PAUSED');
+                    this._item_start = 0;
+                    this._item_progress = 0;
+                });
             }
             if (this.index() === -1) this._updateItem();
         }
@@ -453,6 +455,7 @@ export class MediaPlayerComponent
             if (old_index !== index) this.nextItem();
             return;
         }
+        const should_transition = this._shouldTransition(old_item, item);
         this._item_start = Date.now();
         this._item_progress = 0;
         this.progress.set(0);
@@ -488,16 +491,24 @@ export class MediaPlayerComponent
             active_el.src = url.toString();
             active_el.classList.remove('hidden');
             if (item.type === 'video') {
-                try {
-                    requestAnimationFrame(() =>
-                        this._video_element().nativeElement.play(),
-                    );
-                } catch {
-                    this.nextItem();
-                }
+                this._requestVideoPlayback(() => {
+                    if (should_transition) {
+                        this.nextItem();
+                    } else {
+                        this.state.set('PAUSED');
+                        this._item_start = 0;
+                        this._item_progress = 0;
+                    }
+                });
             } else {
                 this._video_element().nativeElement.pause();
             }
+        }
+        this.playing_id.emit(item.id);
+        if (!should_transition) {
+            this._resetTransitionState();
+            if (this.state() === 'PAUSED') this.togglePause();
+            return;
         }
         this._transition();
     }
@@ -533,6 +544,21 @@ export class MediaPlayerComponent
     private _showPlugin(item: MediaPlayerItem) {
         log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
         this.active_plugin.set(item.plugin);
+    }
+
+    private _requestVideoPlayback(on_error?: () => void) {
+        requestAnimationFrame(() => {
+            const play_action = this._video_element().nativeElement.play();
+            play_action?.catch((error) => {
+                log(
+                    'MediaPlayer',
+                    'Video playback could not be started.',
+                    [error, this.active_item],
+                    'warn',
+                );
+                on_error?.();
+            });
+        });
     }
 
     private async _processURLs() {
@@ -627,7 +653,6 @@ export class MediaPlayerComponent
             }
         }
         const item = this.active_item;
-        this.playing_id.emit(item.id);
         const prev_container_el = this._previous_container().nativeElement;
         const container_el = this._container().nativeElement;
         requestAnimationFrame(() => {
@@ -668,6 +693,12 @@ export class MediaPlayerComponent
     }
 
     private _onTransitionEnd() {
+        this._resetTransitionState();
+        this.togglePause();
+    }
+
+    private _resetTransitionState() {
+        this.clearTimeout('re-start');
         const prev_container_el = this._previous_container().nativeElement;
         const container_el = this._container().nativeElement;
         prev_container_el.classList.remove('opacity-0');
@@ -677,8 +708,26 @@ export class MediaPlayerComponent
         this.previous_plugin.set(null);
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
+        container_el.classList.remove('opacity-0');
+        container_el.style.transform = 'translate(0, 0)';
         this.in_animation.set(false);
-        this.togglePause();
+    }
+
+    private _shouldTransition(
+        old_item: MediaPlayerItem,
+        new_item: MediaPlayerItem,
+    ) {
+        if (!this._hasMultipleActivePlaylistItems()) return false;
+        return old_item?.id !== new_item?.id;
+    }
+
+    private _hasMultipleActivePlaylistItems() {
+        const active_item_ids = new Set(
+            this._item_playlist
+                .filter((item) => this.isValidMedia(item))
+                .map((item) => item.id),
+        );
+        return active_item_ids.size > 1;
     }
 
     private _validatePlaylist() {

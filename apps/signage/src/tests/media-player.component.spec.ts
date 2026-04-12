@@ -105,6 +105,22 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.state()).toBe('PAUSED');
     });
 
+    it('should not transition when looping the current item to itself', () => {
+        load_playlist([create_item('media-1'), create_item('media-2')]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        spectator.component.loop.set('ONE');
+        const transition_spy = jest.spyOn(
+            spectator.component as any,
+            '_transition',
+        );
+
+        spectator.component.nextItem();
+
+        expect(transition_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+    });
+
     it('should cycle through loop modes', () => {
         spectator.component.loop.set('ALL');
 
@@ -175,6 +191,45 @@ describe('MediaPlayerComponent', () => {
         await spectator.component.setPlaylistItem(1);
 
         expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should not transition when only one valid item is active in the playlist', () => {
+        load_playlist([
+            create_item('valid-media'),
+            create_item('invalid-media', {
+                valid_from: Math.floor(Date.now() / 1000) + 3600,
+            }),
+        ]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        const transition_spy = jest.spyOn(
+            spectator.component as any,
+            '_transition',
+        );
+
+        spectator.component.nextItem();
+
+        expect(transition_spy).not.toHaveBeenCalled();
+        expect(spectator.component.index()).toBe(0);
+    });
+
+    it('should pause cleanly if replaying a looping video is blocked', async () => {
+        load_playlist([create_item('video-1', { type: 'video' })]);
+        spectator.component.index.set(0);
+        spectator.component.hold_over_item.set(false);
+        spectator.component.loop.set('ONE');
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+        Object.defineProperty(HTMLMediaElement.prototype, 'play', {
+            configurable: true,
+            value: jest
+                .fn()
+                .mockRejectedValue(new Error('Playback blocked by browser')),
+        });
+
+        spectator.component.nextItem();
+        await Promise.resolve();
+
+        expect(next_item_spy).toHaveBeenCalledTimes(1);
     });
 
     it('should configure plugins when they report ready status', () => {
