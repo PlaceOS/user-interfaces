@@ -2,8 +2,8 @@ import { Component, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@placeos/components';
-import { format, startOfDay } from 'date-fns';
+import { DateFromPipe, IconComponent } from '@placeos/components';
+import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import {
     MINUTES_PER_DAY,
     ScheduleBlock,
@@ -62,6 +62,16 @@ import {
                     >
                         <div
                             class="bg-base-content/6 hidden h-8 w-8 shrink-0 items-center justify-center rounded-md sm:flex"
+                            [class.bg-success]="
+                                displayRowStatus(row) === 'success'
+                            "
+                            [class.bg-error]="displayRowStatus(row) === 'error'"
+                            [matTooltip]="
+                                displayRowStatus(row)
+                                    ? (row.updated_at * 1000 | dateFrom)
+                                    : ''
+                            "
+                            matTooltipPosition="right"
                         >
                             <icon class="text-base-content/50 text-base">{{
                                 row.icon
@@ -262,7 +272,13 @@ import {
             }
         `,
     ],
-    imports: [MatRippleModule, MatTooltipModule, RouterLink, IconComponent],
+    imports: [
+        MatRippleModule,
+        MatTooltipModule,
+        RouterLink,
+        IconComponent,
+        DateFromPipe,
+    ],
 })
 export class ScheduleTimelineComponent {
     public readonly rows = input<ScheduleTimelineRow[]>([]);
@@ -279,6 +295,14 @@ export class ScheduleTimelineComponent {
     public readonly hours = Array.from({ length: 24 }, (_, index) => index);
     public readonly timeline_width = this.hours.length * this.block_width;
     public readonly hovered_row = signal(-1);
+
+    public displayRowStatus(row: ScheduleTimelineRow) {
+        if (this.view_tab() !== 'displays') return '';
+        const diff = Math.abs(
+            differenceInMinutes(row.updated_at * 1000, Date.now()),
+        );
+        return diff > 5 ? 'error' : 'success';
+    }
 
     public clearHoveredRow(index: number) {
         if (this.hovered_row() === index) this.hovered_row.set(-1);
