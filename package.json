@@ -80,7 +80,7 @@
         "@nx/workspace": "22.6.4",
         "@placeos/cloud-uploads": "^1.1.1",
         "@placeos/svg-viewer": "^1.0.5",
-        "@placeos/ts-client": "^4.8.2",
+        "@placeos/ts-client": "^4.8.3",
         "@playwright/test": "^1.49.0",
         "@schematics/angular": "21.2.5",
         "@sentry/angular": "^10.47.0",
@@ -110,6 +110,7 @@
         "jest": "30.3.0",
         "jest-environment-jsdom": "30.3.0",
         "jest-preset-angular": "16.0.0",
+        "jest-util": "30.3.0",
         "jsonc-eslint-parser": "^2.1.0",
         "marked": "^13.0.0",
         "material-symbols": "^0.43.0",
@@ -131,7 +132,6 @@
         "ts-md5": "^2.0.1",
         "ts-node": "10.9.1",
         "typescript": "5.9.3",
-        "yaml": "^2.8.1",
-        "jest-util": "30.3.0"
+        "yaml": "^2.8.1"
     }
 }

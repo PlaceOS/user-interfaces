@@ -181,6 +181,7 @@ export class MediaPlayerComponent
     public readonly stateChange = output<MediaPlayerState>();
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
+    public readonly playing_id = output<string>();
     public readonly event = output<MediaEvent>();
     public readonly closed = output<void>();
 
@@ -626,6 +627,7 @@ export class MediaPlayerComponent
             }
         }
         const item = this.active_item;
+        this.playing_id.emit(item.id);
         const prev_container_el = this._previous_container().nativeElement;
         const container_el = this._container().nativeElement;
         requestAnimationFrame(() => {

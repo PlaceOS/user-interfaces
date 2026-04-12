@@ -74,6 +74,8 @@ function durationStampToMinutes(duration: string) {
 export class SignageService extends AsyncHandler {
     private _media_cache = inject(MediaCacheService);
 
+    public readonly debug = signal(false);
+    public readonly playing_id = signal('');
     private _display = new BehaviorSubject<string>('');
     private _poll = new BehaviorSubject(0);
     private _retry = new BehaviorSubject(0);
@@ -95,7 +97,7 @@ export class SignageService extends AsyncHandler {
         switchMap(([id]) =>
             showSignage(
                 id,
-                {},
+                { preview: this.debug(), item_id: this.playing_id() },
                 {
                     headers: {
                         'If-Modified-Since': new Date(
