@@ -163,7 +163,7 @@ export class ZonesSectionComponent {
     public readonly view_tab = signal<'playlists' | 'displays'>('playlists');
     public readonly selected_zone = this._service.selected_zone;
 
-    private readonly _zones = toSignal(this._service.zones, {
+    private readonly _zones = toSignal(this._service.all_zones, {
         initialValue: [],
     });
     private readonly _playlists = toSignal(this._service.playlists, {

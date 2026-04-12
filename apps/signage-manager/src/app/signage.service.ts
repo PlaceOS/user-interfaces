@@ -213,6 +213,28 @@ export class SignageService {
         shareReplay(1),
     );
 
+    public readonly all_zones = combineLatest([
+        this._org.initialised,
+        this._change,
+    ]).pipe(
+        filter(([initialised]) => !!initialised),
+        debounceTime(300),
+        switchMap(() =>
+            queryZones({ limit: 2500 } as any).pipe(
+                catchError(() => of({ data: [] })),
+            ),
+        ),
+        map((result: any) =>
+            (result.data || []).sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
+        startWith([]),
+        shareReplay(1),
+    );
+
     public readonly plugins = combineLatest([
         this._org.active_building,
         this._change,
@@ -302,10 +324,13 @@ export class SignageService {
     private readonly _zones = toSignal(this.zones, {
         initialValue: [] as any[],
     });
+    private readonly _all_zones = toSignal(this.all_zones, {
+        initialValue: [] as any[],
+    });
 
     public readonly filtered_zones = computed(() => {
         const term = this.zone_search_term().toLowerCase();
-        return this._zones().filter((z) =>
+        return this._all_zones().filter((z) =>
             (z.display_name || z.name).toLowerCase().includes(term),
         );
     });
