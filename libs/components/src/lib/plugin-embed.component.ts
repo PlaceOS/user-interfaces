@@ -19,8 +19,10 @@ const API_VERSION = 'signage-plugin/v1';
 export type SignagePluginMessageType =
     | 'loaded'
     | 'ready'
+    | 'interaction'
     | 'finished'
     | 'error';
+
 export type SignageHostMessageType = 'config' | 'play';
 
 export type SignageMessage<T = unknown> = {
@@ -62,6 +64,10 @@ export type PluginErrorPayload = {
     message: string;
     fatal?: boolean;
     details?: Record<string, unknown>;
+};
+
+export type PluginInteractionPayload = {
+    new_duration?: number;
 };
 
 @Component({
@@ -108,6 +114,7 @@ export class PluginEmbedComponent
         'unknown',
     );
     public readonly plugin_error = output<PluginErrorPayload>();
+    public readonly plugin_interaction = output<PluginInteractionPayload>();
     private readonly _plugin_el =
         viewChild<ElementRef<HTMLIFrameElement>>('plugin_el');
 
@@ -172,7 +179,12 @@ export class PluginEmbedComponent
         if (!msg || msg.api !== API_VERSION || typeof msg.type !== 'string')
             return;
 
-        this.status.set(msg.type);
+        if (msg.type === 'interaction') {
+            this.plugin_interaction.emit(msg.payload);
+            return;
+        }
+
+        this.status.set(msg.type as SignagePluginMessageType);
         switch (msg.type) {
             case 'loaded':
                 this.details.set(msg.payload);

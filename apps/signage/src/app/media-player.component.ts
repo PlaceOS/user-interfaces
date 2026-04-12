@@ -17,6 +17,7 @@ import {
     PluginConfigPayload,
     PluginEmbedComponent,
     PluginErrorPayload,
+    PluginInteractionPayload,
     SignagePluginMessageType,
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
@@ -77,6 +78,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                         [config]="plugin_config()"
                         [play]="plugin_play()"
                         (statusChange)="onPluginStatus($event)"
+                        (plugin_interaction)="onPluginInteraction($event)"
                         (plugin_error)="onPluginError($event)"
                     />
                 }
@@ -197,6 +199,7 @@ export class MediaPlayerComponent
     public readonly plugin_play = signal(0);
 
     private _plugin_finished = false;
+    private _playback_duration = 0;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -390,14 +393,11 @@ export class MediaPlayerComponent
 
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
+        const item = this.active_item;
+        const playback_duration = this._effectivePlaybackDuration(item);
         const duration = Date.now() - this._item_start;
         if (this._item_start) {
-            this.progress.set(
-                Math.floor(
-                    (duration / (this.active_item?.duration || 15 * 1000)) *
-                        100,
-                ),
-            );
+            this.progress.set(Math.floor((duration / playback_duration) * 100));
         }
         this.duration.set(Math.floor(duration / 1000));
 
@@ -407,7 +407,6 @@ export class MediaPlayerComponent
             this.progress.set(0);
             this.setPlaylistItem(0);
         }
-        const item = this.active_item;
         // For playsthrough plugins, advance when plugin signals finished
         if (
             item?.type === 'plugin' &&
@@ -418,7 +417,7 @@ export class MediaPlayerComponent
             }
             return;
         }
-        if (Date.now() > this._item_start + item?.duration) {
+        if (Date.now() > this._item_start + playback_duration) {
             this.nextItem();
         }
     }
@@ -458,6 +457,7 @@ export class MediaPlayerComponent
         const should_transition = this._shouldTransition(old_item, item);
         this._item_start = Date.now();
         this._item_progress = 0;
+        this._playback_duration = item.duration || 15 * 1000;
         this.progress.set(0);
         this.duration.set(0);
         this._plugin_finished = false;
@@ -521,7 +521,10 @@ export class MediaPlayerComponent
             this.plugin_config.set({
                 instance_id: item.id,
                 config: item.plugin_params || {},
-                timing: { scheduled_duration_ms: item.duration },
+                timing: {
+                    scheduled_duration_ms:
+                        this._effectivePlaybackDuration(item),
+                },
             });
             // Send play signal after config
             this.timeout(
@@ -534,6 +537,16 @@ export class MediaPlayerComponent
         }
     }
 
+    public onPluginInteraction(interaction: PluginInteractionPayload) {
+        const item = this.active_item;
+        const interactive =
+            item?.type === 'plugin' &&
+            item.plugin?.playback_type === 'interactive';
+        if (!interactive) return;
+        const value = Number(interaction.new_duration);
+        this._resetPlayback(Number.isFinite(value) && value > 0 ? value : 0);
+    }
+
     public onPluginError(error: PluginErrorPayload) {
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (error.fatal) {
@@ -544,6 +557,22 @@ export class MediaPlayerComponent
     private _showPlugin(item: MediaPlayerItem) {
         log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
         this.active_plugin.set(item.plugin);
+    }
+
+    private _effectivePlaybackDuration(
+        item: MediaPlayerItem = this.active_item,
+    ) {
+        return this._playback_duration || item?.duration || 15 * 1000;
+    }
+
+    private _resetPlayback(playback_duration = 0) {
+        if (playback_duration > 0) {
+            this._playback_duration = playback_duration;
+        }
+        this._item_progress = 0;
+        this._item_start = this.state() === 'PLAYING' ? Date.now() : 0;
+        this.progress.set(0);
+        this.duration.set(0);
     }
 
     private _requestVideoPlayback(on_error?: () => void) {

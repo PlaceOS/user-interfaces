@@ -256,6 +256,99 @@ describe('MediaPlayerComponent', () => {
         jest.useRealTimers();
     });
 
+    it('should reset plugin playback when requested by a plugin interaction', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(10_000);
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 20_000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                playback_type: 'interactive',
+            } as any,
+        });
+        const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
+
+        load_playlist([plugin_item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component['_item_start'] = 5_000;
+        spectator.component['_playback_duration'] = 20_000;
+        spectator.component.progress.set(25);
+        spectator.component.duration.set(5);
+
+        spectator.component.onPluginInteraction({
+            action: 'reset_playback',
+            options: { playback_duration_ms: 30_000 },
+        });
+
+        expect(spectator.component['_playback_duration']).toBe(30_000);
+        expect(spectator.component['_item_start']).toBe(10_000);
+        expect(spectator.component.progress()).toBe(0);
+        expect(spectator.component.duration()).toBe(0);
+
+        jest.setSystemTime(39_999);
+        spectator.component['_updateItem']();
+        expect(next_item_spy).not.toHaveBeenCalled();
+
+        jest.setSystemTime(40_001);
+        spectator.component['_updateItem']();
+        expect(next_item_spy).toHaveBeenCalled();
+    });
+
+    it('should ignore reset interactions for static plugins', () => {
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 20_000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                playback_type: 'static',
+            } as any,
+        });
+
+        load_playlist([plugin_item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component['_item_start'] = 5_000;
+        spectator.component['_playback_duration'] = 20_000;
+
+        spectator.component.onPluginInteraction({
+            action: 'reset_playback',
+            options: { playback_duration_ms: 30_000 },
+        });
+
+        expect(spectator.component['_playback_duration']).toBe(20_000);
+        expect(spectator.component['_item_start']).toBe(5_000);
+    });
+
+    it('should ignore reset interactions for playsthrough plugins', () => {
+        const plugin_item = create_item('plugin-1', {
+            type: 'plugin',
+            duration: 20_000,
+            plugin: {
+                id: 'plugin-1',
+                name: 'Weather',
+                playback_type: 'playsthrough',
+            } as any,
+        });
+
+        load_playlist([plugin_item]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+        spectator.component['_item_start'] = 5_000;
+        spectator.component['_playback_duration'] = 20_000;
+
+        spectator.component.onPluginInteraction({
+            action: 'reset_playback',
+            options: { playback_duration_ms: 30_000 },
+        });
+
+        expect(spectator.component['_playback_duration']).toBe(20_000);
+        expect(spectator.component['_item_start']).toBe(5_000);
+    });
+
     it('should skip to the next item on a fatal plugin error', () => {
         const next_item_spy = jest.spyOn(spectator.component, 'nextItem');
 
