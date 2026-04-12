@@ -165,14 +165,14 @@ export class SignageService {
     );
 
     public readonly displays = combineLatest([
-        this._org.active_building,
+        this._org.initialised,
         this._change,
     ]).pipe(
-        filter(([building]) => !!building?.id),
+        filter(([_]) => !_),
         debounceTime(300),
         switchMap(([building]) =>
             querySystems({
-                zone_id: building?.id,
+                zone_id: this._org.organisation?.id,
                 limit: 500,
                 signage: true,
             } as any).pipe(catchError(() => of({ data: [] }))),
