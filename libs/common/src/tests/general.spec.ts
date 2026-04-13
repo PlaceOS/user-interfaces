@@ -180,6 +180,22 @@ describe('General Methods', () => {
             ).toBe(new Date(2028, 5, 10, 16, 0).valueOf());
         });
 
+        it('should allow the exact last valid start when min_duration fits exactly', () => {
+            const date = new Date(2028, 5, 10, 16, 30).valueOf();
+            expect(
+                getNextBookableTime({ start: 8, end: 17 }, date, '', 30),
+            ).toBe(date);
+            expect(
+                alignDateToBookableHours(
+                    date,
+                    { start: 8, end: 17 },
+                    date,
+                    '',
+                    30,
+                ),
+            ).toBe(date);
+        });
+
         it('should align near-end dates to next day when min_duration is set', () => {
             // 16:40 with min_duration=30 → effective end 16:30 → before hours
             const date = new Date(2028, 5, 10, 16, 40).valueOf();
@@ -767,6 +783,27 @@ describe('General Methods', () => {
             form.controls.date.setValue(ok);
 
             expect(form.getRawValue().date).toBe(ok);
+        });
+
+        it('should allow the exact last valid start when it ends at closing time', () => {
+            const exact_boundary = new Date(
+                2028,
+                5,
+                15,
+                16,
+                30,
+                0,
+                0,
+            ).valueOf();
+            const form = createForm({ date: exact_boundary, duration: 30 });
+            setupFormTimeSync(form, {
+                bookable_hours: HOURS_9_TO_17,
+                min_duration: 30,
+            });
+
+            form.controls.date.setValue(exact_boundary);
+
+            expect(form.getRawValue().date).toBe(exact_boundary);
         });
 
         it('should show notification when markUserDateChange is called before setValue', () => {

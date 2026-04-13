@@ -126,4 +126,47 @@ describe('EventFormService', () => {
 
         expect(service.form.getRawValue().all_day).toBe(true);
     });
+
+    it('should allow multiday events ending exactly at the bookable-hours end', async () => {
+        const settings = TestBed.inject(SettingsService) as any;
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.events.bookable_hours'
+                ? { start: 9, end: 17 }
+                : undefined,
+        );
+        const start = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
+        const perform_booking_spy = jest
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: 'host@test.com',
+                    organiser: { email: 'host@test.com' } as any,
+                    creator: 'host@test.com',
+                    title: 'Boundary booking',
+                    date: start,
+                    duration: Math.round((end - start) / 60000),
+                    date_end: end,
+                    attendees: [],
+                    resources: [],
+                }),
+            );
+
+        service.newForm();
+        service.form.patchValue({
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' },
+            creator: 'host@test.com',
+            title: 'Boundary booking',
+            date: start,
+            duration: Math.round((end - start) / 60000),
+            date_end: end,
+            attendees: [],
+            resources: [],
+        });
+
+        await expect(service.postForm()).resolves.toBeTruthy();
+        expect(perform_booking_spy).toHaveBeenCalled();
+    });
 });
