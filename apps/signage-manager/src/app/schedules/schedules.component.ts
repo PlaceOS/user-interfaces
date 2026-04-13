@@ -322,6 +322,7 @@ export class SchedulesSectionComponent {
                     route: ['/displays', display.id],
                     blocks,
                     search_index,
+                    updated_at: display.updated_at,
                 };
             })
             .filter((row) => !search || row.search_index.includes(search));

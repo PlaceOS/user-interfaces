@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -286,7 +285,6 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         AccessibilityControlsComponent,
         MatRippleModule,
         IconComponent,

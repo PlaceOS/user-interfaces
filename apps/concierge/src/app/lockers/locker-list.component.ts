@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -336,7 +336,6 @@ import { LockerStateService } from './locker-state.service';
     `,
     styles: [],
     imports: [
-        CommonModule,
         MatMenuModule,
         IconComponent,
         MatRippleModule,

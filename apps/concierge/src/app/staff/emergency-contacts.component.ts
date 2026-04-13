@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -220,7 +220,6 @@ export { EmergencyContact } from './emergency-contacts.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         IconComponent,
         MatTooltipModule,

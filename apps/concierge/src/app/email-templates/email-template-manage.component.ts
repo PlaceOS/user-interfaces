@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -294,7 +294,6 @@ import {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         RouterModule,
         MatProgressSpinnerModule,
         TranslatePipe,

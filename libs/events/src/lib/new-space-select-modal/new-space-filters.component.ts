@@ -200,6 +200,7 @@ import { SpacesService } from '../spaces.service';
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"
                                 [range]="bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                             ></a-time-field>
                         </div>
                         @if (multiday()) {
@@ -430,6 +431,20 @@ export class NewSpaceFiltersComponent {
     public readonly max_duration = settingSignal<number>(
         'events.max_duration',
         480,
+    );
+
+    public readonly min_duration = settingSignal<number>(
+        'events.min_duration',
+        30,
+    );
+
+    public readonly custom_duration_options = settingSignal<number[]>(
+        'events.custom_duration_options',
+        [],
+    );
+
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
     );
 
     public readonly feature_display = settingSignal<Record<string, string>>(

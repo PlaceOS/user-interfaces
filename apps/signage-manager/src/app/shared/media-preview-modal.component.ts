@@ -211,6 +211,18 @@ interface MediaPreviewModalData {
                                 </div>
                             }
                         </div>
+                        @if (item.play_count) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    Play Count
+                                </div>
+                                <div class="text-sm capitalize">
+                                    {{ item.play_count || '0' }}
+                                </div>
+                            </div>
+                        }
                     </div>
                 </aside>
             </main>

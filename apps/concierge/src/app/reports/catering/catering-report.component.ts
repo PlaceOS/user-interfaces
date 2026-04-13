@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -79,7 +78,6 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,

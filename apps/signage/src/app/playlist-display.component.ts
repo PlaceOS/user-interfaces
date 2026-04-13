@@ -33,7 +33,11 @@ import { MediaPlayerItem } from './types';
             </div>
             @if (playlist().length > 0) {
                 <div>
-                    @for (item of playlist(); track item.id; let i = $index) {
+                    @for (
+                        item of playlist();
+                        track item.id + i;
+                        let i = $index
+                    ) {
                         @let is_valid = isValidMedia(item);
                         <button
                             matRipple

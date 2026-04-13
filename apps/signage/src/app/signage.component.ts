@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log, SettingsService } from '@placeos/common';
 import { time } from './media-helpers';
@@ -14,6 +14,7 @@ import { MediaEvent, SignageService } from './signage.service';
             [controls]="debug()"
             [override]="override_playlist().playlist.length > 0"
             [animation_time]="animation_time"
+            (playing_id)="playing_id.set($event)"
             (event)="handlePlayerEvent($event)"
             class="z-0"
         />
@@ -23,10 +24,18 @@ import { MediaEvent, SignageService } from './signage.service';
                 [controls]="debug()"
                 [can_close]="true"
                 [animation_time]="animation_time"
+                (playing_id)="playing_id.set($event)"
                 (event)="handlePlayerEvent($event, true)"
                 (closed)="clearOverridePlaylist()"
                 class="absolute inset-0 z-10"
             />
+        }
+        @if (debug()) {
+            <div
+                class="absolute right-2 bottom-2 text-xs text-white opacity-30"
+            >
+                {{ playing_id() }}
+            </div>
         }
     `,
     styles: `
@@ -46,7 +55,8 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
 
     public readonly playlist = this._signage.playlist;
     public readonly override_playlist = this._signage.override_playlist;
-    public readonly debug = signal(false);
+    public readonly debug = this._signage.debug;
+    public readonly playing_id = this._signage.playing_id;
 
     public readonly clearOverridePlaylist = () =>
         this._signage.clearPlaylistOverride();

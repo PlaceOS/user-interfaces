@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     OnInit,
@@ -468,7 +467,6 @@ import { RoomConfirmService } from './room-confirm.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatProgressSpinnerModule,
         InteractiveMapComponent,

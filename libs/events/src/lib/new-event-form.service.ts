@@ -14,6 +14,7 @@ import {
     getAllDayTimeRange,
     getFormTimeSyncHandle,
     getInvalidFields,
+    getTimeInTimezone,
     i18n,
     isWithinBookableHours,
     nextValueFrom,
@@ -607,17 +608,26 @@ export class EventFormService extends AsyncHandler {
             ) {
                 throw i18n('FORM.BOOKABLE_HOURS_ERROR');
             }
-            // For multiday bookings, also validate the end time
+            // For multiday bookings, also validate the end time.
+            // The end wall-clock may land exactly on the configured
+            // closing hour, which is valid even though start times use
+            // an exclusive end bound.
             if (
                 this.form.value.date_end &&
                 this.form.value.duration > 24 * 60 &&
-                !isWithinBookableHours(
-                    this.form.value.date_end,
-                    bookable_hours,
-                    this.form.value.timezone,
-                )
+                bookable_hours
             ) {
-                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+                const { hours, minutes } = getTimeInTimezone(
+                    this.form.value.date_end,
+                    this.form.value.timezone,
+                );
+                const end_minutes = hours * 60 + minutes;
+                const within_end_window =
+                    end_minutes >= bookable_hours.start * 60 &&
+                    end_minutes <= bookable_hours.end * 60;
+                if (!within_end_window) {
+                    throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+                }
             }
 
             // Validate that all selected room resource are available

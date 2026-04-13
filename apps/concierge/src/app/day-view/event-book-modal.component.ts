@@ -21,7 +21,6 @@ import {
 import { EventFormService } from '@placeos/events';
 import { map, tap } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -385,7 +384,6 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         RichTextInputComponent,
         SpaceListFieldComponent,

@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -60,7 +59,6 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         DateOptionsComponent,
         SearchbarComponent,
         MatFormFieldModule,

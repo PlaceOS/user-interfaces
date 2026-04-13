@@ -165,14 +165,14 @@ export class SignageService {
     );
 
     public readonly displays = combineLatest([
-        this._org.active_building,
+        this._org.initialised,
         this._change,
     ]).pipe(
-        filter(([building]) => !!building?.id),
+        filter(([_]) => !_),
         debounceTime(300),
         switchMap(([building]) =>
             querySystems({
-                zone_id: building?.id,
+                zone_id: this._org.organisation?.id,
                 limit: 500,
                 signage: true,
             } as any).pipe(catchError(() => of({ data: [] }))),
@@ -201,6 +201,28 @@ export class SignageService {
                 limit: 250,
                 tags: 'signage',
             } as any).pipe(catchError(() => of({ data: [] }))),
+        ),
+        map((result: any) =>
+            (result.data || []).sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            ),
+        ),
+        startWith([]),
+        shareReplay(1),
+    );
+
+    public readonly all_zones = combineLatest([
+        this._org.initialised,
+        this._change,
+    ]).pipe(
+        filter(([initialised]) => !!initialised),
+        debounceTime(300),
+        switchMap(() =>
+            queryZones({ limit: 2500 } as any).pipe(
+                catchError(() => of({ data: [] })),
+            ),
         ),
         map((result: any) =>
             (result.data || []).sort((a, b) =>
@@ -302,10 +324,13 @@ export class SignageService {
     private readonly _zones = toSignal(this.zones, {
         initialValue: [] as any[],
     });
+    private readonly _all_zones = toSignal(this.all_zones, {
+        initialValue: [] as any[],
+    });
 
     public readonly filtered_zones = computed(() => {
         const term = this.zone_search_term().toLowerCase();
-        return this._zones().filter((z) =>
+        return this._all_zones().filter((z) =>
             (z.display_name || z.name).toLowerCase().includes(term),
         );
     });

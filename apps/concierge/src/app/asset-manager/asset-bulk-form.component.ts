@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -141,7 +140,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatSelectModule,
         ReactiveFormsModule,
         TranslatePipe,
-        CommonModule,
         MatInputModule,
         ReactiveFormsModule,
         FormsModule,

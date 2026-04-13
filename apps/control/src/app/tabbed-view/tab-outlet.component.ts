@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -218,7 +217,6 @@ import { TVControlsComponent } from './tv-controls.component';
         `,
     ],
     imports: [
-        CommonModule,
         BindingDirective,
         MatRippleModule,
         IconComponent,

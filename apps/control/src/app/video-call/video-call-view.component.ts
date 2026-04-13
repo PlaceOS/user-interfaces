@@ -2,7 +2,6 @@ import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@placeos/components';
 import { ControlStateService } from '../control-state.service';
@@ -76,7 +75,6 @@ import { VideoCallPageComponent } from './video-call-page.component';
         `,
     ],
     imports: [
-        CommonModule,
         TopbarHeaderComponent,
         VideoCallPageComponent,
         ControlStatusBarComponent,

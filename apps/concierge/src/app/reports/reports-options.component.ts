@@ -10,7 +10,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first, map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -143,7 +142,6 @@ import { combineLatest } from 'rxjs';
         FormsModule,
         IconComponent,
         TranslatePipe,
-        CommonModule,
         BuildingPipe,
     ],
 })

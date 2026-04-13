@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
@@ -26,7 +25,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     providers: [ExploreParkingService],
-    imports: [CommonModule, InteractiveMapComponent],
+    imports: [InteractiveMapComponent],
 })
 export class ParkingMapComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);

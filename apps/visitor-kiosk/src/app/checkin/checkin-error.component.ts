@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,7 +32,7 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, MatRippleModule, RouterModule],
+    imports: [TranslatePipe, MatRippleModule, RouterModule],
 })
 export class CheckinErrorComponent {
     private _checkin = inject(CheckinStateService);

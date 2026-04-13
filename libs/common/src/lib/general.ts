@@ -712,7 +712,7 @@ export function getAllDayTimeRange(
  *                        shifted earlier by this many minutes so that a booking
  *                        of at least `min_duration` can still fit. For example
  *                        with `end = 17` (17:00) and `min_duration = 30`,
- *                        any time at or after 16:30 is treated as outside the
+ *                        any time after 16:30 is treated as outside the
  *                        window.
  * @returns ms epoch of the next available booking time, or `undefined` if no
  *          adjustment is needed (bookable_hours is not set)
@@ -734,7 +734,12 @@ export function getNextBookableTime(
     const time = timezone ? toZonedTime(now, timezone) : new Date(now);
     const current_minutes = time.getHours() * 60 + time.getMinutes();
 
-    if (current_minutes >= start_minutes && current_minutes < effective_end) {
+    const within_window =
+        current_minutes >= start_minutes &&
+        (current_minutes < effective_end ||
+            (min_duration > 0 && current_minutes === effective_end));
+
+    if (within_window) {
         // Within bookable hours — return now rounded up to nearest 5 min
         return roundToNearestMinutes(now, {
             nearestTo: 5,
@@ -791,7 +796,12 @@ export function alignDateToBookableHours(
     const adjusted_minutes =
         adjusted_time.getHours() * 60 + adjusted_time.getMinutes();
 
-    if (adjusted_minutes >= start_minutes && adjusted_minutes < effective_end) {
+    const within_window =
+        adjusted_minutes >= start_minutes &&
+        (adjusted_minutes < effective_end ||
+            (min_duration > 0 && adjusted_minutes === effective_end));
+
+    if (within_window) {
         return adjusted_date;
     }
 

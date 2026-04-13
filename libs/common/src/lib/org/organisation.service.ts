@@ -485,7 +485,7 @@ export class OrganisationService {
      */
     public async loadOrganisation(): Promise<void> {
         const org_list = await mapLastValueFrom(
-            queryZones({ tags: 'org' }),
+            queryZones({ tags: 'org', include_children_count: true }),
             (i) => i.data,
         );
         console.log('Orgs:', org_list);

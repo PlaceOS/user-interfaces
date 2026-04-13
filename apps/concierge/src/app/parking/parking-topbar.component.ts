@@ -496,9 +496,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 // Fall back to persisted selection for this section. Manage
                 // view additionally guarantees at least the first level.
                 const persisted = loadPersistedZones(
-                    this.section() === 'manage'
-                        ? 'parking-manage'
-                        : 'parking',
+                    this.section() === 'manage' ? 'parking-manage' : 'parking',
                     this._persistScopeId(),
                 ).filter((zone) => levels.find((lvl) => lvl.id === zone));
                 if (persisted.length) {

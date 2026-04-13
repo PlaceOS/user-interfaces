@@ -535,9 +535,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         const valid_zones = current_zones.filter((zone) =>
             levels.find((level) => level.id === zone),
         );
-        let next_zones = this.manage()
-            ? valid_zones.slice(0, 1)
-            : valid_zones;
+        let next_zones = this.manage() ? valid_zones.slice(0, 1) : valid_zones;
         if (!next_zones.length) {
             // Restore persisted selection for the current view when none is
             // active. Manage view then falls back to the first level if no
@@ -547,9 +545,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
                 this._persistScopeId(),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
-                next_zones = this.manage()
-                    ? persisted.slice(0, 1)
-                    : persisted;
+                next_zones = this.manage() ? persisted.slice(0, 1) : persisted;
             } else if (this.manage() && levels.length) {
                 next_zones = [levels[0].id];
             }

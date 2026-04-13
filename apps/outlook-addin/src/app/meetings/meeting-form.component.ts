@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -355,7 +354,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         MatRippleModule,
         FormsModule,
         ReactiveFormsModule,

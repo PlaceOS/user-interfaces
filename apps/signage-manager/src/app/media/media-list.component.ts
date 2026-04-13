@@ -90,7 +90,7 @@ import { SignageService } from '../signage.service';
                                     auth
                                     [source]="media_item.thumbnail_url"
                                     [alt]="media_item.name + ' thumbnail'"
-                                    class="absolute -inset-px rounded-lg object-contain"
+                                    class="absolute -inset-px flex items-center justify-center rounded-lg object-contain object-center p-2"
                                 />
                                 <div
                                     class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"

@@ -104,9 +104,7 @@ describe('Booking class', () => {
         });
 
         expect(booking.all_day).toBe(true);
-        expect(booking.date).toBe(
-            new Date(2028, 5, 15, 9, 0, 0, 0).valueOf(),
-        );
+        expect(booking.date).toBe(new Date(2028, 5, 15, 9, 0, 0, 0).valueOf());
         expect(booking.duration).toBe(8 * 60);
     });
 });

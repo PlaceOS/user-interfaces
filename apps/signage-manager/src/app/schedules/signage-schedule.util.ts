@@ -44,6 +44,7 @@ export interface ScheduleTimelineRow {
     route: string[];
     blocks: ScheduleBlock[];
     search_index: string;
+    updated_at: number;
 }
 
 interface ScheduleBlockBase {

@@ -10,7 +10,6 @@ import {
 } from '@placeos/catering';
 import { AsyncHandler, nextValueFrom, settingSignal } from '@placeos/common';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -182,7 +181,6 @@ import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.com
         `,
     ],
     imports: [
-        CommonModule,
         DateOptionsComponent,
         MatRippleModule,
         IconComponent,

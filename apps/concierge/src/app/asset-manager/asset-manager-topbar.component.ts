@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -171,7 +170,6 @@ import {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         TranslatePipe,
         FormsModule,

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -73,7 +72,7 @@ import {
             }
         `,
     ],
-    imports: [InteractiveMapComponent, CommonModule],
+    imports: [InteractiveMapComponent],
 })
 export class ExploreMapStackComponent {
     private _orgs = inject(OrganisationService);

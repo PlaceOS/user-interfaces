@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -79,7 +78,6 @@ import { VisitorsReportService } from './visitors-report.service';
         `,
     ],
     imports: [
-        CommonModule,
         ReportsOptionsComponent,
         AuthenticatedImageDirective,
         MatProgressSpinnerModule,

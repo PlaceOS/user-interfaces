@@ -2,7 +2,6 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -88,7 +87,6 @@ import { ReportSpacesUserListingComponent } from './report-spaces-user-listing.c
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressSpinnerModule,
         TranslatePipe,
         ReportsOptionsComponent,

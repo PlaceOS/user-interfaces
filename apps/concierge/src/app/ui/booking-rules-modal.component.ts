@@ -3,7 +3,7 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
@@ -404,7 +404,6 @@ import {
     styles: [``],
     imports: [
         MatDialogModule,
-        CommonModule,
         MatRippleModule,
         IconComponent,
         TranslatePipe,

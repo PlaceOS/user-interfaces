@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -107,7 +106,6 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressBarModule,
         MatFormFieldModule,
         MatSelectModule,

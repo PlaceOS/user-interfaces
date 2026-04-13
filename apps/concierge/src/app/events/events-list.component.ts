@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -163,7 +162,6 @@ import { EventStateService } from './event-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatFormFieldModule,
@@ -298,7 +296,10 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     }
 
     public updateZones(zones: string[]) {
-        this._applyZones((zones || []).filter((_) => !!_), true);
+        this._applyZones(
+            (zones || []).filter((_) => !!_),
+            true,
+        );
     }
 
     private _applyZones(zones: string[], persist: boolean) {

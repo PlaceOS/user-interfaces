@@ -213,8 +213,7 @@ export class Booking {
 
     constructor(data: Partial<BookingComplete> = {}) {
         const custom_all_day = !!(
-            data.extension_data?.custom_all_day ||
-            (data as any).custom_all_day
+            data.extension_data?.custom_all_day || (data as any).custom_all_day
         );
         this.id = data.id || '';
         this.parent_id = data.parent_id || '';

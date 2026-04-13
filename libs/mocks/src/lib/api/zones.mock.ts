@@ -38,25 +38,52 @@ const MOCK_METADATA = {
 export const LOCKERS = {};
 
 export function registerMockZones() {
+    const all_zones = () => [
+        ...MOCK_ORGS,
+        ...MOCK_REGIONS,
+        ...MOCK_BUILDINGS,
+        ...MOCK_LEVELS,
+        ...MOCK_ZONES,
+    ];
+
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
         metadata: {},
         method: 'GET',
         callback: (request) => {
-            if (request.query_params.tags === 'org') {
-                return MOCK_ORGS;
-            } else if (request.query_params.tags === 'region') {
-                return MOCK_REGIONS;
-            } else if (request.query_params.tags === 'building') {
-                return MOCK_BUILDINGS;
-            } else if (request.query_params.tags === 'level') {
-                return MOCK_LEVELS;
-            } else if (request.query_params.tags) {
-                return MOCK_ZONES.filter((_) =>
-                    _.tags.includes(request.query_params.tags),
+            let zones = all_zones();
+            const tag_list = `${request.query_params?.tags || ''}`
+                .split(' ')
+                .filter(Boolean);
+            if (tag_list.length) {
+                zones = zones.filter((zone) =>
+                    tag_list.some((tag) => zone.tags.includes(tag)),
                 );
             }
-            throw { status: 404, message: 'Zones not found' };
+            if (request.query_params?.parent_id) {
+                zones = zones.filter(
+                    (zone) => zone.parent_id === request.query_params.parent_id,
+                );
+            }
+            return zones;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/zones/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const zone = all_zones().find(
+                (_) => _.id === request.route_params.id,
+            );
+            if (!zone) {
+                throw {
+                    status: 404,
+                    message: `Unable to find zone with id "${request.route_params.id}"`,
+                };
+            }
+            return zone;
         },
     });
 

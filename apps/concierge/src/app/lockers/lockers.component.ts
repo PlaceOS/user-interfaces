@@ -10,7 +10,6 @@ import {
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { LockerStateService } from './locker-state.service';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { filter, map, startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
@@ -52,7 +51,6 @@ import { LockersTopbarComponent } from './locker-topbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         LockersTopbarComponent,

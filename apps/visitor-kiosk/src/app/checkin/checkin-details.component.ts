@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -162,7 +161,6 @@ import { CheckinStateService } from './checkin-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatProgressSpinnerModule,
