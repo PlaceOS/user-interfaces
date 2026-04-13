@@ -397,7 +397,7 @@ export class AutoAssignedDeskModalComponent
             this.loading.set('');
         } catch (error) {
             console.error('Error auto-assigning desk:', error);
-            notifyError(i18n('BOOKINGS.DESK_LIST_EMPTY'));
+            notifyError(i18n('BOOKINGS.DESK_AUTO_ASSIGN_EMPTY'));
             this.dismiss();
         }
     }

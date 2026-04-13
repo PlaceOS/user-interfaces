@@ -604,6 +604,7 @@
         "DESK_AVAILABLE_ERROR": "Desk is unavailable at this time.",
         "DESK_LIST_LOADING": "Finding available desks...",
         "DESK_LIST_EMPTY": "No available desks for selected time and/or filters",
+        "DESK_AUTO_ASSIGN_EMPTY": "There are no available desks via auto-assignment. Please try via the Book Desk option.",
         "DESK_SELECT_MSG": "Select a desk to view its details",
         "DESK_AUTO_ASSIGNED_TITLE": "Auto-Assigned Desk",
         "DESK_REQUESTING": "Requesting desk...",
