@@ -1,7 +1,9 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { User } from '@placeos/common';
+import { UserPipe } from 'libs/users/src/lib/user.pipe';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -42,11 +44,15 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                             attendee
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
-                            <a-user-avatar [user]="user"></a-user-avatar>
+                            @let usr =
+                                host() === user.email
+                                    ? (host() | user | async) || user
+                                    : user;
+                            <a-user-avatar [user]="usr"></a-user-avatar>
                             <div class="w-1/2 flex-1">
-                                <div class="truncate">{{ user.name }}</div>
+                                <div class="truncate">{{ usr?.name }}</div>
                                 <div class="text-xs opacity-60">
-                                    {{ user.email }}
+                                    {{ usr?.email }}
                                 </div>
                             </div>
 
@@ -83,6 +89,8 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
         IconComponent,
         UserAvatarComponent,
         MatTooltipModule,
+        AsyncPipe,
+        UserPipe,
     ],
 })
 export class AttendeeListComponent {

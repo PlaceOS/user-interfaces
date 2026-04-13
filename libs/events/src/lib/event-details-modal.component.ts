@@ -230,13 +230,13 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     }
                     @if (event().creator !== event().host) {
+                        @let creator =
+                            (event().creator | user | async)?.name ||
+                            event().creator;
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Created By">person</icon>
                             <div>
-                                {{
-                                    (event().creator | user | async)?.name ||
-                                        event().creator
-                                }}
+                                {{ creator }}
                             </div>
                         </div>
                     }
@@ -334,13 +334,13 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         {{ 'FORM.HOST' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2" host>
+                        @let host =
+                            (event().host | user | async)?.name || event().host;
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
                         <div class="w-px flex-1 text-sm">
-                            <div class="w-full truncate">
-                                {{ event().organiser?.name }}
-                            </div>
+                            <div class="w-full truncate">{{ host }}</div>
                             <div
                                 class="w-full truncate opacity-60"
                                 [title]="event().host"
