@@ -123,7 +123,10 @@ function parseZoneTab(value: string | null): 'playlists' | 'displays' {
                                 </button>
                             </div>
                         }
-                        <zone-content class="flex-1" [activeTab]="view_tab()" />
+                        <zone-content
+                            class="h-1/2 flex-1"
+                            [activeTab]="view_tab()"
+                        />
                     </div>
                 </div>
             </div>
