@@ -352,6 +352,7 @@ export class VisitorFlowDetailsComponent implements OnInit {
         this.active_form.set(is_group ? 'group' : 'single');
         this._booking_form.setOptions({ group: is_group });
         const zones = this.form.value?.zones || [];
+        if (!this.form.value.id) this.form.patchValue({ title: 'Visit' });
         if (!this.form.value?.user_email) {
             this.form.patchValue({ user: currentUser() });
         }

@@ -152,6 +152,8 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             this._booking_form.form.patchValue({ booking_type: 'desk' });
             this._booking_form.setOptions({ type: 'desk' });
         }
+        if (!this._booking_form.form.value.id)
+            this._booking_form.form.patchValue({ title: 'Booking' });
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((param) => {
