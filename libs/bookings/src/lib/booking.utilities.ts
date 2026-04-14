@@ -173,6 +173,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             booking.state === 'started' || booking.state === 'in_progress',
         ),
     });
+    form.controls.date.valueChanges.subscribe(() => {
+        form.controls.duration.updateValueAndValidity({ emitEvent: false });
+    });
     form.controls.user.valueChanges.subscribe((user) => {
         if (!user) return;
         form.patchValue(

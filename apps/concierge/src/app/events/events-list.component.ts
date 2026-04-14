@@ -26,7 +26,7 @@ import {
     subMonths,
 } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
@@ -182,7 +182,10 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
 
     public readonly period = toSignal(
-        this._state.options.pipe(map((_) => _.period)),
+        this._state.options.pipe(
+            map((_) => _.period),
+            distinctUntilChanged(),
+        ),
         { initialValue: this._state.period },
     );
 
@@ -218,10 +221,15 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.subscription('poll_events', this._state.startPolling());
         this.subscription(
             'period',
-            this._state.options.pipe(map((_) => _.period)).subscribe(() => {
-                this._generatePeriods();
-                this._initPeriod();
-            }),
+            this._state.options
+                .pipe(
+                    map((_) => _.period),
+                    distinctUntilChanged(),
+                )
+                .subscribe(() => {
+                    this._generatePeriods();
+                    this._initPeriod();
+                }),
         );
         this._generatePeriods();
         this._initPeriod();
@@ -259,12 +267,13 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                                         ? addWeeks(id, 1).valueOf()
                                         : addMonths(id, 1).valueOf(),
                             };
-                        this.selected_range.set(item.id || id);
+                        const range_id = item.id || id;
+                        this.selected_range.set(range_id);
                         this._state.setOptions({
                             date: item.start,
                             end: item.end,
                         });
-                        this.setPeriod(this.selected_range());
+                        if (range_id !== id) this.setPeriod(range_id);
                     });
                 }
             }),
