@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CateringItem,
     OrganisationService,
+    SETTING_KEYS,
     SettingsService,
 } from '@placeos/common';
 
@@ -16,7 +17,6 @@ import { NewCateringItemFiltersComponent } from './new-catering-item-filters.com
 import { NewCateringItemListComponent } from './new-catering-item-list.component';
 
 const EMPTY_FAVS: string[] = [];
-const FAV_KEY = 'favourite_menu_items';
 
 @Component({
     selector: 'new-catering-select-modal',
@@ -41,7 +41,11 @@ const FAV_KEY = 'favourite_menu_items';
                     class="border-base-300 h-full w-full overflow-x-hidden overflow-y-auto rounded-sm border shadow-sm sm:block sm:w-[20rem]"
                     [class.hidden]="!show_filters"
                 >
-                    <new-catering-item-filters></new-catering-item-filters>
+                    <new-catering-item-filters
+                        [(at_time)]="exact_time"
+                        [(offset)]="offset"
+                        [(offset_day)]="offset_day"
+                    ></new-catering-item-filters>
                 </div>
                 <div
                     class="border-base-300 bg-base-200 h-full w-full overflow-auto rounded-sm border sm:w-[20rem] lg:block"
@@ -51,7 +55,7 @@ const FAV_KEY = 'favourite_menu_items';
                 >
                     <new-catering-item-list
                         [active]="displayed?.custom_id"
-                        [selected]="selected_ids"
+                        [selected]="selected_keys"
                         [selected_items]="selected"
                         [favorites]="favorites"
                         (toggleFav)="toggleFavourite($event.id)"
@@ -66,9 +70,7 @@ const FAV_KEY = 'favourite_menu_items';
                 >
                     <new-catering-item-details
                         [item]="displayed!"
-                        [active]="
-                            selected_ids.includes(displayed?.custom_id || '')
-                        "
+                        [active]="displayed?.in_order"
                         (activeChange)="setSelected(displayed!, $event)"
                         [code]="code"
                         [fav]="
@@ -104,9 +106,9 @@ const FAV_KEY = 'favourite_menu_items';
                     class="inverse bg-base-100 text-secondary"
                 >
                     <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
+                        <icon class="text-xl">done</icon>
                         <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                            {{ 'COMMON.CONFIRM_SELECTION' | translate }}
                         </div>
                     </div>
                 </button>
@@ -115,16 +117,16 @@ const FAV_KEY = 'favourite_menu_items';
                     matRipple
                     name="toggle-catering"
                     [disabled]="!displayed"
-                    [class.inverse]="isSelected(displayed?.id)"
-                    (click)="setSelected(displayed, !isSelected(displayed?.id))"
+                    [class.inverse]="displayed?.in_order"
+                    (click)="setSelected(displayed, !displayed?.in_order)"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed?.id) ? 'remove' : 'add'
+                            displayed?.in_order ? 'remove' : 'add'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed?.id)
+                                (displayed?.in_order
                                     ? 'CATERING.ORDER_ITEM_REMOVE'
                                     : 'CATERING.ORDER_ITEM_ADD'
                                 ) | translate
@@ -165,14 +167,28 @@ export class NewCateringSelectModalComponent {
     public exact_time = this._data.exact_time ?? false;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'catering.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'catering.end_offset',
+        0,
+    );
     public show_filters = false;
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_KEY) || EMPTY_FAVS;
+        return (
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_DESKS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
+        );
     }
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.custom_id).join(',');
+    public get selected_keys() {
+        return this.selected.map((_) => this.selectionKey(_));
     }
 
     public get count() {
@@ -187,46 +203,93 @@ export class NewCateringSelectModalComponent {
         const { duration } = this._data.details;
         this._order.setFilters(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.catering.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.catering.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
         if (this._data.caterer) {
             this._order.setFilters({ caterer: this._data.caterer });
         }
-        console.log('Favourites:', this.favorites);
     }
 
-    public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+    public itemSelectionId(item?: CateringItem | null) {
+        return item?.custom_id?.replace(/menu$/, '') || '';
+    }
+
+    public selectionKey(item?: CateringItem | null) {
+        return `${item?.caterer || ''}::${this.itemSelectionId(item)}`;
     }
 
     public setSelected(item: CateringItem, state: boolean) {
-        const list = this.selected.filter(
-            (_) =>
-                _.custom_id !== item.custom_id &&
-                (!item.caterer || item.caterer === _.caterer),
+        if (!item) return;
+        const selection_key = this.selectionKey(item);
+        const existing_index = this.selected.findIndex(
+            (_) => this.selectionKey(_) === selection_key,
         );
-        if (state) {
-            const new_item = new CateringItem({ ...item, in_order: true });
-            list.push(new_item);
-            this.displayed = new_item;
+        const existing = this.selected.find(
+            (_) => this.selectionKey(_) === selection_key,
+        );
+        const list = this.selected.filter(
+            (_) => this.selectionKey(_) !== selection_key,
+        );
+        if (!state) {
+            if (
+                this.displayed &&
+                this.selectionKey(this.displayed) === selection_key
+            ) {
+                this.displayed = null;
+            }
+            this.selected = list;
+            return;
         }
+        if (item.in_order) {
+            const new_item = new CateringItem({ ...item, in_order: true });
+            this.insertSelection(list, new_item, existing_index);
+            this.displayed = new_item;
+            this.selected = list;
+            return;
+        }
+        const new_item = new CateringItem({
+            ...item,
+            quantity: (existing?.quantity || 0) + (item.quantity || 1),
+            in_order: true,
+        });
+        this.insertSelection(list, new_item, existing_index);
+        this.resetMenuItem(item);
+        this.displayed = new_item;
         this.selected = list;
+    }
+
+    public insertSelection(
+        list: CateringItem[],
+        item: CateringItem,
+        existing_index: number,
+    ) {
+        if (existing_index < 0 || existing_index >= list.length) {
+            list.push(item);
+            return;
+        }
+        list.splice(existing_index, 0, item);
+    }
+
+    public resetMenuItem(item: CateringItem) {
+        (item as any).quantity = 1;
+        for (const option of item.options || []) {
+            delete option.active;
+        }
     }
 
     public toggleFavourite(item: string) {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(item);
-        console.log('Favourites:', item, new_state);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_KEY, [...fav_list, item]);
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_DESKS, [
+                ...fav_list,
+                item,
+            ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_KEY,
+                SETTING_KEYS.FAVORITE_DESKS,
                 fav_list.filter((_) => _ !== item),
             );
         }

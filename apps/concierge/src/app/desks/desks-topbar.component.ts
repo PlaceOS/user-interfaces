@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -145,7 +144,6 @@ import { DesksStateService } from './desks-state.service';
         IconComponent,
         MatFormFieldModule,
         MatSelectModule,
-        CommonModule,
         TranslatePipe,
         FormsModule,
     ],

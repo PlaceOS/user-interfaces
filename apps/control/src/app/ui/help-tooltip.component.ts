@@ -1,11 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { SettingsService } from '@placeos/common';
 import {
     CustomTooltipData,
     SanitizePipe,
     TranslatePipe,
 } from '@placeos/components';
-
-import { ControlStateService } from '../control-state.service';
 
 @Component({
     selector: 'help-tooltip',
@@ -21,10 +20,9 @@ import { ControlStateService } from '../control-state.service';
                     'APP.CONTROL.HELP_CONTACT_MSG'
                         | translate
                             : {
-                                  contact:
-                                      support_contact || ' your administrator',
-                                  email: support_email || 'support@place.tech',
-                                  phone: support_phone || '0412345678',
+                                  contact: support_details().contact,
+                                  email: support_details().email,
+                                  phone: support_details().phone,
                               }
                         | sanitize
                 "
@@ -41,14 +39,15 @@ import { ControlStateService } from '../control-state.service';
     imports: [TranslatePipe, SanitizePipe],
 })
 export class HelpTooltipComponent {
-    private _state = inject(ControlStateService);
+    private _settings = inject(SettingsService);
     private _tooltip = inject(CustomTooltipData);
 
-    public support_contact: string;
-
-    public support_email: string;
-
-    public support_phone: string;
+    public readonly support_details = computed(() => ({
+        contact:
+            this._settings.get('app.support_contact') || ' your administrator',
+        email: this._settings.get('app.support_email') || 'support@place.tech',
+        phone: this._settings.get('app.support_phone') || '0412345678',
+    }));
 
     /** Close the tooltip */
     public readonly close = () => this._tooltip.close();

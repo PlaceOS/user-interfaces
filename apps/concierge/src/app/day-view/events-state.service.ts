@@ -37,7 +37,6 @@ import {
     distinctUntilChanged,
     distinctUntilKeyChanged,
     filter,
-    first,
     map,
     shareReplay,
     startWith,
@@ -148,20 +147,10 @@ export class EventsStateService extends AsyncHandler {
     ]).pipe(
         debounceTime(300),
         tap(() => this.unsubWith('bind:')),
-        switchMap(([zone_ids]) => {
+        switchMap(([zones]) => {
             this._loading.next(true);
-            if (!zone_ids?.length || zone_ids[0] === this._org.region?.id) {
-                zone_ids = (this._settings.get('app.use_region')
-                    ? this._org
-                          .buildingsForRegion(this._org.region)
-                          .map((_) => _.id)
-                    : null) || [this._org.building?.id];
-            }
-            const valid_zones = (zone_ids || []).filter(Boolean);
-            if (!valid_zones.length) return of([]);
-            return forkJoin(
-                valid_zones.map((id) => requestSpacesForZone(id)),
-            );
+            const zone_ids = this._active_zone_ids(zones);
+            return forkJoin(zone_ids.map((id) => requestSpacesForZone(id)));
         }),
         map((l) => {
             const api_spaces = flatten<Space>(l)
@@ -192,14 +181,8 @@ export class EventsStateService extends AsyncHandler {
         filter(([period]) => !!period),
         debounceTime(300),
         switchMap(([period, zones, date, spaces]) => {
-            if (!zones?.length) return of([]);
-            if (zones[0] === this._org.region?.id) {
-                zones = (this._settings.get('app.use_region')
-                    ? this._org
-                          .buildingsForRegion(this._org.region)
-                          .map((_) => _.id)
-                    : null) || [this._org.building?.id];
-            }
+            zones = this._active_zone_ids(zones);
+            if (!zones.length) return of([]);
             this._loading.next(true);
             const { start, end } = periodFor(
                 period,
@@ -436,7 +419,8 @@ export class EventsStateService extends AsyncHandler {
     public readonly setDate = (date: number) => this._date.next(date);
     public readonly setPeriod = (period: 'day' | 'week' | 'month' | 'list') =>
         this._period.next(period);
-    public readonly setZones = (zones: string[]) => this._zones.next(zones);
+    public readonly setZones = (zones: string[]) =>
+        this._zones.next(this._clean_zone_ids(zones));
     public readonly setEvent = (event: CalendarEvent) =>
         this._event.next(event);
     public readonly setApprovalFilter = (
@@ -472,9 +456,15 @@ export class EventsStateService extends AsyncHandler {
             data: { event },
         });
         const details = await Promise.race([
-            ref.componentInstance.event
-                .pipe(first((_) => _.reason === 'done'))
-                .toPromise(),
+            new Promise((resolve) => {
+                const subscription = ref.componentInstance.event.subscribe(
+                    (details) => {
+                        if (details?.reason !== 'done') return;
+                        subscription.unsubscribe();
+                        resolve(details);
+                    },
+                );
+            }),
             ref.afterClosed().toPromise(),
         ]);
         if (details?.reason !== 'done') return;
@@ -562,5 +552,20 @@ export class EventsStateService extends AsyncHandler {
                 );
             return intersects && has_space && in_zones;
         });
+    }
+
+    private _clean_zone_ids(zones: string[] = []) {
+        return (zones || []).filter((zone_id) => !!zone_id);
+    }
+
+    private _active_zone_ids(zones: string[] = []) {
+        const zone_ids = this._clean_zone_ids(zones);
+        if (zone_ids.length && zone_ids[0] !== this._org.region?.id) {
+            return zone_ids;
+        }
+        const default_zones = this._settings.get('app.use_region')
+            ? this._org.buildingsForRegion(this._org.region).map((_) => _.id)
+            : [this._org.building?.id];
+        return this._clean_zone_ids(default_zones);
     }
 }

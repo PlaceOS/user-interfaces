@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
-import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
@@ -17,7 +17,7 @@ import { StaffTopbarComponent } from './staff-topbar.component';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <staff-topbar class="w-full"></staff-topbar>
                 <staff-listings class="h-0 w-full flex-1"></staff-listings>
-                @if (loading | async) {
+                @if (loading()) {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -38,7 +38,6 @@ import { StaffTopbarComponent } from './staff-topbar.component';
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressBarModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
@@ -49,7 +48,9 @@ import { StaffTopbarComponent } from './staff-topbar.component';
 export class StaffComponent implements OnInit, OnDestroy {
     private _state = inject(StaffStateService);
 
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: false,
+    });
 
     public ngOnInit() {
         this._state.startPolling();

@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
 import { startOfMinute } from 'date-fns';
-import { debounceTime, map } from 'rxjs/operators';
+import { timer } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'a-topbar-header',
@@ -22,13 +24,13 @@ import { debounceTime, map } from 'rxjs/operators';
                     auth
                     class="my-2 h-10"
                     alt="Logo"
-                    [source]="(logo | async)?.src || (logo | async)"
+                    [source]="logo_source()"
                 />
             </a>
             <div
                 class="ml-auto flex h-full flex-col justify-center px-4 text-white"
             >
-                {{ time | date: 'fullDate' }}
+                {{ time() | date: 'fullDate' }}
             </div>
         </div>
     `,
@@ -57,21 +59,21 @@ import { debounceTime, map } from 'rxjs/operators';
 })
 export class TopbarHeaderComponent {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
 
-    public date: number;
-
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
-        ),
+    public readonly logo_dark = settingSignal('logo_dark');
+    public readonly logo_light = settingSignal('logo_light');
+    public readonly logo = computed(() =>
+        this._settings.theme_signal() === 'dark'
+            ? this.logo_dark()
+            : this.logo_light(),
     );
 
-    public get time() {
-        return startOfMinute(Date.now());
-    }
+    public readonly logo_source = computed(
+        () => this.logo()?.src || this.logo(),
+    );
+
+    public readonly time = toSignal(
+        timer(0, 60 * 1000).pipe(map(() => startOfMinute(Date.now()))),
+        { initialValue: startOfMinute(Date.now()) },
+    );
 }

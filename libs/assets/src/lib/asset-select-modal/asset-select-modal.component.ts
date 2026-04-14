@@ -104,8 +104,8 @@ const EMPTY_FAVS: string[] = [];
                     class="clear text-secondary"
                 >
                     <div class="flex items-center">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="mr-1 underline">Back to form</div>
+                        <icon class="text-xl">done</icon>
+                        <div class="mr-1 underline">Confirm Selection</div>
                     </div>
                 </button>
                 <p class="text-sm opacity-60">{{ count }} asset(s) added</p>
@@ -164,9 +164,21 @@ export class AssetSelectModalComponent {
     public requested = this._data.requested;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'assets.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'assets.end_offset',
+        0,
+    );
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_assets',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     public get selected_ids() {
@@ -185,11 +197,8 @@ export class AssetSelectModalComponent {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.assets.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.assets.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
     }

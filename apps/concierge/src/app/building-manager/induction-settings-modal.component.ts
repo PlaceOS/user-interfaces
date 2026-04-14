@@ -98,10 +98,10 @@ export class InductionSettingsModalComponent implements OnInit {
     private _dialog_ref =
         inject<MatDialogRef<InductionSettingsModalComponent>>(MatDialogRef);
 
-    public loading = signal('');
-    public induction_details = '';
-    public is_enabled = false;
-    public settings: Record<string, any> = {};
+    public readonly loading = signal('');
+    public readonly induction_details = signal('');
+    public readonly is_enabled = signal(false);
+    public readonly settings = signal<Record<string, any>>({});
 
     public ngOnInit() {
         if (!this._zone_id) return;
@@ -112,7 +112,6 @@ export class InductionSettingsModalComponent implements OnInit {
         this.loading.set(i18n('APP.CONCIERGE.INDUCTION_LOADING'));
         const visitor_kiosk_app =
             this._settings.get('app.visitor_kiosk_app') || 'visitor-kiosk_app';
-        this.settings = {};
         const [bld_metadata, org_metadata, org_settings] = await Promise.all([
             await lastValueFrom(showMetadata(this._zone_id, visitor_kiosk_app)),
             await lastValueFrom(
@@ -122,13 +121,14 @@ export class InductionSettingsModalComponent implements OnInit {
                 showMetadata(this._org.organisation.id, 'settings'),
             ),
         ]);
-        this.settings = {
+        const settings: Record<string, any> = {
             ...org_settings.details,
             ...org_metadata.details,
             ...bld_metadata.details,
         };
-        this.induction_details = this.settings.induction_details || '';
-        this.is_enabled = this.settings.induction_enabled ?? false;
+        this.settings.set(settings);
+        this.induction_details.set(settings.induction_details || '');
+        this.is_enabled.set(settings.induction_enabled ?? false);
         this.loading.set('');
     }
 
@@ -147,13 +147,13 @@ export class InductionSettingsModalComponent implements OnInit {
         );
         const visitor_metadata = {
             ...metadata.details,
-            induction_details: this.induction_details,
-            induction_enabled: this.is_enabled,
+            induction_details: this.induction_details(),
+            induction_enabled: this.is_enabled(),
         };
         const concierge_metadata = {
-            ...metadata.details,
-            induction_details: this.induction_details,
-            induction_enabled: this.is_enabled,
+            ...con_metadata.details,
+            induction_details: this.induction_details(),
+            induction_enabled: this.is_enabled(),
         };
         const result_visitor = await lastValueFrom(
             updateMetadata(this._zone_id, {

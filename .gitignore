@@ -57,9 +57,13 @@ locales.tsv
 
 .nx/cache
 .nx/workspace-data
+.capacitor/
 # Sentry Config File
 .sentryclirc
 .github/instructions/nx.instructions.md
 test-results
 
 refs
+
+.claude/worktrees
+.claude/settings.local.json

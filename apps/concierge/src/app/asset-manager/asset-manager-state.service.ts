@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    deleteAssetGroup,
     generateAssetForm,
     getGroupsWithAssets,
     queryAssetCategories,
@@ -39,6 +38,7 @@ import { SpacesService } from '@placeos/events';
 import {
     PlaceMetadata,
     cleanObject,
+    removeAssetType,
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
@@ -52,6 +52,7 @@ import {
     first,
     map,
     shareReplay,
+    startWith,
     switchMap,
     tap,
 } from 'rxjs/operators';
@@ -94,11 +95,16 @@ export class AssetManagerStateService extends AsyncHandler {
     ]).pipe(
         switchMap(() => {
             this._loading.next(true);
-            return getGroupsWithAssets({ zone_id: this._org.building?.id });
+            return getGroupsWithAssets({
+                zone_id: this._org.building?.id,
+            }).pipe(
+                map((r) => r.data),
+                catchError(() => of([])),
+            );
         }),
         tap((_) => this._loading.next(false)),
         shareReplay(1),
-    ) as any;
+    );
     /** List of available assets */
     public readonly purchase_orders: Observable<AssetPurchaseOrder[]> =
         this._change.pipe(
@@ -208,7 +214,7 @@ export class AssetManagerStateService extends AsyncHandler {
         switchMap(() => queryAssetCategories()),
         map((list) => [
             new AssetCategory({ id: '', name: 'Uncategorised' }),
-            ...list,
+            ...list.data,
         ]),
         shareReplay(1),
     );
@@ -253,6 +259,7 @@ export class AssetManagerStateService extends AsyncHandler {
                   )
                 : list,
         ),
+        startWith([]),
     );
     /** Mapping of available assets to categories */
     public readonly product_mapping = combineLatest([
@@ -270,7 +277,7 @@ export class AssetManagerStateService extends AsyncHandler {
                     : '',
             }));
             const categories = unique(
-                mapped_products.map((i) => i.category_id),
+                mapped_products?.map((i) => i.category_id) || [],
             );
             for (const group of categories) {
                 map[group] = mapped_products.filter(
@@ -384,7 +391,7 @@ export class AssetManagerStateService extends AsyncHandler {
     public async deleteActiveProduct() {
         const item = await nextValueFrom(this.active_product);
         if (!item?.id) return;
-        await deleteAssetGroup(item.id).toPromise();
+        await removeAssetType(item.id).toPromise();
         this._change.next(Date.now());
         notifySuccess('Successfully deleted asset');
     }
@@ -438,7 +445,7 @@ export class AssetManagerStateService extends AsyncHandler {
         if (details?.reason !== 'done') return;
         this.updateConfig(this._org.building.id, details.metadata).then(
             () => ref.close(),
-            () => (ref.componentInstance.loading = false),
+            () => ref.componentInstance.loading.set(false),
         );
     }
 

@@ -4,16 +4,8 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    input,
-    OnChanges,
-    signal,
-    SimpleChanges,
-} from '@angular/core';
+
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
@@ -228,7 +220,7 @@ import { SignageStateService } from './signage-state.service';
                     class="flex h-1/2 flex-1 flex-col space-y-2 overflow-auto p-2"
                     id="playlist-list"
                     [cdkDropListData]="media()"
-                    [cdkDropListConnectedTo]="playlist_ids"
+                    [cdkDropListConnectedTo]="playlist_ids()"
                     (cdkDropListDropped)="drop($event)"
                 >
                     @for (item of media(); track item) {
@@ -364,7 +356,6 @@ import { SignageStateService } from './signage-state.service';
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatMenuModule,
@@ -376,7 +367,7 @@ import { SignageStateService } from './signage-state.service';
         MatProgressSpinnerModule,
     ],
 })
-export class SignagePlaylistMediaListComponent implements OnChanges {
+export class SignagePlaylistMediaListComponent {
     private _state = inject(SignageStateService);
     private _router = inject(Router);
     private _clipboard = inject(Clipboard);
@@ -387,12 +378,13 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
     public readonly approved = signal(0);
     public readonly loading = signal(false);
 
-    public playlist_ids: string[] = [];
-
-    private _playlist = signal<string>('');
-
     private _playlists = toSignal(this._state.playlists, { initialValue: [] });
     private _state_media = toSignal(this._state.media, { initialValue: [] });
+    public readonly playlist_ids = computed(() =>
+        new Array(this.playlist_count())
+            .fill(0)
+            .map((_, idx) => `playlist-${idx}`),
+    );
 
     public get is_admin() {
         const groups = currentUser().groups || [];
@@ -412,7 +404,6 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
         if (!playlist) return;
         const list = playlist.items.filter((_) => _ !== item.id);
         await this._state.updatePlaylistMedia(this.playlist(), list);
-        this._playlist.set(this.playlist());
     };
 
     public readonly previewItem = (item: SignageMedia) =>
@@ -434,7 +425,7 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
     };
 
     public readonly selected_playlist = computed(() => {
-        const playlist_id = this._playlist();
+        const playlist_id = this.playlist();
         const list = this._playlists();
         const item = list.find((_) => _.id === playlist_id);
         if (!item && playlist_id) {
@@ -443,14 +434,9 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
         return item;
     });
 
-    private _playlist_media_observable = computed(() => {
-        const playlist = this.selected_playlist();
-        return playlist;
-    });
-
     private _playlist_media = toSignal(
         combineLatest([
-            toObservable(this._playlist_media_observable),
+            toObservable(this.selected_playlist),
             this._state.has_changed,
         ]).pipe(
             map(([playlist]) => playlist),
@@ -492,17 +478,6 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
         );
     }
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.playlist) {
-            this._playlist.set(this.playlist());
-        }
-        if (changes.playlist_count) {
-            this.playlist_ids = new Array(this.playlist_count())
-                .fill(0)
-                .map((_, idx) => `playlist-${idx}`);
-        }
-    }
-
     public animation_name(value: MediaAnimation) {
         switch (value) {
             case MediaAnimation.Cut:
@@ -523,13 +498,12 @@ export class SignagePlaylistMediaListComponent implements OnChanges {
 
     public async drop(event: CdkDragDrop<SignageMedia[]>) {
         if (event.previousIndex === event.currentIndex) return;
-        const id = this._playlist();
+        const id = this.playlist();
         const playlist = this._playlist_media();
         if (!id || !playlist) return;
         const list = [...playlist.items];
         moveItemInArray(list, event.previousIndex, event.currentIndex);
         await this._state.updatePlaylistMedia(id, list);
-        this._playlist.set(this.playlist());
     }
 
     public async copyID(id: string) {

@@ -1,16 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    generateAssetGroupForm,
-    saveAssetGroup,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetGroupForm, saveAssetType } from '@placeos/assets';
 import {
     AssetCategory,
     AsyncHandler,
@@ -23,8 +19,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ImageListFieldComponent } from '@placeos/form-fields';
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { showAssetType } from '@placeos/ts-client';
+import { lastValueFrom } from 'rxjs';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -42,7 +38,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     ? [base_route, 'view', form.value.id]
                     : [base_route, 'list', 'items']
             "
-            [loading]="loading"
+            [loading]="loading()"
             (confirm)="save()"
         >
             <form [formGroup]="form">
@@ -73,12 +69,11 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <mat-select
                             formControlName="category_id"
                             [placeholder]="'COMMON.CATEGORY' | translate"
-                            (click)="current_category = form.value.category_id"
+                            (click)="
+                                current_category.set(form.value.category_id)
+                            "
                         >
-                            @for (
-                                category of categories | async;
-                                track category
-                            ) {
+                            @for (category of categories(); track category) {
                                 <mat-option [value]="category.id">
                                     {{ category.name }}
                                 </mat-option>
@@ -168,7 +163,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         ImageListFieldComponent,
         MatFormFieldModule,
@@ -188,15 +182,17 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
 
     public readonly form = generateAssetGroupForm();
     public refund_lead_days: number | null = null;
-    public readonly new_category = new BehaviorSubject<AssetCategory>(null);
-    public readonly categories = combineLatest([
-        this._state.categories,
-        this.new_category,
-    ]).pipe(
-        map(([list, item]) => (item ? unique([...list, item], 'id') : list)),
-    );
-    public loading = '';
-    public current_category: string;
+    public readonly categories_list = toSignal(this._state.categories, {
+        initialValue: [],
+    });
+    public readonly new_category = signal<AssetCategory | null>(null);
+    public readonly categories = computed(() => {
+        const list = this.categories_list();
+        const item = this.new_category();
+        return item ? unique([...list, item], 'id') : list;
+    });
+    public readonly loading = signal('');
+    public readonly current_category = signal('');
 
     public get base_route() {
         return this._state.base_route;
@@ -207,9 +203,9 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = 'Loading Product Details...';
+                    this.loading.set('Loading Product Details...');
                     const product = await lastValueFrom(
-                        showAssetGroup(params.get('id')),
+                        showAssetType(params.get('id')),
                     ).catch(() => null);
                     if (!product) {
                         notifyError('Unable to load product details.');
@@ -217,34 +213,37 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
                     }
                     this.form.patchValue(product);
                     this.refund_lead_days = (product as any).refund_lead_days ?? null;
-                    this.loading = '';
+                    this.loading.set('');
                 }
             }),
         );
     }
 
     public async newCategory() {
-        this.form.patchValue({ category_id: this.current_category });
+        this.form.patchValue({ category_id: this.current_category() });
         const category = await this._state.editCategory();
         if (!category) return;
-        this.new_category.next(category);
+        this.new_category.set(category);
         this.form.patchValue({ category_id: category.id });
     }
 
     public async save() {
         if (!this.form.valid) return;
-        this.loading = 'Saving Product...';
+        this.loading.set('Saving Product...');
         const data = this.form.value;
-        const save_data = { ...data, refund_lead_days: this.refund_lead_days ?? undefined };
-        const item = await lastValueFrom(saveAssetGroup(save_data as any)).catch(
+        const save_data = {
+            ...data,
+            refund_lead_days: this.refund_lead_days ?? undefined,
+        };
+        const item = await lastValueFrom(saveAssetType(save_data as any)).catch(
             (e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(`Error saving Product: ${e.message}`);
                 throw e;
             },
         );
         this.form.reset();
-        this.loading = '';
+        this.loading.set('');
         this._state.postChange();
         this._router.navigate([this.base_route, 'view', item.id]);
     }

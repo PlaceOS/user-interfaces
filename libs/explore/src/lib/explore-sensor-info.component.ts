@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -31,23 +31,23 @@ let shown_id = '';
             <div
                 class="border-base-200 bg-base-100 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg border p-2 text-xl"
             >
-                @if (temp) {
+                @if (temp()) {
                     <div
                         class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>thermostat</icon>
-                        <div class="">{{ temp }}˚{{ temp_unit }}</div>
+                        <div class="">{{ temp() }}˚{{ temp_unit() }}</div>
                     </div>
                 }
-                @if (humidity) {
+                @if (humidity()) {
                     <div
                         class="flex items-center space-x-2 pr-2 whitespace-nowrap"
                     >
                         <icon>opacity</icon>
-                        <div class="">{{ humidity }}%</div>
+                        <div class="">{{ humidity() }}%</div>
                     </div>
                 }
-                @if (temp > 82) {
+                @if (temp() > 82) {
                     <div
                         class="border-base-200 bg-base-100 absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 rounded-full border"
                     >
@@ -63,17 +63,15 @@ let shown_id = '';
 export class ExploreSensorInfoComponent extends AsyncHandler {
     private _details = inject<SensorInfoData>(MAP_FEATURE_DATA);
 
-    public readonly temp = this._details.temp || 0;
-    public readonly temp_unit = this._details.temp_unit || 'C';
-    public readonly humidity = this._details.humidity || 0;
+    public readonly temp = signal(this._details.temp || 0);
+    public readonly temp_unit = signal(this._details.temp_unit || 'C');
+    public readonly humidity = signal(this._details.humidity || 0);
 
-    public get show() {
-        return shown_id === this._details.id;
-    }
+    public readonly show = computed(() => shown_id === this._details.id);
 
-    public set show(value: boolean) {
+    public readonly setShow = (value: boolean) => {
         this.timeout('show', () => (shown_id = value ? this._details.id : ''));
-    }
+    };
 
     constructor() {
         super();

@@ -1,12 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
-import {
-    AsyncHandler,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     TranslatePipe,
@@ -22,9 +18,9 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
     selector: 'catering-report',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="!!(loading | async)"
-            [has_data]="!!(total_count | async)"
+            (printing)="printing.set($event)"
+            [loading]="!!loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -35,11 +31,7 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
                 <div
                     class="bg-base-200 m-4 flex items-center overflow-hidden rounded-sm p-4"
                 >
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{
@@ -48,14 +40,14 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
                     <catering-report-overall></catering-report-overall>
                     <catering-report-orders
-                        [print]="printing"
+                        [print]="printing()"
                     ></catering-report-orders>
                     <catering-report-items
-                        [print]="printing"
+                        [print]="printing()"
                     ></catering-report-items>
                 } @else {
                     <div
@@ -86,7 +78,6 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
         `,
     ],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatProgressSpinnerModule,
         ReportsOptionsComponent,
@@ -96,64 +87,72 @@ import { CateringReportOverallComponent } from './catering-report-overall.compon
         AuthenticatedImageDirective,
     ],
 })
-export class CateringReportComponent extends AsyncHandler implements OnInit {
+export class CateringReportComponent {
     private _state = inject(ReportsStateService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
+    public readonly printing = signal(false);
+    private readonly _query_params = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+    private readonly _building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    private readonly _stats = toSignal(this._state.stats, {
+        initialValue: {} as any,
+    });
 
-    public readonly total_count = this._state.stats.pipe(
-        map((i) => i.count || 0),
-    );
-    public readonly loading = this._state.loading;
+    public readonly total_count = computed(() => this._stats()?.count || 0);
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public get using_bookings() {
         return this._settings.get('app.catering.use_bookings') == true;
     }
 
-    public ngOnInit() {
-        this.subscription(
-            'bld',
-            this._org.active_building.subscribe(() => {
-                this._state.setOptions({
-                    type: this.using_bookings ? 'catering' : 'events',
-                });
-            }),
-        );
-        this.subscription(
-            'route.query',
-            this._route.queryParamMap.subscribe((params) => {
-                if (params.has('start')) {
-                    this._state.setOptions({ start: +params.get('start') });
-                }
-                if (params.has('end')) {
-                    this._state.setOptions({ end: +params.get('end') });
-                }
-                if (params.has('zones') || params.has('zone_ids')) {
-                    const id_list =
-                        params.get('zones') || params.get('zone_ids');
-                    const zones = id_list.split(',');
-                    if (zones.length) this._state.setOptions({ zones });
-                } else this._state.setOptions({ zones: [] });
-            }),
-        );
-        this._state.setOptions({
-            type: this.using_bookings ? 'catering' : 'events',
+    constructor() {
+        effect(() => {
+            this._building();
+            this._state.setOptions({
+                type: this.using_bookings ? 'catering' : 'events',
+            });
+        });
+
+        effect(() => {
+            const params = this._query_params();
+            if (params.has('start')) {
+                this._state.setOptions({ start: +params.get('start') });
+            }
+            if (params.has('end')) {
+                this._state.setOptions({ end: +params.get('end') });
+            }
+            if (params.has('zones') || params.has('zone_ids')) {
+                const id_list = params.get('zones') || params.get('zone_ids');
+                const zones = id_list.split(',');
+                if (zones.length) this._state.setOptions({ zones });
+            } else {
+                this._state.setOptions({ zones: [] });
+            }
         });
     }
 }

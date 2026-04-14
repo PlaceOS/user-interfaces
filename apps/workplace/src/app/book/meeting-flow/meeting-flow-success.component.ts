@@ -1,18 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { BookingFormService, findNearbyFeature } from '@placeos/bookings';
-import {
-    currentUser,
-    i18n,
-    nextValueFrom,
-    notifyError,
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { EventFormService, SpacePipe } from '@placeos/events';
-import { set } from 'date-fns';
+import { EventFormService } from '@placeos/events';
 
 @Component({
     selector: 'meeting-flow-success',
@@ -103,16 +94,16 @@ export class MeetingFlowSuccessComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
-    private _booking_form = inject(BookingFormService);
     private _router = inject(Router);
-
-    private _space_pipe: SpacePipe = new SpacePipe(this._org);
 
     public readonly loading = signal(false);
     public readonly last_event = this._event_form.last_success;
 
     public get allow_desk_booking() {
-        return this._settings.get('app.features').includes('desks');
+        return (
+            (this._settings.get('app.features') || []).includes('desks') &&
+            this._settings.get('app.events.hide_nearby_desks') !== true
+        );
     }
 
     public get space() {
@@ -136,50 +127,11 @@ export class MeetingFlowSuccessComponent implements OnInit {
     }
 
     public startDeskBooking() {
-        this._router.navigate(['/book', 'desks', 'form']);
-        setTimeout(async () => {
-            this._booking_form.newForm('desk');
-            const space = await this._space_pipe.transform(
-                this.space.id || this.space.email,
-            );
-            const level = this._org.levelWithID(space?.zones);
-            this._booking_form.setOptions({ type: 'desk', zone_id: level?.id });
-            this._booking_form.form.patchValue({
-                date: set(this.last_event().date, {
-                    hours: 8,
-                    minutes: 0,
-                }).valueOf(),
-                duration: 10 * 60,
-                all_day: this.last_event().all_day,
-                booking_type: 'desk',
-                user: currentUser(),
-            });
-            const resources = await nextValueFrom(
-                this._booking_form.available_resources,
-            );
-            const bookable_desks = resources
-                .map((_) => _.map_id || _.id)
-                .filter((i) => i);
-            const nearby = await findNearbyFeature(
-                level.map_id,
-                space?.map_id,
-                bookable_desks,
-            );
-            if (!nearby)
-                return notifyError(i18n('APP.WORKPLACE.MEETING_DESK_ERROR'));
-            const resource = resources.find((_) => _.map_id === nearby);
-            this._booking_form.form.patchValue({
-                date: set(this.last_event().date, {
-                    hours: 8,
-                    minutes: 0,
-                }).valueOf(),
-                duration: 10 * 60,
-                all_day: this.last_event().all_day,
-                booking_type: 'desk',
-                asset_id: nearby,
-                asset_name: resource.name,
-                resources: [resource],
-            });
-        }, 50);
+        this._router.navigate(['/book', 'desk', 'form'], {
+            queryParams: {
+                nearby_space: this.space.id || this.space.email,
+                date: this.last_event().date,
+            },
+        });
     }
 }

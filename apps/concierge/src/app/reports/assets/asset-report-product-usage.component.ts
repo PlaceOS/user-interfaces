@@ -1,13 +1,13 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { AssetsReportService } from './assets-report.service';
 
 @Component({
@@ -39,7 +39,7 @@ import { AssetsReportService } from './assets-report.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="products"
+                [data]="products()"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
@@ -78,33 +78,46 @@ export class AssetReportProductUsageComponent {
     private _state = inject(AssetsReportService);
 
     public readonly print = input(false);
-    public readonly products = this._state.stats$.pipe(
-        map(({ events, bookings, products }) =>
-            products
-                .map((p) => {
-                    const product_bookings = bookings.filter((b) =>
-                        p.assets.find(({ id }) => b.asset_ids.includes(id)),
-                    );
-                    return {
-                        name: p.name,
-                        booking_count: product_bookings.length,
-                        booked_count: product_bookings.reduce(
-                            (acc, b) =>
-                                acc +
-                                b.asset_ids.filter((asset_id) =>
-                                    p.assets.find(({ id }) => asset_id === id),
-                                ).length,
-                            0,
-                        ),
-                        asset_count: p.assets.length,
-                    };
-                })
-                .filter((p) => p.booking_count > 0),
-        ),
-    );
+    private readonly _stats = toSignal(this._state.stats$, {
+        initialValue: {
+            events: [],
+            bookings: [],
+            products: [],
+            booking_count: 0,
+            event_count: 0,
+            total_booked_items: 0,
+            unique_items: 0,
+            products_booked: [],
+        },
+    });
+    public readonly products = computed(() => {
+        const { bookings, products } = this._stats();
+        return products
+            .map((p) => {
+                const product_bookings = bookings.filter((b) =>
+                    p.assets.find(({ id }) => b.asset_ids.includes(id)),
+                );
+                return {
+                    name: p.name,
+                    booking_count: product_bookings.length,
+                    booked_count: product_bookings.reduce(
+                        (acc, b) =>
+                            acc +
+                            b.asset_ids.filter((asset_id) =>
+                                p.assets.find(({ id }) => asset_id === id),
+                            ).length,
+                        0,
+                    ),
+                    asset_count: p.assets.length,
+                };
+            })
+            .filter((p) => p.booking_count > 0);
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.products);
-        downloadFile('report-assets-product-usage.csv', jsonToCsv(data));
+        downloadFile(
+            'report-assets-product-usage.csv',
+            jsonToCsv(this.products()),
+        );
     };
 }

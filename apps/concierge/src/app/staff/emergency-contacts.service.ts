@@ -1,12 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import {
-    deleteAsset,
-    queryAssetCategories,
-    queryAssetGroups,
     queryAssets,
     saveAsset,
     saveAssetCategory,
-    saveAssetGroup,
+    saveAssetType,
 } from '@placeos/assets';
 import {
     Asset,
@@ -19,7 +16,14 @@ import {
     randomString,
     unique,
 } from '@placeos/common';
-import { cleanObject, showMetadata, updateMetadata } from '@placeos/ts-client';
+import {
+    cleanObject,
+    queryAssetCategories,
+    queryAssetTypes,
+    removeAsset,
+    showMetadata,
+    updateMetadata,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, firstValueFrom, of } from 'rxjs';
 import {
     catchError,
@@ -61,7 +65,8 @@ export class EmergencyContactsService {
     ]).pipe(
         filter(([bld]) => !!bld),
         switchMap(([bld]) =>
-            queryAssetCategories({ zone_id: bld.id }).pipe(
+            queryAssetCategories({ zone_id: bld.id } as any).pipe(
+                map((_) => _.data),
                 catchError(() => of([] as AssetCategory[])),
             ),
         ),
@@ -83,7 +88,8 @@ export class EmergencyContactsService {
         filter(([bld]) => !!bld),
         switchMap(([bld, category]) => {
             if (!category) return of(null as AssetGroup | null);
-            return queryAssetGroups({ zone_id: bld.id, q: category.name }).pipe(
+            return queryAssetTypes({ zone_id: bld.id, q: category.name }).pipe(
+                map((_) => _.data),
                 catchError(() => of([] as AssetGroup[])),
                 map(
                     (groups) =>
@@ -112,6 +118,7 @@ export class EmergencyContactsService {
                 type_id: assetType.id,
                 limit: 200,
             }).pipe(
+                map((_) => _.data),
                 catchError(() => of([] as Asset[])),
                 map((assets) =>
                     assets
@@ -173,7 +180,8 @@ export class EmergencyContactsService {
         if (!bld) return null;
 
         const categories = await firstValueFrom(
-            queryAssetCategories({ zone_id: bld.id }).pipe(
+            queryAssetCategories({ zone_id: bld.id } as any).pipe(
+                map((_) => _.data),
                 catchError(() => of([] as AssetCategory[])),
             ),
         );
@@ -213,7 +221,8 @@ export class EmergencyContactsService {
         if (!bld || !category) return null;
 
         const groups = await firstValueFrom(
-            queryAssetGroups({ zone_id: bld.id, q: category.name }).pipe(
+            queryAssetTypes({ zone_id: bld.id, q: category.name }).pipe(
+                map((_) => _.data),
                 catchError(() => of([] as AssetGroup[])),
             ),
         );
@@ -228,7 +237,7 @@ export class EmergencyContactsService {
         // Create the asset type
         try {
             const new_group = await firstValueFrom(
-                saveAssetGroup({
+                saveAssetType({
                     name: EMERGENCY_CONTACTS_CATEGORY_NAME,
                     category_id: category.id,
                     zone_id: bld.id,
@@ -362,7 +371,7 @@ export class EmergencyContactsService {
     /** Delete an emergency contact */
     public async deleteContact(contact_id: string): Promise<boolean> {
         try {
-            await firstValueFrom(deleteAsset(contact_id));
+            await firstValueFrom(removeAsset(contact_id));
             this._change.next(Date.now());
             notifySuccess(
                 i18n('APP.CONCIERGE.CONTACTS_DELETE_SUCCESS') ||

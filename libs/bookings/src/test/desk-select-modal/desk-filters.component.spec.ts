@@ -16,6 +16,7 @@ import {
     Region,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of } from 'rxjs';
 import { DeskFiltersComponent } from '../../lib/desk-select-modal/desk-filters.component';
@@ -27,7 +28,7 @@ describe('DeskFiltersComponent', () => {
         shallow: true,
         providers: [
             MockProvider(MatBottomSheetRef, { dismiss: jest.fn() }),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(OrganisationService, {
                 active_building: new BehaviorSubject(new Building({ id: '1' })),
                 active_buildings: of([new Building({ id: '1' })]),
@@ -78,8 +79,16 @@ describe('DeskFiltersComponent', () => {
     it('should allow setting all day', () => {
         expect('[formControlName="all_day"]').not.toExist();
         (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => true,
+            (key: string) => {
+                if (
+                    key === 'app.desks.bookable_hours' ||
+                    key === 'app.bookings.bookable_hours'
+                )
+                    return undefined;
+                return true;
+            },
         );
+        spectator = createComponent();
         spectator.detectChanges();
         expect('[formControlName="all_day"]').toExist();
     });
@@ -87,6 +96,6 @@ describe('DeskFiltersComponent', () => {
     it('should allow closing', () => {
         expect('button[name="close-desk-filters"]').toExist();
         spectator.click('button[name="close-desk-filters"]');
-        expect(spectator.inject(MatBottomSheetRef).dismiss).toBeCalled();
+        expect(spectator.inject(MatBottomSheetRef).dismiss).toHaveBeenCalled();
     });
 });

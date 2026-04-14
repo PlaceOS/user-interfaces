@@ -36,10 +36,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                         <button
                             matRipple
                             class="hover:bg-base-200 my-1 flex w-full items-center space-x-2 rounded-r-full p-1"
-                            (click)="
-                                show_block[link.id || link._id] =
-                                    !show_block[link.id || link._id]
-                            "
+                            (click)="toggleBlock(link.id || link._id)"
                         >
                             <icon class="text-2xl text-gray-600">
                                 {{ link.icon }}
@@ -54,7 +51,7 @@ import { debounceTime, filter } from 'rxjs/operators';
                         <section
                             class="w-full overflow-hidden"
                             [@show]="
-                                !show_block[link.id || link._id]
+                                !isBlockCollapsed(link.id || link._id)
                                     ? 'show'
                                     : 'hide'
                             "
@@ -103,7 +100,7 @@ export class ApplicationSidebarComponent
     private _org = inject(OrganisationService);
     private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    public show_block: Record<string, boolean> = {};
+    public readonly show_block = signal<Record<string, boolean>>({});
     public links = [];
 
     public filtered_links = signal([]);
@@ -288,6 +285,11 @@ export class ApplicationSidebarComponent
                 icon: 'analytics',
                 children: [
                     {
+                        id: 'attendance-report',
+                        name: i18n('APP.CONCIERGE.MENU_REPORT_SITE_ATTENDANCE'),
+                        route: ['/reports/attendance'],
+                    },
+                    {
                         id: 'booking-report',
                         name: 'Venue Bookings',
                         route: ['/reports/bookings'],
@@ -409,6 +411,17 @@ export class ApplicationSidebarComponent
                 links.filter((_) => _.id !== 'facilities'),
             );
         }
+    }
+
+    public toggleBlock(id: string) {
+        this.show_block.update((state) => ({
+            ...state,
+            [id]: !state[id],
+        }));
+    }
+
+    public isBlockCollapsed(id: string) {
+        return !!this.show_block()[id];
     }
 
     public _moveActiveLinkIntoView() {

@@ -1,6 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -48,6 +48,7 @@ import {
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
+import { startWith } from 'rxjs/operators';
 import { EventStateService } from './event-state.service';
 import { ServicesStateService } from '../services/services-state.service';
 
@@ -117,7 +118,7 @@ const EMPTY = [];
                         >
                             <mat-label>{{ 'COMMON.TAGS' | translate }}</mat-label>
                             <mat-chip-grid #chipList aria-label="Event Tags">
-                                @for (tag of tag_list; track tag) {
+                                @for (tag of tag_list(); track tag) {
                                     <mat-chip-row
                                         [removable]="true"
                                         (removed)="removeTag(tag)"
@@ -190,7 +191,7 @@ const EMPTY = [];
                                 <a-date-field
                                     name="date"
                                     formControlName="date_end"
-                                    [from]="start_date"
+                                    [from]="start_date()"
                                     [to]="end_date"
                                 >
                                     {{ 'FORM.DATE_ERROR' | translate }}
@@ -266,12 +267,12 @@ const EMPTY = [];
                                 />
                             </mat-form-field>
                             <mat-autocomplete #auto="matAutocomplete">
-                                @for (tz of filtered_timezones; track tz) {
+                                @for (tz of filtered_timezones(); track tz) {
                                     <mat-option [value]="tz">
                                         {{ tz }}
                                     </mat-option>
                                 }
-                                @if (!timezones.length) {
+                                @if (!filtered_timezones().length) {
                                     <mat-option [disabled]="true">
                                         {{
                                             'COMMON.TIMEZONE_EMPTY' | translate
@@ -366,7 +367,7 @@ const EMPTY = [];
                                     "
                                 >
                                     @for (
-                                        building of building_list | async;
+                                        building of building_list();
                                         track building
                                     ) {
                                         <mat-option [value]="building">
@@ -397,7 +398,7 @@ const EMPTY = [];
                                             "
                                         >
                                             @for (
-                                                level of active_levels | async;
+                                                level of active_levels();
                                                 track level
                                             ) {
                                                 <mat-option [value]="level">
@@ -422,8 +423,7 @@ const EMPTY = [];
                                                 standalone: true,
                                             }"
                                             [disabled]="
-                                                (available_spaces | async)
-                                                    ?.length === 0
+                                                available_spaces().length === 0
                                             "
                                             [placeholder]="
                                                 'COMMON.ROOM_SELECT' | translate
@@ -435,8 +435,7 @@ const EMPTY = [];
                                                 }}</i></mat-option
                                             >
                                             @for (
-                                                room of available_spaces
-                                                    | async;
+                                                room of available_spaces();
                                                 track room
                                             ) {
                                                 <mat-option
@@ -716,7 +715,6 @@ const EMPTY = [];
     `,
     styles: [``],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,
@@ -748,13 +746,14 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
     private _services_state = inject(ServicesStateService);
 
     public readonly loading = signal(false);
-    public timezones: string[] = [];
     public resource: string;
-    public filtered_timezones: string[] = [];
 
     public readonly form = this._form_state.form;
+    private readonly _form_value = toSignal(
+        this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
+        { initialValue: this.form.getRawValue() },
+    );
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
-
     public readonly selected_services = signal<string[]>([]);
     public readonly service_rate_type = signal<'internal' | 'external'>(
         'internal',
@@ -782,13 +781,28 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
             }))
             .filter((g) => g.items.length > 0);
     });
-    public readonly building_list = this._org.building_list;
-    public readonly active_levels = this._org.active_levels;
-    public readonly available_spaces = this._form_state.available_spaces;
-
-    public get tag_list() {
-        return this.form.getRawValue().tags || EMPTY;
-    }
+    public readonly building_list = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
+    public readonly active_levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
+    public readonly available_spaces = toSignal(
+        this._form_state.available_spaces,
+        {
+            initialValue: [],
+        },
+    );
+    public readonly tag_list = computed(
+        () => this._form_value()?.tags || EMPTY,
+    );
+    public readonly filtered_timezones = computed(() => {
+        const timezone = this._form_value()?.timezone || '';
+        return TIMEZONES_IANA.filter((_) =>
+            _.toLowerCase().includes(timezone.toLowerCase()),
+        );
+    });
+    public readonly start_date = computed(() => this._form_value()?.date);
 
     public get max_duration() {
         return this._settings.get('app.events.max_duration') || 480;
@@ -796,10 +810,6 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
 
     public get use_24hr() {
         return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get start_date() {
-        return this.form?.getRawValue()?.date;
     }
 
     public get end_date() {
@@ -823,8 +833,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
 
     public get level_zone() {
         const zones = this._form_state.options.zones || [];
-        const level = this._org.levelWithID(zones);
-        return level;
+        return this._org.levelWithID(zones);
     }
 
     public readonly duration_info = (time: number) => {
@@ -909,11 +918,6 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        this._updateTimezoneList();
-        this.subscription(
-            'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
-        );
     }
 
     public setBuilding(bld: Building) {
@@ -938,7 +942,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         if (!this.form || !this.form.controls.tags) return;
         const input = event.chipInput.inputElement;
         const value = event.value;
-        const feature_list = this.tag_list;
+        const feature_list = [...this.tag_list()];
         if ((value || '').trim()) {
             feature_list.push(value);
             this.form.controls.tags.setValue(feature_list);
@@ -952,7 +956,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
      */
     public removeTag(existing_tag: string): void {
         if (!this.form || !this.form.controls.tags) return;
-        const tag_list = this.tag_list;
+        const tag_list = [...this.tag_list()];
         const index = tag_list.indexOf(existing_tag);
 
         if (index >= 0) {
@@ -1048,13 +1052,5 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
                 queryParams: { range: startOfDay(date).valueOf() },
             });
         }
-    }
-
-    private _updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones = TIMEZONES_IANA;
-        this.filtered_timezones = this.timezones.filter((_) =>
-            _.toLowerCase().includes(timezone.toLowerCase()),
-        );
     }
 }

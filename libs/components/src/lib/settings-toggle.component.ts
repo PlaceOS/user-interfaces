@@ -1,4 +1,4 @@
-import { Component, forwardRef, input } from '@angular/core';
+import { Component, forwardRef, input, signal } from '@angular/core';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -14,12 +14,9 @@ import { IconComponent } from './icon.component';
         <button
             matRipple
             class="hover:bg-base-200 relative flex flex-1 items-center space-x-2 overflow-hidden rounded-sm border py-1 pr-1 pl-2"
-            [class.border-base-300]="!value"
-            [class.border-info]="value"
-            (click)="setValue(!value)"
-            role="switch"
-            [attr.aria-checked]="!!value"
-            [attr.aria-label]="name()"
+            [class.border-base-300]="!value()"
+            [class.border-info]="value()"
+            (click)="setValue(!value())"
         >
             <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
                 <div>
@@ -30,7 +27,7 @@ import { IconComponent } from './icon.component';
                     <icon [matTooltip]="info()">info</icon>
                 }
             </div>
-            @if (value) {
+            @if (value()) {
                 <div class="bg-info absolute inset-0 z-0 m-0! opacity-10"></div>
             }
             @if (toggle()) {
@@ -38,24 +35,24 @@ import { IconComponent } from './icon.component';
                     <div
                         toggle
                         class="border-base-400 relative h-8 w-12 rounded-full border-2"
-                        [class.bg-base-200]="!value"
-                        [class.bg-info]="value"
-                        [class.border-info!]="value"
+                        [class.bg-base-200]="!value()"
+                        [class.bg-info]="value()"
+                        [class.border-info!]="value()"
                     >
                         <div
                             class="absolute top-1/2 flex h-6 w-6 -translate-x-0.5 -translate-y-1/2 items-center justify-center rounded-full text-black shadow-sm"
-                            [class.left-1]="!value"
-                            [class.left-5]="value"
-                            [class.bg-base-400]="!value"
-                            [class.bg-info-light]="value"
+                            [class.left-1]="!value()"
+                            [class.left-5]="value()"
+                            [class.bg-base-400]="!value()"
+                            [class.bg-info-light]="value()"
                         >
-                            <icon>{{ value ? 'done' : 'remove' }}</icon>
+                            <icon>{{ value() ? 'done' : 'remove' }}</icon>
                         </div>
                     </div>
                 </div>
             } @else {
                 <mat-checkbox
-                    [(ngModel)]="value"
+                    [ngModel]="value()"
                     (ngModelChange)="setValue($event)"
                     class="pointer-events-none"
                 ></mat-checkbox>
@@ -89,7 +86,7 @@ export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly name = input<string>(undefined);
     public readonly info = input<string>(undefined);
 
-    public value: boolean;
+    public value = signal<boolean>(undefined);
 
     /** Form control on change handler */
     private _onChange: (_: boolean) => void;
@@ -104,7 +101,7 @@ export class SettingsToggleComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: boolean): void {
-        this.value = new_value;
+        this.value.set(new_value);
         /* istanbul ignore else */
         if (this._onChange) this._onChange(new_value);
     }
@@ -115,6 +112,6 @@ export class SettingsToggleComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: boolean) {
-        this.value = value;
+        this.value.set(value);
     }
 }

@@ -1,15 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, input, output } from '@angular/core';
+import {
+    Component,
+    DestroyRef,
+    inject,
+    input,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import {
+    takeUntilDestroyed,
+    toObservable,
+    toSignal,
+} from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import {
-    AsyncHandler,
-    BuildingLevel,
-    SettingsService,
-    Space,
-} from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BuildingLevel, SettingsService, Space } from '@placeos/common';
+import { combineLatest } from 'rxjs';
 import { debounceTime, map, tap } from 'rxjs/operators';
 
 import { OrganisationService } from '@placeos/common';
@@ -23,7 +30,7 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
 @Component({
     selector: `new-space-map`,
     template: `
-        @if ((levels | async)?.length) {
+        @if (levels()?.length) {
             <div class="border-base-200 bg-base-100 w-full border-b p-2">
                 <mat-form-field
                     appearance="outline"
@@ -39,10 +46,10 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
                             'CALENDAR_EVENT.SPACE_LEVEL_ANY' | translate
                         "
                     >
-                        @for (lvl of levels | async; track lvl) {
+                        @for (lvl of levels(); track lvl) {
                             <mat-option [value]="lvl">
                                 <div class="flex flex-col-reverse">
-                                    @if (use_region) {
+                                    @if (use_region()) {
                                         <div class="text-xs opacity-30">
                                             {{
                                                 (lvl.parent_id | building)
@@ -66,9 +73,9 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
                 [src]="map_url"
                 [(zoom)]="zoom"
                 [(center)]="center"
-                [styles]="styles | async"
-                [features]="features | async"
-                [actions]="actions | async"
+                [styles]="styles()"
+                [features]="features()"
+                [actions]="actions()"
                 [options]="{ controls: true }"
             ></interactive-map>
         </div>
@@ -84,7 +91,6 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
         `,
     ],
     imports: [
-        CommonModule,
         InteractiveMapComponent,
         MatFormFieldModule,
         MatSelectModule,
@@ -93,10 +99,12 @@ import { NewSpaceLocationPinComponent } from './new-space-location-pin.component
         BuildingPipe,
     ],
 })
-export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
+export class NewSpaceMapComponent implements OnInit {
     private _event_form = inject(EventFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _destroy_ref = inject(DestroyRef);
+    private readonly _use_region = this._settings.signal('use_region', false);
 
     public readonly selected = input<string[]>([]);
     public readonly active = input<string>(undefined);
@@ -109,21 +117,21 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
 
     private _seletedSpace = (s) => () => {
         this.onSelect.emit(s);
-        this._change.next(Date.now());
+        this._change.set(Date.now());
     };
     public level: BuildingLevel = null;
-    private _change = new BehaviorSubject(0);
+    private _change = signal(0);
 
     public get map_url() {
         return this.level?.map_id || '';
     }
 
-    public readonly levels = combineLatest([
+    private readonly _levels$ = combineLatest([
         this._org.active_region,
         this._org.active_building,
     ]).pipe(
         map(([region, bld]) => {
-            const level_list = this.use_region
+            const level_list = this.use_region()
                 ? this._org.levelsForRegion(region)
                 : this._org.levelsForBuilding(bld);
             const viewable_levels = level_list.filter(
@@ -141,11 +149,17 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
         tap((l) => console.log('Levels:', l)),
     );
 
+    public readonly levels = toSignal(this._levels$, {
+        initialValue: [] as BuildingLevel[],
+    });
+
     public readonly setOptions = (o) => this._event_form.setOptions(o);
 
-    public readonly features = combineLatest([
+    private readonly _change$ = toObservable(this._change);
+
+    private readonly _features$ = combineLatest([
         this._event_form.available_spaces,
-        this._change,
+        this._change$,
     ]).pipe(
         debounceTime(300),
         map(([l]) =>
@@ -161,7 +175,9 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public readonly actions = this._event_form.available_spaces.pipe(
+    public readonly features = toSignal(this._features$, { initialValue: [] });
+
+    private readonly _actions$ = this._event_form.available_spaces.pipe(
         map((l) =>
             l.map((space) => ({
                 id: space.map_id,
@@ -171,7 +187,9 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public readonly styles = combineLatest([
+    public readonly actions = toSignal(this._actions$, { initialValue: [] });
+
+    private readonly _styles$ = combineLatest([
         this._event_form.spaces$,
         this._event_form.available_spaces,
     ]).pipe(
@@ -192,22 +210,16 @@ export class NewSpaceMapComponent extends AsyncHandler implements OnInit {
         ),
     );
 
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
-    }
-
-    constructor() {
-        super();
-    }
+    public readonly styles = toSignal(this._styles$, { initialValue: {} });
+    public readonly use_region = this._use_region;
 
     public ngOnInit() {
-        this.subscription(
-            'levels_update',
-            this._event_form.options$.subscribe(({ zones }) => {
+        this._event_form.options$
+            .pipe(takeUntilDestroyed(this._destroy_ref))
+            .subscribe(({ zones }) => {
                 const level = this._org.levelWithID(zones);
                 if (level) this.level = level;
-            }),
-        );
+            });
     }
 
     public setLevel(level: BuildingLevel) {

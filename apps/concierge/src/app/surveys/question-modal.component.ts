@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -39,22 +38,21 @@ import { QuestionComponent } from './question.component';
             <placeos-question
                 #question_el
                 [is_card]="false"
-                [question]="question"
+                [question]="question()"
             ></placeos-question>
         </main>
         <footer class="flex flex-row justify-end space-x-2 px-4 py-2">
             <button
                 btn
                 matRipple
-                [disabled]="!question_el?.valid"
+                [disabled]="!question_el?.valid()"
                 (click)="save()"
             >
-                {{ is_edit ? 'Update' : 'Add to bank' }}
+                {{ is_edit() ? 'Update' : 'Add to bank' }}
             </button>
         </footer>
     `,
     imports: [
-        CommonModule,
         QuestionComponent,
         TranslatePipe,
         MatRippleModule,
@@ -68,22 +66,21 @@ export class QuestionModalComponent implements OnInit {
 
     public readonly question_el = viewChild<QuestionComponent>('question_el');
 
-    public is_edit = false;
-    public loading = false;
-    public question: SurveyQuestion;
+    public readonly is_edit = signal(false);
+    public readonly loading = signal(false);
+    public readonly question = signal<SurveyQuestion | undefined>(undefined);
 
     public ngOnInit() {
-        this.is_edit = !!(this._data?.id > 0);
-        this.question = this._data || new SurveyQuestion({ type: 'text' });
-        console.log('Data', this._data, this.question);
+        this.is_edit.set(!!(this._data?.id > 0));
+        this.question.set(this._data || new SurveyQuestion({ type: 'text' }));
     }
 
     public async save() {
         const question_el = this.question_el();
-        if (!question_el.valid) return;
-        this.loading = true;
-        const call = this.is_edit
-            ? updateQuestion(`${this.question.id}`, question_el.question())
+        if (!question_el?.valid()) return;
+        this.loading.set(true);
+        const call = this.is_edit()
+            ? updateQuestion(`${this.question().id}`, question_el.question())
             : addQuestion(question_el.question());
         await lastValueFrom(call);
         this._dialog_ref.close(true);

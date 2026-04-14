@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -7,11 +7,10 @@ import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticat
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BookingAsset, BookingFormService } from '../booking-form.service';
 import { loadLockerBanks, loadLockers } from '../booking.utilities';
-import { Locker, LockerBank } from '../locker.class';
 
 @Component({
     selector: 'locker-bank-list',
@@ -31,16 +30,13 @@ import { Locker, LockerBank } from '../locker.class';
         <p count class="mb-4 text-sm opacity-60">
             {{
                 'COMMON.RESULTS_COUNT'
-                    | translate: { count: (locker_banks | async)?.length || 0 }
+                    | translate: { count: locker_banks()?.length || 0 }
             }}
         </p>
-        @if (!(loading | async)?.length) {
-            @if ((locker_banks | async)?.length) {
+        @if (!loading()?.length) {
+            @if (locker_banks()?.length) {
                 <ul class="list-style-none space-y-2 overflow-hidden">
-                    @for (
-                        locker_bank of locker_banks | async;
-                        track locker_bank
-                    ) {
+                    @for (locker_bank of locker_banks(); track locker_bank) {
                         <li
                             locker_bank
                             class="border-base-200 bg-base-100 relative w-full overflow-hidden rounded-lg border shadow-sm"
@@ -177,7 +173,6 @@ import { Locker, LockerBank } from '../locker.class';
         }
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatRippleModule,
@@ -196,57 +191,63 @@ export class LockerBankListComponent {
     public readonly favorites = input<string[]>([]);
     public readonly onSelect = output<BookingAsset>();
     public readonly toggleFav = output<BookingAsset>();
+    private readonly _use_region = this._settings.signal('use_region', false);
 
-    public readonly lockers_banks$: Observable<LockerBank[]> = loadLockerBanks(
+    private readonly _lockers_banks$ = loadLockerBanks(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
-        () => this._settings.get('app.use_region'),
+        () => this._use_region(),
     );
 
-    public readonly lockers$: Observable<Locker[]> = loadLockers(
+    private readonly _lockers$ = loadLockers(
         this._org,
         combineLatest([this._org.active_building, this._org.active_region]),
-        this.lockers_banks$,
-        () => this._settings.get('app.use_region'),
+        this._lockers_banks$,
+        () => this._use_region(),
     );
 
-    public readonly locker_banks = combineLatest([
-        this._state.options,
-        this._state.available_resources,
-        this.lockers_banks$,
-        this.lockers$,
-    ]).pipe(
-        map(([{ show_fav, show_accessible }, resources, banks]) => {
-            return banks
-                .filter(
-                    (i) =>
-                        (!show_fav || this.isFavourite(i.id)) &&
-                        (!show_accessible ||
-                            i.lockers.find((_) => _.accessible)) &&
-                        resources.find((_: any) => _.bank_id === i.id),
-                )
-                .map((bank) => {
-                    const locker_list = bank.lockers.map((_) => ({
-                        ..._,
-                        available:
-                            !!resources.find((lkr) => lkr.id === _.id) &&
-                            (!show_accessible || _.accessible),
-                        map_id: bank.map_id || bank.id,
-                        zone: bank.zone,
-                        zones: bank.zones,
-                    }));
-                    return {
-                        ...bank,
-                        available: locker_list.reduce(
-                            (c, l) => c + (l.available ? 1 : 0),
-                            0,
-                        ),
-                        lockers: locker_list,
-                    };
-                });
-        }),
+    public readonly locker_banks = toSignal(
+        combineLatest([
+            this._state.options,
+            this._state.available_resources,
+            this._lockers_banks$,
+            this._lockers$,
+        ]).pipe(
+            map(([{ show_fav, show_accessible }, resources, banks]) => {
+                return banks
+                    .filter(
+                        (i) =>
+                            (!show_fav || this.isFavourite(i.id)) &&
+                            (!show_accessible ||
+                                i.lockers.find((_) => _.accessible)) &&
+                            resources.find((_: any) => _.bank_id === i.id),
+                    )
+                    .map((bank) => {
+                        const locker_list = bank.lockers.map((_) => ({
+                            ..._,
+                            available:
+                                !!resources.find((lkr) => lkr.id === _.id) &&
+                                (!show_accessible || _.accessible),
+                            map_id: bank.map_id || bank.id,
+                            zone: bank.zone,
+                            zones: bank.zones,
+                        }));
+                        return {
+                            ...bank,
+                            available: locker_list.reduce(
+                                (c, l) => c + (l.available ? 1 : 0),
+                                0,
+                            ),
+                            lockers: locker_list,
+                        };
+                    });
+            }),
+        ),
+        { initialValue: [] },
     );
-    public readonly loading = this._state.loading;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
 
     public isFavourite(locker_bank_id: string) {
         return this.favorites().includes(locker_bank_id);

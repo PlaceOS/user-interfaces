@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
@@ -7,20 +8,20 @@ import {
     AuthenticatedImageDirective,
     TranslatePipe,
 } from '@placeos/components';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import {
+    AssetManagerStateService,
+    AssetOptions,
+} from './asset-manager-state.service';
 
 @Component({
     selector: 'app-asset-item-list',
     template: `
         <div
             class="h-full w-full overflow-auto pb-2"
-            *ngIf="
-                (categories | async)?.length && (products | async)?._count;
-                else empty_state
-            "
+            *ngIf="categories().length && products()._count; else empty_state"
         >
-            <ng-container *ngFor="let group of categories | async">
-                <div class="" *ngIf="(products | async)[group.id]?.length">
+            <ng-container *ngFor="let group of categories()">
+                <div class="" *ngIf="products()[group.id]?.length">
                     <h2 class="py-2">
                         <span class="font-medium">{{ group?.name }}</span>
                         <span class="text-xs">
@@ -28,14 +29,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'COMMON.ITEM_COUNT'
                                     | translate
                                         : {
-                                              count: (products | async)[
-                                                  group.id
-                                              ]?.length,
+                                              count: products()[group.id]
+                                                  ?.length,
                                           }
                             }})
                         </span>
                     </h2>
-                    <ng-container [ngSwitch]="(options | async).view">
+                    <ng-container [ngSwitch]="options().view">
                         <ng-container *ngSwitchCase="'list'">
                             <div
                                 class="divide-base-200 border-base-200 bg-base-100 divide-y overflow-hidden rounded-sm border"
@@ -43,11 +43,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 <a
                                     matRipple
                                     class="border-base-200 flex items-center space-x-4 rounded-sm border p-4 text-left hover:border-indigo-400"
-                                    *ngFor="
-                                        let asset of (products | async)[
-                                            group.id
-                                        ]
-                                    "
+                                    *ngFor="let asset of products()[group.id]"
                                     [routerLink]="[
                                         base_route,
                                         'view',
@@ -106,11 +102,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 <a
                                     matRipple
                                     class="border-base-200 bg-base-100 m-2 flex h-44 w-40 flex-col rounded-sm border text-left shadow-sm hover:border-indigo-400"
-                                    *ngFor="
-                                        let asset of (products | async)[
-                                            group.id
-                                        ]
-                                    "
+                                    *ngFor="let asset of products()[group.id]"
                                     [routerLink]="[
                                         base_route,
                                         'view',
@@ -166,14 +158,14 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
             </ng-container>
         </div>
-        <mat-progress-bar *ngIf="loading | async" mode="indeterminate" />
+        <mat-progress-bar *ngIf="loading()" mode="indeterminate" />
         <ng-template #empty_state>
             <div
                 class="flex h-full w-full flex-col items-center justify-center space-y-4 p-8"
             >
                 <p class="opacity-60">
                     {{
-                        (options | async)?.search
+                        options().search
                             ? 'No matching assets found'
                             : 'No assets available. Create a new asset with the button below'
                     }}
@@ -181,7 +173,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 <a
                     btn
                     matRipple
-                    *ngIf="!(options | async)?.search"
+                    *ngIf="!options().search"
                     [routerLink]="[base_route, 'manage', 'group']"
                 >
                     Create New Product
@@ -210,10 +202,18 @@ import { AssetManagerStateService } from './asset-manager-state.service';
 export class AssetItemListComponent {
     private _state = inject(AssetManagerStateService);
 
-    public readonly loading = this._state.loading;
-    public readonly options = this._state.options;
-    public readonly categories = this._state.categories;
-    public readonly products = this._state.product_mapping;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: false,
+    });
+    public readonly options = toSignal(this._state.options, {
+        initialValue: { view: 'grid' } as AssetOptions,
+    });
+    public readonly categories = toSignal(this._state.categories, {
+        initialValue: [],
+    });
+    public readonly products = toSignal(this._state.product_mapping, {
+        initialValue: { _count: 0 },
+    });
 
     public get base_route() {
         return this._state.base_route;

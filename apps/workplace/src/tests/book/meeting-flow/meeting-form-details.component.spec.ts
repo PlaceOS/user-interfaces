@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
-import { SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
 import {
@@ -17,15 +17,26 @@ import {
     HostSelectFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { MeetingFormDetailsComponent } from 'apps/workplace/src/app/book/meeting-flow/meeting-form-details.component';
 import { MockProvider } from 'ng-mocks';
+
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
+    const settings_values: Record<string, any> = {};
+    const lookup_setting = (key: string, fallback?) =>
+        key in settings_values ? settings_values[key] : fallback;
     const createComponent = createRoutingFactory({
         component: MeetingFormDetailsComponent,
         providers: [
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, {
+                get: jest.fn((key: string) => lookup_setting(key)),
+                signal: jest.fn(
+                    (key: string, fallback?) => () =>
+                        lookup_setting(key, fallback),
+                ),
+            }),
+            MockProvider(OrganisationService, { building: { timezone: '' } }),
             MockProvider(EventFormService, { is_multiday: false }),
         ],
         declarations: [
@@ -44,12 +55,20 @@ describe('MeetingFormDetailsComponent', () => {
     });
 
     beforeEach(() => {
+        for (const key of Object.keys(settings_values))
+            delete settings_values[key];
         spectator = createComponent();
         spectator.setInput({
             form: new FormGroup({
                 title: new FormControl(),
                 date: new FormControl(),
+                date_end: new FormControl(),
                 duration: new FormControl(),
+                all_day: new FormControl(false),
+                organiser: new FormControl(),
+                recurrence: new FormControl(),
+                update_master: new FormControl(false),
+                visibility: new FormControl('normal'),
             }),
         });
     });
@@ -70,10 +89,8 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.query('[name="end-time"]')).toExist());
 
     it('should allow customising the max duration', () => {
-        expect(spectator.component.max_duration).toBe(480);
-        (spectator.inject(SettingsService).get as any).mockImplementation(
-            () => 240,
-        );
-        expect(spectator.component.max_duration).toBe(240);
+        expect(spectator.component.max_duration()).toBe(480);
+        settings_values['events.max_duration'] = 240;
+        expect(spectator.component.max_duration()).toBe(240);
     });
 });

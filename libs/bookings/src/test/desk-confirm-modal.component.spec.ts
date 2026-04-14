@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule } from 'ng-mocks';
 
 import { DeskConfirmModalComponent } from '../lib/desk-confirm-modal.component';
@@ -14,7 +15,7 @@ describe('DeskConfirmModalComponent', () => {
         component: DeskConfirmModalComponent,
         shallow: true,
         providers: [
-            { provide: SettingsService, useValue: { get: jest.fn() } },
+            { provide: SettingsService, useValue: createSettingsServiceMock() },
             { provide: MAT_DIALOG_DATA, useValue: {} },
         ],
         imports: [

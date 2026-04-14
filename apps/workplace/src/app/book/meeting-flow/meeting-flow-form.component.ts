@@ -52,9 +52,10 @@ import {
 import { FindAvailabilityModalComponent } from '@placeos/users';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { debounceTime, first, map, switchMap, tap } from 'rxjs/operators';
+
+import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
 import { MeetingFlowConfirmModalComponent } from './meeting-flow-confirm-modal.component';
 import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
-import { MeetingFormDetailsComponent } from './meeting-form-details.component';
 
 @Component({
     selector: 'meeting-flow-form',
@@ -300,7 +301,7 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                                         standalone: true,
                                                     }"
                                                     [placeholder]="
-                                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEACH'
+                                                        'CALENDAR_EVENT.CATERING_CHARGE_CODE_SEARCH'
                                                             | translate
                                                     "
                                                 />
@@ -397,11 +398,12 @@ import { MeetingFormDetailsComponent } from './meeting-form-details.component';
                                             date: form.getRawValue().date,
                                             duration: form.value.duration,
                                             all_day: form.value.all_day,
-                                            zone_id: form.value?.resources
-                                                ?.length
+                                            zone: form.value?.resources?.length
                                                 ? form.value?.resources[0]
                                                       ?.level?.parent_id
                                                 : '',
+                                            resources:
+                                                form.value?.resources || [],
                                         }"
                                         [rejected_ids]="invalid_assets"
                                         formControlName="assets"
@@ -610,7 +612,7 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 date: value.date,
                 duration: value.duration,
                 resources: space_list,
-                zone_id: this._org.levelWithID(space_list[0].zones)?.parent_id,
+                zone: this._org.levelWithID(space_list[0].zones)?.parent_id,
                 tags: [],
                 categories: [],
             } as any);
@@ -807,6 +809,8 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.initialised.pipe(first((_) => _)).toPromise();
+        this.form.controls.assets.disable();
+        this.form.controls.catering.disable();
         this.subscription(
             'asset_changes',
             this.form.controls.assets.valueChanges.subscribe(() =>

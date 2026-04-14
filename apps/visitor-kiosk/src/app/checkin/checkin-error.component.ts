@@ -1,7 +1,8 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
+import { isPublicMode } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { CheckinStateService } from './checkin-state.service';
 
@@ -12,13 +13,15 @@ import { CheckinStateService } from './checkin-state.service';
             class="bg-base-100 relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm px-16 py-4 text-center shadow-sm"
         >
             <h3 class="pb-2 text-2xl">Please see reception.</h3>
-            @if (error | async) {
-                <p>{{ error | async }}</p>
+            @if (error(); as error_message) {
+                <p>{{ error_message }}</p>
             }
             <p>Our staff at reception will assist you.</p>
-            <a btn matRipple class="w-32" [routerLink]="['/welcome']">
-                {{ 'APP.VISITOR_KIOSK.CONFIRM' | translate }}
-            </a>
+            @if (!is_public_mode()) {
+                <a btn matRipple class="w-32" [routerLink]="['/welcome']">
+                    {{ 'APP.VISITOR_KIOSK.CONFIRM' | translate }}
+                </a>
+            }
         </div>
     `,
     styles: [
@@ -29,10 +32,11 @@ import { CheckinStateService } from './checkin-state.service';
             }
         `,
     ],
-    imports: [CommonModule, TranslatePipe, MatRippleModule, RouterModule],
+    imports: [TranslatePipe, MatRippleModule, RouterModule],
 })
 export class CheckinErrorComponent {
     private _checkin = inject(CheckinStateService);
 
-    public readonly error = this._checkin.error;
+    public readonly error = toSignal(this._checkin.error, { initialValue: '' });
+    public readonly is_public_mode = isPublicMode;
 }

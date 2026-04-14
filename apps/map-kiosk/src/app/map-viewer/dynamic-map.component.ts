@@ -7,12 +7,10 @@ import {
     Injector,
     input,
     model,
-    OnChanges,
     OnDestroy,
     OnInit,
     output,
     signal,
-    SimpleChanges,
     TemplateRef,
     Type,
     viewChild,
@@ -167,7 +165,7 @@ export interface MapMetadata {
         MatTooltipModule,
     ],
 })
-export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
+export class DynamicMapComponent implements OnInit, OnDestroy {
     private _injector = inject(Injector);
     private _map_viewer: MapViewer | null = null;
     private _map_container =
@@ -236,6 +234,12 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
             if (this._map_viewer) {
                 this._applyOverlays(features, labels, feature_elements);
             }
+        });
+
+        // Keep feature injectors aligned with the signal-based input.
+        effect(() => {
+            this.features();
+            this._updateInjectors();
         });
 
         // Effect to update actions when actions or metadata changes
@@ -343,12 +347,6 @@ export class DynamicMapComponent implements OnInit, OnDestroy, OnChanges {
             if (src) {
                 this._map_viewer.setMap(src);
             }
-        }
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes['features']) {
-            this._updateInjectors();
         }
     }
 

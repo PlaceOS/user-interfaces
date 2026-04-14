@@ -1,10 +1,4 @@
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    input,
-    output,
-} from '@angular/core';
+import { Component, effect, input, output, signal } from '@angular/core';
 import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import {
     addHours,
@@ -32,7 +26,7 @@ interface EventBlock {
     selector: 'checkin-timetable',
     template: `
         <div class="relative flex h-16 items-center px-2">
-            @for (blk of blocks; track blk) {
+            @for (blk of blocks(); track blk) {
                 <button
                     class="relative h-full"
                     [style.min-width]="1 * step() + 'px'"
@@ -54,7 +48,7 @@ interface EventBlock {
                     }
                 </button>
             }
-            @for (blk of event_blocks; track blk) {
+            @for (blk of event_blocks(); track blk) {
                 @if (blk.start + blk.length >= 0 && blk.start < 24 * 60) {
                     <div
                         event
@@ -67,7 +61,7 @@ interface EventBlock {
             <div
                 current
                 class="bg-primary pointer-events-none absolute bottom-0 h-12 w-0.5"
-                [style.left]="8 + current_time + 'px'"
+                [style.left]="8 + current_time() + 'px'"
             >
                 <div
                     class="bg-primary absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -92,18 +86,23 @@ interface EventBlock {
     ],
     imports: [],
 })
-export class CheckinTimetableComponent
-    extends AsyncHandler
-    implements OnChanges
-{
+export class CheckinTimetableComponent extends AsyncHandler {
     public readonly events = input<CalendarEvent[]>([]);
     public readonly step = input(15);
     public readonly event = output<number>();
 
-    public current_time = 0;
+    public current_time = signal<number>(0);
 
-    public blocks: TimeBlock[] = [];
-    public event_blocks: EventBlock[] = [];
+    public blocks = signal<TimeBlock[]>([]);
+    public event_blocks = signal<EventBlock[]>([]);
+
+    constructor() {
+        super();
+        effect(() => {
+            this.events(); // track the signal
+            this._processEvents();
+        });
+    }
 
     public ngOnInit() {
         this._generateTimeBlocks();
@@ -118,10 +117,6 @@ export class CheckinTimetableComponent
             () => this._updateCurrentTime(),
             30 * 1000,
         );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.events) this._processEvents();
     }
 
     public height(minutes: number) {
@@ -156,20 +151,22 @@ export class CheckinTimetableComponent
             });
             date = addMinutes(date, this.step());
         }
-        this.blocks = blocks;
+        this.blocks.set(blocks);
     }
 
     private _processEvents() {
-        if (!this.blocks.length) return;
-        this.event_blocks = (this.events() || []).map((_) => ({
-            start: differenceInMinutes(_.date, this.blocks[0].id),
-            length: _.duration,
-        }));
+        if (!this.blocks().length) return;
+        this.event_blocks.set(
+            (this.events() || []).map((_) => ({
+                start: differenceInMinutes(_.date, this.blocks()[0].id),
+                length: _.duration,
+            })),
+        );
     }
 
     private _updateCurrentTime() {
-        if (!this.blocks.length) return;
-        const time = differenceInMinutes(Date.now(), this.blocks[0].id);
-        this.current_time = time;
+        if (!this.blocks().length) return;
+        const time = differenceInMinutes(Date.now(), this.blocks()[0].id);
+        this.current_time.set(time);
     }
 }

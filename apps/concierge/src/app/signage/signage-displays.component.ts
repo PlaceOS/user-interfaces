@@ -1,7 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,8 +22,7 @@ import {
     updateSystem,
     updateTrigger,
 } from '@placeos/ts-client';
-import { lastValueFrom } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { lastValueFrom, map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -50,8 +49,7 @@ import { ZoneSelectModalComponent } from './zone-select-modal.component';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                     />
                 </mat-form-field>
                 @if (displays().length > 0) {
@@ -374,8 +372,18 @@ export class SignageDisplaysComponent {
         return displays.find((item) => item.id === id);
     });
 
-    private readonly _triggers = signal<any[]>([]);
-    public readonly triggers = this._triggers.asReadonly();
+    public readonly triggers = toSignal(
+        toObservable(this.selected).pipe(
+            switchMap((id) => {
+                if (!id) return of([]);
+                return listSystemTriggers(id).pipe(
+                    map((_) => _.data),
+                    tap(() => setTimeout(() => this.switching.set(false), 200)),
+                );
+            }),
+        ),
+        { initialValue: [] },
+    );
 
     public readonly active_trigger = computed(() => {
         const list = this.triggers();
@@ -419,26 +427,9 @@ export class SignageDisplaysComponent {
             this.selected.set(params.get('display') || '');
             this.selected_trigger.set(params.get('trigger') || '');
         });
-
-        // Watch for changes to selected display and fetch triggers
-        effect(() => {
-            const id = this.selected();
-            if (!id) {
-                this._triggers.set([]);
-                return;
-            }
-            listSystemTriggers(id)
-                .pipe(
-                    map((_) => _.data),
-                    tap((_) =>
-                        setTimeout(() => this.switching.set(false), 200),
-                    ),
-                )
-                .subscribe((data) => this._triggers.set(data));
-        });
     }
 
-    public async addPlaylist(playlist: SignagePlaylist) {
+    public async addPlaylist(playlist: Partial<SignagePlaylist>) {
         const display = this.active_display();
         const trigger = this.active_trigger();
         const item = trigger || display;

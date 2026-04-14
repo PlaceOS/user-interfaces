@@ -1,9 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import {
+    Component,
+    DestroyRef,
+    inject,
+    model,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatRippleModule } from '@angular/material/core';
 import {
-    AsyncHandler,
     nextValueFrom,
     OrganisationService,
     SettingsService,
@@ -50,9 +58,9 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
             filters
             class="flex w-140 max-w-full flex-wrap items-center p-2 sm:max-w-140"
         >
-            @if (location) {
+            @if (location()) {
                 <div filter-item zone>
-                    {{ location }}
+                    {{ location() }}
                 </div>
             }
             <div filter-item date>
@@ -62,7 +70,7 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            @for (feat of (options | async)?.features; track feat) {
+            @for (feat of options()?.features; track feat) {
                 <div filter-item>
                     <p>{{ feat }}</p>
                     <button
@@ -102,16 +110,19 @@ import { ParkingSpaceFiltersComponent } from './parking-filters.component';
     ],
     imports: [CommonModule, IconComponent, TranslatePipe, MatRippleModule],
 })
-export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
+export class ParkingSpaceFiltersDisplayComponent implements OnInit {
     private _bsheet = inject(MatBottomSheet);
     private _event_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _destroyRef = inject(DestroyRef);
 
     public readonly view = model<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._event_form.options;
-    public location = '';
+    public readonly options = toSignal(this._event_form.options, {
+        initialValue: {} as any,
+    });
+    public readonly location = signal('');
 
     public get start() {
         return this._event_form.form.value.date;
@@ -126,20 +137,13 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
         this._bsheet.open(ParkingSpaceFiltersComponent);
 
     public get time_format() {
-        return this._settings.time_format;
-    }
-
-    constructor() {
-        super();
+        return this._settings.time_format_signal();
     }
 
     public ngOnInit() {
-        this.subscription(
-            'opts',
-            this.options.subscribe(({ zone_id }) =>
-                this._updateLocation([zone_id]),
-            ),
-        );
+        this._event_form.options
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(({ zone_id }) => this._updateLocation([zone_id]));
     }
 
     public async removeFeature(feat: string) {
@@ -153,6 +157,6 @@ export class ParkingSpaceFiltersDisplayComponent extends AsyncHandler {
     private _updateLocation(zone_ids: string[] = []) {
         const level = this._org.levelWithID(zone_ids);
         const item = level || this._org.building;
-        this.location = item?.display_name || item?.name || '';
+        this.location.set(item?.display_name || item?.name || '');
     }
 }

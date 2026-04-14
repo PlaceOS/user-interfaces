@@ -1,12 +1,12 @@
 import { expect, test } from '@playwright/test';
 import {
-    LOAD_TIMEOUT,
     ACTION_TIMEOUT,
-    WELCOME_URL,
-    REGISTER_URL,
-    CHECKIN_SCAN_URL,
     BOOTSTRAP_URL,
+    CHECKIN_SCAN_URL,
+    LOAD_TIMEOUT,
     navigateWithConfig,
+    REGISTER_URL,
+    WELCOME_URL,
 } from './test-utils';
 
 /**
@@ -23,14 +23,16 @@ test.describe('US-ACCESS-001: Use On-Screen Keyboard', () => {
         await page.locator('[bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for Angular to process the URL parameters
-        await page.waitForFunction(
-            () => localStorage.getItem('OSK.enabled') !== null,
-            { timeout: 5000 }
-        ).catch(() => {});
+        await page
+            .waitForFunction(
+                () => localStorage.getItem('OSK.enabled') !== null,
+                { timeout: 5000 },
+            )
+            .catch(() => {});
 
         // Check localStorage for OSK setting
         const oskEnabled = await page.evaluate(() =>
-            localStorage.getItem('OSK.enabled')
+            localStorage.getItem('OSK.enabled'),
         );
         // OSK setting may or may not be set depending on timing - check it exists or is 'true'
         expect(oskEnabled === 'true' || oskEnabled === null).toBeTruthy();
@@ -41,13 +43,15 @@ test.describe('US-ACCESS-001: Use On-Screen Keyboard', () => {
         await page.locator('[bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
 
         // Wait for Angular to process the URL parameters
-        await page.waitForFunction(
-            () => localStorage.getItem('OSK.enabled') !== null,
-            { timeout: 5000 }
-        ).catch(() => {});
+        await page
+            .waitForFunction(
+                () => localStorage.getItem('OSK.enabled') !== null,
+                { timeout: 5000 },
+            )
+            .catch(() => {});
 
         const oskEnabled = await page.evaluate(() =>
-            localStorage.getItem('OSK.enabled')
+            localStorage.getItem('OSK.enabled'),
         );
         // OSK setting may or may not be set depending on timing
         expect(oskEnabled === 'false' || oskEnabled === null).toBeTruthy();
@@ -55,7 +59,9 @@ test.describe('US-ACCESS-001: Use On-Screen Keyboard', () => {
 
     test('should have focusable input fields', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const nameInput = page.locator('input[name="name"]');
         await nameInput.focus();
@@ -65,7 +71,9 @@ test.describe('US-ACCESS-001: Use On-Screen Keyboard', () => {
 
     test('should support tab navigation between fields', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Focus first input
         const nameInput = page.locator('input[name="name"]');
@@ -85,7 +93,9 @@ test.describe('US-ACCESS-002: Use Large Touch Targets', () => {
         page,
     }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const checkinButton = page.locator('a[href*="checkin"]');
         const box = await checkinButton.boundingBox();
@@ -102,11 +112,17 @@ test.describe('US-ACCESS-002: Use Large Touch Targets', () => {
     }) => {
         await navigateWithConfig(page, REGISTER_URL);
         // Wait for name input or timeout gracefully
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT }).catch(() => {});
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT })
+            .catch(() => {});
         await page.waitForTimeout(1000);
 
         // Wait for loader to be hidden before checking button
-        await page.locator('[loader]').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+        await page
+            .locator('[loader]')
+            .waitFor({ state: 'hidden', timeout: 5000 })
+            .catch(() => {});
 
         const registerButton = page.locator('button:has-text("Register")');
         const isVisible = await registerButton.isVisible().catch(() => false);
@@ -127,7 +143,9 @@ test.describe('US-ACCESS-002: Use Large Touch Targets', () => {
         page,
     }) => {
         await navigateWithConfig(page, CHECKIN_SCAN_URL);
-        await page.locator('[checkin-qr-scan]').waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[checkin-qr-scan]')
+            .waitFor({ state: 'attached', timeout: LOAD_TIMEOUT });
         await page.waitForTimeout(1000);
 
         const closeButton = page.locator('a[href*="welcome"]');
@@ -140,7 +158,9 @@ test.describe('Accessibility - Form Labels', () => {
         page,
     }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Check for name label
         const nameLabel = page.locator('label[for="name"]');
@@ -159,7 +179,9 @@ test.describe('Accessibility - Form Labels', () => {
 
     test('should have label for host field', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const hostLabel = page.locator('label:has-text("Host")');
         await expect(hostLabel).toBeVisible({ timeout: ACTION_TIMEOUT });
@@ -169,7 +191,9 @@ test.describe('Accessibility - Form Labels', () => {
 test.describe('Accessibility - Color Contrast', () => {
     test('should have readable text on welcome screen', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // The welcome message should be visible (white text on dark background)
         const welcomeText = page.locator('h3');
@@ -178,7 +202,9 @@ test.describe('Accessibility - Color Contrast', () => {
 
     test('should have readable text on registration form', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Form header should be visible
         const header = page.locator('h3');
@@ -189,7 +215,9 @@ test.describe('Accessibility - Color Contrast', () => {
 test.describe('Accessibility - Focus Management', () => {
     test('should have visible focus indicators', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const nameInput = page.locator('input[name="name"]');
         await nameInput.focus();
@@ -200,7 +228,9 @@ test.describe('Accessibility - Focus Management', () => {
 
     test('should allow keyboard navigation', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Tab should cycle through interactive elements
         await page.keyboard.press('Tab');
@@ -218,7 +248,9 @@ test.describe('Accessibility - Focus Management', () => {
 test.describe('Accessibility - Screen Reader Support', () => {
     test('should have semantic HTML structure', async ({ page }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have heading elements
         const headings = page.locator('h1, h2, h3, h4, h5, h6');
@@ -230,7 +262,9 @@ test.describe('Accessibility - Screen Reader Support', () => {
         page,
     }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Should have mat-form-field elements
         const formFields = page.locator('mat-form-field');
@@ -244,7 +278,9 @@ test.describe('Accessibility - Error Announcements', () => {
         page,
     }) => {
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Trigger validation by entering invalid email and blurring
         const emailInput = page.locator('input[name="email"]');
@@ -265,14 +301,18 @@ test.describe('Accessibility - Kiosk Mode Features', () => {
     }) => {
         // Check welcome screen
         await navigateWithConfig(page, WELCOME_URL);
-        await page.locator('a[href*="checkin"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('a[href*="checkin"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const welcomeButton = page.locator('a[btn]').first();
         const welcomeBox = await welcomeButton.boundingBox();
 
         // Check registration screen
         await navigateWithConfig(page, REGISTER_URL);
-        await page.locator('input[name="name"]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('input[name="name"]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const registerButton = page.locator('button[btn]').first();
         const registerBox = await registerButton.boundingBox();

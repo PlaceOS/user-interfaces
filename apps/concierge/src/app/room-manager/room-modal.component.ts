@@ -1,5 +1,6 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import {
     EncryptionLevel,
@@ -1017,12 +1018,21 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     public loading = false;
     public current_page = signal<1 | 2>(1);
-    public timezones = signal(TIMEZONES_IANA);
-    public filtered_timezones = signal<string[]>([]);
     /** List of levels for the active building */
     public readonly levels = this._org.active_levels;
     /** Group of form fields used for creating the system */
     public form = generateSystemsFormFields(this._data.room as any);
+    public readonly timezones = signal(TIMEZONES_IANA);
+    private readonly _timezone_query = toSignal(
+        this.form.controls.timezone.valueChanges,
+        { initialValue: this.form.controls.timezone.value || '' },
+    );
+    public readonly filtered_timezones = computed(() => {
+        const timezone = `${this._timezone_query() || ''}`.toLowerCase();
+        return this.timezones().filter((item) =>
+            item.toLowerCase().includes(timezone),
+        );
+    });
     public settings_form = new FormGroup({
         setup: new FormControl(0),
         breakdown: new FormControl(0),
@@ -1385,18 +1395,15 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         if (!saved_tier || saved_tier === 'full_service') {
             const building_id = this._org.building?.id || '';
             const room_zones = (this._data.room as any)?.zones || [];
-            const detected_bld = room_zones.find((z: string) => z.startsWith('bld-')) || building_id;
+            const detected_bld =
+                room_zones.find((z: string) => z.startsWith('bld-')) ||
+                building_id;
             const tier = BUILDING_CATERING_TIER[detected_bld] || 'coordination';
             this.venue_form.controls.catering_tier.setValue(tier);
             this.active_tier.set(tier);
         } else {
             this.active_tier.set(saved_tier);
         }
-        this._updateTimezoneList();
-        this.subscription(
-            'tz-change',
-            this.form.valueChanges.subscribe(() => this._updateTimezoneList()),
-        );
     }
 
     /**
@@ -1487,16 +1494,6 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         this.loading = false;
     }
 
-    private _updateTimezoneList() {
-        const timezone = this.form?.value?.timezone || '';
-        this.timezones.set(TIMEZONES_IANA);
-        this.filtered_timezones.set(
-            this.timezones().filter((_) =>
-                _.toLowerCase().includes(timezone.toLowerCase()),
-            ),
-        );
-    }
-
     public selectItemfromMap() {
         let level = this._org.levelWithID(this.form.value.zones as any);
         const ref = this._dialog.open(SelectMapItemModalComponent, {
@@ -1507,7 +1504,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         });
         ref.afterClosed().subscribe((d) => {
             if (!d) return;
-            level = ref.componentInstance.level || level;
+            level = ref.componentInstance.level() || level;
             const zones = unique([
                 this._org.organisation.id,
                 this._org.building.parent_id,

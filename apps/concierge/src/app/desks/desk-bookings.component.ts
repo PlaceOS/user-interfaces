@@ -112,30 +112,22 @@ import { DesksStateService } from './desks-state.service';
                 </div>
             </ng-template>
             <ng-template #period_template let-row="row">
-                <div class="p-2">
-                    @if (
-                        row.status !== 'declined' &&
-                        !row.deleted &&
-                        row.status !== 'ended'
-                    ) {
-                        <div class="p-2">
-                            @if (!row.all_day && row.duration <= 12 * 60) {
-                                {{ row.date | date: time_format }} &ndash;
-                                {{ row.date_end | date: time_format }}
-                            }
-                            @if (row.all_day || row.duration > 12 * 60) {
-                                {{ 'COMMON.ALL_DAY' | translate }}
-                            }
-                        </div>
-                    }
+                <div class="flex flex-col p-2">
+                    <div>
+                        @if (!row.all_day && row.duration <= 12 * 60) {
+                            {{ row.date | date: time_format }} &ndash;
+                            {{ row.date_end | date: time_format }}
+                        }
+                        @if (row.all_day || row.duration > 12 * 60) {
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        }
+                    </div>
                     @if (
                         row.status === 'declined' ||
                         row.deleted ||
                         row.status === 'ended'
                     ) {
-                        <div
-                            class="bg-error rounded-3xl px-4 py-2 text-xs text-white"
-                        >
+                        <div class="text-error text-xs">
                             {{
                                 (row.deleted
                                     ? 'APP.CONCIERGE.BOOKING_DELETED'
@@ -289,7 +281,9 @@ import { DesksStateService } from './desks-state.service';
                         @if (row.instance) {
                             <button mat-menu-item (click)="cancelSeries(row)">
                                 <div class="flex items-center space-x-2">
-                                    <icon class="text-error text-2xl">delete</icon>
+                                    <icon class="text-error text-2xl"
+                                        >delete</icon
+                                    >
                                     <div>
                                         {{
                                             'BOOKINGS.ACTION_DELETE_SERIES'

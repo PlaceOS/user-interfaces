@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Component, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
@@ -61,7 +61,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                     </div>
                     <div class="absolute right-4 bottom-4">
                         <voice-assistant
-                            [system_id]="id"
+                            [system_id]="id()"
                             [enabled]="system()?.voice_control"
                         ></voice-assistant>
                     </div>
@@ -95,7 +95,7 @@ import { TabOutletComponent } from './tab-outlet.component';
             >
                 <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
                 <div class="my-4 text-2xl">
-                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id() } }}
                 </div>
                 <div class="text-base"></div>
             </div>
@@ -136,13 +136,19 @@ import { TabOutletComponent } from './tab-outlet.component';
         DatePipe,
     ],
 })
-export class ControlTabbedViewComponent implements OnInit {
+export class ControlTabbedViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
-    private _destroyRef = inject(DestroyRef);
+
+    private readonly _param_map = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
+    private readonly _query_param_map = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
 
     public readonly system = toSignal(this._state.system, {
         initialValue: {} as any,
@@ -152,13 +158,8 @@ export class ControlTabbedViewComponent implements OnInit {
     });
 
     public readonly powerOn = () => this._state.powerOn();
-    public get id() {
-        return this._state.id;
-    }
-
-    public get version() {
-        return VERSION;
-    }
+    public readonly id = toSignal(this._state.system_id, { initialValue: '' });
+    public readonly version = VERSION;
 
     public async viewChangelog() {
         const changelog = await (
@@ -181,20 +182,15 @@ export class ControlTabbedViewComponent implements OnInit {
         ),
     );
 
-    public ngOnInit(): void {
-        this._route.paramMap
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((params) =>
-                params.has('system')
-                    ? this._state.setID(params.get('system'))
-                    : '',
-            );
-        this._route.queryParamMap
-            .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe((params) =>
-                params.get('join') === 'true'
-                    ? this._state.selectMeeting()
-                    : '',
-            );
+    constructor() {
+        effect(() => {
+            const params = this._param_map();
+            if (params.has('system')) this._state.setID(params.get('system'));
+        });
+
+        effect(() => {
+            const params = this._query_param_map();
+            if (params.get('join') === 'true') this._state.selectMeeting();
+        });
     }
 }

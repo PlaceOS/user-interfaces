@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -29,7 +29,7 @@ import { lastValueFrom } from 'rxjs';
             "
             (confirm)="save()"
             [loading]="
-                loading
+                loading()
                     ? ('APP.CONCIERGE.SIGNAGE_DISPLAYS_SAVING' | translate)
                     : ''
             "
@@ -125,7 +125,7 @@ export class SignageDisplayModalComponent {
         inject<MatDialogRef<SignageDisplayModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly display = this._data.display;
 
     public readonly form = new FormGroup({
@@ -143,7 +143,7 @@ export class SignageDisplayModalComponent {
         this.form.markAllAsTouched();
         this.form.updateValueAndValidity();
         if (this.form.invalid) return;
-        this.loading = true;
+        this.loading.set(true);
         const form_value = this.form.getRawValue();
         const new_display = new PlaceSystem({
             ...form_value,

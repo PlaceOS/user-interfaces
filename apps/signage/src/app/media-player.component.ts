@@ -11,11 +11,18 @@ import {
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, shuffleArrayWithFirstItem } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
-import { MediaAnimation } from '@placeos/ts-client';
+import { AsyncHandler, log, shuffleArrayWithFirstItem } from '@placeos/common';
+import {
+    IconComponent,
+    PluginConfigPayload,
+    PluginEmbedComponent,
+    PluginErrorPayload,
+    PluginInteractionPayload,
+    SignagePluginMessageType,
+} from '@placeos/components';
+import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { MediaControlsComponent } from './media-controls.component';
-import { validateMedia } from './media-helpers';
+import { findValidPlaylistIndex, validateMedia } from './media-helpers';
 import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
@@ -41,6 +48,12 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #previous_web_el
                     class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
+                @if (previous_plugin()) {
+                    <plugin-embed
+                        class="absolute top-0 left-0 h-full w-full"
+                        [plugin]="previous_plugin()"
+                    />
+                }
             </div>
             <div
                 #media_container
@@ -58,6 +71,17 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
                     #web_el
                     class="absolute top-0 left-0 h-full w-full border-0"
                 ></iframe>
+                @if (active_plugin()) {
+                    <plugin-embed
+                        class="absolute top-0 left-0 h-full w-full"
+                        [plugin]="active_plugin()"
+                        [config]="plugin_config()"
+                        [play]="plugin_play()"
+                        (statusChange)="onPluginStatus($event)"
+                        (plugin_interaction)="onPluginInteraction($event)"
+                        (plugin_error)="onPluginError($event)"
+                    />
+                }
             </div>
             @if (controls()) {
                 <div class="absolute top-0 left-0 p-4">
@@ -139,6 +163,7 @@ import { MediaPlayerItem, MediaPlayerState } from './types';
         IconComponent,
         MediaControlsComponent,
         TimeControlsComponent,
+        PluginEmbedComponent,
     ],
 })
 export class MediaPlayerComponent
@@ -158,6 +183,7 @@ export class MediaPlayerComponent
     public readonly stateChange = output<MediaPlayerState>();
     public readonly indexChange = output<number>();
     public readonly mutedChange = output<boolean>();
+    public readonly playing_id = output<string>();
     public readonly event = output<MediaEvent>();
     public readonly closed = output<void>();
 
@@ -166,6 +192,14 @@ export class MediaPlayerComponent
     public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
+
+    public readonly active_plugin = signal<SignagePlugin>(null);
+    public readonly previous_plugin = signal<SignagePlugin>(null);
+    public readonly plugin_config = signal<PluginConfigPayload>(null);
+    public readonly plugin_play = signal(0);
+
+    private _plugin_finished = false;
+    private _playback_duration = 0;
 
     private _item_playlist: MediaPlayerItem[] = [];
 
@@ -277,9 +311,11 @@ export class MediaPlayerComponent
             this._item_start = Date.now() - this._item_progress;
             this._item_progress = 0;
             if (this.active_item?.type === 'video') {
-                requestAnimationFrame(() =>
-                    this._video_element().nativeElement.play(),
-                );
+                this._requestVideoPlayback(() => {
+                    this.state.set('PAUSED');
+                    this._item_start = 0;
+                    this._item_progress = 0;
+                });
             }
             if (this.index() === -1) this._updateItem();
         }
@@ -357,14 +393,11 @@ export class MediaPlayerComponent
 
     private _updateItem() {
         if (this.state() === 'PAUSED') return;
+        const item = this.active_item;
+        const playback_duration = this._effectivePlaybackDuration(item);
         const duration = Date.now() - this._item_start;
         if (this._item_start) {
-            this.progress.set(
-                Math.floor(
-                    (duration / (this.active_item?.duration || 15 * 1000)) *
-                        100,
-                ),
-            );
+            this.progress.set(Math.floor((duration / playback_duration) * 100));
         }
         this.duration.set(Math.floor(duration / 1000));
 
@@ -374,8 +407,17 @@ export class MediaPlayerComponent
             this.progress.set(0);
             this.setPlaylistItem(0);
         }
-        const item = this.active_item;
-        if (Date.now() > this._item_start + item?.duration) {
+        // For playsthrough plugins, advance when plugin signals finished
+        if (
+            item?.type === 'plugin' &&
+            item.plugin?.playback_type === 'playsthrough'
+        ) {
+            if (this._plugin_finished) {
+                this.nextItem();
+            }
+            return;
+        }
+        if (Date.now() > this._item_start + playback_duration) {
             this.nextItem();
         }
     }
@@ -412,39 +454,140 @@ export class MediaPlayerComponent
             if (old_index !== index) this.nextItem();
             return;
         }
+        const should_transition = this._shouldTransition(old_item, item);
         this._item_start = Date.now();
         this._item_progress = 0;
+        this._playback_duration = item.duration || 15 * 1000;
         this.progress.set(0);
         this.duration.set(0);
-        const url = this.url(item.id);
-        if (!url) {
-            this.timeout('wait-for-url', () => this.setPlaylistItem(index));
-            return;
-        }
+        this._plugin_finished = false;
+        // Hide all media elements first
         this._video_element().nativeElement.classList.add('hidden');
         this._web_element().nativeElement.classList.add('hidden');
         this._image_element().nativeElement.classList.add('hidden');
-        const active_el = (
-            item.type === 'video'
-                ? this._video_element()
-                : item.type === 'webpage'
-                  ? this._web_element()
-                  : this._image_element()
-        ).nativeElement;
-        active_el.src = url.toString();
-        active_el.classList.remove('hidden');
-        if (item.type === 'video') {
-            try {
-                requestAnimationFrame(() =>
-                    this._video_element().nativeElement.play(),
-                );
-            } catch {
-                this.nextItem();
-            }
+        // Preserve outgoing plugin in previous layer for transitions
+        const outgoing_plugin = this.active_plugin();
+        if (outgoing_plugin) {
+            this.previous_plugin.set(outgoing_plugin);
+        }
+        if (item.type === 'plugin' && item.plugin) {
+            this._showPlugin(item);
         } else {
-            this._video_element().nativeElement.pause();
+            // Clear active plugin when switching to non-plugin media
+            this.active_plugin.set(null);
+            this.plugin_config.set(null);
+            const url = this.url(item.id);
+            if (!url) {
+                this.timeout('wait-for-url', () => this.setPlaylistItem(index));
+                return;
+            }
+            const active_el = (
+                item.type === 'video'
+                    ? this._video_element()
+                    : item.type === 'webpage'
+                      ? this._web_element()
+                      : this._image_element()
+            ).nativeElement;
+            active_el.src = url.toString();
+            active_el.classList.remove('hidden');
+            if (item.type === 'video') {
+                this._requestVideoPlayback(() => {
+                    if (should_transition) {
+                        this.nextItem();
+                    } else {
+                        this.state.set('PAUSED');
+                        this._item_start = 0;
+                        this._item_progress = 0;
+                    }
+                });
+            } else {
+                this._video_element().nativeElement.pause();
+            }
+        }
+        this.playing_id.emit(item.id);
+        if (!should_transition) {
+            this._resetTransitionState();
+            if (this.state() === 'PAUSED') this.togglePause();
+            return;
         }
         this._transition();
+    }
+
+    public onPluginStatus(status: SignagePluginMessageType | 'unknown') {
+        const item = this.active_item;
+        if (!item || item.type !== 'plugin') return;
+        log('MediaPlayer', `Plugin status: ${status}`, [item.name]);
+        if (status === 'ready') {
+            this.plugin_config.set({
+                instance_id: item.id,
+                config: item.plugin_params || {},
+                timing: {
+                    scheduled_duration_ms:
+                        this._effectivePlaybackDuration(item),
+                },
+            });
+            // Send play signal after config
+            this.timeout(
+                'plugin-play',
+                () => this.plugin_play.set(Date.now()),
+                100,
+            );
+        } else if (status === 'finished') {
+            this._plugin_finished = true;
+        }
+    }
+
+    public onPluginInteraction(interaction: PluginInteractionPayload) {
+        const item = this.active_item;
+        const interactive =
+            item?.type === 'plugin' &&
+            item.plugin?.playback_type === 'interactive';
+        if (!interactive) return;
+        const value = Number(interaction.new_duration);
+        this._resetPlayback(Number.isFinite(value) && value > 0 ? value : 0);
+    }
+
+    public onPluginError(error: PluginErrorPayload) {
+        log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
+        if (error.fatal) {
+            this.nextItem();
+        }
+    }
+
+    private _showPlugin(item: MediaPlayerItem) {
+        log('MediaPlayer', `Showing plugin: ${item.name}`, [item.plugin?.name]);
+        this.active_plugin.set(item.plugin);
+    }
+
+    private _effectivePlaybackDuration(
+        item: MediaPlayerItem = this.active_item,
+    ) {
+        return this._playback_duration || item?.duration || 15 * 1000;
+    }
+
+    private _resetPlayback(playback_duration = 0) {
+        if (playback_duration > 0) {
+            this._playback_duration = playback_duration;
+        }
+        this._item_progress = 0;
+        this._item_start = this.state() === 'PLAYING' ? Date.now() : 0;
+        this.progress.set(0);
+        this.duration.set(0);
+    }
+
+    private _requestVideoPlayback(on_error?: () => void) {
+        requestAnimationFrame(() => {
+            const play_action = this._video_element().nativeElement.play();
+            play_action?.catch((error) => {
+                log(
+                    'MediaPlayer',
+                    'Video playback could not be started.',
+                    [error, this.active_item],
+                    'warn',
+                );
+                on_error?.();
+            });
+        });
     }
 
     private async _processURLs() {
@@ -472,6 +615,8 @@ export class MediaPlayerComponent
         // Request new URLs
         for (const item of item_list) {
             if (!item?.id || this._item_urls[item.id]) continue;
+            // Plugins don't need pre-fetched URLs
+            if (item.type === 'plugin') continue;
             this._item_urls[item.id] = await item.getURL().catch((_) => null);
         }
         // Revoke old URLs
@@ -497,34 +642,42 @@ export class MediaPlayerComponent
             const img_el = this._previous_img_element().nativeElement;
             const web_el = this._previous_web_element().nativeElement;
             const video_el = this._previous_video_element().nativeElement;
-            let index = indexValue - 1;
-            while (
-                !this.isValidMedia(this._item_playlist[index]) ||
-                index === indexValue
-            ) {
-                index = index - 1;
-                if (index < 0) index = this._item_playlist.length - 1;
-            }
-            if (index === indexValue) index = indexValue - 1;
-            if (index < 0) index = this._item_playlist.length - 1;
-            const item = this._item_playlist[index];
-            const url = this.url(item.id);
-            if (url) {
-                if (item.type === 'video') {
-                    img_el.classList.add('hidden');
-                    web_el.classList.add('hidden');
-                    video_el.src = url.toString();
-                    video_el.classList.remove('hidden');
-                } else if (item.type === 'web') {
+            const previous_index = findValidPlaylistIndex(
+                this._item_playlist,
+                indexValue,
+                -1,
+            );
+            if (previous_index === -1) {
+                img_el.classList.add('hidden');
+                video_el.classList.add('hidden');
+                web_el.classList.add('hidden');
+            } else {
+                const item = this._item_playlist[previous_index];
+                if (item.type === 'plugin') {
+                    // Plugin is handled by previous_plugin signal in the previous container
                     img_el.classList.add('hidden');
                     video_el.classList.add('hidden');
-                    web_el.src = url.toString();
-                    web_el.classList.remove('hidden');
+                    web_el.classList.add('hidden');
                 } else {
-                    video_el.classList.add('hidden');
-                    web_el.classList.add('hidden');
-                    img_el.src = url.toString();
-                    img_el.classList.remove('hidden');
+                    const url = this.url(item.id);
+                    if (url) {
+                        if (item.type === 'video') {
+                            img_el.classList.add('hidden');
+                            web_el.classList.add('hidden');
+                            video_el.src = url.toString();
+                            video_el.classList.remove('hidden');
+                        } else if (item.type === 'web') {
+                            img_el.classList.add('hidden');
+                            video_el.classList.add('hidden');
+                            web_el.src = url.toString();
+                            web_el.classList.remove('hidden');
+                        } else {
+                            video_el.classList.add('hidden');
+                            web_el.classList.add('hidden');
+                            img_el.src = url.toString();
+                            img_el.classList.remove('hidden');
+                        }
+                    }
                 }
             }
         }
@@ -569,16 +722,41 @@ export class MediaPlayerComponent
     }
 
     private _onTransitionEnd() {
+        this._resetTransitionState();
+        this.togglePause();
+    }
+
+    private _resetTransitionState() {
+        this.clearTimeout('re-start');
         const prev_container_el = this._previous_container().nativeElement;
         const container_el = this._container().nativeElement;
         prev_container_el.classList.remove('opacity-0');
         this._previous_video_element().nativeElement.classList.add('hidden');
         this._previous_img_element().nativeElement.classList.add('hidden');
         this._previous_web_element().nativeElement.classList.add('hidden');
+        this.previous_plugin.set(null);
         prev_container_el.classList.remove('player-animate');
         container_el.classList.remove('player-animate');
+        container_el.classList.remove('opacity-0');
+        container_el.style.transform = 'translate(0, 0)';
         this.in_animation.set(false);
-        this.togglePause();
+    }
+
+    private _shouldTransition(
+        old_item: MediaPlayerItem,
+        new_item: MediaPlayerItem,
+    ) {
+        if (!this._hasMultipleActivePlaylistItems()) return false;
+        return old_item?.id !== new_item?.id;
+    }
+
+    private _hasMultipleActivePlaylistItems() {
+        const active_item_ids = new Set(
+            this._item_playlist
+                .filter((item) => this.isValidMedia(item))
+                .map((item) => item.id),
+        );
+        return active_item_ids.size > 1;
     }
 
     private _validatePlaylist() {
@@ -602,15 +780,10 @@ export class MediaPlayerComponent
         const playlist = this.playlist();
         const item = playlist[idx];
         if (!item || !this.isValidMedia(item)) return false;
-        if (idx === playlist.length - 1) return true;
-        let next_index = idx + 1;
-        let next_item = playlist[next_index];
-        while (!next_item && !this.isValidMedia(next_item)) {
-            next_index += 1;
-            if (next_index >= playlist.length) next_index = 0;
-            next_item = playlist[next_index];
-        }
+        const next_index = findValidPlaylistIndex(playlist, idx, 1);
         if (next_index === idx) return true;
+        if (next_index === -1) return true;
+        const next_item = playlist[next_index];
         return item.playlist !== next_item.playlist;
     }
 

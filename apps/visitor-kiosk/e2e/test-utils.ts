@@ -52,7 +52,7 @@ export async function clearKioskConfig(page: Page): Promise<void> {
  */
 export async function navigateWithConfig(
     page: Page,
-    url: string
+    url: string,
 ): Promise<void> {
     // First, go to bootstrap to establish the app on the correct origin
     await page.goto('/#/bootstrap?mock=true');
@@ -79,6 +79,9 @@ export async function navigateWithConfig(
  */
 export async function waitForAppReady(page: Page): Promise<void> {
     // Wait for the loading overlay to disappear
-    await page.locator('[loader]').waitFor({ state: 'hidden', timeout: LOAD_TIMEOUT }).catch(() => {});
+    await page
+        .locator('[loader]')
+        .waitFor({ state: 'hidden', timeout: LOAD_TIMEOUT })
+        .catch(() => {});
     await page.waitForLoadState('networkidle');
 }

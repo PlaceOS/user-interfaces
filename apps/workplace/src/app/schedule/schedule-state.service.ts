@@ -193,7 +193,7 @@ export class ScheduleStateService extends AsyncHandler {
                 'LocationServices',
             );
             if (!mod?.system) return of([]);
-            return mod.execute('my_bookings');
+            return mod.execute('my_bookings').catch((_) => []);
         }),
         map((_) => (_ || []).map((_) => new CalendarEvent(_))),
         shareReplay(1),
@@ -405,7 +405,7 @@ export class ScheduleStateService extends AsyncHandler {
         switchMap(([[date], { period }]) =>
             this._bookingQuery('visitor', period, date),
         ),
-        map((_) => _.filter((_) => !_.parent_id && !_.linked_event)),
+        map((_) => _.filter((_) => !_.linked_event)),
         tap(() => this.timeout('end_loading', () => this._loading.next(false))),
         shareReplay(1),
     );
@@ -799,7 +799,7 @@ export class ScheduleStateService extends AsyncHandler {
             ),
             type,
             include_checked_out: true,
-            include_deleted: 'recurring',
+            include_booked_by: true,
         }).pipe(catchError(() => of([])));
     }
 }

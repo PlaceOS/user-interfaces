@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -23,8 +23,8 @@ import { CounterComponent } from '@placeos/form-fields';
                 <a-counter
                     class="w-48"
                     [step]="0.1"
-                    [(ngModel)]="points.value"
-                    (ngModelChange)="storePoints()"
+                    [ngModel]="points().value"
+                    (ngModelChange)="updatePoints('value', $event)"
                     [render_fn]="renderPrice"
                 ></a-counter>
                 <icon
@@ -44,8 +44,8 @@ import { CounterComponent } from '@placeos/form-fields';
                     class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
-                        [(ngModel)]="points.desk_checkin"
-                        (ngModelChange)="storePoints()"
+                        [ngModel]="points().desk_checkin"
+                        (ngModelChange)="updatePoints('desk_checkin', $event)"
                     ></a-counter>
                     <span>{{
                         'APP.CONCIERGE.POINTS_REWARD_DESK' | translate
@@ -55,8 +55,8 @@ import { CounterComponent } from '@placeos/form-fields';
                     class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
-                        [(ngModel)]="points.room_checkin"
-                        (ngModelChange)="storePoints()"
+                        [ngModel]="points().room_checkin"
+                        (ngModelChange)="updatePoints('room_checkin', $event)"
                     ></a-counter>
                     <span>{{
                         'APP.CONCIERGE.POINTS_REWARD_ROOM' | translate
@@ -66,8 +66,8 @@ import { CounterComponent } from '@placeos/form-fields';
                     class="border-base-200 flex items-center space-x-4 border-b p-2"
                 >
                     <a-counter
-                        [(ngModel)]="points.booking_cancel"
-                        (ngModelChange)="storePoints()"
+                        [ngModel]="points().booking_cancel"
+                        (ngModelChange)="updatePoints('booking_cancel', $event)"
                     ></a-counter>
                     <span>{{
                         'APP.CONCIERGE.POINTS_REWARD_CANCEL' | translate
@@ -75,8 +75,8 @@ import { CounterComponent } from '@placeos/form-fields';
                 </div>
                 <div class="flex items-center space-x-4 p-2">
                     <a-counter
-                        [(ngModel)]="points.wellness_card"
-                        (ngModelChange)="storePoints()"
+                        [ngModel]="points().wellness_card"
+                        (ngModelChange)="updatePoints('wellness_card', $event)"
                     ></a-counter>
                     <span>{{
                         'APP.CONCIERGE.POINTS_REWARD_WELLNESS' | translate
@@ -101,16 +101,16 @@ import { CounterComponent } from '@placeos/form-fields';
         IconComponent,
     ],
 })
-export class PointsOverviewComponent implements OnInit {
-    public points = {
+export class PointsOverviewComponent {
+    public readonly points = signal({
         value: 0.1,
         desk_checkin: 2,
         room_checkin: 2,
         booking_cancel: 3,
         wellness_card: 1,
-    };
+    });
 
-    public ngOnInit() {
+    constructor() {
         this.loadPoints();
     }
 
@@ -119,18 +119,26 @@ export class PointsOverviewComponent implements OnInit {
     }
 
     public loadPoints() {
-        this.points = {
-            ...this.points,
+        this.points.set({
+            ...this.points(),
             ...JSON.parse(
                 localStorage.getItem('PLACEOS.point_details') || '{}',
             ),
-        };
+        });
+    }
+
+    public updatePoints(key: string, value: number) {
+        this.points.update((points) => ({
+            ...points,
+            [key]: value,
+        }));
+        this.storePoints();
     }
 
     public storePoints() {
         localStorage.setItem(
             'PLACEOS.point_details',
-            JSON.stringify(this.points),
+            JSON.stringify(this.points()),
         );
     }
 }

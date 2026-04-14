@@ -1,18 +1,16 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CalendarEvent,
     getTimezoneOffsetString,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AuthenticatedImageDirective,
     BuildingPipe,
@@ -52,10 +50,8 @@ import { EventsStateService } from './events-state.service';
                         'APP.CONCIERGE.ROOMS_PENDING_HEADER'
                             | translate
                                 : {
-                                      count:
-                                          (filtered_pending | async)?.length ||
-                                          '0',
-                                      total: (pending | async)?.length || '0',
+                                      count: filtered_pending().length || '0',
+                                      total: pending().length || '0',
                                   }
                     }}
                 </h3>
@@ -66,8 +62,7 @@ import { EventsStateService } from './events-state.service';
                     [placeholder]="'COMMON.SEARCH' | translate"
                     [attr.aria-label]="'COMMON.SEARCH' | translate"
                     class="w-full py-4 pr-4 pl-10"
-                    [ngModel]="search | async"
-                    (ngModelChange)="search.next($event)"
+                    [(ngModel)]="search"
                 />
                 <icon
                     class="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-2xl"
@@ -76,7 +71,7 @@ import { EventsStateService } from './events-state.service';
                 </icon>
             </div>
             <div class="bg-base-200 flex-1 space-y-1 overflow-auto p-1">
-                @if (!(filtered_pending | async)?.length) {
+                @if (!filtered_pending().length) {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-2"
                     >
@@ -88,7 +83,7 @@ import { EventsStateService } from './events-state.service';
                         </p>
                     </div>
                 }
-                @for (event of filtered_pending | async; track event) {
+                @for (event of filtered_pending(); track event) {
                     <div
                         class="border-base-300 bg-base-100 relative w-full rounded-lg border p-2"
                     >
@@ -312,9 +307,11 @@ export class RoomBookingsApprovalsComponent implements OnInit {
     public readonly status = signal<
         Record<string, 'accept' | 'decline' | undefined>
     >({});
-    public readonly search = new BehaviorSubject('');
+    public readonly search = signal('');
 
-    public readonly pending = this._state.pending;
+    public readonly pending = toSignal(this._state.pending, {
+        initialValue: [],
+    });
 
     public get time_format() {
         return this._settings.time_format;
@@ -337,21 +334,15 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         return tz_offset === this._local_tz ? '' : tz_offset;
     }
 
-    public readonly filtered_pending = combineLatest([
-        this._state.pending,
-        this.search,
-    ]).pipe(
-        map(([list, search]) =>
-            list.filter(
-                (event) =>
-                    event.title.toLowerCase().includes(search.toLowerCase()) ||
-                    event.host.toLowerCase().includes(search.toLowerCase()) ||
-                    event.organiser?.name
-                        .toLowerCase()
-                        .includes(search.toLowerCase()),
-            ),
-        ),
-    );
+    public readonly filtered_pending = computed(() => {
+        const search = this.search().toLowerCase();
+        return this.pending().filter(
+            (event) =>
+                event.title.toLowerCase().includes(search) ||
+                event.host.toLowerCase().includes(search) ||
+                event.organiser?.name?.toLowerCase().includes(search),
+        );
+    });
 
     public setShow(value: boolean) {
         this.show.set(value);
@@ -374,10 +365,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         this.loading.set(true);
         await mod.execute('accept_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'accept';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
     }
 
     public async approveSeries(event: CalendarEvent) {
@@ -393,10 +381,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             .catch();
         await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'accept';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
     }
 
     public async reject(event: CalendarEvent) {
@@ -405,10 +390,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         this.loading.set(true);
         await mod.execute('decline_event', [event.mailbox, event.id]).catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'decline';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
     }
 
     public async rejectSeries(event: CalendarEvent) {
@@ -424,9 +406,6 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             .catch();
         await mod.execute('find_bookings_for_approval').catch();
         this.loading.set(false);
-        this.status.update((s) => {
-            s[event.id] = 'decline';
-            return s;
-        });
+        this.status.update((s) => ({ ...s, [event.id]: 'decline' }));
     }
 }

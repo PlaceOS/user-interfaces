@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Building } from '@placeos/common';
@@ -33,7 +32,6 @@ import { BuildingFormComponent } from './building-form.component';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         BuildingFormComponent,
         TranslatePipe,

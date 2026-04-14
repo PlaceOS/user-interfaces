@@ -3,6 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
@@ -20,7 +21,7 @@ describe('DeskFiltersDisplayComponent', () => {
                 setOptions: jest.fn(),
                 setFeature: jest.fn(),
             } as any),
-            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         declarations: [MockComponent(IconComponent)],
     });
@@ -31,24 +32,26 @@ describe('DeskFiltersDisplayComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should allow user to open edit filters', () => {
-        expect(spectator.inject(MatBottomSheet).open).not.toBeCalled();
+        expect(spectator.inject(MatBottomSheet).open).not.toHaveBeenCalled();
         expect('button[name="edit-desk-filters"]').toExist();
         spectator.click('button[name="edit-desk-filters"]');
-        expect(spectator.inject(MatBottomSheet).open).toBeCalled();
+        expect(spectator.inject(MatBottomSheet).open).toHaveBeenCalled();
     });
 
     it('should allow changing to map', () => {
         spectator.component.viewChange.emit = jest.fn();
         expect('button[name="view-desk-map"]').toExist();
         spectator.click('button[name="view-desk-map"]');
-        expect(spectator.component.viewChange.emit).toBeCalledWith('map');
+        expect(spectator.component.viewChange.emit).toHaveBeenCalledWith('map');
     });
 
     it('should allow changing to list', () => {
         spectator.component.viewChange.emit = jest.fn();
         expect('button[name="view-desk-list"]').toExist();
         spectator.click('button[name="view-desk-list"]');
-        expect(spectator.component.viewChange.emit).toBeCalledWith('list');
+        expect(spectator.component.viewChange.emit).toHaveBeenCalledWith(
+            'list',
+        );
     });
 
     it('should show selected filters', () => {
@@ -61,9 +64,8 @@ describe('DeskFiltersDisplayComponent', () => {
         expect('[filter-item] button').toExist();
         spectator.click('[filter-item] button');
         spectator.detectChanges();
-        expect(spectator.inject(BookingFormService).setFeature).toBeCalledWith(
-            'standing',
-            false,
-        );
+        expect(
+            spectator.inject(BookingFormService).setFeature,
+        ).toHaveBeenCalledWith('standing', false);
     });
 });

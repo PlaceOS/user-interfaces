@@ -1,5 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import {
+    Component,
+    computed,
+    HostListener,
+    inject,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -38,7 +45,6 @@ import {
 import { Point } from '@placeos/svg-viewer';
 import { getModule } from '@placeos/ts-client';
 import { MapLocation, showStaff } from '@placeos/users';
-import { startOfMinute } from 'date-fns';
 import { combineLatest } from 'rxjs';
 import { first, map } from 'rxjs/operators';
 import { AccessibilityControlsComponent } from './accessibility-controls.component';
@@ -56,13 +62,13 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                     auth
                     class="h-12"
                     alt="Logo"
-                    [source]="logo?.src || logo"
+                    [source]="logo()?.src || logo()"
                 />
             </a>
             <div
                 class="absolute top-1/2 right-2 flex -translate-y-1/2 items-center"
             >
-                @if (can_search) {
+                @if (can_search()) {
                     <explore-search></explore-search>
                 }
                 <button
@@ -81,12 +87,12 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                 </ng-template>
             </div>
         </div>
-        @if ((levels | async)?.length || legend.length) {
+        @if (levels().length || legend.length) {
             <div
                 options
                 class="bg-base-content text-base-100 flex items-center space-x-2 p-2 sm:hidden"
             >
-                @if ((levels | async)?.length) {
+                @if (levels().length) {
                     <button
                         btn
                         matRipple
@@ -97,7 +103,7 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                         <icon class="text-2xl">keyboard_arrow_down</icon>
                     </button>
                     <mat-menu #levelMenu="matMenu">
-                        @for (lvl of levels | async; track lvl) {
+                        @for (lvl of levels(); track lvl) {
                             <button mat-menu-item (click)="setLevel(lvl)">
                                 {{ lvl.display_name || lvl.name }}
                             </button>
@@ -137,31 +143,29 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                 sidebar
                 class="border-base-300 bg-base-100 text-base-content hidden w-[20rem] overflow-auto border-r px-2 py-4 sm:block"
             >
-                @if ((levels | async)?.length) {
+                @if (levels().length) {
                     <button
                         btn
                         matRipple
                         class="items clear hover:bg-base-200 flex w-full space-x-4"
-                        (click)="show_levels = !show_levels"
+                        (click)="show_levels.set(!show_levels())"
                     >
                         <icon class="text-2xl">corporate_fare</icon>
                         <div class="flex-1 text-left font-medium">Level</div>
                         <icon class="text-2xl">{{
-                            show_levels
+                            show_levels()
                                 ? 'keyboard_arrow_up'
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_levels ? 'show' : 'hide'">
+                    <div class="px-8" [@show]="show_levels() ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
-                            @for (lvl of levels | async; track lvl) {
+                            @for (lvl of levels(); track lvl) {
                                 <button
                                     btn
                                     matRipple
                                     class="clear hover:bg-base-200 w-full hover:opacity-100"
-                                    [class.opacity-30]="
-                                        lvl.id !== (level | async)?.id
-                                    "
+                                    [class.opacity-30]="lvl.id !== level()?.id"
                                     (click)="setLevel(lvl)"
                                 >
                                     <div class="w-full text-left">
@@ -173,22 +177,22 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                     </div>
                     <hr class="mx-auto w-[calc(100%-4rem)]" />
                 }
-                @if (legend.length && legend_visible) {
+                @if (legend.length && legend_visible()) {
                     <button
                         btn
                         matRipple
                         class="items clear hover:bg-base-200 flex w-full space-x-4"
-                        (click)="show_legend = !show_legend"
+                        (click)="show_legend.set(!show_legend())"
                     >
                         <icon class="text-2xl">place</icon>
                         <div class="flex-1 text-left font-medium">Legend</div>
                         <icon class="text-2xl">{{
-                            show_legend
+                            show_legend()
                                 ? 'keyboard_arrow_up'
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_legend ? 'show' : 'hide'">
+                    <div class="px-8" [@show]="show_legend() ? 'show' : 'hide'">
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
@@ -211,21 +215,21 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
                     btn
                     matRipple
                     class="items clear hover:bg-base-200 flex w-full space-x-4"
-                    (click)="show_accessibility = !show_accessibility"
+                    (click)="show_accessibility.set(!show_accessibility())"
                 >
                     <icon class="text-2xl">accessible</icon>
                     <div class="flex-1 text-left font-medium">
                         Accessibility
                     </div>
                     <icon class="text-2xl">{{
-                        show_accessibility
+                        show_accessibility()
                             ? 'keyboard_arrow_up'
                             : 'keyboard_arrow_down'
                     }}</icon>
                 </button>
                 <div
                     class="px-8"
-                    [@show]="show_accessibility ? 'show' : 'hide'"
+                    [@show]="show_accessibility() ? 'show' : 'hide'"
                 >
                     <div class="space-y-2 py-4">
                         <accessibility-controls></accessibility-controls>
@@ -236,17 +240,17 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
             <div class="relative h-full flex-1">
                 <div class="absolute inset-0">
                     <dynamic-map
-                        [src]="url | async"
-                        [zoom]="(positions | async)?.zoom"
-                        [center]="(positions | async)?.center"
+                        [src]="url()"
+                        [zoom]="positions()?.zoom"
+                        [center]="positions()?.center"
                         (zoomChange)="updateZoom($event)"
                         (centerChange)="updateCenter($event)"
-                        [styles]="styles | async"
-                        [features]="features | async"
-                        [actions]="actions | async"
-                        [labels]="labels | async"
+                        [styles]="styles()"
+                        [features]="features()"
+                        [actions]="actions()"
+                        [labels]="labels()"
                         [options]="{ controls: true }"
-                        [focus]="locate"
+                        [focus]="locate()"
                         [mode]="isometric() ? '3d' : '2d'"
                     />
                 </div>
@@ -281,7 +285,6 @@ import { DynamicMapComponent } from './map-viewer/dynamic-map.component';
     ],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         AccessibilityControlsComponent,
         MatRippleModule,
         IconComponent,
@@ -310,70 +313,80 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
 
     /** Number of seconds after a user action to reset the kiosk state */
     public reset_delay = 180;
-    public show_levels = true;
-    public show_legend = false;
-    public show_accessibility = false;
+    public readonly show_levels = signal(true);
+    public readonly show_legend = signal(false);
+    public readonly show_accessibility = signal(false);
     public legend = [
         { id: 'free', name: 'Space Available', color: '#43a047' },
         { id: 'busy', name: 'Space In Use', color: '#e53935' },
         { id: 'pending', name: 'Space Pending', color: '#ffb300' },
         { id: 'not-bookable', name: 'Space Not-bookable', color: '#ccc' },
     ];
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, building]) => {
-            return (
-                (this._settings.get('app.use_region')
-                    ? flatten(
-                          this._org.buildings
-                              .filter((bld) => region.id === bld.parent_id)
-                              .map((bld) =>
-                                  this._org.levelsForBuilding(bld).map((_) => ({
-                                      ..._,
-                                      display_name: `${bld.display_name} - ${_.display_name}`,
-                                  })),
-                              ),
-                      )
-                    : this._org.levelsForBuilding(building)) || []
-            );
-        }),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+        ]).pipe(
+            map(([region, building]) => {
+                return (
+                    (this._settings.get('app.use_region')
+                        ? flatten(
+                              this._org.buildings
+                                  .filter((bld) => region.id === bld.parent_id)
+                                  .map((bld) =>
+                                      this._org
+                                          .levelsForBuilding(bld)
+                                          .map((_) => ({
+                                              ..._,
+                                              display_name: `${bld.display_name} - ${_.display_name}`,
+                                          })),
+                                  ),
+                          )
+                        : this._org.levelsForBuilding(building)) || []
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
-    public readonly level = this._state.level;
+    public readonly level = toSignal(this._state.level, {
+        initialValue: undefined,
+    });
 
-    public get logo() {
-        return this._settings.theme === 'dark'
-            ? this._settings.get('app.logo_dark')
-            : this._settings.get('app.logo_light');
-    }
-
-    public get time() {
-        return startOfMinute(Date.now());
-    }
-    public get legend_visible() {
-        return this._settings.get('app.explore.show_legend') !== false;
-    }
-
-    public get hide_zones() {
-        return this._settings.get('app.explore.hide_zones');
-    }
+    public readonly logo = computed(() =>
+        this._settings.theme_signal() === 'dark'
+            ? this._settings.signal('logo_dark')()
+            : this._settings.signal('logo_light')(),
+    );
+    public readonly legend_visible = computed(
+        () => this._settings.signal('explore.show_legend')() !== false,
+    );
+    public readonly hide_zones = this._settings.signal('explore.hide_zones');
     /** Observable for the active map */
-    public readonly url = this._state.map_url;
+    public readonly url = toSignal(this._state.map_url, { initialValue: '' });
     /** Observable for the active map */
-    public readonly styles = this._state.map_styles;
+    public readonly styles = toSignal(this._state.map_styles, {
+        initialValue: { text: { display: 'none' } },
+    });
     /** Observable for the active map */
-    public readonly positions = this._state.map_positions;
+    public readonly positions = toSignal(this._state.map_positions, {
+        initialValue: this._state.positions,
+    });
     /** Observable for the active map */
-    public readonly features = this._state.map_features;
+    public readonly features = toSignal(this._state.map_features, {
+        initialValue: [],
+    });
     /** Observable for the active map */
-    public readonly actions = this._state.map_actions;
+    public readonly actions = toSignal(this._state.map_actions, {
+        initialValue: [],
+    });
     /** Observable for the labels map */
-    public readonly labels = this._state.map_labels;
+    public readonly labels = toSignal(this._state.map_labels, {
+        initialValue: [],
+    });
     /** Observable for the active map */
     public readonly options = this._state.options;
 
-    public locate = '';
+    public readonly locate = signal('');
     public isometric = settingSignal('show_isometric');
 
     @HostListener('window:mousedown') public onMouse = () =>
@@ -401,9 +414,9 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         this.setOptions({ disable });
     }
 
-    public get can_search() {
-        return !!this._settings.get('app.explore.search_enabled');
-    }
+    public readonly can_search = computed(
+        () => !!this._settings.signal('explore.search_enabled')(),
+    );
 
     public readonly use_mapsindoors$ = this._maps.available$;
 
@@ -488,7 +501,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
                         'Focusing on location:',
                         params.get('locate'),
                     );
-                    this.locate = params.get('locate');
+                    this.locate.set(params.get('locate'));
                     this.timeout('update_location', () => {
                         this._state.setFeatures('_located', [
                             {

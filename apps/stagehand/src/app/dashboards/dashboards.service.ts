@@ -210,12 +210,20 @@ export class DashboardsService extends AsyncHandler {
     private _alerts = signal([]);
     private _initialising = signal(false);
     private _region_set_from_params = false;
+    /** Capture original URL query string at construction time before effects can modify it */
+    private _initial_query_string = (() => {
+        const hash = location.hash;
+        const idx = hash.indexOf('?');
+        return idx >= 0 ? hash.substring(idx + 1) : '';
+    })();
     /** Track alert IDs that have already been notified to prevent duplicates */
     private _notified_alert_ids = new Set<string>();
     /** Cache of system modules: system_id -> list of valid device names */
     private _system_modules_cache = new Map<string, string[]>();
     /** Track in-flight module queries to prevent duplicate requests */
     private _pending_module_queries = new Map<string, Promise<string[]>>();
+    /** Track current alert subscription scope to avoid unnecessary resets */
+    private _alert_scope = '';
 
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
@@ -231,28 +239,41 @@ export class DashboardsService extends AsyncHandler {
 
     constructor() {
         super();
-        // Check for region/building in URL query params immediately
-        this._initFromQueryParams();
 
         firstTruthyValueFrom(this._org.initialised).then(() => {
-            this.timeout('org_init', () => {
-                // Don't overwrite if region was explicitly set from query params
-                if (!this._region_set_from_params) {
-                    this.region_id.set(this._org.region?.id || '');
-                    this.building_id.set(this._org.building?.id || '');
-                }
-            });
+            // Check for region/building in URL query params immediately
+            this._initFromQueryParams();
+
+            // If not set from params, sync with org service region/building
+            if (!this._region_set_from_params) {
+                this.region_id.set(this._org.region?.id || '');
+                this.building_id.set(this._org.building?.id || '');
+                // Subscribe to catch late region restoration (e.g., from localStorage)
+                this.subscription(
+                    'org_region',
+                    this._org.active_region.subscribe((region) => {
+                        if (!this._region_set_from_params) {
+                            this.region_id.set(region?.id || '');
+                        }
+                    }),
+                );
+                this.subscription(
+                    'org_building',
+                    this._org.active_building.subscribe((building) => {
+                        if (!this._region_set_from_params) {
+                            this.building_id.set(building?.id || '');
+                        }
+                    }),
+                );
+            }
         });
     }
 
     /** Initialize region/building from URL query params */
     private _initFromQueryParams() {
-        // Parse query params from hash (for hash routing) or search
-        const hash = location.hash;
-        const queryIndex = hash.indexOf('?');
-        const queryString =
-            queryIndex >= 0 ? hash.substring(queryIndex + 1) : '';
-        const params = new URLSearchParams(queryString);
+        // Use query string captured at construction time to avoid reading
+        // params injected by the _query_sync effect in AlertsComponent
+        const params = new URLSearchParams(this._initial_query_string);
 
         const region_param = params.get('region');
         const building_param = params.get('building');
@@ -363,9 +384,21 @@ export class DashboardsService extends AsyncHandler {
     }
 
     public async listenForDashboardAlerts(force = false) {
-        this.dashboard_alerts.set([]);
         const dashboard = this.dashboard();
         if (!dashboard && !force) return;
+        const alert_scope = [
+            dashboard?.id || 'disconnected',
+            this.region_id() || '',
+            this.building_id() || '',
+        ].join('|');
+        const scope_changed = this._alert_scope !== alert_scope;
+        if (!scope_changed && this._mqtt_broker && this._connected) return;
+
+        if (scope_changed) {
+            this.dashboard_alerts.set([]);
+            this._alerts.set([]);
+        }
+        this._alert_scope = alert_scope;
         if (!this._mqtt_broker) await this._initialiseBroker();
         this.timeout('listen_to_topics', () => this._listenToAlertTopics());
     }

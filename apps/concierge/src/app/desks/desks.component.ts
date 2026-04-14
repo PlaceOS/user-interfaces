@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -9,6 +16,7 @@ import {
 } from '@angular/router';
 import {
     AsyncHandler,
+    BuildingLevel,
     csvToJson,
     Desk,
     downloadFile,
@@ -23,7 +31,6 @@ import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { DeskView } from './desks-state.service';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -37,12 +44,13 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { DateOptionsComponent } from '../ui/date-options.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 import { DeskBookModalComponent } from './desk-book-modal.component';
 import { DeskQrCodeModalComponent } from './desk-qr-code-modal.component';
 import { DesksStateService } from './desks-state.service';
@@ -69,7 +77,7 @@ import { DesksStateService } from './desks-state.service';
                         [model]="filters().search"
                         (modelChange)="setFilters({ search: $event })"
                     ></searchbar>
-                    @if (path !== 'manage') {
+                    @if (path() !== 'manage') {
                         <button
                             btn
                             matRipple
@@ -82,7 +90,7 @@ import { DesksStateService } from './desks-state.service';
                             <icon class="text-2xl">add</icon>
                         </button>
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
                             btn
                             matRipple
@@ -97,7 +105,7 @@ import { DesksStateService } from './desks-state.service';
                     }
                 </div>
                 <div class="mb-4 flex w-full items-center gap-2 px-8">
-                    @if (!manage) {
+                    @if (!manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -137,7 +145,7 @@ import { DesksStateService } from './desks-state.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (manage) {
+                    @if (manage()) {
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-60"
@@ -150,7 +158,9 @@ import { DesksStateService } from './desks-state.service';
                                         : ''
                                 "
                                 (ngModelChange)="updateZones([$event])"
-                                [placeholder]="'COMMON.LEVEL_ALL' | translate"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
                             >
                                 @for (level of levels(); track level) {
                                     <mat-option [value]="level.id">
@@ -181,7 +191,7 @@ import { DesksStateService } from './desks-state.service';
                         </mat-form-field>
                     }
                     <div class="w-px flex-1"></div>
-                    @if (path === 'events') {
+                    @if (path() === 'events') {
                         <date-options
                             (dateChange)="setDate($event)"
                         ></date-options>
@@ -227,7 +237,7 @@ import { DesksStateService } from './desks-state.service';
                             }
                         </button>
                     }
-                    @if (path === 'manage') {
+                    @if (path() === 'manage') {
                         <button
                             btn
                             icon
@@ -285,7 +295,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto px-8">
                     <router-outlet></router-outlet>
                 </div>
-                @if (loading() && path === 'events') {
+                @if (loading() && path() === 'events') {
                     <mat-progress-bar
                         class="w-full"
                         mode="indeterminate"
@@ -311,7 +321,6 @@ import { DesksStateService } from './desks-state.service';
         MatProgressSpinnerModule,
         RouterModule,
         MatRippleModule,
-        CommonModule,
         FormsModule,
         IconComponent,
         MatRippleModule,
@@ -337,24 +346,23 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
 
     public readonly loading = this._state.loading;
     public readonly downloading = signal(false);
-    public path: string;
-    public manage = false;
+    public readonly path = signal('');
+    public readonly manage = computed(() => this.path() === 'manage');
     /** Signal for filters */
     public readonly filters = this._state.filters;
-    /** Signal for levels for the active building */
-    public readonly levels = toSignal(
-        combineLatest([
-            this._org.active_building,
-            this._org.active_region,
-        ]).pipe(
-            map(([bld, region]) =>
-                this._settings.get('app.use_region')
-                    ? this._org.levelsForRegion(region)
-                    : this._org.levelsForBuilding(bld),
-            ),
+    private readonly _levels$ = combineLatest([
+        this._org.active_building,
+        this._org.active_region,
+    ]).pipe(
+        map(([bld, region]) =>
+            this._settings.get('app.use_region')
+                ? this._org.levelsForRegion(region)
+                : this._org.levelsForBuilding(bld),
         ),
-        { initialValue: [] },
+        shareReplay(1),
     );
+    /** Signal for levels for the active building */
+    public readonly levels = toSignal(this._levels$, { initialValue: [] });
     public readonly setDate = (date) => this._state.setFilters({ date });
     public readonly setFilters = (o) => this._state.setFilters(o);
     public readonly refresh = () => this._state.refresh();
@@ -362,12 +370,26 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly editDesk = () => this._state.editDesk();
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
+        let clean_zones = (zones || []).filter((_) => !!_);
+        // Manage view must always have a specific zone to write metadata
+        // to — snap empty selections back to the first available level.
+        if (this.manage() && !clean_zones.length) {
+            const levels = this.levels();
+            if (levels.length) clean_zones = [levels[0].id];
+        }
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
+            queryParams: {
+                zone_ids: clean_zones.length ? clean_zones.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
-        this._state.setFilters({ zones });
+        this._state.setFilters({ zones: clean_zones });
+        persistZones(
+            this.manage() ? 'desks-manage' : 'desks',
+            this._persistScopeId(),
+            clean_zones,
+        );
     };
 
     public get use_region() {
@@ -380,7 +402,9 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             this._router.events.subscribe((e) => {
                 if (e instanceof NavigationEnd) {
                     const url_parts = this._router.url?.split('/') || [''];
-                    this.path = url_parts[url_parts.length - 1].split('?')[0];
+                    this.path.set(
+                        url_parts[url_parts.length - 1].split('?')[0],
+                    );
                     this._updateView();
                 }
             }),
@@ -388,20 +412,25 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
-                    if (!zones.length) return;
-                    const level = this._org.levelWithID(zones);
-                    this._state.setFilters({ zones });
-                    if (!level) return;
-                    this._org.building = this._org.buildings.find(
-                        (bld) => bld.id === level.parent_id,
-                    );
-                }
+                if (!params.has('zone_ids')) return;
+                const zones = (params.get('zone_ids') || '')
+                    .split(',')
+                    .filter(Boolean);
+                if (!zones.length) return;
+                const level = this._org.levelWithID(zones);
+                this._state.setFilters({ zones });
+                if (!level) return;
+                this._org.building = this._org.buildings.find(
+                    (bld) => bld.id === level.parent_id,
+                );
             }),
         );
+        this.subscription(
+            'level-changes',
+            this._levels$.subscribe((levels) => this._syncZones(levels)),
+        );
         const parts = this._router.url?.split('/') || [''];
-        this.path = parts[parts.length - 1].split('?')[0];
+        this.path.set(parts[parts.length - 1].split('?')[0]);
         this._updateView();
     }
 
@@ -490,30 +519,54 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     private _getViewFromPath(): DeskView {
-        if (this.path.includes('manage')) return 'manage';
-        if (this.path.includes('map')) return 'map';
+        if (this.path().includes('manage')) return 'manage';
+        if (this.path().includes('map')) return 'map';
         return 'events';
     }
 
     private _updateView() {
         const view = this._getViewFromPath();
-        this.manage = view === 'manage';
         this._state.setFilters({ view });
+        this._syncZones(this.levels());
+    }
 
-        if (this.manage) {
-            this.subscription(
-                'zone-changes',
-                this._org.active_levels.subscribe(async (lvls) => {
-                    if (!lvls.length) return;
-                    const { zones } = this._state.filters();
-                    const levels_in_zones =
-                        zones?.length &&
-                        zones.some((z) => lvls.find((lvl) => lvl.id === z));
-                    if (!levels_in_zones) this.updateZones([lvls[0].id]);
-                }),
-            );
-        } else {
-            this.unsub('zone-changes');
+    private _syncZones(levels: BuildingLevel[]) {
+        const current_zones = this._state.filters().zones || [];
+        const valid_zones = current_zones.filter((zone) =>
+            levels.find((level) => level.id === zone),
+        );
+        let next_zones = this.manage() ? valid_zones.slice(0, 1) : valid_zones;
+        if (!next_zones.length) {
+            // Restore persisted selection for the current view when none is
+            // active. Manage view then falls back to the first level if no
+            // valid persisted zone exists — it can never be "all levels".
+            const persisted = loadPersistedZones(
+                this.manage() ? 'desks-manage' : 'desks',
+                this._persistScopeId(),
+            ).filter((zone) => levels.find((lvl) => lvl.id === zone));
+            if (persisted.length) {
+                next_zones = this.manage() ? persisted.slice(0, 1) : persisted;
+            } else if (this.manage() && levels.length) {
+                next_zones = [levels[0].id];
+            }
         }
+        if (this._sameZones(current_zones, next_zones)) return;
+        this.updateZones(next_zones);
+    }
+
+    private _sameZones(
+        current_zones: string[] = [],
+        next_zones: string[] = [],
+    ) {
+        return (
+            current_zones.length === next_zones.length &&
+            current_zones.every((zone, index) => zone === next_zones[index])
+        );
+    }
+
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
     }
 }

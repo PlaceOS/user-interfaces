@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -22,9 +22,9 @@ import { VisitorsReportService } from './visitors-report.service';
     selector: '[visitors-report]',
     template: `
         <reports-options
-            (printing)="printing = $event"
-            [loading]="loading | async"
-            [has_data]="!!(total_count | async)"
+            (printing)="printing.set($event)"
+            [loading]="loading()"
+            [has_data]="has_data()"
             (download)="downloadReport()"
             (generate)="generateReport()"
         />
@@ -33,11 +33,7 @@ import { VisitorsReportService } from './visitors-report.service';
         >
             <div class="w-full">
                 <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
-                    <img
-                        auth
-                        class="h-12"
-                        [source]="(logo | async)?.src || (logo | async)"
-                    />
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
                     <div class="flex-1"></div>
                     <h2 class="px-2 text-2xl font-medium">
                         {{
@@ -46,11 +42,11 @@ import { VisitorsReportService } from './visitors-report.service';
                     </h2>
                 </div>
             </div>
-            @if (!(loading | async)) {
-                @if (total_count | async) {
+            @if (!loading()) {
+                @if (total_count()) {
                     <visitor-report-overall></visitor-report-overall>
                     <visitor-report-daily-usage
-                        [print]="printing"
+                        [print]="printing()"
                     ></visitor-report-daily-usage>
                     <visitor-report-list></visitor-report-list>
                 } @else {
@@ -82,7 +78,6 @@ import { VisitorsReportService } from './visitors-report.service';
         `,
     ],
     imports: [
-        CommonModule,
         ReportsOptionsComponent,
         AuthenticatedImageDirective,
         MatProgressSpinnerModule,
@@ -98,23 +93,30 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _org = inject(OrganisationService);
 
-    public printing = false;
-    public readonly total_count = this._state.bookings$.pipe(
-        map((i) => i.length || 0),
+    public readonly printing = signal(false);
+    public readonly total_count = toSignal(
+        this._state.bookings$.pipe(map((i) => i.length || 0)),
+        { initialValue: 0 },
     );
-    public readonly loading = this._state.loading$;
+    public readonly loading = toSignal(this._state.loading$, {
+        initialValue: false,
+    });
+    public readonly has_data = computed(() => !!this.total_count());
 
     public readonly downloadReport = () => this._state.downloadReport();
     public readonly generateReport = () => this._state.generateReport();
 
-    public readonly logo = this._org.active_building.pipe(
-        debounceTime(500),
-        map(
-            () =>
-                (this._settings.theme === 'dark'
-                    ? this._settings.get('app.logo_dark')
-                    : this._settings.get('app.logo_light')) || {},
+    public readonly logo = toSignal(
+        this._org.active_building.pipe(
+            debounceTime(500),
+            map(
+                () =>
+                    (this._settings.theme === 'dark'
+                        ? this._settings.get('app.logo_dark')
+                        : this._settings.get('app.logo_light')) || {},
+            ),
         ),
+        { initialValue: {} },
     );
 
     public ngOnInit() {

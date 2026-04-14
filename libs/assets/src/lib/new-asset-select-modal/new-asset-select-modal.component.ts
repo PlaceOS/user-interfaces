@@ -97,9 +97,9 @@ const EMPTY_FAVS: string[] = [];
                     class="inverse bg-base-100 text-secondary"
                 >
                     <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
+                        <icon class="text-xl">done</icon>
                         <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                            {{ 'COMMON.CONFIRM_SELECTION' | translate }}
                         </div>
                     </div>
                 </button>
@@ -160,13 +160,25 @@ export class NewAssetSelectModalComponent {
     public requested = this._data.requested;
     public offset: number;
     public offset_day: number;
+    private readonly _min_offset = this._settings.signal(
+        'assets.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'assets.end_offset',
+        0,
+    );
 
     public get is_safari() {
         return isMobileSafari();
     }
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_assets') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_assets',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     public get selected_ids() {
@@ -185,11 +197,8 @@ export class NewAssetSelectModalComponent {
         const { duration } = this._data.details;
         this._state.setOptions(this._data.details);
         this.offset = Math.min(
-            Math.max(
-                this._settings.get('app.assets.min_offset'),
-                this._data.offset || 0,
-            ),
-            (duration || 60) - this._settings.get('app.assets.end_offset'),
+            Math.max(this._min_offset(), this._data.offset || 0),
+            (duration || 60) - this._end_offset(),
         );
         this.offset_day = this._data.offset_day || 0;
     }

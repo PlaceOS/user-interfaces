@@ -1,10 +1,5 @@
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { addMinutes, differenceInMinutes, format, startOfDay } from 'date-fns';
 
 import { CalendarEvent, SettingsService } from '@placeos/common';
@@ -15,14 +10,14 @@ const DAY_IN_MINUTES = 24 * 60;
 @Component({
     selector: 'dayview-event',
     template: `
-        @if ((ui_options | async)?.show_overflow) {
+        @if (ui_options().show_overflow) {
             <div
                 [class]="
                     'overflow-block absolute w-full overflow-hidden rounded-sm ' +
-                    type
+                    type()
                 "
-                [style.top]="overflow_top * 100 + '%'"
-                [style.height]="overflow_height * 100 + '%'"
+                [style.top]="layout().overflow_top * 100 + '%'"
+                [style.height]="layout().overflow_height * 100 + '%'"
             ></div>
         }
         @if (event()) {
@@ -31,10 +26,10 @@ const DAY_IN_MINUTES = 24 * 60;
                 matRipple
                 [class]="
                     'border-base-200 absolute z-10 overflow-hidden rounded-sm border text-sm shadow-xs hover:z-30 ' +
-                    type
+                    type()
                 "
-                [style.top]="top * 100 + '%'"
-                [style.height]="height * 100 + '%'"
+                [style.top]="layout().top * 100 + '%'"
+                [style.height]="layout().height * 100 + '%'"
                 (click)="view(event())"
             >
                 <div class="px-2 py-1 font-medium">
@@ -49,7 +44,7 @@ const DAY_IN_MINUTES = 24 * 60;
                 @if (event().duration > 60) {
                     <div class="flex items-center py-1">
                         <icon class="mx-2">schedule</icon>
-                        {{ time }}
+                        {{ time() }}
                     </div>
                 }
                 @if (event().duration > 90) {
@@ -62,12 +57,12 @@ const DAY_IN_MINUTES = 24 * 60;
                 }
             </div>
         }
-        @if (event() && (ui_options | async)?.show_cleaning) {
+        @if (event() && ui_options().show_cleaning) {
             <div
                 cleaning
                 class="bg-base-100 absolute z-20 flex w-full overflow-hidden rounded-sm p-2 shadow-sm hover:h-48!"
-                [style.top]="top * 100 + '%'"
-                [style.height]="height * 100 + '%'"
+                [style.top]="layout().top * 100 + '%'"
+                [style.height]="layout().height * 100 + '%'"
             >
                 <div
                     [class]="
@@ -148,60 +143,63 @@ const DAY_IN_MINUTES = 24 * 60;
     ],
     standalone: false,
 })
-export class DayviewEventComponent implements OnChanges {
+export class DayviewEventComponent {
     private _state = inject(EventsStateService);
     private _settings = inject(SettingsService);
 
     /** Event to display */
     public readonly event = input<CalendarEvent>(undefined);
-    /** Top position for the event */
-    public top = -999;
-    /** Height of the event on the calendar */
-    public height = 0;
-    /** Top position for the event */
-    public overflow_top = -999;
-    /** Height of the event on the calendar */
-    public overflow_height = 0;
-
-    public readonly ui_options = this._state.options;
+    public readonly ui_options = toSignal(this._state.options, {
+        initialValue: {},
+    });
 
     public readonly view = (e) => this._state.setEvent(e);
 
-    public get time() {
-        const date = new Date(this.event().date);
+    public readonly layout = computed(() => {
+        const event = this.event();
+        if (!event) {
+            return {
+                top: -999,
+                height: 0,
+                overflow_top: -999,
+                overflow_height: 0,
+            };
+        }
+        const start = startOfDay(new Date(event.date));
+        const diff = differenceInMinutes(new Date(event.date), start);
+        return {
+            top: diff / DAY_IN_MINUTES,
+            height: event.duration / DAY_IN_MINUTES,
+            overflow_top: (diff - (event.setup_time || 0)) / DAY_IN_MINUTES,
+            overflow_height:
+                (event.duration +
+                    (event.setup_time || 0) +
+                    (event.breakdown_time || 0)) /
+                DAY_IN_MINUTES,
+        };
+    });
+
+    public readonly time = computed(() => {
+        const event = this.event();
+        if (!event) return '';
+        const date = new Date(event.date);
         return (
             format(date, this.time_format) +
             ' - ' +
-            format(addMinutes(date, this.event().duration), this.time_format)
+            format(addMinutes(date, event.duration), this.time_format)
         );
-    }
+    });
 
-    public get type() {
+    public readonly type = computed(() => {
         const event = this.event();
+        if (!event) return '';
         if (event.guests.length) return 'external';
         if (event.status === 'declined') return 'cancelled';
         if (event.status === 'tentative') return 'pending';
         return 'internal';
-    }
+    });
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        const event = this.event();
-        if (changes.event && event) {
-            const start = startOfDay(new Date(event.date));
-            const diff = differenceInMinutes(new Date(event.date), start);
-            this.top = diff / DAY_IN_MINUTES;
-            this.height = event.duration / DAY_IN_MINUTES;
-            this.overflow_top =
-                (diff - (event.setup_time || 0)) / DAY_IN_MINUTES;
-            this.overflow_height =
-                (event.duration +
-                    (event.setup_time || 0) +
-                    (event.breakdown_time || 0)) /
-                DAY_IN_MINUTES;
-        }
     }
 }

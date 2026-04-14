@@ -46,30 +46,30 @@ export interface SpaceInfoData {
             [xPosition]="'center'"
             [yPosition]="'center'"
             [hover]="true"
-            [attr.id]="space?.map_id || space?.id"
+            [attr.id]="space()?.map_id || space()?.id"
             (mouseenter)="updateOffset()"
             class="pointer-events-auto relative hidden h-full w-full cursor-pointer sm:block"
         ></div>
         <ng-template #space_tooltip>
             <div
                 name="space-info"
-                [id]="space?.id"
+                [id]="space()?.id"
                 class="border-base-300 bg-base-100 pointer-events-none absolute top-0 left-0 w-64 transform overflow-hidden rounded-sm border shadow-sm"
-                [class.-translate-x-full]="x_pos === 'end'"
-                [class.-translate-y-full]="y_pos === 'bottom'"
+                [class.-translate-x-full]="x_pos() === 'end'"
+                [class.-translate-y-full]="y_pos() === 'bottom'"
             >
                 <div class="arrow"></div>
                 <div class="relative">
                     <div
                         class="bg-opacity-20 relative flex w-full items-center justify-center overflow-hidden"
-                        [class.bg-neutral]="space.images[0]"
-                        [class.h-32]="space.images[0]"
-                        [class.h-8]="!space.images[0]"
+                        [class.bg-neutral]="space().images[0]"
+                        [class.h-32]="space().images[0]"
+                        [class.h-8]="!space().images[0]"
                     >
-                        @if (space.images[0]) {
+                        @if (space().images[0]) {
                             <img
                                 auth
-                                [source]="space.images[0]"
+                                [source]="space().images[0]"
                                 class="min-h-full min-w-full object-cover"
                             />
                         } @else {
@@ -83,17 +83,17 @@ export interface SpaceInfoData {
                             status
                             [class]="
                                 'text-light rounded-sm border border-white p-1 px-2 capitalize shadow-sm ' +
-                                status
+                                status()
                             "
                         >
                             {{
-                                (status === 'not-bookable'
+                                (status() === 'not-bookable'
                                     ? 'COMMON.STATUS_NOT_BOOKABLE'
-                                    : 'COMMON.STATUS_' + (status | uppercase)
+                                    : 'COMMON.STATUS_' + (status() | uppercase)
                                 ) | translate
                             }}
                         </div>
-                        @if (status !== 'not-bookable') {
+                        @if (status() !== 'not-bookable') {
                             <div available-until>
                                 {{ available_until }}
                             </div>
@@ -101,9 +101,9 @@ export interface SpaceInfoData {
                     </div>
                     <div class="flex flex-col px-2 py-4">
                         <h4 class="mb-2 px-2 text-xl font-medium">
-                            {{ space.display_name || space.name }}
+                            {{ space().display_name || space().name }}
                         </h4>
-                        @if (space.capacity >= 0) {
+                        @if (space().capacity >= 0) {
                             <div
                                 capacity
                                 class="mb-2 flex items-center space-x-2 px-2 text-base"
@@ -113,16 +113,16 @@ export interface SpaceInfoData {
                                     {{
                                         'COMMON.PEOPLE_COUNT'
                                             | translate
-                                                : { count: space.capacity }
-                                                : space.capacity
+                                                : { count: space().capacity }
+                                                : space().capacity
                                     }}
                                 </div>
                             </div>
                         }
-                        @if (space.features?.length > 0 && !hide_features()) {
+                        @if (space().features?.length > 0 && !hide_features()) {
                             <ul class="flex flex-wrap">
                                 @for (
-                                    feature of space.features;
+                                    feature of space().features;
                                     track feature
                                 ) {
                                     <li
@@ -210,20 +210,28 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     private _details = inject<SpaceInfoData>(MAP_FEATURE_DATA);
     private _element = inject<ElementRef<HTMLElement>>(ElementRef);
 
-    public y_pos: 'top' | 'bottom';
-    public x_pos: 'start' | 'end';
+    public readonly y_pos = signal<'top' | 'bottom'>('top');
+    public readonly x_pos = signal<'start' | 'end'>('start');
     /** Space to display details for */
-    public readonly space = this._details.space;
+    public readonly space = signal(this._details.space);
     /** List of upcoming events for space */
-    public readonly events = this._details.events;
+    public readonly events = signal(this._details.events || []);
     /** List of upcoming events for space */
     public readonly now = signal(Date.now());
     /** List of upcoming events for space */
-    public readonly next = signal<CalendarEvent>(null);
+    public readonly next = computed<CalendarEvent>(() => {
+        return [...this.events()]
+            .sort((a, b) => a.date - b.date)
+            .filter(
+                (item) =>
+                    item.date_end > this.now() &&
+                    isSameDay(item.date, this.now()),
+            )[0];
+    });
     public readonly current = computed(() =>
         this.next()
-            ? this.next()?.date <= Date.now() &&
-              this.next()?.date_end > Date.now()
+            ? this.next()?.date <= this.now() &&
+              this.next()?.date_end > this.now()
             : false,
     );
     /** Whether the event details should be display on the tooltip */
@@ -232,7 +240,7 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         true,
     );
     /** Current status of the space */
-    public readonly status = this._details.status;
+    public readonly status = signal(this._details.status);
 
     public readonly hide_features = settingSignal(
         'spaces.hide_features',
@@ -241,19 +249,15 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.timeout('update_offset', () => this.updateOffset(), 200);
-        const events = (this.events || [])
-            .sort((a, b) => a.date - b.date)
-            .filter(
-                (i) => i.date_end > Date.now() && isSameDay(i.date, Date.now()),
-            );
-        this.next.set(events[0]);
         this.interval('time', () => this.now.set(Date.now()), 5000);
     }
 
     public updateOffset() {
         const pos = this._element.nativeElement.getBoundingClientRect();
-        this.x_pos = pos.x < document.body.clientWidth / 2 ? 'start' : 'end';
-        this.y_pos = pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom';
+        this.x_pos.set(pos.x < document.body.clientWidth / 2 ? 'start' : 'end');
+        this.y_pos.set(
+            pos.y < document.body.clientHeight / 2 ? 'top' : 'bottom',
+        );
     }
 
     public get available_until() {

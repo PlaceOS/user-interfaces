@@ -33,6 +33,7 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
+import { visitorDisplayNameFor } from './booking.utilities';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -63,8 +64,13 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     class="mt-2 w-full px-3 text-xl font-medium"
                     [class.pt-4]="!booking()?.extension_data?.images"
                 >
-                    {{ booking().title }}
+                    {{ display_title() }}
                 </h3>
+                @if (is_visitor()) {
+                    <p class="w-full px-3 text-sm opacity-70">
+                        {{ visitor_display_name() }}
+                    </p>
+                }
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status()">
@@ -158,10 +164,21 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                         <div>{{ period() }}</div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Level and Resource">map</icon>
+                        <icon matTooltip="Level and Resource">{{
+                            is_visitor() ? 'person' : 'map'
+                        }}</icon>
                         <div>
-                            {{ level()?.display_name || level()?.name }},
-                            {{ booking().asset_name || booking().asset_id }}
+                            @if (is_visitor()) {
+                                <div>{{ visitor_display_name() }}</div>
+                                @if (visitor_email_label()) {
+                                    <div class="text-xs opacity-60">
+                                        {{ visitor_email_label() }}
+                                    </div>
+                                }
+                            } @else {
+                                {{ level()?.display_name || level()?.name }},
+                                {{ booking().asset_name || booking().asset_id }}
+                            }
                         </div>
                     </div>
                     <div class="flex items-center space-x-2 px-2">
@@ -366,14 +383,12 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (!is_in_progress()) {
-                <button mat-menu-item (click)="remove(booking(), false)">
-                    <div class="flex items-center space-x-2 text-base">
-                        <icon class="text-error">delete</icon>
-                        <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
-                    </div>
-                </button>
-            }
+            <button mat-menu-item (click)="remove(booking(), false)">
+                <div class="flex items-center space-x-2 text-base">
+                    <icon class="text-error">delete</icon>
+                    <div>{{ 'BOOKINGS.ACTION_DELETE' | translate }}</div>
+                </div>
+            </button>
             @if (booking().instance && allow_series_delete()) {
                 <button mat-menu-item (click)="remove(booking(), true)">
                     <div class="flex items-center space-x-2 text-base">
@@ -417,6 +432,7 @@ export class BookingDetailsModalComponent {
         edit_fn: (i) => void;
         remove_fn: (i, s?) => void;
         end_fn: (i) => void;
+        refresh_fn?: () => void;
     }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
@@ -444,14 +460,31 @@ export class BookingDetailsModalComponent {
     public readonly level = computed(() =>
         this._org.levelWithID(this.booking()?.zones || []),
     );
+    public readonly level_or_building = computed(
+        () => this.level() || this.building(),
+    );
+    public readonly resource_location = computed(() => {
+        const location_name =
+            this.level_or_building()?.display_name ||
+            this.level_or_building()?.name ||
+            '';
+        const resource_name =
+            this.booking().asset_name || this.booking().asset_id;
+        return location_name
+            ? `${location_name}, ${resource_name}`
+            : resource_name;
+    });
+    private readonly _use_region = this._settings.signal('use_region', false);
     public readonly building = computed(() => {
-        const building = this._org.buildings.find((bld) =>
-            (this.booking()?.zones || []).includes(bld.id),
+        const zones = this.booking()?.zones || [];
+        const level = this.level();
+        const building = this._org.buildings.find(
+            (bld) => zones.includes(bld.id) || bld.id === level?.parent_id,
         );
-        if (this._settings.get('app.use_region')) {
+        if (this._use_region()) {
             const region = this._org.regions.find(
                 (region) =>
-                    (this.booking()?.zones || []).includes(region.id) ||
+                    zones.includes(region.id) ||
                     region.id === building?.parent_id,
             );
             if (region) return region;
@@ -463,10 +496,17 @@ export class BookingDetailsModalComponent {
         const is_visitor = this.booking().booking_type === 'visitor';
         const visitor_edit_allowed =
             is_visitor && settingSignal('visitors.allow_editing', false)();
+        const is_parking = this.booking().booking_type === 'parking';
+        const features: string[] = settingSignal<string[]>('features', [])();
+        const parking_allocated_edit_blocked =
+            is_parking &&
+            !!this.booking().asset_id &&
+            !features.includes('parking');
         return (
             !this.booking().is_done &&
             !this.booking().checked_in &&
-            (!is_visitor || visitor_edit_allowed)
+            (!is_visitor || visitor_edit_allowed) &&
+            !parking_allocated_edit_blocked
         );
     });
 
@@ -509,6 +549,36 @@ export class BookingDetailsModalComponent {
             this.booking()?.type === 'desk' &&
             settingSignal('desks.height_enabled')(),
     );
+    public readonly is_visitor = computed(
+        () => this.booking()?.booking_type === 'visitor',
+    );
+    public readonly display_title = computed(() => {
+        const booking = this.booking();
+        if (!booking) return '';
+        return booking.title || booking.asset_name || booking.asset_id;
+    });
+    public readonly visitor_display_name = computed(
+        () => visitorDisplayNameFor(this.booking()) || 'Visitor',
+    );
+    public readonly visitor_reason = computed(() => {
+        const booking = this.booking();
+        if (!booking || !this.is_visitor()) return '';
+        const visitor_name = (
+            visitorDisplayNameFor(booking) || 'Visitor'
+        ).toLowerCase();
+        const reason = `${booking.title || booking.description || ''}`.trim();
+        if (!reason.length) return '';
+        return reason.toLowerCase() === visitor_name ? '' : reason;
+    });
+    public readonly visitor_email_label = computed(() => {
+        const booking = this.booking();
+        const asset_id = `${booking?.asset_id || ''}`.trim();
+        if (!asset_id || !this._looksLikeEmail(asset_id)) return '';
+        const display_name = visitorDisplayNameFor(booking) || 'Visitor';
+        return display_name.toLowerCase() === asset_id.toLowerCase()
+            ? ''
+            : asset_id;
+    });
 
     public readonly is_in_progress = computed(() => {
         const ts = Date.now();
@@ -519,7 +589,7 @@ export class BookingDetailsModalComponent {
     });
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public readonly booking_status = computed(() => {
@@ -576,6 +646,7 @@ export class BookingDetailsModalComponent {
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),
         );
+        this._data.refresh_fn?.();
         this.checking_in.set(false);
     }
 
@@ -625,5 +696,9 @@ export class BookingDetailsModalComponent {
                 id: this.booking().asset_ids[0] || this.booking().asset_id,
             },
         });
+    }
+
+    private _looksLikeEmail(value: string) {
+        return !!value && value.includes('@');
     }
 }

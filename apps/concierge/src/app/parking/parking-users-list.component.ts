@@ -1,7 +1,8 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatRippleModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifySuccess } from '@placeos/common';
@@ -10,19 +11,18 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { BehaviorSubject } from 'rxjs';
-import { ParkingStateService } from './parking-state.service';
+import { ParkingOptions, ParkingStateService } from './parking-state.service';
 
 @Component({
     selector: 'parking-users-list',
     template: `
         <mat-progress-bar
-            [class.opacity-0]="!(loading | async)?.includes('users')"
+            [class.opacity-0]="!loading().includes('users')"
             class="w-full"
         />
         <simple-table
             class="block min-w-272 text-sm"
-            [data]="user_list"
+            [data]="user_list()"
             [columns]="[
                 {
                     key: 'name',
@@ -30,7 +30,7 @@ import { ParkingStateService } from './parking-state.service';
                     content: name_template,
                 },
                 {
-                    key: 'car_color',
+                    key: 'car_colour',
                     name: 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate,
                 },
                 {
@@ -53,7 +53,7 @@ import { ParkingStateService } from './parking-state.service';
                     size: '6.5rem',
                 },
             ]"
-            [filter]="(options | async)?.search"
+            [filter]="options().search"
             [sortable]="true"
         />
         <ng-template #name_template let-row="row" let-data="data">
@@ -112,9 +112,8 @@ import { ParkingStateService } from './parking-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
+        MatRippleModule,
         MatProgressBarModule,
-        SimpleTableComponent,
         IconComponent,
         TranslatePipe,
         SimpleTableComponent,
@@ -125,11 +124,23 @@ export class ParkingUsersListComponent {
     private _state = inject(ParkingStateService);
     private _clipboard = inject(Clipboard);
 
-    public readonly options = this._state.options;
-    public readonly loading = this._state.loading;
+    private readonly _default_options: ParkingOptions = {
+        date: Date.now(),
+        search: '',
+        zones: [],
+        period: 'day',
+        request_filter: 'all',
+    };
 
-    public readonly new_items = new BehaviorSubject<FormGroup[]>([]);
-    public readonly user_list = this._state.users;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: this._default_options,
+    });
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: [],
+    });
+    public readonly user_list = toSignal(this._state.users, {
+        initialValue: [],
+    });
 
     public readonly editUser = (u?) => this._state.editUser(u);
     public readonly removeUser = (u) => this._state.removeUser(u);

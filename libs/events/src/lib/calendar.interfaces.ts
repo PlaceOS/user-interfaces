@@ -22,3 +22,10 @@ export interface CalendarAvailability {
     date: number;
     status: string;
 }
+
+export interface CalendarPermission {
+    /** Whether the current user has access to the target calendar */
+    has_access: boolean;
+    /** The role the current user has on the target calendar */
+    role: string;
+}

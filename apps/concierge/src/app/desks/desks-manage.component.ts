@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -249,7 +249,6 @@ const QR_CODES = {};
     `,
     styles: [``],
     imports: [
-        CommonModule,
         SimpleTableComponent,
         TranslatePipe,
         MatProgressSpinnerModule,

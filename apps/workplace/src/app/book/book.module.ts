@@ -9,6 +9,7 @@ import { NewDeskFlowComponent } from './desk-flow.component';
 import { BookLockerFlowComponent } from './locker-flow.component';
 import { BookMeetingFlowComponent } from './meeting-flow.component';
 import { NewParkingFlowComponent } from './parking-flow.component';
+import { ParkingRequestFlowComponent } from './parking-request-flow.component';
 import { VisitorFlowComponent } from './visitor-flow.component';
 
 const ROUTES: Route[] = [
@@ -26,6 +27,11 @@ const ROUTES: Route[] = [
             { path: 'meeting/:step', component: BookMeetingFlowComponent },
             { path: 'parking', redirectTo: 'parking/form' },
             { path: 'parking/:step', component: NewParkingFlowComponent },
+            { path: 'parking-request', redirectTo: 'parking-request/form' },
+            {
+                path: 'parking-request/:step',
+                component: ParkingRequestFlowComponent,
+            },
             { path: 'visitor', redirectTo: 'visitor/form' },
             { path: 'visitor/:step', component: VisitorFlowComponent },
             { path: 'locker', redirectTo: 'locker/form' },
@@ -46,6 +52,7 @@ const STANDALONE_COMPONENTS = [
     NewDeskFlowComponent,
     VisitorFlowComponent,
     NewParkingFlowComponent,
+    ParkingRequestFlowComponent,
     BookLockerFlowComponent,
 ];
 

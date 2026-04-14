@@ -1,6 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
+import { Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
+import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 import { LevelListComponent } from './level-list.component';
@@ -62,6 +65,19 @@ import { LevelManagementService } from './level-management.service';
 })
 export class LevelManagerComponent {
     private _manager = inject(LevelManagementService);
+    private _router = inject(Router);
+
+    private readonly _url = toSignal(
+        this._router.events.pipe(startWith(null)),
+        {
+            initialValue: null,
+        },
+    );
 
     public readonly newLevel = () => this._manager.editLevel();
+    public readonly path = computed(() => {
+        this._url();
+        const parts = this._router.url.split('/');
+        return parts[parts.length - 1].split('?')[0];
+    });
 }

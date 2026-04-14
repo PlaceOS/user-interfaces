@@ -3,7 +3,6 @@ import {
     AfterViewInit,
     Component,
     ElementRef,
-    HostListener,
     inject,
     Injector,
     input,
@@ -138,6 +137,9 @@ function isSamePoint(p1: Point, p2: Point): boolean {
             }
         `,
     ],
+    host: {
+        '(window:resize)': 'onResize()',
+    },
     imports: [
         CommonModule,
         TranslatePipe,
@@ -196,7 +198,7 @@ export class MapRendererComponent
         {},
     );
 
-    @HostListener('window:resize') public onResize() {
+    public onResize() {
         this.zoom.set(1);
         this.center.set({ x: 0.5, y: 0.5 });
         this.updateDisplay();

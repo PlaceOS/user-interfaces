@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import {
@@ -25,22 +26,22 @@ export interface BookingModalData {
                 <icon>close</icon>
             </button>
         </header>
-        <main class="relative p-4" [class.overflow-auto]="!(loading | async)">
+        <main class="relative p-4" [class.overflow-auto]="!loading()">
             <event-form
-                [class.pointer-events-none]="loading | async"
+                [class.pointer-events-none]="loading()"
                 [form]="form"
             ></event-form>
-            @if (loading | async) {
+            @if (loading()) {
                 <div
                     loading
                     class="absolute inset-0 flex flex-col items-center justify-center"
                 >
                     <mat-spinner [diameter]="48" class="mb-4"></mat-spinner>
-                    <p>{{ loading | async }}</p>
+                    <p>{{ loading() }}</p>
                 </div>
             }
         </main>
-        @if (!(loading | async)) {
+        @if (!loading()) {
             <footer
                 class="border-base-200 flex items-center justify-center border-t p-2"
             >
@@ -70,7 +71,9 @@ export class BookingModalComponent implements OnInit {
 
     public readonly event = output<DialogEvent>();
     /** Observable for the loading state of the form */
-    public readonly loading = this._service.loading$;
+    public readonly loading = toSignal(this._service.loading$, {
+        initialValue: '',
+    });
 
     public get form() {
         return this._service.form;

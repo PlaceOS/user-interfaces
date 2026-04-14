@@ -1,13 +1,16 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { queryParkingSpacesForZones, queryParkingUsers } from '@placeos/assets';
 import {
     AsyncHandler,
+    currentUser,
+    Desk,
+    flatten,
     OrganisationService,
     SettingsService,
-    currentUser,
 } from '@placeos/common';
-import { PlaceAsset, showMetadata } from '@placeos/ts-client';
+import { listChildMetadata, PlaceAsset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, forkJoin, of } from 'rxjs';
 import {
     catchError,
     filter,
@@ -17,21 +20,9 @@ import {
     tap,
 } from 'rxjs/operators';
 import { queryBookings } from './bookings.fn';
-import { queryParkingSpacesForZones } from '@placeos/assets';
 
 export type ParkingSpace = PlaceAsset;
-
-export interface ParkingUser {
-    id: string;
-    name: string;
-    email: string;
-    car_model: string;
-    car_colour: string;
-    plate_number: string;
-    phone: string;
-    notes: string;
-    deny: boolean;
-}
+export type { ParkingUser } from '@placeos/assets';
 
 @Injectable({
     providedIn: 'root',
@@ -84,19 +75,13 @@ export class ParkingService extends AsyncHandler {
         shareReplay(1),
     );
 
-    /** List of parking spaces for the current building/level */
+    /** List of parking users for the current building */
     public users = combineLatest([this._org.active_building]).pipe(
         filter(([bld]) => !!bld?.id),
         switchMap(([bld]) => {
             this._loading.next([...this._loading.getValue(), 'users']);
-            return showMetadata(bld.id, 'parking-users');
+            return queryParkingUsers(bld.id);
         }),
-        map(
-            (metadata) =>
-                (metadata.details instanceof Array
-                    ? metadata.details
-                    : []) as ParkingUser[],
-        ),
         tap(() =>
             this._loading.next(
                 this._loading.getValue().filter((_) => _ !== 'users'),
@@ -161,6 +146,53 @@ export class ParkingService extends AsyncHandler {
             ),
         ),
         map((_) => _[0]),
+        shareReplay(1),
+    );
+
+    /** Building ID where the user has an assigned desk (home location) */
+    public readonly home_building_id = this._org.building_list.pipe(
+        filter((blds) => blds?.length > 0),
+        switchMap((buildings) => {
+            const map_metadata = (meta) =>
+                (meta?.metadata?.desks?.details instanceof Array
+                    ? meta.metadata.desks.details
+                    : []
+                ).map((d) => new Desk({ ...d, zone: meta.zone }));
+            return forkJoin(
+                buildings.map((bld) =>
+                    listChildMetadata(bld.id, { name: 'desks' }).pipe(
+                        map((data) => ({
+                            building_id: bld.id,
+                            desks: flatten<Desk>(data.map(map_metadata)),
+                        })),
+                        catchError(() =>
+                            of({ building_id: bld.id, desks: [] as Desk[] }),
+                        ),
+                    ),
+                ),
+            );
+        }),
+        map((results) => {
+            const email = currentUser()?.email?.toLowerCase();
+            if (!email) return null;
+            const match = results.find((r) =>
+                r.desks.some((d) => d.assigned_to?.toLowerCase() === email),
+            );
+            return match?.building_id || null;
+        }),
+        shareReplay(1),
+    );
+
+    /** Whether parking is restricted at the user's home location */
+    public readonly is_home_location = combineLatest([
+        this._org.active_building,
+        this.home_building_id,
+    ]).pipe(
+        map(([bld, home_id]) => {
+            if (!this._settings.get('app.parking.restrict_home_location'))
+                return false;
+            return !!home_id && bld?.id === home_id;
+        }),
         shareReplay(1),
     );
 

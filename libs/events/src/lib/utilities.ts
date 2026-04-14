@@ -11,6 +11,7 @@ import {
     SettingsService,
     User,
     currentUser,
+    setupFormTimeSync,
     timePeriodsIntersect,
     unique,
 } from '@placeos/common';
@@ -22,7 +23,6 @@ import {
     formatDuration,
     getTime,
     isSameDay,
-    roundToNearestMinutes,
     setHours,
     setMinutes,
     startOfDay,
@@ -47,6 +47,9 @@ export function generateEventForm(
     settings?: SettingsService,
 ) {
     if (!event) event = new CalendarEvent();
+    const lock_start_time =
+        !!event.id &&
+        (event.state === 'started' || event.state === 'in_progress');
     const form = new FormGroup({
         id: new FormControl(event.id),
         ical_uid: new FormControl(event.ical_uid),
@@ -114,7 +117,10 @@ export function generateEventForm(
         refund_deadline: new FormControl(
             event.extension_data?.refund_deadline || null,
         ),
+        meeting_provider: new FormControl(event.meeting_provider || null),
     });
+    (form as any)._lock_start_time = lock_start_time;
+    const is_start_time_locked = () => !!(form as any)._lock_start_time;
     form.get('organiser').valueChanges.subscribe((o) =>
         form.controls.host.setValue(o?.email),
     );
@@ -142,71 +148,18 @@ export function generateEventForm(
         );
     };
     form.valueChanges.subscribe((v) => {
-        if (form.getRawValue().date < Date.now() && form.value.id) {
+        if (is_start_time_locked()) {
             form.get('date')?.disable({ emitEvent: false });
         } else {
             form.get('date')?.enable({ emitEvent: false });
         }
         if (v.date || v.duration || v.all_day) setCateringTime();
     });
-    form.controls.duration.valueChanges.subscribe((duration) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(form.getRawValue().date, duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        setCateringTime();
+    (form as any)._time_sync = setupFormTimeSync(form, {
+        on_time_change: setCateringTime,
     });
-    form.controls.date_end.valueChanges.subscribe((date) => {
-        if (date < addMinutes(form.getRawValue().date, 30).valueOf()) {
-            form.patchValue(
-                {
-                    date_end: roundToNearestMinutes(
-                        addMinutes(form.getRawValue().date, 30),
-                        { nearestTo: 5, roundingMethod: 'ceil' },
-                    ).valueOf(),
-                    duration: 30,
-                },
-                { emitEvent: false },
-            );
-        } else {
-            form.patchValue(
-                {
-                    duration: differenceInMinutes(
-                        date,
-                        form.getRawValue().date,
-                    ),
-                },
-                { emitEvent: false },
-            );
-        }
-        setCateringTime();
-    });
+    // Sync recurrence day-of-week when the date changes
     form.controls.date.valueChanges.subscribe((date) => {
-        form.patchValue(
-            {
-                date_end: roundToNearestMinutes(
-                    addMinutes(date, form.value.duration),
-                    { nearestTo: 5, roundingMethod: 'ceil' },
-                ).valueOf(),
-            },
-            { emitEvent: false },
-        );
-        if (date < Date.now() && !form.value.id) {
-            form.patchValue(
-                {
-                    date: roundToNearestMinutes(Date.now(), {
-                        nearestTo: 5,
-                        roundingMethod: 'ceil',
-                    }).valueOf(),
-                },
-                { emitEvent: false },
-            );
-        }
         if (
             form.value.recurrence?._pattern !== 'custom_display' &&
             form.value.recurrence?._pattern !== 'none'
@@ -218,7 +171,6 @@ export function generateEventForm(
                 },
             });
         }
-        setCateringTime();
     });
     form.controls.catering.valueChanges.subscribe((_) => {
         const catering = form.getRawValue().catering || [];
@@ -242,7 +194,7 @@ export function generateEventForm(
         form.get('host').disable();
         form.get('organiser').disable();
     }
-    if (event.state === 'started') form.get('date').disable();
+    if (is_start_time_locked()) form.get('date').disable();
     return form;
 }
 

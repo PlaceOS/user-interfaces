@@ -22,13 +22,30 @@ export class SupportService {
         ),
         map((spaces) =>
             spaces.filter(
-                (s) => s.support_url || s.camera_url || s.timetable_url,
+                (s) =>
+                    s.support_url ||
+                    s.camera_url ||
+                    s.timetable_url ||
+                    this._camera_snapshot_urls(s).length,
             ),
+        ),
+        map((spaces) =>
+            spaces.map((space) => ({
+                ...space,
+                camera_snapshot_urls: this._camera_snapshot_urls(space),
+            })),
         ),
         shareReplay(1),
     );
 
     constructor() {
         this.space_list.subscribe();
+    }
+
+    private _camera_snapshot_urls(space: {
+        camera_snapshot_url?: string;
+        camera_snapshot_urls?: string[];
+    }): string[] {
+        return space.camera_snapshot_urls?.filter((url) => !!url) || [];
     }
 }

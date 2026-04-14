@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,6 +13,7 @@ import {
     nextValueFrom,
     notifySuccess,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -20,7 +21,10 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { AssetManagerStateService } from './asset-manager-state.service';
+import {
+    AssetManagerStateService,
+    AssetOptions,
+} from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-manager-topbar',
@@ -49,7 +53,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </icon>
                 <input
                     matInput
-                    [ngModel]="(options | async)?.search"
+                    [ngModel]="options().search"
                     (ngModelChange)="setOptions({ search: $event })"
                     [placeholder]="
                         (active() === 'items'
@@ -91,11 +95,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         icon
                         matRipple
                         class="h-12 w-14 rounded-l rounded-r-none"
-                        [class.bg-secondary]="
-                            (options | async)?.view === 'grid'
-                        "
+                        [class.bg-secondary]="options().view === 'grid'"
                         [class.text-secondary-content]="
-                            (options | async)?.view === 'grid'
+                            options().view === 'grid'
                         "
                         (click)="setOptions({ view: 'grid' })"
                         [attr.aria-label]="'COMMON.VIEW_AS_GRID' | translate"
@@ -107,11 +109,9 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         icon
                         matRipple
                         class="h-12 w-14 rounded-l-none rounded-r"
-                        [class.bg-secondary]="
-                            (options | async)?.view === 'list'
-                        "
+                        [class.bg-secondary]="options().view === 'list'"
                         [class.text-secondary-content]="
-                            (options | async)?.view === 'list'
+                            options().view === 'list'
                         "
                         (click)="setOptions({ view: 'list' })"
                         [attr.aria-label]="'COMMON.VIEW_AS_LIST' | translate"
@@ -167,16 +167,16 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 }
             </div>
         }
-        @if (use_region && (buildings | async)?.length) {
+        @if (use_region() && buildings().length) {
             <div class="flex items-center space-x-2 px-4 pb-2">
                 <mat-form-field appearance="outline" class="no-subscript w-48">
                     <mat-label>{{ 'COMMON.BUILDINGS_ALL' | translate }}</mat-label>
                     <mat-select
-                        [ngModel]="(building | async)?.id"
+                        [ngModel]="building()?.id"
                         (ngModelChange)="setBuilding($event)"
                         [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
                     >
-                        @for (bld of buildings | async; track bld) {
+                        @for (bld of buildings(); track bld) {
                             <mat-option [value]="bld.id">
                                 {{ bld.display_name || bld.name }}
                             </mat-option>
@@ -188,7 +188,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatFormFieldModule,
         TranslatePipe,
         FormsModule,
@@ -208,10 +207,16 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
 
     public readonly active = input('');
 
-    public readonly options = this._state.options;
-    public readonly region = this._org.active_region;
-    public readonly building = this._org.active_building;
-    public readonly buildings = this._org.active_buildings;
+    public readonly options = toSignal(this._state.options, {
+        initialValue: { view: 'grid' } as AssetOptions,
+    });
+    public readonly building = toSignal(this._org.active_building, {
+        initialValue: null,
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
+    public readonly use_region = settingSignal('use_region');
 
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly manageCategories = () => this._state.manageCategories();
@@ -219,10 +224,6 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
 
     public get base_route() {
         return this._state.base_route;
-    }
-
-    public get use_region() {
-        return !!this._settings.get('app.use_region');
     }
 
     public setBuilding(id: string) {

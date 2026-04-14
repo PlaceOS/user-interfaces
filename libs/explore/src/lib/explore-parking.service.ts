@@ -1,10 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
+    BookableHoursRange,
     BookingRuleset,
     currentUser,
     i18n,
+    isWithinBookableHours,
     nextValueFrom,
     notifyError,
     notifySuccess,
@@ -33,8 +36,8 @@ import {
     switchMap,
 } from 'rxjs/operators';
 
-import { OrganisationService } from '@placeos/common';
 import { queryParkingSpacesForZones } from '@placeos/assets';
+import { OrganisationService } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { queryBookings } from 'libs/bookings/src/lib/bookings.fn';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
@@ -178,12 +181,13 @@ export class ExploreParkingService extends AsyncHandler {
                     },
                     rules,
                 )?.hidden;
+                console.log('Assigned:', assigned, space.id);
                 this._users[space.id] = assigned;
                 this._plate_numbers[space.id] =
                     event?.extension_data?.plate_number ||
                     user?.plate_number ||
                     undefined;
-                return !event && !is_restricted;
+                return !event && !is_restricted && space.bookable !== false;
             });
             this._updateParkingSpaces(spaces, available);
             return available;
@@ -236,13 +240,16 @@ export class ExploreParkingService extends AsyncHandler {
                 this._settings.app_name.toLowerCase().includes('staff');
             const is_assigned = is_workplace ? false : !!space.assigned_to;
             const id = space.map_id || space.id;
-            const status = is_assigned
-                ? can_book
-                    ? 'pending'
-                    : 'busy'
-                : can_book
-                  ? 'free'
-                  : 'busy';
+            const status =
+                space.bookable === false
+                    ? 'not-bookable'
+                    : is_assigned
+                      ? can_book
+                          ? 'pending'
+                          : 'busy'
+                      : can_book
+                        ? 'free'
+                        : 'busy';
             styles[`#${id}`] = {
                 fill:
                     colours[`parking-${status}`] ||
@@ -273,13 +280,10 @@ export class ExploreParkingService extends AsyncHandler {
                     return;
                 }
                 if (deny_parking_access) {
-                    const space_zone = this._org.levelWithID([
-                        space.zone_id,
-                    ]);
+                    const space_zone = this._org.levelWithID([space.zone_id]);
                     return notifyError(
                         i18n('EXPLORE.PARKING_PERMISSIONS_ERROR', {
-                            name:
-                                space_zone?.display_name || space_zone?.name,
+                            name: space_zone?.display_name || space_zone?.name,
                         }),
                     );
                 }
@@ -316,16 +320,30 @@ export class ExploreParkingService extends AsyncHandler {
                 this._bookings.newForm('parking');
                 this._bookings.setOptions({ type: 'parking' });
                 options = this._options.getValue();
+                const bookable_hours: BookableHoursRange | null =
+                    this._settings.get('app.parking.bookable_hours') ||
+                    this._settings.get('app.bookings.bookable_hours') ||
+                    null;
+                if (
+                    bookable_hours &&
+                    !this._settings.get('app.parking.allow_time_changes') &&
+                    !isWithinBookableHours(Date.now(), bookable_hours)
+                ) {
+                    return notifyError(i18n('EXPLORE.OUTSIDE_BOOKABLE_HOURS'));
+                }
                 let user = options.host || currentUser();
                 const user_email = user?.email;
                 const zone =
                     this._org.levelWithID([
                         space.zone_id || (space as any).zone,
                     ]) || this._state.active_level;
-                const date =
+                let date =
                     !options.date || isSameDay(options.date, Date.now())
                         ? startOfMinute(Date.now()).valueOf()
                         : setHours(options.date, 8).valueOf();
+                if (bookable_hours) {
+                    date = alignDateToBookableHours(date, bookable_hours);
+                }
                 this._bookings.form.patchValue({
                     resources: [space],
                     asset_id: space.id,
@@ -382,6 +400,7 @@ export class ExploreParkingService extends AsyncHandler {
         duration: number,
         host: boolean = false,
         resource: any = null,
+        bookable_hours: BookableHoursRange | null = null,
     ) {
         let user = null;
         if (!!this._settings.get('app.parking.allow_time_changes')) {
@@ -392,7 +411,7 @@ export class ExploreParkingService extends AsyncHandler {
                 ),
             );
             const ref = this._dialog.open(SetDatetimeModalComponent, {
-                data: { date, duration, until, host, resource },
+                data: { date, duration, until, host, resource, bookable_hours },
             });
             const details = await ref.afterClosed().toPromise();
             if (!details) throw 'User cancelled';

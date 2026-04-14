@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,9 +24,7 @@ import { POIManagementService } from './poi-management.service';
             <main class="flex h-full w-1/2 flex-1 flex-col">
                 <header
                     class="flex items-center justify-between px-8 py-8"
-                    [class.mb-2]="
-                        !use_region || (buildings | async)?.length <= 1
-                    "
+                    [class.mb-2]="!use_region || buildings().length <= 1"
                 >
                     <h2 class="text-2xl font-medium">
                         {{ 'APP.CONCIERGE.POI_HEADER' | translate }}
@@ -35,7 +33,7 @@ import { POIManagementService } from './poi-management.service';
                         {{ 'APP.CONCIERGE.POI_ADD' | translate }}
                     </button>
                 </header>
-                @if (use_region && (buildings | async)?.length > 1) {
+                @if (use_region && buildings().length > 1) {
                     <div class="mb-2 flex items-center justify-between px-8">
                         <mat-form-field appearance="outline" class="w-64">
                             <mat-label>{{ 'RESOURCE.BUILDING' | translate }}</mat-label>
@@ -48,7 +46,7 @@ import { POIManagementService } from './poi-management.service';
                                     building?.display_name || building?.name
                                 "
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -85,7 +83,6 @@ import { POIManagementService } from './poi-management.service';
         `,
     ],
     imports: [
-        CommonModule,
         ApplicationTopbarComponent,
         ApplicationSidebarComponent,
         TranslatePipe,
@@ -103,7 +100,9 @@ export class POIManagerComponent {
 
     public readonly new = () => this._state.editPointOfInterest();
 
-    public readonly buildings = this._org.active_buildings;
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
 
     public get building() {
         return this._org.building;

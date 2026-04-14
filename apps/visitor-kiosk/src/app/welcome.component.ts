@@ -14,6 +14,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import {
     AsyncHandler,
+    isPublicMode,
     LocaleService,
     settingSignal,
     SettingsService,
@@ -96,7 +97,7 @@ import {
             <div class="absolute top-4 right-4 text-2xl text-white">
                 {{ now() | date: 'mediumDate' }} {{ now() | date: 'shortTime' }}
             </div>
-            @if (locales.length > 1) {
+            @if (locales().length > 1) {
                 <button
                     class="absolute top-4 left-4"
                     [matMenuTriggerFor]="menu"
@@ -144,10 +145,27 @@ import {
                     </button>
                 }
             </mat-menu>
-            <img
-                src="assets/img/building.png"
-                class="absolute right-0 bottom-0 w-[60%]"
-            />
+            @if (!hide_building_image()) {
+                <img
+                    src="assets/img/building.png"
+                    class="absolute right-0 bottom-0 w-[60%]"
+                />
+            }
+            @if (is_public_mode()) {
+                <div
+                    class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
+                >
+                    <div class="max-w-xl space-y-2">
+                        <h2 class="text-3xl font-semibold">
+                            Public mode is enabled
+                        </h2>
+                        <p class="text-lg opacity-80">
+                            Welcome actions are disabled while this kiosk is in
+                            public mode.
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     `,
     styles: [
@@ -184,11 +202,14 @@ export class WelcomeComponent
     public readonly hide_explore = settingSignal('hide_explore');
     public readonly background = settingSignal('welcome_background');
     public readonly can_register = settingSignal('allow_self_registration');
+    public readonly hide_building_image = settingSignal('hide_building_image');
     public readonly welcome_message = settingSignal('welcome_message');
-    public readonly locales = settingSignal('locales');
+    public readonly locales = settingSignal('locales', []);
+    public readonly is_public_mode = isPublicMode;
+    public readonly locale = signal(this._locale.locale);
     public readonly active_locale = computed(() => {
         const locale_list = this.locales();
-        const locale = this._locale.locale;
+        const locale = this.locale();
         for (const item of locale_list) {
             if (item.id === locale) return item.name;
         }
@@ -196,6 +217,7 @@ export class WelcomeComponent
     });
 
     public readonly setLocale = (code: string) => {
+        this.locale.set(code);
         this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
         setTimeout(() => location.reload(), 300);

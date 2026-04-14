@@ -1,19 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    downloadFile,
-    jsonToCsv,
-    nextValueFrom,
-    unique,
-} from '@placeos/common';
+import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -42,7 +37,7 @@ import { LockersReportService } from './lockers-report.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="daily_stats"
+                [data]="daily_stats()"
                 [columns]="[
                     {
                         key: 'date',
@@ -91,29 +86,29 @@ import { LockersReportService } from './lockers-report.service';
 })
 export class LockersReportDailyUsageComponent {
     private _state = inject(LockersReportService);
+    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
+        initialValue: {},
+    });
 
     public readonly print = input(false);
 
-    public readonly daily_stats = this._state.daily_stats$.pipe(
-        map((days) => {
-            const list = [];
-            for (const date in days) {
-                list.push({
-                    date,
-                    booking_count: unique(days[date].bookings, 'asset_id')
-                        .length,
-                    host_count: unique(days[date].bookings, 'user_email')
-                        .length,
-                    booked_count: days[date].bookings.length,
-                });
-            }
-            list.sort((a, b) => a.date.localeCompare(b.date));
-            return list;
-        }),
-    );
+    public readonly daily_stats = computed(() => {
+        const days = this._daily_stats();
+        const list = [];
+        for (const date in days) {
+            list.push({
+                date,
+                booking_count: unique(days[date].bookings, 'asset_id').length,
+                host_count: unique(days[date].bookings, 'user_email').length,
+                booked_count: days[date].bookings.length,
+            });
+        }
+        list.sort((a, b) => a.date.localeCompare(b.date));
+        return list;
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.daily_stats);
+        const data = this.daily_stats();
         downloadFile('report-lockers-daily-usage.csv', jsonToCsv(data));
     };
 }

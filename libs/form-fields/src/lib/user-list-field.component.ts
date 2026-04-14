@@ -1,14 +1,17 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
     Component,
+    computed,
     ElementRef,
     forwardRef,
     inject,
     input,
     model,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
+import { outputToObservable, toObservable } from '@angular/core/rxjs-interop';
 import {
     ControlValueAccessor,
     FormsModule,
@@ -24,7 +27,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import {
     catchError,
     debounceTime,
@@ -76,7 +79,7 @@ const DENIED_FILE_TYPES = [
                 >
                     <mat-label>{{ 'FORM.USER_LIST_PLACEHOLDER' | translate }}</mat-label>
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (item of active_list; track item.id) {
+                        @for (item of active_list(); track item.id) {
                             <mat-chip-row
                                 user
                                 [class.bg-warning]="item.is_external"
@@ -108,23 +111,23 @@ const DENIED_FILE_TYPES = [
                         #search_field
                         [placeholder]="'FORM.USER_LIST_PLACEHOLDER' | translate"
                         name="user_email"
-                        [ngModel]="search$ | async"
+                        [ngModel]="search()"
                         (ngModelChange)="updateSearch($event)"
                         [matAutocomplete]="auto"
                         [matChipInputFor]="chipList"
                         [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                         (matChipInputTokenEnd)="addUserFromEmail($event.value)"
                     />
-                    @if (loading) {
+                    @if (loading()) {
                         <mat-spinner diameter="24" matSuffix></mat-spinner>
                     }
                 </mat-form-field>
                 <mat-autocomplete #auto="matAutocomplete">
-                    @if (search_valid_email) {
+                    @if (search_valid_email()) {
                         <mat-option (click)="addUserFromEmail()">
                             {{
                                 'FORM.USER_LIST_ADD_EXTERNAL'
-                                    | translate: { email: search$.getValue() }
+                                    | translate: { email: search() }
                             }}
                         </mat-option>
                     }
@@ -273,14 +276,18 @@ export class UserListFieldComponent
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
     /** Whether user list is loading */
-    public loading = false;
-    public readonly search$ = new BehaviorSubject('');
+    public readonly loading = signal(false);
+    public readonly search = signal('');
 
     private readonly _search_el =
         viewChild<ElementRef<HTMLInputElement>>('search_field');
+    private readonly _use_basic_user_search = this._settings.signal(
+        'basic_user_search',
+        false,
+    );
 
     private searchStaff(q: string) {
-        return this._settings.get('app.basic_user_search')
+        return this._use_basic_user_search()
             ? queryUsers({ q, authority_id: authority()?.id }).pipe(
                   map((_) => _.data.map((u) => new User(u))),
               )
@@ -288,10 +295,10 @@ export class UserListFieldComponent
     }
 
     /** User list to display */
-    public user_list$ = this.search$.pipe(
+    public user_list$ = toObservable(this.search).pipe(
         debounceTime(300),
         switchMap((_) => {
-            this.loading = true;
+            this.loading.set(true);
             return (
                 _
                     ? this.guests()
@@ -306,12 +313,18 @@ export class UserListFieldComponent
                                       this._settings.get('visitor-invitees') ||
                                       [];
                                   for (const item of visitors) {
-                                      const [email, name, company] =
-                                          item.split('|');
+                                      if (typeof item !== 'string') continue;
+                                      const [
+                                          email,
+                                          name,
+                                          company,
+                                          international,
+                                      ] = item.split('|');
                                       visitors_list.push({
                                           email,
                                           name,
                                           company,
+                                          international: international === '1',
                                       });
                                   }
                                   return unique(
@@ -326,10 +339,10 @@ export class UserListFieldComponent
                     : of([])
             ).pipe(catchError((_) => of([])));
         }),
-        tap((_) => (this.loading = false)),
+        tap(() => this.loading.set(false)),
     );
     /** List of active selected users on the list */
-    public active_list: User[] = [];
+    public readonly active_list = signal<User[]>([]);
 
     /** Form control on change handler */
     private _onChange: (_: User[]) => void;
@@ -339,25 +352,25 @@ export class UserListFieldComponent
     public readonly validFn = (s) => validateEmail(s);
     public readonly emptyClick = () => this.openNewUserModal(new User());
 
-    public get search_valid_email() {
-        return validateEmail(this.search$.getValue());
-    }
+    public readonly search_valid_email = computed(() =>
+        validateEmail(this.search()),
+    );
 
     constructor() {
         super();
     }
 
     public updateSearch(new_value = '') {
-        this.timeout('search', () => this.search$.next(new_value));
+        this.timeout('search', () => this.search.set(new_value));
     }
 
     public addUserFromEmail(email = '') {
-        if (!email) email = this.search$.getValue();
+        if (!email) email = this.search();
         if (!validateEmail(email)) return;
         const user = new User({ id: email, email, name: email.split('@')[0] });
         this.addUser(user);
         const { name, organisation } = user;
-        const visitor_details = `${email}|${name}|${organisation}`;
+        const visitor_details = `${email}|${name}|${organisation}|0`;
         const old_visitors = this._settings.get('visitor-invitees') || [];
         this._settings.saveUserSetting('visitor-invitees', [
             ...old_visitors.filter((_) => !_.includes(email)),
@@ -366,7 +379,7 @@ export class UserListFieldComponent
         this.timeout(
             'clear_search',
             () => {
-                this.search$.next('');
+                this.search.set('');
                 this._search_el().nativeElement.value = '';
             },
             100,
@@ -378,7 +391,7 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list?.filter((_) => _.id !== user.id) || [];
+        const list = this.active_list().filter((_) => _.id !== user.id);
         this.setValue([
             ...list,
             new User({
@@ -393,7 +406,7 @@ export class UserListFieldComponent
         this.timeout(
             'clear_search',
             () => {
-                this.search$.next('');
+                this.search.set('');
                 this._search_el().nativeElement.value = '';
             },
             100,
@@ -405,7 +418,9 @@ export class UserListFieldComponent
      * @param user
      */
     public removeUser(user: User) {
-        const list = this.active_list.filter((a_user) => a_user.id !== user.id);
+        const list = this.active_list().filter(
+            (a_user) => a_user.id !== user.id,
+        );
         this.setValue(list);
     }
 
@@ -485,9 +500,9 @@ export class UserListFieldComponent
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: User[]): void {
-        this.active_list = new_value;
+        this.active_list.set(new_value || []);
         if (this._onChange) {
-            this._onChange(new_value);
+            this._onChange(new_value || []);
         }
     }
 
@@ -497,7 +512,7 @@ export class UserListFieldComponent
      * @param value The new value for the component
      */
     public writeValue(value: User[]) {
-        this.active_list = value;
+        this.active_list.set(value || []);
     }
 
     public setDisabledState(disabled: boolean) {
@@ -538,7 +553,9 @@ export class UserListFieldComponent
                 data: { user },
             },
         );
-        ref.componentInstance?.event
+        const event = ref.componentInstance?.event;
+        if (!event) return;
+        outputToObservable(event)
             .pipe(first((_) => _.reason === 'done'))
             .subscribe((event) => {
                 this.addUser(event.metadata);

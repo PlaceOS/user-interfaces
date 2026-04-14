@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { OrganisationService } from '@placeos/common';
 import {
@@ -7,6 +8,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { of } from 'rxjs';
 import { PointsStateService } from './points-state.service';
 
 export interface CustomRate {
@@ -29,7 +31,7 @@ export interface PointAsset {
     template: `
         <simple-table
             class="block w-full min-w-lg"
-            [data]="asset_list"
+            [data]="asset_list()"
             [columns]="[
                 { key: 'name', name: 'FORM.NAME' | translate },
                 {
@@ -123,7 +125,9 @@ export class PointsAssetsComponent {
     private _state = inject(PointsStateService);
     private _org = inject(OrganisationService);
 
-    public asset_list = this._state.assets;
+    public readonly asset_list = toSignal(this._state.assets || of([]), {
+        initialValue: [],
+    });
 
     public readonly edit = (d) => this._state.newAsset(d);
     public readonly remove = (d) => this._state.removeAsset(d?.id);

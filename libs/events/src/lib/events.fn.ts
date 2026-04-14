@@ -1,4 +1,9 @@
-import { CalendarEvent, GuestUser, toQueryString } from '@placeos/common';
+import {
+    BookingClash,
+    CalendarEvent,
+    GuestUser,
+    toQueryString,
+} from '@placeos/common';
 import { del, get, patch, post, put, query } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { Observable, combineLatest, of } from 'rxjs';
@@ -26,6 +31,35 @@ export interface CalendarEventQueryParams {
     strict?: 'limit' | 'all' | 'notify';
 }
 
+export interface CalendarEventHistoryQueryParams {
+    /** Epoch in seconds for the start of the availability period */
+    period_start: number;
+    /** Epoch in seconds for the end of the availability period */
+    period_end: number;
+    /** Comma seperated list of zone ids to check availability */
+    zone_ids?: string;
+    /** Comma seperated list of system(space) ids to check availability */
+    system_ids?: string;
+    /** Comma seperated list of calendar ids to check availability */
+    calendars?: string;
+    /** ical UID associated with the booking */
+    ical_uid?: string;
+}
+
+export interface CalendarEventChange {
+    // ID of the change event
+    id: string;
+    // Unix timestamp in seconds the change was created
+    created_at: number;
+    // Unix timestamp in seconds the change was updated
+    updated_at: number;
+    type: string;
+    // ID of the event that was changed
+    resource_id: string;
+    action: string;
+    changed_fields: string[];
+}
+
 export interface CalendarEventShowParams {
     /** ID of the personal calendar to grab the events details from */
     calendar?: string;
@@ -46,6 +80,16 @@ export function queryEvents(
     return get(`${EVENTS_ENDPOINT}${query ? '?' + query : ''}`).pipe(
         map((list) => list.map((e) => new CalendarEvent(e))),
         catchError((_) => of([])),
+    );
+}
+
+export function queryEventHistory(
+    q: CalendarEventHistoryQueryParams,
+): Observable<CalendarEventChange[]> {
+    const query = toQueryString(q);
+    return get(`${EVENTS_ENDPOINT}/history${query ? '?' + query : ''}`).pipe(
+        map((list) => list as CalendarEventChange[]),
+        catchError((_) => of([] as CalendarEventChange[])),
     );
 }
 
@@ -400,5 +444,34 @@ export function querySpaceAvailability(
             }
             return short_list;
         }),
+    );
+}
+
+export interface EventClashQueryOptions {
+    // Requires multple assets in the event to use
+    return_available?: boolean;
+    // Added the time that the clashes occur with each returned asset
+    include_clash_time?: boolean;
+}
+
+/**
+ * List resources that clash within the given parameters
+ * @param q Parameters to pass to the API request
+ */
+export function findEventClashes(
+    event: CalendarEvent,
+    q: EventClashQueryOptions = {},
+): Observable<string[] | BookingClash[]> {
+    const query = toQueryString({ ...q, limit: 10000 });
+    return post(
+        `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
+        event.toJSON(),
+    ).pipe(
+        map((list) =>
+            q.include_clash_time
+                ? (list as BookingClash[])
+                : (list as string[]),
+        ),
+        catchError((_) => of([])),
     );
 }

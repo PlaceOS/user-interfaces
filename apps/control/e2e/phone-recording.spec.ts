@@ -154,7 +154,7 @@ test.describe('US-031: View Recording Status', () => {
         if (await recordingSection.isVisible().catch(() => false)) {
             // Status indicator (Recording, Paused, Idle)
             const statusIndicator = recordingSection.locator(
-                '.bg-error, .bg-warning, .bg-base-300'
+                '.bg-error, .bg-warning, .bg-base-300',
             );
             const isVisible = await statusIndicator
                 .first()
@@ -174,7 +174,7 @@ test.describe('US-031: View Recording Status', () => {
         if (await recordingSection.isVisible().catch(() => false)) {
             // Record icon (fiber_manual_record)
             const recordIcon = recordingSection.locator(
-                'icon:has-text("fiber_manual_record")'
+                'icon:has-text("fiber_manual_record")',
             );
             await expect(recordIcon).toBeVisible();
         }
@@ -193,9 +193,11 @@ test.describe('US-032: Control Recording', () => {
         if (await recordingSection.isVisible().catch(() => false)) {
             // Play/pause button
             const playPauseButton = recordingSection.locator(
-                'button[place-action="pause"], button[place-action="start"]'
+                'button[place-action="pause"], button[place-action="start"]',
             );
-            const isVisible = await playPauseButton.isVisible().catch(() => false);
+            const isVisible = await playPauseButton
+                .isVisible()
+                .catch(() => false);
 
             if (isVisible) {
                 await expect(playPauseButton).toBeVisible();
@@ -212,9 +214,12 @@ test.describe('US-032: Control Recording', () => {
         if (await recordingSection.isVisible().catch(() => false)) {
             // Icon should be play_arrow or pause based on status
             const icon = recordingSection.locator(
-                'button icon:has-text("play_arrow"), button icon:has-text("pause")'
+                'button icon:has-text("play_arrow"), button icon:has-text("pause")',
             );
-            const isVisible = await icon.first().isVisible().catch(() => false);
+            const isVisible = await icon
+                .first()
+                .isVisible()
+                .catch(() => false);
 
             if (isVisible) {
                 await expect(icon.first()).toBeVisible();

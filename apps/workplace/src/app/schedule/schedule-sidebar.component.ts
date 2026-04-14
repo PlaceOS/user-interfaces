@@ -170,7 +170,7 @@ import {
                         ></mat-checkbox>
                     </button>
                 }
-                @if (hasFeature('parking')) {
+                @if (hasFeature('parking') || hasFeature('parking-requests')) {
                     <button
                         matRipple
                         name="schedule-toggle-parking-filter"
@@ -369,7 +369,11 @@ export class ScheduleSidebarComponent extends AsyncHandler implements OnInit {
                 .subscribe((_) => {
                     this._state.setType('event', this.hasFeature('spaces'));
                     this._state.setType('desk', this.hasFeature('desks'));
-                    this._state.setType('parking', this.hasFeature('parking'));
+                    this._state.setType(
+                        'parking',
+                        this.hasFeature('parking') ||
+                            this.hasFeature('parking-requests'),
+                    );
                     this._state.setType(
                         'visitor',
                         this.hasFeature('visitor-invite'),

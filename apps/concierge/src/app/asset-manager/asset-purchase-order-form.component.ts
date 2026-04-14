@@ -1,15 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     generateAssetPurchaseOrderForm,
-    queryAssetGroups,
+    queryAssetTypes,
     queryAssets,
     saveAssetPurchaseOrder,
-    showAssetPurchaseOrder,
 } from '@placeos/assets';
 import {
     AssetPurchaseOrder,
@@ -25,8 +24,9 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
+import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { filter, shareReplay, switchMap } from 'rxjs/operators';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
@@ -42,10 +42,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
             "
             [close]="
                 product_id
-                    ? [base_route, 'view', product_id]
+                    ? [base_route, 'view', product_id()]
                     : [base_route, 'list', 'purchase-orders']
             "
-            [loading]="loading"
+            [loading]="loading()"
             (confirm)="save()"
         >
             <form [formGroup]="form">
@@ -144,23 +144,21 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         ></a-date-field>
                     </div>
                 </div>
-                @if (item?.id) {
+                @if (item()?.id) {
                     <h3 class="mb-2 font-medium">
                         {{
                             'APP.CONCIERGE.ASSETS_PURCHASE_ASSETS'
                                 | translate
                                     : {
-                                          count:
-                                              (asset_list | async)?.length ||
-                                              '0',
+                                          count: asset_list().length || '0',
                                       }
                         }}
                     </h3>
                 }
-                @if (item?.id) {
+                @if (item()?.id) {
                     <simple-table
                         class="block w-full text-sm"
-                        [data]="(asset_list | async) || []"
+                        [data]="asset_list()"
                         [columns]="[
                             { key: 'name', name: 'FORM.NAME' | translate },
                             {
@@ -187,7 +185,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         SimpleTableComponent,
         TranslatePipe,
@@ -207,30 +204,31 @@ export class AssetPurchaseOrderFormComponent
     private _org = inject(OrganisationService);
 
     public readonly form = generateAssetPurchaseOrderForm();
-    public loading = '';
-    public product_id: string;
-    public readonly _id = new BehaviorSubject('');
-    public item: AssetPurchaseOrder;
+    public readonly loading = signal('');
+    public readonly product_id = signal('');
+    public readonly _id = signal('');
+    public readonly item = signal<AssetPurchaseOrder | null>(null);
     public readonly from = addYears(Date.now(), -5);
-    public readonly asset_list = combineLatest([
-        this._id,
-        this._org.active_building,
-    ]).pipe(
-        filter(([_, bld]) => !!_ && !!bld),
-        switchMap(([id]) => queryAssets({ order_id: id })),
-        switchMap(async (asset_list) => {
-            const groups = await queryAssetGroups({
-                zone_id: this._org.building.id,
-                limit: 500,
-            }).toPromise();
-            return asset_list.map((asset) => ({
-                ...asset,
-                name:
-                    groups.find((_) => _.id === (asset as any).asset_type_id)
-                        ?.name || asset.id,
-            }));
-        }),
-        shareReplay(1),
+    public readonly asset_list = toSignal(
+        combineLatest([toObservable(this._id), this._org.active_building]).pipe(
+            filter(([id, bld]) => !!id && !!bld),
+            switchMap(([id]) => queryAssets({ order_id: id })),
+            switchMap(async (asset_list) => {
+                const groups = await queryAssetTypes({
+                    zone_id: this._org.building.id,
+                    limit: 500,
+                }).toPromise();
+                return asset_list.data.map((asset) => ({
+                    ...asset,
+                    name:
+                        groups.data.find(
+                            (_) => _.id === (asset as any).asset_type_id,
+                        )?.name || asset.id,
+                }));
+            }),
+            shareReplay(1),
+        ),
+        { initialValue: [] },
     );
 
     public get base_route() {
@@ -242,8 +240,8 @@ export class AssetPurchaseOrderFormComponent
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = i18n(
-                        'APP.CONCIERGE.ASSETS_PURCHASE_LOADING',
+                    this.loading.set(
+                        i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOADING'),
                     );
                     const asset = await showAssetPurchaseOrder(params.get('id'))
                         .toPromise()
@@ -262,12 +260,12 @@ export class AssetPurchaseOrderFormComponent
                         expected_service_start_date:
                             asset.expected_service_start_date * 1000,
                     });
-                    this.item = asset;
-                    this._id.next(asset.id);
-                    this.loading = '';
+                    this.item.set(asset);
+                    this._id.set(asset.id);
+                    this.loading.set('');
                 }
                 if (params.get('group_id')) {
-                    this.product_id = params.get('group_id');
+                    this.product_id.set(params.get('group_id'));
                 }
             }),
         );
@@ -276,22 +274,22 @@ export class AssetPurchaseOrderFormComponent
 
     public async save() {
         if (!this.form.valid) return;
-        this.loading = i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVING');
+        this.loading.set(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVING'));
         const data = this.form.value;
         data.purchase_date = getUnixTime(data.purchase_date) || null;
         data.expected_service_start_date =
             getUnixTime(data.expected_service_start_date) ||
-            this.item?.expected_service_start_date ||
+            this.item()?.expected_service_start_date ||
             null;
         data.expected_service_end_date =
             getUnixTime(data.expected_service_end_date) ||
-            this.item?.expected_service_end_date ||
+            this.item()?.expected_service_end_date ||
             null;
         data.unit_price = +data.unit_price;
         const item = await saveAssetPurchaseOrder(data as any)
             .toPromise()
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(
                     i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_ERROR', {
                         error: e.message || e,
@@ -302,11 +300,11 @@ export class AssetPurchaseOrderFormComponent
         this.form.reset();
         notifySuccess(i18n('APP.CONCIERGE.ASSETS_PURCHASE_SAVE_SUCCESS'));
         this._state.postChange();
-        if (this.product_id) {
-            this._router.navigate([this.base_route, 'view', this.product_id]);
+        if (this.product_id()) {
+            this._router.navigate([this.base_route, 'view', this.product_id()]);
         } else {
             this._router.navigate([this.base_route, 'list', 'purchase-orders']);
         }
-        this.loading = '';
+        this.loading.set('');
     }
 }

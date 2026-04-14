@@ -11,7 +11,9 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     template: `
         <li
             item
-            [class.border-base-200!]="active()"
+            [class.border-info!]="active()"
+            [class.ring-2]="active()"
+            [class.ring-info]="active()"
             matRipple
             class="border-base-200 bg-base-100 relative w-full rounded-lg border p-2 shadow-sm"
         >
@@ -23,7 +25,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 <div
                     class="border-base-200 bg-neutral relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border"
                 >
-                    @if (item().quantity && selected()) {
+                    @if (item().quantity && show_count()) {
                         <div
                             class="bg-neutral absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border border-white text-xs text-white"
                         >
@@ -132,7 +134,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 export class NewCateringItemListItemComponent {
     public readonly item = input<CateringItem>(undefined);
     public readonly active = input(false);
-    public readonly selected = input(false);
+    public readonly show_count = input(false);
     public readonly favourite = input(false);
     public readonly code = input('USD');
     public readonly toggleFav = output();

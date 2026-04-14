@@ -1,38 +1,35 @@
 import {
     Component,
+    computed,
+    effect,
     ElementRef,
     inject,
     input,
-    OnChanges,
     OnDestroy,
-    OnInit,
-    SimpleChanges,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
     AsyncHandler,
-    nextValueFrom,
     OrganisationService,
     SettingsService,
     unique,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import {
+    ArcElement,
+    CategoryScale,
     Chart,
+    Legend,
+    LinearScale,
     LineController,
     LineElement,
-    PointElement,
-    LinearScale,
-    CategoryScale,
     PieController,
-    ArcElement,
+    PointElement,
     Tooltip,
-    Legend,
 } from 'chart.js';
 import { format, parse } from 'date-fns';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ParkingReportService } from './parking-report.service';
 
 Chart.register(
@@ -92,45 +89,44 @@ Chart.register(
 })
 export class ParkingReportChartsComponent
     extends AsyncHandler
-    implements OnInit, OnChanges, OnDestroy
+    implements OnDestroy
 {
     private _state = inject(ParkingReportService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private readonly _daily_stats = toSignal(this._state.daily_stats$, {
+        initialValue: {},
+    });
+    private readonly _counts = toSignal(this._state.counts$, {
+        initialValue: {},
+    });
+    private readonly _options = toSignal(this._state.options$, {
+        initialValue: { zones: [] },
+    });
 
     public readonly print = input<boolean>(false);
-    public readonly day_list = combineLatest([
-        this._state.daily_stats$,
-        this._state.counts$,
-    ]).pipe(
-        map(([days, counts]) => {
-            const list = [];
-            const total_spaces = Object.values(counts).reduce(
-                (c, v) => c + (v || 0),
-                0,
-            );
-            for (const date in days) {
-                list.push({
-                    date,
-                    booking_count: unique(days[date].bookings, 'asset_id')
-                        .length,
-                    host_count: unique(days[date].bookings, 'user_email')
-                        .length,
-                    booked_count: days[date].bookings.length,
-                    utilisation:
-                        days[date].bookings.reduce(
-                            (c, v) => c + v.duration,
-                            0,
-                        ) / total_spaces,
-                });
-            }
-            return list.sort((a, b) => a.date.localeCompare(b.date));
-        }),
-    );
-    public readonly stats = combineLatest([
-        this._state.options$,
-        this._state.counts$,
-    ]);
+    public readonly day_list = computed(() => {
+        const days = this._daily_stats();
+        const counts = this._counts();
+        const list = [];
+        const total_spaces = Object.values(counts).reduce(
+            (c, v) => c + (v || 0),
+            0,
+        );
+        for (const date in days) {
+            list.push({
+                date,
+                booking_count: unique(days[date].bookings, 'asset_id').length,
+                host_count: unique(days[date].bookings, 'user_email').length,
+                booked_count: days[date].bookings.length,
+                utilisation:
+                    days[date].bookings.reduce((c, v) => c + v.duration, 0) /
+                    total_spaces,
+            });
+        }
+        return list.sort((a, b) => a.date.localeCompare(b.date));
+    });
+    public readonly stats = computed(() => [this._options(), this._counts()]);
 
     private _daily_chart_el =
         viewChild<ElementRef<HTMLCanvasElement>>('dailyChart');
@@ -139,22 +135,16 @@ export class ParkingReportChartsComponent
     private _day_chart: Chart | null = null;
     private _level_chart: Chart | null = null;
 
-    public ngOnInit() {
-        this.subscription(
-            'charts',
-            combineLatest([this.day_list, this.stats]).subscribe(() =>
-                this.updateCharts(),
-            ),
-        );
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (
-            changes.print &&
-            changes.print.currentValue !== changes.print.previousValue
-        ) {
+    constructor() {
+        super();
+        effect(() => {
+            this.day_list();
+            this.stats();
+            this.print();
+            this._daily_chart_el();
+            this._level_chart_el();
             this.timeout('update', () => this.updateCharts(), 50);
-        }
+        });
     }
 
     public override ngOnDestroy() {
@@ -166,10 +156,10 @@ export class ParkingReportChartsComponent
     public updateCharts() {
         this.timeout(
             'update_charts',
-            async () => {
-                const day_list = await nextValueFrom(this.day_list);
+            () => {
+                const day_list = this.day_list();
                 this.updateDailyChart(day_list);
-                const [mappings, counts] = await nextValueFrom(this.stats);
+                const [mappings, counts] = this.stats();
                 this.updateLevelChart({ zones: mappings }, counts);
             },
             50,

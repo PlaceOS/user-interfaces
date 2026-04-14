@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -183,7 +183,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         ReactiveFormsModule,
         FormsModule,
         TranslatePipe,
@@ -203,7 +202,11 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
     private _router = inject(Router);
     private _org = inject(OrganisationService);
     private _service = inject(DealsService);
+    private readonly _params = toSignal(this._route.paramMap, {
+        initialValue: this._route.snapshot.paramMap,
+    });
 
+    private readonly _ready = signal(false);
     public readonly loading = signal('');
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -217,14 +220,18 @@ export class DealsManageComponent extends AsyncHandler implements OnInit {
         expires_at: new FormControl(addMonths(Date.now(), 1).valueOf()),
     });
 
+    constructor() {
+        super();
+        effect(() => {
+            if (!this._ready()) return;
+            const id = this._params().get('id');
+            if (id) this._loadDeal(id);
+        });
+    }
+
     public async ngOnInit() {
         await firstTruthyValueFrom(this._org.initialised);
-        this.subscription(
-            'route.params',
-            this._route.paramMap.subscribe((params) => {
-                if (params.has('id')) this._loadDeal(params.get('id'));
-            }),
-        );
+        this._ready.set(true);
     }
 
     public async save() {

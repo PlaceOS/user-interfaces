@@ -38,9 +38,12 @@ export function generateSystemsFormFields(system?: PlaceSystem) {
             validateURL,
         ]),
         camera_url: new FormControl(system.camera_url || '', [validateURL]),
-        camera_snapshot_url: new FormControl(system.camera_snapshot_url || '', [
-            validateURL,
-        ]),
+        camera_snapshot_url: new FormControl(
+            system.camera_snapshot_urls?.find((url) => !!url) ||
+                system.camera_snapshot_url ||
+                '',
+            [validateURL],
+        ),
         room_booking_url: new FormControl(system.room_booking_url || '', [
             validateURL,
         ]),

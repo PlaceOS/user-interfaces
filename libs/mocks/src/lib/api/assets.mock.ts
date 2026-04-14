@@ -6,7 +6,6 @@ import {
     MOCK_PRODUCTS,
     MOCK_PURCHASE_ORDERS,
 } from './assets.data';
-import { MOCK_LEVELS } from './zone.data';
 
 const BASE_PATH = '/api/engine/v2';
 
@@ -31,9 +30,7 @@ export function registerMockAssets() {
             let results = MOCK_CATEGORIES;
             if (req.query_params?.hidden !== undefined) {
                 const hidden = String(req.query_params.hidden) === 'true';
-                results = results.filter(
-                    (c) => !!(c as any).hidden === hidden,
-                );
+                results = results.filter((c) => !!(c as any).hidden === hidden);
             }
             return results;
         },
@@ -247,9 +244,7 @@ export function registerMockAssets() {
                 );
             }
             if (zone_id) {
-                results = results.filter(
-                    (a) => (a as any).zone_id === zone_id,
-                );
+                results = results.filter((a) => (a as any).zone_id === zone_id);
             }
             return results;
         },

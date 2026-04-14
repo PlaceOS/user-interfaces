@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/jest';
 import { SettingsService } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SafePipe } from 'libs/components/src/lib/safe.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
@@ -24,7 +25,7 @@ describe('CateringItemFiltersComponent', () => {
                 filters: new BehaviorSubject({ tags: [] }),
                 categories: new BehaviorSubject(['meals', 'coffee']),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
         declarations: [
             MockComponent(IconComponent),
@@ -50,7 +51,7 @@ describe('CateringItemFiltersComponent', () => {
         spectator.triggerEventHandler('input', 'ngModelChange', 'test');
         expect(
             spectator.inject(CateringOrderStateService).setFilters,
-        ).toBeCalledWith({ search: 'test' });
+        ).toHaveBeenCalledWith({ search: 'test' });
     });
 
     it('should allow toggling tag filters', () => {

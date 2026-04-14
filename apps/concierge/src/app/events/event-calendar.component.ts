@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { nextValueFrom, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { addMonths, addWeeks, format } from 'date-fns';
-import { map, shareReplay } from 'rxjs/operators';
+import { addMonths, addWeeks } from 'date-fns';
 import { EventMonthViewComponent } from './event-month-view.component';
 import { EventStateService } from './event-state.service';
 import { EventWeekViewComponent } from './event-week-view.component';
@@ -15,9 +14,9 @@ import { EventWeekViewComponent } from './event-week-view.component';
     template: `
         <div class="border-base-200 flex w-full items-center border-y">
             <div class="flex-1 px-2 py-4">
-                @if (is_today | async) {
+                @if (is_today()) {
                     <span class="text-info text-xs">{{
-                        ((period | async) === 'week'
+                        (period() === 'week'
                             ? 'COMMON.WEEK_THIS'
                             : 'COMMON.MONTH_THIS'
                         ) | translate
@@ -26,7 +25,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
             </div>
             <div class="flex flex-2 items-center justify-center space-x-2">
                 <div class="pl-4 font-medium">
-                    {{ (options | async)?.date | date: 'MMM yyyy' }}
+                    {{ options().date | date: 'MMM yyyy' }}
                 </div>
                 <button icon matRipple (click)="previousPeriod()" aria-label="Previous period">
                     <icon>chevron_left</icon>
@@ -40,7 +39,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
                     btn
                     matRipple
                     class="rounded-3xl"
-                    [class.inverse]="(period | async) !== 'week'"
+                    [class.inverse]="period() !== 'week'"
                     (click)="setPeriod('week')"
                 >
                     {{ 'COMMON.WEEK' | translate }}
@@ -49,7 +48,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
                     btn
                     matRipple
                     class="rounded-3xl"
-                    [class.inverse]="(period | async) !== 'month'"
+                    [class.inverse]="period() !== 'month'"
                     (click)="setPeriod('month')"
                 >
                     {{ 'COMMON.MONTH' | translate }}
@@ -58,7 +57,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
         </div>
         <div class="h-4 w-full"></div>
         <div class="relative h-1/2 w-full flex-1 overflow-auto">
-            @if ((period | async) !== 'month') {
+            @if (period() !== 'month') {
                 <event-week-view></event-week-view>
             } @else {
                 <event-month-view></event-month-view>
@@ -85,34 +84,23 @@ import { EventWeekViewComponent } from './event-week-view.component';
     ],
 })
 export class EventCalendarComponent {
-    private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
 
-    public readonly period = this._state.options.pipe(map((_) => _.period));
-
-    public readonly options = this._state.options;
-    public readonly is_today = this.options.pipe(
-        map((_) => _.date <= Date.now() && _.end > Date.now()),
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {
+            period: this._state.period,
+            date: Date.now(),
+            end: Date.now(),
+        },
+    });
+    public readonly period = computed(() => this.options().period);
+    public readonly is_today = computed(
+        () =>
+            this.options().date <= Date.now() &&
+            this.options().end > Date.now(),
     );
-    public readonly event_list = this._state.event_list;
-    public readonly event_day_map = this.event_list.pipe(
-        map((list) => {
-            const map = {};
-            for (const event of list) {
-                const date = format(event.date, 'yyyy-MM-dd');
-                if (!map[date]) map[date] = [];
-                map[date].push(event);
-            }
-            return map;
-        }),
-        shareReplay(1),
-    );
-
-    public get time_format() {
-        return this._settings.time_format;
-    }
 
     public setPeriod(period: 'week' | 'month') {
         this._state.setOptions({ period });
@@ -123,8 +111,8 @@ export class EventCalendarComponent {
         });
     }
 
-    public async nextPeriod() {
-        const { date, period } = await nextValueFrom(this.options);
+    public nextPeriod() {
+        const { date, period } = this.options();
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {
@@ -137,8 +125,8 @@ export class EventCalendarComponent {
         });
     }
 
-    public async previousPeriod() {
-        const { date, period } = await nextValueFrom(this.options);
+    public previousPeriod() {
+        const { date, period } = this.options();
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: {

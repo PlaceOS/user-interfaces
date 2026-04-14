@@ -1,13 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    downloadFile,
-    jsonToCsv,
-    nextValueFrom,
-    unique,
-} from '@placeos/common';
+import { downloadFile, jsonToCsv, unique } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -42,7 +38,7 @@ import { VisitorsReportService } from './visitors-report.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="daily_stats"
+                [data]="daily_stats()"
                 [columns]="[
                     {
                         key: 'date',
@@ -94,25 +90,28 @@ export class VisitorReportDailyUsageComponent {
 
     public readonly print = input<boolean>(false);
 
-    public readonly daily_stats = this._state.daily_stats$.pipe(
-        map((days) => {
-            const list = [];
-            for (const date in days) {
-                list.push({
-                    date,
-                    booking_count: unique(days[date].bookings, 'asset_id')
-                        .length,
-                    host_count: unique(days[date].bookings, 'user_email')
-                        .length,
-                    booked_count: days[date].bookings.length,
-                });
-            }
-            return list;
-        }),
+    public readonly daily_stats = toSignal(
+        this._state.daily_stats$.pipe(
+            map((days) => {
+                const list = [];
+                for (const date in days) {
+                    list.push({
+                        date,
+                        booking_count: unique(days[date].bookings, 'asset_id')
+                            .length,
+                        host_count: unique(days[date].bookings, 'user_email')
+                            .length,
+                        booked_count: days[date].bookings.length,
+                    });
+                }
+                return list;
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.daily_stats);
+        const data = this.daily_stats();
         downloadFile('report-visitors-daily-usage.csv', jsonToCsv(data));
     };
 }

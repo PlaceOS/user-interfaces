@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { downloadFile, i18n, jsonToCsv, nextValueFrom } from '@placeos/common';
+import { downloadFile, i18n, jsonToCsv } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -10,7 +11,6 @@ import {
 } from '@placeos/components';
 import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
-import { map } from 'rxjs/operators';
 import { LockersReportService } from './lockers-report.service';
 
 @Component({
@@ -41,7 +41,7 @@ import { LockersReportService } from './lockers-report.service';
             </div>
             <simple-table
                 class="block w-full text-sm"
-                [data]="lockers_bookings"
+                [data]="lockers_bookings()"
                 [columns]="[
                     {
                         key: 'lockers_name',
@@ -105,44 +105,45 @@ import { LockersReportService } from './lockers-report.service';
 })
 export class LockersReportListComponent {
     private _state = inject(LockersReportService);
+    private readonly _bookings = toSignal(this._state.bookings$, {
+        initialValue: [],
+    });
 
     public readonly print = input(false);
 
-    public readonly lockers_bookings = this._state.bookings$.pipe(
-        map((bookings) => {
-            const list = [];
-            for (const booking of bookings) {
-                list.push({
-                    lockers_name:
-                        booking.asset_name ||
-                        booking.extension_data?.asset_name ||
-                        booking.description ||
-                        booking.asset_id,
-                    date: booking.date,
-                    duration: booking.duration,
-                    all_day: booking.all_day,
-                    host: booking.user_name || booking.user_email,
-                    checked_in: i18n(
-                        booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
-                    ),
-                    self_registered: i18n(
-                        booking.extension_data?.self_registered
-                            ? 'COMMON.TRUE'
-                            : 'COMMON.FALSE',
-                    ),
-                    type:
-                        booking.extension_data?.tags?.[0] ||
-                        booking.tags?.[0] ||
-                        '',
-                });
-            }
-            list.sort((a, b) => a.date - b.date);
-            return list;
-        }),
-    );
+    public readonly lockers_bookings = computed(() => {
+        const list = [];
+        for (const booking of this._bookings()) {
+            list.push({
+                lockers_name:
+                    booking.asset_name ||
+                    booking.extension_data?.asset_name ||
+                    booking.description ||
+                    booking.asset_id,
+                date: booking.date,
+                duration: booking.duration,
+                all_day: booking.all_day,
+                host: booking.user_name || booking.user_email,
+                checked_in: i18n(
+                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                ),
+                self_registered: i18n(
+                    booking.extension_data?.self_registered
+                        ? 'COMMON.TRUE'
+                        : 'COMMON.FALSE',
+                ),
+                type:
+                    booking.extension_data?.tags?.[0] ||
+                    booking.tags?.[0] ||
+                    '',
+            });
+        }
+        list.sort((a, b) => a.date - b.date);
+        return list;
+    });
 
     public readonly download = async () => {
-        const data = await nextValueFrom(this.lockers_bookings);
+        const data = this.lockers_bookings();
         for (const bkn of data) {
             bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
         }

@@ -189,11 +189,13 @@ nx migrate --run-migrations
 - Custom localization support via `shared/locales`, **TranslationPipe** and **LocaleService**
 - Tailwind is custom themed with CSS variables in `shared/styles/application.css`
 - Use **IconComponent** for icons
+- Angular supports two-way binding of signals. e.g. Prefer `[(ngModel)]="a_signal"` over `[ngModel]="a_signal()" (ngModelChange)="a_signal.set($event)"`
 
 ## Other
 
 - After you finish making changes make sure all the apps build with `npm run build-all`
 - After you finish making changes make sure all the tests pass with `npm run test-all`
+- If you get error `NX   Failed to start plugin worker.` try again with `NX_ISOLATE_PLUGINS=false` prepended.
 
 ## Code Styles
 

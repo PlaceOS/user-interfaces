@@ -1,4 +1,4 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -19,7 +19,7 @@ const EMPTY_FAVS: string[] = [];
     selector: `parking-space-list-field`,
     template: `
         <div list class="space-y-2">
-            @for (space of spaces; track space) {
+            @for (space of spaces(); track space) {
                 <div
                     space
                     class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
@@ -141,24 +141,28 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
     private _dialog = inject(MatDialog);
 
     public readonly disable_date = input(false);
-    public room_size = 3;
-    public spaces: BookingAsset[] = [];
-    public disabled = false;
+    public readonly room_size = signal(3);
+    public readonly spaces = signal<BookingAsset[]>([]);
+    public readonly disabled = signal(false);
 
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
     public get favorites() {
-        return this._settings.get<string[]>('favourite_spaces') || EMPTY_FAVS;
+        return this._settings.signal<string[]>(
+            'favourite_spaces',
+            EMPTY_FAVS,
+            true,
+        )();
     }
 
     /** Add or edit selected spaces */
     public changeResources() {
         const ref = this._dialog.open(NewParkingSelectModalComponent, {
             data: {
-                spaces: this.spaces,
+                spaces: this.spaces(),
                 options: {
-                    capacity: this.room_size,
+                    capacity: this.room_size(),
                     disable_date: this.disable_date(),
                 },
             },
@@ -171,7 +175,7 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
 
     /** Remove the selected space from the list */
     public removeResource(space: BookingAsset) {
-        this.setValue(this.spaces.filter((_) => _.id !== space.id));
+        this.setValue(this.spaces().filter((_) => _.id !== space.id));
     }
 
     /**
@@ -179,8 +183,8 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: BookingAsset[]) {
-        this.spaces = new_value;
-        if (this._onChange) this._onChange(this.spaces);
+        this.spaces.set(new_value || []);
+        if (this._onChange) this._onChange(this.spaces());
     }
 
     /* istanbul ignore next */
@@ -189,12 +193,12 @@ export class ParkingSpaceListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: BookingAsset[]) {
-        this.spaces = value || [];
+        this.spaces.set(value || []);
     }
 
     public readonly registerOnChange = (fn) => (this._onChange = fn);
     public readonly registerOnTouched = (fn) => (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public toggleFavourite(space: BookingAsset) {
         const fav_list = this.favorites;

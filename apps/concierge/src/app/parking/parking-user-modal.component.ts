@@ -1,4 +1,12 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    OnInit,
+    Output,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -7,7 +15,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,22 +37,24 @@ import { ParkingUser } from './parking-state.service';
     selector: 'parking-user-modal',
     template: `
         <div class="w-md">
-            <header class="flex w-full items-center justify-between px-2">
-                <h2 class="px-2">
+            <header
+                class="bg-base-200 sticky top-0 z-10 m-2 min-h-12 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            >
+                <h2 class="px-2 text-xl font-medium">
                     {{
-                        (id
+                        (id()
                             ? 'APP.CONCIERGE.PARKING_USER_EDIT'
                             : 'APP.CONCIERGE.PARKING_USER_NEW'
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
-                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
+                @if (!loading()) {
+                    <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
@@ -71,7 +85,6 @@ import { ParkingUser } from './parking-state.service';
                     </div>
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -84,7 +97,6 @@ import { ParkingUser } from './parking-state.service';
                     </mat-form-field>
                     <label for="email">{{ 'FORM.EMAIL' | translate }}</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>{{ 'FORM.EMAIL' | translate }}</mat-label>
                         <input
                             matInput
                             name="email"
@@ -101,7 +113,6 @@ import { ParkingUser } from './parking-state.service';
                                 'EXPLORE.PARKING_PLATE_NUMBER' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-label>{{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="plate-number"
@@ -118,11 +129,10 @@ import { ParkingUser } from './parking-state.service';
                                 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-label>{{ 'APP.CONCIERGE.PARKING_CAR_COLOUR' | translate }}</mat-label>
                                 <input
                                     matInput
                                     name="car-color"
-                                    formControlName="car_color"
+                                    formControlName="car_colour"
                                     [placeholder]="
                                         'APP.CONCIERGE.PARKING_CAR_COLOUR'
                                             | translate
@@ -133,7 +143,6 @@ import { ParkingUser } from './parking-state.service';
                     </div>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"
@@ -161,9 +170,9 @@ import { ParkingUser } from './parking-state.service';
                     <p>{{ 'APP.CONCIERGE.PARKING_USER_SAVE' | translate }}</p>
                 </main>
             }
-            @if (!loading) {
+            @if (!loading()) {
                 <footer
-                    class="border-base-200 flex items-center justify-end space-x-2 border-t p-2"
+                    class="border-base-300 flex items-center justify-end space-x-2 border-t px-4 py-2"
                 >
                     <button btn matRipple class="w-32" (click)="postForm()">
                         {{ 'COMMON.SAVE' | translate }}
@@ -185,6 +194,7 @@ import { ParkingUser } from './parking-state.service';
         FormsModule,
         MatTooltipModule,
         UserSearchFieldComponent,
+        MatDialogModule,
     ],
 })
 export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
@@ -193,11 +203,9 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         inject<MatDialogRef<ParkingUserModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading = false;
+    public readonly loading = signal(false);
 
-    public get id() {
-        return this._data?.id || '';
-    }
+    public readonly id = computed(() => this._data?.id || '');
 
     public readonly form = new FormGroup({
         id: new FormControl(''),
@@ -205,7 +213,7 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         name: new FormControl('', [Validators.required]),
         email: new FormControl('', [Validators.required]),
         plate_number: new FormControl(''),
-        car_color: new FormControl(''),
+        car_colour: new FormControl(''),
         notes: new FormControl(''),
         deny: new FormControl(false),
     });
@@ -214,7 +222,13 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
         super();
         const _data = this._data;
 
-        if (_data) this.form.patchValue(_data);
+        if (_data) {
+            this.form.patchValue({
+                ..._data,
+                car_colour:
+                    (_data as any).car_colour || (_data as any).car_color || '',
+            });
+        }
     }
 
     public ngOnInit() {
@@ -236,7 +250,7 @@ export class ParkingUserModalComponent extends AsyncHandler implements OnInit {
 
     public postForm() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = this.form.value;
         if (value.user) {
             value.email = value.user.email;

@@ -1,10 +1,4 @@
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    input,
-    output,
-} from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { ViewerFeature } from '@placeos/svg-viewer';
 
 import { MatRippleModule } from '@angular/material/core';
@@ -131,9 +125,9 @@ import { BookingAsset } from '../booking-form.service';
                     >
                         <interactive-map
                             class="pointer-events-none"
-                            [src]="map_url"
+                            [src]="map_url()"
                             [focus]="desk().map_id || desk().id"
-                            [features]="features"
+                            [features]="features()"
                             [options]="{
                                 disable_pan: true,
                                 disable_zoom: true,
@@ -161,7 +155,7 @@ import { BookingAsset } from '../booking-form.service';
         MatRippleModule,
     ],
 })
-export class NewDeskDetailsComponent implements OnChanges {
+export class NewDeskDetailsComponent {
     public readonly desk = input<BookingAsset>(undefined);
     public readonly fav = input(false);
     public readonly active = input(false);
@@ -171,23 +165,15 @@ export class NewDeskDetailsComponent implements OnChanges {
     public readonly toggleFav = output<void>();
     public readonly activeChange = output<void>();
 
-    public map_url = '';
-    public features: ViewerFeature[] = [];
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.desk && this.desk()) {
-            this.updateFeature();
-        }
-    }
-
-    private updateFeature() {
-        this.map_url = this.desk().zone.map_id;
+    public readonly map_url = computed(() => this.desk()?.zone?.map_id || '');
+    public readonly features = computed<ViewerFeature[]>(() => {
         const desk = this.desk();
-        this.features = [
+        if (!desk) return [];
+        return [
             {
                 location: desk.map_id || desk.id,
                 content: MapPinComponent,
             },
         ];
-    }
+    });
 }

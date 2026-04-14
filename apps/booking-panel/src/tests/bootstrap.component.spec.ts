@@ -37,13 +37,11 @@ describe('BootstrapComponent', () => {
     });
 
     beforeEach(() => {
-        jest.useFakeTimers();
         spectator = createComponent();
     });
 
     afterEach(() => {
         localStorage.clear();
-        jest.useRealTimers();
     });
 
     it('should create the bootstrap', () => {
@@ -65,13 +63,13 @@ describe('BootstrapComponent', () => {
         const button: HTMLButtonElement = spectator.query('button');
         expect(button).toBeTruthy();
         // expect(button.disabled).toBeTruthy();
-        spectator.component.system_id$.next('sys-B0');
+        spectator.component.system_id.set('sys-B0');
         spectator.detectChanges();
         expect(button.disabled).toBeFalsy();
     });
 
     it('should route to the panel on submit', () => {
-        spectator.component.system_id$.next('sys-B0');
+        spectator.component.system_id.set('sys-B0');
         spectator.detectChanges();
         expect(spectator.query('button[disabled]')).toBeFalsy();
         spectator.click('button');
@@ -85,7 +83,6 @@ describe('BootstrapComponent', () => {
     it('should auto bootstrap if there is a system query parameter', () => {
         spectator.setRouteQueryParam('system_id', 'sys-B0');
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
         const router = spectator.inject(Router);
         expect(router.navigate).toHaveBeenCalledWith(['panel', 'sys-B0'], {
             queryParamsHandling: 'preserve',
@@ -96,7 +93,6 @@ describe('BootstrapComponent', () => {
         localStorage.setItem('PLACEOS.BOOKINGS.system', 'sys-B0');
         spectator.setRouteQueryParam('clear', 'true');
         spectator.detectChanges();
-        jest.runOnlyPendingTimers();
         expect(localStorage.getItem('PLACEOS.BOOKINGS.system')).toBeFalsy();
     });
 });

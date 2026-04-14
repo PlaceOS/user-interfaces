@@ -30,7 +30,9 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const searchInput = page.locator('input[matInput]');
         await expect(searchInput).toBeVisible();
@@ -38,7 +40,9 @@ test.describe('US-001: Initial Room Setup', () => {
 
     test('should display submit button', async ({ page }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const submitButton = page.locator('[app-bootstrap] button[btn]');
         await expect(submitButton).toBeVisible();
@@ -48,7 +52,9 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const autocomplete = page.locator('mat-autocomplete');
         await expect(autocomplete).toBeAttached();
@@ -58,7 +64,9 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const searchInput = page.locator('input[matInput]');
         await searchInput.fill('Meeting');
@@ -74,7 +82,9 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const submitButton = page.locator('[app-bootstrap] button[btn]');
         await expect(submitButton).toBeDisabled();
@@ -84,7 +94,9 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(`${BOOTSTRAP_URL}?mock=true`);
-        await page.locator('[app-bootstrap]').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('[app-bootstrap]')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         const searchInput = page.locator('input[matInput]');
         await searchInput.fill(MOCK_SYSTEM_ID);
@@ -97,7 +109,7 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(
-            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
         );
 
         // Should redirect to tabbed view
@@ -119,9 +131,11 @@ test.describe('US-001: Initial Room Setup', () => {
         page,
     }) => {
         await page.goto(
-            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
         );
-        await page.locator('app-control-tabbed-view').waitFor({ timeout: LOAD_TIMEOUT });
+        await page
+            .locator('app-control-tabbed-view')
+            .waitFor({ timeout: LOAD_TIMEOUT });
 
         // Reload and check if auto-loads
         await page.goto('/?mock=true');
@@ -244,7 +258,7 @@ test.describe('Bootstrap - Loading States', () => {
         await page.waitForTimeout(1000);
 
         await page.goto(
-            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`
+            `${BOOTSTRAP_URL}?mock=true&system_id=${MOCK_SYSTEM_ID}`,
         );
 
         // Eventually should show the tabbed view

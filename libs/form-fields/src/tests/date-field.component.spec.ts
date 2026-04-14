@@ -8,7 +8,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import { randomInt } from '@placeos/common';
+import {
+    getTimeInTimezone,
+    randomInt,
+    setTimeInTimezone,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -44,10 +48,15 @@ describe('DateFieldComponent', () => {
         expect('button').toBeDisabled();
     });
 
+    it('should use a non-submit trigger button', () => {
+        expect(spectator.query('button')).toHaveAttribute('type', 'button');
+    });
+
     it('should handler external changes to the date selected', fakeAsync(() => {
-        expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
-            format(new Date(), 'MMMM d, yyyy'),
-        );
+        spectator.component.writeValue(Date.now());
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).not.toBeNull();
         const new_date = addDays(new Date(), randomInt(12, 2));
         spectator.component.writeValue(new_date.valueOf());
         spectator.detectChanges();
@@ -56,4 +65,40 @@ describe('DateFieldComponent', () => {
             format(new_date, 'MMMM d, yyyy'),
         );
     }));
+
+    it('should allow clearing the selected date', () => {
+        spectator.component.writeValue(Date.now());
+        spectator.detectChanges();
+
+        spectator.component.clearValue();
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).toBeNull();
+        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+    });
+
+    it('should keep empty values empty when written externally', () => {
+        spectator.component.writeValue(null);
+        spectator.detectChanges();
+
+        expect(spectator.component.date()).toBeNull();
+        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+    });
+
+    it('should preserve wall-clock time in the configured timezone', () => {
+        const timezone = 'UTC';
+        const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
+        const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
+        const on_change = jest.fn();
+        spectator.setInput('timezone', timezone);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(old_date);
+
+        spectator.component.setValue(new_date);
+
+        const { hours, minutes } = getTimeInTimezone(old_date, timezone);
+        expect(on_change).toHaveBeenCalledWith(
+            setTimeInTimezone(new_date, hours, minutes, timezone),
+        );
+    });
 });

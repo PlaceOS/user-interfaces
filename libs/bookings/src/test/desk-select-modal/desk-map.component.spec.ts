@@ -9,12 +9,12 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { IndoorMapsComponent } from 'libs/components/src/lib/indoor-maps.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { DeskMapComponent } from '../../lib/desk-select-modal/desk-map.component';
 
 describe('DeskMapComponent', () => {
@@ -27,7 +27,7 @@ describe('DeskMapComponent', () => {
                 options: new BehaviorSubject({}),
                 available_resources: new BehaviorSubject([]),
             } as any),
-            MockProvider(SettingsService, { get: jest.fn() }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
             MockProvider(MapsPeopleService, {
                 use_mapsindoors$: new BehaviorSubject(false),
             } as any),
@@ -67,9 +67,8 @@ describe('DeskMapComponent', () => {
         (spectator.inject(BookingFormService).available_resources as any).next([
             test_space,
         ]);
-        spectator.component.actions.pipe(take(1)).subscribe((actions) => {
-            expect(actions).toHaveLength(1);
-            actions[0].callback();
-        });
+        const actions = spectator.component.actions();
+        expect(actions).toHaveLength(1);
+        actions[0].callback();
     });
 });

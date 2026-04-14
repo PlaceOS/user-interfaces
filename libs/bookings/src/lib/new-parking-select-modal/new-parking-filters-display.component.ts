@@ -1,8 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
+import {
+    Component,
+    DestroyRef,
+    inject,
+    input,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import {
-    AsyncHandler,
     nextValueFrom,
     OrganisationService,
     SettingsService,
@@ -17,9 +25,9 @@ import { BookingFormService } from '../booking-form.service';
             filters
             class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
-            @if (location) {
+            @if (location()) {
                 <div filter-item zone>
-                    {{ location }}
+                    {{ location() }}
                 </div>
             }
             <div filter-item date>
@@ -29,7 +37,7 @@ import { BookingFormService } from '../booking-form.service';
                 {{ start | date: time_format }} &mdash;
                 {{ end | date: time_format }}
             </div>
-            @for (feat of (options | async)?.features; track feat) {
+            @for (feat of options()?.features; track feat) {
                 <div filter-item>
                     <p>{{ feat }}</p>
                     <button
@@ -68,15 +76,18 @@ import { BookingFormService } from '../booking-form.service';
     ],
     imports: [CommonModule, IconComponent, MatRippleModule],
 })
-export class NewParkingFiltersDisplayComponent extends AsyncHandler {
+export class NewParkingFiltersDisplayComponent implements OnInit {
     private _event_form = inject(BookingFormService);
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _destroyRef = inject(DestroyRef);
 
     public readonly view = input<'map' | 'list'>('list');
     public readonly viewChange = output<'map' | 'list'>();
-    public readonly options = this._event_form.options;
-    public location: string = '';
+    public readonly options = toSignal(this._event_form.options, {
+        initialValue: {} as any,
+    });
+    public readonly location = signal('');
 
     public get start() {
         return this._event_form.form.value.date;
@@ -88,20 +99,13 @@ export class NewParkingFiltersDisplayComponent extends AsyncHandler {
     }
 
     public get time_format() {
-        return this._settings.time_format;
-    }
-
-    constructor() {
-        super();
+        return this._settings.time_format_signal();
     }
 
     public ngOnInit() {
-        this.subscription(
-            'opts',
-            this.options.subscribe(({ zone_id }) =>
-                this._updateLocation([zone_id]),
-            ),
-        );
+        this._event_form.options
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(({ zone_id }) => this._updateLocation([zone_id]));
     }
 
     public async removeFeature(feat: string) {
@@ -115,6 +119,6 @@ export class NewParkingFiltersDisplayComponent extends AsyncHandler {
     private _updateLocation(zone_ids: string[] = []) {
         const level = this._org.levelWithID(zone_ids);
         const item = level || this._org.building;
-        this.location = item?.display_name || item?.name || '';
+        this.location.set(item?.display_name || item?.name || '');
     }
 }

@@ -67,7 +67,9 @@ test.describe('Event Panel - Meeting Display', () => {
 
     test('should display next meeting section', async ({ page }) => {
         // Should show "NEXT" heading
-        const nextHeading = page.locator('event-panel h2', { hasText: /next/i });
+        const nextHeading = page.locator('event-panel h2', {
+            hasText: /next/i,
+        });
         await expect(nextHeading).toBeVisible({ timeout: STATUS_TIMEOUT });
     });
 });

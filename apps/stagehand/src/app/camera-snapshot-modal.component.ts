@@ -9,7 +9,7 @@ import {
 } from '@placeos/components';
 
 export interface CameraSnapshotData {
-    camera_snapshot_url: string;
+    camera_snapshot_urls: string[];
     camera_url?: string;
     room_name: string;
 }
@@ -111,7 +111,7 @@ export class CameraSnapshotModalComponent extends AsyncHandler {
     });
 
     public readonly snapshot_url = computed(() => {
-        const base_url = this.data.camera_snapshot_url;
+        const base_url = this.data.camera_snapshot_urls[0] || '';
         if (!base_url) return '';
 
         const separator = base_url.includes('?') ? '&' : '?';

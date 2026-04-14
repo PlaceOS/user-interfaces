@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, SimpleChanges, inject, input, output } from '@angular/core';
+import { Component, effect, inject, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AssetGroup } from '@placeos/common';
@@ -191,18 +191,20 @@ export class AssetListComponent {
         }),
     );
 
-    public ngOnChanges(changes: SimpleChanges) {
-        const selected_items = this.selected_items();
-        if (changes.selected_items && selected_items?.length) {
+    constructor() {
+        effect(() => {
+            const selected_items = this.selected_items();
             const counts = {};
-            for (const item of selected_items) {
-                counts[item.id] = item.quantity;
+            if (selected_items?.length) {
+                for (const item of selected_items) {
+                    counts[item.id] = item.quantity;
+                }
             }
             this.counts.next(counts);
-        }
-        if (changes.requested) {
+        });
+        effect(() => {
             this._requested_items.next(this.requested());
-        }
+        });
     }
 
     public isFavourite(asset_id: string) {

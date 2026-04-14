@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsyncHandler, current_user, SettingsService } from '@placeos/common';
 import { first } from 'rxjs/operators';
@@ -28,12 +28,13 @@ export class DeskBookingComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _router = inject(Router);
 
-    public get countdown_time() {
-        return this._settings.get('app.kiosk_reset_delay') || 5 * 60 * 1000;
-    }
+    public readonly countdown_time = signal(5 * 60 * 1000);
 
     public async ngOnInit() {
         await current_user.pipe(first((_) => !!_)).toPromise();
+        this.countdown_time.set(
+            this._settings.get('app.kiosk_reset_delay') || 5 * 60 * 1000,
+        );
         this.resetCountdown();
     }
 
@@ -41,7 +42,7 @@ export class DeskBookingComponent extends AsyncHandler implements OnInit {
         this.timeout(
             'reset',
             () => this._router.navigate(['/explore']),
-            this.countdown_time,
+            this.countdown_time(),
         );
     }
 }

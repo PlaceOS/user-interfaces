@@ -56,7 +56,9 @@ test.describe('US-010: Adjust Master Volume', () => {
 
     test('should have volume slider input', async ({ page }) => {
         const statusBar = page.locator('control-status-bar');
-        const sliderInput = statusBar.locator('mat-slider input[matSliderThumb]');
+        const sliderInput = statusBar.locator(
+            'mat-slider input[matSliderThumb]',
+        );
 
         await expect(sliderInput).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
@@ -77,7 +79,7 @@ test.describe('US-010: Adjust Master Volume', () => {
         const iconText = await volumeIcon.textContent();
         // Should be volume_up, volume_mute, or volume_off
         expect(['volume_up', 'volume_mute', 'volume_off']).toContain(
-            iconText?.trim()
+            iconText?.trim(),
         );
     });
 });
@@ -112,7 +114,7 @@ test.describe('US-011: Mute/Unmute Audio', () => {
         const newIcon = await volumeIcon.textContent();
         // Icon might have changed to volume_off if muted, or back to volume_up if unmuted
         expect(['volume_up', 'volume_mute', 'volume_off']).toContain(
-            newIcon?.trim()
+            newIcon?.trim(),
         );
     });
 
@@ -154,7 +156,7 @@ test.describe('US-011: Mute/Unmute Audio', () => {
         if (isMuted) {
             // Slider input should be disabled
             const sliderInput = statusBar.locator(
-                'mat-slider input[matSliderThumb]'
+                'mat-slider input[matSliderThumb]',
             );
             await expect(sliderInput).toBeDisabled();
         }

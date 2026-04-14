@@ -1,15 +1,7 @@
-import {
-    Component,
-    OnChanges,
-    SimpleChanges,
-    inject,
-    input,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncHandler } from '@placeos/common';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
@@ -33,8 +25,8 @@ export const ICON_MAP = {
                     view
                     matRipple
                     class="border-base-200 relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded-sm border"
-                    [class.opacity-60]="!(input | async)"
-                    [class.bg-base-200]="!(input | async)"
+                    [class.opacity-60]="!input()"
+                    [class.bg-base-200]="!input()"
                     (click)="switchSource()"
                 >
                     <div
@@ -43,18 +35,13 @@ export const ICON_MAP = {
                         {{ item()?.name }}
                     </div>
                     <icon class="text-7xl">{{
-                        (input | async)?.icon ||
-                            icons[(input | async)?.type] ||
-                            'add_to_queue'
+                        input()?.icon || icons[input()?.type] || 'add_to_queue'
                     }}</icon>
                     <p class="font-medium">
-                        {{
-                            (input | async)?.name ||
-                                'Click to select input source'
-                        }}
+                        {{ input()?.name || 'Click to select input source' }}
                     </p>
                     <p class="text-xs">
-                        @if ((input | async)?.name) {
+                        @if (input()?.name) {
                             <span class="opacity-50">
                                 {{ 'APP.CONTROL.OUTPUT_SWITCH' | translate }}
                             </span>
@@ -74,7 +61,7 @@ export const ICON_MAP = {
                     <mat-slider class="flex-1"
                         ><input
                             matSliderThumb
-                            [ngModel]="!mute ? item().volume : 0"
+                            [ngModel]="!item().mute ? item().volume : 0"
                             (ngModelChange)="setVolume($event)"
                     /></mat-slider>
                 </div>
@@ -89,7 +76,6 @@ export const ICON_MAP = {
         `,
     ],
     imports: [
-        CommonModule,
         MatSliderModule,
         FormsModule,
         IconComponent,
@@ -97,21 +83,20 @@ export const ICON_MAP = {
         TranslatePipe,
     ],
 })
-export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
+export class OutputDisplayComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
+    private _available_inputs = toSignal(this._state.available_inputs, {
+        initialValue: [],
+    });
 
     public readonly item = input<RoomOutput>(undefined);
-    /** Current volume level for output */
-    public volume: number;
-    /** Current mute state of the output */
-    public mute: boolean;
-    /** ID of the input associated with the displayed output */
-    private _input = new BehaviorSubject('');
     /** Details of the associated input */
-    public readonly input = combineLatest([
-        this._input,
-        this._state.available_inputs,
-    ]).pipe(map(([id, list]) => list.find((_) => _.id === id || _.ref === id)));
+    public readonly input = computed(() => {
+        const input_id = this.item()?.source || '';
+        return this._available_inputs().find(
+            (_) => _.id === input_id || _.ref === input_id,
+        );
+    });
 
     public readonly icons = ICON_MAP;
 
@@ -123,11 +108,5 @@ export class OutputDisplayComponent extends AsyncHandler implements OnChanges {
 
     public get id(): string {
         return this._state.id;
-    }
-
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.item) {
-            this._input.next(this.item()?.source || '');
-        }
     }
 }

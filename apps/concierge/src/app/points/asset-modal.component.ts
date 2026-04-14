@@ -1,6 +1,5 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -23,7 +22,7 @@ import { SpacesService } from '@placeos/events';
 import { CounterComponent, TimeFieldComponent } from '@placeos/form-fields';
 import { addHours, startOfHour } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { map, shareReplay, startWith, tap } from 'rxjs/operators';
 import { DesksStateService } from '../desks/desks-state.service';
 
 @Component({
@@ -40,8 +39,8 @@ import { DesksStateService } from '../desks/desks-state.service';
                     ) | translate
                 }}
             </h2>
-            @if (!loading) {
-                <button icon matRipple mat-dialog-close aria-label="Close dialog">
+            @if (!loading()) {
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
@@ -51,7 +50,6 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="flex flex-col">
                     <label>{{ 'APP.CONCIERGE.POINTS_TYPE' | translate }}</label>
                     <mat-form-field appearance="outline" class="h-13 flex-1">
-                        <mat-label>Asset Type</mat-label>
                         <mat-select
                             formControlName="type"
                             placeholder="Select asset type"
@@ -68,11 +66,10 @@ import { DesksStateService } from '../desks/desks-state.service';
                 <div class="flex flex-col">
                     <label>{{ 'RESOURCE.ASSET' | translate }}</label>
                     <mat-form-field appearance="outline" class="h-13 flex-1">
-                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <icon
                             matPrefix
                             class="text-2xl"
-                            [class.opacity-60]="!form.get('type').value"
+                            [class.opacity-30]="!form.get('type').value"
                             >search</icon
                         >
                         <input
@@ -83,7 +80,7 @@ import { DesksStateService } from '../desks/desks-state.service';
                             "
                             [matAutocomplete]="auto"
                         />
-                        @if (loading) {
+                        @if (loading()) {
                             <mat-spinner
                                 matSuffix
                                 [diameter]="32"
@@ -91,14 +88,14 @@ import { DesksStateService } from '../desks/desks-state.service';
                         }
                     </mat-form-field>
                     <mat-autocomplete #auto="matAutocomplete">
-                        @for (option of asset_options | async; track option) {
+                        @for (option of asset_options(); track option) {
                             <mat-option
                                 [value]="option?.display_name || option?.name"
                             >
                                 {{ option?.display_name || option?.name }}
                             </mat-option>
                         }
-                        @if (!(asset_options | async)?.length) {
+                        @if (!asset_options().length) {
                             <mat-option [disabled]="true">
                                 {{
                                     'APP.CONCIERGE.POINTS_ASSETS_SEARCH_EMPTY'
@@ -160,7 +157,6 @@ import { DesksStateService } from '../desks/desks-state.service';
                                         appearance="outline"
                                         class="h-13 w-32 flex-2"
                                     >
-                                        <mat-label>{{ 'RESOURCE.LEVEL' | translate }}</mat-label>
                                         <mat-select
                                             [(ngModel)]="rule.type"
                                             [ngModelOptions]="{
@@ -257,7 +253,6 @@ import { DesksStateService } from '../desks/desks-state.service';
         `,
     ],
     imports: [
-        AsyncPipe,
         MatRippleModule,
         TranslatePipe,
         IconComponent,
@@ -295,24 +290,31 @@ export class PointsAssetModalComponent extends AsyncHandler {
         custom_rates: new FormControl(this._data.asset?.custom_rates || []),
     });
 
-    public loading: boolean;
+    public readonly loading = signal(false);
 
-    public readonly asset_options = combineLatest([
-        this.form.valueChanges,
-        this._spaces.list,
-        toObservable(this._desks.desks),
-    ]).pipe(
-        map(([{ type, name }, spaces, desks]) => {
-            this.loading = true;
-            const search = (name || '').toLowerCase();
-            return !type
-                ? []
-                : type === 'space'
-                  ? spaces.filter((_) => _.name.toLowerCase().includes(search))
-                  : desks.filter((_) => _.name.toLowerCase().includes(search));
-        }),
-        tap(() => (this.loading = false)),
-        shareReplay(1),
+    public readonly asset_options = toSignal(
+        combineLatest([
+            this.form.valueChanges.pipe(startWith(this.form.getRawValue())),
+            this._spaces.list,
+            toObservable(this._desks.desks),
+        ]).pipe(
+            map(([{ type, name }, spaces, desks]) => {
+                this.loading.set(true);
+                const search = (name || '').toLowerCase();
+                return !type
+                    ? []
+                    : type === 'space'
+                      ? spaces.filter((_) =>
+                            _.name.toLowerCase().includes(search),
+                        )
+                      : desks.filter((_) =>
+                            _.name.toLowerCase().includes(search),
+                        );
+            }),
+            tap(() => this.loading.set(false)),
+            shareReplay(1),
+        ),
+        { initialValue: [] },
     );
 
     constructor() {

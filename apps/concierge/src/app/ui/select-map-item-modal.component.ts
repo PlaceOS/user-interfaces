@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -20,8 +21,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { Rect } from '@placeos/svg-viewer/dist/types';
-import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { debounceTime, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, of } from 'rxjs';
+import { debounceTime, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { MapShowElementComponent } from '../poi-manager/map-show-element.component';
 import { PointOfInterest } from '../poi-manager/poi-management.service';
 
@@ -50,11 +51,11 @@ declare let mapsindoors: any;
                 class="bg-base-200 relative h-full w-1/2 flex-1 rounded-lg"
             >
                 <interactive-map
-                    [src]="level?.map_id"
+                    [src]="level()?.map_id"
                     [actions]="actions"
-                    [features]="features | async"
+                    [features]="features()"
                     [options]="{ controls: true }"
-                    [focus]="selected.value"
+                    [focus]="selected()"
                     (mapInfo)="setMapInfo($any($event))"
                 ></interactive-map>
             </div>
@@ -73,7 +74,7 @@ declare let mapsindoors: any;
                             [(ngModel)]="level"
                             (ngModelChange)="onChange()"
                         >
-                            @for (lvl of level_list | async; track lvl) {
+                            @for (lvl of level_list(); track lvl) {
                                 <mat-option [value]="lvl">
                                     {{ lvl.display_name || lvl.name }}
                                 </mat-option>
@@ -89,8 +90,7 @@ declare let mapsindoors: any;
                             matInput
                             name="search"
                             placeholder="Search"
-                            [ngModel]="search | async"
-                            (ngModelChange)="search.next($event)"
+                            [(ngModel)]="search"
                         />
                         <icon matPrefix class="text-2xl">search</icon>
                     </mat-form-field>
@@ -106,42 +106,38 @@ declare let mapsindoors: any;
                             'APP.CONCIERGE.POI_MAP_SELECT_RESULTS'
                                 | translate
                                     : {
-                                          count:
-                                              (search_results | async)
-                                                  ?.length || 0,
+                                          count: search_results().length || 0,
                                       }
                         }}
-                        @if (last_page) {
+                        @if (last_page()) {
                             <span
                                 class="border-info bg-info-light rounded-full border px-2 py-1 text-xs"
                             >
-                                {{ page * 100 + 1 }} -
+                                {{ page() * 100 + 1 }} -
                                 {{
-                                    (search_results | async)?.length >
-                                    page * 100 + 100
-                                        ? page * 100 + 100
-                                        : (search_results | async)?.length
+                                    search_results().length > page() * 100 + 100
+                                        ? page() * 100 + 100
+                                        : search_results().length
                                 }}
                             </span>
                         }
                     </div>
-                    @if ((search_results | async)?.length) {
+                    @if (search_results().length) {
                         @for (
-                            poi of search_results
-                                | async
-                                | slice: page * 100 : page * 100 + 100;
+                            poi of search_results()
+                                | slice: page() * 100 : page() * 100 + 100;
                             track poi
                         ) {
                             <button
                                 btn
                                 matRipple
                                 class="clear hover:bg-base-200 flex w-full items-center rounded-sm text-left"
-                                [class.bg-primary!]="poi.id === selected.value"
+                                [class.bg-primary!]="poi.id === selected()"
                                 [class.text-primary-content!]="
-                                    poi.id === selected.value
+                                    poi.id === selected()
                                 "
-                                (click)="selected.next(poi.id)"
-                                (mouseover)="hovered.next(poi.id)"
+                                (click)="selected.set(poi.id)"
+                                (mouseover)="hovered.set(poi.id)"
                             >
                                 <div
                                     class="flex w-full flex-col font-mono text-sm"
@@ -171,7 +167,7 @@ declare let mapsindoors: any;
                             </div>
                         </div>
                     }
-                    @if (last_page > 0) {
+                    @if (last_page() > 0) {
                         <div
                             pagination
                             class="border-base-300 bg-base-100 sticky bottom-0 z-10 -mx-2 flex w-[calc(100%+1rem)] items-center justify-center space-x-1 border-t p-2"
@@ -180,22 +176,22 @@ declare let mapsindoors: any;
                                 icon
                                 matRipple
                                 class="border-base-200 rounded-sm border"
-                                [disabled]="page === 0"
-                                (click)="page = page - 1"
+                                [disabled]="page() === 0"
+                                (click)="page.set(page() - 1)"
                             >
                                 <icon>chevron_left</icon>
                             </button>
                             <button
                                 icon
                                 matRipple
-                                [class.bg-secondary!]="page === 0"
-                                [class.text-secondary-content]="page === 0"
-                                [class.rounded-full!]="page === 0"
-                                (click)="page = 0"
+                                [class.bg-secondary!]="page() === 0"
+                                [class.text-secondary-content]="page() === 0"
+                                [class.rounded-full!]="page() === 0"
+                                (click)="page.set(0)"
                             >
                                 1
                             </button>
-                            <button icon [class.opacity-0]="page < 2">
+                            <button icon [class.opacity-0]="page() < 2">
                                 <icon>more_horiz</icon>
                             </button>
                             <button
@@ -203,14 +199,14 @@ declare let mapsindoors: any;
                                 matRipple
                                 class="bg-secondary! text-secondary-content"
                                 [class.opacity-0]="
-                                    page == 0 || page == last_page
+                                    page() == 0 || page() == last_page()
                                 "
                             >
-                                {{ page + 1 }}
+                                {{ page() + 1 }}
                             </button>
                             <button
                                 icon
-                                [class.opacity-0]="page > last_page - 2"
+                                [class.opacity-0]="page() > last_page() - 2"
                             >
                                 <icon>more_horiz</icon>
                             </button>
@@ -218,21 +214,21 @@ declare let mapsindoors: any;
                                 icon
                                 matRipple
                                 class="border-base-200 rounded-sm border"
-                                [class.bg-secondary!]="page === last_page"
+                                [class.bg-secondary!]="page() === last_page()"
                                 [class.text-secondary-content]="
-                                    page === last_page
+                                    page() === last_page()
                                 "
-                                [class.rounded-full!]="page === last_page"
-                                (click)="page = last_page"
+                                [class.rounded-full!]="page() === last_page()"
+                                (click)="page.set(last_page())"
                             >
-                                {{ last_page + 1 }}
+                                {{ last_page() + 1 }}
                             </button>
                             <button
                                 icon
                                 matRipple
                                 class="border-base-200 rounded-sm border"
-                                [disabled]="page === last_page"
-                                (click)="page = page + 1"
+                                [disabled]="page() === last_page()"
+                                (click)="page.set(page() + 1)"
                             >
                                 <icon>chevron_right</icon>
                             </button>
@@ -243,9 +239,9 @@ declare let mapsindoors: any;
                     <button
                         btn
                         matRipple
-                        [disabled]="!selected.value"
+                        [disabled]="!selected()"
                         class="w-full"
-                        [mat-dialog-close]="selected.value"
+                        [mat-dialog-close]="selected()"
                     >
                         {{ 'COMMON.SAVE' | translate }}
                     </button>
@@ -276,41 +272,38 @@ export class SelectMapItemModalComponent
     private _maps_people = inject(MapsPeopleService);
 
     public selected_item: any;
-    public level: BuildingLevel = new BuildingLevel();
-    public map_info: BoundsMap = {};
-    public page = 0;
-    public last_page = 0;
-    public readonly selected = new BehaviorSubject<string>('');
-    public readonly hovered = new BehaviorSubject<string>('');
-    public readonly search = new BehaviorSubject('');
-    public readonly changed = new BehaviorSubject(0);
-    public readonly level_list = this._org.active_levels;
+    public readonly level = signal<BuildingLevel>(new BuildingLevel());
+    public readonly map_info = signal<BoundsMap>({});
+    public readonly page = signal(0);
+    public readonly last_page = signal(0);
+    public readonly selected = signal('');
+    public readonly hovered = signal('');
+    public readonly search = signal('');
+    public readonly changed = signal(0);
+    public readonly level_list = toSignal(this._org.active_levels, {
+        initialValue: [] as BuildingLevel[],
+    });
     public readonly actions = [
         { id: '*', action: 'click', callback: (e, p) => this.selectID(p || e) },
     ];
-    public readonly features = combineLatest([
-        this.selected,
-        this.hovered,
-    ]).pipe(
-        map(([s_id, h_id]) =>
-            unique(
-                [
-                    {
-                        location: s_id,
-                        content: MapShowElementComponent,
-                        full_size: true,
-                        no_scale: true,
-                    },
-                    {
-                        location: h_id,
-                        content: MapShowElementComponent,
-                        data: { hover: true },
-                        full_size: true,
-                        no_scale: true,
-                    },
-                ].filter((_) => _.location),
-                'location',
-            ),
+    public readonly features = computed(() =>
+        unique(
+            [
+                {
+                    location: this.selected(),
+                    content: MapShowElementComponent,
+                    full_size: true,
+                    no_scale: true,
+                },
+                {
+                    location: this.hovered(),
+                    content: MapShowElementComponent,
+                    data: { hover: true },
+                    full_size: true,
+                    no_scale: true,
+                },
+            ].filter((_) => _.location),
+            'location',
         ),
     );
 
@@ -327,79 +320,84 @@ export class SelectMapItemModalComponent
         };
     }
 
-    public readonly search_results = combineLatest([
-        this.search,
-        this._maps_people.available$,
-        this.changed,
-    ]).pipe(
-        debounceTime(300),
-        switchMap(([q, available]) => {
-            return available
-                ? q.length > 2
-                    ? mapsindoors?.services.LocationsService.getLocations({
-                          q,
-                      }).then((l) => {
-                          const list = l.map((i) =>
-                              this.itemFromMapsIndoorsItem(i),
-                          );
-                          if (this.selected_item) {
-                              list.unshift(
-                                  this.itemFromMapsIndoorsItem(
-                                      this.selected_item,
-                                  ),
+    public readonly search_results = toSignal(
+        combineLatest([
+            toObservable(this.search),
+            this._maps_people.available$,
+            toObservable(this.changed),
+        ]).pipe(
+            debounceTime(300),
+            switchMap(([q, available]) => {
+                return available
+                    ? q.length > 2
+                        ? mapsindoors?.services.LocationsService.getLocations({
+                              q,
+                          }).then((l) => {
+                              const list = l.map((i) =>
+                                  this.itemFromMapsIndoorsItem(i),
                               );
-                          }
-                          return list;
-                      })
-                    : of(
-                          this.selected_item
-                              ? [
-                                    this.itemFromMapsIndoorsItem(
-                                        this.selected_item,
-                                    ),
-                                ]
-                              : [],
-                      )
-                : of(
-                      Object.entries(this.map_info)
-                          .map(([id, bbox]) => ({
-                              id,
-                              area: bbox.w * bbox.h,
-                          }))
-                          .filter(
-                              ({ id, area }) =>
-                                  id.toLowerCase().includes(q.toLowerCase()) &&
-                                  area < 0.5,
+                              if (this.selected_item) {
+                                  list.unshift(
+                                      this.itemFromMapsIndoorsItem(
+                                          this.selected_item,
+                                      ),
+                                  );
+                              }
+                              return list;
+                          })
+                        : of(
+                              this.selected_item
+                                  ? [
+                                        this.itemFromMapsIndoorsItem(
+                                            this.selected_item,
+                                        ),
+                                    ]
+                                  : [],
                           )
-                          .sort((a, b) => b.area - a.area),
-                  );
-        }),
-        tap((l: any[]) => {
-            this.page = 0;
-            this.last_page = Math.floor(l.length / 100);
-        }),
-        shareReplay(1),
+                    : of(
+                          Object.entries(this.map_info())
+                              .map(([id, bbox]) => ({
+                                  id,
+                                  area: bbox.w * bbox.h,
+                              }))
+                              .filter(
+                                  ({ id, area }) =>
+                                      id
+                                          .toLowerCase()
+                                          .includes(q.toLowerCase()) &&
+                                      area < 0.5,
+                              )
+                              .sort((a, b) => b.area - a.area),
+                      );
+            }),
+            tap((l: any[]) => {
+                this.page.set(0);
+                this.last_page.set(Math.floor(l.length / 100));
+            }),
+            shareReplay(1),
+        ),
+        { initialValue: [] as any[] },
     );
 
-    public readonly setMapInfo = (info: BoundsMap) => (this.map_info = info);
+    public readonly setMapInfo = (info: BoundsMap) => this.map_info.set(info);
 
     public async ngOnInit() {
         if (this._data?.location && typeof this._data.location === 'string') {
-            this.selected.next(this._data.location as string);
+            this.selected.set(this._data.location as string);
         }
-        const levels = await nextValueFrom(this.level_list);
+        const levels = await nextValueFrom(this._org.active_levels);
         if (levels.length) {
             let level = levels[0];
             if (this._data?.level_id) {
                 level =
                     levels.find((_) => _.id === this._data.level_id) || level;
             }
-            this.level = level;
+            this.level.set(level);
         }
     }
 
     public onChange() {
-        this.changed.next(Date.now());
+        this.changed.set(Date.now());
     }
 
     public selectID(e: any) {
@@ -423,14 +421,14 @@ export class SelectMapItemModalComponent
                 short_list.sort((a, b) => a[1] - b[1]);
                 short_list.filter(([_, a]) => a <= 0.5);
                 if (short_list.length) {
-                    this.selected.next(short_list[0][0]);
+                    this.selected.set(short_list[0][0]);
                 }
             } else {
                 const id =
                     e.properties?.externalId || e.properties?.roomId || e.id;
                 this.selected_item = e;
-                if (id) this.selected.next(id);
-                this.changed.next(Date.now());
+                if (id) this.selected.set(id);
+                this.changed.set(Date.now());
             }
         });
     }

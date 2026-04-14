@@ -1,9 +1,9 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -38,7 +38,7 @@ import { BookingFormService } from '../booking-form.service';
             class="border-base-200 flex items-center rounded-t-md border-b pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
-                @if (can_close) {
+                @if (can_close()) {
                     <button
                         icon
                         matRipple
@@ -67,7 +67,7 @@ import { BookingFormService } from '../booking-form.service';
                     <label for="location">
                         {{ 'BOOKINGS.LOCATION' | translate }}
                     </label>
-                    @if (use_region && (regions | async)?.length) {
+                    @if (use_region && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
@@ -77,7 +77,7 @@ import { BookingFormService } from '../booking-form.service';
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
-                                @for (reg of regions | async; track reg) {
+                                @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
                                         {{ reg.display_name || reg.name }}
                                     </mat-option>
@@ -85,7 +85,7 @@ import { BookingFormService } from '../booking-form.service';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region && (buildings | async)?.length > 1) {
+                    @if (!use_region && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
@@ -97,7 +97,7 @@ import { BookingFormService } from '../booking-form.service';
                                     building?.display_name || building?.name
                                 "
                             >
-                                @for (bld of buildings | async; track bld) {
+                                @for (bld of buildings(); track bld) {
                                     <mat-option [value]="bld">
                                         {{ bld.display_name || bld.name }}
                                     </mat-option>
@@ -110,17 +110,17 @@ import { BookingFormService } from '../booking-form.service';
                             <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                             <mat-select
                                 name="location"
-                                [ngModel]="(options | async)?.zone_id"
+                                [ngModel]="options()?.zone_id"
                                 (ngModelChange)="
                                     setOptions({ zone_id: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
                             >
-                                @for (lvl of levels | async; track lvl) {
+                                @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
                                         <div class="flex flex-col-reverse">
-                                            @if (use_region) {
+                                            @if (use_region()) {
                                                 <div class="text-xs opacity-30">
                                                     {{
                                                         (
@@ -156,13 +156,13 @@ import { BookingFormService } from '../booking-form.service';
                         [ngModelOptions]="{ standalone: true }"
                         [disabled]="form.controls.date.disabled"
                         [to]="end_date"
-                        [timezone]="timezone"
+                        [timezone]="timezone()"
                     >
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day && !form.controls.date.disabled) {
+                @if (allow_all_day() && !form.controls.date.disabled) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox
                             [ngModel]="form.value.all_day"
@@ -188,8 +188,9 @@ import { BookingFormService } from '../booking-form.service';
                                     form.patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [use_24hr]="use_24hr"
-                                [timezone]="timezone"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone()"
+                                [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
                         <div class="w-1/3 flex-1">
@@ -204,8 +205,9 @@ import { BookingFormService } from '../booking-form.service';
                                 [max]="10 * 60"
                                 [min]="60"
                                 [step]="60"
-                                [use_24hr]="use_24hr"
-                                [timezone]="timezone"
+                                [use_24hr]="use_24hr()"
+                                [timezone]="timezone()"
+                                [end_time]="bookable_hours()?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -221,28 +223,26 @@ import { BookingFormService } from '../booking-form.service';
                         <settings-toggle
                             class="w-full"
                             [name]="'COMMON.FAVOURITES_ONLY' | translate"
-                            [ngModel]="(options | async)?.show_fav"
+                            [ngModel]="options()?.show_fav"
                             (ngModelChange)="setOptions({ show_fav: $event })"
                             [ngModelOptions]="{ standalone: true }"
                         ></settings-toggle>
                     </div>
                 </section>
             }
-            @if ((features | async)?.length && !hide_levels()) {
+            @if (features()?.length && !hide_levels()) {
                 <section class="space-y-2" features>
                     <h2 class="text-lg font-medium">
                         {{ 'COMMON.TYPE' | translate }}
                     </h2>
-                    @for (feat of features | async; track feat) {
+                    @for (feat of features(); track feat) {
                         <div class="flex flex-wrap items-center space-x-2">
                             <div for="feat" class="w-1/2 flex-1">
                                 {{ feat }}
                             </div>
                             <mat-checkbox
                                 [ngModel]="
-                                    (
-                                        (options | async)?.features || []
-                                    ).includes(feat)
+                                    (options()?.features || []).includes(feat)
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -253,7 +253,7 @@ import { BookingFormService } from '../booking-form.service';
                 </section>
             }
         </form>
-        @if (can_close) {
+        @if (can_close()) {
             <div class="border-base-200 w-full border-t px-2 py-2">
                 <button
                     btn
@@ -268,7 +268,6 @@ import { BookingFormService } from '../booking-form.service';
         }
     `,
     imports: [
-        CommonModule,
         MatRippleModule,
         TranslatePipe,
         MatCheckboxModule,
@@ -294,30 +293,43 @@ export class ParkingSpaceFiltersComponent {
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public can_close = false;
-    public readonly options = this._state.options;
-    public readonly features = this._state.features;
-    public readonly buildings = this._org.active_buildings;
+    public readonly can_close = signal(!!this._bsheet_ref);
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
+    public readonly features = toSignal(this._state.features, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
     public readonly form = this._state.form;
-    public readonly regions = this._org.region_list;
+    public readonly regions = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, bld]) => {
-            const level_list = this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            const viewable_levels = level_list.filter((lvl) =>
-                lvl.tags.includes('parking'),
-            );
-            return viewable_levels.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+        ]).pipe(
+            map(([region, bld]) => {
+                const level_list = this._use_region()
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld);
+                const viewable_levels = level_list.filter((lvl) =>
+                    lvl.tags.includes('parking'),
+                );
+                return viewable_levels.sort(
+                    (a, b) =>
+                        a.parent_id.localeCompare(b.parent_id) ||
+                        (a.display_name || '').localeCompare(
+                            b.display_name || '',
+                        ),
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public get building() {
@@ -340,38 +352,54 @@ export class ParkingSpaceFiltersComponent {
     public readonly setLevel = (l) => {};
 
     public readonly setRegion = (r) => (this._org.region = r);
+    private readonly _parking_bookable_hours = this._settings.signal(
+        'parking.bookable_hours',
+        null,
+    );
+    private readonly _booking_bookable_hours = this._settings.signal(
+        'bookings.bookable_hours',
+        null,
+    );
+    private readonly _bookable_hours = computed(
+        () => this._parking_bookable_hours() || this._booking_bookable_hours(),
+    );
+    private readonly _parking_allow_all_day = this._settings.signal(
+        'parking.allow_all_day',
+        false,
+    );
+    private readonly _booking_allow_all_day = this._settings.signal(
+        'bookings.allow_all_day',
+        false,
+    );
+    private readonly _allow_all_day = computed(
+        () => this._parking_allow_all_day() || this._booking_allow_all_day(),
+    );
+    private readonly _available_period = this._settings.signal(
+        'parking.available_period',
+        90,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
+    private readonly _use_building_timezone = this._settings.signal(
+        'events.use_building_timezone',
+        false,
+    );
 
-    public get allow_all_day() {
-        return (
-            !!this._settings.get('app.parking.allow_all_day') ||
-            !!this._settings.get('app.bookings.allow_all_day')
-        );
-    }
+    public readonly bookable_hours = this._bookable_hours;
+    public readonly allow_all_day = this._allow_all_day;
 
     public get end_date() {
         return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.parking.available_period') || 90,
-            ),
+            addDays(Date.now(), this._available_period()),
         ).valueOf();
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get use_region() {
-        return this._settings.get('app.use_region');
-    }
-
-    public get timezone() {
-        return this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
-            : '';
-    }
-
-    constructor() {
-        this.can_close = !!this._bsheet_ref;
-    }
+    public readonly use_24hr = this._use_24hr;
+    public readonly use_region = this._use_region;
+    public readonly timezone = computed(() =>
+        this._use_building_timezone() ? this._org.building.timezone : '',
+    );
 }

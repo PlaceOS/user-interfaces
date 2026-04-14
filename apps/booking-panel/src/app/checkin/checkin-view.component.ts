@@ -1,11 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler } from '@placeos/common';
-import { startOfMinute } from 'date-fns';
+import { AsyncHandler, CalendarEvent } from '@placeos/common';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { getNextFreeTimeSlot } from '@placeos/events';
@@ -29,8 +28,8 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 class="absolute bottom-4 left-4 z-10 text-3xl font-medium"
             >
                 {{
-                    (system | async)?.display_name ||
-                        (system | async)?.name ||
+                    system()?.display_name ||
+                        system()?.name ||
                         '&lt;Unknown Space&gt;'
                 }}
             </div>
@@ -44,45 +43,42 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
             >
                 <div
                     class="h-full min-h-12 w-2 rounded-sm"
-                    [class.bg-error]="(state | async) === 'busy'"
-                    [class.bg-success]="(state | async) === 'free'"
-                    [class.bg-warning]="(state | async) === 'pending'"
+                    [class.bg-error]="state() === 'busy'"
+                    [class.bg-success]="state() === 'free'"
+                    [class.bg-warning]="state() === 'pending'"
                 ></div>
                 <div class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
-                        @if ((event_state | async)?.current?.length) {
-                            @if ((event_state | async)?.current[0]) {
-                                @if ((event_state | async)?.current[1] > 0) {
+                        @if (event_state()?.current?.length) {
+                            @if (event_state()?.current[0]) {
+                                @if (event_state()?.current[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: (
-                                                          event_state | async
-                                                      )?.current[1],
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      hour: event_state()
+                                                          ?.current[1],
+                                                      minute: event_state()
+                                                          ?.current[2],
                                                   }
                                     }}
                                 }
-                                @if ((event_state | async)?.current[1] <= 0) {
+                                @if (event_state()?.current[1] <= 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_MINUTES'
                                             | translate
                                                 : {
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      minute: event_state()
+                                                          ?.current[2],
                                                   }
                                     }}
                                 }
                                 @if (
-                                    (event_state | async)?.current[1] <= 0 &&
-                                    (event_state | async)?.current[2] <= 1
+                                    event_state()?.current[1] <= 0 &&
+                                    event_state()?.current[2] <= 1
                                 ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
@@ -90,34 +86,31 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                                     }}
                                 }
                             } @else {
-                                @if ((event_state | async)?.current[1]) {
+                                @if (event_state()?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: (
-                                                          event_state | async
-                                                      )?.current[1],
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      hour: event_state()
+                                                          ?.current[1],
+                                                      minute: event_state()
+                                                          ?.current[2],
                                                   }
                                     }}
                                 }
-                                @if (!(event_state | async)?.current[1]) {
+                                @if (!event_state()?.current[1]) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
                                             | translate
                                                 : {
-                                                      minute: (
-                                                          event_state | async
-                                                      )?.current[2],
+                                                      minute: event_state()
+                                                          ?.current[2],
                                                   }
                                     }}
                                 }
                                 @if (
-                                    !(event_state | async)?.current[1] &&
-                                    (event_state | async)?.current[2] < 1
+                                    !event_state()?.current[1] &&
+                                    event_state()?.current[2] < 1
                                 ) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
@@ -130,7 +123,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         }
                     </div>
                 </div>
-                @if ((state | async) === 'pending') {
+                @if (state() === 'pending') {
                     <button
                         btn
                         matRipple
@@ -140,7 +133,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
                     </button>
                 }
-                @if ((state | async) === 'free') {
+                @if (state() === 'free') {
                     <button btn matRipple class="w-24" (click)="newBooking()">
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -151,23 +144,23 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
             >
                 <div
                     class="bg-error h-full min-h-12 w-2 rounded-sm"
-                    [class.bg-error]="(event_state | async)?.next"
-                    [class.bg-success]="!(event_state | async)?.next"
+                    [class.bg-error]="event_state()?.next"
+                    [class.bg-success]="!event_state()?.next"
                 ></div>
                 <div class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
                         {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
                     </div>
                     <div class="">
-                        {{ (event_state | async)?.next || 'No upcoming event' }}
+                        {{ event_state()?.next || 'No upcoming event' }}
                     </div>
                 </div>
-                @if (!(event_state | async)?.next) {
+                @if (!event_state()?.next) {
                     <button
                         btn
                         matRipple
                         class="w-24"
-                        (click)="newBooking(start, true)"
+                        (click)="newBooking(start(), true)"
                     >
                         {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
                     </button>
@@ -181,7 +174,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
             class="border-base-300 mx-2 flex items-center overflow-auto rounded-sm border shadow-sm"
         >
             <checkin-timetable
-                [events]="bookings | async"
+                [events]="bookings()"
                 (event)="newBooking($event)"
             ></checkin-timetable>
         </div>
@@ -255,7 +248,6 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
     ],
     providers: [PanelStateService],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,
@@ -266,35 +258,38 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     private _state = inject(PanelStateService);
     private _route = inject(ActivatedRoute);
 
-    public readonly state = this._state.status;
-    public readonly system = this._state.space;
-    public readonly bookings = this._state.bookings;
-    public start = Date.now();
+    public readonly state = toSignal(this._state.status, {
+        initialValue: 'free',
+    });
+    public readonly system = toSignal(this._state.space);
+    public readonly bookings = toSignal(this._state.bookings, {
+        initialValue: [] as CalendarEvent[],
+    });
+    public start = signal<number>(Date.now());
 
     public readonly checkInCurrent = () => this._state.startMeeting();
     public readonly newBooking = (d = Date.now(), f = false) =>
-        this._state.newBooking(d, this.has_user, f, true);
+        this._state.newBooking(d, this.has_user(), f, true);
 
-    public has_user = true;
+    public has_user = signal<boolean>(true);
 
-    public readonly event_state = combineLatest([
-        this._state.current,
-        this._state.next,
-        this._state.bookings,
-    ]).pipe(
-        map(([c, n, l]) => ({
-            current: currentPeriod(l, c, n),
-            next: nextPeriod(n),
-        })),
+    public readonly event_state = toSignal(
+        combineLatest([
+            this._state.current,
+            this._state.next,
+            this._state.bookings,
+        ]).pipe(
+            map(([c, n, l]) => ({
+                current: currentPeriod(l, c, n),
+                next: nextPeriod(n),
+            })),
+        ),
+        { initialValue: { current: [] as any, next: '' } },
     );
 
-    public readonly next_available = this._state.bookings.pipe(
+    private readonly _next_available$ = this._state.bookings.pipe(
         map((_) => getNextFreeTimeSlot(_).start),
     );
-
-    public get time() {
-        return startOfMinute(Date.now());
-    }
 
     public get room_image() {
         return this._state.setting('room_image');
@@ -304,7 +299,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this._state.system = '';
         this.subscription(
             'next-available',
-            this.next_available.subscribe((_) => (this.start = _)),
+            this._next_available$.subscribe((_) => this.start.set(_)),
         );
         this.subscription(
             'route.params',
@@ -317,7 +312,7 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
-                this.has_user = params.get('user') !== 'false';
+                this.has_user.set(params.get('user') !== 'false');
             }),
         );
     }

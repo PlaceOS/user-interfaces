@@ -20,11 +20,5 @@ export default {
             },
         ],
     },
-    transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|suneditor)'],
-    moduleNameMapper: {
-        '^suneditor$':
-            '<rootDir>/../../node_modules/suneditor/dist/suneditor.min.js',
-        '^suneditor/src/plugins$':
-            '<rootDir>/../../node_modules/suneditor/src/plugins/index.js',
-    },
+    transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
 };

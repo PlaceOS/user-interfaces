@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -78,7 +78,7 @@ import { UrlManagementService } from './url-management.service';
 export class UrlManagerComponent {
     private _state = inject(UrlManagementService);
 
-    public search_term = '';
+    public readonly search_term = signal('');
 
     public readonly new = () => this._state.editURL();
 

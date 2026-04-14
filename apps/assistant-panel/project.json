@@ -133,7 +133,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/assistant-panel"],
             "options": {
-                "jestConfig": "apps/assistant-panel/jest.config.ts"
+                "jestConfig": "apps/assistant-panel/jest.config.ts",
+                "tsConfig": "apps/assistant-panel/tsconfig.spec.json"
             }
         }
     }

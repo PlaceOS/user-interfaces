@@ -1,16 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    generateAssetForm,
-    saveAsset,
-    showAsset,
-    showAssetGroup,
-} from '@placeos/assets';
+import { generateAssetForm, saveAsset } from '@placeos/assets';
 import {
     AssetGroup,
     AsyncHandler,
@@ -23,6 +18,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { showAsset, showAssetType } from '@placeos/ts-client';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -35,8 +31,10 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     : 'APP.CONCIERGE.ASSETS_NEW'
                 ) | translate
             "
-            [close]="product ? [base_route, 'view', product.id] : [base_route]"
-            [loading]="loading"
+            [close]="
+                product() ? [base_route, 'view', product()?.id] : [base_route]
+            "
+            [loading]="loading()"
             (confirm)="save()"
         >
             <form [formGroup]="form">
@@ -48,7 +46,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <mat-label>{{ 'APP.CONCIERGE.ASSETS_PRODUCT' | translate }}</mat-label>
                         <input
                             matInput
-                            [ngModel]="product?.name || 'No Product'"
+                            [ngModel]="product()?.name || 'No Product'"
                             [ngModelOptions]="{ standalone: true }"
                             [disabled]="true"
                         />
@@ -112,10 +110,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_ORDER_SELECT' | translate
                             "
                         >
-                            @for (
-                                order of purchase_orders | async;
-                                track order
-                            ) {
+                            @for (order of purchase_orders(); track order) {
                                 <mat-option [value]="order.id">
                                     {{
                                         order.purchase_order_number ||
@@ -123,7 +118,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     }}
                                 </mat-option>
                             }
-                            @if (!(purchase_orders | async)?.length) {
+                            @if (!purchase_orders().length) {
                                 <mat-option
                                     class="opacity-60"
                                     [disabled]="true"
@@ -184,7 +179,6 @@ import { AssetManagerStateService } from './asset-manager-state.service';
         MatInputModule,
         MatSelectModule,
         TranslatePipe,
-        CommonModule,
         FormsModule,
         ReactiveFormsModule,
     ],
@@ -196,9 +190,11 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly form = generateAssetForm();
-    public readonly purchase_orders = this._state.purchase_orders;
-    public product: AssetGroup;
-    public loading = '';
+    public readonly purchase_orders = toSignal(this._state.purchase_orders, {
+        initialValue: [],
+    });
+    public readonly product = signal<AssetGroup | null>(null);
+    public readonly loading = signal('');
     public refund_deadline = '';
 
     public get base_route() {
@@ -210,7 +206,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
-                    this.loading = 'Loading Asset Details...';
+                    this.loading.set('Loading Asset Details...');
                     const asset = await showAsset(params.get('id'))
                         .toPromise()
                         .catch(() => null);
@@ -220,11 +216,11 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                     }
                     this.form.patchValue(asset);
                     this.refund_deadline = asset.other_data?.refund_deadline || '';
-                    this.loading = '';
+                    this.loading.set('');
                 }
                 if (params.get('group_id')) {
-                    this.loading = 'Loading Product Details...';
-                    const product = await showAssetGroup(params.get('group_id'))
+                    this.loading.set('Loading Product Details...');
+                    const product = await showAssetType(params.get('group_id'))
                         .toPromise()
                         .catch(() => null);
                     if (!product) {
@@ -233,9 +229,9 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                         );
                         this._router.navigate([this.base_route]);
                     }
-                    this.product = product;
+                    this.product.set(product);
                     this.form.patchValue({ asset_type_id: product.id });
-                    this.loading = '';
+                    this.loading.set('');
                 }
             }),
         );
@@ -248,7 +244,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                 `Some fields are invalid. [${getInvalidFields(this.form)}]`,
             );
         }
-        this.loading = 'Saving Product...';
+        this.loading.set('Saving Product...');
         const data = this.form.value;
         const other_data = { ...(data.other_data || {}), refund_deadline: this.refund_deadline || undefined };
         const item = await saveAsset({
@@ -258,17 +254,17 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
         } as any)
             .toPromise()
             .catch((e) => {
-                this.loading = '';
+                this.loading.set('');
                 notifyError(`Error saving asset: ${e.message}`);
                 throw e;
             });
         this.form.reset();
         this._state.postChange();
         this._state.setExtraAssets(
-            [item].map((d) => ({ ...d, asset_type_id: this.product.id })),
+            [item].map((d) => ({ ...d, asset_type_id: this.product()?.id })),
         );
         notifySuccess('Asset saved successfully.');
-        this._router.navigate([this.base_route, 'view', this.product?.id]);
-        this.loading = '';
+        this._router.navigate([this.base_route, 'view', this.product()?.id]);
+        this.loading.set('');
     }
 }

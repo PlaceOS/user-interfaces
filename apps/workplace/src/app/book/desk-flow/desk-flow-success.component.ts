@@ -6,6 +6,7 @@ import { BookingFormService } from '@placeos/bookings';
 import {
     Building,
     BuildingLevel,
+    currentUser,
     firstTruthyValueFrom,
     OrganisationService,
     SettingsService,
@@ -88,6 +89,9 @@ import {
                             }
                         }
                     </p>
+                }
+                @if (show_booked_for) {
+                    <p class="text-sm">Booked for {{ booked_for_name }}</p>
                 }
                 @if (last_event?.extension_data?.assets?.length) {
                     <p assets>
@@ -200,6 +204,9 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     }
 
     public get group_size() {
+        const group_members = this.last_event?.extension_data?.group_members;
+        if (group_members?.length) return group_members.length;
+        // Fallback for non-desk bookings that use attendees instead
         return (this.last_event?.attendees?.length || 0) + 1;
     }
 
@@ -209,6 +216,19 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
     public get show_links() {
         return this._settings.get('app.desks.show_calendar_links');
+    }
+
+    public get booked_for_name() {
+        return this.last_event?.user_name || this.last_event?.user_email || '';
+    }
+
+    public get show_booked_for() {
+        if (!this.booked_for_name) return false;
+        const current_email = currentUser()?.email?.toLowerCase() || '';
+        const booked_for_email =
+            this.last_event?.user_email?.toLowerCase() || '';
+        if (!booked_for_email || !current_email) return false;
+        return booked_for_email !== current_email;
     }
 
     public readonly viewCalendarLinks = () =>
@@ -230,10 +250,5 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
         this.level.set(this._level_pipe.transform(event.zones));
         this.building.set(this._building_pipe.transform(event.zones));
-        console.log('Level:', this.level().display_name || this.level().name);
-        console.log(
-            'Building:',
-            this.building().display_name || this.building().name,
-        );
     }
 }

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -60,8 +60,8 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
                                 "
                             >
                                 @for (
-                                    building of building_list | async;
-                                    track building
+                                    building of building_list();
+                                    track building.id
                                 ) {
                                     <mat-option [value]="building.id">
                                         {{
@@ -131,7 +131,6 @@ import { addZone, authority, updateZone } from '@placeos/ts-client';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FullscreenModalShellComponent,
         MatFormFieldModule,
         MatInputModule,
@@ -148,7 +147,9 @@ export class LevelModalComponent {
         inject<MatDialogRef<LevelModalComponent>>(MatDialogRef);
 
     public readonly loading = signal(false);
-    public readonly building_list = this._org.building_list;
+    public readonly building_list = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
 
     public readonly form = new FormGroup({
         id: new FormControl(this._data?.id || ''),

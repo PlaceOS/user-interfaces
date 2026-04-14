@@ -1,17 +1,17 @@
-import { Component, forwardRef, inject, input } from '@angular/core';
+import { Component, forwardRef, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
+import { SETTING_KEYS } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { LevelPipe } from 'libs/components/src/lib/level.pipe';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { BookingAsset } from './booking-form.service';
-import { FAV_LOCKER_KEY } from './locker-select-modal/locker-select-modal.component';
 import { NewLockerSelectModalComponent } from './new-locker-select-modal/new-locker-select-modal.component';
 
 const EMPTY_FAVS: string[] = [];
@@ -20,7 +20,7 @@ const EMPTY_FAVS: string[] = [];
     selector: `locker-list-field`,
     template: `
         <div list class="space-y-2">
-            @for (item of items; track item) {
+            @for (item of items(); track item) {
                 <div
                     locker
                     class="border-base-200 relative flex w-full items-center rounded-lg border p-2 shadow-sm"
@@ -37,9 +37,9 @@ const EMPTY_FAVS: string[] = [];
                                 @for (opt of features(); track opt) {
                                     <mat-checkbox
                                         [ngModel]="
-                                            (selected_features || []).includes(
-                                                opt
-                                            )
+                                            (
+                                                selected_features() || []
+                                            ).includes(opt)
                                         "
                                         (ngModelChange)="
                                             setFeatures(opt, $event)
@@ -165,16 +165,22 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     private _dialog = inject(MatDialog);
 
     public readonly features = input<string[]>([]);
-    public room_size = 3;
-    public items: BookingAsset[] = [];
-    public disabled = false;
-    public selected_features: string[] = [];
+    public readonly room_size = signal(3);
+    public readonly items = signal<BookingAsset[]>([]);
+    public readonly disabled = signal(false);
+    public readonly selected_features = signal<string[]>([]);
 
     private _onChange: (_: BookingAsset[]) => void;
     private _onTouch: (_: BookingAsset[]) => void;
 
     public get favorites() {
-        return this._settings.get<string[]>(FAV_LOCKER_KEY) || EMPTY_FAVS;
+        return (
+            this._settings.signal<string[]>(
+                SETTING_KEYS.FAVORITE_LOCKERS,
+                EMPTY_FAVS,
+                true,
+            )() || EMPTY_FAVS
+        );
     }
 
     /** Add or edit selected items */
@@ -182,19 +188,18 @@ export class LockerListFieldComponent implements ControlValueAccessor {
         const ref = this._dialog.open(NewLockerSelectModalComponent, {
             data: {
                 items: this.items,
-                options: { capacity: this.room_size },
+                options: { capacity: this.room_size() },
             },
         });
         ref.afterClosed().subscribe((items?: BookingAsset[]) => {
-            if (!items) items = ref.componentInstance.selected;
-            console.log('Items:', items);
+            if (!items) items = ref.componentInstance.selected();
             this.setValue(items);
         });
     }
 
     /** Remove the selected space from the list */
     public removeResource(space: BookingAsset) {
-        this.setValue(this.items.filter((_) => _.id !== space.id));
+        this.setValue(this.items().filter((_) => _.id !== space.id));
     }
 
     /**
@@ -202,8 +207,8 @@ export class LockerListFieldComponent implements ControlValueAccessor {
      * @param new_value New value to set on the form field
      */
     public setValue(new_value: BookingAsset[]) {
-        this.items = new_value;
-        if (this._onChange) this._onChange(this.items);
+        this.items.set(new_value || []);
+        if (this._onChange) this._onChange(this.items());
     }
 
     /* istanbul ignore next */
@@ -212,7 +217,7 @@ export class LockerListFieldComponent implements ControlValueAccessor {
      * @param value The new value for the component
      */
     public writeValue(value: BookingAsset[]) {
-        this.items = value || [];
+        this.items.set(value || []);
     }
 
     /* istanbul ignore next */
@@ -221,14 +226,14 @@ export class LockerListFieldComponent implements ControlValueAccessor {
     /* istanbul ignore next */
     public readonly registerOnTouched = (fn: (_: BookingAsset[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => (this.disabled = s);
+    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
 
     public setFeatures(opt: string, value: boolean) {
-        const features = this.selected_features || [];
+        const features = this.selected_features() || [];
         if (value) {
-            this.selected_features = [...features, opt];
+            this.selected_features.set([...features, opt]);
         } else {
-            this.selected_features = features.filter((f) => f !== opt);
+            this.selected_features.set(features.filter((f) => f !== opt));
         }
     }
 
@@ -236,13 +241,13 @@ export class LockerListFieldComponent implements ControlValueAccessor {
         const fav_list = this.favorites;
         const new_state = !fav_list.includes(space.id);
         if (new_state) {
-            this._settings.saveUserSetting(FAV_LOCKER_KEY, [
+            this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_LOCKERS, [
                 ...fav_list,
                 space.id,
             ]);
         } else {
             this._settings.saveUserSetting(
-                FAV_LOCKER_KEY,
+                SETTING_KEYS.FAVORITE_LOCKERS,
                 fav_list.filter((_) => _ !== space.id),
             );
         }

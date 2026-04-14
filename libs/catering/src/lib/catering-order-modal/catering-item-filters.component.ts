@@ -1,17 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnInit,
+    output,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    AsyncHandler,
-    i18n,
-    nextValueFrom,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, i18n, SettingsService } from '@placeos/common';
 import {
     addDays,
     addMinutes,
@@ -22,6 +25,7 @@ import {
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
+import { of } from 'rxjs';
 import { CateringOrderStateService } from './catering-order-state.service';
 
 const ICONS = {
@@ -79,28 +83,24 @@ const ICONS = {
     template: `
         <div class="mt-2 mb-2 px-2" [class.sm:hidden]="!search()">
             <mat-form-field appearance="outline" class="h-14 w-full">
-                <mat-label>{{ 'CATERING.MENU_SEARCH' | translate }}</mat-label>
                 <icon matPrefix class="text-xl">search</icon>
                 <input
                     matInput
-                    [ngModel]="(filters | async)?.search"
+                    [ngModel]="filters().search"
                     (ngModelChange)="setFilters({ search: $event })"
                     [placeholder]="'CATERING.MENU_SEARCH' | translate"
                 />
             </mat-form-field>
         </div>
-        @if (!search() && (caterers | async)?.length > 1) {
+        @if (!search() && caterers().length > 1) {
             <div class="hidden px-2 py-2 sm:block">
                 <label>{{ 'CATERING.CATERER' | translate }}</label>
                 <mat-form-field appearance="outline" class="h-14 w-full">
-                    <mat-label>{{ 'CATERING.CATERER' | translate }}</mat-label>
                     <mat-select
-                        [ngModel]="
-                            (filters | async)?.caterer || (caterers | async)[0]
-                        "
+                        [ngModel]="filters().caterer || caterers()[0]"
                         (ngModelChange)="setFilters({ caterer: $event })"
                     >
-                        @for (caterer of caterers | async; track caterer) {
+                        @for (caterer of caterers(); track caterer) {
                             <mat-option [value]="caterer || '<empty>'">
                                 {{ caterer || '[No caterer]' }}
                             </mat-option>
@@ -118,15 +118,12 @@ const ICONS = {
             <div class="flex flex-col px-2">
                 <mat-checkbox
                     [ngModel]="at_time()"
-                    (ngModelChange)="
-                        at_timeChange.emit($event); at_time.set($event)
-                    "
-                    [matTooltip]="exact_tooltip"
-                    [aria-label]="'CATERING.ORDERS_DELIVER_EXACT' | translate"
+                    (ngModelChange)="at_timeChange.emit($event)"
+                    [matTooltip]="exact_tooltip()"
                 >
                     {{ 'CATERING.ORDERS_DELIVER_EXACT' | translate }}
                 </mat-checkbox>
-                @if (day_options.length > 1) {
+                @if (day_options().length > 1) {
                     <label>{{
                         'CATERING.ORDERS_DELIVER_DATE' | translate
                     }}</label>
@@ -134,15 +131,11 @@ const ICONS = {
                         appearance="outline"
                         class="no-subscript mb-4 w-full"
                     >
-                        <mat-label>{{ 'CATERING.ORDERS_DELIVER_DATE' | translate }}</mat-label>
                         <mat-select
                             [ngModel]="offset_day()"
-                            (ngModelChange)="
-                                offset_dayChange.emit($event);
-                                offset_day.set($event)
-                            "
+                            (ngModelChange)="offset_dayChange.emit($event)"
                         >
-                            @for (day of day_options; track day) {
+                            @for (day of day_options(); track day) {
                                 <mat-option [value]="day.id">
                                     {{ day.value | date: 'mediumDate' }}
                                 </mat-option>
@@ -153,18 +146,12 @@ const ICONS = {
                 <label>{{ 'CATERING.ORDERS_DELIVER_AFTER' | translate }}</label>
                 <a-duration-field
                     [ngModel]="offset()"
-                    (ngModelChange)="
-                        offsetChange.emit($event); offset.set($event)
-                    "
-                    [time]="
-                        offset_day() > 0
-                            ? start_of_date
-                            : (filters | async)?.date
-                    "
+                    (ngModelChange)="offsetChange.emit($event)"
+                    [time]="offset_day() > 0 ? start_of_date : filters().date"
                     [step]="step_interval"
                     [min]="min_offset"
                     [max]="max_offset"
-                    [use_24hr]="use_24hr"
+                    [use_24hr]="use_24hr()"
                 ></a-duration-field>
             </div>
         }
@@ -178,12 +165,11 @@ const ICONS = {
             [class.sm:hidden]="search()"
             [class.sm:pt-1]="!search()"
         >
-            @for (item of categories | async; track item) {
+            @for (item of categories(); track item) {
                 <mat-checkbox
                     [attr.name]="item"
-                    [ngModel]="(filters | async)?.categories?.includes(item)"
+                    [ngModel]="filters().categories?.includes(item)"
                     (ngModelChange)="toggleCategory(item)"
-                    [aria-label]="item"
                 >
                     {{ item }}
                 </mat-checkbox>
@@ -232,14 +218,20 @@ export class CateringItemFiltersComponent
 
     public readonly icons = ICONS;
 
-    public readonly filters = this._state.filters;
+    public readonly filters = toSignal(this._state.filters, {
+        initialValue: this._state.getFilters(),
+    });
 
     public readonly setFilters = (f) => this._state.setFilters(f);
 
-    public readonly categories = this._state.categories;
-    public readonly caterers = this._state.caterers;
+    public readonly categories = toSignal(this._state.categories || of([]), {
+        initialValue: [],
+    });
+    public readonly caterers = toSignal(this._state.caterers || of([]), {
+        initialValue: [],
+    });
 
-    public exact_tooltip = '';
+    public readonly exact_tooltip = signal('');
 
     public get start_of_date() {
         return startOfDay(
@@ -250,9 +242,25 @@ export class CateringItemFiltersComponent
     public get min_offset() {
         return this.offset_day() > 0 ? 0 : this._min_offset;
     }
+    private readonly _step_interval = this._settings.signal(
+        'catering.step_interval',
+        5,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _min_offset_setting = this._settings.signal(
+        'catering.min_offset',
+        0,
+    );
+    private readonly _end_offset = this._settings.signal(
+        'catering.end_offset',
+        0,
+    );
 
     public get step_interval() {
-        return this._settings.get('app.catering.step_interval') || 5;
+        return this._step_interval();
     }
 
     public get max_offset() {
@@ -269,29 +277,24 @@ export class CateringItemFiltersComponent
         return Math.min(diff, Math.min(24 * 60 - 1, this._max_offset));
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = this._use_24hr;
 
-    public day_options = [];
+    public readonly day_options = signal<{ id: number; value: number }[]>([]);
 
     constructor() {
         super();
     }
 
     public ngOnInit() {
-        this._min_offset = Math.max(
-            this._settings.get('app.catering.min_offset'),
-            0,
-        );
-        this.exact_tooltip = i18n('CATERING.ORDERS_DELIVER_EXACT_INFO');
+        this._min_offset = Math.max(this._min_offset_setting(), 0);
+        this.exact_tooltip.set(i18n('CATERING.ORDERS_DELIVER_EXACT_INFO'));
         this.subscription(
             'filters',
             this._state.filters.subscribe(() => {
                 this._max_offset = Math.max(
                     15,
                     (this._state.getFilters().duration || 60) -
-                        this._settings.get('app.catering.end_offset'),
+                        this._end_offset(),
                 );
                 this._updateDayOptions();
             }),
@@ -299,8 +302,8 @@ export class CateringItemFiltersComponent
         this._updateDayOptions();
     }
 
-    public async toggleCategory(name: string) {
-        const { categories } = await nextValueFrom(this.filters);
+    public toggleCategory(name: string) {
+        const { categories } = this.filters();
         if (categories.includes(name))
             this.setFilters({
                 categories: categories.filter((_) => _ !== name),
@@ -308,8 +311,8 @@ export class CateringItemFiltersComponent
         else this.setFilters({ categories: [...categories, name] });
     }
 
-    public async toggleTag(tag: string) {
-        const { tags } = await nextValueFrom(this.filters);
+    public toggleTag(tag: string) {
+        const { tags } = this.filters();
         if (tags.includes(tag))
             this.setFilters({ tags: tags.filter((_) => _ !== tag) });
         else this.setFilters({ tags: [...tags, tag] });
@@ -317,16 +320,16 @@ export class CateringItemFiltersComponent
 
     private _updateDayOptions() {
         const { date, duration } = this._state.getFilters();
-        if (duration <= 24 * 60) return (this.day_options = []);
+        if (duration <= 24 * 60) return this.day_options.set([]);
         let day = startOfDay(date);
         let count = 0;
         const end = endOfDay(addMinutes(date, duration)).valueOf();
-        const options = [];
+        const options: { id: number; value: number }[] = [];
         while (day.valueOf() <= end) {
             options.push({ id: count, value: day.valueOf() });
             day = addDays(day, 1);
             count++;
         }
-        this.day_options = options;
+        this.day_options.set(options);
     }
 }

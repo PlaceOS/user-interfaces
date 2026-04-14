@@ -94,7 +94,7 @@ import { LandingStateService } from './landing-state.service';
                     }
                 </div>
             }
-            @if (!hide_rooms) {
+            @if (!hide_rooms()) {
                 <div
                     class="flex items-center space-x-2 px-4 text-sm sm:text-base"
                 >
@@ -106,7 +106,7 @@ import { LandingStateService } from './landing-state.service';
                     }
                 </div>
             }
-            @if (!hide_rooms) {
+            @if (!hide_rooms()) {
                 <div
                     class="mx-4 flex w-[calc(100%-2rem)] snap-x items-center space-x-2 overflow-auto py-2"
                 >

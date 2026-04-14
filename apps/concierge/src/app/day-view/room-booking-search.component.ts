@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
+    computed,
     ElementRef,
     inject,
     OnInit,
     output,
+    signal,
     viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -17,8 +20,6 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { EventsStateService } from './events-state.service';
 
 @Component({
@@ -30,23 +31,22 @@ import { EventsStateService } from './events-state.service';
             </button>
             <input
                 #input_el
-                [class.opacity-0]="!show"
-                [class.pointer-events-none]="!show"
+                [class.opacity-0]="!show()"
+                [class.pointer-events-none]="!show()"
                 class="border-base-300 bg-base-100 absolute top-1/2 right-0 w-[20rem] -translate-y-1/2 rounded-full border py-3 pr-4 pl-10 shadow-sm"
-                [ngModel]="search.getValue()"
-                (ngModelChange)="search.next($event)"
+                [(ngModel)]="search"
                 (blur)="hideSearch()"
                 [placeholder]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
                 [attr.aria-label]="'APP.CONCIERGE.ROOMS_SEARCH' | translate"
             />
-            @if (show) {
+            @if (show()) {
                 <icon
                     class="absolute top-1/2 right-70 -translate-y-1/2 text-2xl"
                 >
                     search
                 </icon>
             }
-            @if (show) {
+            @if (show()) {
                 <div
                     class="border-base-300 bg-base-100 absolute top-full right-4 max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded-sm border shadow-sm"
                 >
@@ -56,18 +56,18 @@ import { EventsStateService } from './events-state.service';
                                 'APP.CONCIERGE.ROOMS_SEARCH_COUNT'
                                     | translate
                                         : {
-                                              count: (filtered | async)?.length,
-                                              total: (events | async)?.length,
+                                              count: filtered().length,
+                                              total: events().length,
                                           }
                             }}
                         </div>
                     </div>
-                    @if (!(filtered | async).length) {
+                    @if (!filtered().length) {
                         <div
                             class="flex items-center justify-center p-4 text-center text-sm opacity-60"
                         >
                             {{
-                                ((events | async).length
+                                (events().length
                                     ? 'APP.CONCIERGE.ROOMS_SEARCH_EMPTY'
                                     : 'APP.CONCIERGE.ROOMS_EMPTY'
                                 ) | translate
@@ -75,7 +75,7 @@ import { EventsStateService } from './events-state.service';
                         </div>
                     }
                     <div class="-mt-2 px-2 pb-2">
-                        @for (event of filtered | async; track event) {
+                        @for (event of filtered(); track event) {
                             <button
                                 matRipple
                                 class="hover:bg-base-200 relative z-0 flex w-full items-center space-x-2 rounded-sm p-2 text-left"
@@ -148,9 +148,11 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     public readonly selected = output<CalendarEvent>();
-    public show = false;
-    public readonly search = new BehaviorSubject('');
-    public readonly events = this._state.filtered;
+    public readonly show = signal(false);
+    public readonly search = signal('');
+    public readonly events = toSignal(this._state.filtered, {
+        initialValue: [],
+    });
 
     public types: any[] = [
         { id: 'internal', name: 'Internal', color: '#D81B60' },
@@ -158,26 +160,24 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
         { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
     ];
 
-    public readonly filtered = combineLatest([this.search, this.events]).pipe(
-        map(([search, event_list]) => {
-            search = search.toLowerCase();
-            return event_list.filter((e) => {
-                return (
-                    !e.is_system_event &&
-                    (e.title.toLowerCase().includes(search) ||
-                        e.organiser?.name.toLowerCase().includes(search) ||
-                        e.host.toLowerCase().includes(search) ||
-                        e.system?.display_name.toLowerCase().includes(search) ||
-                        e.system?.name.toLowerCase().includes(search) ||
-                        e.resources[0]?.display_name
-                            .toLowerCase()
-                            ?.includes(search) ||
-                        e.resources[0]?.name.toLowerCase()?.includes(search) ||
-                        e.resources[0]?.email.toLowerCase()?.includes(search))
-                );
-            });
-        }),
-    );
+    public readonly filtered = computed(() => {
+        const search = this.search().toLowerCase();
+        return this.events().filter((e) => {
+            return (
+                !e.is_system_event &&
+                (e.title.toLowerCase().includes(search) ||
+                    e.organiser?.name?.toLowerCase().includes(search) ||
+                    e.host.toLowerCase().includes(search) ||
+                    e.system?.display_name?.toLowerCase().includes(search) ||
+                    e.system?.name?.toLowerCase().includes(search) ||
+                    e.resources[0]?.display_name
+                        ?.toLowerCase()
+                        ?.includes(search) ||
+                    e.resources[0]?.name?.toLowerCase()?.includes(search) ||
+                    e.resources[0]?.email?.toLowerCase()?.includes(search))
+            );
+        });
+    });
 
     private readonly _input_element =
         viewChild<ElementRef<HTMLInputElement>>('input_el');
@@ -212,12 +212,12 @@ export class RoomBookingSearchComponent extends AsyncHandler implements OnInit {
     }
 
     public showSearch() {
-        this.show = true;
-        this._input_element().nativeElement.focus();
+        this.show.set(true);
+        this._input_element()?.nativeElement.focus();
     }
 
     public hideSearch() {
-        if (!this.show) return;
-        this.timeout('hide', () => (this.show = false));
+        if (!this.show()) return;
+        this.timeout('hide', () => this.show.set(false));
     }
 }

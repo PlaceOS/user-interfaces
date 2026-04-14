@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, output } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    model,
+    output,
+    signal,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -91,7 +98,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                             </div>
                         </div>
                         <div class="mt-1 flex flex-col pl-10">
-                            @for (item of items; track item) {
+                            @for (item of items(); track item) {
                                 <div>
                                     {{ item.name }}
                                     <span
@@ -129,10 +136,10 @@ import { SplitJoinPipe } from './split-join.pipe';
                             </div>
                         </div>
                         <div class="mt-1 pl-10">
-                            {{ request().date | date: time_format }} &ndash;
+                            {{ request().date | date: time_format() }} &ndash;
                             {{
                                 request().date + request().duration * 60 * 1000
-                                    | date: time_format
+                                    | date: time_format()
                             }}
                             ({{ request().duration | duration }})
                         </div>
@@ -176,7 +183,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                     request().status === 'tentative'
                                 "
                                 [matMenuTriggerFor]="menu"
-                                [disabled]="loading"
+                                [disabled]="loading()"
                             >
                                 <icon
                                     class="text-xl"
@@ -221,7 +228,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                                 matRipple
                                 class="border-base-200 flex w-full items-center rounded-none border bg-none px-2 py-1 text-left"
                                 [matMenuTriggerFor]="tracking_menu"
-                                [disabled]="loading"
+                                [disabled]="loading()"
                             >
                                 <div class="flex-1 capitalize">
                                     {{
@@ -287,27 +294,23 @@ export class AssetRequestDetailsComponent {
     public readonly request = model<any>(undefined);
     public readonly requestChange = output<any>();
 
-    public loading = false;
-
-    public get items() {
-        return this.request()?.extension_data?.request?.items || [];
-    }
-
-    public get time_format() {
-        return this._settings.time_format;
-    }
+    public readonly loading = signal(false);
+    public readonly items = computed(
+        () => this.request()?.extension_data?.request?.items || [],
+    );
+    public readonly time_format = computed(() => this._settings.time_format);
 
     public async setStatus(status: string) {
-        this.loading = true;
+        this.loading.set(true);
         await this._state.setStatus(this.request(), status);
         (this.request() as any).status = status;
-        this.loading = false;
+        this.loading.set(false);
     }
 
     public async setTracking(state: string) {
-        this.loading = true;
+        this.loading.set(true);
         await this._state.setTracking(this.request(), state);
         (this.request() as any).extension_data.tracking = state;
-        this.loading = false;
+        this.loading.set(false);
     }
 }

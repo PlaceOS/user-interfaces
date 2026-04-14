@@ -37,6 +37,8 @@ export interface EventExtensionData {
     host_override: string;
     /** Name of the organisational department of the host */
     department: string;
+    /** Whether a custom-period booking should still behave as all day in the UI */
+    custom_all_day?: boolean;
     event_type?: string;
     /** Event category */
     category?: string;
@@ -75,6 +77,8 @@ export interface RecurrenceDetails {
         | 'month_day'
         | 'yearly'
         | 'custom_display';
+    /** Original end type before serialisation */
+    _end_type?: 'never' | 'date' | 'instances';
     /** Frequency of the event */
     pattern: 'daily' | 'weekly' | 'monthly' | 'month_day' | 'yearly';
     /** Interval to be used with pattern */

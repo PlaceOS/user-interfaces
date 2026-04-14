@@ -7,6 +7,7 @@ import {
     SimpleChanges,
     inject,
     input,
+    signal,
     viewChild,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -87,12 +88,12 @@ function degreesToRadians(degrees: number): number {
             id="maps-indoors"
             class="absolute inset-0 flex items-center justify-center"
         ></div>
-        @if (loading) {
+        @if (loading()) {
             <div class="absolute inset-0 flex items-center justify-center">
                 <mat-spinner [diameter]="48"></mat-spinner>
             </div>
         }
-        @if (geolocation_error_message) {
+        @if (geolocation_error_message()) {
             <div
                 class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
             >
@@ -103,7 +104,7 @@ function degreesToRadians(degrees: number): number {
                     class="items-center"
                 />
                 <p class="mt-10 text-center text-sm opacity-60">
-                    {{ geolocation_error_message | translate }}
+                    {{ geolocation_error_message() | translate }}
                 </p>
             </div>
         }
@@ -137,18 +138,18 @@ function degreesToRadians(degrees: number): number {
                 </div>
             </mat-form-field>
 
-            @if (search_result_items?.length) {
+            @if (search_result_items()?.length) {
                 <div
                     class="my-2 flex items-center justify-between space-x-2 px-2"
                 >
                     <h3 class="text-lg font-medium">
-                        Results ({{ search_result_items.length || '0' }})
+                        Results ({{ search_result_items().length || '0' }})
                     </h3>
                     <button
                         icon
                         matRipple
                         class="hover:bg-base-200"
-                        (click)="search_result_items = []"
+                        (click)="search_result_items.set([])"
                         matTooltip="Clear Results"
                     >
                         <icon>close</icon>
@@ -158,7 +159,7 @@ function degreesToRadians(degrees: number): number {
                     class="m-0 max-h-[65vh] w-full list-none space-y-2 overflow-auto p-0"
                 >
                     @for (
-                        item of search_result_items | slice: 0 : 10;
+                        item of search_result_items() | slice: 0 : 10;
                         track item
                     ) {
                         <li
@@ -167,7 +168,7 @@ function degreesToRadians(degrees: number): number {
                             <button
                                 class="flex w-full items-center space-x-2 p-2 text-left"
                                 (click)="
-                                    getRoute(item); search_result_items = []
+                                    getRoute(item); search_result_items.set([])
                                 "
                             >
                                 <div class="flex flex-1 flex-col">
@@ -232,17 +233,17 @@ export class IndoorMapsComponent
     public directions_renderer: any;
 
     public live_data_status: string | boolean = 'enabled';
-    public search_result_items: any[] = [];
+    public search_result_items = signal<any[]>([]);
     public selected_destination: any = null;
 
-    public loading: boolean;
+    public loading = signal(false);
     public actions_hashmap: { [id: string]: ViewAction } = {};
 
-    public user_latitude: number | null = null;
-    public user_longitude: number | null = null;
-    public geolocation_error_message: string = '';
+    public user_latitude = signal<number | null>(null);
+    public user_longitude = signal<number | null>(null);
+    public geolocation_error_message = signal('');
     public route_error_message: string = '';
-    public coordinates: CustomCoordinates | null = null;
+    public coordinates = signal<CustomCoordinates | null>(null);
 
     public readonly buildings = this._org.building_list;
     public readonly building = this._org.active_building;
@@ -274,11 +275,11 @@ export class IndoorMapsComponent
     }
 
     async ngOnInit() {
-        this.loading = true;
+        this.loading.set(true);
         await this._org.initialised.pipe(first((_) => !!_)).toPromise();
         this.setBuilding(this._org.building);
         const custom_coordinates = this.custom_coordinates();
-        if (custom_coordinates) this.coordinates = custom_coordinates;
+        if (custom_coordinates) this.coordinates.set(custom_coordinates);
         const get_location = () => {
             this._getUserLocation();
             document.removeEventListener('click', get_location);
@@ -303,7 +304,7 @@ export class IndoorMapsComponent
             if (locations.length) this.getRoute(locations[0]);
         }
         this.mapFloorsToIndex();
-        this.loading = false;
+        this.loading.set(false);
     }
 
     public ngAfterViewInit() {
@@ -320,7 +321,7 @@ export class IndoorMapsComponent
         }
         const view_options: any = {
             element: document.getElementById('maps-indoors'),
-            center: { lat: this.user_latitude, lng: this.user_longitude },
+            center: { lat: this.user_latitude(), lng: this.user_longitude() },
             zoom: this.default_zoom() || 19,
             maxZoom: 24,
         };
@@ -425,7 +426,7 @@ export class IndoorMapsComponent
         const searchParams = { q: this.searchElement().nativeElement.value };
         mapsindoors?.services.LocationsService.getLocations(searchParams).then(
             (locations: any[]) => {
-                this.search_result_items = locations;
+                this.search_result_items.set(locations);
             },
         );
     }
@@ -440,9 +441,9 @@ export class IndoorMapsComponent
             );
             return this._setLocationToBuilding();
         }
-        if (this.coordinates) {
-            this.user_latitude = this.coordinates.latitude;
-            this.user_longitude = this.coordinates.longitude;
+        if (this.coordinates()) {
+            this.user_latitude.set(this.coordinates().latitude);
+            this.user_longitude.set(this.coordinates().longitude);
             return;
         } else {
             navigator.geolocation.watchPosition(
@@ -511,11 +512,11 @@ export class IndoorMapsComponent
         );
         const { latitude, longitude } = updated_location.coords;
         if (
-            latitude !== this.user_latitude ||
-            longitude !== this.user_longitude
+            latitude !== this.user_latitude() ||
+            longitude !== this.user_longitude()
         ) {
-            this.user_latitude = latitude;
-            this.user_longitude = longitude;
+            this.user_latitude.set(latitude);
+            this.user_longitude.set(longitude);
             this.getRoute(this.selected_destination);
         }
     }
@@ -529,8 +530,8 @@ export class IndoorMapsComponent
         if (!this.directions_service || !location) return;
         log('MapsIndoors', 'Getting route to location:', [
             location,
-            this.user_latitude,
-            this.user_longitude,
+            this.user_latitude(),
+            this.user_longitude(),
         ]);
         this.selected_destination = location;
         const destination = {
@@ -545,7 +546,7 @@ export class IndoorMapsComponent
 
         if (
             !this._userWithinRadius(
-                [this.user_latitude, this.user_longitude],
+                [this.user_latitude(), this.user_longitude()],
                 1000,
             )
         ) {
@@ -556,13 +557,13 @@ export class IndoorMapsComponent
             return;
         }
 
-        if (!this.user_latitude || !this.user_longitude) {
+        if (!this.user_latitude() || !this.user_longitude()) {
             return notifyError('Unable to find a route.');
         }
 
         const origin: any = {
-            lat: this.user_latitude,
-            lng: this.user_longitude,
+            lat: this.user_latitude(),
+            lng: this.user_longitude(),
         };
 
         const routeParameters = {

@@ -1,6 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/jest';
-import { set } from 'date-fns';
+import { createSettingsServiceMock } from '@placeos/common/tests';
+import { addHours, set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { OrganisationService } from '@placeos/common';
@@ -23,10 +24,11 @@ describe('BookingCardComponent', () => {
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 level_list: new BehaviorSubject([]),
+                building_list: new BehaviorSubject([]),
                 buildingsForRegion: jest.fn(() => []),
             }),
             MockProvider(MatDialog, { open: jest.fn() }),
-            MockProvider(SettingsService, { time_format: 'h:mm a' }),
+            MockProvider(SettingsService, createSettingsServiceMock()),
         ],
     });
 
@@ -49,5 +51,51 @@ describe('BookingCardComponent', () => {
         spectator.setInput({ show_day: true });
         spectator.detectChanges();
         expect('[day]').toExist();
+    });
+
+    it('should show checked-in badge when booking is checked in', () => {
+        const future_date = addHours(new Date(), 1).valueOf();
+        spectator.setInput({
+            booking: new Booking({
+                date: future_date,
+                checked_in: true,
+            }),
+        });
+        spectator.detectChanges();
+        expect('[checked-in-badge]').toExist();
+    });
+
+    it('should not show checked-in badge when booking is not checked in', () => {
+        const future_date = addHours(new Date(), 1).valueOf();
+        spectator.setInput({
+            booking: new Booking({
+                date: future_date,
+                checked_in: false,
+            }),
+        });
+        spectator.detectChanges();
+        expect('[checked-in-badge]').not.toExist();
+    });
+
+    it('should show visitor name instead of reason when attendee is present', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'visitor',
+                type: 'visitor',
+                title: 'Vendor Interview',
+                description: 'Vendor Interview',
+                asset_name: 'Vendor Interview',
+                asset_id: 'visitor.one@example.com',
+                attendees: [
+                    {
+                        name: 'Visitor One',
+                        email: 'visitor.one@example.com',
+                    },
+                ],
+            } as any),
+        });
+        spectator.detectChanges();
+
+        expect(spectator.component.resource_label()).toBe('Visitor One');
     });
 });

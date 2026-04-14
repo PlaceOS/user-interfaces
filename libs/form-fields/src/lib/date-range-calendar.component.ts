@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
     Component,
-    OnChanges,
-    OnInit,
-    SimpleChanges,
+    computed,
     input,
     model,
+    OnChanges,
+    OnInit,
     output,
+    signal,
+    SimpleChanges,
 } from '@angular/core';
 import {
     addDays,
@@ -42,7 +44,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
             <div
                 class="border-base-200 col-span-full grid grid-cols-7 border-b"
             >
-                @for (weekday of weekdays; track weekday) {
+                @for (weekday of weekdays(); track weekday) {
                     <div
                         weekday
                         class="relative flex items-center justify-center text-sm opacity-60"
@@ -51,7 +53,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                     </div>
                 }
             </div>
-            @for (day of month_days; track trackByFn($index, day)) {
+            @for (day of month_days(); track trackByFn($index, day)) {
                 <button
                     class="hover:bg-base-200 relative h-9 w-9 rounded-full"
                     [class.text-secondary-content]="day.is_start || day.is_end"
@@ -64,12 +66,12 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                             class="border-base-content bg-base-200 absolute -inset-x-0.5 inset-y-0 border-y border-dashed"
                         ></div>
                     }
-                    @if (day.is_start && end_after_start) {
+                    @if (day.is_start && end_after_start()) {
                         <div
                             class="border-base-content bg-base-200 absolute inset-y-0 -right-0.5 w-[calc(50%+2px)] border-y border-dashed"
                         ></div>
                     }
-                    @if (day.is_end && end_after_start) {
+                    @if (day.is_end && end_after_start()) {
                         <div
                             class="border-base-content bg-base-200 absolute inset-y-0 -left-0.5 w-[calc(50%+2px)] border-y border-dashed"
                         ></div>
@@ -119,15 +121,15 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
     /** Emitter for when the end date changes */
     public readonly endChange = output<number>();
 
-    public hovered_date = null;
+    public readonly hovered_date = signal<number | null>(null);
 
-    public weekdays = [];
-    public month_days = [];
+    public readonly weekdays = signal<Date[]>([]);
+    public readonly month_days = signal<any[]>([]);
 
-    public get end_after_start() {
+    public readonly end_after_start = computed(() => {
         const end = this.end();
         return end && end > this.start() && !isSameDay(end, this.start());
-    }
+    });
 
     public ngOnInit() {
         this._setWeekdays();
@@ -163,6 +165,7 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
 
     public setHoveredDate(date: number) {
         if (!this.start()) return;
+        this.hovered_date.set(date);
         this.end.set(date);
         this._setMonthDays();
     }
@@ -185,34 +188,36 @@ export class DateRangeCalendarComponent implements OnInit, OnChanges {
         const start = startOfWeek(startOfMonth(this.month()), {
             weekStartsOn: this.offset_weekday() as any,
         });
-        this.month_days = Array.from(Array(7 * 6).keys()).map((i) => {
-            const date = addDays(start, i).valueOf();
-            const end = this.end();
-            const from_date = this.from_date();
-            const to_date = this.to_date();
-            return {
-                id: date,
-                disabled:
-                    (from_date && isBefore(date, from_date)) ||
-                    (to_date && isAfter(date, to_date)),
-                is_today: isSameDay(date, Date.now()),
-                is_start: isSameDay(date, this.start()),
-                is_end: isSameDay(date, this.end()),
-                is_month: isSameMonth(date, this.month()),
-                is_selected:
-                    end &&
-                    date >= startOfDay(this.start()).valueOf() &&
-                    date <= endOfDay(end).valueOf(),
-            };
-        });
+        this.month_days.set(
+            Array.from(Array(7 * 6).keys()).map((i) => {
+                const date = addDays(start, i).valueOf();
+                const end = this.end();
+                const from_date = this.from_date();
+                const to_date = this.to_date();
+                return {
+                    id: date,
+                    disabled:
+                        (from_date && isBefore(date, from_date)) ||
+                        (to_date && isAfter(date, to_date)),
+                    is_today: isSameDay(date, Date.now()),
+                    is_start: isSameDay(date, this.start()),
+                    is_end: isSameDay(date, this.end()),
+                    is_month: isSameMonth(date, this.month()),
+                    is_selected:
+                        end &&
+                        date >= startOfDay(this.start()).valueOf() &&
+                        date <= endOfDay(end).valueOf(),
+                };
+            }),
+        );
     }
 
     private _setWeekdays() {
         const start = startOfWeek(Date.now(), {
             weekStartsOn: this.offset_weekday() as any,
         });
-        this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i),
+        this.weekdays.set(
+            Array.from(Array(7).keys()).map((i) => addDays(start, i)),
         );
     }
 }

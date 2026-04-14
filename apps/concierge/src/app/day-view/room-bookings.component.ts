@@ -1,8 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -14,6 +16,7 @@ import {
     jsonToCsv,
     nextValueFrom,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -25,13 +28,16 @@ import {
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
 import { combineLatest } from 'rxjs';
-import { debounceTime, filter, map } from 'rxjs/operators';
-import { EventsStateService } from './events-state.service';
+import { debounceTime, map } from 'rxjs/operators';
+import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
+import { BookingUIOptions, EventsStateService } from './events-state.service';
 import { RoomBookingsApprovalsComponent } from './room-approvals.component';
+import { RoomBookingsListComponent } from './room-bookings-list.component';
+import { RoomBookingsInvertedTimelineComponent } from './room-timeline-inverted.component';
 import { RoomBookingsTimelineComponent } from './room-timeline.component';
-import { RoomListTimelineComponent } from './room-list-timeline.component';
 import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.component';
 
+const EMPTY = [];
 @Component({
     selector: 'room-bookings',
     template: `
@@ -42,9 +48,8 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 </h2>
                 <div class="w-px flex-1"></div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
-                    <mat-label>{{ 'COMMON.VIEW_PERIOD' | translate }}</mat-label>
                     <mat-select
-                        [ngModel]="dropdown_period | async"
+                        [ngModel]="period()"
                         (ngModelChange)="setPeriod($event)"
                     >
                         <mat-option value="day">
@@ -56,18 +61,6 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                     </mat-select>
                 </mat-form-field>
                 <button
-                    matRipple
-                    class="flex h-12 items-center space-x-1 rounded border px-3 text-sm font-medium"
-                    [class.border-primary]="(period | async) === 'list'"
-                    [class.text-primary]="(period | async) === 'list'"
-                    [class.border-base-300]="(period | async) !== 'list'"
-                    [ngClass]="(period | async) === 'list' ? 'bg-primary/10' : ''"
-                    (click)="toggleList()"
-                >
-                    <icon class="text-xl">view_list</icon>
-                    <span>List</span>
-                </button>
-                <button
                     icon
                     matRipple
                     class="border-secondary h-12 w-12 rounded border"
@@ -75,8 +68,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         'APP.CONCIERGE.DOWNLOAD_USER_LIST' | translate
                     "
                     [disabled]="downloading()"
-                    (click)="downloadCsv()"
-                    aria-label="Download report"
+                    (click)="downloadAttendeeList()"
                 >
                     @if (downloading()) {
                         <mat-spinner diameter="24"></mat-spinner>
@@ -84,21 +76,54 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         <icon class="text-2xl">download</icon>
                     }
                 </button>
+                <button btn matRipple class="space-x-2" (click)="newBooking()">
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
+                    </div>
+                    <icon class="text-2xl">add</icon>
+                </button>
+                <div
+                    class="border-base-300 bg-base-100 ml-2 flex rounded border"
+                >
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded-none"
+                        [class.bg-secondary]="view() === 'timeline'"
+                        [class.text-secondary-content]="view() === 'timeline'"
+                        [class.opacity-70]="view() !== 'timeline'"
+                        [matTooltip]="'COMMON.DAY' | translate"
+                        (click)="setView('timeline')"
+                    >
+                        <icon class="text-2xl">view_timeline</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        class="h-12 w-12 rounded-none"
+                        [class.bg-secondary]="view() === 'list'"
+                        [class.text-secondary-content]="view() === 'list'"
+                        [class.opacity-70]="view() !== 'list'"
+                        [matTooltip]="'COMMON.LIST' | translate"
+                        (click)="setView('list')"
+                    >
+                        <icon class="text-2xl">view_list</icon>
+                    </button>
+                </div>
             </div>
             <div class="flex w-full items-center space-x-2">
                 <mat-form-field appearance="outline" class="no-subscript w-52">
-                    <mat-label>{{ 'COMMON.LEVEL_ALL' | translate }}</mat-label>
                     <mat-select
-                        [ngModel]="zones | async"
+                        [ngModel]="zones()"
                         (ngModelChange)="updateZones($event)"
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
                         multiple
                     >
-                        @for (level of levels | async; track level) {
+                        @for (level of levels(); track level) {
                             <mat-option [value]="level.id">
                                 <div class="flex flex-col-reverse">
                                     @if (use_region) {
-                                        <div class="text-xs text-gray-600">
+                                        <div class="text-xs opacity-30">
                                             {{
                                                 (level.parent_id | building)
                                                     ?.display_name
@@ -116,7 +141,7 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                 </mat-form-field>
                 @if (allow_setup_breakdown) {
                     <settings-toggle
-                        [ngModel]="(ui_options | async)?.show_overflow"
+                        [ngModel]="ui_options().show_overflow"
                         (ngModelChange)="
                             updateUIOptions({ show_overflow: $event })
                         "
@@ -125,30 +150,88 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
                         }}</settings-toggle
                     >
                 }
-                <div class="flex flex-1 items-center justify-end space-x-4 pr-2">
-                    <div class="flex items-center space-x-1">
-                        <div class="h-3 w-3 rounded-full bg-success"></div>
-                        <span class="text-xs text-gray-600">Confirmed</span>
+                <div class="flex flex-1 justify-end pr-2">
+                    <div
+                        class="border-base-300 flex max-w-lg flex-1 items-center rounded-full border"
+                    >
+                        <div
+                            class="flex w-px flex-1 items-center space-x-1 overflow-x-auto rounded-l-full px-1"
+                        >
+                            @for (type of types; track type.id) {
+                                @if (!type_list.includes(type.id)) {
+                                    <div
+                                        class="border-base-300 flex items-center rounded-full border"
+                                    >
+                                        <div
+                                            class="m-2 h-4 w-4 rounded-full"
+                                            [style.background-color]="
+                                                type.color
+                                            "
+                                        ></div>
+                                        <div class="truncate text-sm">
+                                            {{ type.name }}
+                                        </div>
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="text-base-300 hover:text-base-content"
+                                            (click)="setFilter(type.id, true)"
+                                        >
+                                            <icon class="text-xl">close</icon>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button
+                            btn
+                            matRipple
+                            class="inverse bg-base-100"
+                            [matMenuTriggerFor]="menu"
+                        >
+                            <icon>filter_list</icon>
+                            <div class="mx-2">
+                                {{ 'COMMON.FILTERS' | translate }}
+                            </div>
+                        </button>
                     </div>
-                    <div class="flex items-center space-x-1">
-                        <div class="h-3 w-3 rounded-full bg-warning"></div>
-                        <span class="text-xs text-gray-600">Pending</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <div class="h-3 w-3 rounded-full bg-error"></div>
-                        <span class="text-xs text-gray-600">Rejected</span>
-                    </div>
+                    <mat-menu #menu="matMenu" class="">
+                        <div
+                            class="flex w-48 flex-col space-y-2 overflow-hidden"
+                        >
+                            @for (type of types; track type) {
+                                <mat-checkbox
+                                    [ngModel]="!type_list.includes(type.id)"
+                                    (ngModelChange)="
+                                        setFilter(type.id, !$event)
+                                    "
+                                >
+                                    {{ type.name }}
+                                </mat-checkbox>
+                            }
+                        </div>
+                    </mat-menu>
                 </div>
             </div>
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
-                @if ((period | async) === 'day') {
-                    <room-bookings-timeline class="relative z-0 w-1/2 flex-1" />
-                } @else if ((period | async) === 'week') {
-                    <room-week-bookings-timeline
-                        class="relative z-0 w-1/2 flex-1"
-                    />
-                } @else if ((period | async) === 'list') {
-                    <room-list-timeline class="relative z-0 w-1/2 flex-1" />
+                @if (view() === 'timeline') {
+                    @if (period() === 'day') {
+                        @if (day_timeline_view() === 'inverted') {
+                            <room-bookings-inverted-timeline
+                                class="relative z-0 w-1/2 flex-1"
+                            />
+                        } @else {
+                            <room-bookings-timeline
+                                class="relative z-0 w-1/2 flex-1"
+                            />
+                        }
+                    } @else {
+                        <room-week-bookings-timeline
+                            class="relative z-0 w-1/2 flex-1"
+                        />
+                    }
+                } @else {
+                    <room-bookings-list class="relative z-0 w-1/2 flex-1" />
                 }
                 @if (has_approvals) {
                     <room-bookings-approvals class="relative z-10" />
@@ -159,18 +242,20 @@ import { RoomWeekBookingsTimelineComponent } from './room-week-timeline.componen
     styles: [``],
     providers: [UserPipe],
     imports: [
-        CommonModule,
         TranslatePipe,
         MatFormFieldModule,
         MatSelectModule,
+        MatMenuModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         MatRippleModule,
+        MatCheckboxModule,
         FormsModule,
+        RoomBookingsInvertedTimelineComponent,
         RoomBookingsTimelineComponent,
-        RoomListTimelineComponent,
         RoomWeekBookingsTimelineComponent,
+        RoomBookingsListComponent,
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
         BuildingPipe,
@@ -183,36 +268,45 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _user_pipe = inject(UserPipe);
-
-    public readonly zones = this._state.zones;
-    public readonly period = this._state.period;
-    private _base_period: 'day' | 'week' = 'day';
-    public readonly dropdown_period = this.period.pipe(
-        map((p) => {
-            if (p === 'day' || p === 'week') this._base_period = p;
-            return this._base_period;
-        }),
+    public readonly day_timeline_view = settingSignal(
+        'events.day_timeline_view',
+        'default',
     );
+
+    public readonly zones = toSignal(this._state.zones, { initialValue: [] });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day' as const,
+    });
     public readonly downloading = signal(false);
-    public readonly ui_options = this._state.options;
-    public readonly levels = combineLatest([
-        this._org.active_building,
-        this._org.active_region,
-    ]).pipe(
-        map(([bld, region]) =>
-            this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld),
+    public readonly view = signal<'timeline' | 'list'>('timeline');
+    public readonly ui_options = toSignal(this._state.options, {
+        initialValue: {} as BookingUIOptions,
+    });
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_building,
+            this._org.active_region,
+        ]).pipe(
+            map(([bld, region]) =>
+                this.use_region
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld),
+            ),
         ),
+        { initialValue: [] },
     );
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (zones: string[]) => {
+        const zone_ids = this._clean_zone_ids(zones);
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
+            queryParams: {
+                zone_ids: zone_ids.length ? zone_ids.join(',') : null,
+            },
             queryParamsHandling: 'merge',
         });
-        this._state.setZones(z);
+        this._state.setZones(zone_ids);
+        persistZones('room-bookings', this._persistScopeId(), zone_ids);
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
@@ -223,12 +317,25 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         });
         this._state.setPeriod(p);
     };
+    public readonly setView = (view: 'timeline' | 'list') => {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { view },
+            queryParamsHandling: 'merge',
+        });
+        this.view.set(view);
+    };
     /**  */
     public readonly newBooking = (d?) => this._state.newBooking(d);
 
-    public toggleList() {
-        const current = this._state.getPeriod();
-        this.setPeriod(current === 'list' ? this._base_period : 'list');
+    public types: any[] = [
+        { id: 'internal', name: 'Internal', color: '#D81B60' },
+        { id: 'external', name: 'External', color: '#1E88E5' },
+        { id: 'cancelled', name: 'Cancelled', color: '#eeeeee' },
+    ];
+
+    public get type_list() {
+        return this._state.filters.hide_type || EMPTY;
     }
 
     public get has_approvals() {
@@ -244,18 +351,41 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        this.types = [
+            {
+                id: 'internal',
+                name: i18n('COMMON.TYPE_INTERNAL'),
+                color: '#D81B60',
+            },
+            {
+                id: 'external',
+                name: i18n('COMMON.TYPE_EXTERNAL'),
+                color: '#1E88E5',
+            },
+            {
+                id: 'cancelled',
+                name: i18n('COMMON.TYPE_CANCELLED'),
+                color: '#eeeeee',
+            },
+        ];
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('period')) {
-                    const p = params.get('period');
                     this._state.setPeriod(
-                        p === 'day' ? 'day' : p === 'list' ? 'list' : 'week',
+                        params.get('period') === 'day' ? 'day' : 'week',
+                    );
+                }
+                if (params.has('view')) {
+                    this.view.set(
+                        params.get('view') === 'list' ? 'list' : 'timeline',
                     );
                 }
                 if (this.use_region) return;
                 if (params.has('zone_ids')) {
-                    const zones = params.get('zone_ids').split(',');
+                    const zones = this._clean_zone_ids(
+                        params.get('zone_ids').split(','),
+                    );
                     if (zones.length) {
                         const level = this._org.levelWithID(zones);
                         if (!level) return;
@@ -273,36 +403,59 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                 .pipe(debounceTime(300))
                 .subscribe(async (levels) => {
                     if (this.use_region) return;
-                    const zones = (await nextValueFrom(this.zones)).filter(
-                        (zone) => levels.find((lvl) => lvl.id === zone),
+                    const current = this.zones().filter((zone) =>
+                        levels.find((lvl) => lvl.id === zone),
                     );
-                    if (!zones.length && levels.length) {
-                        zones.push(levels[0].id);
+                    if (!this.zones().length) {
+                        // Restore persisted selection when the view first
+                        // loads without an explicit URL filter. Empty means
+                        // "all levels".
+                        const persisted = loadPersistedZones(
+                            'room-bookings',
+                            this._persistScopeId(),
+                        ).filter((zone) =>
+                            levels.find((lvl) => lvl.id === zone),
+                        );
+                        if (persisted.length) {
+                            this.updateZones(persisted);
+                            return;
+                        }
                     }
-                    this.updateZones(zones);
-                }),
-        );
-        this.subscription(
-            'region',
-            this._org.active_region
-                .pipe(filter((_) => !!_))
-                .subscribe(async (_) => {
-                    const zones = await nextValueFrom(this.zones);
-                    if (zones.length) return;
-                    this.updateZones([_.id]);
+                    this.updateZones(current);
                 }),
         );
     }
 
-    public readonly downloadCsv = async () => {
+    private _persistScopeId() {
+        return this.use_region
+            ? this._org.region?.id || ''
+            : this._org.building?.id || '';
+    }
+
+    public setFilter(id: string, value: boolean) {
+        const filters = this._state.filters;
+        let hide_type = filters.hide_type || [];
+        hide_type = hide_type.filter((i) => i !== id);
+        if (value) hide_type.push(id as any);
+        this._state.setFilters({ hide_type });
+    }
+
+    public async downloadAttendeeList() {
         this.downloading.set(true);
         try {
             const events = await nextValueFrom(this._state.filtered);
             const emails = new Set<string>();
             for (const event of events) {
-                if (event.host) emails.add(event.host);
+                if (event.host && event.system?.email !== event.host)
+                    emails.add(event.host);
                 for (const attendee of event.attendees || []) {
-                    if (attendee.email) emails.add(attendee.email);
+                    if (
+                        attendee.email &&
+                        event.system?.email !== attendee.email &&
+                        !attendee.resource
+                    ) {
+                        emails.add(attendee.email);
+                    }
                 }
             }
             const data = await Promise.all(
@@ -314,7 +467,7 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
                     };
                 }),
             );
-            const period = await nextValueFrom(this.period);
+            const period = this.period();
             const date = format(this._state.getDate(), 'yyyy-MM-dd');
             downloadFile(
                 `room-bookings-${date}-${period}.csv`,
@@ -323,5 +476,9 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
         } finally {
             this.downloading.set(false);
         }
-    };
+    }
+
+    private _clean_zone_ids(zones: string[] = []) {
+        return (zones || []).filter((zone_id) => !!zone_id);
+    }
 }

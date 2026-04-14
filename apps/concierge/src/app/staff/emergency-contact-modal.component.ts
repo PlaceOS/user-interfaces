@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormControl,
     FormGroup,
@@ -116,7 +116,7 @@ import {
                                 <mat-option value="">{{
                                     'COMMON.LEVEL_ANY' | translate
                                 }}</mat-option>
-                                @for (level of levels | async; track level.id) {
+                                @for (level of levels(); track level.id) {
                                     <mat-option [value]="level.id">
                                         {{ level.display_name || level.name }}
                                     </mat-option>
@@ -142,7 +142,7 @@ import {
                                             | translate
                                     "
                                 >
-                                    @for (role of roles | async; track $index) {
+                                    @for (role of roles(); track $index) {
                                         @if (role) {
                                             <mat-option [value]="role">
                                                 {{ role }}
@@ -208,7 +208,6 @@ import {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         TranslatePipe,
         IconComponent,
         MatDialogModule,
@@ -231,9 +230,11 @@ export class EmergencyContactModalComponent {
     private _contacts_service = inject(EmergencyContactsService);
 
     public loading = signal(false);
-    public role_name: string;
+    public readonly role_name = signal('');
     public readonly contact?: EmergencyContact = this._data;
-    public readonly roles = this._contacts_service.roles$;
+    public readonly roles = toSignal(this._contacts_service.roles$, {
+        initialValue: [],
+    });
     public readonly form = new FormGroup({
         id: new FormControl(
             this._data?.id || this._contacts_service.generateContactId(),
@@ -245,20 +246,23 @@ export class EmergencyContactModalComponent {
         roles: new FormControl(this._data?.roles || []),
     });
     /** List of levels for the active building */
-    public readonly levels = this._org.active_levels;
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public async addRole(): Promise<void> {
-        if (!this.role_name) return;
+        const role_name = this.role_name().trim();
+        if (!role_name) return;
         this._tooltip().close();
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        await this._contacts_service.addRole(this.role_name);
+        await this._contacts_service.addRole(role_name);
         this.form.patchValue({
-            roles: [...(this.form.value.roles || []), this.role_name],
+            roles: [...(this.form.value.roles || []), role_name],
         });
-        this.role_name = '';
+        this.role_name.set('');
         this.loading.set(false);
         this._dialog_ref.disableClose = false;
     }

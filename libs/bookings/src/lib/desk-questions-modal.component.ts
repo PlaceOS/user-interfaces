@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -9,7 +9,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 @Component({
     selector: 'desk-question-modal',
     template: `
-        @if (!failure) {
+        @if (!failure()) {
             <div class="relative">
                 <h2 class="p-4 text-xl">COVID-19 Questionnaire</h2>
                 <main class="p-4" [formGroup]="form">
@@ -109,14 +109,14 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
     ],
 })
 export class DeskQuestionsModalComponent {
-    @Output() public event = new EventEmitter<DialogEvent>();
+    @Output() public readonly event = new EventEmitter<DialogEvent>();
 
     public form = new FormGroup({
         travelled: new FormControl(false),
         unwell: new FormControl(false),
         contact: new FormControl(false),
     });
-    public failure: boolean;
+    public readonly failure = signal(false);
 
     public submit() {
         this.form.markAllAsTouched();
@@ -127,7 +127,7 @@ export class DeskQuestionsModalComponent {
                     this.form.value[key] === 'true',
             )
         ) {
-            this.failure = true;
+            this.failure.set(true);
             return;
         }
         this.event.emit({ reason: 'done' });

@@ -1,0 +1,355 @@
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ActivatedRoute } from '@angular/router';
+import {
+    AsyncHandler,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
+import {
+    AuthenticatedImageDirective,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import { debounceTime } from 'rxjs/operators';
+import { ReportsOptionsComponent } from '../reports-options.component';
+import {
+    EMPTY_REPORT,
+    SiteAttendanceReportService,
+} from './site-attendance-report.service';
+
+const CARD_DETAILS = {
+    events: {
+        icon: 'meeting_room',
+        label: 'APP.CONCIERGE.MENU_REPORT_ROOMS',
+    },
+    desks: {
+        icon: 'desk',
+        label: 'APP.CONCIERGE.MENU_REPORT_DESKS',
+    },
+    parking: {
+        icon: 'local_parking',
+        label: 'APP.CONCIERGE.MENU_REPORT_PARKING',
+    },
+    lockers: {
+        icon: 'lock',
+        label: 'APP.CONCIERGE.MENU_REPORT_LOCKERS',
+    },
+    visitors: {
+        icon: 'badge',
+        label: 'APP.CONCIERGE.MENU_REPORT_VISITORS',
+    },
+};
+
+@Component({
+    selector: '[site-attendance-report]',
+    template: `
+        <reports-options
+            (printing)="printing.set($event)"
+            [loading]="loading()"
+            [has_data]="has_data()"
+            (download)="downloadReport()"
+            (generate)="generateReport()"
+        />
+        <div
+            class="relative h-1/2 w-full flex-1 overflow-auto print:h-auto print:overflow-visible"
+        >
+            <div class="w-full">
+                <div class="bg-base-200 m-4 flex items-center rounded-sm p-4">
+                    <img auth class="h-12" [source]="logo()?.src || logo()" />
+                    <div class="flex-1"></div>
+                    <h2 class="px-2 text-2xl font-medium">
+                        {{
+                            'APP.CONCIERGE.REPORTS_SITE_ATTENDANCE_HEADER'
+                                | translate
+                        }}
+                    </h2>
+                </div>
+            </div>
+            @if (!loading()) {
+                @if (has_data()) {
+                    <div
+                        class="grid grid-cols-1 gap-4 px-4 pb-4 md:grid-cols-2 xl:grid-cols-5"
+                    >
+                        <div
+                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                        >
+                            <h3 class="text-sm opacity-60">
+                                {{
+                                    'APP.CONCIERGE.REPORTS_TOTAL_SITE_ATTENDANCE'
+                                        | translate
+                                }}
+                            </h3>
+                            <p class="mt-2 text-3xl font-semibold">
+                                {{ report().total_attendance }}
+                            </p>
+                        </div>
+                        <div
+                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                        >
+                            <h3 class="text-sm opacity-60">
+                                {{
+                                    'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                        | translate
+                                }}
+                            </h3>
+                            <p class="mt-2 text-3xl font-semibold">
+                                {{ report().total_bookings }}
+                            </p>
+                        </div>
+                        <div
+                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                        >
+                            <h3 class="text-sm opacity-60">
+                                {{
+                                    'APP.CONCIERGE.REPORTS_ACTIVE_TYPES'
+                                        | translate
+                                }}
+                            </h3>
+                            <p class="mt-2 text-3xl font-semibold">
+                                {{ report().active_types }}
+                            </p>
+                        </div>
+                        <div
+                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                        >
+                            <h3 class="text-sm opacity-60">
+                                {{
+                                    'APP.CONCIERGE.REPORTS_UNIQUE_PEOPLE'
+                                        | translate
+                                }}
+                            </h3>
+                            <p class="mt-2 text-3xl font-semibold">
+                                {{ report().unique_people }}
+                            </p>
+                        </div>
+                        <div
+                            class="border-base-200 bg-base-100 rounded-sm border p-4"
+                        >
+                            <h3 class="text-sm opacity-60">
+                                {{
+                                    'APP.CONCIERGE.REPORTS_BUSINESS_DAYS'
+                                        | translate
+                                }}
+                            </h3>
+                            <p class="mt-2 text-3xl font-semibold">
+                                {{ report().business_days }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 gap-4 px-4 pb-8 md:grid-cols-2 xl:grid-cols-3"
+                    >
+                        @for (card of report().cards; track card.id) {
+                            <div
+                                class="border-base-200 bg-base-100 rounded-sm border p-5 shadow-sm"
+                            >
+                                <div class="flex items-start gap-4">
+                                    <div
+                                        class="bg-secondary text-secondary-content flex h-12 w-12 items-center justify-center rounded-2xl"
+                                    >
+                                        <icon>{{ details[card.id].icon }}</icon>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="text-lg font-semibold">
+                                            {{
+                                                details[card.id].label
+                                                    | translate
+                                            }}
+                                        </h3>
+                                        <p class="mt-2 text-3xl font-semibold">
+                                            {{ card.attendance }}
+                                        </p>
+                                        <p class="text-sm opacity-60">
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_SITE_ATTENDANCE'
+                                                    | translate
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="border-base-200 mt-4 grid grid-cols-2 gap-3 border-t pt-4"
+                                >
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_TOTAL_BOOKINGS'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.bookings }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_DAILY_AVERAGE'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.daily_average }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_AVERAGE_LENGTH'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.average_length }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_UNIQUE_PEOPLE'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.unique_people }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 grid grid-cols-2 gap-3">
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.REPORTS_RESOURCES_USED'
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.resource_summary }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-200 rounded-sm p-3">
+                                        <div
+                                            class="text-xs uppercase opacity-60"
+                                        >
+                                            {{ card.status_label | translate }}
+                                        </div>
+                                        <div class="mt-1 text-xl font-medium">
+                                            {{ card.status_count }}
+                                        </div>
+                                        <div class="text-xs opacity-60">
+                                            {{ card.status_rate }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                } @else {
+                    <div
+                        class="screen-only flex h-full w-full flex-col items-center p-8"
+                    >
+                        <p class="opacity-30">
+                            {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
+                        </p>
+                    </div>
+                }
+            } @else {
+                <div class="flex h-full w-full flex-col items-center p-8">
+                    <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
+                    <p class="opacity-30">
+                        {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}
+                    </p>
+                </div>
+            }
+        </div>
+    `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+        `,
+    ],
+    imports: [
+        ReportsOptionsComponent,
+        AuthenticatedImageDirective,
+        IconComponent,
+        MatProgressSpinnerModule,
+        TranslatePipe,
+    ],
+})
+export class SiteAttendanceReportComponent extends AsyncHandler {
+    private _state = inject(SiteAttendanceReportService);
+    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+    private _org = inject(OrganisationService);
+
+    private readonly _report = toSignal(this._state.report$, {
+        initialValue: EMPTY_REPORT,
+    });
+    private readonly _loading = toSignal(this._state.loading$, {
+        initialValue: false,
+    });
+    private readonly _active_building = toSignal(
+        this._org.active_building.pipe(debounceTime(500)),
+    );
+    private readonly _query_params = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+
+    public readonly details = CARD_DETAILS;
+    public readonly printing = signal(false);
+    public readonly report = computed(() => this._report());
+    public readonly loading = computed(() => this._loading());
+    public readonly has_data = computed(() => !!this.report().total_bookings);
+
+    public readonly downloadReport = () => this._state.downloadReport();
+    public readonly generateReport = () => this._state.generateReport();
+
+    public readonly logo = computed(() => {
+        this._active_building();
+        return (
+            (this._settings.theme === 'dark'
+                ? this._settings.get('app.logo_dark')
+                : this._settings.get('app.logo_light')) || {}
+        );
+    });
+
+    constructor() {
+        super();
+        effect(() => {
+            const params = this._query_params();
+            if (params.has('start')) {
+                this._state.setOptions({ start: +params.get('start') });
+            }
+            if (params.has('end')) {
+                this._state.setOptions({ end: +params.get('end') });
+            }
+            if (params.has('zones') || params.has('zone_ids')) {
+                const zones = (
+                    params.get('zones') || params.get('zone_ids')
+                ).split(',');
+                if (zones.length) this._state.setOptions({ zones });
+            } else {
+                this._state.setOptions({ zones: [] });
+            }
+        });
+    }
+}

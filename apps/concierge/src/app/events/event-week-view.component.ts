@@ -1,8 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { addDays, format, startOfMinute } from 'date-fns';
 import { map, shareReplay, startWith } from 'rxjs/operators';
-
-import { AsyncHandler } from '@placeos/common';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -43,7 +42,7 @@ import { EventStateService } from './event-state.service';
                     header
                     class="border-base-200 bg-base-100 sticky top-0 z-10 flex h-16 min-h-16 border-b"
                 >
-                    @for (date of days; track date + '' + $index) {
+                    @for (date of days(); track date + '' + $index) {
                         <div
                             date
                             class="border-base-200 flex min-w-48 flex-1 flex-col items-center justify-center border-r p-4"
@@ -60,16 +59,14 @@ import { EventStateService } from './event-state.service';
                         class="border-base-200 pointer-events-none relative flex min-h-10 min-w-336 flex-1 border-x border-b"
                     ></div>
                 }
-                @for (date of days; track date + '' + i; let i = $index) {
+                @for (date of days(); track date + '' + i; let i = $index) {
                     <div
                         date
                         class="border-base-200 pointer-events-none absolute top-16 left-0 h-240 w-[calc(100%/7)] flex-1 border-r"
                         [style.transform]="'translateX(' + i * 100 + '%)'"
                     >
                         @for (
-                            event of (event_day_map | async)[
-                                dateString(date)
-                            ] || [];
+                            event of event_day_map()[dateString(date)] || [];
                             track event.id
                         ) {
                             <button
@@ -129,33 +126,45 @@ import { EventStateService } from './event-state.service';
         CustomTooltipComponent,
     ],
 })
-export class EventWeekViewComponent extends AsyncHandler implements OnInit {
+export class EventWeekViewComponent {
     private _state = inject(EventStateService);
 
-    public days = new Array(7).fill(0).map((_, idx) => idx + 1);
+    private readonly _options = toSignal(this._state.options, {
+        initialValue: { period: 'week', date: Date.now() },
+    });
+
+    public readonly days = computed(() => {
+        const date = this._options().date;
+        if (!date) return new Array(7).fill(0).map((_, idx) => idx + 1);
+        return new Array(7)
+            .fill(0)
+            .map((_, idx) => addDays(date, idx).valueOf());
+    });
     public readonly hours = new Array(24)
         .fill(0)
         .map((_, idx) => (idx % 12 ? idx % 12 : 12));
-    public readonly event_list = this._state.event_list;
-    public readonly event_day_map = this.event_list.pipe(
-        map((list) => {
-            const map = {};
-            for (const event of list) {
-                const date = format(event.date, 'yyyy-MM-dd');
-                if (!map[date]) map[date] = [];
-                const start = new Date(event.date);
-                map[date].push({
-                    ...event,
-                    offset:
-                        (start.getHours() * 60 + start.getMinutes()) /
-                        (24 * 60),
-                    length: event.duration / (24 * 60),
-                });
-            }
-            return map;
-        }),
-        startWith({}),
-        shareReplay(1),
+    public readonly event_day_map = toSignal(
+        this._state.event_list.pipe(
+            map((list) => {
+                const map = {};
+                for (const event of list) {
+                    const date = format(event.date, 'yyyy-MM-dd');
+                    if (!map[date]) map[date] = [];
+                    const start = new Date(event.date);
+                    map[date].push({
+                        ...event,
+                        offset:
+                            (start.getHours() * 60 + start.getMinutes()) /
+                            (24 * 60),
+                        length: event.duration / (24 * 60),
+                    });
+                }
+                return map;
+            }),
+            startWith({}),
+            shareReplay(1),
+        ),
+        { initialValue: {} },
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -177,17 +186,5 @@ export class EventWeekViewComponent extends AsyncHandler implements OnInit {
     public get now_offset() {
         const now = new Date(this.now);
         return (now.getHours() * 60 + now.getMinutes()) / (24 * 60);
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'date',
-            this._state.options.subscribe(({ date }) => {
-                if (!date) return;
-                this.days = this.days.map((_, idx) =>
-                    addDays(date, idx).valueOf(),
-                );
-            }),
-        );
     }
 }

@@ -1,7 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +15,7 @@ import {
     updateTrigger,
     updateZone,
 } from '@placeos/ts-client';
-import { map, tap } from 'rxjs/operators';
+import { map, of, switchMap, tap } from 'rxjs';
 import { SearchOverlayComponent } from './search-overlay.component';
 import { SignageItemPlaylistsComponent } from './signage-item-playlists.component';
 import { SignageStateService } from './signage-state.service';
@@ -41,8 +41,7 @@ import { SignageStateService } from './signage-state.service';
                     <input
                         matInput
                         [placeholder]="'COMMON.SEARCH' | translate"
-                        [ngModel]="search()"
-                        (ngModelChange)="search.set($event)"
+                        [(ngModel)]="search"
                     />
                 </mat-form-field>
                 @if (zones().length > 0) {
@@ -160,7 +159,6 @@ import { SignageStateService } from './signage-state.service';
         IconComponent,
         SearchOverlayComponent,
         SignageItemPlaylistsComponent,
-        CommonModule,
         FormsModule,
     ],
 })
@@ -191,8 +189,18 @@ export class SignageZonesComponent {
         return zones.find((item) => item.id === id);
     });
 
-    private readonly _triggers = signal<any[]>([]);
-    public readonly triggers = this._triggers.asReadonly();
+    public readonly triggers = toSignal(
+        toObservable(this.selected).pipe(
+            switchMap((id) => {
+                if (!id) return of([]);
+                return listZoneTriggers(id).pipe(
+                    map((_) => _.data),
+                    tap(() => setTimeout(() => this.switching.set(false), 100)),
+                );
+            }),
+        ),
+        { initialValue: [] },
+    );
 
     public readonly active_trigger = computed(() => {
         const list = this.triggers();
@@ -226,26 +234,9 @@ export class SignageZonesComponent {
             this.selected.set(params.get('zone') || '');
             this.selected_trigger.set(params.get('trigger') || '');
         });
-
-        // Watch for changes to selected zone and fetch triggers
-        effect(() => {
-            const id = this.selected();
-            if (!id) {
-                this._triggers.set([]);
-                return;
-            }
-            listZoneTriggers(id)
-                .pipe(
-                    map((_) => _.data),
-                    tap((_) =>
-                        setTimeout(() => this.switching.set(false), 100),
-                    ),
-                )
-                .subscribe((data) => this._triggers.set(data));
-        });
     }
 
-    public async addPlaylist(playlist: SignagePlaylist) {
+    public async addPlaylist(playlist: Partial<SignagePlaylist>) {
         const zone = this.active_zone();
         const trigger = this.active_trigger();
         const item = trigger || zone;

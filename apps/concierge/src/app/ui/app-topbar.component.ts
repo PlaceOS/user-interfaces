@@ -1,11 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
-import {
-    OrganisationService,
-    SettingsService,
-    currentUser,
-} from '@placeos/common';
+import { SettingsService, currentUser } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -19,7 +15,7 @@ import {
         <div class="border-base-200 flex items-center border-b p-2">
             <div class="w-64">
                 <a [routerLink]="['/']">
-                    <img auth class="h-12" [source]="logo?.src || logo" alt="Home" />
+                    <img auth class="h-12" [source]="logo_src()" />
                 </a>
             </div>
             <!-- <mat-form-field
@@ -35,11 +31,11 @@ import {
                 />
             </mat-form-field> -->
             <div class="flex flex-1 items-center justify-end space-x-2">
-                <button btn icon matRipple aria-label="Notifications">
+                <button btn icon matRipple>
                     <icon class="text-2xl">notifications</icon>
                 </button>
                 <user-controls-sidebar class="mr-2">
-                    <a-user-avatar [user]="user"></a-user-avatar>
+                    <a-user-avatar [user]="user()"></a-user-avatar>
                 </user-controls-sidebar>
             </div>
         </div>
@@ -62,17 +58,28 @@ import {
 })
 export class ApplicationTopbarComponent {
     private _settings = inject(SettingsService);
-    private _org = inject(OrganisationService);
+    private readonly _theme = this._settings.theme_signal;
+    private readonly _logo_dark = this._settings.signal(
+        'app.logo_dark',
+        {},
+        true,
+    );
+    private readonly _logo_light = this._settings.signal(
+        'app.logo_light',
+        {},
+        true,
+    );
 
-    public get logo() {
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    }
+    public readonly logo_src = computed(() => {
+        const logo = this.logo();
+        return typeof logo === 'string' ? logo : logo?.src || '';
+    });
 
-    public get user() {
-        return currentUser();
-    }
+    public readonly logo = computed<string | { src?: string }>(
+        () =>
+            (this._theme() === 'dark'
+                ? this._logo_dark()
+                : this._logo_light()) || {},
+    );
+    public readonly user = computed(() => currentUser());
 }

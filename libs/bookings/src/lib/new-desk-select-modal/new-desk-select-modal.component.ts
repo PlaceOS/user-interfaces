@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -11,7 +11,11 @@ import { isMobileSafari, SettingsService } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { BookingAsset } from '../booking-form.service';
+import {
+    BookingAsset,
+    BookingFlowOptions,
+    BookingFormService,
+} from '../booking-form.service';
 import { NewDeskDetailsComponent } from './new-desk-details.component';
 import { NewDeskFiltersDisplayComponent } from './new-desk-filters-display.component';
 import { NewDeskFiltersComponent } from './new-desk-filters.component';
@@ -25,7 +29,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
     template: `
         <div
             class="bg-base-100 mb-18 flex h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] w-screen flex-col space-y-2 overflow-hidden p-2 sm:m-0 sm:h-auto sm:w-auto"
-            [style.height]="is_safari ? 'calc(100vh - 80px)' : ''"
+            [style.height]="is_safari() ? 'calc(100vh - 80px)' : ''"
         >
             <header
                 class="bg-base-200 flex h-14 w-full items-center space-x-2 rounded-sm border-none p-2"
@@ -99,8 +103,8 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     @if (view() === 'list') {
                         <new-desk-list
                             [active]="displayed()?.id"
-                            [selected]="selected_ids"
-                            [favorites]="favorites"
+                            [selected]="selected_ids()"
+                            [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
                             (onSelect)="displayed.set($event)"
                         ></new-desk-list>
@@ -133,7 +137,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                     }
                     <new-desk-details
                         [desk]="displayed()"
-                        [active]="selected_ids.includes(displayed()?.id)"
+                        [active]="selected_ids().includes(displayed()?.id)"
                         [hide_map]="view() === 'map'"
                         (activeChange)="
                             setSelected(
@@ -143,7 +147,7 @@ export const FAV_DESK_KEY = 'favourite_desks';
                         "
                         [fav]="
                             displayed() &&
-                            this.favorites.includes(displayed()?.id)
+                            this.favorites().includes(displayed()?.id)
                         "
                         (toggleFav)="toggleFavourite(displayed())"
                         (close)="displayed.set(null)"
@@ -163,42 +167,52 @@ export const FAV_DESK_KEY = 'favourite_desks';
                 }
             </main>
             <footer
-                class="bg-base-200 flex w-full items-center justify-between space-x-2 rounded-sm border-none p-2"
+                class="bg-base-200 flex w-full items-center space-x-2 rounded-sm border-none p-2"
+                [class.justify-between]="allow_multiple"
+                [class.justify-end]="!allow_multiple"
             >
-                <button
-                    btn
-                    matRipple
-                    name="desk-return"
-                    [mat-dialog-close]="selected"
-                    class="inverse bg-base-100 text-secondary"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-xl">arrow_back</icon>
-                        <div class="pr-2">
-                            {{ 'COMMON.BACK_TO_FORM' | translate }}
+                @if (allow_multiple) {
+                    <button
+                        btn
+                        matRipple
+                        name="desk-return"
+                        [mat-dialog-close]="selected()"
+                        class="inverse bg-base-100 text-secondary"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-xl">done</icon>
+                            <div class="pr-2">
+                                {{ 'COMMON.CONFIRM_SELECTION' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
                 <button
                     btn
                     matRipple
                     name="toggle-desk"
                     [disabled]="!displayed()"
-                    [class.inverse]="isSelected(displayed()?.id)"
-                    (click)="
-                        setSelected(displayed(), !isSelected(displayed()?.id))
+                    [class.inverse]="
+                        allow_multiple && isSelected(displayed()?.id)
                     "
+                    (click)="toggleDisplayedDesk()"
                 >
                     <div class="flex items-center">
                         <icon class="text-xl">{{
-                            isSelected(displayed()?.id) ? 'remove' : 'add'
+                            allow_multiple
+                                ? isSelected(displayed()?.id)
+                                    ? 'remove'
+                                    : 'add'
+                                : 'done'
                         }}</icon>
                         <div class="mr-1">
                             {{
-                                (isSelected(displayed()?.id)
-                                    ? 'COMMON.REMOVE_FROM'
-                                    : 'COMMON.ADD_TO'
-                                ) | translate
+                                allow_multiple
+                                    ? ((isSelected(displayed()?.id)
+                                          ? 'COMMON.REMOVE_FROM'
+                                          : 'COMMON.ADD_TO'
+                                      ) | translate)
+                                    : 'Select Desk'
                             }}
                         </div>
                     </div>
@@ -229,55 +243,76 @@ export const FAV_DESK_KEY = 'favourite_desks';
     ],
 })
 export class NewDeskSelectModalComponent {
-    private _data = inject(MAT_DIALOG_DATA);
+    private _data = inject<{
+        items: BookingAsset[] | (() => BookingAsset[]);
+        options: Partial<BookingFlowOptions>;
+    }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
+    private _event_form = inject(BookingFormService);
     private _dialog_ref =
         inject<MatDialogRef<NewDeskSelectModalComponent>>(MatDialogRef);
 
-    public selected: BookingAsset[] = [];
+    public readonly selected = signal<BookingAsset[]>([]);
     public readonly view = signal<'list' | 'map'>('list');
     public readonly displayed = signal<BookingAsset | null>(null);
     public readonly show_filters = signal(false);
+    public readonly is_safari = signal(isMobileSafari());
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .map((_) => _.id)
+            .join(','),
+    );
+    private readonly _default_select_as_map = this._settings.signal(
+        'desks.default_select_as_map',
+        false,
+    );
+    public readonly favorites = signal<string[]>(
+        this._settings.get<string[]>(FAV_DESK_KEY) || [],
+    );
 
-    public get is_safari() {
-        return isMobileSafari();
+    public get allow_multiple() {
+        return !!this._data.options?.group;
     }
 
-    public get selected_ids() {
-        return this.selected.map((_) => _.id).join(',');
-    }
-
-    public get favorites() {
-        return this._settings.get<string[]>(FAV_DESK_KEY) || [];
+    constructor() {
+        const selected_desks =
+            typeof this._data?.items === 'function'
+                ? this._data.items()
+                : this._data?.items || [];
+        this.selected.set([...selected_desks]);
+        this._event_form.setOptions(this._data?.options || {});
+        this.view.set(this._default_select_as_map() ? 'map' : 'list');
     }
 
     public isSelected(id: string) {
-        return id && this.selected_ids.includes(id);
+        return !!id && this.selected().some((item) => item.id === id);
     }
 
     public setSelected(item: BookingAsset, state: boolean) {
-        const list = this.selected.filter((_) => _.id !== item.id);
+        const list = this.selected().filter((_) => _.id !== item.id);
         if (state) list.push(item);
-        this.selected = list;
+        this.selected.set(list);
         if (!this._data.options.group && state) {
             this.displayed.set(null);
             setTimeout(() => this._dialog_ref.close([item]), 50);
         }
     }
 
+    public toggleDisplayedDesk() {
+        if (!this.displayed()) return;
+        this.setSelected(
+            this.displayed(),
+            this.allow_multiple ? !this.isSelected(this.displayed()?.id) : true,
+        );
+    }
+
     public toggleFavourite(item: BookingAsset) {
-        const fav_list = this.favorites;
+        const fav_list = this.favorites();
         const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting(FAV_DESK_KEY, [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                FAV_DESK_KEY,
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const next_favs = new_state
+            ? [...fav_list, item.id]
+            : fav_list.filter((_) => _ !== item.id);
+        this._settings.saveUserSetting(FAV_DESK_KEY, next_favs);
+        this.favorites.set(next_favs);
     }
 }

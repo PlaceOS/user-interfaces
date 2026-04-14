@@ -1,4 +1,4 @@
-import { Component, NO_ERRORS_SCHEMA, inject } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -27,7 +27,6 @@ import { IconComponent } from './icon.component';
             <div class="flex flex-col">
                 <label>File Name</label>
                 <mat-form-field appearance="outline" class="no-subscript">
-                    <mat-label>File Name</mat-label>
                     <input
                         matInput
                         [ngModel]="file.name"
@@ -36,12 +35,14 @@ import { IconComponent } from './icon.component';
                     />
                 </mat-form-field>
             </div>
-            @if (!is_public) {
+            @if (!is_public()) {
                 <div class="flex flex-col space-y-2">
                     <label>Permissions</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>Permissions</mat-label>
-                        <mat-select [(ngModel)]="permissions">
+                        <mat-select
+                            [ngModel]="permissions()"
+                            (ngModelChange)="permissions.set($event)"
+                        >
                             <mat-option value="none">None</mat-option>
                             <mat-option value="support">Support</mat-option>
                             <mat-option value="admin">Admin</mat-option>
@@ -65,7 +66,11 @@ import { IconComponent } from './icon.component';
                 btn
                 matRipple
                 class="w-32"
-                [mat-dialog-close]="{ file, is_public, permissions }"
+                [mat-dialog-close]="{
+                    file,
+                    is_public: is_public(),
+                    permissions: permissions(),
+                }"
             >
                 Upload
             </button>
@@ -94,9 +99,9 @@ export class UploadPermissionsModalComponent {
     /** File to upload */
     public readonly file: File = this._data.file;
     /** Whether file should be public */
-    public is_public = !!this._data.is_public;
+    public is_public = signal(!!this._data.is_public);
     /** Permissions for file */
-    public permissions: UploadPermissions = 'none';
+    public permissions = signal<UploadPermissions>('none');
 
     constructor() {
         this.file = this._data.file;

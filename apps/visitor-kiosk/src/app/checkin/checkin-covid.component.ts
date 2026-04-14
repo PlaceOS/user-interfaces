@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -61,7 +61,7 @@ import { CheckinStateService } from './checkin-state.service';
             <a
                 icon
                 matRipple
-                [attr.disabled]="!symptoms && !contact"
+                [attr.disabled]="!symptoms() && !contact()"
                 class="absolute top-0 right-0"
                 [routerLink]="['/welcome']"
             >
@@ -95,17 +95,19 @@ export class CheckinCovidComponent {
     private _router = inject(Router);
     private _checkin = inject(CheckinStateService);
 
-    public contact: string;
-    public symptoms: string;
+    public contact = signal<string>('');
+    public symptoms = signal<string>('');
 
     public confirm() {
-        if (!this.symptoms || !this.contact)
+        const symptoms = this.symptoms();
+        const contact = this.contact();
+        if (!symptoms || !contact)
             return notifyError('Please select yes or no for each question');
         this._checkin.updateGuest({
-            covid: this.contact === 'true',
-            symptoms: this.symptoms === 'true',
+            covid: contact === 'true',
+            symptoms: symptoms === 'true',
         });
-        if (this.symptoms === 'false' && this.contact === 'false') {
+        if (symptoms === 'false' && contact === 'false') {
             this._router.navigate(['/checkin', 'results']);
         } else {
             this._checkin.setError(

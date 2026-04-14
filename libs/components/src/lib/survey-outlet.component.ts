@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     inject,
     input,
     model,
@@ -53,7 +54,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                         auth
                         class="h-12 sm:block"
                         alt="Logo"
-                        [source]="logo?.src || logo"
+                        [source]="logo()?.src || logo()"
                     />
                 </header>
                 @if (!loading()) {
@@ -69,11 +70,11 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                             </p>
                         </main>
                     } @else {
-                        @if (form) {
+                        @if (form()) {
                             <main
                                 page
                                 class="border-base-300 mx-auto w-[calc(100%-1rem)] w-full max-w-160 space-y-2 rounded-sm border p-4"
-                                [formGroup]="form"
+                                [formGroup]="form()"
                             >
                                 @let page = survey().pages[active_page()];
                                 <h3 class="text-lg font-medium">
@@ -113,13 +114,15 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                                 matRipple
                                                                 class="border-secondary h-12 w-12 border-y first:rounded-l first:border-l last:rounded-r last:border-r!"
                                                                 [class.bg-secondary]="
-                                                                    form.value[
+                                                                    form()
+                                                                        .value[
                                                                         question
                                                                             .id
                                                                     ] === idx
                                                                 "
                                                                 [class.text-secondary-content]="
-                                                                    form.value[
+                                                                    form()
+                                                                        .value[
                                                                         question
                                                                             .id
                                                                     ] === idx
@@ -239,7 +242,7 @@ import { catchError, forkJoin, lastValueFrom, Observable, of } from 'rxjs';
                                                         ) {
                                                             <mat-checkbox
                                                                 [ngModel]="
-                                                                    form.value[
+                                                                    form().value[
                                                                         question
                                                                             .id
                                                                     ].includes(
@@ -349,6 +352,9 @@ export class SurveyOutletComponent
 {
     private readonly _route = inject(ActivatedRoute);
     private readonly _settings = inject(SettingsService);
+    private readonly _theme = this._settings.theme_signal;
+    private readonly _logo_dark = this._settings.signal('logo_dark', null);
+    private readonly _logo_light = this._settings.signal('logo_light', null);
 
     public readonly preview = input<boolean>(false);
     public readonly not_found = output<boolean>();
@@ -359,15 +365,14 @@ export class SurveyOutletComponent
     public readonly success = signal(false);
     public readonly survey = model<Survey>(null);
     public readonly questions: Record<string | number, SurveyQuestion> = {};
-    public form: UntypedFormGroup;
+    public readonly form = signal<UntypedFormGroup>(null);
 
-    public get logo() {
-        return (
-            (this._settings.theme === 'dark'
-                ? this._settings.get('app.logo_dark')
-                : this._settings.get('app.logo_light')) || {}
-        );
-    }
+    public readonly logo = computed(
+        () =>
+            (this._theme() === 'dark'
+                ? this._logo_dark()
+                : this._logo_light()) || {},
+    );
 
     public ngOnInit() {
         this.subscription(
@@ -395,24 +400,24 @@ export class SurveyOutletComponent
     }
 
     public setRating(question_id: string, rating: number) {
-        this.form.patchValue({ [question_id]: rating });
+        this.form().patchValue({ [question_id]: rating });
     }
 
     public toggleOption(question_id: string, value: string, state: boolean) {
-        let list = this.form.value[question_id];
+        let list = this.form().value[question_id];
         list = list.filter((_: any) => _ !== value);
         if (state) list.push(value);
-        this.form.patchValue({ [question_id]: list });
+        this.form().patchValue({ [question_id]: list });
     }
 
     public async submitSurvey() {
-        this.form.markAllAsTouched();
+        this.form().markAllAsTouched();
         this.loading.set('Submitting survey answers...');
-        if (!this.form.valid) return;
+        if (!this.form().valid) return;
         this.loading.set('Saving survey answers...');
         const answers: Partial<SurveyAnswer>[] = [];
         for (const q_id in this.questions) {
-            const value = this.form.value[q_id];
+            const value = this.form().value[q_id];
             if (value !== null && value !== undefined) {
                 answers.push({
                     survey_id: +`${this.survey().id}`,
@@ -491,7 +496,7 @@ export class SurveyOutletComponent
                     break;
             }
         }
-        this.form = new FormGroup(controls);
+        this.form.set(new FormGroup(controls));
         this.loading.set('');
     }
 }

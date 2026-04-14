@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
@@ -10,6 +9,7 @@ import {
     output,
     SimpleChanges,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -51,7 +51,7 @@ let _initialized = false;
 @Component({
     selector: 'interactive-map',
     template: `
-        @if (use_mapsindoors$ | async) {
+        @if (use_mapsindoors()) {
             <maps-indoors
                 [zone]="location()"
                 (zoneChange)="onLevelChange($event)"
@@ -123,7 +123,6 @@ let _initialized = false;
     `,
     styles: [``],
     imports: [
-        CommonModule,
         IconComponent,
         TranslatePipe,
         MatRippleModule,
@@ -155,14 +154,18 @@ export class InteractiveMapComponent
     public focus = input('');
     public mapInfo = output();
 
-    public readonly use_mapsindoors$ = this._mapspeople.available$;
+    public readonly use_mapsindoors = toSignal(this._mapspeople.available$);
 
     public readonly location = computed(() =>
         this._org.levels.find((_) => _.map_id === this.src()),
     );
+    private readonly _use_cisco_maps = this._settings.signal(
+        'explore.cisco_maps.enabled',
+        false,
+    );
 
     public get use_cisco_maps() {
-        return this._settings.get('app.explore.cisco_maps.enabled');
+        return this._use_cisco_maps();
     }
 
     public ngOnInit() {

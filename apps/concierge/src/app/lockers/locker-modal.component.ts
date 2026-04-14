@@ -1,5 +1,14 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+    Component,
+    effect,
+    EventEmitter,
+    inject,
+    OnInit,
+    Output,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     AbstractControl,
     FormControl,
@@ -60,20 +69,19 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         ) | translate
                     }}
                 </h2>
-                @if (!loading) {
-                    <button icon matRipple mat-dialog-close aria-label="Close dialog">
+                @if (!loading()) {
+                    <button icon matRipple mat-dialog-close>
                         <icon>close</icon>
                     </button>
                 }
             </header>
-            @if (!loading) {
+            @if (!loading()) {
                 <main
                     class="flex max-h-[65vh] flex-col overflow-auto p-4"
                     [formGroup]="form"
                 >
                     <label for="name">{{ 'FORM.NAME' | translate }}</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>{{ 'FORM.NAME' | translate }}</mat-label>
                         <input
                             matInput
                             name="name"
@@ -220,7 +228,6 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                     </div>
                     <label for="notes">{{ 'FORM.NOTES' | translate }}</label>
                     <mat-form-field appearance="outline">
-                        <mat-label>{{ 'FORM.NOTES' | translate }}</mat-label>
                         <textarea
                             matInput
                             name="notes"
@@ -232,7 +239,6 @@ function validateNoOverlap(box: Box, check_boxes: Box[]): boolean {
                         {{ 'COMMON.FEATURES' | translate }}
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>{{ 'COMMON.FEATURES' | translate }}</mat-label>
                         <mat-chip-grid
                             name="features"
                             #chipList
@@ -306,7 +312,7 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         inject<MatDialogRef<LockerModalComponent>>(MatDialogRef);
 
     @Output() public readonly event = new EventEmitter<DialogEvent>();
-    public loading: boolean;
+    public readonly loading = signal(false);
 
     /** List of separator characters for tags */
     public readonly separators: number[] = [ENTER, COMMA, SPACE];
@@ -348,6 +354,12 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
         bookable: new FormControl(false),
         features: new FormControl([]),
     });
+    private readonly _position = toSignal(
+        this.form.controls.position.valueChanges,
+        {
+            initialValue: this.form.controls.position.value,
+        },
+    );
 
     constructor() {
         super();
@@ -355,22 +367,20 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
 
         this._locker_bounds = this._lockerBounds();
         if (_data.locker) this.form.patchValue(_data.locker);
+        effect(() => {
+            this._position();
+            this.timeout(
+                'changed',
+                () =>
+                    this.form.controls.size.patchValue(
+                        this.form.controls.size.value,
+                    ),
+                50,
+            );
+        });
     }
 
     public async ngOnInit() {
-        this.subscription(
-            'pos_change',
-            this.form.controls.position.valueChanges.subscribe(() => {
-                this.timeout(
-                    'changed',
-                    () =>
-                        this.form.controls.size.patchValue(
-                            this.form.controls.size.value,
-                        ),
-                    50,
-                );
-            }),
-        );
         if (this.locker?.assigned_to) {
             const user = await showStaff(this.locker.assigned_to).toPromise();
             if (user) {
@@ -400,7 +410,7 @@ export class LockerModalComponent extends AsyncHandler implements OnInit {
 
     public postForm() {
         if (!this.form.valid) return;
-        this.loading = true;
+        this.loading.set(true);
         const value = { ...this.form.getRawValue() };
         if (value.assigned_user) {
             value.assigned_to = value.assigned_user.email;

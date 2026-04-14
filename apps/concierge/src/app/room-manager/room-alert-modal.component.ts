@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -31,20 +31,19 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                         | translate: { name: room.display_name || room.name }
                 }}
             </h2>
-            @if (!loading) {
-                <button icon matRipple mat-dialog-close aria-label="Close dialog">
+            @if (!loading()) {
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
-        @if (!loading) {
+        @if (!loading()) {
             <main
                 class="flex max-h-[65vh] min-w-md flex-col overflow-x-hidden overflow-y-auto p-4"
                 [formGroup]="form"
             >
                 <label for="status">{{ 'COMMON.STATUS' | translate }}</label>
                 <mat-form-field appearance="outline">
-                    <mat-label>{{ 'COMMON.STATUS' | translate }}</mat-label>
                     <mat-select name="status" formControlName="status">
                         <mat-option value="">{{
                             'APP.CONCIERGE.ROOMS_ALERT_TYPE_NONE' | translate
@@ -64,7 +63,6 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                     'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate
                 }}</label>
                 <mat-form-field appearance="outline">
-                    <mat-label>{{ 'APP.CONCIERGE.ROOMS_ALERT_MSG' | translate }}</mat-label>
                     <textarea
                         matInput
                         name="message"
@@ -80,7 +78,7 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
                 </p>
             </div>
         }
-        @if (!loading) {
+        @if (!loading()) {
             <footer class="border-base-200 flex justify-end border-t p-2">
                 <button btn matRipple class="w-32" (click)="save()">
                     {{ 'COMMON.SAVE' | translate }}
@@ -109,7 +107,7 @@ export class RoomAlertModalComponent {
         inject<MatDialogRef<RoomAlertModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
-    public loading = false;
+    public readonly loading = signal(false);
     public readonly room: PlaceSystem = this._data.room;
     public readonly form = new FormGroup({
         status: new FormControl(''),
@@ -121,7 +119,7 @@ export class RoomAlertModalComponent {
     }
 
     public async save() {
-        this.loading = true;
+        this.loading.set(true);
         const metadata = await showMetadata(
             this._org.organisation.id,
             'room_alerts',
@@ -133,7 +131,7 @@ export class RoomAlertModalComponent {
                         error: e.message || e,
                     }),
                 );
-                this.loading = false;
+                this.loading.set(false);
                 throw e;
             });
         const alert = this.form.getRawValue();
@@ -155,7 +153,7 @@ export class RoomAlertModalComponent {
                         error: e.message || e,
                     }),
                 );
-                this.loading = false;
+                this.loading.set(false);
                 throw e;
             });
         notifySuccess(i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_SUCCESS'));

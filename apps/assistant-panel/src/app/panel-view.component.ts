@@ -606,7 +606,9 @@ export class PanelViewComponent extends AsyncHandler {
 
     private _processWaveform() {
         if (this._frame_count % 2 === 0) {
-            this._analyser.getByteTimeDomainData(this._audio_bytes);
+            this._analyser.getByteTimeDomainData(
+                this._audio_bytes as Uint8Array<ArrayBuffer>,
+            );
             this._drawWaveform();
         }
         this._frame_count += 1;

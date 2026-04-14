@@ -1,5 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 
@@ -22,7 +23,7 @@ import { WorkplaceSettingsFormModalComponent } from '../ui/app-settings/workplac
         <div class="absolute inset-0 overflow-auto px-8">
             <simple-table
                 class="block min-w-lg text-sm"
-                [data]="regions"
+                [data]="regions()"
                 [empty_message]="'APP.CONCIERGE.REGIONS_EMPTY' | translate"
                 [columns]="[
                     {
@@ -172,7 +173,9 @@ export class RegionListComponent {
     private _clipboard = inject(Clipboard);
     private _dialog = inject(MatDialog);
 
-    public readonly regions = this._manager.filtered_regions;
+    public readonly regions = toSignal(this._manager.filtered_regions, {
+        initialValue: [],
+    });
 
     public readonly editRegion = (region) => this._manager.editRegion(region);
     public readonly removeRegion = (region) =>

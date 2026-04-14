@@ -2,7 +2,9 @@ import {
     Component,
     ElementRef,
     OnInit,
+    computed,
     inject,
+    signal,
     viewChild,
 } from '@angular/core';
 import {
@@ -39,8 +41,8 @@ export interface MapPolygonData {
         <canvas
             #canvas
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            [style.width]="width * svg_ratio * zoom + '%'"
-            [style.height]="width * svg_ratio * ratio * zoom + '%'"
+            [style.width]="width() * svg_ratio() * zoom() + '%'"
+            [style.height]="width() * svg_ratio() * ratio() * zoom() + '%'"
         ></canvas>
     `,
     styles: [],
@@ -48,17 +50,17 @@ export interface MapPolygonData {
 export class MapCanvasComponent extends AsyncHandler implements OnInit {
     private _data = inject<MapPolygonData>(MAP_FEATURE_DATA);
 
-    public zoom = 1;
-    public ratio = 1;
-    public svg_ratio = 1;
-    public width = 10000;
+    public zoom = signal(1);
+    public ratio = signal(1);
+    public svg_ratio = signal(1);
+    public width = signal(10000);
 
     private readonly canvas_element =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
 
-    public get ratioed_height(): number {
-        return +(this.width * this.ratio).toFixed(2);
-    }
+    public readonly ratioed_height = computed(
+        () => +(this.width() * this.ratio()).toFixed(2),
+    );
 
     constructor() {
         super();
@@ -88,12 +90,12 @@ export class MapCanvasComponent extends AsyncHandler implements OnInit {
         zoom: number,
         svg_ratio: number,
     ) {
-        const old_ratio = this.ratio;
-        this.zoom = zoom;
-        this.ratio = ratio;
-        this.svg_ratio = svg_ratio;
-        const width = this.width / 10;
-        const height = (this.width * this.ratio) / 10;
+        const old_ratio = this.ratio();
+        this.zoom.set(zoom);
+        this.ratio.set(ratio);
+        this.svg_ratio.set(svg_ratio);
+        const width = this.width() / 10;
+        const height = (this.width() * this.ratio()) / 10;
 
         if (old_ratio === ratio) return;
 

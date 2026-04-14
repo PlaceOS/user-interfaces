@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -15,7 +15,7 @@ import {
     Building,
     currentUser,
     OrganisationService,
-    SettingsService,
+    settingSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
@@ -63,7 +63,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         class="overflow-hidden"
                         [@show]="hide_block.details ? 'hide' : 'show'"
                     >
-                        @if ((buildings | async)?.length > 1) {
+                        @if (buildings().length > 1) {
                             <div class="min-w-[256px] flex-1">
                                 <label for="title">Building</label>
                                 <mat-form-field
@@ -72,18 +72,15 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                                     <mat-select
                                         name="building"
-                                        [ngModel]="building | async"
+                                        [ngModel]="building()"
                                         (ngModelChange)="setBuilding($event)"
                                         [ngModelOptions]="{ standalone: true }"
                                         [placeholder]="
-                                            (building | async)?.display_name ||
-                                            (building | async)?.name
+                                            building()?.display_name ||
+                                            building()?.name
                                         "
                                     >
-                                        @for (
-                                            bld of buildings | async;
-                                            track bld
-                                        ) {
+                                        @for (bld of buildings(); track bld) {
                                             <mat-option [value]="bld">
                                                 {{
                                                     bld.display_name || bld.name
@@ -122,7 +119,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 >
                                     Date and time must be in the future
                                 </a-date-field>
-                                @if (allow_all_day) {
+                                @if (allow_all_day()) {
                                     <mat-checkbox
                                         formControlName="all_day"
                                         class="absolute -top-2 right-0"
@@ -144,6 +141,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                             form.patchValue({ date: $event })
                                         "
                                         [ngModelOptions]="{ standalone: true }"
+                                        [range]="bookable_hours()"
+                                        [min_duration]="
+                                            effective_min_duration()
+                                        "
                                     ></a-time-field>
                                 </div>
                                 <div class="w-full sm:flex-1">
@@ -154,13 +155,17 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                         name="end-time"
                                         formControlName="duration"
                                         [time]="form?.value?.date"
-                                        [max]="max_duration"
+                                        [max]="max_duration()"
+                                        [custom_options]="
+                                            custom_duration_options()
+                                        "
+                                        [end_time]="bookable_hours()?.end"
                                     >
                                     </a-duration-field>
                                 </div>
                             </div>
                         }
-                        @if (can_book_for_others) {
+                        @if (can_book_for_others()) {
                             <div class="w-full">
                                 <label for="host">Host<span>*</span></label>
                                 <host-select-field
@@ -171,7 +176,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         }
                     </div>
                 </section>
-                @if (!hide_attendees) {
+                @if (!hide_attendees()) {
                     <section class="p-4">
                         <h3 class="flex items-center space-x-2">
                             <div
@@ -246,7 +251,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         ></space-list-field>
                     </div>
                 </section>
-                @if (has_catering) {
+                @if (has_catering()) {
                     <section class="p-4">
                         <h3 class="flex items-center space-x-2">
                             <div
@@ -292,7 +297,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <div
                             class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                         >
-                            {{ !has_catering ? '4' : '5' }}
+                            {{ !has_catering() ? '4' : '5' }}
                         </div>
                         <div class="text-xl">Assets</div>
                         <div class="w-px flex-1"></div>
@@ -321,13 +326,13 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         ></asset-list-field>
                     </div>
                 </section>
-                @if (!hide_notes) {
+                @if (!hide_notes()) {
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ !has_catering ? '5' : '6' }}
+                                {{ !has_catering() ? '5' : '6' }}
                             </div>
                             <div class="text-xl">Notes</div>
                         </h3>
@@ -349,7 +354,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
-        CommonModule,
         MatRippleModule,
         FormsModule,
         ReactiveFormsModule,
@@ -371,7 +375,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
 })
 export class MeetingBookingFormComponent extends AsyncHandler {
     private _service = inject(EventFormService);
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
 
@@ -379,39 +382,49 @@ export class MeetingBookingFormComponent extends AsyncHandler {
 
     public hide_block: Record<string, boolean> = {};
 
-    public readonly building = this._org.active_building;
-    public readonly buildings = this._org.building_list;
+    public readonly building = toSignal(this._org.active_building);
+    public readonly buildings = toSignal(this._org.building_list, {
+        initialValue: [],
+    });
 
-    public get has_catering() {
-        return (
-            !!this._settings.get('app.events.catering_enabled') ||
-            !!this._settings.get('app.events.has_catering')
-        );
-    }
-
-    public get hide_notes() {
-        return !!this._settings.get('app.events.hide_notes');
-    }
-
-    public get hide_attendees() {
-        return !!this._settings.get('app.events.hide_attendees');
-    }
-
-    public get max_duration() {
-        return this._settings.get('app.events.max_duration') || 480;
-    }
-
-    public get can_book_for_others() {
-        return this._settings.get('app.events.can_book_for_others');
-    }
-
-    public get allow_all_day() {
-        return this._settings.get('app.events.allow_all_day');
-    }
-
-    public get allow_assets() {
-        return this._settings.get('app.events.allow_assets');
-    }
+    private readonly _catering_enabled = settingSignal(
+        'events.catering_enabled',
+        false,
+    );
+    private readonly _has_catering_enabled = settingSignal(
+        'events.has_catering',
+        false,
+    );
+    public readonly has_catering = computed(
+        () => !!this._catering_enabled() || !!this._has_catering_enabled(),
+    );
+    public readonly hide_notes = settingSignal('events.hide_notes', false);
+    public readonly hide_attendees = settingSignal(
+        'events.hide_attendees',
+        false,
+    );
+    public readonly max_duration = settingSignal('events.max_duration', 480);
+    public readonly min_duration = settingSignal('events.min_duration', 30);
+    public readonly bookable_hours = settingSignal(
+        'events.bookable_hours',
+        null,
+    );
+    public readonly custom_duration_options = settingSignal(
+        'events.custom_duration_options',
+        [],
+    );
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
+    );
+    public readonly can_book_for_others = settingSignal(
+        'events.can_book_for_others',
+        false,
+    );
+    public readonly allow_all_day = settingSignal(
+        'events.allow_all_day',
+        false,
+    );
+    public readonly allow_assets = settingSignal('events.allow_assets', false);
 
     public findAvailableTime() {
         const { attendees, organiser, date, duration } = this.form.value;

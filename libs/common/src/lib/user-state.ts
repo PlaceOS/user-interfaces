@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { showUser } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, lastValueFrom, timer } from 'rxjs';
-import { map, retry, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, lastValueFrom, of, timer } from 'rxjs';
+import { catchError, map, retry, tap } from 'rxjs/operators';
+import { isPublicMode } from './public-mode';
 import { StaffUser } from './types/user.class';
 
 const EMPTY_USER = {
@@ -15,13 +16,43 @@ const _change = new BehaviorSubject(0);
 export const current_user = _current_user.asObservable();
 const user_signal = signal(EMPTY_USER);
 
+function setPublicUser() {
+    const generic_user = new StaffUser({
+        id: 'public-user',
+        name: 'Public User',
+        email: 'public.user@placeos.example',
+    });
+    _current_user.next(generic_user);
+    user_signal.set(generic_user);
+    return generic_user;
+}
+
 declare let jest;
 
 setTimeout(() => {
     try {
         if (jest) return;
     } catch {}
-    combineLatest([showUser('current'), _change])
+    const is_public_mode = isPublicMode();
+    const user_request = combineLatest([showUser('current'), _change]).pipe(
+        map(([i]) => new StaffUser(i)),
+    );
+    if (is_public_mode) {
+        user_request
+            .pipe(
+                tap((u) => user_signal.set(u)),
+                catchError((error) => {
+                    console.warn(
+                        'User loading failed in public mode, using local public user data.',
+                        error,
+                    );
+                    return of(setPublicUser());
+                }),
+            )
+            .subscribe((user) => _current_user.next(user));
+        return;
+    }
+    user_request
         .pipe(
             retry({
                 count: 10,
@@ -34,7 +65,6 @@ setTimeout(() => {
                     return timer(delay_ms);
                 },
             }),
-            map(([i]) => new StaffUser(i)),
             tap((u) => user_signal.set(u)),
         )
         .subscribe((user) => _current_user.next(user));
@@ -42,10 +72,22 @@ setTimeout(() => {
 
 export function reloadUserData() {
     setTimeout(async () => {
-        const p_user = await lastValueFrom(showUser('current'));
-        const user = new StaffUser(p_user);
-        _current_user.next(user);
-        user_signal.set(user);
+        try {
+            const p_user = await lastValueFrom(showUser('current'));
+            const user = new StaffUser(p_user);
+            _current_user.next(user);
+            user_signal.set(user);
+        } catch (error) {
+            if (isPublicMode()) {
+                console.warn(
+                    'User reload failed in public mode, using local public user data.',
+                    error,
+                );
+                setPublicUser();
+                return;
+            }
+            throw error;
+        }
     }, 300);
 }
 

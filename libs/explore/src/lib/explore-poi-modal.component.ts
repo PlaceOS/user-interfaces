@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     Component,
     ElementRef,
@@ -120,7 +119,6 @@ export interface POI {
     `,
     styles: [``],
     imports: [
-        CommonModule,
         MatRippleModule,
         MatDialogModule,
         IconComponent,

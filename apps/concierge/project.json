@@ -129,7 +129,8 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/concierge"],
             "options": {
-                "jestConfig": "apps/concierge/jest.config.ts"
+                "jestConfig": "apps/concierge/jest.config.ts",
+                "tsConfig": "apps/concierge/tsconfig.spec.json"
             }
         }
     }

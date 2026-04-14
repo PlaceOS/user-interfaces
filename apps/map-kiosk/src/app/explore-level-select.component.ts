@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { nextValueFrom, OrganisationService } from '@placeos/common';
 import { ExploreStateService } from '@placeos/explore';
@@ -11,10 +11,10 @@ import { first } from 'rxjs/operators';
         <div
             class="border-base-300 bg-base-100 m-2 overflow-hidden rounded-sm border border-solid shadow-sm"
         >
-            @for (lvl of levels | async; track lvl) {
+            @for (lvl of levels(); track lvl) {
                 <button
                     class="flex h-16 w-16 flex-col items-center justify-center border-none p-2"
-                    [class.active]="lvl.id === (level | async)?.id"
+                    [class.active]="lvl.id === level()?.id"
                     (click)="setLevel(lvl)"
                     matRipple
                 >
@@ -38,14 +38,18 @@ import { first } from 'rxjs/operators';
             }
         `,
     ],
-    imports: [MatRippleModule, CommonModule],
+    imports: [MatRippleModule],
 })
 export class ExploreLevelSelectComponent {
     private _org = inject(OrganisationService);
     private _state = inject(ExploreStateService);
 
-    public readonly levels = this._org.active_levels;
-    public readonly level = this._state.level;
+    public readonly levels = toSignal(this._org.active_levels, {
+        initialValue: [],
+    });
+    public readonly level = toSignal(this._state.level, {
+        initialValue: undefined,
+    });
 
     public readonly setLevel = (lvl) => this._state.setLevel(lvl.id);
 

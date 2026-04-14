@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -13,14 +14,11 @@ import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
 import { Point } from '@placeos/svg-viewer';
 
-import { CommonModule } from '@angular/common';
 import {
     IconComponent,
     InteractiveMapComponent,
     VirtualKeyboardComponent,
 } from '@placeos/components';
-import { combineLatest, map } from 'rxjs';
-
 @Component({
     selector: 'parking-kiosk-view',
     template: `
@@ -38,29 +36,28 @@ import { combineLatest, map } from 'rxjs';
                 class="border-base-300 pointer-events-none relative w-full flex-1 border-y"
             >
                 <interactive-map
-                    [src]="url | async"
-                    [zoom]="(positions | async)?.zoom"
-                    [center]="(positions | async)?.center"
+                    [src]="url()"
+                    [zoom]="positions()?.zoom"
+                    [center]="positions()?.center"
                     (zoomChange)="updateZoom($event)"
                     (centerChange)="updateCenter($event)"
-                    [styles]="styles | async"
-                    [features]="features | async"
-                    [actions]="actions | async"
-                    [labels]="labels | async"
+                    [styles]="styles()"
+                    [features]="features()"
+                    [actions]="actions()"
+                    [labels]="labels()"
                 ></interactive-map>
             </main>
             <footer
                 class="bg-base-100 flex w-full flex-col items-center p-2 leading-tight"
             >
-                @let status = counts | async;
-                <div class="text-3xl">Free Spaces: {{ status?.free }}</div>
+                <div class="text-3xl">Free Spaces: {{ counts().free }}</div>
                 <div class="mb-2 opacity-30">
-                    Total Capacity: {{ status?.total }} spaces
+                    Total Capacity: {{ counts().total }} spaces
                 </div>
                 <div class="bg-base-300 h-4 w-[50vw] rounded-full">
                     <div
                         class="bg-success h-full rounded-full"
-                        [style.width]="status?.percent + '%'"
+                        [style.width]="counts().percent + '%'"
                     ></div>
                 </div>
             </footer>
@@ -68,7 +65,7 @@ import { combineLatest, map } from 'rxjs';
     `,
     styles: [``],
     providers: [ExploreStateService, ExploreParkingService],
-    imports: [CommonModule, InteractiveMapComponent, IconComponent],
+    imports: [InteractiveMapComponent, IconComponent],
 })
 export class ParkingComponent extends AsyncHandler implements OnInit {
     private _explore = inject(ExploreStateService);
@@ -80,36 +77,54 @@ export class ParkingComponent extends AsyncHandler implements OnInit {
     private _spaces = inject(SpacesService);
     private _settings = inject(SettingsService);
 
-    /** Observable for the active map */
-    public readonly url = this._explore.map_url;
-    /** Observable for the active map */
-    public readonly styles = this._explore.map_styles;
-    /** Observable for the active map */
-    public readonly positions = this._explore.map_positions;
-    /** Observable for the active map */
-    public readonly features = this._explore.map_features;
-    /** Observable for the active map */
-    public readonly actions = this._explore.map_actions;
-    /** Observable for the labels map */
-    public readonly labels = this._explore.map_labels;
+    /** Signal for the active map */
+    public readonly url = toSignal(this._explore.map_url, { initialValue: '' });
+    /** Signal for the active map */
+    public readonly styles = toSignal(this._explore.map_styles, {
+        initialValue: { text: { display: 'none' } },
+    });
+    /** Signal for the active map */
+    public readonly positions = toSignal(this._explore.map_positions, {
+        initialValue: this._explore.positions,
+    });
+    /** Signal for the active map */
+    public readonly features = toSignal(this._explore.map_features, {
+        initialValue: [],
+    });
+    /** Signal for the active map */
+    public readonly actions = toSignal(this._explore.map_actions, {
+        initialValue: [],
+    });
+    /** Signal for the labels map */
+    public readonly labels = toSignal(this._explore.map_labels, {
+        initialValue: [],
+    });
     /** Observable for the active map */
     public readonly options = this._explore.options;
+    /** Signal for the active parking spaces */
+    public readonly active_spaces = toSignal(this._parking.active_spaces, {
+        initialValue: [],
+    });
+    /** Signal for the available parking spaces */
+    public readonly available_spaces = toSignal(
+        this._parking.available_spaces,
+        {
+            initialValue: [],
+        },
+    );
 
     public reset_delay = 180;
 
-    public readonly counts = combineLatest([
-        this._parking.active_spaces,
-        this._parking.available_spaces,
-    ]).pipe(
-        map(([spaces, available]) => {
-            return {
-                total: spaces.length,
-                free: available.length,
-                busy: spaces.length - available.length,
-                percent: (available.length / spaces.length) * 100,
-            };
-        }),
-    );
+    public readonly counts = computed(() => {
+        const spaces = this.active_spaces();
+        const available = this.available_spaces();
+        return {
+            total: spaces.length,
+            free: available.length,
+            busy: spaces.length - available.length,
+            percent: (available.length / spaces.length) * 100,
+        };
+    });
 
     public async ngOnInit() {
         if (

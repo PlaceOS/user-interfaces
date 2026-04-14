@@ -64,6 +64,8 @@ export class SettingsService extends AsyncHandler {
     private _app_name = 'PlaceOS';
     /** List of override settings in order of priority */
     private _overrides = new BehaviorSubject<HashMap[]>([]);
+    /** Observable that emits when overrides change (e.g. after a building switch) */
+    public readonly overrides$ = this._overrides.asObservable();
     /** User's personal settings */
     private _user_settings = new BehaviorSubject<HashMap>({});
     /** Mapping of behaviour subjects */
@@ -96,6 +98,10 @@ export class SettingsService extends AsyncHandler {
             ? this.signal('theme', 'light', true)()
             : 'light';
     });
+
+    public readonly time_format_signal = computed(() =>
+        this.signal('use_24_hour_time', false)() ? 'HH:mm' : 'h:mm a',
+    );
 
     /** Get observable for key */
     public listen<T = any>(name: string): Observable<T> {

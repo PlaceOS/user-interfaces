@@ -26,7 +26,7 @@ import {
     template: `
         <mat-progress-bar
             class="w-full"
-            [class.opacity-0]="!(loading | async)"
+            [class.opacity-0]="!loading()"
             mode="indeterminate"
         />
         <div class="mb-2 flex items-center justify-end space-x-2">
@@ -50,7 +50,7 @@ import {
             }
         </div>
         <simple-table
-            class="block w-full min-w-4xl text-sm"
+            class="block w-full min-w-6xl text-sm"
             [data]="filtered_event_list()"
             empty_message="No events for selected period"
             [columns]="[
@@ -469,8 +469,13 @@ export class EventListingComponent {
         initialValue: [],
     });
 
-    public readonly loading = this._state.loading;
-    public readonly event_list = this._state.event_list;
+    public readonly loading = toSignal(this._state.loading, {
+        initialValue: '',
+    });
+    public readonly event_list = toSignal(this._state.event_list, {
+        initialValue: [],
+    });
+    public readonly time_format = this._settings.time_format;
 
     /** Toggle to show/hide cancelled events */
     public readonly show_cancelled = signal(false);
@@ -500,11 +505,7 @@ export class EventListingComponent {
     public readonly removeEvent = (event: CalendarEvent) =>
         this._state.removeEvent(event);
 
-    public get time_format() {
-        return this._settings.time_format;
-    }
-
-    isCancelled(item: CalendarEvent): boolean {
+    public isCancelled(item: CalendarEvent): boolean {
         return !!(item as any).extension_data?.fully_cancelled;
     }
 

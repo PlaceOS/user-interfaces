@@ -1,16 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnInit,
+    signal,
+    viewChild,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import {
-    deleteAsset,
-    deleteAssetPurchaseOrder,
-    removeAssetRequests,
-} from '@placeos/assets';
+import { removeAssetRequests } from '@placeos/assets';
 import {
     Asset,
     AssetPurchaseOrder,
@@ -26,16 +30,17 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { removeAsset, removeAssetPurchaseOrder } from '@placeos/ts-client';
 import { addMinutes } from 'date-fns';
-import { combineLatest, lastValueFrom } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
+import { first } from 'rxjs/operators';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
     selector: 'asset-view',
     template: `
-        @if (!loading() && (item | async)) {
+        @if (!loading() && item()) {
             <div class="flex h-full w-full flex-col">
                 <div
                     class="bg-base-100 flex w-full space-x-2 pt-8 pr-8 pb-4 pl-4"
@@ -54,7 +59,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                 'APP.CONCIERGE.ASSETS_MANAGE_HEADER' | translate
                             }}
                         </h2>
-                        <div>{{ (item | async)?.name }}</div>
+                        <div>{{ item()?.name }}</div>
                     </div>
                     <div class="flex-1"></div>
                     <a
@@ -62,7 +67,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         matRipple
                         class="h-12 w-32"
                         [routerLink]="[base_route, 'manage', 'group']"
-                        [queryParams]="{ id: (item | async)?.id }"
+                        [queryParams]="{ id: item()?.id }"
                     >
                         <div class="flex items-center space-x-2">
                             <icon class="text-xl">edit</icon>
@@ -91,18 +96,15 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         class="bg-base-200 h-64 w-[24rem] flex-1 overflow-hidden rounded-xl"
                     >
                         <image-carousel
-                            [images]="(item | async)?.images || []"
+                            [images]="item()?.images || []"
                         ></image-carousel>
                     </div>
                     <div
                         class="border-base-300 flex h-64 w-1/2 flex-1 flex-col space-y-4 rounded-lg border p-4"
                     >
                         <div class="h-1/2 w-full flex-1 overflow-auto">
-                            @if ((item | async)?.description) {
-                                {{
-                                    (item | async)?.description ||
-                                        '~No Description~'
-                                }}
+                            @if (item()?.description) {
+                                {{ item()?.description || '~No Description~' }}
                             } @else {
                                 <span class="opacity-60">{{
                                     'COMMON.DESCRIPTION_EMPTY' | translate
@@ -120,25 +122,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         'APP.CONCIERGE.ASSETS_ITEM_AVAILABLE'
                                             | translate
                                                 : {
-                                                      count:
-                                                          (asset_list | async)
-                                                              .length -
-                                                              (requests | async)
-                                                                  ?.length || 0,
+                                                      count: available_count(),
                                                   }
                                     }}
                                 </div>
-                                <!-- <button
-                  btn
-                  matRipple
-                                [disabled]="
-                                    (asset_list | async).length -
-                                        (requests | async)?.length ===
-                                    0
-                                "
-                  >
-                  Assign to Location
-                </button> -->
+                                <!-- <button btn matRipple [disabled]="available_count() === 0">
+                                    Assign to Location
+                                </button> -->
                             </div>
                             <div
                                 class="flex h-16 items-center justify-between p-2"
@@ -148,9 +138,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         'APP.CONCIERGE.ASSETS_ITEM_IN_USE'
                                             | translate
                                                 : {
-                                                      count:
-                                                          (requests | async)
-                                                              ?.length || 0,
+                                                      count: requests().length,
                                                   }
                                     }}
                                 </div>
@@ -158,11 +146,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     btn
                                     matRipple
                                     (click)="viewLocations()"
-                                    [disabled]="
-                                        (asset_list | async).length -
-                                            (requests | async)?.length !==
-                                        0
-                                    "
+                                    [disabled]="available_count() !== 0"
                                 >
                                     {{
                                         'APP.CONCIERGE.ASSETS_ITEM_VIEW_LOCATIONS'
@@ -193,7 +177,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         'asset',
                                     ]"
                                     [queryParams]="{
-                                        group_id: (item | async)?.id,
+                                        group_id: item()?.id,
                                     }"
                                 >
                                     {{
@@ -211,7 +195,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         'asset-bulk',
                                     ]"
                                     [queryParams]="{
-                                        group_id: (item | async)?.id,
+                                        group_id: item()?.id,
                                     }"
                                 >
                                     {{
@@ -222,7 +206,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             </div>
                             <simple-table
                                 class="block min-w-160 text-sm"
-                                [data]="asset_list"
+                                [data]="asset_list()"
                                 [columns]="[
                                     {
                                         key: 'id',
@@ -270,7 +254,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         ]"
                                         [queryParams]="{
                                             id: row.id,
-                                            group_id: (item | async)?.id,
+                                            group_id: item()?.id,
                                         }"
                                         [attr.aria-label]="
                                             ('APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
@@ -335,7 +319,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                         }}
                                     </div>
                                     <div>
-                                        {{ (item | async)?.brand || '~None~' }}
+                                        {{ item()?.brand || '~None~' }}
                                     </div>
                                 </div>
                             </div>
@@ -357,7 +341,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                                     'manage',
                                     'purchase-order',
                                 ]"
-                                [queryParams]="{ group_id: (item | async)?.id }"
+                                [queryParams]="{ group_id: item()?.id }"
                             >
                                 {{
                                     'APP.CONCIERGE.ASSETS_PURCHASE_ADD'
@@ -367,7 +351,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             <simple-table
                                 class="block min-w-160 text-sm"
                                 asset-purchases
-                                [data]="(item | async)?.purchase_orders"
+                                [data]="item()?.purchase_orders || []"
                                 [columns]="[
                                     {
                                         key: 'purchase_order_number',
@@ -537,30 +521,38 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
 
     public readonly loading = signal(false);
     public readonly deleting = signal(false);
-    public readonly item = this._state.active_product;
-    public readonly asset_list = combineLatest([
-        this.item,
-        this._state.extra_assets,
-    ]).pipe(
-        map(([item, assets]) => {
-            if (!item) return [];
-            return unique(
-                [
-                    ...item.assets,
-                    ...assets.filter((_) => _.asset_type_id === item.id),
-                ],
-                'id',
-            );
-        }),
+    public readonly item = toSignal(this._state.active_product, {
+        initialValue: null,
+    });
+    public readonly extra_assets = toSignal(this._state.extra_assets, {
+        initialValue: [],
+    });
+    public readonly asset_list = computed(() => {
+        const item = this.item();
+        if (!item) return [];
+        return unique(
+            [
+                ...item.assets,
+                ...this.extra_assets().filter(
+                    (_) => _.asset_type_id === item.id,
+                ),
+            ],
+            'id',
+        );
+    });
+    public readonly requests_source = toSignal(
+        this._state.active_product_requests,
+        { initialValue: [] },
     );
-    public readonly requests = this._state.active_product_requests.pipe(
-        map((req) =>
-            req.filter(
-                (_) =>
-                    _.date <= Date.now() &&
-                    addMinutes(_.date, _.duration).valueOf() >= Date.now(),
-            ),
+    public readonly requests = computed(() =>
+        this.requests_source().filter(
+            (_) =>
+                _.date <= Date.now() &&
+                addMinutes(_.date, _.duration).valueOf() >= Date.now(),
         ),
+    );
+    public readonly available_count = computed(
+        () => this.asset_list().length - this.requests().length,
     );
 
     public readonly _tooltip_el = viewChild(CustomTooltipComponent);
@@ -622,7 +614,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting asset...');
-        await lastValueFrom(deleteAsset(asset.id));
+        await lastValueFrom(removeAsset(asset.id));
         await removeAssetRequests(asset.id);
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
@@ -647,7 +639,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
         );
         if (resp.reason !== 'done') return;
         resp.loading('Deleting purchase order...');
-        await lastValueFrom(deleteAssetPurchaseOrder(asset.id));
+        await lastValueFrom(removeAssetPurchaseOrder(asset.id));
         const item = await lastValueFrom(
             this._state.active_product.pipe(first()),
         );

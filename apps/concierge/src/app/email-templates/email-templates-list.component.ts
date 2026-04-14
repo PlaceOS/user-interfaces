@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import {
@@ -15,6 +17,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BroadcastEmailModalComponent } from './broadcast-email-modal.component';
 import {
     EmailTemplate,
     EmailTemplatesFilters,
@@ -40,6 +43,12 @@ import {
               <mat-option value="external">{{'COMMON.TYPE_EXTERNAL' | translate}}</mat-option>
             </mat-select>
           </mat-form-field> -->
+            @if (has_mailing_binding) {
+                <button btn matRipple (click)="openBroadcastModal()">
+                    <div class="ml-2">Broadcast Email</div>
+                    <icon class="text-2xl">campaign</icon>
+                </button>
+            }
             <a btn matRipple [routerLink]="['/email-templates', 'manage']">
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
@@ -51,14 +60,14 @@ import {
             <div class="min-h-full w-full overflow-x-auto">
                 <simple-table
                     class="block w-full min-w-4xl text-sm"
-                    [data]="templates"
+                    [data]="templates()"
                     empty_message="No group events for selected period"
                     [columns]="[
                         { key: 'subject', name: 'FORM.TITLE' | translate },
                         {
                             key: 'category',
                             name: 'COMMON.CATEGORY' | translate,
-                            show: !(filters | async)?.category && false,
+                            show: !filters()?.category && false,
                         },
                         {
                             key: 'trigger',
@@ -184,12 +193,23 @@ import {
 export class EmailTemplatesListComponent {
     private _state = inject(EmailTemplatesStateService);
     private _org = inject(OrganisationService);
+    private _dialog = inject(MatDialog);
 
     public sending_email: string;
-    public readonly filters = this._state.filters;
-    public readonly templates = this._state.filtered_templates;
+    public readonly filters = toSignal(this._state.filters, {
+        initialValue: {} as EmailTemplatesFilters,
+    });
+    public readonly templates = toSignal(this._state.filtered_templates, {
+        initialValue: [],
+    });
 
     public readonly removeTemplate = (t) => this._state.removeTemplate(t);
+    public readonly openBroadcastModal = () =>
+        this._dialog.open(BroadcastEmailModalComponent, {});
+
+    public get has_mailing_binding() {
+        return !!this._org.binding('smtp');
+    }
 
     public setFilters(filters: Partial<EmailTemplatesFilters>) {
         this._state.setFilters(filters);

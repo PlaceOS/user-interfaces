@@ -3,11 +3,11 @@ import {
     LOAD_TIMEOUT,
     SURVEY_ID_EMPLOYEE,
     SURVEY_ID_FACILITY,
-    navigateToSurvey,
-    waitForSurveyLoaded,
     clickNext,
     clickPrevious,
     getCurrentPageTitle,
+    navigateToSurvey,
+    waitForSurveyLoaded,
 } from './test-utils';
 
 test.describe('US-3: Navigate Multi-Page Survey', () => {
@@ -134,7 +134,9 @@ test.describe('US-4: View Survey Progress', () => {
         await clickNext(page);
 
         // Second page should have work environment questions
-        const secondPageContent = await page.locator('main[page]').textContent();
+        const secondPageContent = await page
+            .locator('main[page]')
+            .textContent();
         expect(secondPageContent).toContain('cleanliness');
     });
 

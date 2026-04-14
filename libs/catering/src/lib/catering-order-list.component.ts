@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -9,6 +10,7 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { of } from 'rxjs';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
 import { statusList } from './catering.vars';
@@ -18,13 +20,13 @@ import { statusList } from './catering.vars';
     template: `
         <div class="flex h-full w-full flex-col overflow-auto">
             <mat-progress-bar
-                [class.opacity-0]="!(loading | async)"
+                [class.opacity-0]="!loading()"
                 class="sticky top-0 left-0 w-full"
                 mode="indeterminate"
             ></mat-progress-bar>
             <simple-table
                 class="block w-full min-w-6xl text-sm"
-                [data]="order_list"
+                [data]="order_list()"
                 [columns]="[
                     {
                         key: 'state',
@@ -36,8 +38,7 @@ import { statusList } from './catering.vars';
                     {
                         key: 'caterer',
                         name: 'CATERING.CATERER' | translate,
-                        show:
-                            !filters?.caterer && (caterers | async)?.length > 1,
+                        show: !filters?.caterer && caterers().length > 1,
                     },
                     {
                         key: 'deliver_at',
@@ -80,7 +81,7 @@ import { statusList } from './catering.vars';
                     },
                 ]"
                 [sortable]="true"
-                [show_children]="show_children"
+                [show_children]="show_children()"
                 [child_template]="child_template"
                 [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
             >
@@ -157,7 +158,7 @@ import { statusList } from './catering.vars';
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    @for (status of statuses; track status) {
+                    @for (status of statuses(); track status) {
                         <button
                             mat-menu-item
                             class="flex items-center"
@@ -179,7 +180,6 @@ import { statusList } from './catering.vars';
                     <button
                         icon
                         matRipple
-                        aria-label="View details"
                         customTooltip
                         [hover]="true"
                         xPosition="end"
@@ -201,15 +201,10 @@ import { statusList } from './catering.vars';
                             </p>
                         </div>
                     </ng-template>
-                    <button
-                        icon
-                        matRipple
-                        aria-label="Toggle items"
-                        (click)="show_children[row.id] = !show_children[row.id]"
-                    >
+                    <button icon matRipple (click)="toggleExpanded(row.id)">
                         <icon>
                             {{
-                                show_children[row.id]
+                                isExpanded(row.id)
                                     ? 'keyboard_arrow_down'
                                     : 'chevron_right'
                             }}
@@ -260,18 +255,24 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
 
     /** List of filtered orders */
-    public readonly order_list = this._orders.filtered;
+    public readonly order_list = toSignal(this._orders.filtered, {
+        initialValue: [],
+    });
     /** Whether order list is loading */
-    public readonly loading = this._orders.loading;
+    public readonly loading = toSignal(this._orders.loading, {
+        initialValue: false,
+    });
 
     public get filters() {
         return this._orders.filters;
     }
 
-    public caterers = this._orders.caterers;
+    public readonly caterers = toSignal(this._orders.caterers || of([]), {
+        initialValue: [],
+    });
 
-    public statuses = [];
-    public readonly show_children: Record<string, boolean> = {};
+    public readonly statuses = signal(statusList());
+    public readonly show_children = signal<Record<string, boolean>>({});
 
     public readonly updateStatus = async (order, s) => {
         await this._orders.updateStatus(order, s);
@@ -279,11 +280,11 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     };
 
     public get time_format() {
-        return this._settings.time_format;
+        return this._settings.time_format_signal();
     }
 
     public status(value: string) {
-        return this.statuses.find((i) => i.id === value);
+        return this.statuses().find((i) => i.id === value);
     }
 
     constructor() {
@@ -291,7 +292,14 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        this.statuses = statusList();
         this.subscription('polling', this._orders.startPolling());
+    }
+
+    public isExpanded(id: string) {
+        return !!this.show_children()[id];
+    }
+
+    public toggleExpanded(id: string) {
+        this.show_children.update((state) => ({ ...state, [id]: !state[id] }));
     }
 }

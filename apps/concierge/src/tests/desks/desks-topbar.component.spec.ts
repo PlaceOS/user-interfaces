@@ -61,11 +61,11 @@ describe('DesksTopbarComponent', () => {
 
     it('should handle zone_ids query param', async () => {
         jest.spyOn(spectator.component, 'updateZones');
-        expect(spectator.component.updateZones).not.toBeCalled();
+        expect(spectator.component.updateZones).not.toHaveBeenCalled();
         spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');
         spectator.detectChanges();
         await timer(5).toPromise();
-        expect(spectator.component.updateZones).toBeCalledWith([
+        expect(spectator.component.updateZones).toHaveBeenCalledWith([
             'zone-1234',
             'zone-2345',
         ]);
@@ -76,7 +76,9 @@ describe('DesksTopbarComponent', () => {
         spectator.setRouteQueryParam('approve', 'bkn-123');
         spectator.detectChanges();
         await timer(5).toPromise();
-        expect(spectator.inject(DesksStateService).approveDesk).toBeCalled();
+        expect(
+            spectator.inject(DesksStateService).approveDesk,
+        ).toHaveBeenCalled();
     });
 
     it('should handle reject query param', async () => {
@@ -84,6 +86,8 @@ describe('DesksTopbarComponent', () => {
         spectator.setRouteQueryParam('reject', 'bkn-123');
         spectator.detectChanges();
         await timer(5).toPromise();
-        expect(spectator.inject(DesksStateService).rejectDesk).toBeCalled();
+        expect(
+            spectator.inject(DesksStateService).rejectDesk,
+        ).toHaveBeenCalled();
     });
 });

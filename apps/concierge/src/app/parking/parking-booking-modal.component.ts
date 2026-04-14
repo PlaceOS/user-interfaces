@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import {
     ParkingSpaceListFieldComponent,
 } from '@placeos/bookings';
 import {
+    alignDateToBookableHours,
     AsyncHandler,
     Booking,
     BuildingLevel,
@@ -18,6 +19,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    settingSignal,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -38,7 +40,7 @@ import { addDays, endOfDay } from 'date-fns';
     template: `
         <fullscreen-modal-shell
             [heading]="
-                (id
+                (id()
                     ? 'APP.CONCIERGE.PARKING_EDIT'
                     : 'APP.CONCIERGE.PARKING_NEW'
                 ) | translate
@@ -97,7 +99,7 @@ import { addDays, endOfDay } from 'date-fns';
                 <div class="relative">
                     <label for="date">{{ 'FORM.DATE' | translate }}</label>
                     <a-date-field formControlName="date"></a-date-field>
-                    @if (allow_all_day && !form.controls.duration.disabled) {
+                    @if (allow_all_day() && !form.controls.duration.disabled) {
                         <mat-checkbox
                             formControlName="all_day"
                             class="absolute -top-2 right-0"
@@ -122,7 +124,9 @@ import { addDays, endOfDay } from 'date-fns';
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.controls.date.disabled"
-                                [use_24hr]="use_24hr"
+                                [use_24hr]="use_24hr()"
+                                [range]="bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                             ></a-time-field>
                         </div>
                         <div class="relative w-1/3 flex-1">
@@ -134,8 +138,10 @@ import { addDays, endOfDay } from 'date-fns';
                                 name="end-time"
                                 formControlName="duration"
                                 [time]="form?.getRawValue()?.date"
-                                [max]="max_duration"
-                                [use_24hr]="use_24hr"
+                                [max]="max_duration()"
+                                [custom_options]="custom_duration_options()"
+                                [use_24hr]="use_24hr()"
+                                [end_time]="bookable_hours()?.end"
                             >
                             </a-duration-field>
                         </div>
@@ -216,36 +222,55 @@ export class ParkingBookingModalComponent
 
     public form = this._booking_form.form;
 
-    public get id() {
-        return this.form.value.id;
-    }
+    public readonly id = computed(() => this.form.value.id || '');
 
-    public get end_date() {
-        return endOfDay(
+    public readonly end_date = computed(() =>
+        endOfDay(
             addDays(
                 Date.now(),
                 this._settings.get('app.parking.available_period') ||
                     this._settings.get('app.bookings.available_period') ||
                     7,
             ),
-        );
-    }
+        ),
+    );
 
-    public get max_duration() {
-        return (
+    public readonly max_duration = computed(
+        () =>
             this._settings.get('app.parking.max_duration') ||
             this._settings.get('app.bookings.max_duration') ||
-            480
-        );
-    }
+            480,
+    );
 
-    public get allow_all_day() {
-        return this._settings.get('app.parking.allow_all_day') ?? true;
-    }
+    public readonly allow_all_day = settingSignal('parking.allow_all_day');
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
+    public readonly use_24hr = computed(() =>
+        this._settings.get('app.use_24_hour_time'),
+    );
+
+    public readonly bookable_hours = computed(
+        () =>
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours'),
+    );
+
+    public readonly min_duration = computed(
+        () =>
+            this._settings.get('app.parking.min_duration') ||
+            this._settings.get('app.bookings.min_duration') ||
+            30,
+    );
+
+    public readonly custom_duration_options = computed(
+        () =>
+            this._settings.get('app.parking.custom_duration_options') ||
+            this._settings.get('app.bookings.custom_duration_options') ||
+            [],
+    );
+
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
+    );
 
     public ngOnInit() {
         this._booking_form.newForm('parking', this._data.booking);
@@ -314,7 +339,13 @@ export class ParkingBookingModalComponent
             this.timeout(
                 'init_date',
                 () => {
-                    this.form.patchValue({ date: this._data.date });
+                    this.form.patchValue({
+                        date: alignDateToBookableHours(
+                            this._data.date,
+                            this.bookable_hours(),
+                            this.form.getRawValue().date,
+                        ),
+                    });
                 },
                 300,
             );
@@ -324,7 +355,7 @@ export class ParkingBookingModalComponent
     public async postForm() {
         if (
             !this.form.value.all_day &&
-            this.form.value.duration > this.max_duration
+            this.form.value.duration > this.max_duration()
         ) {
             this.form.patchValue({ duration: 30 });
         }

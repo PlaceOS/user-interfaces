@@ -85,11 +85,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         [placeholder]="'COMMON.BUILDING_SELECT' | translate"
                         formControlName="building_id"
                     >
-                        <mat-option
-                            *ngFor="let b of buildings$ | async"
-                            [value]="b.id"
-                            >{{ b.display_name || b.name }}</mat-option
-                        >
+                        @for (b of buildings$ | async; track b) {
+                            <mat-option [value]="b.id">{{
+                                b.display_name || b.name
+                            }}</mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field
@@ -104,11 +104,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         <mat-option [value]="form.value.building_id">
                             {{ 'COMMON.LEVEL_ALL' | translate }}
                         </mat-option>
-                        <mat-option
-                            *ngFor="let b of levels$ | async"
-                            [value]="b.id"
-                            >{{ b.display_name || b.name }}</mat-option
-                        >
+                        @for (b of levels$ | async; track b) {
+                            <mat-option [value]="b.id">{{
+                                b.display_name || b.name
+                            }}</mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field
@@ -120,12 +120,11 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         [placeholder]="'COMMON.NONE' | translate"
                         formControlName="trigger"
                     >
-                        <mat-option
-                            *ngFor="let op of trigger_types"
-                            [value]="op.id"
-                        >
-                            {{ op.name }}
-                        </mat-option>
+                        @for (op of trigger_types; track op) {
+                            <mat-option [value]="op.id">
+                                {{ op.name }}
+                            </mat-option>
+                        }
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -359,7 +358,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 >
                                 <input
                                     matInput
-                                    [(ngModel)]="search_text"
+                                    [ngModel]="search_text()"
                                     (ngModelChange)="onSearchChange($event)"
                                     placeholder="Search..."
                                 />
@@ -374,7 +373,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                         'APP.CONCIERGE.SURVEY_QUESTION_TYPES_ALL'
                                             | translate
                                     "
-                                    [ngModel]="selected_type"
+                                    [ngModel]="selected_type()"
                                     (ngModelChange)="onTypeChange($event)"
                                 >
                                     <mat-option value="">
@@ -383,12 +382,14 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                                 | translate
                                         }}
                                     </mat-option>
-                                    <mat-option
-                                        *ngFor="let item of question_options"
-                                        [value]="item.id"
-                                    >
-                                        {{ item.name }}
-                                    </mat-option>
+                                    @for (
+                                        item of question_options;
+                                        track item
+                                    ) {
+                                        <mat-option [value]="item.id">
+                                            {{ item.name }}
+                                        </mat-option>
+                                    }
                                 </mat-select>
                             </mat-form-field>
                         </div>

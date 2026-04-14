@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { CustomTooltipComponent, TranslatePipe } from '@placeos/components';
 import { GroupEventCardComponent } from '@placeos/events';
 import {
@@ -27,7 +26,7 @@ import { EventStateService } from './event-state.service';
             <div
                 class="border-base-200 m-2 grid h-224 min-h-full w-7xl min-w-full grid-cols-7 border-b"
             >
-                @for (weekday of weekdays; track $index) {
+                @for (weekday of weekdays(); track $index) {
                     <div
                         weekday
                         class="relative flex h-12 items-center justify-center p-2 text-sm opacity-60"
@@ -35,7 +34,7 @@ import { EventStateService } from './event-state.service';
                         {{ weekday | date: 'EEEE' }}
                     </div>
                 }
-                @for (day of month_days; track day.id) {
+                @for (day of month_days(); track day.id) {
                     <div
                         monthday
                         class="border-base-200 relative flex flex-col space-y-1 border"
@@ -49,9 +48,8 @@ import { EventStateService } from './event-state.service';
                             {{ day.id | date: 'd' }}
                         </div>
                         @for (
-                            event of (event_day_map | async)[
-                                dateString(day.id)
-                            ] || [] | slice: 0 : 3;
+                            event of event_day_map()[dateString(day.id)] || []
+                                | slice: 0 : 3;
                             track $any(event).id
                         ) {
                             <button
@@ -87,8 +85,8 @@ import { EventStateService } from './event-state.service';
                             </button>
                         }
                         @if (
-                            ((event_day_map | async)[dateString(day.id)] || [])
-                                .length > 3
+                            (event_day_map()[dateString(day.id)] || []).length >
+                            3
                         ) {
                             <button
                                 matRipple
@@ -102,8 +100,7 @@ import { EventStateService } from './event-state.service';
                                             : {
                                                   count:
                                                       (
-                                                          (event_day_map
-                                                              | async)[
+                                                          event_day_map()[
                                                               dateString(day.id)
                                                           ] || []
                                                       ).length - 3,
@@ -113,9 +110,8 @@ import { EventStateService } from './event-state.service';
                         }
                         <mat-menu #menu="matMenu">
                             @for (
-                                event of (event_day_map | async)[
-                                    dateString(day.id)
-                                ] || [] | slice: 3;
+                                event of event_day_map()[dateString(day.id)] ||
+                                    [] | slice: 3;
                                 track $any(event).id
                             ) {
                                 <button
@@ -160,36 +156,62 @@ import { EventStateService } from './event-state.service';
         MatTooltipModule,
     ],
 })
-export class EventMonthViewComponent extends AsyncHandler implements OnInit {
+export class EventMonthViewComponent {
     private _state = inject(EventStateService);
     private _settings = inject(SettingsService);
-    private _dialog = inject(MatDialog);
-    private _router = inject(Router);
 
-    public month = startOfDay(Date.now()).valueOf();
-    public weekdays = [];
+    private readonly _options = toSignal(this._state.options, {
+        initialValue: {
+            period: 'month',
+            date: startOfDay(Date.now()).valueOf(),
+        },
+    });
 
-    public month_days = [];
-    public readonly event_list = this._state.event_list;
-    public readonly event_day_map = this.event_list.pipe(
-        map((list) => {
-            const map = {};
-            for (const event of list) {
-                const date = format(event.date, 'yyyy-MM-dd');
-                if (!map[date]) map[date] = [];
-                const start = new Date(event.date);
-                map[date].push({
-                    ...event,
-                    offset:
-                        (start.getHours() * 60 + start.getMinutes()) /
-                        (24 * 60),
-                    length: event.duration / (24 * 60),
-                });
-            }
-            return map;
-        }),
-        startWith({}),
-        shareReplay(1),
+    public readonly month = computed(() =>
+        startOfDay(this._options().date || Date.now()).valueOf(),
+    );
+    public readonly offset_weekday = this._settings.get('app.week_start') || 0;
+    public readonly weekdays = computed(() => {
+        const start = startOfWeek(Date.now(), {
+            weekStartsOn: this.offset_weekday as any,
+        });
+        return Array.from(Array(7).keys()).map((i) => addDays(start, i));
+    });
+    public readonly month_days = computed(() => {
+        const start = startOfWeek(startOfMonth(this.month()), {
+            weekStartsOn: this.offset_weekday as any,
+        });
+        return Array.from(Array(7 * 6).keys()).map((i) => {
+            const date = addDays(start, i).valueOf();
+            return {
+                id: date,
+                is_today: isSameDay(date, Date.now()),
+                is_month: isSameMonth(date, this.month()),
+            };
+        });
+    });
+    public readonly event_day_map = toSignal(
+        this._state.event_list.pipe(
+            map((list) => {
+                const map = {};
+                for (const event of list) {
+                    const date = format(event.date, 'yyyy-MM-dd');
+                    if (!map[date]) map[date] = [];
+                    const start = new Date(event.date);
+                    map[date].push({
+                        ...event,
+                        offset:
+                            (start.getHours() * 60 + start.getMinutes()) /
+                            (24 * 60),
+                        length: event.duration / (24 * 60),
+                    });
+                }
+                return map;
+            }),
+            startWith({}),
+            shareReplay(1),
+        ),
+        { initialValue: {} },
     );
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
@@ -197,45 +219,5 @@ export class EventMonthViewComponent extends AsyncHandler implements OnInit {
     public dateString(date: number) {
         if (!date) return '';
         return format(date, 'yyyy-MM-dd');
-    }
-
-    public get offset_weekday() {
-        return this._settings.get('app.week_start') || 0;
-    }
-
-    public ngOnInit() {
-        this.subscription(
-            'date',
-            this._state.options.subscribe(({ date }) => {
-                this.month = date;
-                this._setMonthDays();
-                this._setWeekdays();
-            }),
-        );
-        this._setMonthDays();
-        this._setWeekdays();
-    }
-
-    private _setMonthDays() {
-        const start = startOfWeek(startOfMonth(this.month), {
-            weekStartsOn: this.offset_weekday as any,
-        });
-        this.month_days = Array.from(Array(7 * 6).keys()).map((i) => {
-            const date = addDays(start, i).valueOf();
-            return {
-                id: date,
-                is_today: isSameDay(date, Date.now()),
-                is_month: isSameMonth(date, this.month),
-            };
-        });
-    }
-
-    private _setWeekdays() {
-        const start = startOfWeek(Date.now(), {
-            weekStartsOn: this.offset_weekday as any,
-        });
-        this.weekdays = Array.from(Array(7).keys()).map((i) =>
-            addDays(start, i),
-        );
     }
 }

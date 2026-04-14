@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { marked } from 'marked';
@@ -14,10 +14,10 @@ export interface ChangelogModalData {
     selector: 'changelog-modal',
     template: `
         <fullscreen-modal-shell [heading]="'Changelog'" [hide_confirm]="true">
-            @if (changelog) {
+            @if (changelog()) {
                 <div
                     class="markdown"
-                    [innerHTML]="changelog | safe: 'html'"
+                    [innerHTML]="changelog() | safe: 'html'"
                 ></div>
             } @else {
                 <div
@@ -36,10 +36,10 @@ export class ChangelogModalComponent {
     private _data = inject<ChangelogModalData>(MAT_DIALOG_DATA);
 
     /** Whether the changelog is loading */
-    public loading: boolean;
+    public loading = signal(false);
 
     /** HTML string for rendering the change log */
-    public get changelog(): string {
-        return marked(this._data.changelog || '', { async: false }) as any;
-    }
+    public readonly changelog = computed<string>(
+        () => marked(this._data.changelog || '', { async: false }) as any,
+    );
 }

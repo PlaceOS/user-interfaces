@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -21,14 +21,14 @@ import { EmergencyContactsService } from './emergency-contacts.service';
             <h2 class="px-2 text-xl font-medium">
                 {{ 'APP.CONCIERGE.CONTACTS_ROLES_MANAGE' | translate }}
             </h2>
-            @if (!loading) {
-                <button icon matRipple mat-dialog-close aria-label="Close dialog">
+            @if (!loading()) {
+                <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
                 </button>
             }
         </header>
         <main class="h-128 max-h-[65vh] min-w-md overflow-y-auto">
-            @for (role of roles | async; track role + $index) {
+            @for (role of roles(); track role + $index) {
                 <div
                     class="hover:bg-base-200:bg-base-300 border-base-200 m-2 flex items-center space-x-2 rounded-sm border p-2"
                 >
@@ -37,7 +37,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                         icon
                         matRipple
                         class="border-secondary text-secondary h-12 w-12 rounded-sm border"
-                        (click)="active = role; role_name = role"
+                        (click)="active.set(role); role_name.set(role)"
                         customTooltip
                         [content]="role_form"
                     >
@@ -60,7 +60,7 @@ import { EmergencyContactsService } from './emergency-contacts.service';
                 matRipple
                 class="m-2 flex w-[calc(100%-1rem)] items-center justify-center space-x-2"
                 customTooltip
-                (click)="active = ''; role_name = ''"
+                (click)="active.set(''); role_name.set('')"
                 [content]="role_form"
             >
                 <div class="truncate pl-2">
@@ -72,7 +72,6 @@ import { EmergencyContactsService } from './emergency-contacts.service';
         <ng-template #role_form>
             <div class="bg-base-100 rounded-sm p-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Search</mat-label>
                     <input
                         matInput
                         [(ngModel)]="role_name"
@@ -89,7 +88,6 @@ import { EmergencyContactsService } from './emergency-contacts.service';
     `,
     styles: [``],
     imports: [
-        CommonModule,
         FormsModule,
         MatDialogModule,
         MatRippleModule,
@@ -105,40 +103,40 @@ export class RoleManagementModalComponent {
         inject<MatDialogRef<RoleManagementModalComponent>>(MatDialogRef);
     private _contacts_service = inject(EmergencyContactsService);
 
-    public active: string;
-    public role_name: string;
-    public loading = false;
-    public readonly roles = this._contacts_service.roles$;
+    public readonly active = signal('');
+    public readonly role_name = signal('');
+    public readonly loading = signal(false);
+    public readonly roles = toSignal(this._contacts_service.roles$, {
+        initialValue: [],
+    });
 
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public async removeRole(role: string): Promise<void> {
         if (!role) return;
-        this.loading = true;
+        this.loading.set(true);
         this._dialog_ref.disableClose = true;
         await this._contacts_service.removeRole(role);
-        this.loading = false;
+        this.loading.set(false);
         this._dialog_ref.disableClose = false;
     }
 
     public async updateRoles(): Promise<void> {
-        if (!this.role_name) return;
-        this.loading = true;
+        const role_name = this.role_name().trim();
+        if (!role_name) return;
+        this.loading.set(true);
         this._tooltip().close();
         this._dialog_ref.disableClose = true;
-        if (this.active) {
+        if (this.active()) {
             // Renaming an existing role
-            await this._contacts_service.renameRole(
-                this.active,
-                this.role_name,
-            );
+            await this._contacts_service.renameRole(this.active(), role_name);
         } else {
             // Adding a new role
-            await this._contacts_service.addRole(this.role_name);
+            await this._contacts_service.addRole(role_name);
         }
-        this.role_name = '';
-        this.active = '';
-        this.loading = false;
+        this.role_name.set('');
+        this.active.set('');
+        this.loading.set(false);
         this._dialog_ref.disableClose = false;
     }
 }

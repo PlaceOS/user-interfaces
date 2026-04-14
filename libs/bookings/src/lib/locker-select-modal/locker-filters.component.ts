@@ -1,9 +1,16 @@
-import { Component, OnInit, inject, input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    computed,
+    inject,
+    input,
+    signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AsyncHandler, SettingsService } from '@placeos/common';
 import { addDays, endOfDay } from 'date-fns';
 
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -38,7 +45,7 @@ import { BookingFormService } from '../booking-form.service';
             class="border-base-200 flex items-center rounded-t-md border-b pb-2 sm:hidden"
         >
             <div class="flex-1 pl-2">
-                @if (can_close) {
+                @if (can_close()) {
                     <button
                         icon
                         matRipple
@@ -65,14 +72,14 @@ import { BookingFormService } from '../booking-form.service';
                 </h2>
                 @if (
                     !hide_levels() &&
-                    (!(use_region && (regions | async)?.length) ||
-                        !(!use_region && (buildings | async)?.length > 1))
+                    (!(use_region && regions()?.length) ||
+                        !(!use_region && buildings()?.length > 1))
                 ) {
                     <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
                             {{ 'BOOKINGS.LOCATION' | translate }}
                         </label>
-                        @if (use_region && (regions | async)?.length) {
+                        @if (use_region && regions()?.length) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
@@ -84,7 +91,7 @@ import { BookingFormService } from '../booking-form.service';
                                         'COMMON.REGION_ANY' | translate
                                     "
                                 >
-                                    @for (reg of regions | async; track reg) {
+                                    @for (reg of regions(); track reg) {
                                         <mat-option [value]="reg">
                                             {{ reg.display_name || reg.name }}
                                         </mat-option>
@@ -92,7 +99,7 @@ import { BookingFormService } from '../booking-form.service';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (!use_region && (buildings | async)?.length > 1) {
+                        @if (!use_region && buildings()?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
@@ -104,7 +111,7 @@ import { BookingFormService } from '../booking-form.service';
                                         building?.display_name || building?.name
                                     "
                                 >
-                                    @for (bld of buildings | async; track bld) {
+                                    @for (bld of buildings(); track bld) {
                                         <mat-option [value]="bld">
                                             {{ bld.display_name || bld.name }}
                                         </mat-option>
@@ -117,7 +124,7 @@ import { BookingFormService } from '../booking-form.service';
                                 <mat-label>{{ 'BOOKINGS.LOCATION' | translate }}</mat-label>
                                 <mat-select
                                     name="location"
-                                    [ngModel]="(options | async)?.zone_id"
+                                    [ngModel]="options()?.zone_id"
                                     (ngModelChange)="
                                         setOptions({ zone_id: $event })
                                     "
@@ -126,10 +133,10 @@ import { BookingFormService } from '../booking-form.service';
                                         'COMMON.LEVEL_ANY' | translate
                                     "
                                 >
-                                    @for (lvl of levels | async; track lvl) {
+                                    @for (lvl of levels(); track lvl) {
                                         <mat-option [value]="lvl.id">
                                             <div class="flex flex-col-reverse">
-                                                @if (use_region) {
+                                                @if (use_region()) {
                                                     <div
                                                         class="text-xs opacity-30"
                                                     >
@@ -171,7 +178,7 @@ import { BookingFormService } from '../booking-form.service';
                     </a-date-field>
                 </div>
                 <!-- All Day -->
-                @if (allow_all_day) {
+                @if (allow_all_day()) {
                     <div class="-mt-2 mb-2 flex justify-end">
                         <mat-checkbox formControlName="all_day" [aria-label]="'COMMON.ALL_DAY' | translate">
                             {{ 'COMMON.ALL_DAY' | translate }}
@@ -190,11 +197,12 @@ import { BookingFormService } from '../booking-form.service';
                                     form.patchValue({ date: $event })
                                 "
                                 [ngModelOptions]="{ standalone: true }"
-                                [use_24hr]="use_24hr"
-                                [disabled]="disable_start"
+                                [use_24hr]="use_24hr()"
+                                [disabled]="disable_start()"
+                                [range]="bookable_hours()"
                             ></a-time-field>
                         </div>
-                        @if (!hide_end) {
+                        @if (!hide_end()) {
                             <div class="w-1/3 flex-1">
                                 <label>{{ 'FORM.TIME_END' | translate }}</label>
                                 <a-duration-field
@@ -207,7 +215,8 @@ import { BookingFormService } from '../booking-form.service';
                                     [max]="10 * 60"
                                     [min]="60"
                                     [step]="60"
-                                    [use_24hr]="use_24hr"
+                                    [use_24hr]="use_24hr()"
+                                    [end_time]="bookable_hours()?.end"
                                 >
                                 </a-duration-field>
                             </div>
@@ -219,13 +228,13 @@ import { BookingFormService } from '../booking-form.service';
                 <section favs class="space-y-4 pb-4">
                     <!-- <settings-toggle
               [name]="'APP.WORKPLACE.FAVOURITES_SHOW' | translate"
-              [ngModel]="(options | async)?.show_fav"
+              [ngModel]="options()?.show_fav"
               (ngModelChange)="setOptions({ show_fav: $event })"
               [ngModelOptions]="{ standalone: true }"
             ></settings-toggle> -->
                     <settings-toggle
                         [name]="'BOOKINGS.LOCKER_ACCESSIBLE_SHOW' | translate"
-                        [ngModel]="(options | async)?.show_accessible"
+                        [ngModel]="options()?.show_accessible"
                         (ngModelChange)="
                             setOptions({ show_accessible: $event })
                         "
@@ -233,20 +242,18 @@ import { BookingFormService } from '../booking-form.service';
                     ></settings-toggle>
                 </section>
             }
-            @if ((features | async)?.length && !hide_levels()) {
+            @if (features()?.length && !hide_levels()) {
                 <section class="space-y-2" features>
                     <h2 class="mt-2 text-lg font-medium">
                         {{ 'COMMON.TYPE' | translate }}
                     </h2>
-                    @for (feat of features | async; track feat) {
+                    @for (feat of features(); track feat) {
                         <div class="flex flex-wrap items-center space-x-2">
                             <settings-toggle
                                 class="w-full capitalize"
                                 [name]="feat"
                                 [ngModel]="
-                                    (
-                                        (options | async)?.features || []
-                                    ).includes(feat)
+                                    (options()?.features || []).includes(feat)
                                 "
                                 (ngModelChange)="setFeature(feat, $event)"
                                 [ngModelOptions]="{ standalone: true }"
@@ -256,7 +263,7 @@ import { BookingFormService } from '../booking-form.service';
                 </section>
             }
         </form>
-        @if (can_close) {
+        @if (can_close()) {
             <div class="border-base-200 w-full border-t px-2 py-2">
                 <button
                     btn
@@ -271,7 +278,6 @@ import { BookingFormService } from '../booking-form.service';
         }
     `,
     imports: [
-        CommonModule,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
@@ -298,27 +304,40 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
 
     public readonly hide_levels = input<boolean>(undefined);
 
-    public can_close = false;
-    public readonly options = this._state.options;
-    public readonly features = this._state.features;
-    public readonly buildings = this._org.active_buildings;
+    public readonly can_close = signal(!!this._bsheet_ref);
+    public readonly options = toSignal(this._state.options, {
+        initialValue: {} as any,
+    });
+    public readonly features = toSignal(this._state.features, {
+        initialValue: [],
+    });
+    public readonly buildings = toSignal(this._org.active_buildings, {
+        initialValue: [],
+    });
     public readonly form = this._state.form;
-    public readonly regions = this._org.region_list;
+    public readonly regions = toSignal(this._org.region_list, {
+        initialValue: [],
+    });
 
-    public readonly levels = combineLatest([
-        this._org.active_region,
-        this._org.active_building,
-    ]).pipe(
-        map(([region, bld]) => {
-            const level_list = this.use_region
-                ? this._org.levelsForRegion(region)
-                : this._org.levelsForBuilding(bld);
-            return level_list.sort(
-                (a, b) =>
-                    a.parent_id.localeCompare(b.parent_id) ||
-                    (a.display_name || '').localeCompare(b.display_name || ''),
-            );
-        }),
+    public readonly levels = toSignal(
+        combineLatest([
+            this._org.active_region,
+            this._org.active_building,
+        ]).pipe(
+            map(([region, bld]) => {
+                const level_list = this._use_region()
+                    ? this._org.levelsForRegion(region)
+                    : this._org.levelsForBuilding(bld);
+                return level_list.sort(
+                    (a, b) =>
+                        a.parent_id.localeCompare(b.parent_id) ||
+                        (a.display_name || '').localeCompare(
+                            b.display_name || '',
+                        ),
+                );
+            }),
+        ),
+        { initialValue: [] },
     );
 
     public get building() {
@@ -339,50 +358,67 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
     public readonly setLevel = (l) => {};
+    private readonly _locker_bookable_hours = this._settings.signal(
+        'lockers.bookable_hours',
+        null,
+    );
+    private readonly _booking_bookable_hours = this._settings.signal(
+        'bookings.bookable_hours',
+        null,
+    );
+    private readonly _bookable_hours = computed(
+        () => this._locker_bookable_hours() || this._booking_bookable_hours(),
+    );
+    private readonly _disable_date = this._settings.signal(
+        'lockers.disabled_date_select',
+        false,
+    );
+    private readonly _disable_start = this._settings.signal(
+        'lockers.disabled_start_time',
+        false,
+    );
+    private readonly _hide_end = this._settings.signal(
+        'lockers.hide_end_time',
+        false,
+    );
+    private readonly _allow_time_changes = this._settings.signal(
+        'lockers.allow_time_changes',
+        false,
+    );
+    private readonly _allow_all_day = this._settings.signal(
+        'lockers.allow_all_day',
+        false,
+    );
+    private readonly _available_period = this._settings.signal(
+        'lockers.available_period',
+        90,
+    );
+    private readonly _use_24hr = this._settings.signal(
+        'use_24_hour_time',
+        false,
+    );
+    private readonly _use_region = this._settings.signal('use_region', false);
 
-    public get disable_date() {
-        return this._settings.get('app.lockers.disabled_date_select');
-    }
-
-    public get disable_start() {
-        return this._settings.get('app.lockers.disabled_start_time');
-    }
-
-    public get hide_end() {
-        return this._settings.get('app.lockers.hide_end_time');
-    }
-
-    public get allow_time_changes() {
-        return !!this._settings.get('app.lockers.allow_time_changes');
-    }
-
-    public get allow_all_day() {
-        return (
-            this.allow_time_changes &&
-            !!this._settings.get('app.lockers.allow_all_day')
-        );
-    }
+    public readonly bookable_hours = this._bookable_hours;
+    public readonly disable_date = this._disable_date;
+    public readonly disable_start = this._disable_start;
+    public readonly hide_end = this._hide_end;
+    public readonly allow_time_changes = this._allow_time_changes;
+    public readonly allow_all_day = computed(
+        () => this.allow_time_changes() && this._allow_all_day(),
+    );
 
     public get end_date() {
         return endOfDay(
-            addDays(
-                Date.now(),
-                this._settings.get('app.lockers.available_period') || 90,
-            ),
+            addDays(Date.now(), this._available_period()),
         ).valueOf();
     }
 
-    public get use_24hr() {
-        return this._settings.get('app.use_24_hour_time');
-    }
-
-    public get use_region() {
-        return this._settings.get('app.use_region');
-    }
+    public readonly use_24hr = this._use_24hr;
+    public readonly use_region = this._use_region;
 
     constructor() {
         super();
-        this.can_close = !!this._bsheet_ref;
     }
 
     public ngOnInit() {

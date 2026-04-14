@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { showMetadata } from '@placeos/ts-client';
 import { lastValueFrom } from 'rxjs';
 
@@ -38,9 +39,9 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'guest-listings',
     template: `
         <simple-table
-            class="z-0 block text-sm text-base-content"
+            class="z-0 block text-sm"
             [style.min-width]="68 + extra_width + 'rem'"
-            [data]="guests"
+            [data]="guests()"
             [columns]="[
                 {
                     key: 'state',
@@ -97,6 +98,13 @@ import { VisitorsStateService } from './visitors-state.service';
                     size: '6rem',
                 },
                 {
+                    key: 'international',
+                    name: 'International',
+                    content: international_template,
+                    show: allow_international,
+                    size: '7rem',
+                },
+                {
                     key: 'parking_space',
                     name: 'RESOURCE.PARKING' | translate,
                     content: parking_template,
@@ -139,7 +147,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_out_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -168,7 +176,7 @@ import { VisitorsStateService } from './visitors-state.service';
                                 : {
                                       time:
                                           (row.checked_in_at * 1000
-                                          | date: time_format : tz),
+                                          | date: time_format : tz()),
                                   }
                     "
                     matTooltipPosition="right"
@@ -179,19 +187,66 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
-                <div>{{ row.asset_name || row.asset_id }}</div>
+                <button
+                    class="cursor-pointer border-none bg-transparent p-0 text-left underline decoration-dotted underline-offset-2"
+                    customTooltip
+                    [content]="visitor_details_tooltip"
+                    [xPosition]="'start'"
+                    [yPosition]="'bottom'"
+                >
+                    {{ row.asset_name || row.asset_id }}
+                </button>
                 @if (row.asset_name && row.asset_id) {
-                    <div class="text-xs opacity-60">
+                    <div class="text-xs opacity-30">
                         {{ row.asset_id }}
                     </div>
                 }
             </div>
+            <ng-template #visitor_details_tooltip>
+                <div
+                    class="bg-base-100 border-base-300 my-2 w-72 gap-2 rounded-lg border p-2 shadow-lg"
+                >
+                    <div class="text-base-content text-lg font-medium">
+                        {{ row.asset_name || row.asset_id }}
+                    </div>
+                    <div
+                        class="border-base-200 flex flex-col rounded-lg border px-2 py-1"
+                    >
+                        <div class="text-sm font-medium">
+                            {{ 'FORM.PHONE' | translate }}
+                        </div>
+                        <div class="text-base-content/80 pb-2 text-xs">
+                            {{
+                                row.extension_data?.phone ||
+                                    row.attendees?.[0]?.phone ||
+                                    '-'
+                            }}
+                        </div>
+                        <div class="text-sm font-medium">
+                            {{ 'BOOKINGS.VISITOR_COMPANY' | translate }}
+                        </div>
+                        <div class="text-base-content/80 pb-2 text-xs">
+                            {{
+                                row.extension_data?.company ||
+                                    row.attendees?.[0]?.organisation ||
+                                    '-'
+                            }}
+                        </div>
+                        <div class="text-sm font-medium">
+                            {{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                        </div>
+                        <div class="text-base-content/80 text-xs">
+                            {{ row.title || row.description || '-' }}
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
         </ng-template>
         <ng-template #host_template let-row="row">
             <div class="px-4 py-2">
                 <div>{{ row.user_name || row.user_email }}</div>
                 @if (row.user_name && row.user_email) {
-                    <div class="text-xs opacity-60">
+                    <div class="text-xs opacity-30">
                         {{ row.user_email }}
                     </div>
                 }
@@ -224,7 +279,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     />
                     <button
                         matRipple
-                        aria-label="Approve ID"
                         (click)="setExt(row, 'id_confirmed', true)"
                     >
                         {{
@@ -235,7 +289,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     <button
                         matRipple
                         class="inverse mt-2"
-                        aria-label="Reject ID"
                         (click)="setExt(row, 'id_confirmed', false)"
                     >
                         {{
@@ -299,7 +352,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         row?.status !== 'approved' &&
                         row?.status !== 'declined'
                     "
-                    [class.opacity-60]="row?.status === 'ended'"
+                    [class.opacity-30]="row?.status === 'ended'"
                     [matMenuTriggerFor]="menu"
                     [disabled]="
                         row?.status === 'ended' ||
@@ -357,10 +410,10 @@ import { VisitorsStateService } from './visitors-state.service';
         </ng-template>
         <ng-template #time_template let-data="data">
             <div class="px-4">
-                {{ data * 1000 | date: time_format : tz }}
-                @if (timezone) {
-                    <span class="text-xs opacity-60">
-                        {{ data * 1000 | date: 'zzzz' : tz }}
+                {{ data * 1000 | date: time_format : tz() }}
+                @if (timezone()) {
+                    <span class="text-xs opacity-30">
+                        {{ data * 1000 | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
@@ -369,7 +422,18 @@ import { VisitorsStateService } from './visitors-state.service';
             <div class="px-4">
                 {{ row.extension_data.pass_number }}
                 @if (!row.extension_data.pass_number) {
-                    <span class="opacity-60">No Pass</span>
+                    <span class="opacity-30">No Pass</span>
+                }
+            </div>
+        </ng-template>
+        <ng-template #international_template let-row="row">
+            <div class="px-4">
+                @if (row.extension_data?.international) {
+                    {{ 'COMMON.YES' | translate }}
+                } @else {
+                    <span class="opacity-30">{{
+                        'COMMON.NO' | translate
+                    }}</span>
                 }
             </div>
         </ng-template>
@@ -378,21 +442,21 @@ import { VisitorsStateService } from './visitors-state.service';
                 {{
                     row.date
                         | date
-                            : ((filters | async)?.period > 1
+                            : (filters()?.period > 1
                                   ? 'MMM d, ' + time_format
                                   : time_format)
-                            : tz
+                            : tz()
                 }}
-                @if (timezone) {
-                    <span class="text-xs opacity-60">
-                        {{ row.date | date: 'zzzz' : tz }}
+                @if (timezone()) {
+                    <span class="text-xs opacity-30">
+                        {{ row.date | date: 'zzzz' : tz() }}
                     </span>
                 }
             </div>
         </ng-template>
         <ng-template #action_template let-row="row">
             <div class="flex items-center justify-end px-2">
-                <button icon matRipple [matMenuTriggerFor]="guest_menu" aria-label="More options">
+                <button icon matRipple [matMenuTriggerFor]="guest_menu">
                     <icon>more_horiz</icon>
                 </button>
                 <mat-menu #guest_menu="matMenu">
@@ -523,7 +587,6 @@ import { VisitorsStateService } from './visitors-state.service';
                                     appearance="outline"
                                     class="no-subscript"
                                 >
-                                    <mat-label>Pass Number</mat-label>
                                     <input
                                         [(ngModel)]="pass_number"
                                         matInput
@@ -611,7 +674,6 @@ import { VisitorsStateService } from './visitors-state.service';
                     matTooltipPosition="left"
                     icon
                     matRipple
-                    aria-label="Edit visitor notes"
                     (click)="editVisitorNotes(row)"
                 >
                     <icon class="text-2xl">edit_square</icon>
@@ -633,14 +695,13 @@ import { VisitorsStateService } from './visitors-state.service';
                 }
             </div>
         </ng-template>
-        @if ((guests | async)?.length) {
+        @if (guests().length) {
             <button
                 class="bg-secondary absolute right-4 bottom-4 z-20 h-12 w-12 text-white shadow-sm hover:shadow-lg"
                 [matTooltip]="'APP.CONCIERGE.VISITORS_DOWNLOAD' | translate"
                 matTooltipPosition="left"
                 icon
                 matRipple
-                aria-label="Download visitor list"
                 (click)="downloadVisitorList()"
             >
                 <icon>download</icon>
@@ -671,13 +732,33 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
     private _dialog = inject(MatDialog);
 
     public readonly printing = signal('');
-    public readonly guests = this._state.filtered_bookings;
+    public readonly guests = toSignal(this._state.filtered_bookings, {
+        initialValue: [],
+    });
     public readonly search = this._state.search;
-    public readonly filters = this._state.filters;
+    public readonly filters = toSignal<any>(this._state.filters, {
+        initialValue: {} as any,
+    });
     public readonly inductions_enabled = signal(false);
     public readonly qr_code = signal('');
     public readonly pass_number = signal('');
     public readonly user_pass = signal({});
+    public readonly active_building = toSignal(this._org.active_building, {
+        initialValue: this._org.building,
+    });
+    public readonly timezone = computed(() => {
+        this.active_building();
+        const use_tz = this._settings.get('app.bookings.use_building_timezone');
+        const bld_tz = this._org.building.timezone;
+        return use_tz &&
+            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
+            ? bld_tz
+            : '';
+    });
+    public readonly tz = computed(() => {
+        const tz = this.timezone();
+        return tz ? getTimezoneOffsetString(tz) : '';
+    });
 
     public hide_field(id: string) {
         return (this._settings.get('app.visitors.hide_fields') || []).includes(
@@ -690,21 +771,6 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
         return Math.max(0, 3 - hide.length) * 6;
     }
 
-    public get timezone() {
-        const use_tz = this._settings.get('app.bookings.use_building_timezone');
-        const bld_tz = this._org.building.timezone;
-        return use_tz &&
-            bld_tz !== Intl.DateTimeFormat().resolvedOptions().timeZone
-            ? bld_tz
-            : '';
-    }
-
-    public get tz() {
-        const tz = this.timezone;
-        if (!tz) return '';
-        return getTimezoneOffsetString(tz);
-    }
-
     public get allow_printing_label() {
         return (
             this._settings.get('app.visitors.allow_printing_label') !== false
@@ -713,6 +779,10 @@ export class GuestListingComponent extends AsyncHandler implements OnInit {
 
     public get pass_number_enabled() {
         return this._settings.get('app.visitors.allow_pass_number') !== false;
+    }
+
+    public get allow_international() {
+        return !!this._settings.get('app.visitors.allow_international');
     }
 
     public readonly downloadVisitorList = () =>

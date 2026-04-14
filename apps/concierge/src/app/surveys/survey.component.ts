@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterModule } from '@angular/router';
+import { startWith } from 'rxjs/operators';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
 
@@ -31,4 +33,19 @@ import { ApplicationTopbarComponent } from '../ui/app-topbar.component';
         RouterModule,
     ],
 })
-export class SurveyComponent {}
+export class SurveyComponent {
+    private _router = inject(Router);
+
+    private readonly _url = toSignal(
+        this._router.events.pipe(startWith(null)),
+        {
+            initialValue: null,
+        },
+    );
+
+    public readonly path = computed(() => {
+        this._url();
+        const parts = this._router.url.split('/');
+        return parts[parts.length - 1].split('?')[0];
+    });
+}

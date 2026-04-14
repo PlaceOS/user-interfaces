@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { nextValueFrom, OrganisationService, unique } from '@placeos/common';
+import { OrganisationService, unique } from '@placeos/common';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
@@ -37,20 +37,20 @@ import { TranslatePipe } from './translate.pipe';
                                     <mat-checkbox
                                         class="pointer-events-none"
                                         [checked]="
-                                            (rooms | async)?.length ===
-                                            selected.length
+                                            rooms()?.length ===
+                                            selected().length
                                         "
                                         [indeterminate]="
-                                            selected.length > 0 &&
-                                            (rooms | async)?.length !==
-                                                selected.length
+                                            selected().length > 0 &&
+                                            rooms()?.length !==
+                                                selected().length
                                         "
                                         aria-label="Select all rooms"
                                     ></mat-checkbox>
                                 </td>
                                 <td></td>
                                 <td class="px-8 text-right text-xs">
-                                    @let rm_list = rooms | async;
+                                    @let rm_list = rooms();
                                     {{
                                         'APP.CONCIERGE.AVAILABLE_ROOMS_COUNT'
                                             | translate
@@ -63,7 +63,7 @@ import { TranslatePipe } from './translate.pipe';
                             </tr>
                         </thead>
                         <tbody>
-                            @for (space of rooms | async; track space) {
+                            @for (space of rooms(); track space) {
                                 <tr
                                     class="hover:bg-base-200"
                                     (click)="toggleRoom(space.id)"
@@ -72,7 +72,7 @@ import { TranslatePipe } from './translate.pipe';
                                         <mat-checkbox
                                             class="pointer-events-none"
                                             [checked]="
-                                                selected.includes(space.id)
+                                                selected().includes(space.id)
                                             "
                                             [aria-label]="'Select ' + (space.display_name || space.name)"
                                         ></mat-checkbox>
@@ -84,18 +84,18 @@ import { TranslatePipe } from './translate.pipe';
                                         <div
                                             class="ml-auto w-24 rounded-full px-3 py-2 text-sm text-white"
                                             [class.bg-success]="
-                                                !disabled_rooms?.includes(
+                                                !disabled_rooms()?.includes(
                                                     space.id
                                                 )
                                             "
                                             [class.bg-error]="
-                                                disabled_rooms?.includes(
+                                                disabled_rooms()?.includes(
                                                     space.id
                                                 )
                                             "
                                         >
                                             {{
-                                                (!disabled_rooms?.includes(
+                                                (!disabled_rooms()?.includes(
                                                     space.id
                                                 )
                                                     ? 'COMMON.ENABLED'
@@ -149,7 +149,6 @@ import { TranslatePipe } from './translate.pipe';
         `,
     ],
     imports: [
-        CommonModule,
         MatProgressSpinnerModule,
         MatRippleModule,
         MatCheckboxModule,
@@ -164,37 +163,39 @@ export class AvailableRoomsStateModalComponent {
 
     public readonly change = output<string[]>();
     public readonly loading = signal(false);
-    public selected: string[] = [];
-    public readonly rooms = requestSpacesForZone(this._org.building.id);
+    public selected = signal<string[]>([]);
+    public readonly rooms = toSignal(
+        requestSpacesForZone(this._org.building.id),
+    );
     public readonly type: string = this._data.type;
-    public disabled_rooms: string[] = this._data.disabled_rooms;
+    public disabled_rooms = signal<string[]>(this._data.disabled_rooms);
 
     public async toggleRoom(id: string) {
         if (id === '*') {
-            const rooms = await nextValueFrom(this.rooms);
-            if (this.selected.length !== rooms.length)
-                this.selected = rooms.map((_) => _.id);
-            else this.selected = [];
+            const rooms = this.rooms() || [];
+            if (this.selected().length !== rooms.length)
+                this.selected.set(rooms.map((_) => _.id));
+            else this.selected.set([]);
         } else {
-            if (this.selected.includes(id))
-                this.selected = this.selected.filter((_) => _ !== id);
-            else this.selected = [...this.selected, id];
+            if (this.selected().includes(id))
+                this.selected.set(this.selected().filter((_) => _ !== id));
+            else this.selected.set([...this.selected(), id]);
         }
     }
 
     public async enableSelected() {
         this.loading.set(true);
-        const disabled_list = this.disabled_rooms;
-        const list = disabled_list.filter((_) => !this.selected.includes(_));
-        this.disabled_rooms = list;
+        const disabled_list = this.disabled_rooms();
+        const list = disabled_list.filter((_) => !this.selected().includes(_));
+        this.disabled_rooms.set(list);
         this.change.emit(list);
     }
 
     public async disableSelected() {
         this.loading.set(true);
-        const disabled_list = this.disabled_rooms;
-        const list = unique(disabled_list.concat(this.selected));
-        this.disabled_rooms = list;
+        const disabled_list = this.disabled_rooms();
+        const list = unique(disabled_list.concat(this.selected()));
+        this.disabled_rooms.set(list);
         this.change.emit(list);
     }
 }
