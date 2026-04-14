@@ -65,7 +65,7 @@ import { DesksStateService } from './desks-state.service';
                 <div class="flex w-full items-center space-x-2 px-8 py-4">
                     <h2 class="text-2xl font-medium">
                         {{
-                            (manage
+                            (manage()
                                 ? 'APP.CONCIERGE.DESKS_HEADER'
                                 : 'APP.CONCIERGE.DESKS_BOOK_HEADER'
                             ) | translate
