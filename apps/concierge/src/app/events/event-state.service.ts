@@ -118,7 +118,36 @@ export class EventStateService extends AsyncHandler {
     }
 
     public setOptions(options: Partial<GroupEventOptions>) {
-        this._options.next({ ...this._options.value, ...options });
+        const current_options = this._options.value;
+        const next_options = { ...current_options, ...options };
+        if (this._sameOptions(current_options, next_options)) return;
+        this._options.next(next_options);
+    }
+
+    private _sameOptions(
+        current_options: GroupEventOptions,
+        next_options: GroupEventOptions,
+    ) {
+        return (
+            current_options?.period === next_options?.period &&
+            current_options?.date === next_options?.date &&
+            current_options?.end === next_options?.end &&
+            this._sameZoneIds(
+                current_options?.zone_ids,
+                next_options?.zone_ids,
+            )
+        );
+    }
+
+    private _sameZoneIds(
+        zone_ids_a: string[] = [],
+        zone_ids_b: string[] = [],
+    ) {
+        if (zone_ids_a === zone_ids_b) return true;
+        if (zone_ids_a.length !== zone_ids_b.length) return false;
+        return zone_ids_a.every(
+            (zone_id, index) => zone_id === zone_ids_b[index],
+        );
     }
 
     public viewEvent(event: CalendarEvent) {
