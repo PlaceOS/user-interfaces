@@ -196,6 +196,9 @@ export function generateBookingForm(booking: Booking = new Booking()) {
             form.get('date')?.enable({ emitEvent: false });
         }
     });
+    form.controls.date.valueChanges.subscribe(() => {
+        form.controls.duration.updateValueAndValidity({ emitEvent: false });
+    });
     form.controls.user.valueChanges.subscribe((user) => {
         if (!user) return;
         form.patchValue(

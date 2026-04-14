@@ -132,9 +132,7 @@ import { BookingFormService } from './booking-form.service';
                                         <a-time-field
                                             name="start-time"
                                             [ngModel]="form_date()"
-                                            [disabled]="
-                                                is_start_time_disabled()
-                                            "
+                                            [disabled]="is_start_time_disabled"
                                             (ngModelChange)="
                                                 form.patchValue({
                                                     date: $event,
@@ -753,10 +751,11 @@ export class InviteVisitorFormComponent {
             this._visitor_min_duration() || this._booking_min_duration() || 30,
     );
 
-    public readonly form_date = computed(() => this.form?.getRawValue()?.date);
-    public readonly is_start_time_disabled = computed(
-        () => this.form?.get('date')?.disabled || false,
-    );
+    public readonly form_date = signal(this.form.getRawValue()?.date || Date.now());
+
+    public get is_start_time_disabled() {
+        return this.form?.get('date')?.disabled || false;
+    }
 
     public get selected_building_id() {
         const zone_list = this.form?.getRawValue()?.zones || [];
@@ -775,13 +774,13 @@ export class InviteVisitorFormComponent {
     private _dateEffect = effect(() => {
         const date = this.date();
         if (date) {
-            this.form.patchValue({
-                date: alignDateToBookableHours(
-                    date,
-                    this.bookable_hours(),
-                    this.form.getRawValue().date,
-                ),
-            });
+            const aligned_date = alignDateToBookableHours(
+                date,
+                this.bookable_hours(),
+                this.form.getRawValue().date,
+            );
+            this.form.patchValue({ date: aligned_date });
+            this.form_date.set(aligned_date);
         }
     });
 
@@ -789,6 +788,7 @@ export class InviteVisitorFormComponent {
         this.sent.set(false);
         this._service.clearOldState();
         await this.initFormZone();
+        this.form_date.set(this.form.getRawValue().date);
         this.form
             .get('asset_id')
             .setValidators([Validators.required, Validators.email]);
@@ -804,6 +804,10 @@ export class InviteVisitorFormComponent {
             });
         }
         this.filterVisitors('');
+        this.form
+            .get('date')
+            .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((date) => this.form_date.set(date));
         this.form
             .get('asset_id')
             .valueChanges.pipe(takeUntilDestroyed(this._destroyRef))
@@ -980,6 +984,7 @@ export class InviteVisitorFormComponent {
         this._service.setOptions({ type: 'visitor' });
         if (!this.form.value.id) this._service.newForm('visitor');
         this.form.patchValue({ booking_type: 'visitor' });
+        this.form_date.set(this.form.getRawValue().date);
         if (!this.form.value.id && !this.form.value.zones?.length) {
             this.form.patchValue({ zones: [this._org.building?.id] });
         }

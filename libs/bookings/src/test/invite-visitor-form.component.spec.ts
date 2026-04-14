@@ -92,6 +92,28 @@ describe('InviteVisitorFormComponent', () => {
         expect('input[name="reason"]').toExist();
     });
 
+    it('should reflect updated form date for time and duration fields', () => {
+        const service = spectator.inject(BookingFormService);
+        const initial_date = spectator.component.form_date();
+        const new_date = Date.now() + 60 * 60 * 1000;
+
+        expect(initial_date).toBe(service.form.getRawValue().date);
+
+        service.form.patchValue({ date: new_date });
+
+        expect(spectator.component.form_date()).toBe(new_date);
+    });
+
+    it('should reflect updated date disabled state for the start time field', () => {
+        expect(spectator.component.is_start_time_disabled).toBe(false);
+
+        spectator.inject(BookingFormService).form.get('date')?.disable({
+            emitEvent: false,
+        });
+
+        expect(spectator.component.is_start_time_disabled).toBe(true);
+    });
+
     it('should allow sending visitor invite', () => {
         const service = spectator.inject(BookingFormService);
         expect(service.postForm).not.toHaveBeenCalled();
@@ -400,7 +422,7 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(spectator.component.form_date()).toBe(booking_date);
-        expect(spectator.component.is_start_time_disabled()).toBe(true);
+        expect(spectator.component.is_start_time_disabled).toBe(true);
     });
 
     it('should set reason on title only when sending invite', async () => {

@@ -19,5 +19,26 @@ describe('Booking Utilities', () => {
 
             expect(form.value.asset_name).toBe('Visitor One');
         });
+
+        it('should revalidate duration when the start date changes', () => {
+            const past_date = Date.now() - 2 * 60 * 60 * 1000;
+            const future_date = Date.now() + 2 * 60 * 60 * 1000;
+            const form = generateBookingForm(
+                new Booking({
+                    booking_type: 'visitor',
+                    date: past_date,
+                    duration: 60,
+                }),
+            );
+
+            form.controls.duration.updateValueAndValidity({
+                emitEvent: false,
+            });
+            expect(form.controls.duration.errors).toEqual({ duration: true });
+
+            form.patchValue({ date: future_date });
+
+            expect(form.controls.duration.errors).toBeNull();
+        });
     });
 });
