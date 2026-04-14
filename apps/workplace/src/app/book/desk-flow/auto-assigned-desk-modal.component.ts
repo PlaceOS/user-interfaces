@@ -40,169 +40,177 @@ import { isBefore, startOfMinute } from 'date-fns';
     selector: 'auto-assigned-desk-modal',
     standalone: true,
     template: `
-        <div
-            class="relative flex h-screen w-screen flex-col sm:h-auto sm:w-[32rem]"
-        >
-            <!-- Header -->
-            <header
-                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none p-2"
+        @if (show()) {
+            <div
+                class="relative flex h-screen w-screen flex-col sm:h-auto sm:w-[32rem]"
             >
-                <h2 class="px-2 text-xl font-medium">
-                    {{ 'BOOKINGS.DESK_AUTO_ASSIGNED_TITLE' | translate }}
-                </h2>
-                @if (!loading()) {
-                    @if (show_close()) {
-                        <button
-                            icon
-                            matRipple
-                            class="h-10 w-10"
-                            (click)="dismiss()"
-                        >
-                            <icon>close</icon>
-                        </button>
+                <!-- Header -->
+                <header
+                    class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none p-2"
+                >
+                    <h2 class="px-2 text-xl font-medium">
+                        {{ 'BOOKINGS.DESK_AUTO_ASSIGNED_TITLE' | translate }}
+                    </h2>
+                    @if (!loading()) {
+                        @if (show_close()) {
+                            <button
+                                icon
+                                matRipple
+                                class="h-10 w-10"
+                                (click)="dismiss()"
+                            >
+                                <icon>close</icon>
+                            </button>
+                        }
                     }
-                }
-            </header>
+                </header>
 
-            <!-- Content -->
-            <main class="flex-1 overflow-auto p-4">
-                @if (loading()) {
-                    <!-- Loading State -->
-                    <div
-                        class="flex h-full min-h-[20rem] flex-col items-center justify-center"
-                    >
-                        <mat-spinner [diameter]="32"></mat-spinner>
-                        <p class="mt-4 opacity-60">
-                            {{
-                                (loading() == 'booking'
-                                    ? 'BOOKINGS.DESK_REQUESTING'
-                                    : 'BOOKINGS.DESK_LIST_LOADING'
-                                ) | translate
-                            }}
-                        </p>
-                    </div>
-                } @else {
-                    <!-- Success Message -->
-                    <div class="mb-6 flex items-start space-x-3">
+                <!-- Content -->
+                <main class="flex-1 overflow-auto p-4">
+                    @if (loading()) {
+                        <!-- Loading State -->
                         <div
-                            class="bg-success flex h-8 w-8 items-center justify-center rounded-full text-white"
+                            class="flex h-full min-h-[20rem] flex-col items-center justify-center"
                         >
-                            <icon class="text-xl">done</icon>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-medium">
-                                {{ 'BOOKINGS.DESK_FOUND' | translate }}
-                            </h3>
-                            <p class="text-sm opacity-60">
+                            <mat-spinner [diameter]="32"></mat-spinner>
+                            <p class="mt-4 opacity-60">
                                 {{
-                                    'BOOKINGS.DESK_PERFECT_DESK_MESSAGE'
-                                        | translate
+                                    (loading() == 'booking'
+                                        ? 'BOOKINGS.DESK_REQUESTING'
+                                        : 'BOOKINGS.DESK_LIST_LOADING'
+                                    ) | translate
                                 }}
                             </p>
                         </div>
-                    </div>
-
-                    <!-- Desk Details Card -->
-                    <div
-                        class="border-base-200 bg-base-100 mb-4 space-y-3 rounded-lg border p-4"
-                    >
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">chair</icon>
-                            <div class="leading-tight">
-                                <div class="text-xs tracking-wide uppercase">
-                                    {{ 'RESOURCE.DESK' | translate }}
-                                </div>
-                                <div class="text-lg font-medium">
-                                    {{
-                                        assigned_desk()?.name ||
-                                            assigned_desk()?.id
-                                    }}
-                                </div>
+                    } @else {
+                        <!-- Success Message -->
+                        <div class="mb-6 flex items-start space-x-3">
+                            <div
+                                class="bg-success flex h-8 w-8 items-center justify-center rounded-full text-white"
+                            >
+                                <icon class="text-xl">done</icon>
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">layers</icon>
-                            <div class="leading-tight">
-                                <div class="text-xs tracking-wide uppercase">
-                                    {{ 'COMMON.FLOOR' | translate }}
-                                </div>
-                                <div class="text-lg font-medium">
-                                    {{ level_name() }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">place</icon>
-                            <div class="leading-none">
-                                <div class="text-xs tracking-wide uppercase">
+                            <div>
+                                <h3 class="text-xl font-medium">
+                                    {{ 'BOOKINGS.DESK_FOUND' | translate }}
+                                </h3>
+                                <p class="text-sm opacity-60">
                                     {{
-                                        'BOOKINGS.DESK_NEIGHBOURHOOD'
+                                        'BOOKINGS.DESK_PERFECT_DESK_MESSAGE'
                                             | translate
                                     }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Desk Details Card -->
+                        <div
+                            class="border-base-200 bg-base-100 mb-4 space-y-3 rounded-lg border p-4"
+                        >
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">chair</icon>
+                                <div class="leading-tight">
+                                    <div
+                                        class="text-xs tracking-wide uppercase"
+                                    >
+                                        {{ 'RESOURCE.DESK' | translate }}
+                                    </div>
+                                    <div class="text-lg font-medium">
+                                        {{
+                                            assigned_desk()?.name ||
+                                                assigned_desk()?.id
+                                        }}
+                                    </div>
                                 </div>
-                                <div class="text-lg font-medium">
-                                    {{ location() }}
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">layers</icon>
+                                <div class="leading-tight">
+                                    <div
+                                        class="text-xs tracking-wide uppercase"
+                                    >
+                                        {{ 'COMMON.FLOOR' | translate }}
+                                    </div>
+                                    <div class="text-lg font-medium">
+                                        {{ level_name() }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <icon class="text-2xl">place</icon>
+                                <div class="leading-none">
+                                    <div
+                                        class="text-xs tracking-wide uppercase"
+                                    >
+                                        {{
+                                            'BOOKINGS.DESK_NEIGHBOURHOOD'
+                                                | translate
+                                        }}
+                                    </div>
+                                    <div class="text-lg font-medium">
+                                        {{ location() }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Location on Map -->
-                    <div class="mb-2 text-sm font-medium">
-                        {{ 'BOOKINGS.DESK_LOCATION_ON_MAP' | translate }}
-                    </div>
-                    <div
-                        class="border-base-200 bg-base-200 relative h-64 overflow-hidden rounded-lg border"
-                    >
-                        @if (map_url()) {
-                            <interactive-map
-                                [src]="map_url()"
-                                [styles]="styles()"
-                                [features]="features()"
-                                [options]="{ controls: true }"
-                            ></interactive-map>
-                        } @else {
-                            <div
-                                class="text-base-content flex h-full w-full items-center justify-center opacity-30"
-                            >
-                                <div class="text-center">
-                                    <icon class="mb-2 text-4xl">map</icon>
-                                    <p class="text-sm">
-                                        {{
-                                            'BOOKINGS.DESK_NO_MAP_AVAILABLE'
-                                                | translate
-                                        }}
-                                    </p>
+                        <!-- Location on Map -->
+                        <div class="mb-2 text-sm font-medium">
+                            {{ 'BOOKINGS.DESK_LOCATION_ON_MAP' | translate }}
+                        </div>
+                        <div
+                            class="border-base-200 bg-base-200 relative h-64 overflow-hidden rounded-lg border"
+                        >
+                            @if (map_url()) {
+                                <interactive-map
+                                    [src]="map_url()"
+                                    [styles]="styles()"
+                                    [features]="features()"
+                                    [options]="{ controls: true }"
+                                ></interactive-map>
+                            } @else {
+                                <div
+                                    class="text-base-content flex h-full w-full items-center justify-center opacity-30"
+                                >
+                                    <div class="text-center">
+                                        <icon class="mb-2 text-4xl">map</icon>
+                                        <p class="text-sm">
+                                            {{
+                                                'BOOKINGS.DESK_NO_MAP_AVAILABLE'
+                                                    | translate
+                                            }}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                }
-            </main>
+                            }
+                        </div>
+                    }
+                </main>
 
-            <!-- Footer -->
-            <footer
-                class="border-base-200 flex items-center justify-between gap-2 border-t p-4"
-            >
-                <button
-                    btn
-                    matRipple
-                    class="inverse flex-1"
-                    (click)="dismiss()"
+                <!-- Footer -->
+                <footer
+                    class="border-base-200 flex items-center justify-between gap-2 border-t p-4"
                 >
-                    {{ 'COMMON.CANCEL' | translate }}
-                </button>
-                <button
-                    btn
-                    matRipple
-                    class="flex-1"
-                    [disabled]="loading()"
-                    (click)="confirm()"
-                >
-                    {{ 'BOOKINGS.DESK_CONFIRM_BOOKING' | translate }}
-                </button>
-            </footer>
-        </div>
+                    <button
+                        btn
+                        matRipple
+                        class="inverse flex-1"
+                        (click)="dismiss()"
+                    >
+                        {{ 'COMMON.CANCEL' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        class="flex-1"
+                        [disabled]="loading()"
+                        (click)="confirm()"
+                    >
+                        {{ 'BOOKINGS.DESK_CONFIRM_BOOKING' | translate }}
+                    </button>
+                </footer>
+            </div>
+        }
     `,
     styles: [``],
     imports: [
@@ -226,6 +234,7 @@ export class AutoAssignedDeskModalComponent
         optional: true,
     });
 
+    public readonly show = signal(false);
     public readonly show_close = model(false);
     public readonly loading = signal('');
     public readonly assigned_desk = signal<BookingAsset | Desk | null>(null);
@@ -280,6 +289,7 @@ export class AutoAssignedDeskModalComponent
                 this.dismiss();
                 return;
             }
+            this.show.set(true);
 
             let assigned_desk: BookingAsset;
             const nearby_desk_id = this.nearby_desk_id();
