@@ -276,7 +276,7 @@ export class AutoAssignedDeskModalComponent
             );
 
             if (!available_desks?.length) {
-                notifyError(i18n('BOOKINGS.DESK_LIST_EMPTY'));
+                notifyError(i18n('BOOKINGS.DESK_AUTO_ASSIGN_EMPTY'));
                 this.dismiss();
                 return;
             }
@@ -487,7 +487,7 @@ export class AutoAssignedDeskModalComponent
             notifyError(
                 typeof e === 'string'
                     ? e
-                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
+                    : i18n(`BOOKINGS.DESK_AUTO_ASSIGN_EMPTY`),
             );
         }
     };
