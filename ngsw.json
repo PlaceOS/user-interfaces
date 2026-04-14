@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1773199508130,
+  "timestamp": 1776187320231,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,8 +13,8 @@
       "urls": [
         "./favicon.ico",
         "./index.html",
-        "./main-VDEACRO5.js",
-        "./styles-YVZOBELU.css"
+        "./main-5XMU4BAT.js",
+        "./styles-GAHKBO2H.css"
       ],
       "patterns": []
     },
@@ -152,17 +152,17 @@
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/icons/visitor-placeholder.svg": "744f6d0a7c3f96db704b4e4cc301aff7bed145d2",
-    "./assets/locale/ar.json": "876bfd7b30b285fd529bba9d71702a585dabacfd",
-    "./assets/locale/en-AU.json": "e21884b3f7bd0c35e96e6ac3757d8e7397730523",
-    "./assets/locale/en-GB.json": "4ab0fbbb654e8d51051f6feffddca6add26492f0",
-    "./assets/locale/en-US.json": "d9b1025d7e5d1368acf3cfc910530b963f200f44",
-    "./assets/locale/es.json": "1b6ca0e01584bf91395f97ff3aa3a06982c14414",
-    "./assets/locale/fr-CA.json": "9c387aba823206cd5c86a8b1ee41d7d9c4e1d5ae",
-    "./assets/locale/fr.json": "f9fc4c57f82100802f6294c34c39a69e2ef3b602",
-    "./assets/locale/it.json": "96aa101fed01afa231510b6435c6198eb2f733c8",
-    "./assets/locale/ja-JP.json": "9a40502b21a8822766354e12dca18bbe36f5df7d",
-    "./assets/locale/pt.json": "417966b3c20111de383bd3776641779f1f0bed5f",
-    "./assets/locale/zh.json": "64d308b77c21e4b3fa7d26c38d080a8d419bea54",
+    "./assets/locale/ar.json": "7542af70ea5bfd27ccb7af3fa0f698995ca42bbf",
+    "./assets/locale/en-AU.json": "2f958877995bcb5350108800238834da851dbb60",
+    "./assets/locale/en-GB.json": "38aa4d63e7688dbb2f2d8fffa2eeee47c2c53549",
+    "./assets/locale/en-US.json": "818c882d5890e6e694880b5a61fbf92ac2830099",
+    "./assets/locale/es.json": "657503e086213377be939f93a2484d81b204e69c",
+    "./assets/locale/fr-CA.json": "bdeaaab38bb70fd2dca6a5f186852daa4541d6bd",
+    "./assets/locale/fr.json": "f19ed9898b5fde31b40f2b5ff27d90445259d28e",
+    "./assets/locale/it.json": "b176992051d30ca3cdee87353c943724db87f4a2",
+    "./assets/locale/ja-JP.json": "cd67cf2d64995550243ee126f19e50f042fb3ab3",
+    "./assets/locale/pt.json": "101c36e24846b7843c02e97cd525e7b7fc55172a",
+    "./assets/locale/zh.json": "79a5b13ee0afd7333bf871e9646be1dbdb9a4b07",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -171,9 +171,9 @@
     "./assets/maps/level_G.svg": "34941af9a8f84b60d820fe3230f88d2c5374b8f1",
     "./assets/maps/level_P1.svg": "d143761b1d22330cb22c6d29ac1b0eb2dc37d29e",
     "./assets/maps/test.svg": "6b8cf2e8673469599a1a6d246b5e13650477aa2e",
-    "./assets/material-symbols-outlined.woff2": "bd542ec76d745a9c7f916eb2628c266e26daed5d",
-    "./assets/material-symbols-rounded.woff2": "81b53031546fbed2a135676294af73f9f1d74722",
-    "./assets/material-symbols-sharp.woff2": "ddf66c9927d80efeffc73c76472142cacaae7fba",
+    "./assets/material-symbols-outlined.woff2": "ff51fc73e84b98c595e2bf2ec5986bd9b539b35c",
+    "./assets/material-symbols-rounded.woff2": "e3cde5f70479792ad5e079d31b19bab1399b3059",
+    "./assets/material-symbols-sharp.woff2": "5355200b0a99b07120303aff433608bf01fd06ce",
     "./assets/material-symbols.css": "ef3b5b997fdbaa68f4530042143533b070895a29",
     "./assets/mocks/building1.jpg": "9170087fb243e25d0dbd5a29c58aafd4e1a4daee",
     "./assets/mocks/building2.jpg": "9fcdd5204d4294effd515b8b97fac937f494d7e4",
@@ -185,9 +185,9 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./favicon.ico": "4e23d0f9b6ddaf3c9ddef90dbaed2342941297b5",
-    "./index.html": "72a6f29e0799cb5c5c1a0df0afcb6948a48d014f",
-    "./main-VDEACRO5.js": "0842766e3451b75c0e12a9fbe6115c8a91aec92b",
-    "./styles-YVZOBELU.css": "51fd4458fd1fcaedf5d2dd5eb801f2da29ae7043"
+    "./index.html": "5038746764290177523883eca462423d75deb602",
+    "./main-5XMU4BAT.js": "0f12fb54e6cbd90845d89b088314f9df0f5d2395",
+    "./styles-GAHKBO2H.css": "a524a204eb0b4e8957e7783da3f450587bfc75ec"
   },
   "navigationUrls": [
     {
