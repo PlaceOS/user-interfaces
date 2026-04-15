@@ -146,6 +146,10 @@
                 "can_set_host": {
                     "type": "boolean",
                     "description": "Whether user is allowed to make desk bookings for others"
+                },
+                "prevent_self_booking_if_assigned_desk": {
+                    "type": "boolean",
+                    "description": "Whether users with an assigned desk should be prevented from booking a desk for themselves. Bookings for other users are still allowed."
                 }
             }
         },

@@ -223,6 +223,7 @@ const app = {
         allow_time_changes: true,
         allow_all_day: true,
         auto_allocation: false,
+        prevent_self_booking_if_assigned_desk: false,
         show_calendar_links: true,
         allow_recurrence: true,
         hide_map: false,

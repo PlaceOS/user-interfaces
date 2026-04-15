@@ -34,6 +34,7 @@ describe('BookingFormService', () => {
             MockProvider(OrganisationService, {
                 initialised: of(true),
                 active_building: new BehaviorSubject({ id: 'bld-1' }),
+                building_list: of([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
                 building: { id: 'bld-1', parent_id: 'reg-1' },
@@ -333,6 +334,127 @@ describe('BookingFormService', () => {
         ).toBe('Visitor One');
         expect((save_booking.mock.calls[0][0] as Booking).description).toBe(
             'Vendor Interview',
+        );
+    });
+
+    it('should block self desk bookings when the user has an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
+                return true;
+            }
+            return undefined;
+        });
+        (ts_client as any).listChildMetadata = jest.fn(() =>
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: '<empty>@dev.place.tech',
+                                },
+                            ],
+                        },
+                    },
+                    zone: { id: 'lvl-1' },
+                },
+            ]),
+        );
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        });
+
+        await expect(spectator.service.postForm(true)).rejects.toBe(
+            'You have an assigned desk and cannot book another desk.',
+        );
+        expect(save_booking).not.toHaveBeenCalled();
+    });
+
+    it('should allow desk bookings for other users when the current user has an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as jest.Mock;
+        const save_booking = booking_mod.saveBooking as jest.Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.prevent_self_booking_if_assigned_desk') {
+                return true;
+            }
+            return undefined;
+        });
+        (ts_client as any).listChildMetadata = jest.fn(() =>
+            of([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: '<empty>@dev.place.tech',
+                                },
+                            ],
+                        },
+                    },
+                    zone: { id: 'lvl-1' },
+                },
+            ]),
+        );
+        save_booking.mockReset();
+        save_booking.mockImplementation((booking: Booking) => of(booking));
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.form.patchValue({
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            },
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        });
+
+        await spectator.service.postForm(true);
+
+        expect(save_booking).toHaveBeenCalledTimes(1);
+        expect((save_booking.mock.calls[0][0] as Booking).user_email).toBe(
+            'other.user@example.com',
         );
     });
 

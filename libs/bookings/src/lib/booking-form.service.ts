@@ -9,6 +9,7 @@ import {
     BookingRuleset,
     BookingType,
     currentUser,
+    Desk,
     flatten,
     getAllDayTimeRange,
     getFormTimeSyncHandle,
@@ -206,6 +207,34 @@ export class BookingFormService extends AsyncHandler {
                     rules.details instanceof Array ? rules.details : [];
             }
             return mapping;
+        }),
+        shareReplay(1),
+    );
+
+    private readonly _has_assigned_desk = this._org.building_list.pipe(
+        filter((buildings) => buildings?.length > 0),
+        switchMap((buildings) => {
+            const email = currentUser()?.email?.toLowerCase();
+            if (!email) return of(false);
+            const map_metadata = (meta) =>
+                (meta?.metadata?.desks?.details instanceof Array
+                    ? meta.metadata.desks.details
+                    : []
+                ).map((desk) => new Desk({ ...desk, zone: meta.zone }));
+            return forkJoin(
+                buildings.map((building) =>
+                    listChildMetadata(building.id, { name: 'desks' }).pipe(
+                        map((data) => flatten<Desk>(data.map(map_metadata))),
+                        catchError(() => of([] as Desk[])),
+                    ),
+                ),
+            ).pipe(
+                map((desk_list) =>
+                    flatten(desk_list).some(
+                        (desk) => desk.assigned_to?.toLowerCase() === email,
+                    ),
+                ),
+            );
         }),
         shareReplay(1),
     );
@@ -652,9 +681,14 @@ export class BookingFormService extends AsyncHandler {
         ) {
             throw i18n('FORM.BOOKABLE_HOURS_ERROR');
         }
-        if (!ignore_check) {
-            const host =
-                value.user?.email || value.user_email || currentUser()?.email;
+        const host =
+            value.user?.email || value.user_email || currentUser()?.email;
+        if (ignore_check) {
+            await this._checkAssignedDeskRestriction(
+                host,
+                this._options.getValue().type,
+            );
+        } else {
             await this._checkResourceAvailable(
                 {
                     ...booking,
@@ -1439,6 +1473,23 @@ export class BookingFormService extends AsyncHandler {
         ref.close();
     }
 
+    private async _checkAssignedDeskRestriction(
+        user_email: string,
+        type: BookingType,
+    ) {
+        if (type !== 'desk') return true;
+        if (!this.setting('prevent_self_booking_if_assigned_desk')) return true;
+        if (
+            user_email?.toLowerCase() !== currentUser()?.email?.toLowerCase()
+        ) {
+            return true;
+        }
+        if (await nextValueFrom(this._has_assigned_desk)) {
+            throw 'You have an assigned desk and cannot book another desk.';
+        }
+        return true;
+    }
+
     /** Check if the given resource is available for the selected user to book */
     private async _checkResourceAvailable(
         { id, asset_id, date, duration, all_day, user_email }: Partial<Booking>,
@@ -1446,6 +1497,7 @@ export class BookingFormService extends AsyncHandler {
     ) {
         if (!user_email) throw i18n('BOOKINGS.NO_USER');
         if (type === 'group-event') return true;
+        await this._checkAssignedDeskRestriction(user_email, type);
         const period = all_day
             ? this._allDayTimeRange(date)
             : { date, date_end: date + duration * 60 * 1000 };
