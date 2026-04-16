@@ -63,6 +63,7 @@ import {
 } from 'date-fns';
 import { BehaviorSubject, combineLatest, lastValueFrom, of } from 'rxjs';
 import {
+    catchError,
     debounceTime,
     filter,
     first,
@@ -460,6 +461,12 @@ export class ParkingStateService extends AsyncHandler {
                         notes: row.notes || '',
                         ...(!row.id ? { zone_id } : {}),
                     };
+                    if (space_data.assigned_to) {
+                        await this._checkAssignedParkingLimit(
+                            space_data.assigned_to,
+                            space_data.id,
+                        );
+                    }
                     await saveParkingSpace(space_data).toPromise();
                     success_count++;
                 } catch (e) {
@@ -509,6 +516,24 @@ export class ParkingStateService extends AsyncHandler {
             zone_id,
             id: state.metadata.id || undefined,
         };
+        if (
+            asset_data.assigned_to &&
+            (space.assigned_to !== asset_data.assigned_to ||
+                space.id !== asset_data.id)
+        ) {
+            try {
+                await this._checkAssignedParkingLimit(
+                    asset_data.assigned_to,
+                    space.id,
+                );
+            } catch (error) {
+                notifyError(
+                    error instanceof Error ? error.message : `${error}`,
+                );
+                ref.componentInstance.loading.set(false);
+                throw error;
+            }
+        }
         let recreate = false;
         if (
             space.assigned_to &&
@@ -893,6 +918,44 @@ export class ParkingStateService extends AsyncHandler {
                   )
                 : updateBooking(booking.id, patch),
         );
+    }
+
+    private async _checkAssignedParkingLimit(
+        user_email: string,
+        current_space_id?: string,
+    ) {
+        const max_assigned_count = Math.max(
+            Number(this._settings.get('app.parking.max_assigned_count')) || 0,
+            0,
+        );
+        if (!max_assigned_count || !user_email) return;
+        const level_ids = this._org
+            .levelsForBuilding(this._org.building)
+            .filter((level) => level.tags.includes('parking'))
+            .map((level) => level.id);
+        if (!level_ids.length) return;
+        const email = user_email.toLowerCase();
+        const assigned_count = (
+            await lastValueFrom(
+                queryParkingSpacesForZones(level_ids).pipe(
+                    catchError(() => of([])),
+                ),
+            )
+        ).filter(
+            (space) =>
+                space.id !== current_space_id &&
+                space.assigned_to?.toLowerCase() === email,
+        ).length;
+        if (assigned_count >= max_assigned_count) {
+            const key =
+                max_assigned_count === 1
+                    ? 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_1'
+                    : 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_N';
+            const message = i18n(key, { count: max_assigned_count });
+            throw !message || message === key
+                ? `Users can only have ${max_assigned_count} assigned parking space${max_assigned_count === 1 ? '' : 's'} at a time.`
+                : message;
+        }
     }
 
     private async _clearAssignedBooking(resource: ParkingSpace) {

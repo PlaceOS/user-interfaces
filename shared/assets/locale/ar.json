@@ -1022,6 +1022,9 @@
             "DESKS_SAVING": "جاري حفظ تفاصيل المكتب...",
             "DESKS_SAVE_ERROR": "فشل حفظ تفاصيل المكتب. خطأ: {{ error }}",
             "DESKS_ASSIGN_CONFLICT_ERROR": "هذا المكتب محجوز حاليًا. يرجى إلغاء الحجز الحالي قبل تعيينه.",
+
+            "DESKS_ASSIGN_LIMIT_ERROR_1": "يمكن للمستخدمين امتلاك مكتب واحد مخصص فقط في الوقت نفسه.",
+            "DESKS_ASSIGN_LIMIT_ERROR_N": "يمكن للمستخدمين امتلاك {{ count }} مكاتب مخصصة فقط في الوقت نفسه.",
             "DESKS_MAP_ID_PLACEHOLDER": "مثال: table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "عرض قائمة رموز QR للمكاتب",
             "DESKS_LIST_UPLOAD": "تحميل CSV للمكاتب",
@@ -1441,6 +1444,9 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "تم تعيين مكان لوقوف السيارات والموافقة على الحجز.",
             "PARKING_ASSIGN_SPACE_ERROR": "فشل تعيين مكان لوقوف السيارات. خطأ: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "لا توجد أماكن متاحة لهذا الوقت",
+
+            "PARKING_ASSIGN_LIMIT_ERROR_1": "يمكن للمستخدمين امتلاك موقف سيارات مخصص واحد فقط في الوقت نفسه.",
+            "PARKING_ASSIGN_LIMIT_ERROR_N": "يمكن للمستخدمين امتلاك {{ count }} مواقف سيارات مخصصة فقط في الوقت نفسه.",
             "PARKING_DECLINE": "رفض الحجز",
             "PARKING_DECLINE_ERROR": "فشل رفض حجز موقف السيارات. خطأ: {{ error }}",
             "PARKING_DECLINE_SUCCESS": "تم رفض حجز موقف السيارات بنجاح.",

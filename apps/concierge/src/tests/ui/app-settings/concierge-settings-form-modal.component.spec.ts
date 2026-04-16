@@ -114,6 +114,12 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(events.get('available_period')).toBeTruthy();
     });
 
+    it('should have desks form group', () => {
+        const desks = spectator.component.form.get('desks');
+        expect(desks).toBeTruthy();
+        expect(desks.get('max_assigned_count')).toBeTruthy();
+    });
+
     it('should have visitors form group', () => {
         const visitors = spectator.component.form.get('visitors');
         expect(visitors).toBeTruthy();
@@ -141,6 +147,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(parking.get('show_users')).toBeTruthy();
         expect(parking.get('show_status_details')).toBeTruthy();
         expect(parking.get('disable_bookings')).toBeTruthy();
+        expect(parking.get('max_assigned_count')).toBeTruthy();
     });
 
     it('should have lockers form group', () => {

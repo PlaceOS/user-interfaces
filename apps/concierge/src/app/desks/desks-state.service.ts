@@ -333,6 +333,23 @@ export class DesksStateService extends AsyncHandler {
         const idx = desk_list.findIndex((_) => _.id === desk.id);
         if (idx >= 0) desk_list[idx] = new_desk;
         else desk_list.push(new_desk);
+        if (
+            new_desk.assigned_to &&
+            (desk.assigned_to !== new_desk.assigned_to || desk.id !== new_desk.id)
+        ) {
+            try {
+                await this._checkAssignedDeskLimit(
+                    new_desk.assigned_to,
+                    desk.id,
+                );
+            } catch (error) {
+                notifyError(
+                    error instanceof Error ? error.message : `${error}`,
+                );
+                ref.componentInstance.loading.set(false);
+                throw error;
+            }
+        }
         await lastValueFrom(
             updateMetadata(zone, {
                 name: 'desks',
@@ -581,6 +598,50 @@ export class DesksStateService extends AsyncHandler {
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         this.setFilters({});
         resp.close();
+    }
+
+    private async _checkAssignedDeskLimit(
+        user_email: string,
+        current_desk_id?: string,
+    ) {
+        const max_assigned_count = Math.max(
+            Number(this._settings.get('app.desks.max_assigned_count')) || 0,
+            0,
+        );
+        if (!max_assigned_count || !user_email) return;
+        const email = user_email.toLowerCase();
+        const assigned_count = (
+            await Promise.all(
+                this._currentLevelList().map((level) =>
+                    lastValueFrom(
+                        showMetadata(level.id, 'desks').pipe(
+                            map((metadata) =>
+                                metadata.details instanceof Array
+                                    ? metadata.details
+                                    : [],
+                            ),
+                            catchError(() => of([])),
+                        ),
+                    ),
+                ),
+            )
+        )
+            .flat()
+            .filter(
+                (item: Partial<Desk>) =>
+                    item.id !== current_desk_id &&
+                    item.assigned_to?.toLowerCase() === email,
+            ).length;
+        if (assigned_count >= max_assigned_count) {
+            const key =
+                max_assigned_count === 1
+                    ? 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_1'
+                    : 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_N';
+            const message = i18n(key, { count: max_assigned_count });
+            throw !message || message === key
+                ? `Users can only have ${max_assigned_count} assigned desk${max_assigned_count === 1 ? '' : 's'} at a time.`
+                : message;
+        }
     }
 
     private async _rollbackMetadata(zone: string, original_desk_list: any[]) {

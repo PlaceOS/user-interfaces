@@ -283,4 +283,48 @@ describe('ParkingStateService', () => {
         expect(booking_mod.approveBooking).not.toHaveBeenCalled();
         expect(common_mod.notifyError).toHaveBeenCalled();
     });
+
+    it('should block assigned parking when the limit is reached', async () => {
+        settings_map['app.parking.max_assigned_count'] = 1;
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        (assets_mod as any).queryParkingSpacesForZones = jest.fn(() =>
+            of([
+                {
+                    id: 'space-existing',
+                    assigned_to: 'staff@example.com',
+                },
+            ]),
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'space-new',
+                        identifier: 'Bay 2',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                }),
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        await spectator.service.editSpace({ id: 'space-other' } as any).catch(() => undefined);
+
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'Users can only have 1 assigned parking space at a time.',
+        );
+        expect(assets_mod.saveParkingSpace).not.toHaveBeenCalled();
+        expect(booking_mod.saveBooking).not.toHaveBeenCalled();
+        expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
+            false,
+        );
+    });
 });
