@@ -153,6 +153,22 @@ describe('ParkingStateService', () => {
         ).toEqual([request]);
     });
 
+    it('should fall back to request filtering when waitlist display is disabled', () => {
+        settings_map['app.parking.show_requests'] = true;
+        settings_map['app.parking.show_waitlist'] = false;
+        const request = {
+            id: 'waitlisted',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: Date.now(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.filterEventList([request], 'waitlist')).toEqual([
+            request,
+        ]);
+    });
+
     it('should only allow approval for matching approver groups', () => {
         const restricted_request = {
             asset_id: 'unallocated-1',

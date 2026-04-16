@@ -265,6 +265,10 @@ export class ParkingStateService extends AsyncHandler {
         return this._settings.get('app.week_start') || 0;
     }
 
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
+    }
+
     constructor() {
         super();
         this.subscription(
@@ -338,7 +342,9 @@ export class ParkingStateService extends AsyncHandler {
             );
         }
         if (filter_type === 'waitlist') {
-            return visible_list.filter((booking) => this.isWaitlisted(booking));
+            return this.show_waitlist
+                ? visible_list.filter((booking) => this.isWaitlisted(booking))
+                : visible_list.filter((booking) => this.isRequest(booking));
         }
         if (filter_type === 'pending') {
             return visible_list.filter(

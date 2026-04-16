@@ -14,7 +14,8 @@ describe('ParkingBookingsListComponent', () => {
     let show_requests = true;
     let hide_bay_number = false;
     let hide_assign_space = false;
-    let request_filter: 'all' | 'bookings' | 'requests' = 'all';
+    let show_waitlist = true;
+    let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
     const createComponent = createComponentFactory({
         component: ParkingBookingsListComponent,
@@ -55,11 +56,13 @@ describe('ParkingBookingsListComponent', () => {
                 get: jest.fn((name: string) =>
                     name === 'app.parking.show_requests'
                         ? show_requests
-                        : name === 'app.parking.hide_bay_number'
-                          ? hide_bay_number
-                          : name === 'app.parking.hide_assign_space'
-                            ? hide_assign_space
-                            : false,
+                        : name === 'app.parking.show_waitlist'
+                          ? show_waitlist
+                          : name === 'app.parking.hide_bay_number'
+                            ? hide_bay_number
+                            : name === 'app.parking.hide_assign_space'
+                              ? hide_assign_space
+                              : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -72,6 +75,7 @@ describe('ParkingBookingsListComponent', () => {
         show_requests = true;
         hide_bay_number = false;
         hide_assign_space = false;
+        show_waitlist = true;
         request_filter = 'all';
     });
 
@@ -205,6 +209,33 @@ describe('ParkingBookingsListComponent', () => {
                 status: 'tentative',
             } as any),
         ).toBe('hourglass_top');
+    });
+
+    it('should hide waitlisted booking indicators when the setting is disabled', () => {
+        show_waitlist = false;
+        spectator = createComponent();
+
+        expect(
+            spectator.component.bookingTypeLabel({
+                id: 'waitlisted',
+                asset_id: 'unallocated-1',
+                status: 'tentative',
+            } as any),
+        ).toBe('APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL');
+        expect(
+            spectator.component.bookingTypeIcon({
+                id: 'waitlisted',
+                asset_id: 'unallocated-1',
+                status: 'tentative',
+            } as any),
+        ).toBe('pending_actions');
+        expect(
+            spectator.component.isVisibleWaitlisted({
+                id: 'waitlisted',
+                asset_id: 'unallocated-1',
+                status: 'tentative',
+            } as any),
+        ).toBe(false);
     });
 
     it('should map bookings to sortable type values', () => {

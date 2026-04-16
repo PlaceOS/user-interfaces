@@ -1385,6 +1385,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         formControlName="show_requests"
                                     ></settings-toggle>
                                     <settings-toggle
+                                        name="Show waitlisted status and filter"
+                                        formControlName="show_waitlist"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         name="Always hide bay number column"
                                         formControlName="hide_bay_number"
                                     ></settings-toggle>
@@ -1721,6 +1725,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_status_details: new FormControl(true),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
+            show_waitlist: new FormControl(true),
             hide_bay_number: new FormControl(false),
             hide_assign_space: new FormControl(false),
             assign_space_on_approve: new FormControl(false),
