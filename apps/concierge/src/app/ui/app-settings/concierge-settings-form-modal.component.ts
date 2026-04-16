@@ -840,6 +840,61 @@ import { UploadButtonComponent } from './upload-button.component';
                         </div>
                     </section>
                 }
+                @if (form.value.features.includes('desks')) {
+                    <section
+                        desks
+                        id="feature-desks"
+                        class="border-base-300 relative rounded-sm border"
+                        formGroupName="desks"
+                    >
+                        <h3
+                            class="bg-base-100 absolute top-0 left-4 -translate-y-1/2 rounded-sm px-2 py-1 font-medium"
+                        >
+                            Desk Assignments
+                        </h3>
+                        <button
+                            icon
+                            matRipple
+                            class="bg-base-100 absolute top-0 right-4 -translate-y-1/2"
+                            (click)="toggleGroup('desks')"
+                        >
+                            <icon>{{
+                                shown_group() === 'desks'
+                                    ? 'chevron_left'
+                                    : 'keyboard_arrow_down'
+                            }}</icon>
+                        </button>
+                        <div
+                            collapsible
+                            [class.open]="shown_group() === 'desks'"
+                        >
+                            <div class="content px-4 pt-4 pb-2">
+                                <div>
+                                    <label for="desks-max-assigned-count">
+                                        Max Assigned Desks Per User
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            type="number"
+                                            min="0"
+                                            name="desks-max-assigned-count"
+                                            formControlName="max_assigned_count"
+                                        />
+                                        <mat-hint>
+                                            Maximum number of desk assignments a
+                                            user can have at one time. Set to 0
+                                            for unlimited.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
                 @if (form.value.features.includes('visitors')) {
                     <section
                         visitors
@@ -1306,6 +1361,28 @@ import { UploadButtonComponent } from './upload-button.component';
                                         </mat-hint>
                                     </mat-form-field>
                                 </div>
+                                <div>
+                                    <label for="parking-max-assigned-count">
+                                        Max Assigned Parking Spaces Per User
+                                    </label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <input
+                                            matInput
+                                            type="number"
+                                            min="0"
+                                            name="parking-max-assigned-count"
+                                            formControlName="max_assigned_count"
+                                        />
+                                        <mat-hint>
+                                            Maximum number of parking space
+                                            assignments a user can have at one
+                                            time. Set to 0 for unlimited.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
                                 <div
                                     class="grid grid-cols-1 gap-4 md:grid-cols-2"
                                     formGroupName="bookable_hours"
@@ -1383,6 +1460,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                     <settings-toggle
                                         name="Show booking requests"
                                         formControlName="show_requests"
+                                    ></settings-toggle>
+                                    <settings-toggle
+                                        name="Show waitlisted status and filter"
+                                        formControlName="show_waitlist"
                                     ></settings-toggle>
                                     <settings-toggle
                                         name="Always hide bay number column"
@@ -1684,6 +1765,9 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             allow_visibility: new FormControl(false),
             allow_edit: new FormControl(true),
         }),
+        desks: new FormGroup({
+            max_assigned_count: new FormControl(0),
+        }),
         visitors: new FormGroup({
             bookable_hours: new FormGroup({
                 start: new FormControl<number | null>(null),
@@ -1721,11 +1805,13 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_status_details: new FormControl(true),
             disable_bookings: new FormControl(false),
             show_requests: new FormControl(false),
+            show_waitlist: new FormControl(true),
             hide_bay_number: new FormControl(false),
             hide_assign_space: new FormControl(false),
             assign_space_on_approve: new FormControl(false),
             available_period: new FormControl(7),
             max_duration: new FormControl(480),
+            max_assigned_count: new FormControl(0),
         }),
         lockers: new FormGroup({
             allow_all_day: new FormControl(true),

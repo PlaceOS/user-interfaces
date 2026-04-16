@@ -20,6 +20,7 @@ import {
     notifySuccess,
     settingSignal,
     SettingsService,
+    userSignal,
 } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 import { lastValueFrom } from 'rxjs';
@@ -192,9 +193,20 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             }}
                         </div>
                     </div>
+                    @if (current_user()?.email !== booking().user_email) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Host">person</icon>
+                            <div>
+                                {{
+                                    (booking().user_email | user | async)
+                                        ?.name || booking().user_name
+                                }}
+                            </div>
+                        </div>
+                    }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">person</icon>
+                            <icon matTooltip="Booked By">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -442,6 +454,7 @@ export class BookingDetailsModalComponent {
     public readonly checked_out = signal(false);
     public readonly checking_in = signal(false);
     public readonly booking = signal(this._data.booking);
+    public readonly current_user = userSignal();
     public readonly edit = this._data.edit_fn;
     public readonly remove = this._data.remove_fn;
     public readonly end = this._data.end_fn;

@@ -224,7 +224,7 @@ export class EventFormService extends AsyncHandler {
         this.spaces$,
         this._options,
         this._filters,
-        this._org.initialised.pipe(filter((_) => _)),
+        (this._org.initialised || of(true)).pipe(filter((_) => _)),
     ]).pipe(
         map(([list, { zones }, filters]) => {
             if (!list.length) return list;
@@ -427,7 +427,7 @@ export class EventFormService extends AsyncHandler {
         });
         this.subscription(
             'settings_change',
-            this._settings.overrides$
+            (this._settings.overrides$ || of([]))
                 .pipe(filter((_) => !!_?.length))
                 .subscribe(() => this._applyDurationSettings()),
         );

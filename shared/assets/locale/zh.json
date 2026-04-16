@@ -1026,6 +1026,9 @@
             "DESKS_SAVING": "正在保存工位详情...",
             "DESKS_SAVE_ERROR": "保存工位详情失败。错误：{{ error }}",
             "DESKS_ASSIGN_CONFLICT_ERROR": "该工位目前已被预订。请先取消现有预订再进行分配。",
+
+            "DESKS_ASSIGN_LIMIT_ERROR_1": "用户一次只能拥有1个已分配工位。",
+            "DESKS_ASSIGN_LIMIT_ERROR_N": "用户一次只能拥有{{ count }}个已分配工位。",
             "DESKS_MAP_ID_PLACEHOLDER": "例如：table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "查看工位二维码列表",
             "DESKS_LIST_UPLOAD": "上传工位 CSV",
@@ -1445,6 +1448,9 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "停车位已分配，预订已批准。",
             "PARKING_ASSIGN_SPACE_ERROR": "分配停车位失败。错误：{{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "该时间段没有可用车位",
+
+            "PARKING_ASSIGN_LIMIT_ERROR_1": "用户一次只能拥有1个已分配停车位。",
+            "PARKING_ASSIGN_LIMIT_ERROR_N": "用户一次只能拥有{{ count }}个已分配停车位。",
             "PARKING_DECLINE": "拒绝预留",
             "PARKING_DECLINE_ERROR": "拒绝停车预留失败。错误：{{ error }}",
             "PARKING_DECLINE_SUCCESS": "成功拒绝停车预留。",

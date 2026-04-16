@@ -79,8 +79,8 @@ describe('TopbarComponent', () => {
     it('should render user avatar and details', () =>
         expect('[avatar]').toExist());
 
-    it('should render user controls sidebar', () => {
-        expect('user-controls-sidebar').toExist();
+    it('should render user controls trigger', () => {
         expect('[name="user-controls"]').toExist();
+        expect(spectator.component.user_controls).toBeTruthy();
     });
 });

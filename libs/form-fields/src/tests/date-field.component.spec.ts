@@ -86,11 +86,14 @@ describe('DateFieldComponent', () => {
     });
 
     it('should preserve wall-clock time in the configured timezone', () => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
         const timezone = 'UTC';
         const old_date = new Date('2026-04-08T15:30:00.000Z').valueOf();
         const new_date = new Date('2026-04-12T00:00:00.000Z').valueOf();
         const on_change = jest.fn();
         spectator.setInput('timezone', timezone);
+        spectator.setInput('from', 0);
         spectator.component.registerOnChange(on_change);
         spectator.component.writeValue(old_date);
 
@@ -100,5 +103,6 @@ describe('DateFieldComponent', () => {
         expect(on_change).toHaveBeenCalledWith(
             setTimeInTimezone(new_date, hours, minutes, timezone),
         );
+        jest.useRealTimers();
     });
 });

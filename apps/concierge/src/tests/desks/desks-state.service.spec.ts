@@ -23,6 +23,7 @@ describe('DesksStateService', () => {
     let active_building: BehaviorSubject<any>;
     let active_region: BehaviorSubject<any>;
     let current_building: any;
+    let settings_map: Record<string, any>;
     const organisation_service: any = {
         active_levels: of([]),
         initialised: of(true),
@@ -46,8 +47,7 @@ describe('DesksStateService', () => {
         providers: [
             MockProvider(MatDialog, { open: jest.fn() }),
             MockProvider(SettingsService, {
-                get: ((name: string) =>
-                    name === 'app.use_region' ? false : undefined) as any,
+                get: ((name: string) => settings_map[name]) as any,
             } as any),
             MockProvider(OrganisationService, organisation_service),
         ],
@@ -55,6 +55,7 @@ describe('DesksStateService', () => {
 
     beforeEach(() => {
         current_building = { id: 'bld-1' };
+        settings_map = { 'app.use_region': false };
         active_building = new BehaviorSubject(current_building);
         active_region = new BehaviorSubject({ id: 'region-1' });
         organisation_service.active_building = active_building;
@@ -68,6 +69,9 @@ describe('DesksStateService', () => {
         jest.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
             of({}) as any,
         );
+        jest.spyOn(ts_client_mod, 'showMetadata').mockReturnValue(
+            of({ details: [] }) as any,
+        );
         (component_mod as any).openConfirmModal = jest.fn(async () => ({
             reason: 'done',
             loading: jest.fn(),
@@ -79,6 +83,7 @@ describe('DesksStateService', () => {
         (common_mod as any).notifySuccess = jest.fn();
         (common_mod as any).notifyError = jest.fn();
         (common_mod as any).unique = jest.fn((list) => list);
+        jest.clearAllMocks();
         spectator = createService();
     });
 
@@ -213,6 +218,53 @@ describe('DesksStateService', () => {
                     expect.objectContaining({ homebase: 'Sydney HQ' }),
                 ]),
             }),
+        );
+    });
+
+    it('should block assignments when the desk limit is reached', async () => {
+        settings_map['app.desks.max_assigned_count'] = 1;
+        (ts_client_mod.showMetadata as jest.Mock).mockReturnValue(
+            of({
+                details: [
+                    {
+                        id: 'desk-existing',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                ],
+            }) as any,
+        );
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-new',
+                        name: 'Desk New',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: jest.fn() },
+            },
+            close: jest.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-1'] });
+
+        await spectator.service
+            .editDesk({ id: 'desk-new-2' } as any)
+            .catch(() => undefined);
+
+        expect(common_mod.notifyError).toHaveBeenCalledWith(
+            'Users can only have 1 assigned desk at a time.',
+        );
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(booking_mod.saveBooking).not.toHaveBeenCalled();
+        expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
+            false,
         );
     });
 

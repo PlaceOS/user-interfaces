@@ -48,11 +48,11 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                 "
                                 [class.border-info]="
                                     booking.status === 'tentative' &&
-                                    isWaitlisted(booking)
+                                    isVisibleWaitlisted(booking)
                                 "
                                 [class.border-warning]="
                                     booking.status === 'tentative' &&
-                                    !isWaitlisted(booking)
+                                    !isVisibleWaitlisted(booking)
                                 "
                                 [class.border-error]="
                                     booking.status === 'declined'
@@ -141,19 +141,19 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                         "
                                         [class.text-warning-content]="
                                             booking.status === 'tentative' &&
-                                            !isWaitlisted(booking)
+                                            !isVisibleWaitlisted(booking)
                                         "
                                         [class.bg-warning]="
                                             booking.status === 'tentative' &&
-                                            !isWaitlisted(booking)
+                                            !isVisibleWaitlisted(booking)
                                         "
                                         [class.text-info-content]="
                                             booking.status === 'tentative' &&
-                                            isWaitlisted(booking)
+                                            isVisibleWaitlisted(booking)
                                         "
                                         [class.bg-info]="
                                             booking.status === 'tentative' &&
-                                            isWaitlisted(booking)
+                                            isVisibleWaitlisted(booking)
                                         "
                                         [class.text-neutral-content]="
                                             booking.status === 'ended'
@@ -177,7 +177,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : isWaitlisted(booking)
+                                                    : isVisibleWaitlisted(booking)
                                                       ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                                       : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                             ) | translate
@@ -390,6 +390,14 @@ export class ParkingBookingsWeekViewComponent
 
     public get hide_assign_space() {
         return !!this._settings.get('app.parking.hide_assign_space');
+    }
+
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
+    }
+
+    public isVisibleWaitlisted(booking: Booking) {
+        return this.show_waitlist && this.isWaitlisted(booking);
     }
 
     public isRequestFilter(filter_type?: string) {

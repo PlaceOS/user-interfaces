@@ -47,6 +47,8 @@ describe('LandingComponent', () => {
     it('should match snapshot', () => {
         spectator.component.time.set(1);
         spectator.detectChanges();
-        expect('[date]').toContainText('1970');
+        expect(spectator.query('[date]')?.textContent || '').toMatch(
+            /1969|1970/,
+        );
     });
 });

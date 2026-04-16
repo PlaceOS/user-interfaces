@@ -369,25 +369,36 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     public readonly period = toSignal(this._state.period, {
         initialValue: 'day',
     });
-    public readonly filter_options = [
-        { label: 'COMMON.ALL', value: 'all' },
-        {
-            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST',
-            value: 'requests',
-        },
-        {
-            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL',
-            value: 'manual',
-        },
-        {
-            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED',
-            value: 'waitlist',
-        },
-        {
-            label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED',
-            value: 'bookings',
-        },
-    ] as const;
+    public get filter_options(): ReadonlyArray<{
+        label: string;
+        value: ParkingRequestFilter;
+    }> {
+        const filter_options: Array<{
+            label: string;
+            value: ParkingRequestFilter;
+        }> = [
+            { label: 'COMMON.ALL', value: 'all' },
+            {
+                label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_REQUEST',
+                value: 'requests',
+            },
+            {
+                label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_PENDING_MANUAL',
+                value: 'manual',
+            },
+            {
+                label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_BOOKED',
+                value: 'bookings',
+            },
+        ];
+        if (this.show_waitlist) {
+            filter_options.splice(3, 0, {
+                label: 'APP.CONCIERGE.PARKING_BOOKING_TYPE_WAITLISTED',
+                value: 'waitlist',
+            });
+        }
+        return filter_options;
+    }
     /** Set filtered date */
     public readonly setDate = (d) => this._state.setOptions({ date: d });
     /** Set selected period */
@@ -435,6 +446,10 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     public get disable_reservations() {
         return !!this._settings.get('app.parking.disable_bookings');
+    }
+
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
     public get can_view_requests() {
@@ -573,6 +588,15 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
                 !this._settings.get('app.parking.show_requests'))
         ) {
             this.setRequestFilter('bookings');
+        }
+        if (
+            this.section() === 'events' &&
+            !this.show_waitlist &&
+            this.options().request_filter === 'waitlist'
+        ) {
+            this.setRequestFilter(
+                this.can_view_requests ? 'requests' : 'bookings',
+            );
         }
         this.selectDefaultZoneForManage();
     }

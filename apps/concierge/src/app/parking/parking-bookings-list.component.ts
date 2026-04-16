@@ -223,16 +223,20 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                         [class.bg-neutral]="row?.status === 'ended'"
                         [class.opacity-30]="isStatusActionDisabled(row)"
                         [class.text-warning-content]="
-                            row?.status === 'tentative' && !isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            !isVisibleWaitlisted(row)
                         "
                         [class.bg-warning]="
-                            row?.status === 'tentative' && !isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            !isVisibleWaitlisted(row)
                         "
                         [class.text-info-content]="
-                            row?.status === 'tentative' && isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            isVisibleWaitlisted(row)
                         "
                         [class.bg-info]="
-                            row?.status === 'tentative' && isWaitlisted(row)
+                            row?.status === 'tentative' &&
+                            isVisibleWaitlisted(row)
                         "
                         [matMenuTriggerFor]="menu"
                         [disabled]="isStatusActionDisabled(row)"
@@ -246,7 +250,7 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                           ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                                           : row?.status === 'declined'
                                             ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                            : isWaitlisted(row)
+                                            : isVisibleWaitlisted(row)
                                               ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                               : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                     ) | translate
@@ -413,8 +417,16 @@ export class ParkingBookingsListComponent
         return !!this._settings.get('app.parking.hide_assign_space');
     }
 
+    public get show_waitlist() {
+        return this._settings.get('app.parking.show_waitlist') !== false;
+    }
+
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public isVisibleWaitlisted(booking: Booking) {
+        return this.show_waitlist && this.isWaitlisted(booking);
     }
 
     public isRequestFilter(filter_type?: string) {
@@ -431,7 +443,7 @@ export class ParkingBookingsListComponent
         if (!this.isRequest(booking)) {
             return 'booked';
         }
-        if (this.isWaitlisted(booking)) {
+        if (this.isVisibleWaitlisted(booking)) {
             return 'waitlisted';
         }
         if (this.isManualRequest(booking) || booking.status === 'tentative') {

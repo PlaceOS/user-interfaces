@@ -35,12 +35,14 @@ const app = {
     delegated: false,
     has_uploads: true,
     custom_reports,
-    desks: { can_book_for_others: true },
+    desks: { can_book_for_others: true, max_assigned_count: 0 },
     bookings: { can_book_for_others: true, use_building_timezone: false },
     parking: {
+        show_waitlist: false,
         hide_bay_number: false,
         hide_assign_space: false,
         assign_space_on_approve: false,
+        max_assigned_count: 0,
     },
     events: {
         allow_setup_breakdown: false,

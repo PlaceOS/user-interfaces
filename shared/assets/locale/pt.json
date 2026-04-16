@@ -1026,6 +1026,9 @@
             "DESKS_SAVING": "Salvando detalhes da mesa...",
             "DESKS_SAVE_ERROR": "Falha ao salvar detalhes da mesa. Erro: {{ error }}",
             "DESKS_ASSIGN_CONFLICT_ERROR": "Esta mesa está atualmente reservada. Por favor, cancele a reserva existente antes de atribuí-la.",
+
+            "DESKS_ASSIGN_LIMIT_ERROR_1": "Os utilizadores só podem ter 1 secretária atribuída de cada vez.",
+            "DESKS_ASSIGN_LIMIT_ERROR_N": "Os utilizadores só podem ter {{ count }} secretárias atribuídas de cada vez.",
             "DESKS_MAP_ID_PLACEHOLDER": "ex: table-01.123",
             "DESKS_VIEW_QR_CODE_LIST": "Ver Códigos QR da Mesa",
             "DESKS_LIST_UPLOAD": "Enviar CSV com Mesas",
@@ -1445,6 +1448,9 @@
             "PARKING_ASSIGN_SPACE_SUCCESS": "Vaga de estacionamento atribuída e reserva aprovada.",
             "PARKING_ASSIGN_SPACE_ERROR": "Falha ao atribuir vaga de estacionamento. Erro: {{ error }}",
             "PARKING_ASSIGN_SPACE_EMPTY": "Nenhuma vaga disponível para este horário",
+
+            "PARKING_ASSIGN_LIMIT_ERROR_1": "Os utilizadores só podem ter 1 vaga de estacionamento atribuída de cada vez.",
+            "PARKING_ASSIGN_LIMIT_ERROR_N": "Os utilizadores só podem ter {{ count }} vagas de estacionamento atribuídas de cada vez.",
             "PARKING_DECLINE": "Recusar Reserva",
             "PARKING_DECLINE_ERROR": "Falha ao recusar a reserva de estacionamento. Erro: {{ error }}",
             "PARKING_DECLINE_SUCCESS": "Reserva de estacionamento recusada com sucesso.",
