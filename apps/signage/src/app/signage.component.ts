@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log, SettingsService } from '@placeos/common';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
+
+/** PostMessage types accepted from a parent frame (e.g. wayfinder shell) */
+const REMOTE_PAUSE = 'signage:pause';
+const REMOTE_RESUME = 'signage:resume';
 
 @Component({
     selector: 'signage-panel',
@@ -58,14 +62,33 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
 
+    private readonly _players = viewChildren(MediaPlayerComponent);
+
     public readonly clearOverridePlaylist = () =>
         this._signage.clearPlaylistOverride();
+
+    private readonly _remote_message_handler = (event: MessageEvent) => {
+        const data = event?.data;
+        if (!data || typeof data !== 'object') return;
+        if (data.type === REMOTE_PAUSE) this._setPlaybackState('PAUSED');
+        else if (data.type === REMOTE_RESUME) this._setPlaybackState('PLAYING');
+    };
+
+    private _setPlaybackState(target: 'PAUSED' | 'PLAYING') {
+        for (const player of this._players()) {
+            if (player.state() !== target) player.togglePause();
+        }
+    }
 
     public get animation_time() {
         return this._settings.get('app.default_animation_time');
     }
 
     public ngOnInit() {
+        window.addEventListener('message', this._remote_message_handler);
+        this.subscription('remote-message', () =>
+            window.removeEventListener('message', this._remote_message_handler),
+        );
         this.timeout(
             'not-bootstrapped',
             () => {
