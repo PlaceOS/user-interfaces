@@ -15,12 +15,12 @@ import { IconComponent } from '@placeos/components';
     selector: 'app-chat-view',
     template: `
         <div
-            class="relative max-h-[80vh] w-screen max-w-full overflow-auto bg-secondary text-secondary-content"
+            class="bg-secondary text-secondary-content relative max-h-[80vh] w-screen max-w-full overflow-auto"
         >
             <button
                 icon
                 matRipple
-                class="absolute right-2 top-2 h-16 w-16"
+                class="absolute top-2 right-2 h-16 w-16"
                 (click)="close()"
             >
                 <icon class="text-3xl">close</icon>
@@ -33,12 +33,12 @@ import { IconComponent } from '@placeos/components';
                     {{ time() | date: 'fullDate' }}
                 </h2>
                 <div
-                    class="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-base-100"
+                    class="border-base-100 relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border"
                 >
                     <div
-                        class="absolute z-0 h-full w-full bg-base-100 opacity-30"
+                        class="bg-base-100 absolute z-0 h-full w-full opacity-30"
                     ></div>
-                    <img class="z-10 h-16" src="assets/icons/ben_icon.svg" />
+                    <img class="z-10 h-16" src="assets/icons/roybot.png" />
                 </div>
                 <p>I'm Ben, your virtual concierge</p>
                 <h4 class="w-full opacity-60">Try asking me:</h4>

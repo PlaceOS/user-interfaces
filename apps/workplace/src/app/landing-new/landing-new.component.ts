@@ -40,13 +40,10 @@ import { LandingUpcomingBookingComponent } from './landing-upcoming-booking.comp
                     <button
                         icon
                         matRipple
-                        class="bg-secondary absolute top-1/2 left-2 h-16 w-16 -translate-y-1/2"
+                        class="bg-base-100 border-base-200 absolute top-1/2 left-2 h-14 w-14 -translate-y-1/2 border shadow-md"
                         (click)="viewVirtualConcierge()"
                     >
-                        <img
-                            class="z-10 h-12"
-                            src="assets/icons/ben_icon.svg"
-                        />
+                        <img class="z-10 h-12" src="assets/icons/roybot.png" />
                     </button>
                 }
             </div>
