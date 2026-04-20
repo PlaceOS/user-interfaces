@@ -53,14 +53,24 @@ Commits to the branch `master` will produce a production build that is commited 
 
 ## Available Frontends
 
-There are 7 available frontends for this client
+There are 17 available frontends in this workspace
 
--   [`bookings`](./apps/booking-panel/README.md) | Booking Panel user interface
--   [`catering`](./apps/caterers-ui/README.md) | Interface for external caterers
+-   [`app-loader`](./apps/app-loader/) | Full-page application launcher for domain-configured apps
+-   [`assistant-panel`](./apps/assistant-panel/) | Assistant panel interface
+-   [`booking-panel`](./apps/booking-panel/README.md) | Booking Panel user interface
+-   [`caterer-ui`](./apps/caterer-ui/README.md) | Interface for external caterers
 -   [`concierge`](./apps/concierge/README.md) | Concierge / Front of House application
 -   [`control`](./apps/control/README.md) | AV/Room Control application
--   [`kiosk`](./apps/map-kiosk/README.md) | Internal building location kiosk UI
--   [`visitors`](./apps/visitor-kiosk/README.md) | Internal building location kiosk UI
+-   [`enrolment`](./apps/enrolment/) | Enrolment interface
+-   [`map-kiosk`](./apps/map-kiosk/README.md) | Internal building location kiosk UI
+-   [`outlook-addin`](./apps/outlook-addin/README.md) | Outlook add-in interface
+-   [`redirect`](./apps/redirect/) | Redirect helper application
+-   [`signage`](./apps/signage/) | Signage display interface
+-   [`signage-manager`](./apps/signage-manager/) | Signage management interface
+-   [`stagehand`](./apps/stagehand/) | Stagehand interface
+-   [`survey`](./apps/survey/) | Survey interface
+-   [`timetable`](./apps/timetable/) | Timetable interface
+-   [`visitor-kiosk`](./apps/visitor-kiosk/README.md) | Visitor kiosk interface
 -   [`workplace`](./apps/workplace/README.md) | Staff Application
 
 ## Settings

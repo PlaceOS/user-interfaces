@@ -1,0 +1,109 @@
+{
+    "name": "app-loader",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "prefix": "app",
+    "sourceRoot": "apps/app-loader/src",
+    "tags": [],
+    "targets": {
+        "build": {
+            "executor": "@angular-devkit/build-angular:application",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "baseHref": "./",
+                "outputPath": "dist/apps/app-loader",
+                "index": "apps/app-loader/src/index.html",
+                "browser": "apps/app-loader/src/main.ts",
+                "polyfills": [],
+                "tsConfig": "apps/app-loader/tsconfig.app.json",
+                "fileReplacements": [
+                    {
+                        "replace": "libs/common/src/lib/settings.ts",
+                        "with": "apps/app-loader/src/environments/settings.ts"
+                    }
+                ],
+                "assets": [
+                    {
+                        "glob": "**/*",
+                        "input": "apps/app-loader/public"
+                    },
+                    {
+                        "glob": "oauth-resp.html",
+                        "input": "node_modules/@placeos/ts-client/dist/",
+                        "output": "/"
+                    }
+                ],
+                "styles": [
+                    "apps/app-loader/src/styles.css",
+                    "shared/styles/application.css"
+                ],
+                "scripts": []
+            },
+            "configurations": {
+                "production": {
+                    "budgets": [
+                        {
+                            "type": "initial",
+                            "maximumWarning": "500kb",
+                            "maximumError": "1mb"
+                        },
+                        {
+                            "type": "anyComponentStyle",
+                            "maximumWarning": "4kb",
+                            "maximumError": "8kb"
+                        }
+                    ],
+                    "outputHashing": "all"
+                },
+                "development": {
+                    "optimization": false,
+                    "extractLicenses": false,
+                    "sourceMap": true
+                }
+            },
+            "defaultConfiguration": "production"
+        },
+        "serve": {
+            "executor": "@angular-devkit/build-angular:dev-server",
+            "options": {
+                "proxyConfig": "config/proxy.conf.js"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "app-loader:build:production"
+                },
+                "development": {
+                    "buildTarget": "app-loader:build:development"
+                }
+            },
+            "defaultConfiguration": "development",
+            "continuous": true
+        },
+        "extract-i18n": {
+            "executor": "@angular-devkit/build-angular:extract-i18n",
+            "options": {
+                "buildTarget": "app-loader:build"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "apps/app-loader/jest.config.ts",
+                "tsConfig": "apps/app-loader/tsconfig.spec.json"
+            }
+        },
+        "serve-static": {
+            "executor": "@nx/web:file-server",
+            "options": {
+                "buildTarget": "app-loader:build",
+                "port": 4200,
+                "staticFilePath": "dist/apps/app-loader/browser",
+                "spa": true
+            }
+        }
+    }
+}
