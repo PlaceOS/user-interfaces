@@ -40,6 +40,7 @@ const app = {
     parking: {
         show_waitlist: false,
         hide_bay_number: false,
+        hide_level_selector_on_booking_list: false,
         hide_assign_space: false,
         assign_space_on_approve: false,
         max_assigned_count: 0,

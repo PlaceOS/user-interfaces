@@ -160,38 +160,40 @@ import {
                     </a>
                 </div>
             }
-            <mat-form-field appearance="outline" class="no-subscript w-56">
-                <mat-select
-                    [(ngModel)]="zones"
-                    (ngModelChange)="updateZones($event)"
-                    [placeholder]="
-                        (section() === 'manage'
-                            ? 'COMMON.LEVEL_SELECT'
-                            : 'COMMON.LEVEL_ALL'
-                        ) | translate
-                    "
-                    multiple
-                >
-                    @for (level of levels(); track level) {
-                        <mat-option [value]="level.id">
-                            <div class="flex flex-col-reverse">
-                                @if (use_region) {
-                                    <div class="text-xs opacity-30">
-                                        {{
-                                            (level.parent_id | building)
-                                                ?.display_name
-                                        }}
-                                        <span class="opacity-0"> - </span>
+            @if (!hide_level_selector_on_booking_list) {
+                <mat-form-field appearance="outline" class="no-subscript w-56">
+                    <mat-select
+                        [(ngModel)]="zones"
+                        (ngModelChange)="updateZones($event)"
+                        [placeholder]="
+                            (section() === 'manage'
+                                ? 'COMMON.LEVEL_SELECT'
+                                : 'COMMON.LEVEL_ALL'
+                            ) | translate
+                        "
+                        multiple
+                    >
+                        @for (level of levels(); track level) {
+                            <mat-option [value]="level.id">
+                                <div class="flex flex-col-reverse">
+                                    @if (use_region) {
+                                        <div class="text-xs opacity-30">
+                                            {{
+                                                (level.parent_id | building)
+                                                    ?.display_name
+                                            }}
+                                            <span class="opacity-0"> - </span>
+                                        </div>
+                                    }
+                                    <div>
+                                        {{ level.display_name || level.name }}
                                     </div>
-                                }
-                                <div>
-                                    {{ level.display_name || level.name }}
                                 </div>
-                            </div>
-                        </mat-option>
-                    }
-                </mat-select>
-            </mat-form-field>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            }
             <div class="w-px min-w-2 flex-1"></div>
             @if (section() === 'manage') {
                 <div class="flex gap-2">
@@ -452,6 +454,16 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
+    public get hide_level_selector_on_booking_list() {
+        return (
+            this.section() === 'events' &&
+            this.view() === 'list' &&
+            !!this._settings.get(
+                'app.parking.hide_level_selector_on_booking_list',
+            )
+        );
+    }
+
     public get can_view_requests() {
         if (!this._settings.get('app.parking.show_requests')) return false;
         const feature_groups = this._settings.get('app.feature_groups') || {};
@@ -569,8 +581,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
 
     private _updatePath() {
         const parts = this._router.url?.split('/') || [''];
-        const [section, view] = parts.slice(-2);
-        const current_view = view.split('?')[0];
+        const [section = 'events', view = 'list'] = parts.slice(-2);
+        const current_view = (view || 'list').split('?')[0];
         this.section.set(section as any);
         this.view.set(
             current_view === 'bookings' || current_view === 'requests'
