@@ -248,7 +248,10 @@ export class BookingCardComponent {
 
     public get recurr_tooltip() {
         return (
-            formatRecurrence(fromBookingRecurrence(this.booking())) ||
+            formatRecurrence(
+                fromBookingRecurrence(this.booking()),
+                this.booking()?.date,
+            ) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     }

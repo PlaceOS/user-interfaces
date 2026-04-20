@@ -199,9 +199,9 @@ export class RecurrenceFieldComponent implements ControlValueAccessor, OnInit {
             return formatRecurrence({
                 ...val,
                 end_date: this._computeEndDate(val, this.date()),
-            });
+            }, this.date());
         }
-        return formatRecurrence(val);
+        return formatRecurrence(val, this.date());
     });
 
     constructor() {

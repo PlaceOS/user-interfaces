@@ -618,6 +618,7 @@ export class MeetingFlowConfirmModalComponent
                 ...this.event.recurrence,
                 start: this.event.date || this.event.recurrence.start,
             }),
+            this.event.date || this.event.recurrence.start,
         );
     }
 
