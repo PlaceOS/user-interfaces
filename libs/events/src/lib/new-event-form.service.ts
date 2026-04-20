@@ -479,7 +479,10 @@ export class EventFormService extends AsyncHandler {
         });
         this._applyDurationSettings();
         if (!event.id) return;
-        sessionStorage.setItem('PLACEOS.event', JSON.stringify(event.toJSON()));
+        sessionStorage.setItem(
+            'PLACEOS.event',
+            JSON.stringify(event?.toJSON() || {}),
+        );
         this._event.next(event);
     }
 

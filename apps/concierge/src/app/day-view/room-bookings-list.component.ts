@@ -9,66 +9,80 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '../ui/date-options.component';
 import { UserPipe } from '@placeos/users';
 import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-bookings-list',
     template: `
-        <div class="h-full w-full overflow-auto pb-16">
-            <simple-table
-                class="block min-w-368 text-sm"
-                [data]="bookings()"
-                [columns]="[
-                    {
-                        key: 'date',
-                        name: 'FORM.DATE' | translate,
-                        content: date_template,
-                        size: '4rem',
-                        sortable: false,
-                    },
-                    {
-                        key: 'date',
-                        name: 'FORM.PERIOD' | translate,
-                        content: period_template,
-                        size: '9rem',
-                    },
-                    {
-                        key: 'room_name',
-                        name: 'RESOURCE.ROOM' | translate,
-                    },
-                    {
-                        key: 'host',
-                        name: 'FORM.HOST' | translate,
-                        content: user_template,
-                    },
-                    {
-                        key: 'title',
-                        name: 'FORM.TITLE' | translate,
-                    },
-                    {
-                        key: 'type',
-                        name: 'COMMON.TYPE' | translate,
-                        content: type_template,
-                        sortable: false,
-                    },
-                    {
-                        key: 'status',
-                        name: 'COMMON.STATUS' | translate,
-                        content: status_template,
-                        sortable: false,
-                    },
-                    {
-                        key: 'actions',
-                        name: ' ',
-                        content: action_template,
-                        size: '3.5rem',
-                        sortable: false,
-                    },
-                ]"
-                [empty_message]="'APP.CONCIERGE.SCHEDULE_EMPTY' | translate"
-                [sortable]="true"
-            ></simple-table>
+        <div class="flex h-full w-full flex-col">
+            <div
+                class="border-base-200 bg-base-100 flex items-center justify-center border-b p-2"
+            >
+                <date-options
+                    [date]="date()"
+                    [step]="period() === 'week' ? 7 : 1"
+                    (dateChange)="setDate($event)"
+                    [is_new]="true"
+                    [hide_today]="true"
+                ></date-options>
+            </div>
+            <div class="min-h-0 flex-1 overflow-auto pb-16">
+                <simple-table
+                    class="block min-w-368 text-sm"
+                    [data]="bookings()"
+                    [columns]="[
+                        {
+                            key: 'date',
+                            name: 'FORM.DATE' | translate,
+                            content: date_template,
+                            size: '4rem',
+                            sortable: false,
+                        },
+                        {
+                            key: 'date',
+                            name: 'FORM.PERIOD' | translate,
+                            content: period_template,
+                            size: '9rem',
+                        },
+                        {
+                            key: 'room_name',
+                            name: 'RESOURCE.ROOM' | translate,
+                        },
+                        {
+                            key: 'host',
+                            name: 'FORM.HOST' | translate,
+                            content: user_template,
+                        },
+                        {
+                            key: 'title',
+                            name: 'FORM.TITLE' | translate,
+                        },
+                        {
+                            key: 'type',
+                            name: 'COMMON.TYPE' | translate,
+                            content: type_template,
+                            sortable: false,
+                        },
+                        {
+                            key: 'status',
+                            name: 'COMMON.STATUS' | translate,
+                            content: status_template,
+                            sortable: false,
+                        },
+                        {
+                            key: 'actions',
+                            name: ' ',
+                            content: action_template,
+                            size: '3.5rem',
+                            sortable: false,
+                        },
+                    ]"
+                    [empty_message]="'APP.CONCIERGE.SCHEDULE_EMPTY' | translate"
+                    [sortable]="true"
+                ></simple-table>
+            </div>
             <ng-template #date_template let-date="data">
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
@@ -192,6 +206,7 @@ import { EventsStateService } from './events-state.service';
         MatMenuModule,
         IconComponent,
         SimpleTableComponent,
+        DateOptionsComponent,
         UserPipe,
     ],
 })
@@ -202,6 +217,12 @@ export class RoomBookingsListComponent {
     public readonly events = toSignal(this._state.filtered, {
         initialValue: [],
     });
+    public readonly date = toSignal(this._state.date, {
+        initialValue: Date.now(),
+    });
+    public readonly period = toSignal(this._state.period, {
+        initialValue: 'day' as const,
+    });
     public readonly spaces = toSignal(this._state.spaces, {
         initialValue: [],
     });
@@ -210,6 +231,7 @@ export class RoomBookingsListComponent {
             .sort((a, b) => a.date - b.date)
             .map((event) => ({
                 ...event,
+                source_event: event,
                 room_name: this.room_name(event),
                 type: event.guests?.length
                     ? 'external'
@@ -219,8 +241,11 @@ export class RoomBookingsListComponent {
             })),
     );
 
-    public readonly edit = (event) => this._state.newBooking(event);
-    public readonly cancel = (event) => this._state.removeBooking(event);
+    public readonly setDate = (date) => this._state.setDate(date);
+    public readonly edit = (event) =>
+        this._state.newBooking(event?.source_event || event);
+    public readonly cancel = (event) =>
+        this._state.removeBooking(event?.source_event || event);
 
     public get time_format() {
         return this._settings.time_format;
