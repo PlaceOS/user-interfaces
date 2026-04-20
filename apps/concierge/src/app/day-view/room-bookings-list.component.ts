@@ -39,7 +39,7 @@ import { EventsStateService } from './events-state.service';
                     },
                     {
                         key: 'host',
-                        name: 'COMMON.HOST' | translate,
+                        name: 'FORM.HOST' | translate,
                         content: user_template,
                     },
                     {
