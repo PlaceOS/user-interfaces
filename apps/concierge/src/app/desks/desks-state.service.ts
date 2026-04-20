@@ -335,7 +335,8 @@ export class DesksStateService extends AsyncHandler {
         else desk_list.push(new_desk);
         if (
             new_desk.assigned_to &&
-            (desk.assigned_to !== new_desk.assigned_to || desk.id !== new_desk.id)
+            (desk.assigned_to !== new_desk.assigned_to ||
+                desk.id !== new_desk.id)
         ) {
             try {
                 await this._checkAssignedDeskLimit(
@@ -347,6 +348,7 @@ export class DesksStateService extends AsyncHandler {
                     error instanceof Error ? error.message : `${error}`,
                 );
                 ref.componentInstance.loading.set(false);
+                ref.close();
                 throw error;
             }
         }
