@@ -4,7 +4,7 @@
     "license": "MIT",
     "scripts": {
         "ng": "nx",
-        "postinstall": "node ./decorate-angular-cli.js && node ./config/version.js",
+        "postinstall": "node ./decorate-angular-cli.js && node ./config/version.js && node ./tools/sync-material-symbols.js",
         "nx": "nx",
         "start": "ng serve",
         "build": "ng build",
