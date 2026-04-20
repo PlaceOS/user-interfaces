@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/jest';
 import { Booking, SettingsService } from '@placeos/common';
 import { SimpleTableComponent } from '@placeos/components';
@@ -61,9 +62,10 @@ describe('ParkingBookingsListComponent', () => {
                           : name === 'app.parking.hide_bay_number'
                             ? hide_bay_number
                             : name === 'app.parking.hide_assign_space'
-                              ? hide_assign_space
-                              : false,
+                               ? hide_assign_space
+                               : false,
                 ),
+                signal: jest.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
             }),
         ],
