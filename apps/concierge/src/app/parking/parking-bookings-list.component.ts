@@ -315,20 +315,24 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                             </button>
                         }
                     }
-                    <button
-                        icon
-                        matRipple
-                        [disabled]="
-                            row.checked_in ||
-                            row.state === 'in_progress' ||
-                            row.status === 'ended' ||
-                            row.instance
-                        "
-                        [matTooltip]="'APP.CONCIERGE.PARKING_EDIT' | translate"
-                        (click)="editReservation(row)"
-                    >
-                        <icon class="text-2xl">edit</icon>
-                    </button>
+                    @if (can_edit()) {
+                        <button
+                            icon
+                            matRipple
+                            [disabled]="
+                                row.checked_in ||
+                                row.state === 'in_progress' ||
+                                row.status === 'ended' ||
+                                row.instance
+                            "
+                            [matTooltip]="
+                                'APP.CONCIERGE.PARKING_EDIT' | translate
+                            "
+                            (click)="editReservation(row)"
+                        >
+                            <icon class="text-2xl">edit</icon>
+                        </button>
+                    }
                 </div>
             </ng-template>
             <div class="h-20 w-full"></div>
@@ -404,6 +408,11 @@ export class ParkingBookingsListComponent
         const { request_filter } = this.options();
         return this.hide_bay_number || this.isRequestFilter(request_filter);
     });
+
+    public readonly can_edit = this._settings.signal(
+        'app.parking.allow_editing',
+        true,
+    );
 
     public get show_request_types() {
         return !!this._settings.get('app.parking.show_requests');

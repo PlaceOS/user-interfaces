@@ -4,7 +4,7 @@ This file provides guidance to coding agents and automated assistants when worki
 
 ## Project Overview
 
-PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 16 frontend applications and shared libraries for common functionality.
+PlaceOS User Interfaces is a monorepo containing multiple Angular applications for workplace management, built with Nx and Angular 20. The repo includes 17 frontend applications and shared libraries for common functionality.
 
 ## Repository Structure
 
@@ -16,7 +16,7 @@ PlaceOS User Interfaces is a monorepo containing multiple Angular applications f
 - **control** - AV/Room control
 - **map-kiosk** - Building location kiosk
 - **visitor-kiosk** - Visitor kiosk interface
-- Additional apps: assistant-panel, enrolment, outlook-addin, redirect, signage, signage-manager, stagehand, survey, timetable
+- Additional apps: app-loader, assistant-panel, enrolment, outlook-addin, redirect, signage, signage-manager, stagehand, survey, timetable
 
 E2E tests use Playwright and live in `apps/<app>/e2e` where present.
 

@@ -130,7 +130,7 @@ const ALLOWED_CALENDAR_ROLES = [
                             <a-date-field
                                 name="date"
                                 formControlName="date_end"
-                                [from]="start_date()"
+                                [from]="start_date"
                                 [to]="end_date()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone()"

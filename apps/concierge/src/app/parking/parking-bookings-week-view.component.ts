@@ -177,7 +177,9 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : isVisibleWaitlisted(booking)
+                                                    : isVisibleWaitlisted(
+                                                            booking
+                                                        )
                                                       ? 'APP.CONCIERGE.PARKING_WAITLISTED'
                                                       : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
                                             ) | translate
@@ -251,24 +253,27 @@ import { ParkingOptions, ParkingStateService } from './parking-state.service';
                                             </button>
                                         }
                                     }
-                                    <button
-                                        icon
-                                        matRipple
-                                        class="h-6 w-6"
-                                        [disabled]="
-                                            booking.checked_in ||
-                                            booking.state === 'in_progress' ||
-                                            booking.status === 'ended' ||
-                                            booking.instance
-                                        "
-                                        [matTooltip]="
-                                            'APP.CONCIERGE.PARKING_EDIT'
-                                                | translate
-                                        "
-                                        (click)="editReservation(booking)"
-                                    >
-                                        <icon class="text-base">edit</icon>
-                                    </button>
+                                    @if (can_edit()) {
+                                        <button
+                                            icon
+                                            matRipple
+                                            class="h-6 w-6"
+                                            [disabled]="
+                                                booking.checked_in ||
+                                                booking.state ===
+                                                    'in_progress' ||
+                                                booking.status === 'ended' ||
+                                                booking.instance
+                                            "
+                                            [matTooltip]="
+                                                'APP.CONCIERGE.PARKING_EDIT'
+                                                    | translate
+                                            "
+                                            (click)="editReservation(booking)"
+                                        >
+                                            <icon class="text-base">edit</icon>
+                                        </button>
+                                    }
                                 </div>
                             </div>
                         }
@@ -383,6 +388,11 @@ export class ParkingBookingsWeekViewComponent
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
         e?.status === 'ended' || !this.canApproveBooking(e);
+
+    public readonly can_edit = this._settings.signal(
+        'app.parking.allow_editing',
+        true,
+    );
 
     public get time_format() {
         return this._settings.time_format;

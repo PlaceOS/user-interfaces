@@ -354,7 +354,10 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
     }
 
     public get formatted_recurrence() {
-        return formatRecurrence(fromBookingRecurrence(this.booking));
+        return formatRecurrence(
+            fromBookingRecurrence(this.booking),
+            this.booking?.date,
+        );
     }
 
     public async ngOnInit() {

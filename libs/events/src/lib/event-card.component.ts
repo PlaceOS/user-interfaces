@@ -255,7 +255,10 @@ export class EventCardComponent extends AsyncHandler implements OnInit {
 
     public readonly recurr_tooltip = computed(() => {
         return (
-            formatRecurrence(fromEventRecurrence(this.event()?.recurrence)) ||
+            formatRecurrence(
+                fromEventRecurrence(this.event()?.recurrence),
+                this.event()?.date,
+            ) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP')
         );
     });

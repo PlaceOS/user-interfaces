@@ -324,6 +324,10 @@ export function formatRecurrence(
         end_date,
         end_instances,
     } = recurrence;
+    const safe_interval = interval > 0 ? interval : 1;
+    const selected_date_obj = new Date(selected_date);
+    const selected_day = selected_date_obj.getDay() as DayIndex;
+    const selected_day_of_month = selected_date_obj.getDate();
 
     const dayNames = [
         'Sunday',
@@ -360,6 +364,20 @@ export function formatRecurrence(
         return n > 1 ? singular + 's' : singular;
     }
 
+    function validWeekdays(days?: Set<DayIndex>): DayIndex[] {
+        if (!days?.size) return [];
+        return Array.from(days)
+            .filter((day) => day >= 0 && day < 7)
+            .sort((a, b) => a - b);
+    }
+
+    function selectedWeek(): WeekIndex {
+        const day = selected_date_obj.getDate();
+        const week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+        if ((week === 4 && day >= 25) || week === 5) return -1;
+        return week as WeekIndex;
+    }
+
     function formatEnd(): string {
         switch (end_type) {
             case 'never':
@@ -382,42 +400,41 @@ export function formatRecurrence(
             result = '';
             break;
         case 'daily':
-            result = `Every ${interval} ${plural(interval, 'day')}`;
+            result = `Every ${safe_interval} ${plural(safe_interval, 'day')}`;
             break;
         case 'weekly': {
             const days =
-                weekdays && weekdays.size
+                validWeekdays(weekdays).length
                     ? formatList(
-                          Array.from(weekdays)
-                              .sort()
-                              .map((d) => dayNames[d]),
+                          validWeekdays(weekdays).map((d) => dayNames[d]),
                       )
-                    : '';
-            result = `Every ${interval} ${plural(interval, 'week')}${
+                    : dayNames[selected_day];
+            result = `Every ${safe_interval} ${plural(safe_interval, 'week')}${
                 days ? ' on ' + days : ''
             }`;
             break;
         }
         case 'monthly': {
-            if (monthly_type === 'day_of_week' && week != null && weekdays) {
+            const recurrence_days = validWeekdays(weekdays);
+            const week_value = week || selectedWeek();
+            if (monthly_type === 'day_of_week') {
                 const days =
-                    weekdays.size > 0
+                    recurrence_days.length
                         ? formatList(
-                              Array.from(weekdays)
-                                  .sort()
-                                  .map((d) => dayNames[d]),
+                              recurrence_days.map((d) => dayNames[d]),
                           )
-                        : '';
-                result = `Every ${interval} ${plural(interval, 'month')} on the ${
-                    weekNames[week]
-                }${days ? ' ' + days : ''}`;
+                        : dayNames[selected_day];
+                const week_name = weekNames[week_value] || weekNames[selectedWeek()];
+                result = `Every ${safe_interval} ${plural(safe_interval, 'month')} on the ${week_name}${days ? ' ' + days : ''}`;
+            } else if (monthly_type === 'day_of_month') {
+                result = `Every ${safe_interval} ${plural(safe_interval, 'month')} on day ${selected_day_of_month}`;
             } else {
-                result = `Every ${interval} ${plural(interval, 'month')}`;
+                result = `Every ${safe_interval} ${plural(safe_interval, 'month')} on day ${selected_day_of_month}`;
             }
             break;
         }
         case 'yearly':
-            result = `Every ${interval} ${plural(interval, 'year')}`;
+            result = `Every ${safe_interval} ${plural(safe_interval, 'year')} on ${format(selected_date_obj, 'd MMM')}`;
             break;
         default:
             result = 'Unsupported recurrence type';

@@ -641,4 +641,37 @@ describe('RecurrenceFieldComponent – date change regression', () => {
             expect(spectator.component.formatted_value()).toBe('');
         });
     });
+
+    describe('formatted_value uses the selected date for all formats', () => {
+        it('formats monthly day_of_month using the selected date', () => {
+            setDate(new Date(2026, 2, 31).valueOf());
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'monthly',
+                interval: 1,
+                monthly_type: 'day_of_month',
+                end_type: 'never',
+            });
+
+            expect(spectator.component.formatted_value()).toBe(
+                'Every 1 month on day 31',
+            );
+        });
+
+        it('formats yearly recurrence using the selected date', () => {
+            setDate(new Date(2026, 2, 31).valueOf());
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'yearly',
+                interval: 1,
+                end_type: 'never',
+            });
+
+            expect(spectator.component.formatted_value()).toBe(
+                'Every 1 year on 31 Mar',
+            );
+        });
+    });
 });

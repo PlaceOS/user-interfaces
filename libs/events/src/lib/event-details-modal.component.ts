@@ -957,7 +957,10 @@ export class EventDetailsModalComponent implements OnInit {
 
     public readonly recurr_tooltip = computed(
         () =>
-            formatRecurrence(fromEventRecurrence(this.event().recurrence)) ||
+            formatRecurrence(
+                fromEventRecurrence(this.event().recurrence),
+                this.event()?.date,
+            ) ||
             i18n('CALENDAR_EVENT.RECURRING_TOOLTIP'),
     );
 

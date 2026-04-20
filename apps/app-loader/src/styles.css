@@ -1,0 +1,137 @@
+@import '../../../shared/styles/tailwind.css';
+
+:root {
+    /* Brand */
+    --brand-100: hsl(336, 57%, 48%);
+    --brand-200: hsl(217, 91%, 60%);
+    --brand-300: hsl(200, 15%, 94%);
+    --brand-400: hsl(336, 57%, 48%);
+    --brand-500: hsl(336, 57%, 48%);
+    --brand-600: hsl(336, 57%, 48%);
+    --brand-content: hsl(0, 0%, 100%);
+
+    /* Primary */
+    --primary: hsl(336, 57%, 48%);
+    --primary-focus: hsl(336, 57%, 38%);
+    --primary-content: hsl(0, 0%, 100%);
+
+    /* Secondary */
+    --secondary: hsl(237, 37%, 20%);
+    --secondary-focus: hsl(237, 37%, 10%);
+    --secondary-content: hsl(0, 0%, 100%);
+
+    /* Ternary */
+    --ternary: hsl(237, 37%, 20%);
+    --ternary-focus: hsl(237, 37%, 10%);
+    --ternary-content: hsl(0, 0%, 100%);
+
+    /* Accent */
+    --accent: hsl(156, 57%, 48%);
+    --accent-focus: hsl(156, 57%, 38%);
+    --accent-content: hsl(0, 0%, 0%);
+
+    /* Neutral */
+    --neutral: hsl(0, 0%, 50%);
+    --neutral-focus: hsl(0, 0%, 40%);
+    --neutral-content: hsl(0, 0%, 100%);
+
+    /* Base */
+    --base-100: hsl(0, 0%, 98.5%);
+    --base-200: hsl(49, 2%, 92%);
+    --base-300: hsl(56, 5%, 71%);
+    --base-400: hsl(58, 7%, 55%);
+    --base-content: hsl(0, 0%, 0%);
+
+    /* Info */
+    --info: hsl(217, 91%, 60%);
+    --info-light: hsl(207, 89%, 94%);
+    --info-content: hsl(214, 100%, 97%);
+
+    /* Warning */
+    --warn: #ffa000;
+    --warn-light: hsl(60, 100%, 95%);
+    --warn-content: hsl(0, 0%, 0%);
+
+    /* Success */
+    --success: hsl(118, 50%, 43%);
+    --success-light: hsl(120, 39%, 94%);
+    --success-content: hsl(152, 81%, 96%);
+
+    /* Error */
+    --error: hsl(354, 75%, 53%);
+    --error-light: hsl(350, 100%, 96%);
+    --error-content: hsl(0, 0%, 100%);
+}
+
+.theme-dark {
+    /* Brand */
+    --brand-100: hsl(336, 57%, 48%);
+    --brand-200: hsl(217, 91%, 60%);
+    --brand-300: hsl(232, 50%, 48%);
+    --brand-400: hsl(336, 57%, 48%);
+    --brand-500: hsl(336, 57%, 48%);
+    --brand-600: hsl(336, 57%, 48%);
+    --brand-content: hsl(0, 0%, 100%);
+
+    /* Primary */
+    --primary: hsl(336, 57%, 48%);
+    --primary-focus: hsl(336, 57%, 38%);
+    --primary-content: hsl(0, 0%, 100%);
+
+    /* Secondary */
+    --secondary: hsl(336, 57%, 48%);
+    --secondary-focus: hsl(336, 57%, 38%);
+    --secondary-content: hsl(0, 0%, 100%);
+
+    /* Ternary */
+    --ternary: hsl(206, 23%, 30%);
+    --ternary-focus: hsl(206, 23%, 24%);
+    --ternary-content: hsl(0, 0%, 80%);
+
+    /* Accent */
+    --accent: hsl(156, 57%, 28%);
+    --accent-focus: hsl(158, 17%, 9%);
+    --accent-content: hsl(0, 0%, 80%);
+
+    /* Neutral */
+    --neutral: hsl(0, 0%, 20%);
+    --neutral-focus: hsl(0, 0%, 15%);
+    --neutral-content: hsl(0, 0%, 80%);
+
+    /* Base */
+    --base-100: hsl(0, 0%, 10%);
+    --base-200: hsl(0, 0%, 15%);
+    --base-300: hsl(0, 0%, 20%);
+    --base-400: hsl(0, 0%, 30%);
+    --base-content: hsl(0, 0%, 80%);
+
+    /* Info */
+    --info: hsl(211, 80%, 42%);
+    --info-light: hsl(206, 90%, 61%);
+    --info-content: hsl(0, 0%, 100%);
+
+    /* Warning */
+    --warn: hsl(34, 100%, 50%);
+    --warn-light: hsl(44, 100%, 65%);
+    --warn-content: hsl(0, 0%, 0%);
+
+    /* Success */
+    --success: hsl(122, 46%, 34%);
+    --success-light: hsl(122, 39%, 57%);
+    --success-content: hsl(0, 0%, 100%);
+
+    /* Error */
+    --error: hsl(0, 66%, 47%);
+    --error-light: hsl(4, 83%, 63%);
+    --error-content: hsl(0, 0%, 100%);
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
