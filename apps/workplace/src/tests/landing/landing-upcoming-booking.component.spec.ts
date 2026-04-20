@@ -4,6 +4,7 @@ import { BookingDetailsModalComponent } from '@placeos/bookings';
 import { Booking, CalendarEvent, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-upcoming-booking.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -53,12 +54,17 @@ describe('LandingUpcomingBookingComponent', () => {
             MockProvider(OrganisationService, {
                 levelWithID: jest.fn(),
                 buildings: [],
+                initialised: new BehaviorSubject(true),
             } as any),
         ],
     });
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
+        jest.spyOn(SpacePipe.prototype, 'transform').mockImplementation(
+            async (id: string) => ({ id }) as any,
+        );
         upcoming_events.next([
             new Booking({
                 id: 'booking-1',
@@ -96,7 +102,7 @@ describe('LandingUpcomingBookingComponent', () => {
         jest.useRealTimers();
     });
 
-    it('should reflect checked in state for room events', () => {
+    it('should reflect checked in state for room events', async () => {
         upcoming_events.next([
             new CalendarEvent({
                 id: 'event-1',
@@ -107,11 +113,34 @@ describe('LandingUpcomingBookingComponent', () => {
                 system: { id: 'sys-1' },
             } as any),
         ]);
+        await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.component.room_status.set('busy');
 
         spectator.detectChanges();
 
         expect(spectator.component.isCheckedIn()).toBe(true);
         expect(spectator.query('button[btn]')).toBeDisabled();
+    });
+
+    it('should resolve the room system id like the details modal', async () => {
+        const transform_spy = SpacePipe.prototype
+            .transform as jest.MockedFunction<any>;
+        transform_spy.mockResolvedValue({ id: 'room-system-1' } as any);
+        upcoming_events.next([
+            new CalendarEvent({
+                id: 'event-2',
+                title: 'Room Booking',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+                system: { id: 'calendar-resource-id' },
+            } as any),
+        ]);
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        spectator.detectChanges();
+
+        expect(transform_spy).toHaveBeenCalledWith('calendar-resource-id');
+        expect(spectator.component.room_system_id()).toBe('room-system-1');
     });
 });

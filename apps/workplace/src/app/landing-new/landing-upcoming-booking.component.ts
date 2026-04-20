@@ -30,6 +30,7 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
+import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
 import { LandingStateService } from '../landing/landing-state.service';
@@ -262,9 +263,11 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
     private _router = inject(Router);
+    private _space_pipe = new SpacePipe(this._org);
 
     public readonly upcomingEvents = toSignal(this._state.upcoming_events);
     public readonly room_status = signal('');
+    public readonly room_system_id = signal('');
 
     public readonly edit_fn = (i) => this._schedule.edit(i);
     public readonly edit_booking_fn = (i) => this._schedule.editBooking(i);
@@ -274,16 +277,6 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     public readonly nextEvent = computed(() => {
         const events = this.upcomingEvents();
         return events?.[0];
-    });
-
-    public readonly room_system_id = computed(() => {
-        const event = this.nextEvent();
-        if (
-            !(event instanceof CalendarEvent) ||
-            event.extension_data?.shared_event
-        )
-            return '';
-        return event.space?.id || event.system?.id || '';
     });
 
     public readonly canCheckin = computed(() => {
@@ -373,10 +366,19 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     constructor() {
         super();
         this.subscription(
-            'reset_room_status',
-            this._state.upcoming_events.subscribe(() =>
-                this.room_status.set(''),
-            ),
+            'sync_room_status',
+            this._state.upcoming_events.subscribe((events) => {
+                this.room_status.set('');
+                this.room_system_id.set('');
+                const event = events?.[0];
+                if (
+                    !(event instanceof CalendarEvent) ||
+                    event.extension_data?.shared_event
+                ) {
+                    return;
+                }
+                this._resolveRoomSystem(event);
+            }),
         );
     }
 
@@ -403,8 +405,10 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                     system_id: event.system?.id,
                 }).toPromise();
             } else {
+                const room_id =
+                    this.room_system_id() || event.space?.id || event.system?.id;
                 const mod = getModule(
-                    event.space?.id || event.system?.id,
+                    room_id,
                     'Bookings',
                 );
                 if (!mod) throw new Error('Missing bookings module');
@@ -517,5 +521,18 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
 
     public findColleagues() {
         this._router.navigate(['/explore']);
+    }
+
+    private async _resolveRoomSystem(event: CalendarEvent) {
+        const lookup_id =
+            event.system?.id ||
+            event.system?.email ||
+            event.resources?.[0]?.id ||
+            event.resources?.[0]?.email ||
+            '';
+        if (!lookup_id) return;
+        const space = await this._space_pipe.transform(lookup_id);
+        if (this.nextEvent()?.id !== event.id) return;
+        this.room_system_id.set(space?.id || event.system?.id || '');
     }
 }
