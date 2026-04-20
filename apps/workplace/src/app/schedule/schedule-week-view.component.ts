@@ -48,14 +48,17 @@ interface Weekday {
 @Component({
     selector: `schedule-week-view`,
     template: `
-        <div #scrollContainer class="h-full w-full overflow-auto">
+        <div
+            #scrollContainer
+            class="h-full w-full snap-x snap-mandatory overflow-auto"
+        >
             <div class="m-2">
                 <div class="grid w-full min-w-[87.5rem] grid-cols-7 gap-2">
                     @for (day of weekdays(); track day.id) {
                         <div
                             #dayColumn
                             header
-                            class="flex items-center justify-center space-x-2 py-2"
+                            class="flex snap-start items-center justify-center space-x-2 py-2"
                             [attr.data-is-today]="day.is_today"
                         >
                             <div
@@ -84,7 +87,7 @@ interface Weekday {
                     @for (day of weekdays(); track day.id) {
                         <div
                             body
-                            class="border-base-300 bg-base-100 flex min-h-[calc(100vh-15rem)] flex-col space-y-2 rounded-xl border p-2"
+                            class="border-base-300 bg-base-100 flex min-h-[calc(100vh-15rem)] snap-start flex-col space-y-2 rounded-xl border p-2"
                             [class.opacity-30]="day.is_past"
                         >
                             @for (
@@ -238,8 +241,11 @@ export class ScheduleWeekViewComponent {
 
     public readonly weekdays = computed(() => {
         const days: Weekday[] = [];
+        const week_start = startOfWeek(this.date(), {
+            weekStartsOn: this._state.offset_weekday,
+        });
         for (let i = 0; i < 7; i++) {
-            const date = addDays(startOfWeek(this.date()), i);
+            const date = addDays(week_start, i);
             days.push({
                 id: format(date, 'yyyy-MM-dd'),
                 date: date.valueOf(),
@@ -272,7 +278,9 @@ export class ScheduleWeekViewComponent {
             status === 'tentative' &&
             booking instanceof Booking &&
             booking.booking_type === 'parking' &&
-            isSameWeek(Date.now(), booking.date)
+            isSameWeek(Date.now(), booking.date, {
+                weekStartsOn: this._state.offset_weekday,
+            })
         ) {
             return 'waitlisted';
         }
