@@ -193,8 +193,8 @@ nx migrate --run-migrations
 
 ## Other
 
-- After you finish making changes make sure all the apps build with `npm run build-all`
-- After you finish making changes make sure all the tests pass with `npm run test-all`
+- After you finish making changes make sure all the affected apps build
+- After you finish making changes make sure all the tests pass on the affected apps/libs
 - If you get error `NX   Failed to start plugin worker.` try again with `NX_ISOLATE_PLUGINS=false` prepended.
 
 ## Code Styles
